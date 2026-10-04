@@ -1,5 +1,5 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-const VERSION = 'v55-2026-10-04-final';
+const VERSION = 'v55-2026-10-04-final2';
 const CACHE = 'ladder-' + VERSION;
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg'];
@@ -20,7 +20,9 @@ self.addEventListener('fetch', e => {
   if (/(^|\.)(googleapis|firebaseapp|google|firebaseio)\.com$/.test(url.hostname) || url.pathname.startsWith('/__/')) return;
   if (url.pathname.endsWith('.mp4') || req.headers.has('range')) return;
   /* the app page: newest from the network, cached copy when offline */
-  if (req.mode === 'navigate' || (url.origin === location.origin && url.pathname.endsWith('/index.html'))) {
+  const isApp = url.origin === location.origin && (url.pathname.endsWith('/') || url.pathname.endsWith('/index.html'));
+  if (req.mode === 'navigate' && !isApp) return;   /* other pages (guide.html) go straight to the network */
+  if (isApp) {
     e.respondWith(fetch(req).then(r => { const c = r.clone(); caches.open(CACHE).then(x => x.put('index.html', c)); return r; })
       .catch(() => caches.match('index.html')));
     return;
