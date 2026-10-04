@@ -53,7 +53,7 @@ button.danger{background:transparent;color:var(--dn);border:1px solid color-mix(
 
 /* ranking */
 .rk{position:relative;display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:12px;isolation:isolate}
-.rk+.rk{margin-top:2px}
+.rk+.rk{margin-top:6px}
 .rk.hi{background:linear-gradient(90deg,color-mix(in srgb,var(--mg) 16%,transparent),transparent 72%)}
 .rk.sw::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(105deg,transparent 42%,color-mix(in srgb,var(--ml) 16%,transparent) 50%,transparent 58%);background-size:260% 100%;animation:sweep 4s linear infinite;z-index:-1}
 .no{width:20px;text-align:center;font:600 18px/1 var(--num);color:var(--mut);flex:none}
@@ -1098,7 +1098,9 @@ body.ovl main video{visibility:hidden}
 .sn span{color:var(--mut);font-size:12px;white-space:nowrap}.sn.on span{color:#4fd18b}
 .sn small{color:var(--mut);font-size:10.5px;white-space:nowrap}.sn small.old{color:#ff9a6b}
 /* ---- ranking rows with a background item ---- */
-.rk.rkbg{box-shadow:inset 0 0 0 1px #ffffff1a;border:0!important}
+.rk,.rk.lo,.rk.hi{background-color:#ffffff08}
+.rk.rkbg{box-shadow:inset 0 0 0 1px #ffffff1a;border:0!important;padding:10px 8px!important}
+.rk.rkbg>.bgl{z-index:-2}
 .rk.rkbg .pn,.rk.rkbg .sub,.rk.rkbg .rt,.rk.rkbg .no{text-shadow:0 1px 4px #000d}
 .rk.rkbg::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,#0009,#0003 55%,#0006);z-index:-1;pointer-events:none}
 /* ---- KMR picker (limited-pack ceiling ticket) ---- */
@@ -1154,7 +1156,7 @@ textarea{font:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(
 <header class="hd"><div class="eyebrow">KIMOOTA LADDER</div><h1 id="vtitle">きもオタレート</h1></header>
 <div class="tabs" id="gtabs"></div>
 <section id="offline" hidden><div class="empty">サーバーに接続できません。電波のいい場所でアプリを開き直してください。</div></section>
-<div class="view" id="v-home"><button id="ftick" class="ftick" hidden></button><section id="devmsg" class="devmsg" hidden></section><div id="sban" class="sban"></div><div id="gwban" class="gwban" hidden></div><section id="myrank" class="myc" hidden></section>
+<div class="view" id="v-home"><button id="ftick" class="ftick" hidden></button><section id="grantmsg" class="devmsg" hidden></section><section id="devmsg" class="devmsg" hidden></section><div id="sban" class="sban"></div><div id="gwban" class="gwban" hidden></div><section id="myrank" class="myc" hidden></section>
 <section><h2 id="rt">ランキング</h2><div id="rank"><div class="empty">まだプレイヤーがいません。最初の画面で登録すると、ここに並びます。</div></div></section>
 <section id="predsec" hidden><h2>勝敗予想</h2><div id="predlist"></div></section>
 <section id="dmis" hidden><div class="dmhd"><h2>今日のお題</h2><span id="dmsub"></span></div><div id="dmlist" class="dmchips"></div><button id="dmclaim" style="width:100%;margin-top:10px" disabled>3つクリアで100pt</button></section>
@@ -1741,7 +1743,7 @@ function rollLimPack(set,pity){
   }
   return out;
 }
-const WILD=300;   /* every 300 limited packs: a ticket for any KMR */
+const WILD=350;   /* every 350 limited packs: a ticket for one of the limited KMRs */
 const wildLeft=()=>Math.floor((inv.lpacks||0)/WILD)-(inv.wused||0);
 const tkItem=ki=>{const K=KMRS[ki];return{id:'tk'+ki,k:'tk',r:5,n:K.n,K,tk:ki,...(K.lim?{lim:K.lim}:{})}};
 /* ticket chooser: owned = inv.own, redeem(id) returns a promise */
@@ -1761,7 +1763,7 @@ function kmrPicker(){
   const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id||wildLeft()<1)return;
   if(document.querySelector('.kpko'))return;
   const o=el('div','ae col tkv kpko'),box=el('div','aebox'),g=el('div','kpk');o.style.zIndex=101;
-  const hd=el('div','hd');hd.append(el('div','eyebrow','KMR CEILING TICKET'),el('h1',null,'好きな限定KMRを選ぶ'),el('div','sub','限定ガチャ300パックのごほうびです。限定KMRの中からイラストを選んだあと、アイコン・対戦演出・勝利演出から1つ受け取れます。'));
+  const hd=el('div','hd');hd.append(el('div','eyebrow','KMR CEILING TICKET'),el('h1',null,'好きな限定KMRを選ぶ'),el('div','sub','限定ガチャ350パックのごほうびです。限定KMRの中からイラストを選んだあと、アイコン・対戦演出・勝利演出から1つ受け取れます。'));
   KMRS.forEach((K,ki)=>{if(!K.lim)return;const b=el('button'),im=el('img');im.src=K.img;im.alt=K.n;im.loading='lazy';b.append(im,el('span',null,K.n));if(K.lim)b.append(el('small',null,'限定'));
     b.onclick=()=>{o.remove();ticketView(ki,inv.own||{},async id=>{
       if(wildLeft()<1)throw new Error('none');
@@ -2533,7 +2535,7 @@ function render(){
   sorted.forEach((p,i)=>{
     if(i>=5&&!HM.rank)return;
     const ti=tidx(p.rating),T=TN(ti),r=mvars(el('div','rk'+(ti>=3?' hi':' lo')+(ti>=5?' sw':'')),ti);
-    {const bi=p.eq&&p.eq.b&&ITEM(p.eq.b);if(bi&&bi.k==='b')r.classList.add('pb-'+bi.v,'rkbg')}
+    {const bi=p.eq&&p.eq.b&&ITEM(p.eq.b);if(bi&&bi.k==='b'){r.classList.add('pb-'+bi.v,'rkbg');bgLayer(r,bi.v)}}
     r.append(el('div','no'+(i===0?' no1':''),String(i+1)),mkFrame(p,ti));
     const n=el('div','nm'),sb=el('div','sub tierline');
     sb.append(emblem(ti,16),el('span',null,RN(p.rating)),el('span',null,'·  '+p.wins+'勝 '+p.losses+'敗'));
@@ -2544,7 +2546,7 @@ function render(){
   });
   if(sorted.length>5){const mb=el('button','more',HM.rank?'閉じる':'もっと見る(全'+sorted.length+'人)');mb.onclick=()=>{HM.rank=!HM.rank;render()};rk.append(mb)}
   rk.querySelectorAll('[data-pid]').forEach(e=>{e.style.cursor='pointer';e.onclick=()=>{const q=players.find(x=>x.id===e.dataset.pid);if(q)showProfile(q,statLine(q))}});
-  renderMine();renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();seasonNotice();checkOnboard();renderAdmin();renderBanned();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews()}$('acct').hidden=!myPlayer();
+  renderMine();renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderGrantMsg();seasonNotice();checkOnboard();renderAdmin();renderBanned();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews()}$('acct').hidden=!myPlayer();
   {const me=myPlayer();$('pcard').replaceChildren(me?profileCard(me,statLine(me)):el('div','empty','アカウントを設定すると、ここにプロフィールが出ます'));$('pedit').hidden=!me}
   if(typeof watchInv==='function'){watchInv();renderGacha()}
   {const s=$('opp'),v=s.value,me=myPlayer();s.replaceChildren();
@@ -2714,7 +2716,7 @@ const RX=[['w','草'],['o','おめ'],['k','神'],['d','ドンマイ'],['z','ず�
 const FK={kmr:'KMR',gr:'GR',up:'昇格',streak:'連勝',geko:'下剋上',gold:'豪華宝箱',pred:'予想的中'};
 function post(id,k,p,n,x,g){const me=myPlayer();if(!db||!me)return;db.doc('feed/'+id).set({t:now(),k,by:me.id,p,n,x:String(x).slice(0,140),r:{},...(g?{g}:{})}).catch(()=>{})}
 function feedPull(cards,label){
-  const me=myPlayer();if(!me)return;const top=cards.filter(c=>c.r>=4).sort((a,b)=>b.r-a.r)[0];if(!top)return;
+  const me=myPlayer();if(!me||isAdmin())return;   /* the developer's own pulls are not announced */const top=cards.filter(c=>c.r>=4).sort((a,b)=>b.r-a.r)[0];if(!top)return;
   const kmr=top.r===5,nm=top.K?top.K.n:top.n,id='g_'+me.id+'_'+now();
   setTimeout(()=>post(id,kmr?'kmr':'gr',me.id,me.name,me.name+'が'+label+'で'+(kmr?'KMR「'+nm+'」':'GR「'+nm+'」')+'を引いた'+(kmr?'!!':'!')),8000);
 }
@@ -2926,7 +2928,7 @@ function renderLim(){
   const byR='';
   det.innerHTML='<summary>限定パックの中身と排出率</summary><table><tr><th></th><th>1〜4枚目</th><th>5枚目(R以上確定)</th></tr>'+
     RAR.map((x,i)=>'<tr><td class="r'+i+'">'+x.k+'</td><td>'+LRATE[i]+'%</td><td>'+(LRATE_G[i]?LRATE_G[i]+'%':'—')+'</td></tr>').join('')+
-    '</table><p>1パック5枚・'+LPACK+'pt。通常より高レア率。SR・URは半分の確率で限定アイテム、<b>GR以上は必ず限定アイテム</b>です(N・Rは通常アイテム)。限定パックを300パック開けるごとに<b>好きな限定KMRの選択チケット</b>が1枚もらえます。KMRは必ず限定KMRです。限定KMR「ひだまりニット」「はなかんむり」「堕ちた天使」はこのパックでしか出ません。KMRは選択チケットになり、アイコン・対戦演出・勝利演出から1つ選べます。GR確定までのカウントは通常パックと共通です。</p>'+byR+'<p>限定アイテムはかけらとの交換はできません。</p>';
+    '</table><p>1パック5枚・'+LPACK+'pt。通常より高レア率。SR・URは半分の確率で限定アイテム、<b>GR以上は必ず限定アイテム</b>です(N・Rは通常アイテム)。限定パックを350パック開けるごとに<b>好きな限定KMRの選択チケット</b>が1枚もらえます。KMRは必ず限定KMRです。限定KMR「ひだまりニット」「はなかんむり」「堕ちた天使」はこのパックでしか出ません。KMRは選択チケットになり、アイコン・対戦演出・勝利演出から1つ選べます。GR確定までのカウントは通常パックと共通です。</p>'+byR+'<p>限定アイテムはかけらとの交換はできません。</p>';
   {/* every limited item, tap to preview */
     det.append(el('p','limph','限定アイテム一覧(タップでプレビュー)'));const g=el('div','limgrid');
     set.slice().sort((a,b)=>b.r-a.r).forEach(it=>{const c=el('button','limcell');c.append(cardFace(it),el('span','limk',KIND[it.k]));c.onclick=()=>previewAny(it);g.append(c)});det.append(g);
@@ -2952,7 +2954,7 @@ async function openLimPack(){
   opening=true;renderGacha();
   const cards=rollLimPack(banner.set,(inv.since||0)+1>=PITY),{inv:n,res}=applyPack(inv,cards,true);
   const wasW=Math.floor(((n.lpacks||1)-1)/WILD);
-  try{await db.doc('inv/'+me.id).set(n);inv=n;opening=false;renderGacha();feedPull(cards,LIMS[banner.set].name);if(Math.floor(n.lpacks/WILD)>wasW)setTimeout(()=>toast('300パック達成! 好きな限定KMR選択チケットをゲット(パック画面の下から使えます)'),1200);openPackView(res,balance(me.id)>=LPACK&&limActive()?openLimPack:null,'LIMITED PACK',LIMS[banner.set].theme);return}
+  try{await db.doc('inv/'+me.id).set(n);inv=n;opening=false;renderGacha();feedPull(cards,LIMS[banner.set].name);if(Math.floor(n.lpacks/WILD)>wasW)setTimeout(()=>toast('350パック達成! 好きな限定KMR選択チケットをゲット(パック画面の下から使えます)'),1200);openPackView(res,balance(me.id)>=LPACK&&limActive()?openLimPack:null,'LIMITED PACK',LIMS[banner.set].theme);return}
   catch(e){toast('開けませんでした')}
   opening=false;renderGacha();
 }
@@ -3100,9 +3102,19 @@ function grantNotice(){
   /* first run on this device: only grants from now on are announced */
   if(!seenT){try{localStorage.setItem('gseen_'+me.id,now())}catch(e){}return}
   const mine=grants.filter(g=>g.pid===me.id&&((g.kind||'pt')==='pt'||g.kind==='buy')&&g.t>seenT);if(!mine.length)return;
-  try{localStorage.setItem('gseen_'+me.id,Math.max(...mine.map(g=>g.t)))}catch(e){}
-  const sum=mine.reduce((a,g)=>a+(+g.pt||0),0),nt=mine.find(g=>g.note);
-  toast('管理者から '+(sum>0?'+':'')+sum+'pt'+(nt?'  ·  '+nt.note:''));
+  if(typeof renderGrantMsg==='function')renderGrantMsg();
+}
+/* unseen points from the admin stay on the home screen until the player taps OK */
+function renderGrantMsg(){
+  const card=$('grantmsg'),me=myPlayer();if(!card)return;
+  let seenT=0;try{seenT=+localStorage.getItem('gseen_'+(me&&me.id))||0}catch(e){}
+  const mine=me&&seenT?grants.filter(g=>g.pid===me.id&&((g.kind||'pt')==='pt'||g.kind==='buy')&&g.t>seenT).sort((a,b)=>b.t-a.t):[];
+  card.hidden=!mine.length;if(!mine.length)return;
+  const sum=mine.reduce((a,g)=>a+(+g.pt||0),0),L=el('div','dmx');
+  mine.slice(0,4).forEach(g=>{const ln=el('div');ln.textContent=(g.pt>0?'+':'')+g.pt+'pt'+(g.kind==='buy'?'(購入)':'')+(g.note?'  ·  '+g.note:'');L.append(ln)});
+  const f=el('div','dmf'),ok=el('button',null,'確認した');ok.onclick=()=>{try{localStorage.setItem('gseen_'+me.id,Math.max(...mine.map(g=>g.t)))}catch(e){}renderGrantMsg()};
+  f.append(el('span','sub',ago(mine[0].t)),ok);
+  card.replaceChildren(el('div','dmk','FROM ADMIN'),el('h3',null,'管理者から '+(sum>0?'+':'')+sum+'pt 届きました'),L,f);
 }
 function admSetMode(v){admMode=v;$('admModeG').classList.toggle('on',v>0);$('admModeT').classList.toggle('on',v<0);document.querySelector('.admseg').classList.toggle('take',v<0);admList()}
 $('admModeG').onclick=()=>admSetMode(1);$('admModeT').onclick=()=>admSetMode(-1);
@@ -3126,7 +3138,7 @@ const NEWS=[
  ['ポイント購入',['購入したポイントはガチャ専用。賭けや予想に使えるのは、対戦やお題でもらったポイントだけ']],
  ['ランクごとの見た目',['ランクが上がるほど名前が豪華に。シルバーで光が走り、ゴールドからキラキラ、ダイヤでオーラ、マスターは王冠付き','ランクごとの「ランク称号」(崖っぷちオタク〜オタクの頂点)も付く','ランキング・プロフィール・対戦画面・タイムラインに出る。見本はホームの「ランクの一覧」から']],
  ['対戦開始の演出',['自分の画面には、自分が装備している対戦演出が出るように']],
- ['限定ガチャ',['Vtuberガチャで出るGRは、必ず限定GR(赤スパ・伝説回・コメントの海)に','限定ガチャの天井: 300パック開けるごとに「好きな限定KMRの選択チケット」が1枚(パック画面の下から使える)']],
+ ['限定ガチャ',['Vtuberガチャで出るGRは、必ず限定GR(赤スパ・伝説回・コメントの海)に','限定ガチャの天井: 350パック開けるごとに「好きな限定KMRの選択チケット」が1枚(パック画面の下から使える)']],
  ['開発者とやりとり',['開発者からのお知らせがホームとプロフィールに出るように','プロフィールの「開発者に要望を送る」から、要望やバグ報告を送れる(開発者だけが読めます)']],
  ['ランキングに背景',['着せ替えで付けた背景が、ランキングの自分の行にも出るように']],
  ['ホームをすっきり',['ランキングとタイムラインは上から数件だけ表示。「もっと見る」で全部見られる','お題と週間MVPをコンパクトに']]
