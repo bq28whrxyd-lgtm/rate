@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>カードゲーム レート表</title>
+<title>きもオタレート</title>
 <meta name="theme-color" content="#0b0d12">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="レート表">
+<meta name="apple-mobile-web-app-title" content="きもオタレート">
 <script>window.fbReady=new Promise(r=>{window.__fbResolve=r});</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -397,6 +397,9 @@ button.danger{background:transparent;color:var(--dn);border:1px solid color-mix(
 .gcf{color:var(--fg)}
 #gacha .row{flex-wrap:wrap}#gacha .row button{min-width:136px;white-space:nowrap}
 @media (max-width:360px){.tab{font-size:12.5px;letter-spacing:0;white-space:nowrap}}
+#gtabs{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#gtabs::-webkit-scrollbar{display:none}
+#gtabs .tab{flex:1 1 0;min-width:max-content;padding:10px 16px;white-space:nowrap}
 
 /* ===== effect skins: signature layers ===== */
 .intro.skin{overflow:hidden}
@@ -503,7 +506,7 @@ main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .pct .ef{--es:84px;flex:none}
 .pctx{display:flex;flex-direction:column;gap:6px;min-width:0;align-items:flex-start}
 .pcn{font-weight:700;font-size:22px;line-height:1.2;text-shadow:0 2px 8px #000a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
-.pcg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pcg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pcg>.pcgi:only-child{grid-column:1/-1}
 .pcgi{background:#0b0d12b3;border:1px solid color-mix(in srgb,var(--mg) 40%,var(--line));border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .pcgh{display:flex;align-items:center;gap:8px}
 .pcgn{font-size:10.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -959,6 +962,7 @@ body{min-height:100vh;min-height:100dvh}
 .newsb{width:100%;max-width:520px;max-height:86vh;max-height:86dvh;overflow:auto;background:linear-gradient(180deg,#1a1f2b,#0f1219);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;padding:20px 18px calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;flex-direction:column;gap:10px;animation:rise .35s ease-out both}
 .newsb h2{margin:2px 0 4px;font:900 22px/1.3 var(--body);text-transform:none;letter-spacing:0;color:var(--fg)}
 .newss{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.newsold{display:flex;flex-direction:column;gap:10px}.newsold>summary{cursor:pointer;color:var(--mut);font-size:13px;padding:6px 2px}.newsold[open]>summary{margin-bottom:8px}.newsold>.newss+.newss{margin-top:10px}
 .newss h3{margin:0 0 6px;font:700 15px/1.3 var(--body);color:var(--gold-l)}
 .newss ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:13.5px;line-height:1.5;color:var(--fg)}
 .newsb>button{width:100%;margin-top:4px}
@@ -981,19 +985,40 @@ button:not(:disabled):active{transform:scale(.97);opacity:.88}
 .cgrid .bgl,.limgrid .bgl,.lfeat .bgl{display:none}
 body.ovl main *,body.ovl main *::before,body.ovl main *::after{animation-play-state:paused!important}
 body.ovl main video{visibility:hidden}
+/* ---- opening splash (once per launch, tap to skip) ---- */
+#splash{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:radial-gradient(90% 60% at 50% 42%,#231c36,#0b0d12 70%);transition:opacity .45s var(--ease)}
+#splash.out{opacity:0;pointer-events:none}
+#splash .spw{display:flex;flex-direction:column;align-items:center;gap:18px;transition:transform .45s var(--ease)}
+#splash.out .spw{transform:scale(1.06)}
+#splash svg{width:min(62vw,260px);height:auto;overflow:visible}
+#splash .sp-gl{transform-box:fill-box;transform-origin:center;animation:spIn .6s cubic-bezier(.2,1.3,.4,1) both}
+#splash .sp-cr{transform-box:fill-box;transform-origin:center bottom;animation:spCr .5s .55s cubic-bezier(.2,1.5,.4,1) both}
+#splash .sp-ln{stroke-dasharray:260;stroke-dashoffset:260;animation:spLn .55s .35s ease-out forwards}
+#splash .sp-sw{transform:translateX(-200px);animation:spSw .55s .95s ease-in-out forwards}
+#splash .sp-st{transform-box:fill-box;transform-origin:center;transform:scale(0);animation:spSt .5s 1.2s cubic-bezier(.2,1.6,.4,1) forwards}
+#splash .sp-k{font:700 12px/1 var(--display);letter-spacing:.42em;color:var(--gold);opacity:0;animation:spTx .5s .9s var(--ease) forwards}
+#splash .sp-n{font-weight:900;font-size:30px;letter-spacing:.06em;color:#f3eee2;opacity:0;animation:spTx .5s 1s var(--ease) forwards}
+@keyframes spIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+@keyframes spCr{from{opacity:0;transform:translateY(-40px) scale(.8)}to{opacity:1;transform:none}}
+@keyframes spLn{to{stroke-dashoffset:0}}
+@keyframes spSw{to{transform:translateX(220px)}}
+@keyframes spSt{50%{transform:scale(1.3) rotate(45deg)}to{transform:scale(1) rotate(90deg)}}
+@keyframes spTx{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#splash *{animation-duration:.01s!important;animation-delay:0s!important}}
+
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
 #login h1{margin:4px 0 0}#login button{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px}
 #login .gmark{width:20px;height:20px;background:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font:700 13px/1 Arial,sans-serif;color:#4285f4}
 .utoast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 86px);transform:translateX(-50%);z-index:150;background:var(--gold);color:#1a1205;font-weight:700;border-radius:12px;padding:12px 18px;box-shadow:0 10px 30px #000a;cursor:pointer;white-space:nowrap}
 </style></head>
-<body>
-<div id="login" hidden><div class="lx"><div class="eyebrow">CARD GAME LADDER</div><h1>カードゲーム レート表</h1>
+<body><div id="splash" role="presentation"><div class="spw"><svg viewBox="40 90 432 300" aria-hidden="true"><defs><linearGradient id="spg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7e3a6"/><stop offset=".5" stop-color="#d9b55e"/><stop offset="1" stop-color="#9c7630"/></linearGradient><radialGradient id="spl" cx="40%" cy="35%" r="80%"><stop offset="0" stop-color="#3b2a52"/><stop offset="1" stop-color="#120f1c"/></radialGradient><clipPath id="spc152"><circle cx="152" cy="292" r="80"/></clipPath><clipPath id="spc360"><circle cx="360" cy="292" r="80"/></clipPath></defs><path class="sp-cr" d="M196 116 L222 160 L256 104 L290 160 L316 116 L306 186 L206 186 Z" fill="url(#spg)" stroke="#f7e3a6" stroke-width="3" stroke-linejoin="round"/><g class="sp-gl"><path d="M70 262 Q60 250 82 248" fill="none" stroke="url(#spg)" stroke-width="16" stroke-linecap="round"/><path d="M442 262 Q452 250 430 248" fill="none" stroke="url(#spg)" stroke-width="16" stroke-linecap="round"/><path d="M226 278 Q256 252 286 278" fill="none" stroke="url(#spg)" stroke-width="16" stroke-linecap="round"/><circle cx="152" cy="292" r="86" fill="url(#spl)"/><g clip-path="url(#spc152)"><polyline class="sp-ln" points="66,344 102,322 130,332 162,296 186,306 238,246" fill="none" stroke="#ff5c93" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/><g class="sp-sw"><rect x="112" y="160" width="30" height="270" fill="#fff" opacity=".6" transform="rotate(38 152 292)"/><rect x="150" y="160" width="10" height="270" fill="#fff" opacity=".45" transform="rotate(38 152 292)"/></g></g><circle cx="152" cy="292" r="86" fill="none" stroke="url(#spg)" stroke-width="20"/><circle cx="360" cy="292" r="86" fill="url(#spl)"/><g clip-path="url(#spc360)"><polyline class="sp-ln" points="274,344 310,322 338,332 370,296 394,306 446,246" fill="none" stroke="#ff5c93" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"/><g class="sp-sw"><rect x="320" y="160" width="30" height="270" fill="#fff" opacity=".6" transform="rotate(38 360 292)"/><rect x="358" y="160" width="10" height="270" fill="#fff" opacity=".45" transform="rotate(38 360 292)"/></g></g><circle cx="360" cy="292" r="86" fill="none" stroke="url(#spg)" stroke-width="20"/></g><path class="sp-st" d="M420 196 l6 16 l16 6 l-16 6 l-6 16 l-6 -16 l-16 -6 l16 -6z" fill="#fff6d8"/></svg><div class="sp-k">KIMOOTA LADDER</div><div class="sp-n">きもオタレート</div></div></div>
+<div id="login" hidden><div class="lx"><div class="eyebrow">KIMOOTA LADDER</div><h1>きもオタレート</h1>
 <div class="sub">Googleアカウントでログインします。次からは自動でログインされます。</div>
 <button id="gLogin"><span class="gmark">G</span>Googleでログイン</button><div id="lgErr" class="sub" style="min-height:18px"></div></div></div>
 <main>
-<header class="hd"><div class="eyebrow">CARD GAME LADDER</div><h1 id="vtitle">カードゲーム レート表</h1></header>
-<div class="tabs" id="gtabs"><button class="tab" data-g="ygo">遊戯王</button><button class="tab" data-g="dm">デュエル・マスターズ</button></div>
+<header class="hd"><div class="eyebrow">KIMOOTA LADDER</div><h1 id="vtitle">きもオタレート</h1></header>
+<div class="tabs" id="gtabs"></div>
 <section id="offline" hidden><div class="empty">サーバーに接続できません。電波のいい場所でアプリを開き直してください。</div></section>
 <div class="view" id="v-home"><div id="sban" class="sban"></div><section id="myrank" class="myc" hidden></section>
 <section><h2 id="rt">ランキング</h2><div id="rank"><div class="empty">まだプレイヤーがいません。最初の画面で登録すると、ここに並びます。</div></div></section>
@@ -1015,7 +1040,7 @@ body.ovl main video{visibility:hidden}
 <tr><td class="r0">N</td><td>59.95%</td><td>—</td></tr><tr><td class="r1">R</td><td>30%</td><td>79.95%</td></tr><tr><td class="r2">SR</td><td>8%</td><td>15.5%</td></tr><tr><td class="r3">UR</td><td>1.7%</td><td>4.2%</td></tr><tr><td class="r4">GR</td><td>0.3%</td><td>0.3%</td></tr><tr><td class="r5">KMR</td><td>0.05%</td><td>0.05%</td></tr></table>
 <p>1パック5枚・100pt。100パック開けるまでにGRが出なければ、100パック目の5枚目はGR確定。</p>
 <p>対戦で勝つと宝箱がもらえます。中身は 10pt(24%) / 30pt(30%) / 50pt(24%) / 70pt(8%) / 100pt(6%) / 通常パックチケット1枚(8%)。負けると0pt。その日の初対戦は+20pt。最初に300ptもらえます。</p>
-<p>シーズン(30日)が終わると最終ランクに応じてポイント: クズ30 / ブロンズ50 / シルバー100 / ゴールド150 / プラチナ250 / ダイヤ350 / マスター500(2つのゲームのうち高い方)。</p>
+<p>シーズン(30日)が終わると最終ランクに応じてポイント: クズ30 / ブロンズ50 / シルバー100 / ゴールド150 / プラチナ250 / ダイヤ350 / マスター500(全ジャンルのうち一番高いランク)。</p>
 <p>KMRが出ると、そのイラストの「選択チケット」になります。アイコン・対戦演出・勝利演出の中から好きな1つと交換できます。</p>
 <p>かぶったカードはかけらになり、コレクションで欲しいものと交換できます。</p><div id="gcheer"></div></details></section>
 <section id="tixsec" hidden><h2>KMR選択チケット</h2><div id="gtix"></div><div id="gtix0" class="sub">まだチケットはありません。パックでKMRが出ると、そのイラストの選択チケットがもらえます。</div></section></div>
@@ -1037,6 +1062,8 @@ body.ovl main video{visibility:hidden}
 <button id="admAll" class="sec" style="width:100%">全員に配布</button>
 <div id="admList"></div>
 <div id="admMsg" class="sub" style="margin-top:6px;min-height:18px"></div>
+<div class="admh">ジャンル</div><div class="sub">追加したジャンルは全員の画面の上のタブに出ます。消してもそのジャンルの記録は残ります。</div><div id="admGen"></div>
+<div class="row" style="margin-top:8px"><input id="admGenNew" placeholder="新しいジャンル名(例: スマブラ)" maxlength="14" style="flex:1;min-width:0"><button id="admGenAdd" style="flex:none">追加</button></div><div id="admGenMsg" class="sub" style="margin-top:6px;min-height:18px"></div>
 <div class="admh">期間限定ガチャ</div><div id="admLimSt" class="sub"></div>
 <div class="row" style="margin-top:8px"><select id="admLimSet" aria-label="限定ガチャ" style="flex:1"></select><input id="admLimDays" type="number" inputmode="numeric" min="1" value="7" aria-label="日数" style="width:70px;flex:none"><span class="sub">日間</span></div>
 <div class="row" style="margin-top:8px"><button id="admLimGo" style="flex:1">開催する</button><button id="admLimStop" class="sec" style="flex:1">今すぐ終了</button></div>
@@ -1051,6 +1078,10 @@ let game='ygo';
 try{game=localStorage.getItem('game')||'ygo'}catch(e){}
 /*FX-START*/
 const GAMES={ygo:'遊戯王',dm:'デュエル・マスターズ'};
+/* genres: ygo and dm, plus up to 12 more added by the admin (config/genres). Slot ids are fixed so the security rules can list them. */
+const GSLOTS=['ygo','dm',...Array.from({length:12},(_,i)=>'g'+(i+1))];
+const GNAME={ygo:'遊戯王',dm:'デュエル・マスターズ'};
+const gname=g=>GNAME[g]||GAMES[g]||'';
 const $=id=>document.getElementById(id);
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const TIERS=[[3000,'マスター','MASTER'],[2700,'ダイヤ','DIAMOND'],[2400,'プラチナ','PLATINUM'],[2100,'ゴールド','GOLD'],[1800,'シルバー','SILVER'],[1500,'ブロンズ','BRONZE'],[-1e9,'クズ','SCRAP']];
@@ -1710,7 +1741,7 @@ function openPackView(res,onMore,label,theme){
   if(best>=2)o.style.setProperty('--aura',RAR[vt?Math.min(best,3):best].c);
   const pack=el('button','pack'+(vt?' vtpack':'')+(best>=2?' aura':'')+(!vt&&best===4?' gr':'')+(!vt&&best===5?' kmr':''));pack.setAttribute('aria-label','パックを開ける');
   if(vt){const play=el('div','vtplay');pack.append(el('b','vtlive s','LIVE'),el('div','pkl','VIRTUAL STREAMER'),play,el('div','pkn',label||'LIMITED PACK'),el('div','pkh','タップして配信開始'))}
-  else pack.append(el('div','pkt'),el('div','pkl','CARD GAME LADDER'),emblem(6,64),el('div','pkn',label||'PREMIUM PACK'),el('div','pkh','タップして開封'));
+  else pack.append(el('div','pkt'),el('div','pkl','KIMOOTA LADDER'),emblem(6,64),el('div','pkn',label||'PREMIUM PACK'),el('div','pkh','タップして開封'));
   stage.append(pack);document.body.append(o);
   pack.onclick=()=>{
     pack.onclick=null;pack.classList.add('tear');if(best>=3)pack.classList.add('big');vib(best>=3?4:2);
@@ -1826,16 +1857,19 @@ function previewItem(id){const it=ITEM(id);if(!it)return;if(it.k==='i')return km
 /* profile card for any player: p has name, eq, ygo_/dm_ ratings */
 function profileCard(p,stat){
   const eq=p.eq||{},b=eq.b&&ITEM(eq.b),c=el('div','pcard'+(b?' pb-'+b.v:''));if(b)bgLayer(c,b.v);
-  const best=Math.max(...Object.keys(GAMES).map(g=>(typeof effR==='function'?effR(p,g):p[g+'_rating']??1500))),ti=tidx(best);
+  const best=Math.max(1500,...Object.keys(GAMES).map(g=>(typeof effR==='function'?effR(p,g):p[g+'_rating']??1500))),ti=tidx(best);
   const fr=avatarFull({...p,rating:best});
   const nm=el('div','pcn',p.name),tc=titleChip(eq.t,true);
   const top=el('div','pct');top.append(fr);const tx=el('div','pctx');tx.append(nm);if(tc)tx.append(tc);top.append(tx);
   c.append(top);
   {const ii=eq.i&&ITEM(eq.i);if(ii){const w=el('div','pci');const im=el('img');im.src=ii.img;im.alt=ii.n;w.append(im,el('span',null,'KMR  ·  '+ii.n));c.append(w)}}
   const gs=el('div','pcg');
-  Object.entries(GAMES).forEach(([g,gn])=>{const r=(typeof effR==='function'?effR(p,g):p[g+'_rating']??1500),t=tidx(r),T=TN(t),w=p[g+'_wins']||0,l=p[g+'_losses']||0,box=mvars(el('div','pcgi'),t);
+  {const cur=typeof game!=='undefined'?game:null,pl=g=>(p[g+'_wins']||0)+(p[g+'_losses']||0)>0;
+   let L=Object.keys(GAMES).filter(g=>pl(g)||g===cur);if(!L.length)L=Object.keys(GAMES).slice(0,2);
+   if(L.length%2&&L.length>1&&cur&&!pl(cur))L=L.filter(g=>g!==cur);
+  L.map(g=>[g,GAMES[g]]).forEach(([g,gn])=>{const r=(typeof effR==='function'?effR(p,g):p[g+'_rating']??1500),t=tidx(r),T=TN(t),w=p[g+'_wins']||0,l=p[g+'_losses']||0,box=mvars(el('div','pcgi'),t);
     const h=el('div','pcgh');h.append(emblem(t,30));const hx=el('div');hx.append(el('div','pcgn',gn),el('div','pcgr mt sh',RE(r)));h.append(hx);
-    box.append(h,el('div','pcgv',String(r)),el('div','sub',RN(r)+'  ·  '+w+'勝 '+l+'敗'));gs.append(box)});
+    box.append(h,el('div','pcgv',String(r)),el('div','sub',RN(r)+'  ·  '+w+'勝 '+l+'敗'));gs.append(box)});}
   c.append(gs);
   const eqs=el('div','pce');[['a','アイコン'],['f','フレーム'],['x','対戦演出'],['v','勝利演出'],['b','背景']].forEach(([k,n])=>{const i=eq[k]&&ITEM(eq[k]);const d=el('div','pcei');d.append(el('span',null,n),el('b',null,i?i.n:'なし'));if(i)d.querySelector('b').classList.add('r'+i.r);eqs.append(d)});
   c.append(eqs);
@@ -2018,7 +2052,7 @@ function celebrate(name,ti,g,opt){
   FX(o,ti,150);
   const c=el('div','ruc'),e=el('div','ruemb');
   e.append(emblem(ti,ti>=5?172:ti>=3?152:132));
-  c.append(el('div','ruk',opt?opt.k:'RANK UP'),e,el('div','run mt sh',T[2]),el('div','rujp',opt?opt.jp:T[1]+'に昇格'),el('div','rup',opt?opt.sub:name+(GAMES[g]?'  ·  '+GAMES[g]:'')),el('div','rut','タップで閉じる'));
+  c.append(el('div','ruk',opt?opt.k:'RANK UP'),e,el('div','run mt sh',T[2]),el('div','rujp',opt?opt.jp:T[1]+'に昇格'),el('div','rup',opt?opt.sub:name+(gname(g)?'  ·  '+gname(g):'')),el('div','rut','タップで閉じる'));
   if(!opt){const U=unlocksAt(ti);if(U.length)c.insertBefore(el('div','ruu','アバター解放: '+U.join(' / ')),c.lastChild)}
   o.append(c);
   if(ti>=4)o.classList.add('shk');
@@ -2028,7 +2062,7 @@ function celebrate(name,ti,g,opt){
 }
 
 /*FX-END*/
-if(!GAMES[game])game='ygo';
+let wantGame=game;if(!GAMES[game])game='ygo';
 /* ---- seasons: 30 days each, season 1 starts 2026-10-04 00:00 JST.
    At the end every rating moves halfway back to 1500; the final rank is kept in p.hist ---- */
 const SEASON_DAYS=30,S_EPOCH=Date.UTC(2026,9,3,15),SMS=SEASON_DAYS*864e5;
@@ -2039,12 +2073,13 @@ const SREW=[30,50,100,150,250,350,500];
 /* rating after any season resets that have not been written yet */
 function effR(p,g){let r=p[g+'_rating']??START;for(let k=p.season??1;k<seasonNo(now());k++)r=softReset(r);return r}
 /* best tier of one season record */
-const recTi=h=>Math.max(0,...Object.keys(GAMES).filter(g=>h[g]!=null).map(g=>tidx(h[g])));
+const recG=h=>Object.keys(h).filter(g=>g!=='s'&&typeof h[g]==='number');
+const recTi=h=>Math.max(0,...recG(h).map(g=>tidx(h[g])));
 /* fields to write so a player doc catches up with the current season (null when already current) */
 function seasonPatch(p){
   const cur=seasonNo(now()),s=p.season??1;if(s>=cur)return p.season==null?{season:cur}:null;
   const patch={season:cur},rec={s};let any=false;
-  Object.keys(GAMES).forEach(g=>{
+  Object.keys(p).filter(k=>/_rating$/.test(k)).map(k=>k.slice(0,-7)).forEach(g=>{
     if(p[g+'_sp']===s&&p[g+'_rating']!=null){rec[g]=p[g+'_rating'];any=true}
     if(p[g+'_rating']!=null)patch[g+'_rating']=effR(p,g);
   });
@@ -2072,7 +2107,7 @@ function renderSeasons(){
   if(!H.length){sec.append(el('div','sub','シーズン'+seasonNo(now())+'が終わると、ここに最終ランクが残ります。'));return}
   H.forEach(h=>{const ti=recTi(h),tid='S'+h.s+'_'+ti,on=(me.eq||{}).t===tid,row=mvars(el('div','shr'),ti);
     const L=el('div','shl');L.append(el('div','shs','SEASON '+h.s));
-    Object.entries(GAMES).forEach(([g,gn])=>{if(h[g]!=null){const ln=el('div','shg');ln.append(emblem(tidx(h[g]),18),el('span',null,gn+'  '+RN(h[g])+'  ·  '+h[g]));L.append(ln)}});
+    recG(h).forEach(g=>{const gn=gname(g);{const ln=el('div','shg');ln.append(emblem(tidx(h[g]),18),el('span',null,gn+'  '+RN(h[g])+'  ·  '+h[g]));L.append(ln)}});
     L.append(el('div','sub','報酬 '+SREW[ti]+'pt'));
     const R2=el('div','shrt');R2.append(titleChip(tid));const b=el('button',on?'sec':'',on?'装備中':'称号にする');
     b.onclick=async()=>{b.disabled=true;try{const cur=Object.assign({},me.eq||{});cur.t=on?null:tid;await db.doc('players/'+me.id).update({eq:cur})}catch(e){b.disabled=false}};
@@ -2082,7 +2117,7 @@ function seasonNotice(){
   const me=myPlayer();if(!me||!me.hist||!me.hist.length)return;
   const h=me.hist.reduce((a,b)=>b.s>a.s?b:a);let seenS=0;try{seenS=+localStorage.getItem('sseen_'+me.id)||0}catch(e){}
   if(seenS>=h.s)return;try{localStorage.setItem('sseen_'+me.id,h.s)}catch(e){}
-  const ti=recTi(h),gs=Object.keys(GAMES).filter(g=>h[g]!=null).map(g=>GAMES[g]+' '+RN(h[g])).join(' / ');
+  const ti=recTi(h),gs=recG(h).map(g=>gname(g)+' '+RN(h[g])).join(' / ');
   celebrate(me.name,ti,null,{k:'SEASON '+h.s+' RESULT',jp:gs,sub:'報酬 '+SREW[ti]+'pt  ·  称号「S'+h.s+' '+TN(ti)[1]+'」'});
 }
 const st=(p,g)=>({rating:effR(p,g),wins:p[g+'_wins']||0,losses:p[g+'_losses']||0});
@@ -2109,7 +2144,7 @@ function buildOnboard(){
   const o=el('div');o.id='ob';
   o.style.cssText='position:fixed;inset:0;z-index:98;background:var(--ink);overflow:auto;padding:calc(env(safe-area-inset-top,0px) + 28px) 16px 24px';
   const box=el('div');box.style.cssText='max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px';
-  const hd=el('div','hd');hd.append(el('div','eyebrow','CARD GAME LADDER'),el('h1',null,'はじめまして'),el('div','sub','自分のアカウントを設定します。自分の成績の詳細は、自分だけが見られます。'));
+  const hd=el('div','hd');hd.append(el('div','eyebrow','KIMOOTA LADDER'),el('h1',null,'はじめまして'),el('div','sub','自分のアカウントを設定します。自分の成績の詳細は、自分だけが見られます。'));
   box.append(hd);
   const sec=el('section');
   sec.append(el('h2',null,'新しく登録する'));
@@ -2231,7 +2266,7 @@ function onChallenges(){
   if(inc&&inId!==inc.id){
     if(inEl)inEl.remove();
     const p=pView(inc.a,inc.g)||{name:inc.an,rating:START};
-    inId=inc.id;inEl=challengeModal(p,GAMES[inc.g]+(inc.bet?'  ·  賭け '+inc.bet+'pt':''),'in',{
+    inId=inc.id;inEl=challengeModal(p,gname(inc.g)+(inc.bet?'  ·  賭け '+inc.bet+'pt':''),'in',{
       accept:()=>{const c=chs.find(x=>x.id===inc.id);if(!c||c.st!=='pending'||!live(c))throw new Error('expired');if(c.bet&&balance(me.id)<c.bet)throw new Error('nobet');return chDoc(inc.id).update({st:'active',u:now(),as:now()})},
       decline:()=>chDoc(inc.id).update({st:'declined',u:now()})});
   }else if(!inc&&inEl){inEl.remove();inEl=null;inId=null}
@@ -2239,7 +2274,7 @@ function onChallenges(){
   if(out&&outId!==out.id){
     if(outEl)outEl.remove();
     const p=pView(out.b,out.g)||{name:out.bn,rating:START};
-    outId=out.id;lastOut=out.id;outEl=challengeModal(p,GAMES[out.g]+(out.bet?'  ·  賭け '+out.bet+'pt':''),'out',{cancel:()=>chDoc(out.id).update({st:'cancelled',u:now()})});
+    outId=out.id;lastOut=out.id;outEl=challengeModal(p,gname(out.g)+(out.bet?'  ·  賭け '+out.bet+'pt':''),'out',{cancel:()=>chDoc(out.id).update({st:'cancelled',u:now()})});
   }else if(!out&&outEl){outEl.remove();outEl=null;outId=null;
     const c=chs.find(x=>x.id===lastOut);if(c&&c.st==='declined')$('bmsg').textContent=c.bn+'に断られました';}
   const act=mine.find(c=>(c.st==='active'||c.st==='reported'||c.st==='abortreq')&&live(c));
@@ -2247,7 +2282,7 @@ function onChallenges(){
     if(!btCtl||btCtl.id!==act.id){
       if(btCtl)btCtl.close();
       const mineSide=pView(me.id,act.g),oppId=act.a===me.id?act.b:act.a,opp=pView(oppId,act.g)||{id:oppId,name:act.a===me.id?act.bn:act.an,rating:START};
-      const ctl=battleView(mineSide,opp,GAMES[act.g]+(act.bet?'  ·  賭け '+act.bet+'pt':''),{
+      const ctl=battleView(mineSide,opp,gname(act.g)+(act.bet?'  ·  賭け '+act.bet+'pt':''),{
         report:win=>{const c=chs.find(x=>x.id===act.id);if(c&&now()-(c.as||c.u||c.t)<MIN_MATCH)throw new Error('early');return chDoc(act.id).update({st:'reported',rep:{by:me.id,win:win?me.id:oppId},msg:'',u:now()})},
         cancelReport:()=>chDoc(act.id).update({st:'active',rep:null,u:now()}),
         dispute:()=>chDoc(act.id).update({st:'active',rep:null,msg:'結果が一致しませんでした。話し合ってもう一度報告してください',u:now()}),
@@ -2278,7 +2313,7 @@ async function finishMatch(c){
   if(rw.last_cid!==c.id)await db.doc('players/'+w.id).update({...(seasonPatch(rw)||{}),last_cid:c.id,[g+'_sp']:cs,[g+'_rating']:w.rating+d,[g+'_wins']:w.wins+1,peak:Math.max(w.peak||0,tidx(w.rating),tidx(w.rating+d))});
   if(rl.last_cid!==c.id)await db.doc('players/'+l.id).update({...(seasonPatch(rl)||{}),last_cid:c.id,[g+'_sp']:cs,[g+'_rating']:l.rating-d,[g+'_losses']:l.losses+1});
   const ref={id:c.id};await db.doc('matches/'+c.id).set({g,w:w.id,l:l.id,wn:w.name,ln:l.name,d,t:now(),cid:c.id,...(c.bet?{bet:c.bet}:{}),...(tidx(w.rating+d)>tidx(w.rating)?{up:tidx(w.rating+d)}:{})});
-  let m=GAMES[g]+': '+w.name+' +'+d+' / '+l.name+' −'+d;
+  let m=gname(g)+': '+w.name+' +'+d+' / '+l.name+' −'+d;
   if(RN(w.rating+d)!==RN(w.rating))m+=' ・'+w.name+'が'+RN(w.rating+d)+'に昇格';
   if(RN(l.rating-d)!==RN(l.rating))m+=' ・'+l.name+'が'+RN(l.rating-d)+'に降格';
   m+=' ・'+w.name+'が宝箱をゲット';if(c.bet)m+=' ・賭けの'+c.bet+'ptは'+w.name+'のもの';
@@ -2295,7 +2330,7 @@ function renderTiers(){
 }
 function render(){
   const sorted=view().filter(p=>!p.ban).sort((a,b)=>b.rating-a.rating);
-  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.g===game));
+  renderGTabs();
   $('rt').textContent='ランキング('+GAMES[game]+')';
   {const me=myPlayer(),mc=$('myrank'),v=me&&view().find(p=>p.id===me.id);
     mc.hidden=!v;if(v)myRankCard(mc,v,GAMES[game],v.wins+'勝 '+v.losses+'敗');}
@@ -2345,10 +2380,22 @@ async function removePlayer(){
     await db.doc('players/'+p.id).delete();await db.doc('data/users/'+myId+'/me').set({pid:''});$('msg2').textContent='アカウントを削除しました'}
   catch(e){$('msg2').textContent='削除できませんでした(編集権限が必要です)'}
 }
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
-  game=b.dataset.g;try{localStorage.setItem('game',game)}catch(e){}
-  $('bmsg').textContent='';render();
-});
+function pickGame(g){game=g;wantGame=g;try{localStorage.setItem('game',game)}catch(e){}$('bmsg').textContent='';render()}
+function renderGTabs(){
+  const t=$('gtabs');if(!t)return;const E=Object.entries(GAMES),key=JSON.stringify(E);
+  if(t.dataset.k!==key){t.dataset.k=key;t.replaceChildren(...E.map(([g,n])=>{const b=el('button','tab',n);b.dataset.g=g;b.onclick=()=>pickGame(g);return b}))}
+  let on=null;t.querySelectorAll('.tab').forEach(b=>{const o=b.dataset.g===game;b.classList.toggle('on',o);if(o)on=b});
+  if(on&&t.scrollWidth>t.clientWidth&&t.dataset.on!==game){t.dataset.on=game;const x=on.offsetLeft-(t.clientWidth-on.offsetWidth)/2;t.scrollLeft=Math.max(0,x)}
+}
+/* genre list from config/genres ({list:[{id,n,off}]}); removed genres keep their records but get no tab */
+let genres=null;
+function applyGenres(d){
+  const L=d&&Array.isArray(d.list)&&d.list.length?d.list:[{id:'ygo',n:'遊戯王'},{id:'dm',n:'デュエル・マスターズ'}];
+  genres=L;Object.keys(GAMES).forEach(k=>delete GAMES[k]);
+  L.forEach(x=>{if(!GSLOTS.includes(x.id))return;GNAME[x.id]=x.n;if(!x.off)GAMES[x.id]=x.n});
+  if(!Object.keys(GAMES).length)GAMES.ygo=GNAME.ygo;
+  game=GAMES[wantGame]?wantGame:(GAMES[game]?game:Object.keys(GAMES)[0]);
+}
 
 /* ---- packs ---- */
 let inv={own:{},packs:0,since:0,shards:0},invFor=null,invUnsub=null,invLoaded=false,opening=false;
@@ -2495,7 +2542,7 @@ function renderAdmin(){
   sec.hidden=false;panel.hidden=false;
   /* everyone's pack count, so the list can show real balances */
   players.forEach(p=>{if(!admInvSub[p.id])admInvSub[p.id]=db.doc('inv/'+p.id).onSnapshot(x=>{const n=x.exists?spentOf(x.data()):0;if(admInv[p.id]!==n){admInv[p.id]=n;admList()}},()=>{})});
-  admList();admLimRender();
+  admList();admLimRender();admGenRender();
   const lg=$('admLog');lg.replaceChildren();
   const L=[];grants.forEach(g=>{const last=L[L.length-1];if(g.all&&last&&last.all&&last.t===g.t&&last.pt===g.pt){last.cnt=(last.cnt||1)+1;return}L.push({...g})});L.splice(30);if(!L.length)lg.append(el('div','sub','まだ操作はありません'));
   L.forEach(g=>{const r=el('div','alog'),a=el('div');
@@ -2503,6 +2550,29 @@ function renderAdmin(){
     a.append(el('div',null,(g.all?'全員('+(g.cnt||1)+'人)':g.pn||'?')),el('div','sub',new Date(g.t).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+(g.note?'  ·  '+g.note:'')));
     r.append(a,el('b',k==='pt'&&g.pt>0?'p':'m',what));lg.append(r)});
 }
+function genList(){return (genres||[{id:'ygo',n:'遊戯王'},{id:'dm',n:'デュエル・マスターズ'}]).map(x=>({...x}))}
+async function saveGenres(L,msg){
+  try{await db.doc('config/genres').set({list:L,u:now()});$('admGenMsg').textContent=msg}catch(e){$('admGenMsg').textContent='保存できませんでした('+(e.code||e.message)+')'}
+}
+function admGenRender(){
+  const box=$('admGen');if(!box)return;const L=genList(),key=JSON.stringify(L);if(box.dataset.k===key)return;box.dataset.k=key;box.replaceChildren();
+  const act=L.filter(x=>!x.off);
+  act.forEach(x=>{const r=el('div','admr'),inp=el('input');inp.value=x.n;inp.maxLength=14;inp.style.cssText='flex:1;min-width:0';inp.setAttribute('aria-label','ジャンル名');
+    const sv=el('button','sec','保存');sv.onclick=()=>{const n=inp.value.trim();if(!n||n===x.n)return;const M=genList();if(M.some(y=>y.id!==x.id&&!y.off&&y.n===n)){$('admGenMsg').textContent='同じ名前のジャンルがあります';return}M.find(y=>y.id===x.id).n=n;saveGenres(M,'「'+n+'」に変えました')};
+    const del=el('button','danger','消す');del.disabled=act.length<=1;
+    del.onclick=()=>twoTap(del,'消す',()=>{const M=genList();M.find(y=>y.id===x.id).off=true;saveGenres(M,'「'+x.n+'」を消しました')});
+    r.append(inp,sv,del);box.append(r)});
+  const free=GSLOTS.filter(id=>!L.some(x=>x.id===id));
+  $('admGenAdd').disabled=!free.length;if(!free.length)$('admGenMsg').textContent='ジャンルはこれ以上増やせません(最大14個)';
+}
+$('admGenAdd').onclick=()=>{
+  const inp=$('admGenNew'),n=inp.value.trim();if(!n)return;const L=genList();
+  if(L.some(x=>!x.off&&x.n===n)){$('admGenMsg').textContent='同じ名前のジャンルがあります';return}
+  const off=L.find(x=>x.off&&x.n===n);
+  if(off){off.off=false;saveGenres(L,'「'+n+'」を戻しました(前の記録もそのままです)');inp.value='';return}
+  const id=GSLOTS.find(id=>!L.some(x=>x.id===id));if(!id)return;
+  L.push({id,n});saveGenres(L,'「'+n+'」を追加しました');inp.value='';
+};
 function admLimRender(){
   const st=$('admLimSt'),sel=$('admLimSet');if(!st)return;
   if(!sel.options.length)Object.entries(LIMS).forEach(([k,L])=>{const o=el('option',null,L.name);o.value=k;sel.append(o)});
@@ -2570,9 +2640,14 @@ $('admLimStop').onclick=()=>twoTap($('admLimStop'),'今すぐ終了',async()=>{
 $('admAll').onclick=()=>twoTap($('admAll'),$('admAll').textContent,()=>admGive(players.filter(p=>!p.ban)));
 
 /* ---- update notice: shown once per NEWS_ID, can be reopened from the profile ---- */
-const NEWS_ID='2026-10-04';
+const NEWS_ID='2026-10-04-2';
 const NEWS=[
- ['期間限定 Vtuberガチャ',['管理者が開催したときだけパック画面に登場(1パック200pt)','通常より高レア率。SR・UR・GRは半分の確率で限定アイテム、KMRは必ず限定KMR','限定アイテム17種: 配信開始 / ペンライト / おつかれ! / コメント弾幕 / ON AIR / 赤スパ / 伝説回 / 背景「コメントの海」','限定KMR「ひだまりニット」「はなかんむり」「堕ちた天使」','開封は配信画面風。UR以上はスパチャで正体が分かる(虹色の100万スパチャは…?)','詳細から限定アイテムをタップでプレビューできる']],
+ ['「きもオタレート」に生まれ変わり',['アプリの名前が「きもオタレート」に。カードゲームだけでなく、オタク趣味ならなんでもレートで勝負できるアプリになりました','アイコンも新しく。ホーム画面のアイコンは、一度消してから「ホーム画面に追加」し直すと変わります(データは消えません)']],
+ ['ジャンルが増やせるように',['管理者がジャンルを追加できるように(スマブラ、麻雀、音ゲーなど)','画面上のジャンルのタブを横にスワイプして切り替え','レートとランクはジャンルごとに別々。新しいジャンルはみんな1500からスタート','プロフィールには遊んだことのあるジャンルの成績が出る','シーズン報酬は全ジャンルの中で一番高いランクでもらえる']],
+ ['オープニング演出',['アプリを開くと、ロゴの演出が出てからホーム画面へ','タップで飛ばせる。ほかのアプリから戻ったときは出ない']],
+ ['そのほか',['アプリの入れ方と使い方をまとめた説明ページを追加(友達に送る用)']]
+];
+const NEWS_OLD=[ ['期間限定 Vtuberガチャ',['管理者が開催したときだけパック画面に登場(1パック200pt)','通常より高レア率。SR・UR・GRは半分の確率で限定アイテム、KMRは必ず限定KMR','限定アイテム17種: 配信開始 / ペンライト / おつかれ! / コメント弾幕 / ON AIR / 赤スパ / 伝説回 / 背景「コメントの海」','限定KMR「ひだまりニット」「はなかんむり」「堕ちた天使」','開封は配信画面風。UR以上はスパチャで正体が分かる(虹色の100万スパチャは…?)','詳細から限定アイテムをタップでプレビューできる']],
  ['勝利の宝箱',['勝つと宝箱! 中身は 10 / 30 / 50 / 70 / 100pt か「通常パックチケット」','チケットで通常パックをポイントなしで開けられる(限定ガチャには使えない)']],
  ['ポイントを賭けて対戦',['申し込むときに 50〜500pt を賭けられる','勝った人が賭けたポイントをもらう。対戦中は賭けたポイントを使えない','賭けありの対戦は、4分たった後の中止に相手の同意が必要']],
  ['KMRがパワーアップ',['KMRは「アイコン」という新しい種類に。フレームと同時に付けられる','KMRが出たらそのキャラの「選択チケット」。アイコン・対戦演出・勝利演出から好きなものを選べる(パック画面の下からいつでも使える)','アイコンの中でもキャラが動く','対戦演出と勝利演出を同じKMRにすると、対戦中にキャラが応援してくれる']],
@@ -2582,8 +2657,10 @@ const NEWS=[
 function showNews(){
   if(document.querySelector('.news'))return;
   const o=el('div','news'),box=el('div','newsb');
-  box.append(el('div','eyebrow','UPDATE  ·  '+NEWS_ID.replace(/-/g,'.')),el('h2',null,'アップデートのお知らせ'));
-  NEWS.forEach(([t,L])=>{const sec=el('section','newss');sec.append(el('h3',null,t));const ul=el('ul');L.forEach(x=>ul.append(el('li',null,x)));sec.append(ul);box.append(sec)});
+  box.append(el('div','eyebrow','UPDATE  ·  '+NEWS_ID.slice(0,10).replace(/-/g,'.')),el('h2',null,'アップデートのお知らせ'));
+  const sect=([t,L])=>{const sec=el('section','newss');sec.append(el('h3',null,t));const ul=el('ul');L.forEach(x=>ul.append(el('li',null,x)));sec.append(ul);return sec};
+  NEWS.forEach(x=>box.append(sect(x)));
+  {const d=el('details','newsold');d.append(el('summary',null,'前回(10/4)のアップデート'));NEWS_OLD.forEach(x=>d.append(sect(x)));box.append(d)}
   const ok=el('button',null,'OK');const closeN=e=>{if(e)e.preventDefault();document.querySelectorAll('.news').forEach(x=>x.remove())};ok.addEventListener('click',closeN);ok.addEventListener('touchend',closeN);
   box.append(ok);o.append(box);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o);
   try{localStorage.setItem('newsSeen',NEWS_ID)}catch(e){}
@@ -2591,7 +2668,7 @@ function showNews(){
 function maybeNews(){let seen='';try{seen=localStorage.getItem('newsSeen')||''}catch(e){}if(seen!==NEWS_ID&&myPlayer()&&!document.getElementById('ob'))setTimeout(showNews,800)}
 let newsChecked=false;
 function statLine(p){let w=0,l=0;Object.keys(GAMES).forEach(g=>{w+=p[g+'_wins']||0;l+=p[g+'_losses']||0});return '通算 '+w+'勝 '+l+'敗'+(w+l?'  ·  勝率 '+Math.round(w/(w+l)*100)+'%':'')}
-const VTITLE={home:'カードゲーム レート表',battle:'対戦',gacha:'パック',profile:'プロフィール'};
+const VTITLE={home:'きもオタレート',battle:'対戦',gacha:'パック',profile:'プロフィール'};
 let curView='home';try{curView=localStorage.getItem('view')||'home'}catch(e){}
 const VORDER=['home','battle','gacha','profile'];
 function setView(v){
@@ -2608,7 +2685,13 @@ function setView(v){
 function moveNavInk(){const nav=document.querySelector('.bnav'),on=nav&&nav.querySelector('button.on');if(!on)return;let ink=nav.querySelector('.navink');if(!ink){ink=el('i','navink');nav.append(ink)}
   const r=on.getBoundingClientRect(),n=nav.getBoundingClientRect();ink.style.transform='translateX('+(r.left-n.left+r.width*.3)+'px)';ink.style.width=(r.width*.4)+'px'}
 window.addEventListener('resize',moveNavInk);
-new MutationObserver(()=>{const on=!!document.querySelector('body>.ae,body>.pk,body>.news,body>.bo,body>.vic,body>.chest,body>.tkv,body>.pvw,body>.cut,body>.kc,body>.ru,body>.vtcut');document.body.classList.toggle('ovl',on)}).observe(document.body,{childList:true});
+
+/* opening splash: fades out after the logo animation (or on tap), then is removed */
+(function(){const sp=document.getElementById('splash');if(!sp)return;let done=false;
+  const end=()=>{if(done)return;done=true;sp.classList.add('out');setTimeout(()=>sp.remove(),500)};
+  sp.addEventListener('click',end);sp.addEventListener('touchend',e=>{e.preventDefault();end()});
+  setTimeout(end,matchMedia('(prefers-reduced-motion: reduce)').matches?500:2100);})();
+new MutationObserver(()=>{const on=!!document.querySelector('body>.ae,body>.pk,body>.news,body>.bo,body>.vic,body>.chest,body>.tkv,body>.pvw,body>.cut,body>.kc,body>.ru,body>.vtcut,body>#splash');document.body.classList.toggle('ovl',on)}).observe(document.body,{childList:true});
 
 document.querySelectorAll('.bnav button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 $('pedit').onclick=()=>openCollection();
@@ -2634,6 +2717,7 @@ render();
   db.collection('players').onSnapshot(s=>{players=s.docs.map(d=>({id:d.id,...d.data()}));playersLoaded=true;syncSeasons();render();onChallenges()},()=>{});
   db.collection('matches').orderBy('t','desc').onSnapshot(onMatches,()=>{});
   db.doc('config/banner').onSnapshot(s=>{banner=s.exists?s.data():null;render()},()=>{});
+  db.doc('config/genres').onSnapshot(s=>{applyGenres(s.exists?s.data():null);render();renderAdmin()},()=>{});
   setInterval(()=>{if(curView==='gacha')renderLim()},60000);
   db.doc('config/admin').onSnapshot(s=>{adminCfg=s.exists?s.data():null;adminLoaded=true;render()},()=>{adminLoaded=true});
   db.collection('grants').orderBy('t','desc').onSnapshot(s=>{grants=s.docs.map(d=>({id:d.id,...d.data()}));render();grantNotice()},()=>{});
