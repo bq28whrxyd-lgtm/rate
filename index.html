@@ -1097,6 +1097,28 @@ body.ovl main video{visibility:hidden}
 .sn i{width:8px;height:8px;border-radius:50%;background:#4a5060;flex:none}.sn.on i{background:#4fd18b;box-shadow:0 0 6px #4fd18b}
 .sn span{color:var(--mut);font-size:12px;white-space:nowrap}.sn.on span{color:#4fd18b}
 .sn small{color:var(--mut);font-size:10.5px;white-space:nowrap}.sn small.old{color:#ff9a6b}
+/* ---- ranking rows with a background item ---- */
+.rk.rkbg{box-shadow:inset 0 0 0 1px #ffffff1a;border:0!important}
+.rk.rkbg .pn,.rk.rkbg .sub,.rk.rkbg .rt,.rk.rkbg .no{text-shadow:0 1px 4px #000d}
+.rk.rkbg::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,#0009,#0003 55%,#0006);z-index:-1;pointer-events:none}
+/* ---- KMR picker (limited-pack ceiling ticket) ---- */
+.kpk{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.kpk button{display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:12px;font-weight:700;font-size:12.5px;letter-spacing:0}
+.kpk img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:#000}
+.kpk small{font-size:10.5px;color:var(--gold-l);font-weight:600}
+.lceil{font-size:12px;color:var(--mut);margin-top:8px;text-align:center}
+/* ---- developer messages and requests ---- */
+.devmsg{border-color:color-mix(in srgb,var(--gold) 50%,var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 12%,var(--panel)),var(--panel) 70%);display:flex;flex-direction:column;gap:8px}
+.devmsg .dmk{font:700 10px/1 var(--display);letter-spacing:.28em;color:var(--gold)}
+.devmsg h3{margin:0;font-size:16px}
+.devmsg .dmx{font-size:13.5px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+.devmsg .dmf{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.devmsg .dmf button{padding:7px 14px;font-size:12.5px}
+textarea{font:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);min-width:0}
+.msgi{padding:10px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px}.msgi:first-child{border-top:0}
+.msgi b{font-size:14px}.msgi p{margin:0;font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--fg)}
+.msgi .row{justify-content:space-between}.msgi button{padding:5px 11px;font-size:12px}
+.msgi.unread b::before{content:"NEW ";color:var(--gold-l);font-size:11px}
 /* ---- opening splash (once per launch, tap to skip) ---- */
 #splash{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:radial-gradient(90% 60% at 50% 42%,#231c36,#0b0d12 70%);transition:opacity .45s var(--ease)}
 #splash.out{opacity:0;pointer-events:none}
@@ -1132,7 +1154,7 @@ body.ovl main video{visibility:hidden}
 <header class="hd"><div class="eyebrow">KIMOOTA LADDER</div><h1 id="vtitle">きもオタレート</h1></header>
 <div class="tabs" id="gtabs"></div>
 <section id="offline" hidden><div class="empty">サーバーに接続できません。電波のいい場所でアプリを開き直してください。</div></section>
-<div class="view" id="v-home"><button id="ftick" class="ftick" hidden></button><div id="sban" class="sban"></div><div id="gwban" class="gwban" hidden></div><section id="myrank" class="myc" hidden></section>
+<div class="view" id="v-home"><button id="ftick" class="ftick" hidden></button><section id="devmsg" class="devmsg" hidden></section><div id="sban" class="sban"></div><div id="gwban" class="gwban" hidden></div><section id="myrank" class="myc" hidden></section>
 <section><h2 id="rt">ランキング</h2><div id="rank"><div class="empty">まだプレイヤーがいません。最初の画面で登録すると、ここに並びます。</div></div></section>
 <section id="predsec" hidden><h2>勝敗予想</h2><div id="predlist"></div></section>
 <section id="dmis" hidden><div class="dmhd"><h2>今日のお題</h2><span id="dmsub"></span></div><div id="dmlist" class="dmchips"></div><button id="dmclaim" style="width:100%;margin-top:10px" disabled>3つクリアで100pt</button></section>
@@ -1160,6 +1182,8 @@ body.ovl main video{visibility:hidden}
 <p>かぶったカードはかけらになり、コレクションで欲しいものと交換できます。</p><div id="gcheer"></div></details></section>
 <section id="tixsec" hidden><h2>KMR選択チケット</h2><div id="gtix"></div><div id="gtix0" class="sub">まだチケットはありません。パックでKMRが出ると、そのイラストの選択チケットがもらえます。</div></section></div>
 <div class="view" id="v-profile" hidden><div id="pcard"></div><button id="pedit" class="sec" style="width:100%">着せ替え(コレクション)</button><button id="pnews" class="sec" style="width:100%">お知らせ(アップデート内容)</button>
+<section id="msgsec" hidden><h2>開発者からのお知らせ</h2><div id="msglist"></div></section>
+<section id="reqsec" hidden><h2>開発者に要望を送る</h2><div class="sub">「こんな機能がほしい」「ここがバグってる」など、なんでもどうぞ。開発者だけが読めます。</div><textarea id="reqtx" maxlength="500" rows="3" placeholder="要望・バグ報告など(500文字まで)" style="width:100%;margin-top:10px;resize:vertical"></textarea><button id="reqgo" style="width:100%;margin-top:8px">送る</button><div id="reqmsg" class="sub" style="margin-top:6px;min-height:18px"></div></section>
 <section id="seas" hidden></section>
 <section id="mine" hidden></section>
 <section id="acct" hidden><h2>自分のアカウント</h2>
@@ -1177,6 +1201,11 @@ body.ovl main video{visibility:hidden}
 <button id="admAll" class="sec" style="width:100%">全員に配布</button>
 <div id="admList"></div>
 <div id="admMsg" class="sub" style="margin-top:6px;min-height:18px"></div>
+<div class="admh">みんなへのメッセージ</div><div class="sub">送るとみんなのホームにお知らせとして出ます。</div>
+<input id="admMsgT" maxlength="40" placeholder="タイトル(例: 今週末に大会やります)" style="width:100%;margin-top:8px">
+<textarea id="admMsgX" maxlength="800" rows="3" placeholder="本文" style="width:100%;margin-top:8px;resize:vertical"></textarea>
+<button id="admMsgGo" style="width:100%;margin-top:8px">みんなに送る</button><div id="admMsgR" class="sub" style="margin-top:6px;min-height:18px"></div><div id="admMsgList"></div>
+<div class="admh">届いた要望</div><div id="admReq"></div>
 <div class="admh">ログイン状況(管理者だけに見えます)</div><div id="admSeen"></div>
 <div class="admh">ポイント購入(お金をもらったとき)</div><div class="sub">購入ptはガチャ専用です。賭けや予想には使えません。</div>
 <div class="row" style="margin-top:8px"><select id="admBuyP" aria-label="購入した人" style="flex:1;min-width:0"></select><select id="admBuyPlan" aria-label="プラン" style="flex:1;min-width:0"></select></div>
@@ -1699,19 +1728,21 @@ function rollPack(pity){
   }
   return out;
 }
-/* limited pack: richer rates; at each rarity half the draws come from the limited set (when it has that rarity) */
+/* limited pack: richer rates; SR/UR come from the limited set half the time, GR and KMR always */
 const LPACK=200,LRATE=[45.5,35,14,5,.4,.1],LRATE_G=[0,75.5,18,6,.4,.1],LIM_SHARE=.5;
 function rollLimPack(set,pity){
   const out=[];
   for(let i=0;i<5;i++){
     const r=i===4&&pity?4:rollRar(i===4?LRATE_G:LRATE);
-    /* KMR in a limited pack is always that pack's limited KMR */
-    const lp=ITEMS.filter(x=>x.lim===set&&x.r===r),pool=lp.length&&(r===5||Math.random()<LIM_SHARE)?lp:ITEMS.filter(x=>x.r===r&&!x.lim);
+    /* GR and KMR in a limited pack are always that pack's limited items; SR/UR are limited half the time */
+    const lp=ITEMS.filter(x=>x.lim===set&&x.r===r),pool=lp.length&&(r>=4||Math.random()<LIM_SHARE)?lp:ITEMS.filter(x=>x.r===r&&!x.lim);
     const kinds=[...new Set(pool.map(x=>x.k))],k=kinds[Math.random()*kinds.length|0],ks=pool.filter(x=>x.k===k);
     out.push(ks[Math.random()*ks.length|0]);
   }
   return out;
 }
+const WILD=300;   /* every 300 limited packs: a ticket for any KMR */
+const wildLeft=()=>Math.floor((inv.lpacks||0)/WILD)-(inv.wused||0);
 const tkItem=ki=>{const K=KMRS[ki];return{id:'tk'+ki,k:'tk',r:5,n:K.n,K,tk:ki,...(K.lim?{lim:K.lim}:{})}};
 /* ticket chooser: owned = inv.own, redeem(id) returns a promise */
 function ticketView(ki,owned,redeem){
@@ -1725,6 +1756,19 @@ function ticketView(ki,owned,redeem){
     row.append(b,pv);c.append(el('div','tkk',KIND[it.k]),row,el('div','cic',n?'所持 '+n+'(かぶりはかけら+'+RAR[5].sh+')':'未所持'));grid.append(c)});
   const ft=el('div','aeft'),cl=el('button','sec','あとで選ぶ');cl.onclick=()=>o.remove();ft.append(cl);
   o.append(box,ft);document.body.append(o);return o;
+}
+function kmrPicker(){
+  const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id||wildLeft()<1)return;
+  if(document.querySelector('.kpko'))return;
+  const o=el('div','ae col tkv kpko'),box=el('div','aebox'),g=el('div','kpk');o.style.zIndex=101;
+  const hd=el('div','hd');hd.append(el('div','eyebrow','KMR CEILING TICKET'),el('h1',null,'好きな限定KMRを選ぶ'),el('div','sub','限定ガチャ300パックのごほうびです。限定KMRの中からイラストを選んだあと、アイコン・対戦演出・勝利演出から1つ受け取れます。'));
+  KMRS.forEach((K,ki)=>{if(!K.lim)return;const b=el('button'),im=el('img');im.src=K.img;im.alt=K.n;im.loading='lazy';b.append(im,el('span',null,K.n));if(K.lim)b.append(el('small',null,'限定'));
+    b.onclick=()=>{o.remove();ticketView(ki,inv.own||{},async id=>{
+      if(wildLeft()<1)throw new Error('none');
+      const n=JSON.parse(JSON.stringify(inv));const had=(n.own[id]||0)>0;n.own[id]=(n.own[id]||0)+1;if(had)n.shards=(n.shards||0)+RAR[5].sh;n.wused=(n.wused||0)+1;
+      await db.doc('inv/'+me.id).set(n);inv=n;renderGacha();toast(ITEM(id).n+'('+KIND[ITEM(id).k]+')を受け取りました')})};
+    g.append(b)});
+  box.append(hd,g);const ft=el('div','aeft'),cl=el('button','sec','あとで選ぶ');cl.onclick=()=>o.remove();ft.append(cl);o.append(box,ft);document.body.append(o);
 }
 function applyPack(inv,cards,lim,free){
   const n={...inv,own:Object.assign({},inv.own||{}),tused:(inv.tused||0)+(free?1:0),packs:(inv.packs||0)+(lim||free?0:1),lpacks:(inv.lpacks||0)+(lim?1:0),since:(inv.since||0)+1,shards:inv.shards||0,tix:Object.assign({},inv.tix||{})};
@@ -2489,6 +2533,7 @@ function render(){
   sorted.forEach((p,i)=>{
     if(i>=5&&!HM.rank)return;
     const ti=tidx(p.rating),T=TN(ti),r=mvars(el('div','rk'+(ti>=3?' hi':' lo')+(ti>=5?' sw':'')),ti);
+    {const bi=p.eq&&p.eq.b&&ITEM(p.eq.b);if(bi&&bi.k==='b')r.classList.add('pb-'+bi.v,'rkbg')}
     r.append(el('div','no'+(i===0?' no1':''),String(i+1)),mkFrame(p,ti));
     const n=el('div','nm'),sb=el('div','sub tierline');
     sb.append(emblem(ti,16),el('span',null,RN(p.rating)),el('span',null,'·  '+p.wins+'勝 '+p.losses+'敗'));
@@ -2499,7 +2544,7 @@ function render(){
   });
   if(sorted.length>5){const mb=el('button','more',HM.rank?'閉じる':'もっと見る(全'+sorted.length+'人)');mb.onclick=()=>{HM.rank=!HM.rank;render()};rk.append(mb)}
   rk.querySelectorAll('[data-pid]').forEach(e=>{e.style.cursor='pointer';e.onclick=()=>{const q=players.find(x=>x.id===e.dataset.pid);if(q)showProfile(q,statLine(q))}});
-  renderMine();renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();seasonNotice();checkOnboard();renderAdmin();renderBanned();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews()}$('acct').hidden=!myPlayer();
+  renderMine();renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();seasonNotice();checkOnboard();renderAdmin();renderBanned();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews()}$('acct').hidden=!myPlayer();
   {const me=myPlayer();$('pcard').replaceChildren(me?profileCard(me,statLine(me)):el('div','empty','アカウントを設定すると、ここにプロフィールが出ます'));$('pedit').hidden=!me}
   if(typeof watchInv==='function'){watchInv();renderGacha()}
   {const s=$('opp'),v=s.value,me=myPlayer();s.replaceChildren();
@@ -2793,6 +2838,38 @@ function admSeenRender(){
   if(!L.length)box.append(el('div','sub','まだプレイヤーがいません'));
 }
 setInterval(()=>{if(curView==='profile'&&isAdmin())admSeenRender()},30000);
+/* ---- developer → everyone (msgs, admin writes) and everyone → developer (reqs, admin reads) ---- */
+let devMsgs=[],reqs=[],reqSub=null;
+const msgSeen=()=>{try{return +localStorage.getItem('msgSeen')||0}catch(e){return 0}};
+function renderDevMsg(){
+  const card=$('devmsg'),me=myPlayer(),m=devMsgs[0];if(!card)return;
+  card.hidden=!me||!m||m.t<=msgSeen();
+  if(!card.hidden){const f=el('div','dmf'),ok=el('button','sec','読んだ');ok.onclick=()=>{try{localStorage.setItem('msgSeen',m.t)}catch(e){}renderDevMsg()};
+    f.append(el('span','sub',ago(m.t)),ok);card.replaceChildren(el('div','dmk','FROM DEVELOPER'),el('h3',null,m.title||'開発者からのお知らせ'),el('div','dmx',m.x||''),f)}
+  const sec=$('msgsec'),L=$('msglist');if(!sec)return;sec.hidden=!me||!devMsgs.length;L.replaceChildren();const seen=msgSeen();
+  devMsgs.slice(0,10).forEach(x=>{const d=el('div','msgi'+(x.t>seen?' unread':''));d.append(el('b',null,x.title||'お知らせ'),el('p',null,x.x||''),el('span','sub',new Date(x.t).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})));L.append(d)});
+  $('reqsec').hidden=!me;
+}
+$('reqgo').onclick=async()=>{
+  const me=myPlayer(),x=$('reqtx').value.trim();if(!db||!me||!x)return;
+  $('reqgo').disabled=true;
+  try{await db.collection('reqs').add({pid:me.id,n:me.name,x:x.slice(0,500),t:now()});$('reqtx').value='';$('reqmsg').textContent='送りました。ありがとう!'}
+  catch(e){$('reqmsg').textContent='送れませんでした。通信を確認してください'}
+  $('reqgo').disabled=false;
+};
+$('admMsgGo').onclick=()=>twoTap($('admMsgGo'),'みんなに送る',async()=>{
+  const t=$('admMsgT').value.trim(),x=$('admMsgX').value.trim();if(!isAdmin()||!x)return;
+  try{await db.collection('msgs').add({title:t.slice(0,40),x:x.slice(0,800),t:now()});$('admMsgT').value='';$('admMsgX').value='';$('admMsgR').textContent='送りました'}
+  catch(e){$('admMsgR').textContent='送れませんでした('+(e.code||e.message)+')'}});
+function admMsgRender(){
+  const L=$('admMsgList'),R2=$('admReq');if(!L)return;
+  L.replaceChildren();devMsgs.slice(0,5).forEach(m=>{const d=el('div','msgi'),r=el('div','row'),del=el('button','danger','消す');
+    del.onclick=()=>twoTap(del,'消す',()=>db.doc('msgs/'+m.id).delete().catch(()=>{}));r.append(el('span','sub',ago(m.t)),del);d.append(el('b',null,m.title||'(タイトルなし)'),el('p',null,m.x||''),r);L.append(d)});
+  if(!reqSub&&isAdmin())reqSub=db.collection('reqs').orderBy('t','desc').limit(100).onSnapshot(s=>{reqs=s.docs.map(d=>({id:d.id,...d.data()}));admMsgRender()},()=>{reqSub=null});
+  R2.replaceChildren();if(!reqs.length)R2.append(el('div','sub','まだ要望は届いていません'));
+  reqs.forEach(q=>{const d=el('div','msgi'),r=el('div','row'),del=el('button','sec','消す');
+    del.onclick=()=>twoTap(del,'消す',()=>db.doc('reqs/'+q.id).delete().catch(()=>{}));r.append(el('span','sub',((players.find(p=>p.id===q.pid)||{}).name||q.n||'?')+'  ·  '+ago(q.t)),del);d.append(el('p',null,q.x||''),r);R2.append(d)});
+}
 const PLANS=[[100,200],[300,600],[500,1000],[1000,2100],[2000,4300],[3000,6600],[5000,11500],[10000,24000]];
 function admExtraRender(){
   const bp=$('admBuyP'),pl=$('admBuyPlan'),gg=$('admGwG');if(!bp)return;
@@ -2849,13 +2926,14 @@ function renderLim(){
   const byR='';
   det.innerHTML='<summary>限定パックの中身と排出率</summary><table><tr><th></th><th>1〜4枚目</th><th>5枚目(R以上確定)</th></tr>'+
     RAR.map((x,i)=>'<tr><td class="r'+i+'">'+x.k+'</td><td>'+LRATE[i]+'%</td><td>'+(LRATE_G[i]?LRATE_G[i]+'%':'—')+'</td></tr>').join('')+
-    '</table><p>1パック5枚・'+LPACK+'pt。通常より高レア率。SR・UR・GRは半分の確率で限定アイテムが出ます(N・Rは通常アイテム)。KMRは必ず限定KMRです。限定KMR「ひだまりニット」「はなかんむり」「堕ちた天使」はこのパックでしか出ません。KMRは選択チケットになり、アイコン・対戦演出・勝利演出から1つ選べます。GR確定までのカウントは通常パックと共通です。</p>'+byR+'<p>限定アイテムはかけらとの交換はできません。</p>';
+    '</table><p>1パック5枚・'+LPACK+'pt。通常より高レア率。SR・URは半分の確率で限定アイテム、<b>GR以上は必ず限定アイテム</b>です(N・Rは通常アイテム)。限定パックを300パック開けるごとに<b>好きな限定KMRの選択チケット</b>が1枚もらえます。KMRは必ず限定KMRです。限定KMR「ひだまりニット」「はなかんむり」「堕ちた天使」はこのパックでしか出ません。KMRは選択チケットになり、アイコン・対戦演出・勝利演出から1つ選べます。GR確定までのカウントは通常パックと共通です。</p>'+byR+'<p>限定アイテムはかけらとの交換はできません。</p>';
   {/* every limited item, tap to preview */
     det.append(el('p','limph','限定アイテム一覧(タップでプレビュー)'));const g=el('div','limgrid');
     set.slice().sort((a,b)=>b.r-a.r).forEach(it=>{const c=el('button','limcell');c.append(cardFace(it),el('span','limk',KIND[it.k]));c.onclick=()=>previewAny(it);g.append(c)});det.append(g);
     det.append(cheerBox(KMRS.map((K,i)=>K.lim===banner.set?i:-1).filter(i=>i>=0),'限定KMRの応援は、応援の文字が配信コメントのように流れます。'))}
   if(L.theme==='vt'){const t=el('div','limtop');t.append(el('b','vtlive s','LIVE'),el('b','limvw','配信中'));s.append(t)}
-  s.append(el('div','lk','LIMITED  ·  '+L.en),el('h2','lt',L.name),el('div','lrem','残り '+(d?d+'日 ':'')+h+'時間'+(d?'':' '+m+'分')+'  ·  限定アイテム '+own+'/'+set.length),feat,b,det);
+  const ceil=el('div','lceil','好きな限定KMR選択チケットまで あと '+(WILD-(inv.lpacks||0)%WILD)+' パック');ceil.hidden=!(invLoaded&&invFor===me.id);
+  s.append(el('div','lk','LIMITED  ·  '+L.en),el('h2','lt',L.name),el('div','lrem','残り '+(d?d+'日 ':'')+h+'時間'+(d?'':' '+m+'分')+'  ·  限定アイテム '+own+'/'+set.length),feat,b,ceil,det);
 }
 function useTicket(ki){
   const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id||!((inv.tix||{})[ki]>0))return;
@@ -2873,7 +2951,8 @@ async function openLimPack(){
   if(balance(me.id)<LPACK){toast('ポイントが足りません');return}
   opening=true;renderGacha();
   const cards=rollLimPack(banner.set,(inv.since||0)+1>=PITY),{inv:n,res}=applyPack(inv,cards,true);
-  try{await db.doc('inv/'+me.id).set(n);inv=n;opening=false;renderGacha();feedPull(cards,LIMS[banner.set].name);openPackView(res,balance(me.id)>=LPACK&&limActive()?openLimPack:null,'LIMITED PACK',LIMS[banner.set].theme);return}
+  const wasW=Math.floor(((n.lpacks||1)-1)/WILD);
+  try{await db.doc('inv/'+me.id).set(n);inv=n;opening=false;renderGacha();feedPull(cards,LIMS[banner.set].name);if(Math.floor(n.lpacks/WILD)>wasW)setTimeout(()=>toast('300パック達成! 好きな限定KMR選択チケットをゲット(パック画面の下から使えます)'),1200);openPackView(res,balance(me.id)>=LPACK&&limActive()?openLimPack:null,'LIMITED PACK',LIMS[banner.set].theme);return}
   catch(e){toast('開けませんでした')}
   opening=false;renderGacha();
 }
@@ -2887,7 +2966,7 @@ function renderGacha(){
     gc.append(el('p','limph','UR以上のアイテム(タップでプレビュー)'));const g=el('div','limgrid');
     ITEMS.filter(x=>x.r>=3&&!x.lim&&!x.retired).sort((a,b)=>b.r-a.r).forEach(it=>{const c=el('button','limcell');c.append(cardFace(it),el('span','limk',KIND[it.k]));c.onclick=e=>{e.preventDefault();previewAny(it)};g.append(c)});gc.append(g);
     gc.append(cheerBox(KMRS.map((K,i)=>K.lim?-1:i).filter(i=>i>=0),'通常KMRの応援は、「がんばれ!」などの文字が大きく出ます。'))}}
-  {const g=$('gtix');g.replaceChildren();$('tixsec').hidden=false;Object.entries(inv.tix||{}).forEach(([ki,n])=>{if(!(n>0)||!KMRS[ki])return;const r=el('div','tkrow');r.append(el('span','tkn',KMRS[ki].n+' 選択チケット ×'+n));const b=el('button','tkbtn','使う');b.onclick=()=>useTicket(+ki);r.append(b);g.append(r)});$('gtix0').hidden=!!g.childNodes.length}
+  {const g=$('gtix');g.replaceChildren();$('tixsec').hidden=false;{const w=wildLeft();if(w>0){const r=el('div','tkrow');r.append(el('span','tkn','好きな限定KMR 選択チケット ×'+w));const b=el('button','tkbtn','使う');b.onclick=kmrPicker;r.append(b);g.append(r)}}Object.entries(inv.tix||{}).forEach(([ki,n])=>{if(!(n>0)||!KMRS[ki])return;const r=el('div','tkrow');r.append(el('span','tkn',KMRS[ki].n+' 選択チケット ×'+n));const b=el('button','tkbtn','使う');b.onclick=()=>useTicket(+ki);r.append(b);g.append(r)});$('gtix0').hidden=!!g.childNodes.length}
   $('gpity').textContent='GR確定まであと '+(PITY-(inv.since||0))+' パック  ·  開けたパック '+(inv.packs||0);
 }
 async function openPack(free){
@@ -2939,7 +3018,7 @@ function renderAdmin(){
   sec.hidden=false;panel.hidden=false;
   /* everyone's pack count, so the list can show real balances */
   players.forEach(p=>{if(!admInvSub[p.id])admInvSub[p.id]=db.doc('inv/'+p.id).onSnapshot(x=>{const n=x.exists?invAdj(x.data()):0;if(admInv[p.id]!==n){admInv[p.id]=n;admList()}},()=>{})});
-  admList();admLimRender();admGenRender();admExtraRender();admSeenRender();
+  admList();admLimRender();admGenRender();admExtraRender();admSeenRender();admMsgRender();
   const lg=$('admLog');lg.replaceChildren();
   const L=[];grants.forEach(g=>{const last=L[L.length-1];if(g.all&&last&&last.all&&last.t===g.t&&last.pt===g.pt){last.cnt=(last.cnt||1)+1;return}L.push({...g})});L.splice(30);if(!L.length)lg.append(el('div','sub','まだ操作はありません'));
   L.forEach(g=>{const r=el('div','alog'),a=el('div');
@@ -3037,7 +3116,7 @@ $('admLimStop').onclick=()=>twoTap($('admLimStop'),'今すぐ終了',async()=>{
 $('admAll').onclick=()=>twoTap($('admAll'),$('admAll').textContent,()=>admGive(players.filter(p=>!p.ban)));
 
 /* ---- update notice: shown once per NEWS_ID, can be reopened from the profile ---- */
-const NEWS_ID='2026-10-04-4';
+const NEWS_ID='2026-10-05';
 const NEWS=[
  ['タイムライン',['ホームにみんなの速報が流れる: KMR・GRを引いた / 昇格 / 連勝 / 下剋上 / 豪華宝箱 / 予想の大当たり','「草」「おめ」「神」「ドンマイ」「ずるい」でリアクションできる']],
  ['勝敗予想',['ほかの人の対戦の勝ち負けを予想してptを賭けられる(対戦が始まってから2分以内)','オッズはレート差・最近の勝率・2人の対戦成績で決まる。格下が勝つと大きく増える','自分の対戦は予想できない']],
@@ -3047,6 +3126,9 @@ const NEWS=[
  ['ポイント購入',['購入したポイントはガチャ専用。賭けや予想に使えるのは、対戦やお題でもらったポイントだけ']],
  ['ランクごとの見た目',['ランクが上がるほど名前が豪華に。シルバーで光が走り、ゴールドからキラキラ、ダイヤでオーラ、マスターは王冠付き','ランクごとの「ランク称号」(崖っぷちオタク〜オタクの頂点)も付く','ランキング・プロフィール・対戦画面・タイムラインに出る。見本はホームの「ランクの一覧」から']],
  ['対戦開始の演出',['自分の画面には、自分が装備している対戦演出が出るように']],
+ ['限定ガチャ',['Vtuberガチャで出るGRは、必ず限定GR(赤スパ・伝説回・コメントの海)に','限定ガチャの天井: 300パック開けるごとに「好きな限定KMRの選択チケット」が1枚(パック画面の下から使える)']],
+ ['開発者とやりとり',['開発者からのお知らせがホームとプロフィールに出るように','プロフィールの「開発者に要望を送る」から、要望やバグ報告を送れる(開発者だけが読めます)']],
+ ['ランキングに背景',['着せ替えで付けた背景が、ランキングの自分の行にも出るように']],
  ['ホームをすっきり',['ランキングとタイムラインは上から数件だけ表示。「もっと見る」で全部見られる','お題と週間MVPをコンパクトに']]
 ];
 const NEWS_PREV=[
@@ -3129,6 +3211,7 @@ render();
   db.doc('config/genres').onSnapshot(s=>{applyGenres(s.exists?s.data():null);render();renderAdmin()},()=>{});
   db.doc('config/gweek').onSnapshot(s=>{gweekLoaded=true;gweek=(s.exists&&s.data().list)||[];render()},()=>{});
   db.collection('preds').orderBy('t','desc').onSnapshot(s=>{predsLoaded=true;preds=s.docs.map(d=>({id:d.id,...d.data()}));checkPredHits();render()},()=>{});
+  db.collection('msgs').orderBy('t','desc').limit(20).onSnapshot(s=>{devMsgs=s.docs.map(d=>({id:d.id,...d.data()}));renderDevMsg();if(isAdmin())admMsgRender()},()=>{});
   db.collection('feed').orderBy('t','desc').limit(40).onSnapshot(s=>{feed=s.docs.map(d=>({id:d.id,...d.data()}));renderFeed()},()=>{});
   setInterval(()=>{if(curView==='home')tickPreds()},1000);
   setInterval(()=>{if(curView==='gacha')renderLim()},60000);
