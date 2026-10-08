@@ -641,6 +641,7 @@ svg{display:block}
 .bcell .lockt,.bcell .ownt{position:absolute;right:4px;top:4px;z-index:6;font:700 9.5px/1 var(--body);font-style:normal;padding:3px 5px;border-radius:5px;background:#000c;color:#cfcbe6;border:1px solid #fff2}
 .bcell .ownt{background:#0b1a12d9;color:#8affc8;border-color:#8affc855}
 .hostback{align-self:flex-start;height:36px;font-size:13px;padding:0 14px}
+.lane.m.pick .slot{box-shadow:0 0 0 2.5px #8affc8,0 0 22px #8affc8aa;background:#8affc814;animation:pk 1.1s ease-in-out infinite}
 
 </style>
 
@@ -681,11 +682,11 @@ __def('./cards4.js',function(module,exports,require){
 const C=[],BY={};
 const add=(f,L)=>L.forEach(x=>{const c={f,...x};C.push(c);BY[c.id]=c});
 add('weak',[
- {id:'w1',n:'草食系男子',r:'N',type:'chara',c:1,atk:500,def:900,kw:{guts:1},aw:{k:'cover'}},
+ {id:'w1',n:'草食系男子',r:'N',type:'chara',c:1,atk:500,def:1000,kw:{guts:1},aw:{k:'cover'}},
  {id:'w2',n:'財布を忘れた男',r:'N',type:'chara',c:1,atk:800,def:500,onDeath:[{op:'draw',n:1}],aw:{k:'draw',n:2}},
- {id:'w3',n:'陰キャ大学生',r:'N',type:'chara',c:2,atk:900,def:900,kw:{adv:600},aw:{k:'atk',n:800}},
- {id:'w4',n:'振られた男',r:'N',type:'chara',c:3,atk:900,def:1300,kw:{guts:1},aw:{k:'gutsEvery'}},
- {id:'w5',n:'筋トレ始めた男',r:'R',type:'chara',c:3,atk:1100,def:900,kw:{grow:300},aw:{k:'twice'}},
+ {id:'w3',n:'陰キャ大学生',r:'N',type:'chara',c:2,atk:1000,def:1000,kw:{adv:600},aw:{k:'atk',n:800}},
+ {id:'w4',n:'振られた男',r:'N',type:'chara',c:3,atk:1000,def:1400,kw:{guts:1},aw:{k:'gutsEvery'}},
+ {id:'w5',n:'筋トレ始めた男',r:'R',type:'chara',c:3,atk:1200,def:1000,kw:{grow:300},aw:{k:'twice'}},
  {id:'w6',n:'逆転のプロポーズ',r:'R',type:'spell',c:2,cond:'behind',tgt:'enemy',ops:[{op:'destroy'}]},
  {id:'w7',n:'既読スルー',r:'R',type:'trap',c:1,when:'attack',ops:[{op:'negate'}]},
  {id:'w8',n:'覚醒した陰キャ',r:'SR',type:'chara',c:4,trib:1,atk:2600,def:2000,kw:{adv:500},onPlay:[{op:'coin',h:[{op:'rush'}],t:[]}],aw:{k:'wipeLow',max:1500}},
@@ -701,21 +702,21 @@ add('girl',[
  {id:'q8',n:'夜の女王',r:'SR',type:'chara',c:4,trib:1,atk:2700,def:2200,onPlay:[{op:'dmgAllEnemy',def:500}],aw:{k:'weakenAll',n:500}},
 ]);
 add('gay',[
- {id:'y1',n:'ジム仲間',r:'N',type:'chara',c:1,atk:700,def:1000,kw:{bond:300},aw:{k:'buffAll',atk:500,def:500,others:1}},
- {id:'y2',n:'頼れる兄貴',r:'N',type:'chara',c:2,atk:1000,def:1700,kw:{cover:1},aw:{k:'heal',n:1500}},
- {id:'y3',n:'ダンサー',r:'N',type:'chara',c:2,atk:1200,def:900,kw:{bond:300},aw:{k:'twice'}},
- {id:'y4',n:'バーのママ',r:'R',type:'chara',c:3,atk:1100,def:1500,onPlay:[{op:'heal',n:800}],aw:{k:'heal',n:2000}},
- {id:'y5',n:'筋肉自慢',r:'R',type:'chara',c:4,atk:1700,def:1600,kw:{bond:300},aw:{k:'atk',n:800}},
+ {id:'y1',n:'ジム仲間',r:'N',type:'chara',c:1,atk:700,def:900,kw:{bond:300},aw:{k:'buffAll',atk:500,def:500,others:1}},
+ {id:'y2',n:'頼れる兄貴',r:'N',type:'chara',c:2,atk:900,def:1600,kw:{cover:1},aw:{k:'heal',n:1500}},
+ {id:'y3',n:'ダンサー',r:'N',type:'chara',c:2,atk:1100,def:900,kw:{bond:300},aw:{k:'twice'}},
+ {id:'y4',n:'バーのママ',r:'R',type:'chara',c:3,atk:1000,def:1400,onPlay:[{op:'heal',n:800}],aw:{k:'heal',n:2000}},
+ {id:'y5',n:'筋肉自慢',r:'R',type:'chara',c:4,atk:1600,def:1500,kw:{bond:300},aw:{k:'atk',n:800}},
  {id:'y6',n:'プライドパレード',r:'R',type:'spell',c:3,ops:[{op:'buffAll',atk:400,def:400,temp:0},{op:'draw',n:1}]},
  {id:'y7',n:'守ってみせる',r:'R',type:'trap',c:1,when:'direct',ops:[{op:'negate'},{op:'summonFromHand',maxC:3}]},
  {id:'y8',n:'虹のヒーロー',r:'SR',type:'chara',c:4,trib:1,atk:2500,def:2100,onPlay:[{op:'buffAll',atk:300,def:300,others:1}],aw:{k:'evoAll'}},
 ]);
 add('gachi',[
  {id:'g1',n:'古参オタク',r:'N',type:'chara',c:1,atk:600,def:800,aw:{k:'draw',n:2}},
- {id:'g2',n:'限定版コレクター',r:'N',type:'chara',c:2,atk:800,def:1000,onPlay:[{op:'energy',n:1}],aw:{k:'atk',n:800}},
- {id:'g3',n:'徹夜組',r:'N',type:'chara',c:2,atk:1000,def:700,kw:{rush:1},aw:{k:'twice'}},
- {id:'g4',n:'遠征オタク',r:'R',type:'chara',c:3,atk:1000,def:1000,onPlay:[{op:'draw',n:1}],aw:{k:'buffAll',atk:300,def:0,others:1}},
- {id:'g5',n:'ガチ恋勢',r:'R',type:'chara',c:4,atk:1200,def:1100,kw:{grow:300},aw:{k:'atk',n:800}},
+ {id:'g2',n:'限定版コレクター',r:'N',type:'chara',c:2,atk:800,def:1100,onPlay:[{op:'energy',n:1}],aw:{k:'atk',n:800}},
+ {id:'g3',n:'徹夜組',r:'N',type:'chara',c:2,atk:1100,def:700,kw:{rush:1},aw:{k:'twice'}},
+ {id:'g4',n:'遠征オタク',r:'R',type:'chara',c:3,atk:1100,def:1100,onPlay:[{op:'draw',n:1}],aw:{k:'buffAll',atk:300,def:0,others:1}},
+ {id:'g5',n:'ガチ恋勢',r:'R',type:'chara',c:4,atk:1300,def:1200,kw:{grow:300},aw:{k:'atk',n:800}},
  {id:'g6',n:'全額課金',r:'R',type:'spell',c:1,ops:[{op:'energy',n:2}]},
  {id:'g7',n:'布教活動',r:'R',type:'trap',c:1,when:'attack',ops:[{op:'negate'},{op:'draw',n:1}]},
  {id:'g8',n:'伝説の廃課金王',r:'SR',type:'chara',c:5,trib:1,atk:2700,def:2300,onPlay:[{op:'draw',n:2}],aw:{k:'wipeLow',max:1200}},
@@ -723,19 +724,19 @@ add('gachi',[
 add('idol',[
  {id:'i1',n:'研究生',r:'N',type:'chara',c:1,atk:800,def:1000,aw:{k:'heal',n:1000}},
  {id:'i2',n:'地下アイドル',r:'N',type:'chara',c:1,atk:1000,def:900,onPlay:[{op:'gauge',n:1}],aw:{k:'twice'}},
- {id:'i3',n:'センター',r:'N',type:'chara',c:2,atk:1300,def:1200,aw:{k:'buffAll',atk:300,def:0,others:1}},
- {id:'i4',n:'握手会の女王',r:'R',type:'chara',c:3,atk:1300,def:1600,onPlay:[{op:'heal',n:600}],aw:{k:'heal',n:1500}},
- {id:'i5',n:'卒業間近のエース',r:'R',type:'chara',c:4,atk:1800,def:1600,onDeath:[{op:'heal',n:1000}],aw:{k:'atk',n:800}},
+ {id:'i3',n:'センター',r:'N',type:'chara',c:2,atk:1400,def:1200,aw:{k:'buffAll',atk:300,def:0,others:1}},
+ {id:'i4',n:'握手会の女王',r:'R',type:'chara',c:3,atk:1400,def:1700,onPlay:[{op:'heal',n:600}],aw:{k:'heal',n:1500}},
+ {id:'i5',n:'卒業間近のエース',r:'R',type:'chara',c:4,atk:1900,def:1700,onDeath:[{op:'heal',n:1000}],aw:{k:'atk',n:800}},
  {id:'i6',n:'アンコール',r:'R',type:'spell',c:2,ops:[{op:'revive',maxC:3}]},
  {id:'i7',n:'鉄壁の運営',r:'R',type:'trap',c:1,when:'direct',ops:[{op:'negate'},{op:'heal',n:500}]},
  {id:'i8',n:'国民的アイドル',r:'SR',type:'chara',c:4,trib:1,atk:2500,def:2200,onPlay:[{op:'heal',n:1000}],aw:{k:'buffAll',atk:400,def:400,others:1}},
 ]);
 add('vt',[
  {id:'v1',n:'新人Vtuber',r:'N',type:'chara',c:1,atk:1100,def:1200,onPlay:[{op:'coin',h:[{op:'draw',n:1}],t:[]}],aw:{k:'draw',n:2}},
- {id:'v2',n:'雑談配信者',r:'N',type:'chara',c:2,atk:1400,def:1600,onPlay:[{op:'coin',h:[{op:'heal',n:600}],t:[]}],aw:{k:'def',n:600}},
- {id:'v3',n:'ゲーム実況者',r:'N',type:'chara',c:2,atk:1700,def:1300,onPlay:[{op:'coin',h:[{op:'rush'}],t:[]}],aw:{k:'twice'}},
- {id:'v4',n:'歌い手',r:'R',type:'chara',c:3,atk:1800,def:1800,onPlay:[{op:'coin',h:[{op:'buffAll',atk:300,def:0,others:1}],t:[]}],aw:{k:'buffAll',atk:300,def:0,others:1}},
- {id:'v5',n:'炎上系配信者',r:'R',type:'chara',c:3,atk:2300,def:1200,onPlay:[{op:'coin',h:[{op:'burn',n:500}],t:[]}],aw:{k:'destroyBest'}},
+ {id:'v2',n:'雑談配信者',r:'N',type:'chara',c:2,atk:1400,def:1500,onPlay:[{op:'coin',h:[{op:'heal',n:600}],t:[]}],aw:{k:'def',n:600}},
+ {id:'v3',n:'ゲーム実況者',r:'N',type:'chara',c:2,atk:1600,def:1300,onPlay:[{op:'coin',h:[{op:'rush'}],t:[]}],aw:{k:'twice'}},
+ {id:'v4',n:'歌い手',r:'R',type:'chara',c:3,atk:1700,def:1700,onPlay:[{op:'coin',h:[{op:'buffAll',atk:300,def:0,others:1}],t:[]}],aw:{k:'buffAll',atk:300,def:0,others:1}},
+ {id:'v5',n:'炎上系配信者',r:'R',type:'chara',c:3,atk:2200,def:1200,onPlay:[{op:'coin',h:[{op:'burn',n:500}],t:[]}],aw:{k:'destroyBest'}},
  {id:'v6',n:'スパチャの雨',r:'R',type:'spell',c:2,ops:[{op:'coin',h:[{op:'draw',n:2}],t:[{op:'draw',n:1}]}]},
  {id:'v7',n:'切り抜き',r:'R',type:'trap',c:1,when:'attack',ops:[{op:'negate'}]},
  {id:'v8',n:'登録者100万人',r:'SR',type:'chara',c:4,trib:1,atk:2500,def:2100,onPlay:[{op:'coin',h:[{op:'destroyBest'}],t:[]}],aw:{k:'burn',n:1000}},
@@ -752,20 +753,20 @@ add('cre',[
 ]);
 add('chu',[
  {id:'d1',n:'漆黒の新入生',r:'N',type:'chara',c:1,atk:1000,def:700,aw:{k:'atk',n:800}},
- {id:'d2',n:'封印されし右腕',r:'N',type:'chara',c:2,atk:1700,def:800,kw:{rush:1},aw:{k:'twice'}},
+ {id:'d2',n:'封印されし右腕',r:'N',type:'chara',c:2,atk:1600,def:800,kw:{rush:1},aw:{k:'twice'}},
  {id:'d3',n:'魔眼の継承者',r:'N',type:'chara',c:2,atk:1500,def:1200,aw:{k:'destroyBest'}},
- {id:'d4',n:'自称・堕天使',r:'R',type:'chara',c:3,atk:2000,def:1200,onDeath:[{op:'burn',n:500}],aw:{k:'weakenAll',n:300}},
- {id:'d5',n:'闇の生徒会長',r:'R',type:'chara',c:4,atk:2200,def:1600,aw:{k:'wipeLow',max:1000}},
+ {id:'d4',n:'自称・堕天使',r:'R',type:'chara',c:3,atk:1900,def:1200,onDeath:[{op:'burn',n:500}],aw:{k:'weakenAll',n:300}},
+ {id:'d5',n:'闇の生徒会長',r:'R',type:'chara',c:4,atk:2100,def:1500,aw:{k:'wipeLow',max:1000}},
  {id:'d6',n:'禁断の詠唱',r:'R',type:'spell',c:2,ops:[{op:'dmgAllEnemy',def:400}]},
  {id:'d7',n:'時よ止まれ',r:'R',type:'trap',c:2,when:'attack',ops:[{op:'negate'}]},
  {id:'d8',n:'邪神の器',r:'SR',type:'chara',c:4,trib:1,atk:2800,def:1800,onPlay:[{op:'dmgAllEnemy',def:300}],aw:{k:'burn',n:1000}},
 ]);
 add('neta',[
- {id:'n1',n:'全身タイツ芸人',r:'N',type:'chara',c:1,atk:400,def:1400,aw:{k:'cover'}},
+ {id:'n1',n:'全身タイツ芸人',r:'N',type:'chara',c:1,atk:400,def:1300,aw:{k:'cover'}},
  {id:'n2',n:'一発屋',r:'N',type:'chara',c:1,atk:1100,def:400,kw:{rush:1},aw:{k:'draw',n:2}},
- {id:'n3',n:'着ぐるみの中の人',r:'N',type:'chara',c:2,atk:600,def:1700,kw:{guts:1},aw:{k:'def',n:800}},
- {id:'n4',n:'ツッコミ担当',r:'R',type:'chara',c:3,atk:1200,def:1900,aw:{k:'twice'}},
- {id:'n5',n:'すべらない話の男',r:'R',type:'chara',c:4,atk:1300,def:2200,aw:{k:'heal',n:1500}},
+ {id:'n3',n:'着ぐるみの中の人',r:'N',type:'chara',c:2,atk:600,def:1600,kw:{guts:1},aw:{k:'def',n:800}},
+ {id:'n4',n:'ツッコミ担当',r:'R',type:'chara',c:3,atk:1200,def:1800,aw:{k:'twice'}},
+ {id:'n5',n:'すべらない話の男',r:'R',type:'chara',c:4,atk:1200,def:2100,aw:{k:'heal',n:1500}},
  {id:'n6',n:'大喜利',r:'R',type:'spell',c:2,ops:[{op:'coin',h:[{op:'destroyBest'}],t:[{op:'draw',n:1}]}]},
  {id:'n7',n:'天丼',r:'R',type:'trap',c:1,when:'attack',ops:[{op:'negate'}]},
  {id:'n8',n:'伝説のコメディアン',r:'SR',type:'chara',c:4,trib:1,atk:1800,def:2800,aw:{k:'wipeLow',max:1200}},
@@ -782,8 +783,8 @@ add('sei',[
 ]);
 add('hage',[
  {id:'o1',n:'窓際の課長',r:'N',type:'chara',c:1,atk:600,def:1300,aw:{k:'cover'}},
- {id:'o2',n:'ゴルフ帰りのおじ',r:'N',type:'chara',c:2,atk:1100,def:1500,aw:{k:'heal',n:1000}},
- {id:'o3',n:'居酒屋の常連',r:'N',type:'chara',c:2,atk:1200,def:1400,kw:{guts:1},aw:{k:'gutsEvery'}},
+ {id:'o2',n:'ゴルフ帰りのおじ',r:'N',type:'chara',c:2,atk:1000,def:1500,aw:{k:'heal',n:1000}},
+ {id:'o3',n:'居酒屋の常連',r:'N',type:'chara',c:2,atk:1100,def:1400,kw:{guts:1},aw:{k:'gutsEvery'}},
  {id:'o4',n:'バーコード社長',r:'R',type:'chara',c:3,atk:1400,def:1800,onPlay:[{op:'buffAll',atk:0,def:200,others:1}],aw:{k:'buffAll',atk:0,def:400,others:1}},
  {id:'o5',n:'頑固おやじ',r:'R',type:'chara',c:4,atk:1600,def:2100,kw:{cover:1},aw:{k:'atk',n:800}},
  {id:'o6',n:'育毛剤',r:'R',type:'spell',c:2,ops:[{op:'heal',n:1000},{op:'draw',n:1}]},
@@ -837,10 +838,10 @@ const DECK_SIZE=20,MAX_COPY=2;
 const isLeader=id=>!!BY[id].trib;
 const POOL=C.map(c=>c.id);
 /* preset: 7 tribe cards x2 + the 4 shared cards, shared 2 and 4 doubled */
-function starterDeck(k){const d=[];STARTERS[k].ids.filter(id=>!isLeader(id)).forEach(id=>d.push(id,id));d.push(LEADERS[k]);GEN.forEach(id=>d.push(id));d.push('x2');return d}
-/* a gold card may go in the deck only as one extra copy of the leader you picked */
-function validDeck(d,lead){if(d.length!==DECK_SIZE)return false;const n={};for(const id of d){if(!BY[id])return false;n[id]=(n[id]||0)+1;if(n[id]>MAX_COPY)return false;if(lead&&BY[id].trib&&(id!==lead||n[id]>1))return false}return true}
-const deckCap=(id,lead)=>BY[id].trib?(id===lead?1:0):MAX_COPY;
+function starterDeck(k){const d=[];STARTERS[k].ids.filter(id=>!isLeader(id)).forEach(id=>d.push(id,id));d.push(LEADERS[k],LEADERS[k]);GEN.forEach(id=>d.push(id));return d}
+/* gold cards: only the leader you picked, up to 2 copies; it comes out only after you draw it */
+function validDeck(d,lead){if(d.length!==DECK_SIZE)return false;const n={};for(const id of d){if(!BY[id])return false;n[id]=(n[id]||0)+1;if(n[id]>MAX_COPY)return false;if(lead&&BY[id].trib&&id!==lead)return false}return true}
+const deckCap=(id,lead)=>BY[id].trib?(id===lead?MAX_COPY:0):MAX_COPY;
 function awText(a){if(!a)return'';switch(a.k){
  case'cover':return'【かばう】がつく';case'draw':return a.n+'枚引く';case'atk':return'さらにATK+'+a.n;case'def':return'さらにDEF+'+a.n;
  case'gutsEvery':return'【根性】が毎ターン復活する';case'twice':return'1ターンに2回攻撃できる';case'wipeLow':return'相手のATK'+a.max+'以下のキャラを全部倒す';
@@ -855,7 +856,7 @@ function text(c){const t=[],k=c.kw||{};
   if(c.type==='spell')t.push((c.cond==='behind'?'自分のライフが相手より少ないときだけ使える。':'')+(c.tgt==='enemy'?'相手のキャラ1体を選んで':c.tgt==='enemyLow'?'相手のATK'+c.max+'以下のキャラ1体を選んで':'')+O(c.ops));
   if(c.type==='trap')t.push({attack:'相手のキャラが攻撃してきたとき',direct:'相手のキャラがライフを直接攻撃してきたとき',spell:'相手が魔法を使ったとき',any:'相手が攻撃か魔法をしてきたとき'}[c.when]+'、発動するか選べる:'+O(c.ops));
   if(c.aw)t.push('★3覚醒:'+awText(c.aw));
-  if(c.trib)t.unshift('【リーダー】リーダーにできる。リーダーにしたときだけ、同じカードをデッキに1枚入れられる。手札から出すときは自分のキャラ1体を生贄にする');
+  if(c.trib)t.unshift('【リーダー】リーダーにできる。リーダーにしたときだけ、同じカードをデッキに2枚まで入れられる。引いて手札に来たら、自分のキャラ1体を生贄にして出す');
   return t.join('\n')}
 function op(o){switch(o.op){case'draw':return o.n+'枚引く';case'drawIfAllies':return'味方のキャラが'+o.min+'体以上なら'+o.n+'枚引く';case'destroy':return'倒す';case'destroyBest':return'相手のATKが一番高いキャラ1体を倒す';
  case'buffAll':return(o.others?'ほかの味方キャラ全員':'味方キャラ全員')+'の'+(o.atk?'ATK+'+o.atk:'')+(o.atk&&o.def?'・':'')+(o.def?'DEF+'+o.def:'')+(o.temp?'(このターンだけ)':'');
@@ -956,7 +957,8 @@ function castSpell(g,pi,hi,target,answer){if(!canPlay(g,pi,hi))return false;cons
 function setTrap(g,pi,hi){if(!canPlay(g,pi,hi))return false;const P=g.p[pi],id=P.hand[hi];if(BY[id].type!=='trap')return false;P.energy-=BY[id].c;P.hand.splice(hi,1);const t={uid:++UID,id,ready:false};P.st.push(t);ev(g,{t:'set',who:pi,uid:t.uid});return true}
 /* ---- the leader: summoned from its seat with one tribute; every return costs 1 more ---- */
 function leaderCost(g,pi){const L=g.p[pi].leader;return BY[L.id].c+L.n}
-function canLeader(g,pi){const P=g.p[pi];if(g.cur!==pi||g.over||g.pending||P.leader.out)return false;return P.energy>=leaderCost(g,pi)&&units(g,pi).length>=1}
+/* leaders are no longer summoned from a seat: the leader card has to be drawn from the deck */
+function canLeader(g,pi){return false;const P=g.p[pi];if(g.cur!==pi||g.over||g.pending||P.leader.out)return false;return P.energy>=leaderCost(g,pi)&&units(g,pi).length>=1}
 function summonLeader(g,pi,tribs){if(!canLeader(g,pi))return false;const P=g.p[pi];const T=(tribs||[]).map(u=>find(g,u)).filter(m=>m&&m.owner===pi&&!m.isLeader);if(!T.length)return false;
   P.energy-=leaderCost(g,pi);const t=T[0];P.slot[t.slot]=null;P.gy.push(t.id,...t.under);ev(g,{t:'tribute',who:pi,uid:t.uid,id:t.id});P.leader.out=true;const m=place(g,pi,P.leader.id,t.slot);m.isLeader=true;return true}
 /* ---- battle ---- */
@@ -1326,7 +1328,8 @@ const HOST=(()=>{try{return window.parent!==window&&window.parent.TCGHOST||null}
 const BUILD_ONLY=!!HOST&&/^#build=/.test(location.hash);
 const OWN=id=>HOST?((HOST.own()||{})[id]||0):9;
 /* copies of a card a deck may hold: 2, fewer if you own fewer (the leader you lead with uses one copy) */
-const capOf=(id,lead)=>Math.min(CD.deckCap(id,lead),Math.max(0,OWN(id)-(id===lead?1:0)));
+/* copies a deck may hold: the rule's cap (leader card 2, others 2), fewer if you own fewer */
+const capOf=(id,lead)=>Math.min(CD.deckCap(id,lead),Math.max(0,OWN(id)));
 function lackOf(d){if(!HOST)return 0;const n={};d.cards.forEach(id=>n[id]=(n[id]||0)+1);let k=OWN(d.lead)>0?0:1;Object.keys(n).forEach(id=>{k+=Math.max(0,n[id]-capOf(id,d.lead))});return k}
 function fitDeck(d){let lead=d.lead;if(HOST&&OWN(lead)<1)lead=Object.values(CD.LEADERS).find(id=>OWN(id)>0)||lead;const n={},cards=[];d.cards.forEach(id=>{n[id]=(n[id]||0)+1;if(n[id]<=capOf(id,lead))cards.push(id)});return Object.assign({},d,{lead,cards})}
 document.body.insertAdjacentHTML('afterbegin','<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="acr" x="-10%" y="-10%" width="120%" height="120%"><feMorphology in="SourceAlpha" operator="dilate" radius="1.6" result="d"/><feFlood flood-color="#ffffff" flood-opacity=".95"/><feComposite in2="d" operator="in" result="o"/><feMorphology in="SourceAlpha" operator="dilate" radius="2.4" result="d2"/><feFlood flood-color="#9fdcff" flood-opacity=".35"/><feComposite in2="d2" operator="in" result="o2"/><feMerge><feMergeNode in="o2"/><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="relief2" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feConvolveMatrix in="SourceGraphic" order="3" kernelMatrix="-1 -1 0 -1 1 1 0 1 1" preserveAlpha="true" result="emb"/><feColorMatrix in="emb" type="saturate" values="0" result="eg"/><feColorMatrix in="SourceGraphic" type="matrix" values="0.55 0.45 0.1 0 0.06 0.42 0.5 0.08 0 0.03 0.2 0.3 0.25 0 0 0 0 0 1 0" result="gold"/><feBlend in="eg" in2="gold" mode="overlay" result="o"/><feComponentTransfer in="o"><feFuncR type="gamma" exponent="0.85" amplitude="1.1"/><feFuncG type="gamma" exponent="0.9" amplitude="1.05"/><feFuncB type="gamma" exponent="1" amplitude=".9"/></feComponentTransfer></filter><filter id="relief" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix in="SourceGraphic" type="matrix" values="0.3 0.59 0.11 0 0 0.3 0.59 0.11 0 0 0.3 0.59 0.11 0 0 0 0 0 1 0" result="g"/><feConvolveMatrix in="g" order="3" kernelMatrix="-3 -2 0 -2 1 2 0 2 3" preserveAlpha="true" result="emb"/><feColorMatrix in="g" type="matrix" values="0.85 0 0 0 0.2 0.68 0 0 0 0.13 0.34 0 0 0 0.03 0 0 0 1 0" result="gold"/><feBlend in="emb" in2="gold" mode="overlay"/></filter></svg>');
@@ -1474,7 +1477,7 @@ const canStackAny=i=>E.units(g,H).some(m=>E.canEvolve(g,H,i,m.uid));
 function handTap(i){if(!g)return;const id=g.p[H].hand[i];if(!id)return;cardSheet(id,i)}
 function bindField(S){const live=liveMine();const T=mode&&mode.k==='atk'?E.attackTargets(g,H):[];
   document.querySelectorAll('#field .lane').forEach(ln=>{const side=ln.dataset.side;const u=ln.querySelector('.u');
-    if(!u){ln.onclick=null;return}
+    if(!u){if(side==='m'&&mode&&mode.k==='slot'){ln.classList.add('pick');ln.onclick=()=>{const hi=mode.hi;mode=null;act1(()=>X('playChara',hi,+ln.dataset.l))}}else ln.onclick=null;return}
     const m=g&&E.find(g,+u.dataset.uid);
     if(side==='m'){
       if(mode&&mode.k==='ltrib'){if(m&&!m.isLeader){u.classList.add('tgt');ln.onclick=()=>{mode=null;act1(()=>X('summonLeader',[m.uid]))}}else ln.onclick=null;return}
@@ -1501,6 +1504,7 @@ function renderHint(S){if(!g||S.cur!==H||S.over||busy||!mode)return hint('');
     const t=p.kind==='direct'?'ライフに'+p.dmg+'ダメージ':(p.kill?'倒せる'+(p.dmg?'+'+p.dmg+'ダメージ':''):p.over?'根性で耐えられる':'倒せない')+(p.die?'。反撃で倒れる':'。反撃なし');
     return hint(t,[hbtn('攻撃する','',()=>doAttack(mode.uid,mode.target)),cancel])}
   if(mode.k==='ltrib')return hint('リーダーの生贄にするキャラをタップ',[cancel]);
+  if(mode.k==='slot')return hint('出す場所をタップ',[cancel]);
   if(mode.k==='trib')return hint('生贄にするキャラをタップ',[cancel]);
   if(mode.k==='evo')return hint('育てるキャラをタップ(熱量'+E.R.EVOC+')',[cancel]);
   hint('赤く光る相手をタップ',[cancel])}
@@ -1688,7 +1692,7 @@ function cardSheet(id,i,note){const c=BY[id];sheet((s,close)=>{const top=el('div
   if(i!=null&&g&&g.cur===H&&!busy&&!g.over){const ok=E.canPlay(g,H,i);
     const label={chara:'場に出す',spell:'使う',trap:'伏せる'}[c.type];const b=el('button','btn',label);b.disabled=!ok;
     if(c.trib)b.textContent='生贄を選んで出す';
-    b.onclick=()=>{close();if(c.trib){mode={k:'trib',hi:i};render(snap());return}if(c.type==='chara')act1(()=>X('playChara',i));else if(c.type==='trap')act1(()=>X('setTrap',i));else if(c.tgt){mode={k:'tgt',hi:i};render(snap())}else castMine(i)};acts.append(b);
+    b.onclick=()=>{close();if(c.trib){mode={k:'trib',hi:i};render(snap());return}if(c.type==='chara'){const fr=g.p[H].slot.map((x,k)=>x?-1:k).filter(k=>k>=0);if(fr.length>1){mode={k:'slot',hi:i};render(snap());return}act1(()=>X('playChara',i,fr[0]))}else if(c.type==='trap')act1(()=>X('setTrap',i));else if(c.tgt){mode={k:'tgt',hi:i};render(snap())}else castMine(i)};acts.append(b);
     const st=canStackAny(i);const sb=el('button','btn gold','重ねて育てる');sb.disabled=!st;sb.onclick=()=>{close();mode={k:'evo',hi:i};render(snap())};acts.append(sb);
     if(!ok)s.append(el('div','why',whyNot(i)))}
   const x=el('button','btn sec','閉じる');x.onclick=close;acts.append(x);s.append(acts)})}
@@ -1725,7 +1729,7 @@ const RULES=[['勝ち方','相手のライフ('+E.R.LIFE+')を0にしたら勝�
   ['バトル','攻撃したキャラのATKが相手のDEFより大きいと相手は倒れ、はみ出た分が相手のライフに入る。相手のATKが攻撃したキャラのDEFより大きいと、反撃で攻撃した方も倒れ、はみ出た分を受ける。'],
   ['育てる','手札を1枚、自分のキャラに重ねると★が1つ上がる(熱量'+E.R.EVOC+'。1体につき1ターン1回)。★ごとにATK・DEF+'+E.R.STAR+'。同じカードを重ねると★+2。★3で覚醒して、カードごとの特別な力が出る。育てたキャラはそのターンすぐ攻撃できる。倒されると、重ねたカードも全部捨て札。'],
   ['熱量','カードを出す・育てるためのエネルギー。ターン数と同じだけ(最大8)。後攻は最初のターンだけ熱量+1。最初の手札は4枚。先攻は最初のターン、引けず攻撃もできない。'],
-  ['リーダー','金色のレリーフのカード11種類だけがリーダーになれる。デッキとは別に1枚選ぶ。リーダーにしたカードと同じカードを、デッキにも1枚だけ入れられる(手札から出すときも生贄1体)。ほかの金色のカードはデッキに入れられない。特性と必殺技はリーダーが持つ。熱量と自分のキャラ1体の生贄で場に出せて、倒されても席に戻る(出すたびに熱量+1)。'],
+  ['リーダー','金色のレリーフのカード11種類だけがリーダーになれる。デッキとは別に1枚選ぶ。リーダーは場の外にいて、特性と必殺技をくれる。リーダーにしたカードと同じカードはデッキに2枚まで入れられて、引いて手札に来たら生贄1体で出せる。ほかの金色のカードはデッキに入れられない。特性と必殺技はリーダーが持つ。熱量と自分のキャラ1体の生贄で場に出せて、倒されても席に戻る(出すたびに熱量+1)。'],
   ['族とデッキ','全カードに族がある。デッキは20枚、同じカードは2枚まで、族は自由に混ぜてよい。【同族】のカードはリーダーと同じ族のときATK・DEF+300。'],
   ['トラップ','熱量を払って伏せる(3枚まで)。次の相手のターンから、相手の攻撃や魔法に合わせて「発動する?」と聞かれる。'],
   ['推しゲージと必殺技','自分のキャラが倒れる、ライフを直接攻撃されるたびにゲージ+1。3たまると、デッキごとの必殺技を1対戦に1回使える。'],
