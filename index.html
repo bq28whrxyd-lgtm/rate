@@ -1899,6 +1899,8 @@ button.tcgc{position:relative;padding:0;background:none;border:0;border-radius:8
 .tcgw iframe{display:block;width:100%;height:100%;border:0;background:#07080c}
 .tcgw.out{opacity:0;transition:opacity .25s}
 body.tcgon{overflow:hidden}
+/* while the game is open, stop painting the app underneath it (its glows and animations cost frames on phones) */
+body.tcgon>main,body.tcgon>.bnav,body.tcgon>.iosnav{visibility:hidden;transition:visibility 0s linear .3s}
 /* pack reveal: TCG cards use their art */
 .gcf.tcgf{padding:0;gap:0}
 .gcf.tcgf img.tcgfi{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -4551,7 +4553,7 @@ async function tcgSaveDecks(L){const me=myPlayer();if(!db||!me||invFor!==me.id)r
 window.TCGHOST={own:()=>tcgOwn(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
-  const f=el('iframe');f.src='tcg_play.html'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+  const f=el('iframe');f.src='tcg_play.html?v=70'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
 function tcgClose(){if(typeof tcgLive!=='undefined')tcgLive=null;const o=$('tcgw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');renderTcg()}
 /* your own coin decides who goes first, then your own 対戦演出 opens the match */
 function tcgToss(info,cb){const side=coinToss({id:'tcg'},myCoin());let fired=false;const t0=Date.now();
