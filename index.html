@@ -4551,14 +4551,14 @@ async function tcgOpenPack(pk){const me=myPlayer();if(!db||!me||me.ban||opening|
   opening=false;renderTcg()}
 
 async function tcgSaveDecks(L){const me=myPlayer();if(!db||!me||invFor!==me.id)return;
-  const t=Object.assign({},tcgOf(inv),{decks:(L||[]).slice(0,20).map(d=>({name:String(d.name||'マイデッキ').slice(0,16),lead:d.lead,cards:d.cards.slice(0,TCGD.deckSize)}))});
-  inv=Object.assign({},inv,{tcg:t});try{await db.doc('inv/'+me.id).update({tcg:t})}catch(e){toast('デッキを保存できませんでした')}}
+  const t=Object.assign({},tcgOf(inv),{decks:(L||[]).slice(0,20).map(d=>({name:String(d.name||'マイデッキ').slice(0,16),lead:d.lead,cards:(d.cards||[]).slice(0,TCGD.deckSize)}))});
+  inv=Object.assign({},inv,{tcg:t});try{await db.doc('inv/'+me.id).set({tcg:t},{merge:true})}catch(e){toast('デッキを保存できませんでした('+((e&&e.code)||(e&&e.message)||'')+')')}}
 
 /* ---- the game runs in a frame and asks the app for cards, decks, the coin toss and the result ---- */
 window.TCGHOST={own:()=>tcgOwn(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
-  const f=el('iframe');f.src='tcg_play.html?v=70'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+  const f=el('iframe');f.src='tcg_play.html?v=71'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
 function tcgClose(){if(typeof tcgLive!=='undefined')tcgLive=null;const o=$('tcgw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');renderTcg()}
 /* your own coin decides who goes first, then your own 対戦演出 opens the match */
 function tcgToss(info,cb){const side=coinToss({id:'tcg'},myCoin());let fired=false;const t0=Date.now();
@@ -4584,7 +4584,7 @@ function tcgResult(r){const me=myPlayer()||{},line=(r.pvp?'きもオタTCG 友�
   setTimeout(()=>{if(r.w==='win')victoryView(me.name||'あなた',r.pvp?r.cpuName:'CPU',me.eq&&me.eq.v,line,true,me.eq&&me.eq.i);
     else if(r.w==='lose')victoryView(r.pvp?r.cpuName:'CPU('+r.cpuName+')',me.name||'あなた',null,line,false);else toast('引き分け  ·  '+line)},500);
   if(!r.pvp&&(r.w==='win'||r.w==='lose')){const t=Object.assign({},tcgOf(inv));t[r.w==='win'?'w':'l']=(t[r.w==='win'?'w':'l']||0)+1;inv=Object.assign({},inv,{tcg:t});
-    if(db&&invFor)db.doc('inv/'+invFor).update({tcg:t}).catch(()=>{})}}
+    if(db&&invFor)db.doc('inv/'+invFor).set({tcg:t},{merge:true}).catch(()=>{})}}
 
 /* ---- the TCG screen ---- */
 let tcgTab='all';
@@ -5258,7 +5258,7 @@ catch(e){FS=initializeFirestore(app,{ignoreUndefinedProperties:true})}
 /* same small API the app was written against: db.doc(path) / db.collection(name) */
 const snap=s=>({id:s.id,exists:s.exists(),data:()=>s.data()});
 const db={
-  doc:p=>{const r=doc(FS,p);return{set:d=>setDoc(r,d),update:d=>updateDoc(r,d),delete:()=>deleteDoc(r),onSnapshot:(cb,er)=>onSnapshot(r,s=>cb(snap(s)),er||(()=>{}))}},
+  doc:p=>{const r=doc(FS,p);return{set:(d,o)=>o?setDoc(r,d,o):setDoc(r,d),update:d=>updateDoc(r,d),delete:()=>deleteDoc(r),onSnapshot:(cb,er)=>onSnapshot(r,s=>cb(snap(s)),er||(()=>{}))}},
   collection:c=>{const mk=cs=>({orderBy:(f,d)=>mk([...cs,orderBy(f,d||'asc')]),limit:n=>mk([...cs,limit(n)]),add:d=>addDoc(collection(FS,c),d),
     onSnapshot:(cb,er)=>onSnapshot(query(collection(FS,c),...cs),s=>cb({docs:s.docs.map(snap)}),er||(()=>{}))});return mk([])}
 };
