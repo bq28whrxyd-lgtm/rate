@@ -4469,23 +4469,28 @@ const tcgAdmin=()=>typeof isAdmin==='function'&&isAdmin();
 const tcgOwn=()=>{if(tcgAdmin()){const o={};TCGD.cards.forEach(c=>o[c.id]=2);return o}return tcgOf(inv).own||{}};
 const tcgHasSt=()=>!!tcgOf(inv).st||tcgAdmin();
 const tcgCap=id=>TC[id].r==='GR'?TCGD.cap.lead:TCGD.cap.other;
+/* holo (foil) cards: a 1/100 chance per pulled card. Tracked apart from the normal copy; same per-card cap, extras become かけら. Purely cosmetic. */
+const TCG_FOIL=0.01;
+const tcgFoil=()=>tcgOf(inv).foil||{};
+const tcgIsFoil=id=>(tcgFoil()[id]||0)>0;
 /* card art lives in tcg/cardimg.js (large), loaded the first time the TCG screen needs it */
 let tcgImgP=null;
 function tcgLoad(){if(window.CARD_IMG)return Promise.resolve();if(tcgImgP)return tcgImgP;
   tcgImgP=new Promise(res=>{const s=document.createElement('script');s.src='tcg_cardimg.js';s.onload=()=>res();s.onerror=()=>{tcgImgP=null;res()};document.head.append(s)});return tcgImgP}
 const tcgImg=id=>(window.CARD_IMG||{})[id]||'';
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
-function tcgFace(id,cls){const c=TC[id],f=el('div','tcf r-'+c.r+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=tcgImg(id);if(src)im.src=src;f.append(im);return f}
+function tcgFace(id,cls,foil){const c=TC[id],f=el('div','tcf r-'+c.r+(foil?' foil':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=tcgImg(id);if(src)im.src=src;f.append(im);if(foil)f.append(el('i','foilsheen'),el('i','foilspark'));return f}
 
 /* one pack: 3 cards, each ガチレア 4% / レア 26% / コモン 70%; the 3rd is レア or better */
 function tcgRoll(pk){const P=TCGD.packs[pk],pool=TCGD.cards.filter(c=>P.f.includes(c.f)||c.f==='gen');
   const pick=r=>{const L=pool.filter(c=>c.r===r);return L[Math.random()*L.length|0].id};
   const out=[];for(let i=0;i<TCGD.size;i++){const x=Math.random()*100,last=i===TCGD.size-1;out.push(pick(x<TCGD.rates.GR?'GR':(last||x<TCGD.rates.GR+TCGD.rates.R)?'R':'C'))}return out}
 /* add cards to the collection; copies past what a deck can use (leaders 3, others 2) become かけら */
-function tcgApply(v,ids){const t=Object.assign({},tcgOf(v)),own=Object.assign({},t.own||{});let sh=0;
-  const res=ids.map(id=>{const c=TC[id],had=own[id]||0;if(had>=tcgCap(id)){const s=TCGD.shard[c.r];sh+=s;return{c:tcgItem(id),isNew:false,sh:s}}
-    own[id]=had+1;return{c:tcgItem(id),isNew:!had,sh:0,note:had?(had+1)+'枚目':null}});
-  t.own=own;return{inv:Object.assign({},v,{tcg:t,shards:(v.shards||0)+sh}),res}}
+function tcgApply(v,ids){const t=Object.assign({},tcgOf(v)),own=Object.assign({},t.own||{}),foil=Object.assign({},t.foil||{});let sh=0;
+  const res=ids.map(id=>{const c=TC[id],isF=Math.random()<TCG_FOIL,bag=isF?foil:own,had=bag[id]||0;
+    if(had>=tcgCap(id)){const s=TCGD.shard[c.r];sh+=s;return{c:tcgItem(id),isNew:false,sh:s,foil:isF}}
+    bag[id]=had+1;return{c:tcgItem(id),isNew:!had,sh:0,note:had?(had+1)+'枚目':null,foil:isF}});
+  t.own=own;t.foil=foil;return{inv:Object.assign({},v,{tcg:t,shards:(v.shards||0)+sh}),res}}
 
 async function tcgStarter(k){const me=myPlayer();if(!db||!me||me.ban||!invLoaded||invFor!==me.id||tcgOf(inv).st)return;
   const S=TCGD.starters[k],own={};S.cards.forEach(id=>own[id]=(own[id]||0)+1);
@@ -4518,8 +4523,8 @@ function tcgPackView(pk,res,onMore){
   const queue=res.slice(),got=el('div','tpkg');let busy=false,cur=null;
   function dealOut(){pack.classList.add('away');const st=el('div','tpkst');stage.append(st,got);
     queue.forEach((x,i)=>{const c=el('div','tpcd'),inn=el('div','tpci'),back=el('div','tpcb'),face=el('div','tpcf');
-      back.append(emblem(6,46),el('span',null,'KIMOOTA TCG'));face.append(tcgFace(x.c.v));face.append(el('b','tpcr r-'+x.c.tl,x.c.tl==='GR'?'ガチレア':x.c.tl==='R'?'レア':'コモン'),el('div','tpcn',x.c.n));
-      inn.append(back,face);c.append(inn);c.style.setProperty('--k',queue.length-1-i);c.style.zIndex=10+queue.length-i;c.dataset.i=i;x.el=c;
+      back.append(emblem(6,46),el('span',null,'KIMOOTA TCG'));face.append(tcgFace(x.c.v,null,x.foil));face.append(el('b','tpcr r-'+x.c.tl,(x.foil?'SCR ':'')+(x.c.tl==='GR'?'ガチレア':x.c.tl==='R'?'レア':'コモン')),el('div','tpcn',x.c.n));
+      inn.append(back,face);c.append(inn);if(x.foil)c.classList.add('foil');c.style.setProperty('--k',queue.length-1-i);c.style.zIndex=10+queue.length-i;c.dataset.i=i;x.el=c;
       /* the colour on the back hints at what is inside; a ガチレア sometimes hides as a レア */
       x.fake=x.c.r>=4&&Math.random()<.3;if(x.c.r>=2)c.classList.add(x.fake?'t2':'t'+x.c.r);
       st.append(c)});
@@ -4529,11 +4534,11 @@ function tcgPackView(pk,res,onMore){
     let dx0=null;st.addEventListener('pointerdown',e=>{dx0=e.clientX});st.addEventListener('pointerup',e=>{if(dx0!=null&&Math.abs(e.clientX-dx0)>50&&cur&&cur.open){tip.remove();next()}dx0=null})}
   function next(){if(busy)return;
     if(cur&&cur.open){/* the open card goes down to the row and the next one comes up */
-      busy=true;const c=cur.el;c.classList.add('fly');setTimeout(()=>{c.remove();const t=tcgFace(cur.c.v,'tpkgc');t.append(el('i','tpkgt'+(cur.isNew?' new':''),cur.isNew?'NEW':cur.note||('+'+cur.sh+'かけら')));got.append(t);cur=null;busy=false;if(!queue.length)finish()},RM?50:320);return}
+      busy=true;const c=cur.el;c.classList.add('fly');setTimeout(()=>{c.remove();const t=tcgFace(cur.c.v,'tpkgc',cur.foil);t.append(el('i','tpkgt'+(cur.isNew?' new':''),cur.isNew?(cur.foil?'SCR NEW':'NEW'):cur.note||('+'+cur.sh+'かけら')));got.append(t);cur=null;busy=false;if(!queue.length)finish()},RM?50:320);return}
     if(!queue.length)return;const x=queue[0];
     if(x.fake){x.fake=false;busy=true;x.el.classList.replace('t2','up');vib(3);FX(o,5,0);setTimeout(()=>{x.el.classList.replace('up','t4');busy=false},900);return}
     queue.shift();cur=x;busy=true;
-    const flip=()=>{x.el.classList.add('open');x.open=true;if(x.c.r>=2){o.classList.add('lit');o.style.setProperty('--aura',RAR[x.c.r].c);FX(o,x.c.r>=4?6:3,120,x.c.r>=4?XS.rainbow:null)}setTimeout(()=>{busy=false},RM?50:520)};
+    const flip=()=>{x.el.classList.add('open');x.open=true;if(x.c.r>=2||x.foil){o.classList.add('lit');o.style.setProperty('--aura',x.foil?'#8fd0ff':RAR[x.c.r].c);FX(o,(x.c.r>=4||x.foil)?6:3,120,(x.c.r>=4||x.foil)?XS.rainbow:null)}setTimeout(()=>{busy=false},RM?50:520)};
     if(x.c.r>=4)cutIn(x.c,flip);else flip()}
   function finish(){const f=el('div','tpkft'),nw=res.filter(z=>z.isNew).length,sh=res.reduce((a,z)=>a+z.sh,0);
     f.append(el('div','pksum','NEW '+nw+'枚'+(sh?'  ·  かけら +'+sh:'')));const cl=el('button','sec','閉じる');cl.onclick=()=>o.remove();f.append(cl);
@@ -4562,7 +4567,7 @@ async function tcgSaveDecks(L){const me=myPlayer();if(!db||!me||invFor!==me.id)r
   try{await db.doc('inv/'+me.id).set({tcg:{decks}},{merge:true})}catch(e){try{console.error('deck save failed',e)}catch(_){}toast('デッキ保存失敗: '+String((e&&e.message)||(e&&e.code)||e).slice(0,220))}}
 
 /* ---- the game runs in a frame and asks the app for cards, decks, the coin toss and the result ---- */
-window.TCGHOST={own:()=>tcgOwn(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
+window.TCGHOST={own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
   const f=el('iframe');f.src='tcg_play.html?v=71'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
@@ -4595,19 +4600,19 @@ function tcgResult(r){const me=myPlayer()||{},line=(r.pvp?'きもオタTCG 友�
 
 /* ---- the TCG screen ---- */
 let tcgTab='all';
-function tcgSheet(id){const c=TC[id],own=tcgOwn()[id]||0,o=el('div','tcgsh'),b=el('div','tcgshb');
-  const f=tcgFace(id,'big');if(!own)f.classList.add('lock');
+function tcgSheet(id){const c=TC[id],own=tcgOwn()[id]||0,fo=tcgFoil()[id]||0,o=el('div','tcgsh'),b=el('div','tcgshb');
+  const f=tcgFace(id,'big',fo>0);if(!own&&!fo)f.classList.add('lock');
   const t=el('div','tcgsht');t.append(el('div','eyebrow',TCGD.fname[c.f]+'  ·  '+TRN[c.r]),el('h3',null,c.n),
     el('div','tcgshm',(c.ty==='chara'?'キャラ':c.ty==='spell'?'魔法':'トラップ')+'  ·  熱量 '+c.c+(c.ty==='chara'?'  ·  ATK '+c.atk+' / DEF '+c.def:'')),
-    el('p','tcgshx',c.tx||'効果なし'),el('div','tcgsho',own?'所持 '+own+'枚':'まだ持っていません'));
+    el('p','tcgshx',c.tx||'効果なし'),el('div','tcgsho',(own||fo)?('所持 '+own+'枚'+(fo?'  ·  SCR '+fo+'枚':'')):'まだ持っていません'));
   const x=el('button','sec','閉じる');x.onclick=()=>o.remove();b.append(f,t,x);o.append(b);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
 /* 図鑑: every card, the ones you don't have yet greyed out */
-function tcgDexInto(cs,rerender){const own=tcgOwn(),all=TCGD.cards.length,have=TCGD.cards.filter(c=>own[c.id]).length,gr=TCGD.cards.filter(c=>c.r==='GR'),grh=gr.filter(c=>own[c.id]).length;
+function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),all=TCGD.cards.length,have=TCGD.cards.filter(c=>own[c.id]||foil[c.id]).length,gr=TCGD.cards.filter(c=>c.r==='GR'),grh=gr.filter(c=>own[c.id]||foil[c.id]).length;
   cs.append(el('div','sub',have+' / '+all+' 種類  ·  ガチレア '+grh+' / '+gr.length));
   const bar=el('div','tcgbar');const fill=el('i');fill.style.width=(have/all*100).toFixed(1)+'%';bar.append(fill);cs.append(bar);
   const tabs=el('div','tcgtabs');[['all','すべて'],...TCGD.order.map(f=>[f,TCGD.fname[f].replace('族','')])].forEach(([k,n])=>{const b=el('button',tcgTab===k?'on':'',n);b.onclick=()=>{tcgTab=k;rerender()};tabs.append(b)});cs.append(tabs);
-  const g=el('div','tcggrid');TCGD.cards.filter(c=>tcgTab==='all'||c.f===tcgTab).forEach(c=>{const w=el('button','tcgc'+(own[c.id]?'':' lock'));w.append(tcgFace(c.id));
-    if(own[c.id])w.append(el('i','tcgn','×'+own[c.id]));w.setAttribute('aria-label',c.n);w.onclick=()=>tcgSheet(c.id);g.append(w)});cs.append(g)}
+  const g=el('div','tcggrid');TCGD.cards.filter(c=>tcgTab==='all'||c.f===tcgTab).forEach(c=>{const fo=foil[c.id]||0,w=el('button','tcgc'+((own[c.id]||fo)?'':' lock'));w.append(tcgFace(c.id,null,fo>0));
+    if(own[c.id])w.append(el('i','tcgn','×'+own[c.id]));if(fo)w.append(el('i','tcgn foil','SCR×'+fo));w.setAttribute('aria-label',c.n);w.onclick=()=>tcgSheet(c.id);g.append(w)});cs.append(g)}
 /* デッキ・図鑑: next to コレクション・図鑑 (パック and プロフィール) */
 let tdvTab='deck';
 function tcgDeckView(tab){if(tab)tdvTab=tab;tcgLoad().then(()=>{const o=$('tdv');if(o)drawTdv()});let o=$('tdv');if(!o){o=el('div','tdv');o.id='tdv';document.body.append(o)}drawTdv()}
@@ -4618,7 +4623,7 @@ function drawTdv(){const o=$('tdv');if(!o)return;o.replaceChildren();const box=e
   if(tdvTab==='dex'){const cs=el('div','tdvdex');tcgDexInto(cs,drawTdv);box.append(cs)}
   else if(!tcgHasSt()){box.append(el('p','sub','まだスターターデッキを選んでいません。TCGの画面で選ぶと、ここにデッキが並びます。'));const b=el('button',null,'TCGの画面へ');b.onclick=()=>{o.remove();setView('tcg')};box.append(b)}
   else{const L=T.decks||[];box.append(el('p','sub','デッキは20枚。同じカードは2枚まで。金枠カードはリーダーにしたものだけ、デッキに2枚まで(引いたら生贄1体で出せる)。'));
-    L.forEach((d,i)=>{const r=el('div','tdvd'),lf=TC[d.lead]?TC[d.lead].f:'gen';r.append(tcgFace(d.lead));const tx=el('div','tdvdt');
+    L.forEach((d,i)=>{const r=el('div','tdvd'),lf=TC[d.lead]?TC[d.lead].f:'gen';r.append(tcgFace(d.lead,null,tcgIsFoil(d.lead)));const tx=el('div','tdvdt');
       tx.append(el('b',null,d.name),el('span',null,'リーダー:'+(TC[d.lead]?TC[d.lead].n:'?')+'('+(TCGD.fname[lf]||'')+')'),el('span',null,d.cards.length+'枚'));
       const ac=el('div','tdvda'),eb=el('button',null,'編成');eb.onclick=()=>tcgPlay('build='+i);const db_=el('button','sec','削除');db_.onclick=()=>twoTap(db_,'削除',()=>{const N=L.slice();N.splice(i,1);tcgSaveDecks(N).then(drawTdv)});
       ac.append(eb,db_);tx.append(ac);r.append(tx);box.append(r)});
@@ -5290,4 +5295,25 @@ onAuthStateChanged(auth,u=>{
   if(!started){started=true;window.__fbResolve({db,user:{id:async()=>u.uid},logout:()=>signOut(auth)})}
 });
 </script>
+<style>
+/* SCR (secret rare) finish — spinning rainbow border + sheen + sparkles */
+.tcf{position:relative;overflow:hidden}
+.tcf.foil>img{filter:saturate(1.18) contrast(1.06)}
+.tcf.foil{box-shadow:0 0 0 1px rgba(255,255,255,.2),0 0 22px rgba(150,190,255,.55),0 0 48px rgba(255,120,200,.35)}
+.tcf.foil .foilsheen{position:absolute;inset:0;pointer-events:none;border-radius:inherit;z-index:3;mix-blend-mode:screen;opacity:.9;
+  background:linear-gradient(115deg,transparent 10%,rgba(255,90,170,.75) 26%,rgba(90,200,255,.75) 38%,rgba(140,255,170,.75) 48%,rgba(255,230,120,.75) 58%,rgba(200,120,255,.75) 68%,transparent 84%);
+  background-size:260% 260%;animation:foilshift 3s linear infinite}
+.tcf.foil::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;z-index:4;pointer-events:none;
+  background:conic-gradient(from 0deg,#ff5f6d,#ffc371,#47e5bc,#5b8def,#a66bff,#ff5f6d);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.tcf.foil .foilspark{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:inherit;
+  background-image:radial-gradient(2px 2px at 20% 30%,#fff,transparent 60%),radial-gradient(1.5px 1.5px at 72% 58%,#fff,transparent 60%),radial-gradient(2px 2px at 42% 82%,#fff,transparent 60%),radial-gradient(1.5px 1.5px at 85% 22%,#fff,transparent 60%),radial-gradient(2px 2px at 58% 12%,#fff,transparent 60%),radial-gradient(1.5px 1.5px at 12% 70%,#fff,transparent 60%);
+  animation:twinkle 1.5s steps(2,jump-none) infinite}
+@keyframes foilshift{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes foilspin{to{transform:rotate(1turn)}}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.3}}
+.tpcd.foil .tpcf{box-shadow:0 0 24px rgba(130,200,255,.75),0 0 56px rgba(255,120,200,.55)}
+.tcgn.foil{color:#9ad8ff;font-weight:700}
+@media(prefers-reduced-motion:reduce){.tcf.foil .foilsheen,.tcf.foil::before,.tcf.foil .foilspark{animation:none}}
+</style>
 </body></html>

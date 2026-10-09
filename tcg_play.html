@@ -1339,7 +1339,8 @@ const show=id=>['s-title','s-deck','s-build','s-toss','s-game'].forEach(s=>$(s).
 /* ---------- inside the きもオタレート app: owned cards, saved decks, the coin toss and the result go through the app ---------- */
 const HOST=(()=>{try{return window.parent!==window&&window.parent.TCGHOST||null}catch(e){return null}})();
 const BUILD_ONLY=!!HOST&&/^#build=/.test(location.hash);
-const OWN=id=>HOST?((HOST.own()||{})[id]||0):9;
+const FOIL=id=>HOST&&HOST.foil?((HOST.foil()||{})[id]||0):0;
+const OWN=id=>HOST?(((HOST.own()||{})[id]||0)+FOIL(id)):9;
 /* copies of a card a deck may hold: 2, fewer if you own fewer (the leader you lead with uses one copy) */
 /* copies a deck may hold: the rule's cap (leader card 2, others 2), fewer if you own fewer */
 const capOf=(id,lead)=>Math.min(CD.deckCap(id,lead),Math.max(0,OWN(id)));
@@ -1357,12 +1358,13 @@ const BLOB={};function blobOf(u){if(!u||u.slice(0,5)!=='data:')return u;if(BLOB[
 function figEl(id){if(CARD_CUT[id]){const i=el('img');i.src=CARD_CUT[id];i.alt='';return i}if(CARD_IMG[id]&&CARD_PANEL.includes(id)){const w=el('div','panel');const i=el('img');i.src=CARD_IMG[id];i.alt='';i.style.objectPosition='50% '+(CARD_POS[id]||25)+'%';w.append(i);return w}const d=el('div');d.innerHTML=ART.figure(id);return d.firstChild}
 function artEl(id){if(CARD_IMG[id]){const i=el('img');i.src=CARD_IMG[id];i.alt='';i.style.objectPosition='50% '+(CARD_POS[id]||25)+'%';return i}const d=el('div');d.innerHTML=ART.art(id);return d.firstChild}
 function stats(a,d){const s=el('div','st2');const A=el('b','a');A.append(el('small',null,'ATK'),document.createTextNode(a));const B=el('b','d');B.append(el('small',null,'DEF'),document.createTextNode(d));s.append(A,B);return s}
-function bigCard(id,mini){const c=BY[id],d=el('div','bc '+FAC(id)+(mini?' mini':'')+(c.type!=='chara'?' '+c.type:'')+(c.r==='SR'?' holo':'')+(c.trib?' ace':''));
+function bigCard(id,mini){const c=BY[id],foil=FOIL(id)>0,d=el('div','bc '+FAC(id)+(mini?' mini':'')+(c.type!=='chara'?' '+c.type:'')+(c.r==='SR'?' holo':'')+(foil?' foilc':'')+(c.trib?' ace':''));
   const h=el('div','bh');h.append(el('span','gem',c.c),el('span','bn',c.n));const a=el('div','bart');a.append(artEl(id));d.append(h,a);
   const bt=el('div','bt');bt.append(el('span',null,TYN[c.type]+' ・ '+CD.FNAME[c.f]),el('span','rar',c.trib?'LEADER':c.r));d.append(bt);
   if(c.type==='chara')d.append(stats(c.atk,c.def));else if(mini)d.append(el('div','tyb '+(c.type==='spell'?'s':'t'),TYN[c.type]));
   if((c.kw||{}).syn)d.append(el('div','synchip','同族'));
   d.append(el('i','cn tl'),el('i','cn tr'),el('i','cn bl'),el('i','cn br'));
+  if(foil)a.append(el('i','foilsheen'),el('i','foilspark'),el('i','foiltag','SCR'));
   d.append(el('div','btx',CD.text(c)));return d}
 const backCard=()=>el('div','cb');
 
@@ -1447,6 +1449,7 @@ function unitEl(u,S,side){const c=BY[u.id],d=el('div','u '+FAC(u.id)+' r-'+c.r+(
   const plate=el('div','plate');plate.append(el('div','nmb',c.n));const st=el('div','ust');
   const A=el('b','a'+(u.A>c.atk?' up':u.A<c.atk?' dn':''));A.append(el('small',null,'ATK'),document.createTextNode(u.A));const Df=el('b','d'+(u.D>c.def?' up':u.D<c.def?' dn':''));Df.append(el('small',null,'DEF'),document.createTextNode(u.D));st.append(A,Df);plate.append(st);
   d.append(pad,el('div','base'),stand,el('div','stars s'+u.star,SN(u.star)),kw,plate);if(u.awk)d.append(el('div','awl','覚醒'));
+  if(FOIL(u.id)>0){d.classList.add('foilc');d.append(el('i','foilsheen'),el('i','foilspark'))}
   if(u.sick&&!u.rush)d.classList.add('sick');
   if(side==='me'&&S.cur===H&&!S.over&&!busy&&g){const m=E.find(g,u.uid);if(m&&E.canAttack(g,H,m)&&!(mode&&mode.k!=='atk'))d.classList.add('ready')}
   return d}
@@ -1859,3 +1862,24 @@ window.__tcg={fxt:{onoma,focusLines,sliceApart,cutin},trapPrompt,leaderSheet,pre
 })();
 
 </script>
+<style>
+/* SCR (secret rare) finish — rainbow border + sheen + sparkles */
+.bart .foilsheen,.u.foilc .foilsheen{position:absolute;inset:0;pointer-events:none;z-index:4;mix-blend-mode:screen;opacity:.9;
+ background:linear-gradient(115deg,transparent 10%,rgba(255,90,170,.75) 26%,rgba(90,200,255,.75) 38%,rgba(140,255,170,.75) 48%,rgba(255,230,120,.75) 58%,rgba(200,120,255,.75) 68%,transparent 84%);
+ background-size:260% 260%;animation:foilshift 3s linear infinite}
+.bart .foilspark,.u.foilc .foilspark{position:absolute;inset:0;z-index:6;pointer-events:none;
+ background-image:radial-gradient(2px 2px at 20% 30%,#fff,transparent 60%),radial-gradient(1.5px 1.5px at 72% 58%,#fff,transparent 60%),radial-gradient(2px 2px at 42% 82%,#fff,transparent 60%),radial-gradient(1.5px 1.5px at 85% 22%,#fff,transparent 60%),radial-gradient(2px 2px at 58% 12%,#fff,transparent 60%)}
+.bart .foilspark,.u.foilc .foilspark{animation:twinkle 1.5s steps(2,jump-none) infinite}
+.bc.foilc .bart::before{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:inherit;padding:1.4cqw;
+ background:conic-gradient(from 0deg,#ff5f6d,#ffc371,#47e5bc,#5b8def,#a66bff,#ff5f6d);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.bc.foilc{box-shadow:0 0 18px rgba(150,190,255,.5),0 0 40px rgba(255,120,200,.35)}
+.u.foilc{position:relative;box-shadow:0 0 0 1.5px rgba(173,216,255,.8),0 0 16px rgba(130,200,255,.5),0 0 34px rgba(255,120,200,.35);border-radius:8px}
+.bart .foiltag,.u.foilc .foiltag{position:absolute;top:3%;left:3%;z-index:7;font:800 9cqw/1 var(--disp,sans-serif);color:#0b0d12;background:linear-gradient(90deg,#ff9bd0,#bfe8ff,#d8ffe0,#ffe9a8);background-size:200% 100%;padding:1.5cqw 3cqw;border-radius:999px;letter-spacing:.06em;box-shadow:0 1px 4px #0008;animation:foilbadge 3s linear infinite}
+@keyframes foilshift{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes foilspin{to{transform:rotate(1turn)}}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes foilbadge{to{background-position:200% 0}}
+@media(prefers-reduced-motion:reduce){.foilsheen,.foilspark,.bc.foilc .bart::before,.foiltag{animation:none}}
+</style>
+
