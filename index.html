@@ -4550,9 +4550,16 @@ async function tcgOpenPack(pk){const me=myPlayer();if(!db||!me||me.ban||opening|
   catch(e){toast('開けませんでした')}
   opening=false;renderTcg()}
 
+/* Firestore can't store an array inside an array, so a deck's cards are normalised to a flat list of string ids (same shape as the starter decks) before saving. Handles ids, [id,count] pairs and {id,count} objects. */
+function tcgCardId(v){if(v==null)return null;if(typeof v==='string')return v;if(typeof v==='number')return String(v);if(typeof v==='object'){const id=v.id!=null?v.id:v.c!=null?v.c:v.card;return id!=null?String(id):null}return null}
+function tcgFlatCards(cards){const out=[];(Array.isArray(cards)?cards:[]).forEach(v=>{
+  if(Array.isArray(v)){if(v.length===2&&(typeof v[0]==='string'||typeof v[0]==='number')&&typeof v[1]==='number'){const id=String(v[0]);for(let i=0;i<v[1]&&out.length<TCGD.deckSize;i++)out.push(id)}else{v.forEach(x=>{const id=tcgCardId(x);if(id!=null&&out.length<TCGD.deckSize)out.push(id)})}return}
+  if(v&&typeof v==='object'&&typeof v.count==='number'){const id=tcgCardId(v);if(id!=null)for(let i=0;i<v.count&&out.length<TCGD.deckSize;i++)out.push(id);return}
+  const id=tcgCardId(v);if(id!=null&&out.length<TCGD.deckSize)out.push(id)});return out}
 async function tcgSaveDecks(L){const me=myPlayer();if(!db||!me||invFor!==me.id)return;
-  const t=Object.assign({},tcgOf(inv),{decks:(L||[]).slice(0,20).map(d=>({name:String(d.name||'マイデッキ').slice(0,16),lead:d.lead,cards:(d.cards||[]).slice(0,TCGD.deckSize)}))});
-  inv=Object.assign({},inv,{tcg:t});try{await db.doc('inv/'+me.id).set({tcg:t},{merge:true})}catch(e){toast('デッキを保存できませんでした('+((e&&e.code)||(e&&e.message)||'')+')')}}
+  const decks=(L||[]).slice(0,20).map(d=>{const dd=d||{},lead=tcgCardId(dd.lead);const o={name:String(dd.name||'マイデッキ').slice(0,16),cards:tcgFlatCards(dd.cards)};if(lead!=null)o.lead=lead;return o});
+  const t=Object.assign({},tcgOf(inv),{decks});inv=Object.assign({},inv,{tcg:t});
+  try{await db.doc('inv/'+me.id).set({tcg:{decks}},{merge:true})}catch(e){try{console.error('deck save failed',e)}catch(_){}toast('デッキ保存失敗: '+String((e&&e.message)||(e&&e.code)||e).slice(0,220))}}
 
 /* ---- the game runs in a frame and asks the app for cards, decks, the coin toss and the result ---- */
 window.TCGHOST={own:()=>tcgOwn(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
@@ -4583,8 +4590,8 @@ function tcgIntro(info,done){
 function tcgResult(r){const me=myPlayer()||{},line=(r.pvp?'きもオタTCG 友達戦':'きもオタTCG')+'  ·  あなた '+r.me+'  /  相手 '+r.cpu;
   setTimeout(()=>{if(r.w==='win')victoryView(me.name||'あなた',r.pvp?r.cpuName:'CPU',me.eq&&me.eq.v,line,true,me.eq&&me.eq.i);
     else if(r.w==='lose')victoryView(r.pvp?r.cpuName:'CPU('+r.cpuName+')',me.name||'あなた',null,line,false);else toast('引き分け  ·  '+line)},500);
-  if(!r.pvp&&(r.w==='win'||r.w==='lose')){const t=Object.assign({},tcgOf(inv));t[r.w==='win'?'w':'l']=(t[r.w==='win'?'w':'l']||0)+1;inv=Object.assign({},inv,{tcg:t});
-    if(db&&invFor)db.doc('inv/'+invFor).set({tcg:t},{merge:true}).catch(()=>{})}}
+  if(!r.pvp&&(r.w==='win'||r.w==='lose')){const k=r.w==='win'?'w':'l',t=Object.assign({},tcgOf(inv));t[k]=(t[k]||0)+1;inv=Object.assign({},inv,{tcg:t});
+    if(db&&invFor)db.doc('inv/'+invFor).set({tcg:{[k]:t[k]}},{merge:true}).catch(()=>{})}}
 
 /* ---- the TCG screen ---- */
 let tcgTab='all';
