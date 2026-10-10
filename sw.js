@@ -1,7 +1,7 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-const VERSION = 'v71-2026-10-09-11';
+const VERSION = 'v72-rc6-2026-10-10';
 const CACHE = 'ladder-' + VERSION;
-const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
+const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'tcg_spectator.js', 'motion_lifecycle.js',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg',
   'fx_chest.webp', 'fx_chest.png', 'fx_kmrcoin_a.jpg', 'fx_kmrcoin_b.jpg'];
 

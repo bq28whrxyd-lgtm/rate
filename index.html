@@ -10,6 +10,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="きもオタレート">
+<script src="tcg_spectator.js"></script>
+<script src="motion_lifecycle.js"></script>
 <script>window.fbReady=new Promise(r=>{window.__fbResolve=r});</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1876,6 +1878,62 @@ button.tcgplay span{font-size:11.5px;font-weight:600;opacity:.75}
 button.tcgpkb{width:100%;display:flex;align-items:baseline;justify-content:center;gap:10px;height:48px;border-radius:999px}
 button.tcgpkb span{font-size:12px;font-weight:600}
 button.tcgpkb:disabled{opacity:.45}
+.tcgpk .tcgboxbuy{margin-top:8px;min-height:52px;background:linear-gradient(120deg,var(--p1),var(--p2));color:#fff;text-shadow:0 1px 3px #0008;border:1px solid #ffffff44}
+.tcgboxnote{font-size:12px;line-height:1.6;color:var(--gold-l);text-align:center;margin:8px 0}
+.tpkboxbar{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;gap:8px;z-index:3}
+.tpkboxbar b{font-size:13px;color:var(--gold-l)}.tpkboxbar button{height:36px;padding:0 14px;border-radius:999px;font-size:12px}
+.tcgboxresult{position:fixed;inset:0;z-index:95;overflow:auto;background:var(--ink);padding:calc(env(safe-area-inset-top,0px) + 20px) 16px calc(env(safe-area-inset-bottom,0px) + 24px)}
+.tcgboxresult>.tcgboxbody{max-width:520px;margin:auto;display:flex;flex-direction:column;gap:12px}
+.tcgboxresult h2{margin:0;font-size:25px}.tcgboxresult .tcggrid{grid-template-columns:repeat(3,1fr);gap:14px 10px}
+.tcgboxresult .tcgboxcard{position:relative;min-width:0}.tcgboxresult .tcgboxcard b{display:block;font-size:11px;margin-top:4px;line-height:1.5}
+.tcgboxresult .tcgboxcard small{display:block;font-size:10px;color:var(--mut);line-height:1.5}
+.tcgboxresult .tcgsc{position:sticky;bottom:0;padding:10px 0;background:var(--ink);z-index:8}
+/* Box-only opening: the same pack colours, cut-in bands and FX used by the existing gacha. */
+.tcgboxcinema{position:fixed;inset:0;z-index:105;overflow-x:hidden;overflow-y:auto;color:#fff;padding:calc(env(safe-area-inset-top,0px) + 18px) 20px calc(env(safe-area-inset-bottom,0px) + 22px);isolation:isolate;background:radial-gradient(80% 60% at 50% 44%,color-mix(in srgb,var(--p1) 34%,#0b0d12),color-mix(in srgb,var(--p2) 14%,#05060a) 75%)}
+.tcgbxlayout{position:relative;z-index:3;min-height:100%;max-width:520px;margin:auto;display:flex;flex-direction:column;justify-content:space-between;gap:16px;text-align:center}
+.tcgbxtop{display:flex;justify-content:space-between;align-items:center;gap:12px}.tcgbxtop span{font:700 10px var(--display);letter-spacing:2px;color:#fffd}.tcgbxtop button{height:40px;padding:0 16px;font-size:12px;background:#0006;border:1px solid #fff3;color:#fff}
+.tcgbxheading{position:relative;z-index:4;min-height:86px}.tcgbxheading small{display:block;color:#fffe;letter-spacing:.2em;font-size:12px;font-weight:700;margin-bottom:9px}.tcgbxheading h2{margin:0;font:400 clamp(27px,8vw,40px)/1.2 var(--impact);color:#fff;text-shadow:0 3px 0 #0008,0 0 26px var(--p1)}.tcgbxheading p{font-size:13px;font-weight:700;color:#fffd;margin:10px 0 0;text-shadow:0 2px 8px #000}
+.tcgbxscene{position:relative;flex:1;min-height:320px;height:50vh;height:50svh;max-height:480px;display:grid;place-items:center;perspective:1000px}
+.tcgbxhalo{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.8;background:radial-gradient(ellipse at 50% 46%,color-mix(in srgb,var(--p1) 28%,transparent),transparent 70%)}
+.tcgbxbox{position:relative;width:min(76vw,300px);height:258px;transform:rotate(-5deg);transition:transform .65s cubic-bezier(.2,.8,.3,1),opacity .55s ease;z-index:2;animation:tpin .55s cubic-bezier(.2,1.3,.4,1) both}
+.tcgbxfront{position:absolute;inset:0;padding:20px 14px 12px;display:flex;flex-direction:column;align-items:center;gap:12px;background:linear-gradient(120deg,color-mix(in srgb,var(--p1) 70%,#1a1206),color-mix(in srgb,var(--p1) 30%,#fff3) 22%,color-mix(in srgb,var(--p2) 60%,#0b0d12) 48%,color-mix(in srgb,var(--p1) 45%,#fff5) 70%,color-mix(in srgb,var(--p2) 70%,#120618));background-size:240% 240%;border:2px solid #ffffff70;border-radius:10px;box-shadow:10px 15px 0 #090a11,12px 17px 0 var(--p2),0 22px 45px #0009,0 0 35px color-mix(in srgb,var(--p1) 40%,transparent);overflow:hidden;animation:foil 5s linear 2}
+.tcgbxfront:after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 38%,#fff8 50%,transparent 62%);background-size:260% 100%;animation:sweep 2.6s linear 3;pointer-events:none}.tcgbxfront small{font:700 9px var(--display);letter-spacing:.25em;color:#fffd}.tcgbxfront strong{font:400 clamp(23px,6.5vw,30px)/1.2 var(--impact);color:#fff;text-shadow:0 2px 0 #0007,0 0 18px var(--p1)}.tcgbxfront em{font:700 11px var(--display);font-style:normal;letter-spacing:.35em;color:#fff;background:#0006;border-radius:999px;padding:6px 12px}
+.tcgbxart{display:flex;align-items:center;justify-content:center;height:126px;gap:0;pointer-events:none}.tcgbxart .tcf{width:84px;min-width:84px;transform:translateY(5px) rotate(-12deg);border-radius:6px;box-shadow:0 7px 16px #0009}.tcgbxart .tcf:nth-child(2){transform:translateY(-4px);z-index:1}.tcgbxart .tcf:nth-child(3){transform:translateY(5px) rotate(12deg)}
+.tcgbxlid{position:absolute;left:0;right:0;top:-28px;height:35px;transform:skewX(-25deg);transform-origin:bottom;background:linear-gradient(115deg,var(--p2),#fff8 45%,var(--p1));border:2px solid #ffffff80;border-radius:4px;box-shadow:0 2px 0 #07080d;transition:transform .6s cubic-bezier(.2,.8,.3,1),opacity .6s}
+.tcgbxseal{position:absolute;left:calc(50% - 29px);top:-15px;width:58px;height:40px;background:linear-gradient(110deg,var(--gold-d),var(--gold-l),var(--gold));color:#221b11;font-size:9px;font-weight:900;display:grid;place-items:center;clip-path:polygon(0 0,100% 0,100% 80%,50% 100%,0 80%);z-index:3}
+.tcgbxhit{position:absolute;inset:0;width:100%;height:100%;border:0!important;background:transparent!important;border-radius:10px;box-shadow:none!important;z-index:4}.tcgbxhit:focus-visible{outline:2px solid #fff;outline-offset:10px}
+.tcgbxfan{position:absolute;inset:0;pointer-events:none;z-index:2}.tcgbxmini{position:absolute;left:calc(50% - 26px);top:calc(50% - 70px);width:52px;height:140px;border:1px solid #fff8;border-radius:7px;background:linear-gradient(120deg,var(--p1),#fff6 22%,var(--p2) 60%,var(--p1));box-shadow:0 0 14px var(--p1),0 10px 20px #0008;opacity:0;transform:translateY(50px) scale(.6);display:flex;flex-direction:column;align-items:center;justify-content:space-around;color:#fff;font:700 8px var(--display);text-shadow:0 1px 3px #0009}.tcgbxmini i{font-style:normal;letter-spacing:2px;writing-mode:vertical-rl;font-size:13px}.tcgbxmini:before,.tcgbxmini:after{content:'';width:100%;height:5px;background:repeating-linear-gradient(90deg,#fff9 0 1px,#ffffff22 1px 3px)}
+.tcgbxring{position:absolute;left:calc(50% - 145px);top:calc(50% - 145px);width:290px;height:290px;border:3px solid #ffe9a8;border-radius:50%;box-shadow:0 0 18px #ffd56a88,inset 0 0 18px #ffd56a66;pointer-events:none;opacity:0}.tcgbxring[data-ring="2"]{width:250px;height:250px;left:calc(50% - 125px);top:calc(50% - 125px);border-color:#ff7ac8;border-style:dashed}.tcgbxring[data-ring="3"]{border-color:#8fe8ff}
+.tcgbxsparks{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}.tcgbxspark{position:absolute;left:50%;top:48%;width:4px;height:22px;background:var(--spark);box-shadow:0 0 10px var(--spark);border-radius:99px;opacity:0;transform:rotate(var(--angle)) translateY(-25px)}
+.tcgbxbeam{position:absolute;left:calc(50% - 40px);top:-30%;height:160%;width:80px;pointer-events:none;opacity:0;background:linear-gradient(90deg,transparent,#fff8,transparent);transform:rotate(var(--beam));transform-origin:center}
+.tcgbxcrest{position:absolute;left:calc(50% - 150px);top:calc(50% - 150px);width:300px;height:300px;display:grid;place-items:center;pointer-events:none;opacity:0;color:#ffdf8b55;font:900 180px var(--display)}.tcgbxcrest:before,.tcgbxcrest:after{content:'';position:absolute;inset:8px;border:2px solid #ffdf8b80;box-shadow:0 0 18px #ff9ad566;transform:rotate(45deg)}.tcgbxcrest:after{inset:25px;border-color:#9eefff80;transform:rotate(60deg)}
+.tcgbxreveal{position:relative;display:flex;align-items:center;justify-content:center;gap:16px;width:100%;z-index:3}.tcgbxsec{width:min(58vw,220px);position:relative;transform:rotate(var(--tilt,0deg))}.tcgbxsec>.tcf{width:100%;box-shadow:0 0 0 2px #fff,0 0 32px 8px #8fd0ff88,0 24px 45px #000a}.tcgbxsec>span{display:block;font:900 12px var(--display);letter-spacing:.18em;color:#ffe9a8;margin-top:16px;text-shadow:0 0 10px #ffd56a}.tcgbxsec>p{font-size:13px;font-weight:700;line-height:1.5;margin:7px 0 0;color:#fff}.tcgbxdual .tcgbxsec{width:min(40vw,174px)}.tcgbxdual .tcgbxsec:nth-child(1){--tilt:-8deg;--side:-1}.tcgbxdual .tcgbxsec:nth-child(2){--tilt:8deg;--side:1}.tcgbxdual .tcgbxsec>.tcf{box-shadow:0 0 0 2px #fff,0 0 35px 10px #ff7ac899,0 24px 45px #000b}.tcgbxdual .tcgbxsec:nth-child(2)>.tcf{box-shadow:0 0 0 2px #fff,0 0 35px 10px #8fe8ff99,0 24px 45px #000b}
+.tcgbxwash{position:fixed;inset:0;pointer-events:none;z-index:5;background:radial-gradient(ellipse,#fff9dd,transparent 75%);opacity:0}.tcgbxbottom{position:relative;z-index:6;display:flex;flex-direction:column;gap:10px}.tcgbxaction{height:54px;min-height:54px;border-radius:14px;background:linear-gradient(120deg,var(--p1),var(--p2));color:#fff;font-size:15px;font-weight:900;border:1px solid #ffffff70;text-shadow:0 1px 3px #0008;box-shadow:0 4px 25px color-mix(in srgb,var(--p1) 35%,transparent)}.tcgbxaction:disabled{opacity:.65}.tcgbxbottom>p{font-size:12px;color:var(--gold-l);font-weight:700;margin:0;line-height:1.6}
+.tcgbxbands{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:1}.tcgbxbands .cb{position:absolute;left:-20%;right:-20%;top:25%;height:20%;opacity:0;transform:skewY(-12deg) translateX(-120%);background:linear-gradient(90deg,transparent,var(--p1),var(--p2),transparent)}.tcgbxbands .cb:nth-child(2){top:48%;height:10%;animation-delay:.1s!important}.tcgbxbands .cb:nth-child(3){top:65%;height:5%;animation-delay:.2s!important}
+.tcgbximpact{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:5}.tcgbximpact i{position:absolute;left:0;right:0;top:48%;height:3px;background:linear-gradient(90deg,transparent,#fff,#ff6ad5,#fff,transparent);box-shadow:0 0 20px #ff6ad5;transform:scaleX(0)}.tcgbximpact b{position:absolute;inset:0;background:#fff;opacity:0}
+.tcgbxlights{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:1}.tcgbxfx{position:fixed;inset:0;pointer-events:none;z-index:2}
+.tcgboxcinema[data-phase="opening"] .tcgbxbox{transform:translateY(140px) rotate(8deg) scale(.65);opacity:0;animation:none}.tcgboxcinema[data-phase="opening"] .tcgbxlid{transform:translateY(-160px) rotate(-28deg);opacity:0}.tcgboxcinema[data-phase="opening"] .tcgbxmini{animation:tcgbx-fan 1.35s cubic-bezier(.2,1.2,.3,1) both;animation-delay:var(--delay)}
+.tcgboxcinema[data-phase="opening"] .tcgbxbeam{animation:tcgbx-beam 1.5s ease-out both}.tcgboxcinema:is([data-phase="opening"],[data-phase="first"],[data-phase="double"]) .tcgbxbands .cb{opacity:.55;animation:band .7s cubic-bezier(.2,.8,.3,1) both}.tcgboxcinema:is([data-phase="opening"],[data-phase="first"],[data-phase="double"]) .tcgbximpact i{animation:kcl .9s cubic-bezier(.2,.8,.3,1) both}.tcgboxcinema:is([data-phase="first"],[data-phase="double"]) .tcgbximpact b{animation:kcf .55s .4s ease-out both}
+.tcgboxcinema:is([data-phase="first"],[data-phase="double"]){background:radial-gradient(80% 70% at 50% 45%,#352055,#0b0d12 75%)}.tcgboxcinema:is([data-phase="first"],[data-phase="double"]) .tcgbxheading h2{font:900 clamp(74px,25vw,110px)/.95 var(--display);background:linear-gradient(90deg,#ff3b6b,#ffd23b,#3bff6a,#3bd5ff,#a64dff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 18px #ff4f8b);animation:slam .6s cubic-bezier(.2,1.4,.4,1) both}.tcgboxcinema[data-phase="double"] .tcgbxheading h2{font-size:clamp(68px,23vw,104px)}
+.tcgboxcinema[data-phase="first"] .tcgbxsec{animation:tcgbx-card .9s cubic-bezier(.2,1.2,.3,1) both}.tcgboxcinema[data-phase="first"] .tcgbxring{animation:tcgbx-ring 1.6s ease-out both}.tcgboxcinema[data-phase="first"] .tcgbxspark:nth-child(-n+14){animation:tcgbx-spark 1.5s ease-out both;animation-delay:var(--delay)}
+.tcgboxcinema[data-phase="charge"] .tcgbxreveal{animation:tcgbx-charge .9s ease-in both}.tcgboxcinema[data-phase="charge"] .tcgbxhalo{background:radial-gradient(ellipse,#ff6ad580,#684bff66,transparent 70%);animation:tcgbx-charge-light .9s ease-in both}.tcgboxcinema[data-phase="charge"] .tcgbxheading{animation:shakeT .4s ease-in-out 2}
+.tcgboxcinema[data-phase="double"] .tcgbxbands .cb{background:linear-gradient(90deg,transparent,#ff3b6b,#ffd23b,#3bff6a,#3bd5ff,#a64dff,transparent)}.tcgboxcinema[data-phase="double"] .tcgbxhalo{opacity:1;background:radial-gradient(ellipse at 25% 50%,#ff3bd54d,transparent 60%),radial-gradient(ellipse at 75% 45%,#3bd5ff55,transparent 60%)}
+.tcgboxcinema[data-phase="double"] .tcgbxsec{animation:tcgbx-twin 1.4s cubic-bezier(.16,1.2,.24,1) both}.tcgboxcinema[data-phase="double"] .tcgbxsec:nth-child(2){animation-delay:.18s}.tcgboxcinema[data-phase="double"] .tcgbxring{animation:tcgbx-ring 2.3s ease-out both}.tcgboxcinema[data-phase="double"] .tcgbxring[data-ring="2"]{animation-delay:.2s}.tcgboxcinema[data-phase="double"] .tcgbxring[data-ring="3"]{animation-delay:.45s}.tcgboxcinema[data-phase="double"] .tcgbxspark{animation:tcgbx-spark 2.1s ease-out both;animation-delay:var(--delay)}.tcgboxcinema[data-phase="double"] .tcgbxwash{animation:tcgbx-wash 1.2s ease-out both}
+.tcgboxcinema[data-phase="double"] .tcgbxbeam{background:linear-gradient(90deg,transparent,#ff9ad580,#bcefff99,transparent);animation:tcgbx-beam 2.4s ease-out both}.tcgboxcinema[data-phase="double"] .tcgbxcrest{opacity:1;animation:tcgbx-crest 1.6s ease-out both}
+.tcgboxcinema .tcf.r-GR::after,.tcgboxcinema .tcf.foil,.tcgboxcinema .tcf.foil .foilsheen,.tcgboxcinema .tcf.foil .foilspark{animation-iteration-count:2}
+.tcgboxcinema.tcgbxpaused *{animation-play-state:paused!important;transition:none!important}
+@keyframes tcgbx-fan{0%{opacity:0;transform:translateY(50px) scale(.6)}25%{opacity:1}100%{opacity:1;transform:translate(var(--x),-65px) rotate(var(--turn)) scale(1)}}
+@keyframes tcgbx-card{from{opacity:0;transform:translateY(65px) rotateY(75deg) scale(.5)}to{opacity:1;transform:translateY(0) rotateY(0) scale(1)}}
+@keyframes tcgbx-twin{from{opacity:0;transform:translateX(calc(var(--side)*140px)) translateY(60px) rotateY(80deg) scale(.35)}to{opacity:1;transform:translateX(0) translateY(0) rotate(var(--tilt)) scale(1)}}
+@keyframes tcgbx-ring{0%{opacity:0;transform:scale(.2) rotate(-25deg)}20%{opacity:1}100%{opacity:0;transform:scale(2.1) rotate(30deg)}}
+@keyframes tcgbx-spark{0%{opacity:0;transform:rotate(var(--angle)) translateY(-25px) scale(.4)}15%{opacity:1}100%{opacity:0;transform:rotate(var(--angle)) translateY(var(--travel)) scale(.1)}}
+@keyframes tcgbx-charge{0%{opacity:1;transform:scale(1)}100%{opacity:.15;transform:scale(.6)}}
+@keyframes tcgbx-charge-light{from{opacity:.2;transform:scale(1.6)}to{opacity:1;transform:scale(.65)}}
+@keyframes tcgbx-wash{0%{opacity:0}12%{opacity:.8}100%{opacity:0}}
+@keyframes tcgbx-beam{0%{opacity:0;transform:rotate(var(--beam)) scaleX(.1)}20%{opacity:1}100%{opacity:0;transform:rotate(var(--beam)) scaleX(2.6)}}
+@keyframes tcgbx-crest{from{opacity:0;transform:scale(1.6) rotate(-25deg)}to{opacity:1;transform:scale(1) rotate(0deg)}}
+@media(max-width:350px){.tcgbxdual .tcgbxsec{width:35vw}.tcgbxart .tcf{width:72px;min-width:72px}.tcgbxbox{height:245px}.tcgbxreveal{gap:12px}}
+@media(prefers-reduced-motion:reduce){.tcgboxcinema *{animation:none!important;transition:none!important}.tcgboxcinema .tcgbxwash,.tcgboxcinema .tcgbximpact{display:none}.tcgboxcinema[data-phase="opening"] .tcgbxmini{opacity:1;transform:translate(var(--x),-65px) rotate(var(--turn))}}
 /* collection */
 .tcgbar{height:6px;border-radius:9px;background:#ffffff14;margin:10px 0 12px;overflow:hidden}
 .tcgbar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold-d),var(--gold-l))}
@@ -2352,7 +2410,7 @@ function chestOf(id,t){let h=2166136261;for(const c of String(id)+'#chest'){h^=c
 const FXB={};function fxSrc(n){return FXB[n]||n}
 function fxPre(){['fx_warp.mp4','fx_bolt.mp4','fx_tunnel.mp4'].forEach((n,i)=>setTimeout(()=>{if(FXB[n])return;fetch(n).then(r=>r.ok?r.blob():null).then(b=>{if(b&&b.size)FXB[n]=URL.createObjectURL(b)}).catch(()=>{})},i*600))}
 setTimeout(fxPre,3500);
-function fxVid(src,cls){const m=el('video',cls);m.src=fxSrc(src);m.muted=true;m.defaultMuted=true;m.loop=true;m.autoplay=true;m.playsInline=true;m.setAttribute('playsinline','');m.setAttribute('muted','');m.preload='auto';setTimeout(()=>{try{const q=m.play();q&&q.catch(()=>{})}catch(e){}},0);return m}
+function fxVid(src,cls){const m=el('video',cls);m.src=fxSrc(src);m.muted=true;m.defaultMuted=true;m.loop=true;m.autoplay=true;m.playsInline=true;m.setAttribute('playsinline','');m.setAttribute('muted','');m.preload='auto';MotionLifecycle.video(m);return m}
 function chestView(v,done){
   const ch=v&&typeof v==='object'?v:{v,gold:false,mul:1},mul=ch.mul||1;v=ch.v;const tk=v==='T'||v==='T3';
   const o=el('div','chest'+(ch.gold?' gold':'')),box=el('div','chb'),big=ch.gold||tk||v>=70;
@@ -2378,7 +2436,7 @@ function cheerLayer(p,side){
   const K=cheerK(p);if(!K)return null;
   const L=el('div','cheer cheer-'+side+(K.dark?' chdark':''));if(K.chH){L.style.height=K.chH;L.classList.add('chlow')}L.style.setProperty('--k1',K.c[0]);L.style.setProperty('--k2',K.c[1]);
   const ch=el('div','chf');let m;
-  if(K.vid){m=el('video');m.src=K.vid;m.poster=K.img;m.muted=true;m.defaultMuted=true;m.loop=true;m.autoplay=true;m.playsInline=true;m.setAttribute('playsinline','');m.setAttribute('muted','');setTimeout(()=>{try{const q=m.play();q&&q.catch(()=>{})}catch(e){}},0)}
+  if(K.vid){m=el('video');m.src=K.vid;m.poster=K.img;m.muted=true;m.defaultMuted=true;m.loop=true;m.autoplay=true;m.playsInline=true;m.setAttribute('playsinline','');m.setAttribute('muted','');MotionLifecycle.video(m)}
   else{m=el('img');m.src=K.img;m.alt=''}
   ch.append(m);L.append(ch);
   let tx;
@@ -2589,7 +2647,7 @@ function rigDisp(K,u,v,t){
   return[dx/ar,dy];
 }
 function liveImg(K){
-  if(K.vid){const v=el('video','live');v.src=K.vid;v.poster=K.img;v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';setTimeout(()=>{try{const q=v.play();q&&q.catch(()=>{})}catch(e){}},0);return v}
+  if(K.vid){const v=el('video','live');v.src=K.vid;v.poster=K.img;v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';MotionLifecycle.video(v);return v}
   const cv=el('canvas','live'),img=new Image();img.src=K.img;
   const gl=cv.getContext('webgl',{alpha:true,premultipliedAlpha:false,antialias:true});
   const dpr=Math.min(2,window.devicePixelRatio||1),t0=performance.now();let W=0,H=0,ready=false;
@@ -2611,12 +2669,11 @@ function liveImg(K){
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);ready=true};
   if(img.complete&&img.naturalWidth)img.onload();
+  let raf=0,running=false;
   function frame(now){
-    const t=(now-t0)/1000;
-    if(!cv.isConnected){if(t<3)requestAnimationFrame(frame);return}
-    if(document.hidden||(frame.k=(frame.k||0)+1)%2||(document.body.classList.contains('ovl')&&cv.closest('main'))){requestAnimationFrame(frame);return}
+    raf=0;if(!running)return;const t=(now-t0)/1000;
+    if((frame.k=(frame.k||0)+1)%2){raf=requestAnimationFrame(frame);return}
     const r=cv.getBoundingClientRect();
-    if(r.bottom<-40||r.top>innerHeight+40||!r.width){requestAnimationFrame(frame);return}
     if(r.width&&(Math.abs(r.width-W)>1||Math.abs(r.height-H)>1)){W=r.width;H=r.height;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);gl.viewport(0,0,cv.width,cv.height)}
     if(ready&&W){
       const s=Math.min(W/K.w,H/K.h),dw=K.w*s,dh=K.h*s,ox=(W-dw)/2,oy=(H-dh)/2;
@@ -2624,17 +2681,12 @@ function liveImg(K){
       gl.bindBuffer(gl.ARRAY_BUFFER,bp);gl.bufferData(gl.ARRAY_BUFFER,pos,gl.DYNAMIC_DRAW);gl.vertexAttribPointer(lp,2,gl.FLOAT,false,0,0);
       gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawElements(gl.TRIANGLES,idx.length,gl.UNSIGNED_SHORT,0);
     }
-    requestAnimationFrame(frame);
+    raf=requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);return cv;
+  MotionLifecycle.track(cv,{start:()=>{running=true;raf=requestAnimationFrame(frame)},stop:()=>{running=false;cancelAnimationFrame(raf);raf=0},dispose:()=>{img.onload=null;const ext=gl.getExtension('WEBGL_lose_context');if(ext)ext.loseContext()}});return cv;
 }
-/* icon videos only load and play while they are on screen (and the app is in front) */
-const iconObs='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>iconSet(e.target,e.isIntersecting)),{rootMargin:'60px'}):null;
-function iconSet(v,on){v._vis=on;if(on&&!document.hidden){if(!v.src)v.src=v.dataset.src;try{const q=v.play();q&&q.catch(()=>{})}catch(e){}}else if(!v.paused)v.pause()}
-function iconWatch(v){if(iconObs)iconObs.observe(v);else{v.src=v.dataset.src;v.autoplay=true}}
-document.addEventListener('visibilitychange',()=>document.querySelectorAll('.kmrav video').forEach(v=>iconSet(v,!!v._vis)));
-/* stop watching icons that were removed (lists re-render often) */
-setInterval(()=>{if(!iconObs)return;iconObs.takeRecords();document.querySelectorAll('.kmrav video').forEach(v=>{if(!v.isConnected)iconObs.unobserve(v)})},20000);
+/* Shared lifecycle also releases icons built for an unchanged, discarded list. */
+function iconWatch(v){MotionLifecycle.video(v)}
 function kmrFace(K){
   /* video illustrations play their whole loop inside the icon too */
   const av=el('div','av kmrav'),im=K.vid?el('video'):el('img'),s=Math.min(K.w,K.h)/K.z,wp=K.w/s*100,hp=K.h/s*100;
@@ -2916,34 +2968,49 @@ function coinEl(v,size,big){
 const clipPool={};
 function clipVideo(src){let v=clipPool[src];if(v&&v.isConnected)return v;
   let host=document.getElementById('clippool');if(!host){host=el('div');host.id='clippool';host.setAttribute('aria-hidden','true');document.body.append(host)}
-  v=el('video');v.src=src+'.mp4';v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';host.append(v);
-  const go=()=>{try{const q=v.play();q&&q.catch(()=>{})}catch(e){}};go();['touchend','click'].forEach(ev=>document.addEventListener(ev,go,{once:true,passive:true}));clipPool[src]=v;return v}
+  v=el('video');v.src=src+'.mp4';v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';host.append(v);
+  v._clips=new Set();v._activeClips=new Set();v._frame=0;
+  const cancel=()=>{cancelAnimationFrame(v._frame);v._frame=0};
+  const draw=()=>{if(v.readyState<2)return;for(const c of v._activeClips){try{c.ctx.drawImage(v,0,0,c.px,c.px);c.drawn=true}catch(e){}}};
+  const frame=()=>{v._frame=0;if(!v._activeClips.size)return;draw();next()};
+  /* Hidden source videos need the original canvas frame pump on Safari/iOS. */
+  const next=()=>{if(!v._frame&&v._activeClips.size)v._frame=requestAnimationFrame(frame)};
+  v._resume=()=>{try{const q=v.play();q&&q.catch(()=>{})}catch(e){}next()};
+  v._start=c=>{v._activeClips.add(c);draw();v._resume()};
+  v._stop=c=>{v._activeClips.delete(c);if(!v._activeClips.size){cancel();v.pause()}};
+  v._release=c=>{v._stop(c);v._clips.delete(c);if(!v._clips.size){v.removeAttribute('src');v.load();v.remove();delete clipPool[src];if(!host.children.length)host.remove()}};
+  clipPool[src]=v;return v}
 function clipCanvas(src,px){
-  const cv=el('canvas','cimg');cv.width=cv.height=px;const ctx=cv.getContext('2d');const im=new Image();im.src=src+'.jpg';im.onload=()=>{if(!drawn)ctx.drawImage(im,0,0,px,px)};let drawn=false;
-  const v=clipVideo(src);
-  (function f(){if(!cv.isConnected){if(!f.s){f.s=1;requestAnimationFrame(f)}else if(f.s<120){f.s++;requestAnimationFrame(f)}return}f.s=1;
-    if(v.readyState>=2&&!document.hidden){const r=cv.getBoundingClientRect();if(r.bottom>-20&&r.top<innerHeight+20){try{ctx.drawImage(v,0,0,px,px);drawn=true}catch(e){}}}
-    requestAnimationFrame(f)})();
+  const cv=el('canvas','cimg');cv.width=cv.height=px;const ctx=cv.getContext('2d'),im=new Image(),v=clipVideo(src),c={ctx,px,drawn:false};
+  im.onload=()=>{if(!c.drawn)ctx.drawImage(im,0,0,px,px)};im.src=src+'.jpg';v._clips.add(c);
+  MotionLifecycle.track(cv,{start:()=>v._start(c),stop:()=>v._stop(c),retry:()=>v._resume(),dispose:()=>{im.onload=null;v._release(c)}});
   return cv}
 function coinLive(){}
 function coinWatch(){}
-const myCoin=()=>{const me=myPlayer(),it=me&&me.eq&&me.eq.c&&ITEM(me.eq.c);return it&&it.k==='c'?it.v:'basic'};
+const playerCoin=p=>{const it=p&&p.eq&&p.eq.c&&ITEM(p.eq.c);return it&&it.k==='c'&&COINPAL[it.v]?it.v:'basic'};
+const myCoin=()=>playerCoin(myPlayer());
 /* coin toss for a match: the result comes from the match id, so both phones show the same side. 表 = the player who sent the challenge goes first */
 const tossOf=cid=>hsh(cid+'#coin')%2;
-function coinToss(c,preview){
+function coinToss(c,preview,opt={}){
+  const effect=!!opt.effect,short=effect&&(!!opt.fast||matchMedia('(prefers-reduced-motion: reduce)').matches),duration=ms=>short?20:ms;
   document.querySelectorAll('.ctw').forEach(x=>x.remove());
   /* who goes first is fixed by the match id; each player sees it from their own side: 表 = you go first, 裏 = you go second */
   const meId=(myPlayer()||{}).id,firstId=preview?null:(tossOf(c.id)?c.b:c.a),inIt=!preview&&(meId===c.a||meId===c.b);
-  const side=preview?(Math.random()<.5?0:1):inIt?(meId===firstId?0:1):tossOf(c.id),an=preview?'あなた':(players.find(p=>p.id===c.a)||{}).name||c.an,bn=preview?'相手':(players.find(p=>p.id===c.b)||{}).name||c.bn;
-  const skin=preview?preview:myCoin(),P=COINPAL[skin]||COINPAL.basic,itc=ITEMS.find(x=>x.k==='c'&&x.v===skin),tier=itc?itc.r:0,col=P.halo||P.glow||P.m[1];
+  const side=effect?(opt.heads?0:1):preview?(Math.random()<.5?0:1):inIt?(meId===firstId?0:1):tossOf(c.id),an=preview?'あなた':(players.find(p=>p.id===c.a)||{}).name||c.an,bn=preview?'相手':(players.find(p=>p.id===c.b)||{}).name||c.bn;
+  const skin=effect?(COINPAL[opt.skin]?opt.skin:'basic'):preview?preview:myCoin(),P=COINPAL[skin]||COINPAL.basic,itc=ITEMS.find(x=>x.k==='c'&&x.v===skin),tier=itc?itc.r:0,col=P.halo||P.glow||P.m[1];
   const o=el('div','ctw tier'+tier),box=el('div','ctb'),coin=coinEl(skin,150,true),stage=el('div','cts'),res=el('div','ctr'),leg=el('div','ctl'),sh=el('i','ctsh'),au=el('i','ctaura');
-  o.style.setProperty('--cglow',col);
-  const l1=el('div','ctli'),l2=el('div','ctli');if(preview||inIt){l1.append(el('b',null,'表'),el('span',null,'先攻'));l2.append(el('b',null,'裏'),el('span',null,'後攻'))}else{l1.append(el('b',null,'表'),el('span',null,an+' が先攻'));l2.append(el('b',null,'裏'),el('span',null,bn+' が先攻'))}leg.append(l1,l2);
+  o.style.setProperty('--cglow',col);o.dataset.skin=skin;o.dataset.coinContext=effect?'effect':'order';o.dataset.heads=String(side===0);
+  let closed=false,landed=false,observer=null;const pending=[];const later=(ms,fn)=>pending.push(setTimeout(()=>{if(!closed&&o.isConnected)fn()},duration(ms)));
+  const finish=()=>{if(closed)return;closed=true;pending.forEach(clearTimeout);observer&&observer.disconnect();o.getAnimations({subtree:true}).forEach(a=>a.cancel());o.remove();if(opt.done)opt.done()};
+  const close=()=>{if(closed||o.classList.contains('out'))return;o.classList.add('out');later(250,finish)};
+  observer=new MutationObserver(()=>{if(!o.isConnected||(opt.owner&&!opt.owner.isConnected))finish()});observer.observe(document.body,{childList:true});
+  const l1=el('div','ctli'),l2=el('div','ctli');if(effect){l1.append(el('b',null,'表'),el('span',null,'カード効果'));l2.append(el('b',null,'裏'),el('span',null,'カード効果'))}else if(preview||inIt){l1.append(el('b',null,'表'),el('span',null,'先攻'));l2.append(el('b',null,'裏'),el('span',null,'後攻'))}else{l1.append(el('b',null,'表'),el('span',null,an+' が先攻'));l2.append(el('b',null,'裏'),el('span',null,bn+' が先攻'))}leg.append(l1,l2);
   const air=el('div','ctair');air.append(au,coin);stage.append(sh,air);
-  box.append(el('div','ctk','COIN TOSS'+(tier?'  ·  '+RAR[tier].k:'')),leg,stage,res,el('div','sub cth','タップで閉じる'));o.append(box);document.body.append(o);
-  const end=(side?180:0)+360*(6+Math.min(tier,4)),D=[1700,1800,1900,2500,2900,3300][tier],hold=tier>=3,top=tier>=3?-250:-220;
+  box.append(el('div','ctk',(effect?'効果のコイントス':'COIN TOSS')+(tier?'  ·  '+RAR[tier].k:'')),leg,stage,res,el('div','sub cth','タップで閉じる'));o.append(box);document.body.append(o);
+  const end=(side?180:0)+360*(6+Math.min(tier,4)),D=duration([1700,1800,1900,2500,2900,3300][tier]),hold=tier>=3,top=tier>=3?-250:-220;
   const run=()=>{
-    if(!air.animate){coin.style.transform='rotateX('+end+'deg)';land();return}
+    if(landed||closed)return;
+    if(short||!air.animate){coin.style.transform='rotateX('+end+'deg)';land();return}
     /* height (wrapper) and spin (coin) are separate so the arc stays smooth; UR and GR hang at the top for a moment */
     air.animate([{transform:'translate3d(0,0,0) scale(1)'},{transform:'translate3d(0,8px,0) scale(.96)',offset:.07},{transform:'translate3d(0,'+top+'px,0) scale(1.08)',offset:hold?.38:.46,easing:hold?'linear':'cubic-bezier(.3,0,.7,1)'},
       ...(hold?[{transform:'translate3d(0,'+(top-12)+'px,0) scale(1.14)',offset:.56,easing:'cubic-bezier(.4,0,.8,1)'}]:[]),{transform:'translate3d(0,0,0) scale(1)',offset:.86},{transform:'translate3d(0,-22px,0) scale(1)',offset:.93},{transform:'translate3d(0,0,0) scale(1)'}],
@@ -2952,13 +3019,13 @@ function coinToss(c,preview){
       {duration:D,easing:'cubic-bezier(.2,.6,.3,1)',fill:'forwards'});
     coinWatch(coin,D+200);
     sh.animate([{transform:'scale(1)',opacity:.9},{transform:'scale(.35)',opacity:.25,offset:hold?.5:.46},{transform:'scale(1)',opacity:.9,offset:.86},{transform:'scale(.9)',opacity:.8,offset:.93},{transform:'scale(1)',opacity:.9}],{duration:D,fill:'forwards'});
-    if(hold)setTimeout(()=>{o.classList.add('charge');vib(1)},D*.38);
-    setTimeout(()=>vib(1),D*.86);setTimeout(land,D)};
-  const land=()=>{o.classList.add('done');coinFx(stage,tier,col);vib(2+tier);coinLive(coin,side);
-    res.replaceChildren(el('b',null,side?'裏':'表'),el('span',null,preview?(side?'後攻':'先攻'):inIt?(side?'あなたは後攻':'あなたが先攻'):'先攻は '+(side?bn:an)));
-    setTimeout(()=>{if(o.isConnected){o.classList.add('out');setTimeout(()=>o.remove(),250)}},4200)};
-  setTimeout(run,tier>=2?600:350);
-  o.onclick=()=>{o.classList.add('out');setTimeout(()=>o.remove(),250)};
+    if(hold)later(D*.38,()=>{if(!landed){o.classList.add('charge');vib(1)}});
+    later(D*.86,()=>{if(!landed)vib(1)});later(D,land)};
+  const land=()=>{if(landed||closed)return;landed=true;o.classList.remove('charge');o.classList.add('done');coinFx(stage,tier,col);vib(2+tier);coinLive(coin,side);
+    res.replaceChildren(el('b',null,side?'裏':'表'),el('span',null,effect?String(opt.actor||'プレイヤー').slice(0,40)+' のカード効果':preview?(side?'後攻':'先攻'):inIt?(side?'あなたは後攻':'あなたが先攻'):'先攻は '+(side?bn:an)));
+    later(effect?1400:4200,close)};
+  later(tier>=2?600:350,run);
+  o.onclick=()=>{if(effect&&!landed){o.getAnimations({subtree:true}).forEach(a=>a.cancel());air.style.transform='none';coin.style.transform='rotateX('+end+'deg)';land()}else close()};
   return side}
 /* ---- coin gacha: its own banner (config/coinev {start,end}). Not for points: while it runs, each victory chest has a 15% chance
    to add a coin ticket; 1 ticket = 1 coin. Coins cannot be bought with shards. Used tickets: inv.cte (event start) + inv.ctn ---- */
@@ -4471,6 +4538,7 @@ const tcgHasSt=()=>!!tcgOf(inv).st||tcgAdmin();
 const tcgCap=id=>TC[id].r==='GR'?TCGD.cap.lead:TCGD.cap.other;
 /* holo (foil) cards: a 1/100 chance per pulled card. Tracked apart from the normal copy; same per-card cap, extras become かけら. Purely cosmetic. */
 const TCG_FOIL=0.01;
+const TCG_BOX_PACKS=15,TCG_BOX_PRICE=1500,TCG_BOX_DOUBLE=0.05;
 const tcgFoil=()=>tcgOf(inv).foil||{};
 const tcgIsFoil=id=>(tcgFoil()[id]||0)>0;
 /* card art lives in tcg/cardimg.js (large), loaded the first time the TCG screen needs it */
@@ -4486,11 +4554,17 @@ function tcgRoll(pk){const P=TCGD.packs[pk],pool=TCGD.cards.filter(c=>P.f.includ
   const pick=r=>{const L=pool.filter(c=>c.r===r);return L[Math.random()*L.length|0].id};
   const out=[];for(let i=0;i<TCGD.size;i++){const x=Math.random()*100,last=i===TCGD.size-1;out.push(pick(x<TCGD.rates.GR?'GR':(last||x<TCGD.rates.GR+TCGD.rates.R)?'R':'C'))}return out}
 /* add cards to the collection; copies past what a deck can use (leaders 3, others 2) become かけら */
-function tcgApply(v,ids){const t=Object.assign({},tcgOf(v)),own=Object.assign({},t.own||{}),foil=Object.assign({},t.foil||{});let sh=0;
-  const res=ids.map(id=>{const c=TC[id],isF=Math.random()<TCG_FOIL,bag=isF?foil:own,had=bag[id]||0;
+function tcgApply(v,ids,foilSlots){const t=Object.assign({},tcgOf(v)),own=Object.assign({},t.own||{}),foil=Object.assign({},t.foil||{});let sh=0;
+  if(foilSlots!=null&&(!Array.isArray(foilSlots)||foilSlots.length!==ids.length))throw new Error('SCR抽選結果が不正です');
+  const res=ids.map((id,i)=>{const c=TC[id],isF=foilSlots!=null?foilSlots[i]===true:Math.random()<TCG_FOIL,bag=isF?foil:own,had=bag[id]||0;
     if(had>=tcgCap(id)){const s=TCGD.shard[c.r];sh+=s;return{c:tcgItem(id),isNew:false,sh:s,foil:isF}}
     bag[id]=had+1;return{c:tcgItem(id),isNew:!had,sh:0,note:had?(had+1)+'枚目':null,foil:isF}});
   t.own=own;t.foil=foil;return{inv:Object.assign({},v,{tcg:t,shards:(v.shards||0)+sh}),res}}
+/* Exactly 1 SCR (95%) or 2 SCR (5%) among 45 cards; the single-pack 1% roll is not added. */
+function tcgRollBox(pk){const count=Math.random()<TCG_BOX_DOUBLE?2:1,ids=[];
+  for(let i=0;i<TCG_BOX_PACKS;i++)ids.push(...tcgRoll(pk));
+  const foils=ids.map(()=>false),slots=ids.map((_,i)=>i);
+  for(let i=0;i<count;i++){const k=Math.random()*slots.length|0;foils[slots.splice(k,1)[0]]=true}return{ids,foils}}
 
 async function tcgStarter(k){const me=myPlayer();if(!db||!me||me.ban||!invLoaded||invFor!==me.id||tcgOf(inv).st)return;
   const S=TCGD.starters[k],own={};S.cards.forEach(id=>own[id]=(own[id]||0)+1);
@@ -4500,7 +4574,7 @@ async function tcgStarter(k){const me=myPlayer();if(!db||!me||me.ban||!invLoaded
   catch(e){toast('受け取れませんでした')}}
 
 /* ---- opening a TCG pack: drag across the tear line (or tap) to rip it, then tap through the cards one by one ---- */
-function tcgPackView(pk,res,onMore){
+function tcgPackView(pk,res,onMore,opt={}){
   const P=TCGD.packs[pk],best=Math.max(...res.map(x=>x.c.r)),RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const o=el('div','tpk'+(best>=4?' gr':best>=2?' rr':''));o.style.setProperty('--p1',P.c1);o.style.setProperty('--p2',P.c2);
   const stage=el('div','tpks'),hintT=el('div','tpkh','上の線を指でなぞって開けよう');
@@ -4509,6 +4583,7 @@ function tcgPackView(pk,res,onMore){
   const lead=el('div','tpkf');lead.style.setProperty('--n',P.f.length);P.f.forEach((f,i)=>{const c=tcgFace(TCGD.leaders[f]);c.style.setProperty('--i',i);lead.append(c)});
   body.append(el('div','tpke','KIMOOTA TCG'),el('div','tpkn',P.n),lead,el('div','tpkc3','3 CARDS'));
   line.append(cut);pack.append(body,top,line,el('i','tpksh'));stage.append(pack,hintT);o.append(stage);document.body.append(o);
+  if(opt.boxIndex){const bar=el('div','tpkboxbar'),skip=el('button','sec','まとめて結果を見る');bar.append(el('b',null,'BOX · '+opt.boxIndex+' / '+TCG_BOX_PACKS+'パック'),skip);skip.onclick=()=>{o.remove();opt.onClose()};o.append(bar)}
   if(best>=2)setTimeout(()=>{if(o.isConnected&&!torn)pack.classList.add('tell')},900);
   /* tear by dragging along the line; a plain tap tears it for you */
   let torn=false,sx=null,prog=0;
@@ -4538,11 +4613,11 @@ function tcgPackView(pk,res,onMore){
     if(!queue.length)return;const x=queue[0];
     if(x.fake){x.fake=false;busy=true;x.el.classList.replace('t2','up');vib(3);FX(o,5,0);setTimeout(()=>{x.el.classList.replace('up','t4');busy=false},900);return}
     queue.shift();cur=x;busy=true;
-    const flip=()=>{x.el.classList.add('open');x.open=true;if(x.c.r>=2||x.foil){o.classList.add('lit');o.style.setProperty('--aura',x.foil?'#8fd0ff':RAR[x.c.r].c);FX(o,(x.c.r>=4||x.foil)?6:3,120,(x.c.r>=4||x.foil)?XS.rainbow:null)}setTimeout(()=>{busy=false},RM?50:520)};
+    const flip=()=>{x.el.classList.add('open');x.open=true;if(x.c.r>=2||x.foil){o.classList.add('lit');o.style.setProperty('--aura',x.foil?'#8fd0ff':RAR[x.c.r].c);FX(o,(x.c.r>=4||x.foil)?6:3,120,(x.c.r>=4||x.foil)?XS.rainbow:null)}setTimeout(()=>{if(!o.isConnected)return;if(x.foil&&opt.onSecret)opt.onSecret(x,()=>{busy=false});else busy=false},RM?50:520)};
     if(x.c.r>=4)cutIn(x.c,flip);else flip()}
   function finish(){const f=el('div','tpkft'),nw=res.filter(z=>z.isNew).length,sh=res.reduce((a,z)=>a+z.sh,0);
-    f.append(el('div','pksum','NEW '+nw+'枚'+(sh?'  ·  かけら +'+sh:'')));const cl=el('button','sec','閉じる');cl.onclick=()=>o.remove();f.append(cl);
-    if(onMore){const mo=el('button',null,'もう1パック');mo.onclick=()=>{o.remove();onMore()};f.append(mo)}stage.append(f);got.classList.add('done')}
+    f.append(el('div','pksum','NEW '+nw+'枚'+(sh?'  ·  かけら +'+sh:'')));const cl=el('button','sec',opt.onClose?'ボックスの結果を見る':'閉じる');cl.onclick=()=>{o.remove();if(opt.onClose)opt.onClose()};f.append(cl);
+    if(onMore){const mo=el('button',null,opt.moreLabel||'もう1パック');mo.onclick=()=>{o.remove();onMore()};f.append(mo)}stage.append(f);got.classList.add('done')}
   return o}
 async function tcgOpenPack(pk){const me=myPlayer();if(!db||!me||me.ban||opening||lbBusy||!invLoaded||invFor!==me.id||!econReady())return;
   if(!tcgHasSt()){toast('先にスターターデッキを選んでください');return}
@@ -4554,6 +4629,58 @@ async function tcgOpenPack(pk){const me=myPlayer();if(!db||!me||me.ban||opening|
     tcgPackView(pk,res,balance(me.id)>=TPACK?()=>tcgOpenPack(pk):null);return}
   catch(e){toast('開けませんでした')}
   opening=false;renderTcg()}
+
+function tcgConfirmBox(pk){const me=myPlayer();if(!TCGD.packs[pk]||!me||opening)return;
+  tcgModal((c,close)=>{c.append(el('div','mdt',TCGD.packs[pk].n+' · ボックス購入'),el('p',null,TCG_BOX_PACKS+'パック・'+(TCG_BOX_PACKS*TCGD.size)+'枚 / '+TCG_BOX_PRICE+'pt'),el('p','tcgboxnote','シークレットレア1枚以上確定 · 1枚95% / 2枚5%'),el('p','sub','SCRは45枚の中に含まれます。所持上限を超えたカードは、通常パックと同じくかけらになります。'));
+    const buy=el('button','tcgboxconfirm','購入する（'+TCG_BOX_PRICE+'pt）');buy.disabled=!econReady()||!tcgHasSt()||balance(me.id)<TCG_BOX_PRICE;buy.onclick=()=>{close();tcgOpenBox(pk)};const cancel=el('button','sec','キャンセル');cancel.onclick=close;c.append(buy,cancel)})}
+async function tcgOpenBox(pk){const me=myPlayer();if(!TCGD.packs[pk]||!db||!me||me.ban||opening||lbBusy||!invLoaded||invFor!==me.id||!econReady())return;
+  if(!tcgHasSt()){toast('先にスターターデッキを選んでください');return}
+  if(balance(me.id)<TCG_BOX_PRICE){toast('ポイントが足りません(1ボックス'+TCG_BOX_PRICE+'pt)');return}
+  opening=true;renderTcg();let res;
+  try{await tcgLoad();
+    if(!myPlayer()||myPlayer().id!==me.id||invFor!==me.id||!invLoaded||!econReady())return;
+    if(balance(me.id)<TCG_BOX_PRICE){toast('ポイントが足りません(1ボックス'+TCG_BOX_PRICE+'pt)');return}
+    const box=tcgRollBox(pk),paid0=paidLeft(me.id),applied=tcgApply(inv,box.ids,box.foils),n=applied.inv;
+    n.tpacks=(inv.tpacks||0)+TCG_BOX_PACKS;n.pspent=(inv.pspent||0)+Math.min(TCG_BOX_PRICE,Math.max(0,paid0));
+    await db.doc('inv/'+me.id).set(n);inv=n;res=applied.res;
+  }catch(e){toast('ボックスを購入できませんでした');return}
+  finally{opening=false;renderTcg();renderGacha()}
+  feedPull(res.map(x=>x.c),TCGD.packs[pk].n+' BOX');tcgBoxView(pk,res)}
+function tcgBoxView(pk,res){let i=0;const seen=[],summary=()=>tcgBoxSummary(pk,res),secret=(x,resume)=>{seen.push(x);tcgBoxCinematic(pk,seen,resume,resume,{revealed:true})},next=()=>{
+  const n=i++;tcgPackView(pk,res.slice(n*TCGD.size,(n+1)*TCGD.size),i<TCG_BOX_PACKS?next:null,{boxIndex:i,moreLabel:'次のパック（'+(i+1)+' / '+TCG_BOX_PACKS+'）',onClose:summary,onSecret:secret})};return tcgBoxCinematic(pk,res,next,summary)}
+function tcgBoxCinematic(pk,res,onPacks,onSummary,opt={}){
+  const P=TCGD.packs[pk],secrets=opt.revealed?res.filter(x=>x.foil):[],RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const o=el('div','tcgboxcinema');o.dataset.phase='sealed';o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');o.setAttribute('aria-label',P.n+' ボックス開封');o.style.setProperty('--p1',P.c1);o.style.setProperty('--p2',P.c2);
+  const layout=el('div','tcgbxlayout'),top=el('div','tcgbxtop'),skip=el('button','sec','結果を見る');top.append(el('span',null,'KIMOOTA TCG / BOX'),skip);
+  const heading=el('div','tcgbxheading'),eyebrow=el('small',null,'KIMOOTA TCG · 15 PACKS'),title=el('h2',null,'ボックス開封'),sub=el('p',null,P.n);heading.setAttribute('aria-live','polite');heading.append(eyebrow,title,sub);
+  const scene=el('div','tcgbxscene'),halo=el('div','tcgbxhalo'),fan=el('div','tcgbxfan'),box=el('div','tcgbxbox'),front=el('div','tcgbxfront'),art=el('div','tcgbxart'),hit=el('button','tcgbxhit');hit.setAttribute('aria-label','ボックスを開封する');
+  P.f.slice(0,3).forEach(f=>art.append(tcgFace(TCGD.leaders[f])));front.append(el('small',null,'KIMOOTA TRADING CARD GAME'),el('strong',null,P.n),art,el('em',null,'15 PACKS'));box.append(el('div','tcgbxlid'),front,el('div','tcgbxseal','未開封'),hit);
+  for(let i=0;i<TCG_BOX_PACKS;i++){const p=el('div','tcgbxmini');p.style.setProperty('--x',(i-7)*17+'px');p.style.setProperty('--turn',(i-7)*3+'deg');p.style.setProperty('--delay',i*22+'ms');p.append(el('span',null,String(i+1).padStart(2,'0')),el('i',null,'KIMOOTA'));fan.append(p)}
+  const lights=el('div','tcgbxlights');scene.append(fan,box);lights.append(el('div','tcgbxcrest','Ⅱ'));for(let i=0;i<4;i++){const beam=el('div','tcgbxbeam');beam.style.setProperty('--beam',[-45,-20,20,45][i]+'deg');lights.append(beam)}for(let i=0;i<3;i++){const ring=el('div','tcgbxring');ring.dataset.ring=String(i+1);lights.append(ring)}
+  const reveal=el('div','tcgbxreveal');reveal.hidden=true;scene.append(reveal);
+  const sparks=el('div','tcgbxsparks');for(let i=0;i<24;i++){const s=el('i','tcgbxspark');s.style.setProperty('--angle',i*15+'deg');s.style.setProperty('--travel',-(220+i%4*50)+'px');s.style.setProperty('--delay',i%6*55+'ms');s.style.setProperty('--spark',['#f3d59d','#d6b7ff','#a5e5ff'][i%3]);sparks.append(s)}lights.append(sparks);
+  const bottom=el('div','tcgbxbottom'),action=el('button','tcgbxaction','ボックスを開封する'),note=el('p',null,'SEC一枚以上確定');bottom.append(action,note);layout.append(top,heading,scene,bottom);const bands=el('div','tcgbxbands'),impact=el('div','tcgbximpact');bands.append(el('i','cb'),el('i','cb'),el('i','cb'));impact.append(el('i'),el('b'));o.append(halo,bands,lights,impact,layout,el('div','tcgbxwash'));document.body.append(o);
+  // Borrow the existing gacha renderer; its host is removed on hide/close, with a finite visible-time budget.
+  let fxHost=null,fxTimer=null,fxSpec=null,fxRemaining=0,fxStarted=0;
+  const stopFx=()=>{clearTimeout(fxTimer);fxTimer=null;if(fxHost){fxRemaining=Math.max(0,fxRemaining-(Date.now()-fxStarted));fxHost.remove();fxHost=null}};
+  const armFx=()=>{if(RM||document.hidden||!o.isConnected||!fxSpec||fxRemaining<=0)return;fxHost=el('div','tcgbxfx');o.insertBefore(fxHost,layout);fxStarted=Date.now();FX(fxHost,fxSpec.tier,0,fxSpec.skin);fxTimer=setTimeout(()=>{stopFx();fxSpec=null},fxRemaining)};
+  const burst=(tier,skin)=>{stopFx();fxSpec={tier,skin};fxRemaining=8000;armFx();vib(tier)};
+  let timer=null,task=null,remaining=0,started=0,done=false;const leave=fn=>{if(done)return;done=true;clearTimeout(timer);task=null;stopFx();fxSpec=null;observer.disconnect();document.removeEventListener('visibilitychange',pause);o.remove();fn()};
+  const observer=new MutationObserver(()=>{if(!o.isConnected){done=true;clearTimeout(timer);task=null;stopFx();fxSpec=null;observer.disconnect();document.removeEventListener('visibilitychange',pause);if(opt.revealed)onPacks()}});observer.observe(document.body,{childList:true});
+  const arm=()=>{if(!task||document.hidden||done)return;started=Date.now();timer=setTimeout(()=>{timer=null;const fn=task;task=null;if(o.isConnected&&!done)fn()},remaining)};
+  const pause=()=>{o.classList.toggle('tcgbxpaused',document.hidden);if(document.hidden)stopFx();else if(!fxHost)armFx();if(document.hidden&&timer!==null){remaining=Math.max(0,remaining-(Date.now()-started));clearTimeout(timer);timer=null}else if(!document.hidden&&timer===null)arm()};document.addEventListener('visibilitychange',pause);pause();
+  const later=(ms,fn)=>{clearTimeout(timer);timer=null;task=fn;remaining=RM?0:ms;arm()};
+  const setPhase=(phase,label,detail)=>{o.dataset.phase=phase;title.textContent=label;sub.textContent=detail};
+  const card=(x,index)=>{const c=el('div','tcgbxsec');c.append(tcgFace(x.c.v,null,true),el('span',null,'SEC · '+index),el('p',null,x.c.n));return c};
+  const packs=()=>leave(onPacks);skip.onclick=()=>leave(onSummary);
+  function first(){box.hidden=true;fan.hidden=true;reveal.hidden=false;reveal.replaceChildren(card(secrets[0],1));eyebrow.textContent='シークレットレア GET';setPhase('first','SEC',P.n);burst(6,XS.rainbow);note.textContent='パックの中からシークレットレア！';action.disabled=false;action.textContent='パックに戻る';action.onclick=packs}
+  function second(){action.disabled=true;stopFx();fxSpec=null;eyebrow.textContent='もう一枚…!?';setPhase('charge','まさか…','');later(900,()=>{reveal.classList.add('tcgbxdual');reveal.replaceChildren(card(secrets[0],1),card(secrets[1],2));eyebrow.textContent='シークレットレア 2枚 GET';setPhase('double','SEC × 2','ダブルシークレット');burst(6,XS.rainbow);note.textContent='同じボックスからSECを2枚獲得！';action.textContent='パックに戻る';action.onclick=packs;later(1400,()=>{action.disabled=false})})}
+  function open(){if(o.dataset.phase!=='sealed'||done)return;hit.disabled=true;hit.tabIndex=-1;action.disabled=true;action.textContent='開封中…';eyebrow.textContent='KIMOOTA TCG · 15 PACKS';setPhase('opening','ボックス開封！',P.n+' · 15パック');burst(5,XS.gold);later(1700,packs)}
+  hit.onclick=open;action.onclick=open;if(opt.revealed){skip.textContent='パックに戻る';first();if(secrets.length===2)second()}return o}
+function tcgBoxSummary(pk,res){const o=el('div','tcgboxresult'),body=el('div','tcgboxbody'),scr=res.filter(x=>x.foil).length,nw=res.filter(x=>x.isNew).length,sh=res.reduce((n,x)=>n+x.sh,0);
+  body.append(el('div','eyebrow','KIMOOTA TCG · BOX'),el('h2',null,TCGD.packs[pk].n),el('p','tcgboxnote',TCG_BOX_PACKS+'パック · '+res.length+'枚 · SCR '+scr+'枚'),el('p','sub','NEW '+nw+'枚'+(sh?' · かけら +'+sh:'')));
+  const grid=el('div','tcggrid');res.forEach((x,i)=>{const card=el('div','tcgboxcard');card.dataset.pack=String(Math.floor(i/TCGD.size)+1);card.append(tcgFace(x.c.v,null,x.foil),el('b',null,(x.foil?'SCR · ':'')+x.c.n),el('small',null,x.sh?'かけら +'+x.sh:x.isNew?'NEW':x.note||'獲得'));grid.append(card)});body.append(grid);
+  const actions=el('div','tcgsc'),close=el('button','sec','閉じる');close.onclick=()=>o.remove();actions.append(close);body.append(actions);o.append(body);document.body.append(o);return o}
 
 /* Firestore can't store an array inside an array, so a deck's cards are normalised to a flat list of string ids (same shape as the starter decks) before saving. Handles ids, [id,count] pairs and {id,count} objects. */
 function tcgCardId(v){if(v==null)return null;if(typeof v==='string')return v;if(typeof v==='number')return String(v);if(typeof v==='object'){const id=v.id!=null?v.id:v.c!=null?v.c:v.card;return id!=null?String(id):null}return null}
@@ -4567,10 +4694,13 @@ async function tcgSaveDecks(L){const me=myPlayer();if(!db||!me||invFor!==me.id)r
   try{await db.doc('inv/'+me.id).set({tcg:{decks}},{merge:true})}catch(e){try{console.error('deck save failed',e)}catch(_){}toast('デッキ保存失敗: '+String((e&&e.message)||(e&&e.code)||e).slice(0,220))}}
 
 /* ---- the game runs in a frame and asks the app for cards, decks, the coin toss and the result ---- */
+function tcgShowEffectCoin(info){return new Promise(resolve=>coinToss({id:'tcg-effect'},null,{effect:true,heads:!!info.heads,skin:info.skin,actor:info.actor,fast:!!info.fast,owner:$('tcgw'),done:resolve}))}
+function tcgBattleEffectCoin(info){const L=tcgLive,d=L&&tcgms.find(x=>x.id===L.id),side=d?(info.who===0?L.first:L.first==='a'?'b':'a'):null,p=d?players.find(x=>x.id===d[side]):info.mine?myPlayer():null;return tcgShowEffectCoin({...info,skin:playerCoin(p),actor:p&&p.name||'CPU'})}
+function tcgPublicCoins(d,first){return(first==='b'?[d.b,d.a]:[d.a,d.b]).map(id=>playerCoin(players.find(x=>x.id===id)))}
 window.TCGHOST={own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
-  toss:(info,cb)=>tcgToss(info,cb),result:r=>tcgResult(r),close:()=>tcgClose()};
+  toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
-  const f=el('iframe');f.src='tcg_play.html?v=71'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+  const f=el('iframe');f.src='tcg_play.html?v=72-rc6'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
 function tcgClose(){if(typeof tcgLive!=='undefined')tcgLive=null;const o=$('tcgw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');renderTcg()}
 /* your own coin decides who goes first, then your own 対戦演出 opens the match */
 function tcgToss(info,cb){const side=coinToss({id:'tcg'},myCoin());let fired=false;const t0=Date.now();
@@ -4634,7 +4764,8 @@ function tcgPackSlide(pk){const P=TCGD.packs[pk],me=myPlayer(),st=tcgHasSt(),s=e
   const art=el('div','tcgpka');art.append(el('div','tcgpke','KIMOOTA TCG  ·  CARD PACK'),el('div','tcgpkn',P.n));const ld=el('div','tcgpkl');P.f.forEach(f=>ld.append(tcgFace(TCGD.leaders[f])));art.append(ld);
   s.append(art,el('div','tcgpkf',P.f.map(f=>TCGD.fname[f]).join('・')+'  +  共通カード'));
   if(!st){const b=el('button','tcgpkb');b.append(el('b',null,'スターターデッキを選ぶ'),el('span',null,'先にTCGの画面で'));b.onclick=()=>setView('tcg');s.append(b)}
-  else{const b=el('button','tcgpkb');b.append(el('b',null,'1パック'),el('span',null,TPACK+'pt  ·  3枚'));b.disabled=!me||opening||!econReady()||balance(me.id)<TPACK;b.onclick=()=>tcgOpenPack(pk);s.append(b)}
+  else{const b=el('button','tcgpkb');b.append(el('b',null,'1パック'),el('span',null,TPACK+'pt  ·  3枚'));b.disabled=!me||opening||!econReady()||balance(me.id)<TPACK;b.onclick=()=>tcgOpenPack(pk);s.append(b);
+    const box=el('button','tcgpkb tcgboxbuy');box.dataset.pack=pk;box.append(el('b',null,'1ボックス'),el('span',null,TCG_BOX_PRICE+'pt · '+TCG_BOX_PACKS+'パック'));box.disabled=!me||opening||!econReady()||balance(me.id)<TCG_BOX_PRICE;box.onclick=()=>tcgConfirmBox(pk);s.append(box,el('p','tcgboxnote','SEC一枚以上確定'))}
   const d=el('details','grate');d.append(el('summary',null,'排出率'));const tb=el('table');tb.innerHTML='<tr><th></th><th>1・2枚目</th><th>3枚目</th></tr><tr><td class="r4">ガチレア</td><td>4%</td><td>4%</td></tr><tr><td class="r2">レア</td><td>26%</td><td>96%</td></tr><tr><td class="r0">コモン</td><td>70%</td><td>—</td></tr>';
   d.append(tb,el('p',null,'ガチレアは各族のリーダー(金枠)。同じカードは2枚まで持てて、3枚目からはかけら(コモン1・レア3・ガチレア40)になります。かけらはスキンとの交換に使えます(TCGカードには交換できません)。'));s.append(d);return s}
 /* the パック screen has two pages side by side: スキン (coin gacha, limited, normal packs) and TCGカード. Tap the tabs or swipe sideways */
@@ -4677,6 +4808,7 @@ function renderTcg(){
     const sc=el('div','tcgsc'),b1=el('button','sec','パックを開ける'),b2=el('button','sec','デッキ・図鑑');b1.onclick=()=>tcgGoPacks();b2.onclick=()=>tcgDeckView();sc.append(b1,b2);
     h.append(row,sc,el('div','sub tcgrec','CPU戦 '+(T.w||0)+'勝 '+(T.l||0)+'敗  ·  友達戦 '+tcgFriendRec(me&&me.id)))}
   box.append(h);
+  box.append(tcgSpectatorSection());
   if(st){const rk=tcgRankSec();if(rk)box.append(rk)}
   if(st&&typeof tcgFriendSec==='function'){const fs=tcgFriendSec();if(fs)box.append(fs)}
   if(!T.st){const s=el('section','tcgst');s.append(el('h2',null,'スターターデッキを選ぶ'),el('p','sub','3つから1つだけ。選び直しはできません。ほかの族のカードはパックで集めます(パックの画面の「TCGカード」)。'));
@@ -4686,6 +4818,24 @@ function renderTcg(){
     s.append(L);box.append(s)}
 }
 
+/* ===== read-only live observation: a separate public stream, never a replay of private moves ===== */
+let tcgWatches=[],tcgWatchLoaded=false,tcgWatchError=false,tcgWatchUnsub=null;
+function watchTcgSpectators(){if(tcgWatchUnsub||!db)return;tcgWatchUnsub=db.collection('tcgwatch').orderBy('updated','desc').limit(30).onSnapshot(s=>{
+  tcgWatches=s.docs.map(d=>({id:d.id,...d.data()}));tcgWatchLoaded=true;tcgWatchError=false;if(curView==='tcg'&&!$('tcgw'))renderTcg();
+},()=>{tcgWatchLoaded=true;tcgWatchError=true;if(curView==='tcg'&&!$('tcgw'))renderTcg()})}
+function tcgSpectatorSection(){const s=el('section','tcgobserve');s.append(el('h2',null,'ライブ観戦'),el('p','sub','対戦中の場をリアルタイムで見る。手札・伏せカードは非公開。'));
+  const live=tcgWatches.filter(d=>d.state&&!d.state.over&&now()-d.updated<10*60000);
+  if(!live.length)s.append(el('p','sub',tcgWatchError?'観戦データに接続できません。対戦・CPU戦は通常どおり利用できます。':tcgWatchLoaded?'今は観戦できる試合がありません。':'試合を確認しています…'));
+  live.forEach(d=>{const row=el('div','tcgfr'),tx=el('div');tx.append(el('b',null,d.an+' vs '+d.bn),el('div','sub',(now()-d.updated>90000?'更新待ち · ':'LIVE · ')+d.state.turns+'ターン'));
+    const b=el('button','sec','観戦する');b.onclick=()=>tcgSpectate(d.id);row.append(tx,b);s.append(row)});return s}
+function tcgSpectate(id){if(!db||$('tcgw')){toast('対戦・編成を閉じてから観戦してください');return}
+  const o=el('div','tcgw');o.id='tcgw';const f=el('iframe');f.src='tcg_play.html?v=72-rc6#watch='+encodeURIComponent(id);f.title='きもオタTCG ライブ観戦';o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+window.TCGWATCH={effectCoin:info=>tcgShowEffectCoin(info),subscribe:(id,cb,onError)=>{if(!db){onError&&onError();return()=>{}}return db.doc('tcgwatch/'+id).onSnapshot(s=>cb(s.exists?s.data():null),onError)},close:()=>tcgClose()};
+window.TCGHOST.publishSpectator=payload=>{const L=tcgLive,me=myPlayer();if(!L||L.id!==payload.id||!db||!me)return Promise.resolve();
+  const d=tcgms.find(x=>x.id===L.id);if(!d||(me.id!==d.a&&me.id!==d.b))return Promise.resolve();
+  const record=TCGSpectator.makeRecord(payload.state,d,L.first,payload.seq,now(),payload.frames,tcgPublicCoins(d,L.first));return db.doc('tcgwatch/'+L.id).set(record).catch(()=>{});
+};
+window.TCGHOST.spectatorSeq=()=>tcgLive?tcgLive.mine.length+tcgLive.delivered:0;
 /* ===== friend battles: tcgm/{id} = {a,b,an,bn,t,u,st:'wait'|'go'|'end'|'decline'|'cancel',da,db,seed,sb,ma,mb (each player's own moves),wa,wb,ta,tb,ca,cb}
    Both phones run the same game from the same seed; only the moves travel. Each player writes their own result (wa / wb);
    the winner's chest counts only when both results agree, the match lasted 6 turns or more, and it is one of their first 5 wins that day ---- */
@@ -5181,7 +5331,7 @@ window.addEventListener('resize',moveNavInk);
   const end=()=>{if(done)return;done=true;sp.classList.add('out');setTimeout(()=>sp.remove(),500)};
   sp.addEventListener('click',end);sp.addEventListener('touchend',e=>{e.preventDefault();end()});
   setTimeout(end,matchMedia('(prefers-reduced-motion: reduce)').matches?500:2100);})();
-new MutationObserver(()=>{const on=!!document.querySelector('body>.ae,body>.pk,body>.news,body>.bo,body>.vic,body>.chest,body>.tkv,body>.pvw,body>.cut,body>.kc,body>.ru,body>.vtcut,body>#splash');document.body.classList.toggle('ovl',on)}).observe(document.body,{childList:true});
+new MutationObserver(()=>{const on=!!document.querySelector('body>.ae,body>.pk,body>.news,body>.bo,body>.vic,body>.chest,body>.tkv,body>.pvw,body>.cut,body>.kc,body>.ru,body>.vtcut,body>.tcgboxresult,body>.tcgboxcinema,body>#splash');document.body.classList.toggle('ovl',on)}).observe(document.body,{childList:true});
 
 document.querySelectorAll('.bnav button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 (function(){
@@ -5198,7 +5348,7 @@ document.querySelectorAll('.bnav button').forEach(b=>b.onclick=()=>setView(b.dat
 $('pedit').onclick=()=>openCollection();
 /* pause animations that are off screen (cheaper scrolling on phones) */
 const animIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('ofs',!e.isIntersecting)),{rootMargin:'120px 0px'}):null;
-let animQ=0;function watchAnim(){animQ=0;if(!animIO)return;document.querySelectorAll('main .rk,main .podium,main .fd,main .myc,main .sto,main #pcard>*,main .top3,main .tile,main .sban,main .gwban').forEach(x=>{if(!x.__io){x.__io=1;animIO.observe(x)}})}
+const animNodes=new Set();let animQ=0;function watchAnim(){animQ=0;if(!animIO)return;for(const n of animNodes)if(!n.isConnected){animIO.unobserve(n);animNodes.delete(n);delete n.__io}document.querySelectorAll('main .rk,main .podium,main .fd,main .myc,main .sto,main #pcard>*,main .top3,main .tile,main .sban,main .gwban').forEach(x=>{if(!x.__io){x.__io=1;animNodes.add(x);animIO.observe(x)}})}
 new MutationObserver(()=>{if(!animQ)animQ=requestAnimationFrame(watchAnim)}).observe(document.querySelector('main'),{childList:true,subtree:true});
 {const gt=$('gtabs');const sw=()=>{const sp=document.querySelector('.rkswp');if(sp)sp.hidden=Object.keys(GAMES).length<2};new MutationObserver(sw).observe(gt,{childList:true})}
 function psubSet(k){const v=$('v-profile');v.dataset.pt=k;document.querySelectorAll('#psub button').forEach(b=>b.classList.toggle('on',b.dataset.p===k));try{localStorage.setItem('psub',k)}catch(e){}}
@@ -5227,6 +5377,7 @@ render();
   if(myId)db.doc('data/users/'+myId+'/me').onSnapshot(s=>{const v=s.exists?s.data():null;mePid=v&&v.pid?v.pid:null;meLoaded=true;syncSeasons();queueRender();onChallenges()},()=>{meLoaded=true;queueRender()});
   db.collection('players').onSnapshot(s=>{players=s.docs.map(d=>({id:d.id,...d.data()}));playersLoaded=true;syncSeasons();queueRender();onChallenges()},()=>{});
   db.collection('matches').orderBy('t','desc').onSnapshot(onMatches,()=>{});
+  watchTcgSpectators();
   db.doc('config/coinev').onSnapshot(s=>{coinev=s.exists?s.data():null;queueRender()},()=>{});
   db.collection('tours').orderBy('t','desc').onSnapshot(s=>{toursLoaded=true;tours=s.docs.map(d=>({id:d.id,...d.data()}));queueRender()},()=>{toursLoaded=true;queueRender()});
   db.collection('tentry').onSnapshot(s=>{tentry=s.docs.map(d=>({id:d.id,...d.data()}));queueRender()},()=>{});
