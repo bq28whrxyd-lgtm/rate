@@ -7,12 +7,14 @@
       getComputedStyle(n).visibility!=='hidden'&&
       !(n.closest('main')&&(document.body.classList.contains('ovl')||document.body.classList.contains('tcgon')));};
   function flush(){pending=0;for(const [n,r] of nodes){
-    if(!n.isConnected){if(r.active)r.stop();r.dispose&&r.dispose();io&&io.unobserve(n);nodes.delete(n);continue}
+    /* a node built before it is put on the page (battle intros, cheers) waits for it; it is released only once it has been on the page and left again */
+    if(!n.isConnected){if(!r.seen&&Date.now()-r.t0<20000)continue;if(r.active)r.stop();r.active=false;r.dispose&&r.dispose();io&&io.unobserve(n);nodes.delete(n);continue}
+    r.seen=true;
     const on=r.near&&visible(n);if(on===r.active)continue;r.active=on;(on?r.start:r.stop)();
   }}
   function schedule(){if(!pending&&nodes.size)pending=requestAnimationFrame(flush)}
   const io='IntersectionObserver'in window?new IntersectionObserver(es=>{for(const e of es){const r=nodes.get(e.target);if(r)r.near=e.isIntersecting}schedule()},{rootMargin:'60px'}):null;
-  function track(n,h){nodes.set(n,{...h,near:!io,active:false});if(io)io.observe(n);schedule();return n}
+  function track(n,h){nodes.set(n,{...h,near:!io,active:false,seen:false,t0:Date.now()});if(io)io.observe(n);schedule();return n}
   function video(v){v.autoplay=false;return track(v,{
     start:()=>{if(!v.getAttribute('src')&&v.dataset.src)v.src=v.dataset.src;play(v)},
     stop:()=>v.pause(),dispose:()=>{v.pause();v.removeAttribute('src');v.load()}

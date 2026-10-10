@@ -662,7 +662,87 @@ svg{display:block}
 .holo::after,.u.r-SR>.art::after,.u.r-SR .face>.art::after,.bc.ace .bart::after,.u.ace .face>.art::after{background-size:100% 100%;animation-name:holoT;will-change:transform}
 @keyframes holoT{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
 
+
+/* SCR (secret rare) finish — rainbow border + sheen + sparkles */
+.bart .foilsheen,.u.foilc .foilsheen{position:absolute;inset:0;pointer-events:none;z-index:4;mix-blend-mode:screen;opacity:.68;
+ background:linear-gradient(60deg,transparent 36%,rgba(255,255,255,.98) 45%,rgba(190,235,255,.75) 50%,rgba(255,255,255,.98) 55%,transparent 64%),repeating-linear-gradient(118deg,rgba(255,90,170,.55) 0 7%,rgba(255,210,90,.55) 7% 14%,rgba(90,220,160,.55) 14% 21%,rgba(90,170,255,.55) 21% 28%,rgba(200,120,255,.55) 28% 35%);
+ background-size:250% 250%,200% 200%;animation:foilshine 2.6s linear infinite}
+.bc.foilc .foilspark,.u.foilc .foilspark{position:absolute;inset:0;z-index:7;pointer-events:none;opacity:.95;filter:drop-shadow(0 0 1.4px rgba(255,255,255,.9));
+ background-image:radial-gradient(2.2px 2.2px at 18% 20%,#fff,transparent 62%),radial-gradient(1.8px 1.8px at 72% 30%,#fff6d8,transparent 62%),radial-gradient(2.2px 2.2px at 40% 52%,#fff,transparent 62%),radial-gradient(1.8px 1.8px at 86% 56%,#fff,transparent 62%),radial-gradient(2px 2px at 24% 72%,#fff6d8,transparent 62%),radial-gradient(2.2px 2.2px at 60% 78%,#fff,transparent 62%),radial-gradient(1.8px 1.8px at 48% 92%,#fff,transparent 62%),radial-gradient(1.6px 1.6px at 80% 88%,#fff6d8,transparent 62%)}
+.bc.foilc .foilspark,.u.foilc .foilspark{animation:twinkle 1.8s steps(2,jump-none) infinite}
+.bc.foilc{position:relative;box-shadow:0 0 18px rgba(150,190,255,.5),0 0 38px rgba(255,120,200,.32),0 0 64px rgba(255,210,120,.2);animation:foilglow 3.2s ease-in-out infinite}
+.hand .bc.foilc{position:absolute}
+.bc.foilc::before{content:"";position:absolute;inset:0;z-index:8;pointer-events:none;border-radius:inherit;padding:1.5cqw;
+ background:conic-gradient(from 210deg,#ff8ac4,#ffd98a,#8affcf,#7ab8ff,#cf9bff,#ff8ac4,#ffd98a,#ff8ac4);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;box-shadow:inset 0 0 0 1px rgba(255,236,180,.6),0 0 5px rgba(255,255,255,.4)}
+.bc.foilc::after{content:"";position:absolute;inset:2.4cqw;z-index:8;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,225,150,.5)}
+.u.foilc{position:relative;box-shadow:0 0 0 1.5px rgba(255,236,180,.6),0 0 16px rgba(150,190,255,.55),0 0 34px rgba(255,120,200,.32);border-radius:8px;animation:foilglow 3.2s ease-in-out infinite}
+.bc.foilc .foiltag,.u.foilc .foiltag{position:absolute;bottom:3.5%;left:3.5%;top:auto;right:auto;z-index:9;font:800 3.1cqw/1 var(--disp,sans-serif);color:#3a240a;background:linear-gradient(90deg,#ffe2a0,#fff6d8,#ffd98a,#fff6d8);background-size:200% 100%;padding:.6cqw 1.4cqw;border-radius:999px;letter-spacing:.08em;box-shadow:0 1px 3px #0008,inset 0 0 0 1px rgba(255,255,255,.4);animation:foilbadge 2.4s linear infinite}
+@keyframes foilshift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes foilspin{to{transform:rotate(1turn)}}
+@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes foilbadge{to{background-position:200% 0}}
+@keyframes foilshine{0%{background-position:-60% 0,0% 50%}100%{background-position:160% 0,100% 50%}}
+@keyframes foilglow{0%,100%{box-shadow:0 0 0 1px rgba(255,236,180,.4),0 0 16px rgba(150,190,255,.45),0 0 36px rgba(255,120,200,.28),0 0 60px rgba(255,210,120,.16)}50%{box-shadow:0 0 0 1.5px rgba(255,236,180,.6),0 0 26px rgba(150,190,255,.65),0 0 52px rgba(255,120,200,.42),0 0 86px rgba(255,210,120,.26)}}
+@media(prefers-reduced-motion:reduce){.bc.foilc,.u.foilc,.foilsheen,.foilspark,.foiltag{animation:none}}
 .watching #s-game{top:64px}.watchhead{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;gap:10px;padding:0 10px;box-sizing:border-box;background:#0d0a20;border-bottom:1px solid var(--line);z-index:6;font-size:10px}.watchhead strong{color:var(--gold)}.watchhead #close{margin-left:auto;height:32px;font-size:11px;padding:0 12px}.watching #s-game button:disabled{opacity:1;cursor:default}.watching .hand .cb{position:absolute;width:var(--hw)}
+/* deck builder: each cell keeps its badges and SCR frame inside itself, so nothing rides over the sticky name bar / tabs */
+.bcell{isolation:isolate}
+.bhd{z-index:30}
+.btabs{z-index:29}
+.bsearch{position:relative;z-index:28}
+
+.bcell .ownt.ownscr{background:linear-gradient(90deg,#ffe2a0,#fff6d8,#ffd98a);color:#3a240a;border-color:#fff8}
+
+/* ===== SCR on the field ===== */
+.u.scr .stand .scrholo{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;opacity:.9;mix-blend-mode:soft-light;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-position:50% 100%;mask-position:50% 100%}
+.u.scr .stand .panel .scrholo{-webkit-mask:none;mask:none;opacity:.8}
+.u.scr .stand .scrholo>i{position:absolute;top:-10%;bottom:-10%;left:-100%;width:300%;will-change:transform;
+  background:linear-gradient(112deg,#ffd0e8 0%,#ffe9b0 14%,#c8ffe8 28%,#bfe0ff 42%,#e2ccff 56%,#ffd0e8 70%,#ffe9b0 84%,#c8ffe8 100%);animation:scrHolo 5.2s ease-in-out infinite alternate}
+.u.scr .stand .scrholo::after{content:"";position:absolute;top:-20%;bottom:-20%;left:-40%;width:28%;background:linear-gradient(100deg,transparent,#fff 50%,transparent);transform:translateX(0) skewX(-14deg);animation:scrShine 3.6s cubic-bezier(.6,0,.3,1) infinite;will-change:transform}
+@keyframes scrShine{0%,55%{transform:translateX(0) skewX(-14deg)}100%{transform:translateX(600%) skewX(-14deg)}}
+@keyframes scrHolo{from{transform:translateX(-18%)}to{transform:translateX(18%)}}
+.u.scr .pad{box-shadow:var(--under,0 0 0 0 transparent),0 0 0 1px #000,0 0 0 2px #f4e9ff,0 0 10px 2px #c9b2ff99,0 0 22px 6px #ff9fd440,0 8px 12px #000a}
+.u.scr .base{background:radial-gradient(closest-side,#e9dcffcc,#b49cff66 45%,#ff9fd422 70%,transparent);opacity:.9}
+.u.scr .scrglint{position:absolute;z-index:4;width:14%;aspect-ratio:1;pointer-events:none;opacity:0;will-change:transform,opacity;
+  left:calc(18% + var(--k) * 27%);top:calc(14% + var(--k) * 23% - var(--k) * var(--k) * 6%);animation:scrGlint 2.8s ease-in-out infinite;animation-delay:calc(var(--k) * .93s)}
+.u.scr .scrglint::before,.u.scr .scrglint::after{content:"";position:absolute;left:50%;top:50%;background:#fff;border-radius:2px;box-shadow:0 0 6px #fff,0 0 12px #d9c8ff}
+.u.scr .scrglint::before{width:100%;height:1.5px;transform:translate(-50%,-50%)}
+.u.scr .scrglint::after{width:1.5px;height:100%;transform:translate(-50%,-50%)}
+@keyframes scrGlint{0%,62%,100%{opacity:0;transform:scale(.2) rotate(0)}74%{opacity:1;transform:scale(1) rotate(45deg)}86%{opacity:0;transform:scale(.3) rotate(90deg)}}
+.u.scr .scrtag{position:absolute;z-index:5;left:50%;top:calc(3.5cqw + 10.5cqw);transform:translateX(-50%);font:900 5.6cqw/1 'Cinzel',serif;letter-spacing:.18em;padding:.9cqw 2.2cqw .7cqw 2.6cqw;border-radius:999px;font-style:normal;
+  color:#2b1b3d;background:linear-gradient(90deg,#ffd6ee,#fff6dc 35%,#d7f1ff 65%,#e6d6ff);box-shadow:0 1px 4px #000a,inset 0 0 0 1px #ffffffaa;white-space:nowrap}
+
+/* SCR cards in the hand: a smooth iridescent sheen instead of stripes, no pulsing glow */
+.bc.foilc{animation:none!important;box-shadow:0 0 0 1px #ffffff70,0 0 14px #c9b6ff70,0 6px 14px #000a!important}
+.bart .foilsheen{inset:-6% auto -6% -100%!important;width:300%!important;opacity:.85!important;mix-blend-mode:soft-light!important;background-size:auto!important;
+  background:linear-gradient(112deg,#ffd0e8 0%,#ffe9b0 14%,#c8ffe8 28%,#bfe0ff 42%,#e2ccff 56%,#ffd0e8 70%,#ffe9b0 84%,#c8ffe8 100%)!important;animation:scrHolo 5.2s ease-in-out infinite alternate!important;will-change:transform}
+.bc.foilc .foiltag{animation:none!important;background:linear-gradient(90deg,#ffd6ee,#fff6dc 35%,#d7f1ff 65%,#e6d6ff)!important;color:#2b1b3d!important}
+
+/* ===== SCR summon ===== */
+.scrsum{position:fixed;inset:0;z-index:90;pointer-events:auto;overflow:hidden}
+.scrveil{position:absolute;inset:0;opacity:0;background:radial-gradient(60% 46% at 50% 44%,#140f22ee,#020205f5 72%)}
+.scrslit{position:absolute;left:50%;top:10%;bottom:18%;width:4px;margin-left:-2px;opacity:0;transform:scaleY(0)}
+.scrslit i{position:absolute;inset:0;border-radius:2px;mix-blend-mode:screen}
+.scrslit .r{background:#ff5470;box-shadow:0 0 16px 4px #ff547099}.scrslit .g{background:#70ffb8;box-shadow:0 0 16px 4px #70ffb899}.scrslit .b{background:#6aa8ff;box-shadow:0 0 16px 4px #6aa8ff99}
+.scrdoor{position:absolute;left:-10%;right:-10%;top:4%;bottom:12%;opacity:0;clip-path:inset(0 49.5% 0 49.5%);background:radial-gradient(46% 52% at 50% 46%,#fff,#fff4ea 30%,#ffe2f4c0 48%,#cfe9ff50 66%,transparent 78%)}
+.scrstage{position:absolute;left:50%;top:42%;width:min(52vw,210px);transform:translate(-50%,-50%)}
+.scrcard{position:relative;opacity:0;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1.5px #fff,0 0 40px 8px #ffffff50,0 0 100px 18px #b9a2ff55,0 26px 50px #000c}
+.scrcard .bc{width:100%!important;margin:0!important;position:relative!important}
+.scrsweep{position:absolute;inset:-10% 0;z-index:20;pointer-events:none;mix-blend-mode:overlay;transform:translateX(-130%) skewX(-18deg);background:linear-gradient(100deg,transparent 30%,#fff 50%,transparent 70%)}
+.scrword{margin-top:16px;text-align:center;font:900 clamp(20px,6.6vw,28px)/1 'Cinzel',serif;letter-spacing:.2em;padding-left:.2em;white-space:nowrap}
+.scrword span{display:inline-block;opacity:0;transform:translateY(10px);color:transparent;background:linear-gradient(180deg,#fff,#e9e4ff 45%,#b9c6dc 55%,#fff);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 0 8px #ffffff66);
+  transition:opacity .45s calc(var(--i) * 40ms),transform .6s calc(var(--i) * 40ms) cubic-bezier(.2,.8,.2,1)}
+.scrword.on span{opacity:1;transform:none}
+.scrjp{margin-top:9px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.5em;padding-left:.5em;color:#e2d8ff;opacity:0;transition:opacity .4s}
+.scrjp.on{opacity:1}
+.scrcv{position:fixed;inset:0;width:100%;height:100%;z-index:91;pointer-events:none}
+/* SCR figure: a thin chromatic edge (pink / cyan) and a soft violet halo around the silhouette */
+.u.scr .stand>img{filter:url(#acr) drop-shadow(-1.2px 0 0 #ff8ac4d0) drop-shadow(1.2px 0 0 #7ad8ffd0) drop-shadow(0 0 7px #e2d4ffb0) drop-shadow(0 4px 3px #000b)!important}
+.u.scr.sick .stand>img{filter:url(#acr) saturate(.6) brightness(.8) drop-shadow(-1.2px 0 0 #ff8ac4b0) drop-shadow(1.2px 0 0 #7ad8ffb0) drop-shadow(0 0 6px #e2d4ff90) drop-shadow(0 4px 3px #000b)!important}
+.u.scr.ready .stand>img{filter:url(#acr) drop-shadow(-1.2px 0 0 #ff8ac4d0) drop-shadow(1.2px 0 0 #7ad8ffd0) drop-shadow(0 0 7px #49e6ff) drop-shadow(0 4px 3px #000b)!important}
+
 </style>
 
 <div id="tcgBoot"><b>きもオタTCG</b><span role="status">読み込んでいます…</span><div class="bootActions"><button class="btn" onclick="location.reload()">もう一度読み込む</button><button class="btn sec" onclick="try{(parent.TCGWATCH||parent.TCGHOST).close()}catch(e){history.back()}">アプリに戻る</button></div></div>
@@ -1350,12 +1430,16 @@ const WATCH=/^#watch=/.test(location.hash);
 const HOST=WATCH?null:(()=>{try{return window.parent!==window&&window.parent.TCGHOST||null}catch(e){return null}})();
 const BUILD_ONLY=!!HOST&&/^#build=/.test(location.hash);
 const FOIL=id=>HOST&&HOST.foil?((HOST.foil()||{})[id]||0):0;
-const OWN=id=>HOST?(((HOST.own()||{})[id]||0)+FOIL(id)):9;
+const NORM=id=>HOST?((HOST.own()||{})[id]||0):9;
+const OWN=id=>HOST?NORM(id)+FOIL(id):9;
+/* a deck says how many copies of each card are SCR (deck.scr = {id: n}); only those copies look SCR, in the builder and in battle */
+function scrClean(d){const n={};(d.cards||[]).forEach(id=>n[id]=(n[id]||0)+1);const o={};Object.entries(d.scr||{}).forEach(([id,k])=>{k=Math.min(Math.floor(+k||0),n[id]||0,HOST?FOIL(id):0);if(k>0)o[id]=k});return o}
 /* copies of a card a deck may hold: 2, fewer if you own fewer (the leader you lead with uses one copy) */
 /* copies a deck may hold: the rule's cap (leader card 2, others 2), fewer if you own fewer */
 const capOf=(id,lead)=>Math.min(CD.deckCap(id,lead),Math.max(0,OWN(id)));
-function lackOf(d){if(!HOST)return 0;const n={};d.cards.forEach(id=>n[id]=(n[id]||0)+1);let k=OWN(d.lead)>0?0:1;Object.keys(n).forEach(id=>{k+=Math.max(0,n[id]-capOf(id,d.lead))});return k}
-function fitDeck(d){let lead=d.lead;if(HOST&&OWN(lead)<1)lead=Object.values(CD.LEADERS).find(id=>OWN(id)>0)||lead;const n={},cards=[];d.cards.forEach(id=>{n[id]=(n[id]||0)+1;if(n[id]<=capOf(id,lead))cards.push(id)});return Object.assign({},d,{lead,cards})}
+function lackOf(d){if(!HOST)return 0;const n={},sc=d.scr||{};d.cards.forEach(id=>n[id]=(n[id]||0)+1);let k=OWN(d.lead)>0?0:1;Object.keys(n).forEach(id=>{const f=Math.min(sc[id]||0,n[id]);k+=Math.max(Math.max(0,n[id]-capOf(id,d.lead)),Math.max(0,n[id]-f-NORM(id))+Math.max(0,f-FOIL(id)))});return k}
+function fitDeck(d){let lead=d.lead;if(HOST&&OWN(lead)<1)lead=Object.values(CD.LEADERS).find(id=>OWN(id)>0)||lead;const n={},cards=[];d.cards.forEach(id=>{n[id]=(n[id]||0)+1;if(n[id]<=capOf(id,lead))cards.push(id)});const r=Object.assign({},d,{lead,cards});r.scr=scrClean(r);
+  if(HOST)Object.keys(n).forEach(id=>{const have=r.cards.filter(x=>x===id).length,need=have-(r.scr[id]||0)-NORM(id);for(let k=0;k<need;k++){const i=r.cards.lastIndexOf(id);if(i>=0)r.cards.splice(i,1)}});return r}
 document.body.insertAdjacentHTML('afterbegin','<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="acr" x="-10%" y="-10%" width="120%" height="120%"><feMorphology in="SourceAlpha" operator="dilate" radius="1.6" result="d"/><feFlood flood-color="#ffffff" flood-opacity=".95"/><feComposite in2="d" operator="in" result="o"/><feMorphology in="SourceAlpha" operator="dilate" radius="2.4" result="d2"/><feFlood flood-color="#9fdcff" flood-opacity=".35"/><feComposite in2="d2" operator="in" result="o2"/><feMerge><feMergeNode in="o2"/><feMergeNode in="o"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="relief2" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feConvolveMatrix in="SourceGraphic" order="3" kernelMatrix="-1 -1 0 -1 1 1 0 1 1" preserveAlpha="true" result="emb"/><feColorMatrix in="emb" type="saturate" values="0" result="eg"/><feColorMatrix in="SourceGraphic" type="matrix" values="0.55 0.45 0.1 0 0.06 0.42 0.5 0.08 0 0.03 0.2 0.3 0.25 0 0 0 0 0 1 0" result="gold"/><feBlend in="eg" in2="gold" mode="overlay" result="o"/><feComponentTransfer in="o"><feFuncR type="gamma" exponent="0.85" amplitude="1.1"/><feFuncG type="gamma" exponent="0.9" amplitude="1.05"/><feFuncB type="gamma" exponent="1" amplitude=".9"/></feComponentTransfer></filter><filter id="relief" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix in="SourceGraphic" type="matrix" values="0.3 0.59 0.11 0 0 0.3 0.59 0.11 0 0 0.3 0.59 0.11 0 0 0 0 0 1 0" result="g"/><feConvolveMatrix in="g" order="3" kernelMatrix="-3 -2 0 -2 1 2 0 2 3" preserveAlpha="true" result="emb"/><feColorMatrix in="g" type="matrix" values="0.85 0 0 0 0.2 0.68 0 0 0 0.13 0.34 0 0 0 0.03 0 0 0 1 0" result="gold"/><feBlend in="emb" in2="gold" mode="overlay"/></filter></svg>');
 const SN=n=>'★'.repeat(n)+'☆'.repeat(3-n);
 
@@ -1368,7 +1452,7 @@ const BLOB={};function blobOf(u){if(!u||u.slice(0,5)!=='data:')return u;if(BLOB[
 function figEl(id){if(CARD_CUT[id]){const i=el('img');i.src=CARD_CUT[id];i.alt='';return i}if(CARD_IMG[id]&&CARD_PANEL.includes(id)){const w=el('div','panel');const i=el('img');i.src=CARD_IMG[id];i.alt='';i.style.objectPosition='50% '+(CARD_POS[id]||25)+'%';w.append(i);return w}const d=el('div');d.innerHTML=ART.figure(id);return d.firstChild}
 function artEl(id){if(CARD_IMG[id]){const i=el('img');i.src=CARD_IMG[id];i.alt='';i.style.objectPosition='50% '+(CARD_POS[id]||25)+'%';return i}const d=el('div');d.innerHTML=ART.art(id);return d.firstChild}
 function stats(a,d){const s=el('div','st2');const A=el('b','a');A.append(el('small',null,'ATK'),document.createTextNode(a));const B=el('b','d');B.append(el('small',null,'DEF'),document.createTextNode(d));s.append(A,B);return s}
-function bigCard(id,mini){const c=BY[id],foil=FOIL(id)>0,d=el('div','bc '+FAC(id)+(mini?' mini':'')+(c.type!=='chara'?' '+c.type:'')+(c.r==='SR'?' holo':'')+(foil?' foilc':'')+(c.trib?' ace':''));
+function bigCard(id,mini,foil){foil=!!foil;const c=BY[id],d=el('div','bc '+FAC(id)+(mini?' mini':'')+(c.type!=='chara'?' '+c.type:'')+(c.r==='SR'?' holo':'')+(foil?' foilc':'')+(c.trib?' ace':''));
   const h=el('div','bh');h.append(el('span','gem',c.c),el('span','bn',c.n));const a=el('div','bart');a.append(artEl(id));d.append(h,a);
   const bt=el('div','bt');bt.append(el('span',null,TYN[c.type]+' ・ '+CD.FNAME[c.f]),el('span','rar',c.trib?'LEADER':c.r));d.append(bt);
   if(c.type==='chara')d.append(stats(c.atk,c.def));else if(mini)d.append(el('div','tyb '+(c.type==='spell'?'s':'t'),TYN[c.type]));
@@ -1390,7 +1474,7 @@ function deckRow(d,actions){const k=BY[d.lead].f;const t=el('div','dk '+k);t.sty
   const same=d.cards.filter(id=>BY[id].f===k).length;tx.append(el('p','mut',d.cards.length+'枚 ・ 同族'+same+'枚'));hd.append(tx);t.append(hd);
   const tr=el('div','sk trait');tr.append(el('b',null,'特性「'+CD.TRAITS[k].n+'」'),document.createTextNode(CD.TRAITS[k].t));
   const sk=el('div','sk');sk.append(el('b',null,'必殺技「'+CD.SKILLS[k].n+'」'),document.createTextNode(CD.SKILLS[k].t));t.append(tr,sk,leaderAbil(d.lead));
-  const strip=el('div','strip');[...new Set(d.cards)].forEach(id=>{const c=bigCard(id,true);const n=d.cards.filter(x=>x===id).length;if(n>1)c.append(el('i','cnt','×'+n));c.onclick=()=>cardSheet(id,null);strip.append(c)});t.append(strip);
+  const strip=el('div','strip');const sc=d.scr||{};[...new Set(d.cards)].flatMap(id=>{const all=d.cards.filter(x=>x===id).length,f=Math.min(sc[id]||0,all);return[[id,all-f,false],[id,f,true]].filter(x=>x[1]>0)}).forEach(([id,n,sv])=>{const c=bigCard(id,true,sv);if(n>1)c.append(el('i','cnt','×'+n));c.onclick=()=>cardSheet(id,null);strip.append(c)});t.append(strip);
   const acts=el('div','dacts');actions.forEach(([label,cls,fn])=>{const b=el('button','btn'+(cls?' '+cls:''),label);b.onclick=fn;acts.append(b)});t.append(acts);return t}
 function deckScreen(){if(BUILD_ONLY){HOST.close();return}const box=$('decks');box.replaceChildren();
   if(HOST){const hb=el('button','btn sec hostback','← アプリに戻る');hb.onclick=()=>HOST.close();box.append(hb)}
@@ -1404,14 +1488,14 @@ function deckScreen(){if(BUILD_ONLY){HOST.close();return}const box=$('decks');bo
   show('s-deck')}
 /* ---------- deck builder ---------- */
 let B=null;
-function builder(d,idx){if(d&&HOST)d=fitDeck(d);const L0=HOST?(Object.values(CD.LEADERS).find(id=>OWN(id)>0)||CD.LEADERS.weak):CD.LEADERS.weak;B={idx,name:d?d.name:'マイデッキ',lead:d?d.lead:L0,cards:d?d.cards.slice():[],tab:HOST?'own':'all',query:''};show('s-build');drawBuilder()}
+function builder(d,idx){if(d&&HOST)d=fitDeck(d);const L0=HOST?(Object.values(CD.LEADERS).find(id=>OWN(id)>0)||CD.LEADERS.weak):CD.LEADERS.weak;B={idx,name:d?d.name:'マイデッキ',lead:d?d.lead:L0,cards:d?d.cards.slice():[],scr:d&&d.scr?Object.assign({},d.scr):{},tab:HOST?'own':'all',query:''};B.scr=scrClean(B);show('s-build');drawBuilder()}
 function drawBuilder(){const box=$('s-build'),keep=box.scrollTop,tabScroll=box.querySelector('.btabs')?.scrollLeft||0,leadScroll=box.querySelector('.lrow')?.scrollLeft||0;box.replaceChildren();const lf=BY[B.lead].f;
   const top=el('div','bhd');const back=el('button','iconb','←');back.onclick=deckScreen;const nm=el('input','bname');nm.value=B.name;nm.maxLength=16;nm.oninput=()=>B.name=nm.value;
   const cnt=el('b','bcount'+(B.cards.length===CD.DECK_SIZE?' ok':''),B.cards.length+'/'+CD.DECK_SIZE);const sv=el('button','btn','保存');sv.disabled=B.cards.length!==CD.DECK_SIZE;
-  sv.onclick=()=>{const L=loadDecks();const d={name:(B.name||'マイデッキ').slice(0,16),lead:B.lead,cards:B.cards.slice()};if(B.idx>=0)L[B.idx]=d;else{L.push(d);B.idx=L.length-1}saveDecks(L);caption('保存しました');deckScreen()};
+  sv.onclick=()=>{const L=loadDecks();const d={name:(B.name||'マイデッキ').slice(0,16),lead:B.lead,cards:B.cards.slice(),scr:scrClean(B)};if(B.idx>=0)L[B.idx]=d;else{L.push(d);B.idx=L.length-1}saveDecks(L);caption('保存しました');deckScreen()};
   top.append(back,nm,cnt,sv);box.append(top);
   box.append(el('div','sec-h','リーダー(特性と必殺技を持つ・金のカード11種類から)'));
-  const lr=el('div','lrow');Object.values(CD.LEADERS).forEach(id=>{const c=bigCard(id,true);if(id===B.lead)c.classList.add('pick');if(OWN(id)<1){c.classList.add('lock');c.onclick=()=>caption('このリーダーはまだ持っていません(パックのガチレア)')}else c.onclick=()=>{B.lead=id;B.cards=fitDeck(B).cards;drawBuilder()};lr.append(c)});box.append(lr);
+  const lr=el('div','lrow');Object.values(CD.LEADERS).forEach(id=>{const c=bigCard(id,true);if(id===B.lead)c.classList.add('pick');if(OWN(id)<1){c.classList.add('lock');c.onclick=()=>caption('このリーダーはまだ持っていません(パックのガチレア)')}else c.onclick=()=>{B.lead=id;const f=fitDeck(B);B.cards=f.cards;B.scr=f.scr;drawBuilder()};lr.append(c)});box.append(lr);
   const info=el('div','linfo');info.append(el('b',null,'特性「'+CD.TRAITS[lf].n+'」'),document.createTextNode(CD.TRAITS[lf].t),el('br'),el('b',null,'必殺技「'+CD.SKILLS[lf].n+'」'),document.createTextNode(CD.SKILLS[lf].t));box.append(info,leaderAbil(B.lead));
   const tabs=el('div','btabs');[...(HOST?[['own','持っている']]:[]),['all','すべて'],['deck','採用中'],['same','同族'],...Object.keys(CD.PFX).map(k=>[k,CD.FNAME[k].replace('族','')]),['gen','族なし']].forEach(([k,n])=>{const b=el('button',B.tab===k?'on':'',n);if(CD.PFX[k])b.style.setProperty('--dc','var(--'+k+')');b.onclick=()=>{B.tab=k;drawBuilder()};tabs.append(b)});box.append(tabs);
   const search=el('div','bsearch'),query=el('input');query.type='search';query.placeholder='カード名で検索';query.setAttribute('aria-label','カード名で検索');query.value=B.query;const clear=el('button',null,'クリア');clear.disabled=!B.query;
@@ -1419,11 +1503,15 @@ function drawBuilder(){const box=$('s-build'),keep=box.scrollTop,tabScroll=box.q
   drawBuilderCards(box);box.querySelector('.btabs').scrollLeft=tabScroll;box.querySelector('.lrow').scrollLeft=leadScroll;box.scrollTop=keep;requestAnimationFrame(()=>box.scrollTop=keep)}
 function drawBuilderCards(box){const lf=BY[B.lead].f;box.querySelectorAll('.bgrid,.bempty,.bresults').forEach(e=>e.remove());
   const q=B.query.normalize('NFKC').toLocaleLowerCase().trim();
-  const grid=el('div','bgrid');CD.POOL.filter(id=>(B.tab==='all'||(B.tab==='own'?OWN(id)>0:B.tab==='deck'?B.cards.includes(id):B.tab==='same'?BY[id].f===lf:BY[id].f===B.tab))&&(!q||BY[id].n.normalize('NFKC').toLocaleLowerCase().includes(q))).sort((a,b)=>(OWN(b)>0)-(OWN(a)>0)||(BY[b].f===lf)-(BY[a].f===lf)||BY[a].c-BY[b].c).forEach(id=>{const n=B.cards.filter(x=>x===id).length;const w=el('div','bcell'+(n?' has':'')+(BY[id].f===lf?' same':'')+(OWN(id)<1?' lock':''));w.dataset.cardId=id;const c=bigCard(id,true);w.append(c);if(OWN(id)<1)w.append(el('i','lockt','未所持'));else if(BY[id].trib&&id!==B.lead)w.append(el('i','lockt','リーダーにすると1枚'));else if(HOST)w.append(el('i','ownt','所持'+OWN(id)));
+  const grid=el('div','bgrid');CD.POOL.filter(id=>(B.tab==='all'||(B.tab==='own'?OWN(id)>0:B.tab==='deck'?B.cards.includes(id):B.tab==='same'?BY[id].f===lf:BY[id].f===B.tab))&&(!q||BY[id].n.normalize('NFKC').toLocaleLowerCase().includes(q))).sort((a,b)=>(OWN(b)>0)-(OWN(a)>0)||(BY[b].f===lf)-(BY[a].f===lf)||BY[a].c-BY[b].c).forEach(id=>{const variants=HOST&&FOIL(id)>0?[false,true]:[false];variants.forEach(sv=>{
+    const tot=B.cards.filter(x=>x===id).length,sc=B.scr[id]||0,n=sv?sc:tot-sc,cap=CD.deckCap(id,B.lead),mine=sv?FOIL(id):NORM(id);
+    if(sv===false&&HOST&&NORM(id)<1&&FOIL(id)>0)return;/* only the SCR copy is owned: show just that cell */
+    const w=el('div','bcell'+(n?' has':'')+(sv?' scrcell':'')+(BY[id].f===lf?' same':'')+(OWN(id)<1?' lock':''));w.dataset.cardId=id;const c=bigCard(id,true,sv);w.append(c);
+    if(OWN(id)<1)w.append(el('i','lockt','未所持'));else if(BY[id].trib&&id!==B.lead)w.append(el('i','lockt','リーダーにすると1枚'));else if(HOST)w.append(el('i','ownt'+(sv?' ownscr':''),(sv?'SCR ':'')+'所持'+mine));
     if(n)w.append(el('i','cnt','×'+n));if((BY[id].kw||{}).syn&&BY[id].f===lf)w.append(el('i','synon','同族ボーナス'));
-    const pm=el('div','pm');const mi=el('button',null,'−');mi.setAttribute('aria-label',BY[id].n+'を1枚減らす');mi.disabled=!n;mi.onclick=e=>{e.stopPropagation();const i=B.cards.lastIndexOf(id);if(i>=0)B.cards.splice(i,1);drawBuilder()};
-    const pl=el('button',null,'+');pl.setAttribute('aria-label',BY[id].n+'を1枚追加');pl.disabled=n>=capOf(id,B.lead)||B.cards.length>=CD.DECK_SIZE;pl.onclick=e=>{e.stopPropagation();B.cards.push(id);drawBuilder()};pm.append(mi,pl);w.append(pm);
-    c.onclick=()=>cardSheet(id,null);grid.append(w)});box.append(grid);
+    const pm=el('div','pm');const mi=el('button',null,'−');mi.setAttribute('aria-label',BY[id].n+(sv?'(SCR)':'')+'を1枚減らす');mi.disabled=!n;mi.onclick=e=>{e.stopPropagation();const i=B.cards.lastIndexOf(id);if(i>=0){B.cards.splice(i,1);if(sv)B.scr[id]=sc-1}drawBuilder()};
+    const pl=el('button',null,'+');pl.setAttribute('aria-label',BY[id].n+(sv?'(SCR)':'')+'を1枚追加');pl.disabled=tot>=cap||(HOST&&n>=mine)||(!HOST&&tot>=capOf(id,B.lead))||B.cards.length>=CD.DECK_SIZE;pl.onclick=e=>{e.stopPropagation();B.cards.push(id);if(sv)B.scr[id]=sc+1;drawBuilder()};pm.append(mi,pl);w.append(pm);
+    c.onclick=()=>cardSheet(id,null);grid.append(w)})});box.append(grid);
   if(!grid.childElementCount)box.append(el('div','bempty',B.tab==='deck'&&!B.cards.length?'まだカードが入っていません。持っているカードから追加してください。':'条件に合うカードがありません。検索や族を変更してください。'));
   if(B.query.trim()){const results=el('div','bresults','検索結果：'+grid.childElementCount+'種類');results.setAttribute('role','status');box.insertBefore(results,grid)}}
 /* ---------- state ---------- */
@@ -1444,7 +1532,7 @@ async function dealOpening(){busy=true;render(view);await renderAnimated(snap())
 /* Observation is an optional side stream; failures never block moves or results. */
 let spectatorLast='',spectatorTimer=null,spectatorFrames=[],spectatorFrame=0,spectatorSession=Date.now();
 function queueSpectator(events){if(!g||!NET||!HOST||!HOST.publishSpectator||!window.TCGSpectator||(!g.over&&g.cur!==H))return;
-  try{const state=TCGSpectator.publicState(g,E),key=NET.id+'|'+JSON.stringify(state);if(key===spectatorLast&&!(events&&events.length))return;spectatorLast=key;
+  try{const state=TCGSpectator.publicState(g,E);{const S0=snap();state.players.forEach((P,pi)=>P.board.forEach((b,i)=>{const m=g.p[pi].slot[i];if(b&&m)b.scr=!!unitFoil({uid:m.uid,id:m.id,owner:pi},S0)}))}const key=NET.id+'|'+JSON.stringify(state);if(key===spectatorLast&&!(events&&events.length))return;spectatorLast=key;
     if(events&&events.length)spectatorFrames.push({key:NET.id+':'+H+':'+spectatorSession+':'+(++spectatorFrame),state,events:TCGSpectator.cleanEvents(events)});spectatorFrames=spectatorFrames.slice(-16);const payload={id:NET.id,seq:HOST.spectatorSeq?HOST.spectatorSeq():0,state,frames:spectatorFrames};clearTimeout(spectatorTimer);
     spectatorTimer=setTimeout(()=>{try{const p=HOST.publishSpectator(payload);if(p&&p.catch)p.catch(()=>{})}catch(e){}},180);
   }catch(e){} }
@@ -1465,6 +1553,24 @@ function fanHand(){const hd=$('hand');const cs=[...hd.querySelectorAll(WATCH?'.c
 
 /* ---------- rendering ---------- */
 const kwOf=id=>BY[id].kw||{};
+/* SCR in battle: a player's copies look SCR only if that player's own deck marks them (deck.scr). Each unit decides once when it
+   first appears and keeps it; a hand card is SCR while that player still has unplaced SCR copies of it */
+let FOILU=new Map(),FOILG=null,SCRUSED=[{},{}],TRAPF=new Map(),PENDSCR=null;
+function scrSync(){if(FOILG!==g){FOILU=new Map();FOILG=g;SCRUSED=[{},{}];TRAPF=new Map();PENDSCR=null}}
+const scrLeft=(S,pi,id)=>(scrOf(pi)[id]||0)-(SCRUSED[pi][id]||0)-aliveFoil(S,pi,id);
+/* a spell or trap copy: your own pick follows the card you tapped (SCR-looking or not); the other side uses its SCR copies first */
+function scrTake(pi,id,S){const k=scrLeft(S,pi,id);let f;if(pi===H&&PENDSCR&&PENDSCR.id===id){f=PENDSCR.foil&&k>0;PENDSCR=null}else f=k>0;if(f)SCRUSED[pi][id]=(SCRUSED[pi][id]||0)+1;return f}
+/* decide SCR for this step's events before they are shown or sent to watchers */
+function scrMark(evs,S){if(WATCH||!g||!Array.isArray(evs))return;scrSync();for(const e of evs){if(!e||e.scr!==undefined)continue;
+  if(e.t==='play')e.scr=unitFoil({uid:e.uid,id:e.id,owner:e.who},S);
+  else if(e.t==='spell')e.scr=scrTake(e.who,e.id,S);
+  else if(e.t==='set'){if(e.who===H&&PENDSCR){const id=PENDSCR.id;TRAPF.set(e.uid,scrTake(H,id,S))}}
+  else if(e.t==='trap')e.scr=TRAPF.has(e.uid)?TRAPF.get(e.uid):scrTake(e.who,e.id,S)}}
+const scrOf=pi=>{const d=pi===H?myDeck:cpuDeck;return(d&&d.scr)||{}};
+function aliveFoil(S,pi,id){return(S.p[pi].slot||[]).filter(m=>m&&m.id===id&&FOILU.get(m.uid)).length}
+function playIsScr(e){if(e.scr!==undefined)return !!e.scr;try{if(WATCH){const S=window.__watchState;const u=S&&S.p[e.who]&&(S.p[e.who].slot||[]).find(m=>m&&m.uid===e.uid);return !!(u&&u.scr)}if(!g)return false;return unitFoil({uid:e.uid,id:e.id,owner:e.who},snap())}catch(_){return false}}
+function unitFoil(u,S){if(WATCH)return !!u.scr;scrSync();if(!FOILU.has(u.uid)){const pi=u.owner,k=scrLeft(S,pi,u.id);let f;if(pi===H&&PENDSCR&&PENDSCR.id===u.id){f=PENDSCR.foil&&k>0;PENDSCR=null}else f=k>0;FOILU.set(u.uid,f)}return FOILU.get(u.uid)}
+function handFoil(S,i){const P=S.p[H],id=P.hand[i];if(!id)return false;scrSync();const k=scrLeft(S,H,id);if(k<=0)return false;let before=0;for(let j=0;j<i;j++)if(P.hand[j]===id)before++;return before<k}
 function unitEl(u,S,side){const c=BY[u.id],d=el('div','u '+FAC(u.id)+' r-'+c.r+(u.awk?' awk':'')+(c.trib?' ace':'')+(side==='opp'?' opp':''));d.dataset.uid=u.uid;
   const pad=el('div','pad');const pi=el('div','pimg');pi.append(artEl(u.id));pad.append(pi);
   if(u.under){const sh=[];for(let i=1;i<=Math.min(u.under,3);i++)sh.push('0 '+(i*3)+'px 0 -1px #3a2f74','0 '+(i*3)+'px 0 0 #b89a5499');pad.style.setProperty('--under',sh.join(','))}
@@ -1473,7 +1579,7 @@ function unitEl(u,S,side){const c=BY[u.id],d=el('div','u '+FAC(u.id)+' r-'+c.r+(
   const plate=el('div','plate');plate.append(el('div','nmb',c.n));const st=el('div','ust');
   const A=el('b','a'+(u.A>c.atk?' up':u.A<c.atk?' dn':''));A.append(el('small',null,'ATK'),document.createTextNode(u.A));const Df=el('b','d'+(u.D>c.def?' up':u.D<c.def?' dn':''));Df.append(el('small',null,'DEF'),document.createTextNode(u.D));st.append(A,Df);plate.append(st);
   d.append(pad,el('div','base'),stand,el('div','stars s'+u.star,SN(u.star)),kw,plate);if(u.awk)d.append(el('div','awl','覚醒'));
-  if(FOIL(u.id)>0){d.classList.add('foilc');d.append(el('i','foilsheen'),el('i','foilspark'))}
+  if(unitFoil(u,S))scrDecor(d);
   if(u.sick&&!u.rush)d.classList.add('sick');
   if(side==='me'&&S.cur===H&&!S.over&&!busy&&g){const m=E.find(g,u.uid);if(m&&E.canAttack(g,H,m)&&!(mode&&mode.k!=='atk'))d.classList.add('ready')}
   return d}
@@ -1511,7 +1617,7 @@ function render(S){view=S;queueSpectator();const me=S.p[H],op=S.p[1-H];
   else if(!WATCH&&g&&E.canLeader(g,H)&&!busy&&S.cur===H){const sk=el('button','skchip lead','リーダー');sk.onclick=()=>leaderSheet(H);mb.append(sk)}
   mb.append(lifeEl(me,false),traitEl(me,H),el('div','sp'));
   const en=el('div','energy');en.setAttribute('aria-label','熱量 '+me.energy+'/'+me.maxE);const gs=el('div','gems');for(let i=0;i<me.maxE;i++)gs.append(el('i',i<me.energy?'on':''));en.append(gs,el('b',null,me.energy+'/'+me.maxE));mb.append(en,endBtn(S));
-  const hd=$('hand');hd.replaceChildren();me.hand.forEach((id,i)=>{const ok=liveMine()&&(E.canPlay(g,H,i)||canStackAny(i));const c=WATCH?backCard():bigCard(id,true);c.classList.add(ok?'can':'no');if(mode&&mode.hi===i)c.classList.add('on');c.onclick=()=>handTap(i);hd.append(c)});
+  const hd=$('hand');hd.replaceChildren();me.hand.forEach((id,i)=>{const ok=liveMine()&&(E.canPlay(g,H,i)||canStackAny(i));const c=WATCH?backCard():bigCard(id,true,handFoil(S,i));c.classList.add(ok?'can':'no');if(mode&&mode.hi===i)c.classList.add('on');c.onclick=()=>handTap(i);hd.append(c)});
   const dk=el('div','deckmark');dk.id='myDeck';hd.append(dk);
   if(WATCH){document.querySelectorAll('#s-game button').forEach(b=>{b.disabled=true;b.onclick=null});document.querySelectorAll('#field .lane').forEach(b=>b.onclick=null);$('hint').hidden=true;const t=$('endb');t.querySelector('span').textContent='観戦中';}else{bindField(S);renderHint(S)}fit()}
 const liveMine=()=>g&&!g.over&&!busy&&g.cur===H;
@@ -1673,6 +1779,55 @@ function cutinImg(who,k,src){return new Promise(res=>{const s=CD.SKILLS[k];const
   im.animate([{transform:'scale(1.25) translateX(8%)'},{transform:'scale(1.08) translateX(0)'}],{duration:D(2200),easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'});
   setTimeout(()=>{w.style.transition='opacity .25s';w.style.opacity='0';setTimeout(()=>{w.remove();res()},D(250))},D(2300))})}
 /* an ace: a slanted gold band, then the card itself */
+/* SCR on the field: the figure itself turns holographic (an iridescent layer cut to its silhouette), a prism rim on the
+   pedestal, a few star glints and a small SECRET tag. Everything moves with transform / opacity only. */
+function scrDecor(d){d.classList.add('scr');const st=d.querySelector('.stand'),fig=st&&st.firstElementChild;
+  if(fig){const h=el('i','scrholo');h.append(el('i'));
+    if(fig.tagName==='IMG'){const u='url("'+fig.src+'")';h.style.webkitMaskImage=u;h.style.maskImage=u;st.append(h)}
+    else if(fig.classList&&fig.classList.contains('panel'))fig.append(h)}
+  if(st)for(let k=0;k<3;k++){const g=el('i','scrglint');g.style.setProperty('--k',k);st.append(g)}
+  d.append(el('i','scrtag','SECRET'))}
+/* prismatic glitter for the SCR summon: one canvas, removed when the last spark fades */
+function prismSparks(x,y,n){if(FAST)return;const cv=el('canvas','scrcv'),dpr=Math.min(2,window.devicePixelRatio||1),W=innerWidth,Hh=innerHeight;cv.width=W*dpr;cv.height=Hh*dpr;document.body.append(cv);const c=cv.getContext('2d');c.scale(dpr,dpr);
+  const cols=['#ffffff','#ffd2ee','#c8ecff','#fff0bf','#dccbff'],P=[];for(let i=0;i<n;i++){const a=Math.random()*6.283,v=120+Math.random()*320;P.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-60,t:0,m:1.1+Math.random()*1.3,s:.8+Math.random()*2.2,c:cols[i%5],ph:Math.random()*6.283,st:Math.random()<.25})}
+  let last=performance.now();const f=now=>{const dt=Math.min(.04,(now-last)/1000);last=now;c.clearRect(0,0,W,Hh);c.globalCompositeOperation='lighter';let alive=0;
+    for(const p of P){p.t+=dt;if(p.t>p.m)continue;alive++;const dr=1-1.8*dt;p.vx*=dr;p.vy=p.vy*dr+90*dt;const ox=p.x,oy=p.y;p.x+=p.vx*dt;p.y+=p.vy*dt;const k=1-p.t/p.m,tw=.5+.5*Math.sin(p.ph+p.t*14);c.globalAlpha=k*(.4+.6*tw);
+      if(p.st){c.strokeStyle=p.c;c.lineWidth=p.s*.5;c.beginPath();c.moveTo(ox-p.vx*dt*2,oy-p.vy*dt*2);c.lineTo(p.x,p.y);c.stroke()}else{c.fillStyle=p.c;c.beginPath();c.arc(p.x,p.y,p.s*k+.3,0,6.283);c.fill();if(p.s>2){const r=p.s*2.4*k*tw;c.fillRect(p.x-r,p.y-.35,r*2,.7);c.fillRect(p.x-.35,p.y-r,.7,r*2)}}}
+    if(alive)requestAnimationFrame(f);else cv.remove()};requestAnimationFrame(f)}
+/* an SCR comes onto the field: the screen darkens, a prism slit tears open, the card turns in from the edge with
+   SECRET RARE under it, then drops into its lane */
+/* an SCR copy comes into play: the screen darkens, a prism slit tears open and the card turns in from the edge.
+   unit → it drops into its lane; spell → it bursts into light; trap → it rises from its set zone, then bursts */
+async function scrSummon(e){return scrReveal(e,'unit')}
+async function scrReveal(e,kind,zone){if(FAST)return;const mine=WATCH?e.who===0:e.who===H;
+  let tr=null;if(kind==='unit'){const lane=document.querySelector('#field .lane.'+(mine?'m':'o')+'[data-l="'+e.slot+'"]');tr=rectOf(lane)}else if(kind==='trap')tr=rectOf(zone);
+  const o=el('div','scrsum'+(kind==='trap'?' scrtrap':kind==='spell'?' scrspell':'')),veil=el('i','scrveil'),slit=el('div','scrslit'),door=el('i','scrdoor'),stage=el('div','scrstage'),card=el('div','scrcard'),sweep=el('i','scrsweep');
+  slit.append(el('i','r'),el('i','g'),el('i','b'));const bc=bigCard(e.id,false,true);card.append(bc,sweep);stage.append(card);
+  o.append(veil,door,slit,stage);document.body.append(o);try{navigator.vibrate&&navigator.vibrate([18,40,30])}catch(_){}
+  const A=(n,k,op)=>n.animate(k,Object.assign({fill:'both',easing:'cubic-bezier(.2,.7,.2,1)'},op));
+  A(veil,[{opacity:0},{opacity:1}],{duration:180});
+  A(slit,[{opacity:0,transform:'scaleY(0)'},{opacity:1,transform:'scaleY(1)'}],{duration:260,delay:80,easing:'cubic-bezier(.7,0,.2,1)'});
+  slit.children[0].animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(0)'}],{duration:620,delay:260});slit.children[2].animate([{transform:'translateX(0)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:620,delay:260});
+  A(door,[{opacity:1,clipPath:'inset(0 49.5% 0 49.5%)'},{opacity:1,clipPath:'inset(0 0 0 0)',offset:.5},{opacity:0,clipPath:'inset(0 0 0 0)'}],{duration:760,delay:330,easing:'cubic-bezier(.6,0,.2,1)'});
+  A(slit,[{opacity:1},{opacity:0}],{duration:300,delay:520});
+  if(kind==='trap'&&tr){/* the set card lifts out of its zone face-down and flips over in the light */
+    const sr=stage.getBoundingClientRect(),dx=tr.left+tr.width/2-(sr.left+sr.width/2),dy=tr.top+tr.height/2-(sr.top+sr.height/2),s0=Math.max(.2,tr.width/sr.width);
+    A(card,[{opacity:0,transform:'perspective(900px) translate('+dx+'px,'+dy+'px) rotateY(180deg) scale('+s0+')'},{opacity:1,transform:'perspective(900px) translate('+dx*.4+'px,'+dy*.4+'px) rotateY(150deg) scale(.7)',offset:.3},{opacity:1,transform:'perspective(900px) translate(0,0) rotateY(-10deg) scale(1.04)',offset:.78},{opacity:1,transform:'perspective(900px) translate(0,0) rotateY(0deg) scale(1)'}],{duration:980,delay:260,easing:'cubic-bezier(.3,.6,.2,1)'})}
+  else A(card,[{opacity:0,transform:'perspective(900px) rotateY(88deg) scale(.86)'},{opacity:1,transform:'perspective(900px) rotateY(-14deg) scale(1.04)',offset:.6},{opacity:1,transform:'perspective(900px) rotateY(0deg) scale(1)'}],{duration:820,delay:440,easing:'cubic-bezier(.2,.75,.25,1)'});
+  sweep.animate([{transform:'translateX(-130%) skewX(-18deg)'},{transform:'translateX(130%) skewX(-18deg)'}],{duration:760,delay:820,fill:'both',easing:'cubic-bezier(.5,0,.3,1)'});
+  const tint=kind==='trap'?'#cdb4ff':kind==='spell'?'#bff5e4':'#d9c8ff';
+  setTimeout(()=>{const r=card.getBoundingClientRect();ring(r.left+r.width/2,r.top+r.height/2,'#ffffff',90);setTimeout(()=>ring(r.left+r.width/2,r.top+r.height/2,tint,140),140);prismSparks(r.left+r.width/2,r.top+r.height/2,90)},740);
+  await wait(1900);
+  if(kind==='unit'){/* the card shrinks down into its lane */
+    const lr=tr||{left:innerWidth/2-40,top:innerHeight/2-60,width:80,height:120},lx=lr.left+lr.width/2,ly=lr.top+lr.height/2,cr=card.getBoundingClientRect(),dx=lx-(cr.left+cr.width/2),dy=ly-(cr.top+cr.height/2),sc=Math.min(.6,lr.width/cr.width);
+    A(card,[{opacity:1,transform:'perspective(900px) translate(0,0) scale(1)'},{opacity:0,transform:'perspective(900px) translate('+dx+'px,'+dy+'px) scale('+sc+')'}],{duration:420,easing:'cubic-bezier(.6,0,.3,1)'});
+    A(veil,[{opacity:1},{opacity:0}],{duration:380,delay:180});await wait(460);sparks(lx,ly,'#e7dcff',16,70)}
+  else{/* spell / trap: the card breaks into light where it stands */
+    const cr=card.getBoundingClientRect(),cx=cr.left+cr.width/2,cy=cr.top+cr.height/2;
+    A(card,[{opacity:1,transform:'perspective(900px) scale(1)',filter:'brightness(1)'},{opacity:1,transform:'perspective(900px) scale(1.06)',filter:'brightness(2.2)',offset:.35},{opacity:0,transform:'perspective(900px) scale(1.22)',filter:'brightness(3)'}],{duration:520,easing:'cubic-bezier(.4,0,.2,1)'});
+    setTimeout(()=>{ring(cx,cy,'#ffffff',120);ring(cx,cy,tint,200);prismSparks(cx,cy,120)},200);
+    A(veil,[{opacity:1},{opacity:0}],{duration:420,delay:300});await wait(620)}
+  o.remove()}
 async function aceSummon(e){impactFrame();const b=el('div','tbanner ace');b.style.setProperty('--bc','#b8861f');const bar=el('div','bar'),sw=el('div','sweep'),tt=el('div','tt');tt.append(el('b',null,BY[e.id].n),el('small',null,(e.who===H?'あなた':'相手')+'のリーダー出撃'));b.append(bar,sw,tt);document.body.append(b);
   const f=el('div','flash gold');document.body.append(f);setTimeout(()=>f.remove(),D(450));
   bar.animate([{transform:'skewY(-6deg) scaleX(0)'},{transform:'skewY(-6deg) scaleX(1)',offset:.25},{transform:'skewY(-6deg) scaleX(1)',offset:.8},{transform:'skewY(-6deg) scaleX(1)',opacity:0}],{duration:D(1100),easing:'cubic-bezier(.2,.9,.3,1)'});
@@ -1693,14 +1848,14 @@ function lifeHit(who,n,heal){const L=$(who===H?'myLife':'oppLife');if(!L)return;
 async function playEvents(evs){for(let i=0;i<evs.length;i++){const e=evs[i];LOG.push(e);if(done&&e.t!=='end')continue;
   switch(e.t){
   case'tribute':{const u=uidEl(e.uid);if(u){const [x,y]=ctr(u);sparks(x,y,'#ffd36b',18,70);await anim(u,[{transform:'none',filter:'brightness(1)',opacity:1},{transform:'translateY(-20px) scale(.85)',filter:'brightness(3) sepia(1)',opacity:0}],{duration:520,easing:'ease-in'});u.style.visibility='hidden'}caption('「'+BY[e.id].n+'」を生贄にした');break}
-  case'play':if(BY[e.id].trib){await aceSummon(e)}if(e.who!==H||e.free)notice(e.id,e.who,'sum');break;
-  case'spell':if(e.who!==H)notice(e.id,e.who,'spell');await showcase(e.id,e.who,'spell');break;
+  case'play':if(BY[e.id].trib){await aceSummon(e)}if(playIsScr(e))await scrSummon(e);if(e.who!==H||e.free)notice(e.id,e.who,'sum');break;
+  case'spell':if(e.who!==H)notice(e.id,e.who,'spell');if(e.scr)await scrReveal(e,'spell');else await showcase(e.id,e.who,'spell');break;
   case'stack':{const u=uidEl(e.uid);const from=e.who===H?$('hand'):$('oppHand');if(u&&from){await flyCard(from,u,bigCard(e.id,true),420);const [x,y]=ctr(u);ring(x,y,'#ffd36b',40);sparks(x,y,'#ffd36b',10,60);anim(u,[{transform:'scale(1.1)',filter:'brightness(1.8)'},{transform:'none',filter:'none'}],{duration:360,fill:'none'})}
     if(e.who!==H)notice(e.id,e.who,'stack');if(e.same)caption('同じカードを重ねた。★+2');break}
   case'star':{const u=uidEl(e.uid);if(u){const s=u.querySelector('.stars');if(s){s.textContent=SN(e.to);s.className='stars s'+e.to;anim(s,[{transform:'scale(2)',filter:'brightness(2)'},{transform:'none',filter:'none'}],{duration:420,fill:'none'})}if(e.to<3)stamp(u,'★'+e.to,'gold')}await wait(e.to<3?520:120);break}
   case'awake':await awaken(e);break;
   case'set':{const z=document.querySelector((e.who===H?'#myST':'#oppST')+' .z:not([data-tuid])');const from=e.who===H?$('hand'):$('oppHand');if(e.who!==H)caption('相手がトラップを伏せた');if(z&&from){await flyCard(from,z,null,340);const [x,y]=ctr(z);ring(x,y,'#b48cff',24);z.dataset.tuid=e.uid;z.replaceChildren(backCard())}break}
-  case'trap':{const z=document.querySelector('.z[data-tuid="'+e.uid+'"]');if(z){const [x,y]=ctr(z);ring(x,y,'#b48cff',40);sparks(x,y,'#b48cff',12,60);z.style.visibility='hidden'}notice(e.id,e.who,'trap');await showcase(e.id,e.who,'trap');break}
+  case'trap':{const z=document.querySelector('.z[data-tuid="'+e.uid+'"]');if(z){const [x,y]=ctr(z);ring(x,y,'#b48cff',40);sparks(x,y,'#b48cff',12,60);z.style.visibility='hidden'}notice(e.id,e.who,'trap');if(e.scr)await scrReveal(e,'trap',z);else await showcase(e.id,e.who,'trap');break}
   case'negated':{const a=aimUid&&uidEl(aimUid);settle();if(a)stamp(a,'無効','blue');caption('無効になった');await wait(700);break}
   case'atk':await aim(e);break;
   case'direct':{settle();await strike(e.uid,$(e.who===H?'oppLife':'myLife'),true);break}
@@ -1718,7 +1873,7 @@ async function playEvents(evs){for(let i=0;i<evs.length;i++){const e=evs[i];LOG.
   case'revive':notice(e.id,e.who,'sum');caption('「'+BY[e.id].n+'」がステージに戻ってきた');break;
   case'reshuffle':caption((e.who===H?'あなた':'相手')+'の捨て札を山札に戻した');await wait(400);break;
   }}settle()}
-async function step(evs,S){queueSpectator(evs);await playEvents(evs);await renderAnimated(S)}
+async function step(evs,S){scrMark(evs,S);queueSpectator(evs);await playEvents(evs);await renderAnimated(S)}
 
 /* ---------- sheets ---------- */
 function closeSheets(){document.querySelectorAll('.sheetw').forEach(x=>x.remove())}
@@ -1806,7 +1961,7 @@ function trapPrompt(kind,ctx,uids){if(AUTO)return Promise.resolve(AI.answer(g,H,
 /* ---------- friend battles: both phones run the same game; only the moves travel ---------- */
 let NET=null,Q=[],pumping=false,waitingRemote=false,askRes=null,askQ=0,lastNet=Date.now(),dogT=null;
 /* a move of mine: do it here, then tell the other phone */
-function X(f,...a){const r=E[f](g,H,...a);if(r!==false&&NET)NET.send({f,a,by:H});return r}
+function X(f,...a){if(g&&(f==='castSpell'||f==='setTrap'||f==='playChara')&&typeof a[0]==='number'){const id=g.p[H].hand[a[0]];PENDSCR=id?{id,foil:handFoil(snap(),a[0])}:null}const r=E[f](g,H,...a);if(r!==false&&NET)NET.send({f,a,by:H});return r}
 function netAsk(kind,extra){busy=true;render(snap());hint('相手の反応を待っています…');const q=++askQ;NET.send(Object.assign({f:'ask',kind,by:H,q},extra));
   return new Promise(r=>{let fin=false;const t=setTimeout(()=>{if(askRes)askRes(0)},20000);askRes=u=>{if(fin)return;fin=true;clearTimeout(t);askRes=null;hint('');busy=false;r(u||0)}})}
 function onNet(m){lastNet=Date.now();Q.push(m);pump()}
@@ -1888,39 +2043,14 @@ function startWatch(){const wh=window.parent!==window&&window.parent.TCGWATCH;if
  off=wh.subscribe(decodeURIComponent(location.hash.slice(7)),record=>{if(closed)return;if(!record||!record.state||!Array.isArray(record.state.players)||record.state.players.length!==2||record.state.players.some(p=>!p||!BY[p.leadId])){status.textContent='観戦データを待っています…';return}if(last&&(record.seq<last.seq||(record.seq===last.seq&&record.updated<last.updated)))return;
  const first=!last;last=record;const names=record.first==='b'?[record.bn,record.an]:[record.an,record.bn],final=convert(TCGSpectator.cleanState(record.state));status.textContent=record.state.over?'対戦終了':names[1]+' vs '+names[0];state.textContent=record.state.over?(record.state.winner<0?'引き分け':names[record.state.winner]+' の勝利'):'ターン '+record.state.turns+' · '+names[record.state.cur]+' の番';
  const coinInfo={coins:TCGSpectator.cleanCoins(record.coins),names};const frames=TCGSpectator.cleanFrames(record.frames);const fresh=frames.filter(f=>!seen.has(f.key));frames.forEach(f=>seen.add(f.key));if(seen.size>500)seen=new Set(frames.map(f=>f.key));
- chain=chain.then(async()=>{if(closed)return;watchCoinInfo=coinInfo;if(first){draw(final);return}for(const f of fresh){if(closed)return;window.__watchEvents=(window.__watchEvents||[]).concat(f.events.map(e=>e.t)).slice(-300);await playEvents(f.events);await renderAnimated(convert(f.state));}if(!closed){const changed=view.cur!==final.cur;await renderAnimated(final);if(changed)await banner(final.cur===H)}}).catch(e=>{status.textContent='更新を再接続しています';console.error(e)});
+ chain=chain.then(async()=>{if(closed)return;watchCoinInfo=coinInfo;if(first){draw(final);return}for(const f of fresh){if(closed)return;window.__watchState=convert(f.state);window.__watchEvents=(window.__watchEvents||[]).concat(f.events.map(e=>e.t)).slice(-300);await playEvents(f.events);await renderAnimated(convert(f.state));}if(!closed){const changed=view.cur!==final.cur;await renderAnimated(final);if(changed)await banner(final.cur===H)}}).catch(e=>{status.textContent='更新を再接続しています';console.error(e)});
  },()=>status.textContent='観戦データに接続できません');}
+
 $('goDeck').onclick=deckScreen;$('goHelp').onclick=helpSheet;
 const PVP=HOST&&HOST.pvp?HOST.pvp():null;
 if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
 clearTimeout(window.__tcgBootTimer);if(document.documentElement.classList.contains('tcg-embedded')&&!HOST&&!(WATCH&&window.parent!==window&&window.parent.TCGWATCH)){const b=$('tcgBoot');b.classList.add('slow');b.querySelector('[role="status"]').textContent='アプリから編成・対戦・観戦を開き直してください。'}else document.documentElement.classList.remove('tcg-booting');
-window.__tcg={fxt:{onoma,focusLines,sliceApart,cutin,coinFx},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},endMyTurn,startMatch,E,AI};
+window.__tcg={fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},endMyTurn,startMatch,E,AI};
 })();
 
 </script>
-<style>
-/* SCR (secret rare) finish — rainbow border + sheen + sparkles */
-.bart .foilsheen,.u.foilc .foilsheen{position:absolute;inset:0;pointer-events:none;z-index:4;mix-blend-mode:screen;opacity:.68;
- background:linear-gradient(60deg,transparent 36%,rgba(255,255,255,.98) 45%,rgba(190,235,255,.75) 50%,rgba(255,255,255,.98) 55%,transparent 64%),repeating-linear-gradient(118deg,rgba(255,90,170,.55) 0 7%,rgba(255,210,90,.55) 7% 14%,rgba(90,220,160,.55) 14% 21%,rgba(90,170,255,.55) 21% 28%,rgba(200,120,255,.55) 28% 35%);
- background-size:250% 250%,200% 200%;animation:foilshine 2.6s linear infinite}
-.bc.foilc .foilspark,.u.foilc .foilspark{position:absolute;inset:0;z-index:7;pointer-events:none;opacity:.95;filter:drop-shadow(0 0 1.4px rgba(255,255,255,.9));
- background-image:radial-gradient(2.2px 2.2px at 18% 20%,#fff,transparent 62%),radial-gradient(1.8px 1.8px at 72% 30%,#fff6d8,transparent 62%),radial-gradient(2.2px 2.2px at 40% 52%,#fff,transparent 62%),radial-gradient(1.8px 1.8px at 86% 56%,#fff,transparent 62%),radial-gradient(2px 2px at 24% 72%,#fff6d8,transparent 62%),radial-gradient(2.2px 2.2px at 60% 78%,#fff,transparent 62%),radial-gradient(1.8px 1.8px at 48% 92%,#fff,transparent 62%),radial-gradient(1.6px 1.6px at 80% 88%,#fff6d8,transparent 62%)}
-.bc.foilc .foilspark,.u.foilc .foilspark{animation:twinkle 1.8s steps(2,jump-none) infinite}
-.bc.foilc{position:relative;box-shadow:0 0 18px rgba(150,190,255,.5),0 0 38px rgba(255,120,200,.32),0 0 64px rgba(255,210,120,.2);animation:foilglow 3.2s ease-in-out infinite}
-.hand .bc.foilc{position:absolute}
-.bc.foilc::before{content:"";position:absolute;inset:0;z-index:8;pointer-events:none;border-radius:inherit;padding:1.5cqw;
- background:conic-gradient(from 210deg,#ff8ac4,#ffd98a,#8affcf,#7ab8ff,#cf9bff,#ff8ac4,#ffd98a,#ff8ac4);
- -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;box-shadow:inset 0 0 0 1px rgba(255,236,180,.6),0 0 5px rgba(255,255,255,.4)}
-.bc.foilc::after{content:"";position:absolute;inset:2.4cqw;z-index:8;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,225,150,.5)}
-.u.foilc{position:relative;box-shadow:0 0 0 1.5px rgba(255,236,180,.6),0 0 16px rgba(150,190,255,.55),0 0 34px rgba(255,120,200,.32);border-radius:8px;animation:foilglow 3.2s ease-in-out infinite}
-.bc.foilc .foiltag,.u.foilc .foiltag{position:absolute;bottom:3.5%;left:3.5%;top:auto;right:auto;z-index:9;font:800 3.1cqw/1 var(--disp,sans-serif);color:#3a240a;background:linear-gradient(90deg,#ffe2a0,#fff6d8,#ffd98a,#fff6d8);background-size:200% 100%;padding:.6cqw 1.4cqw;border-radius:999px;letter-spacing:.08em;box-shadow:0 1px 3px #0008,inset 0 0 0 1px rgba(255,255,255,.4);animation:foilbadge 2.4s linear infinite}
-@keyframes foilshift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-@keyframes foilspin{to{transform:rotate(1turn)}}
-@keyframes twinkle{0%,100%{opacity:1}50%{opacity:.3}}
-@keyframes foilbadge{to{background-position:200% 0}}
-@keyframes foilshine{0%{background-position:-60% 0,0% 50%}100%{background-position:160% 0,100% 50%}}
-@keyframes foilglow{0%,100%{box-shadow:0 0 0 1px rgba(255,236,180,.4),0 0 16px rgba(150,190,255,.45),0 0 36px rgba(255,120,200,.28),0 0 60px rgba(255,210,120,.16)}50%{box-shadow:0 0 0 1.5px rgba(255,236,180,.6),0 0 26px rgba(150,190,255,.65),0 0 52px rgba(255,120,200,.42),0 0 86px rgba(255,210,120,.26)}}
-@media(prefers-reduced-motion:reduce){.bc.foilc,.u.foilc,.foilsheen,.foilspark,.foiltag{animation:none}}
-.watching #s-game{top:64px}.watchhead{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;gap:10px;padding:0 10px;box-sizing:border-box;background:#0d0a20;border-bottom:1px solid var(--line);z-index:6;font-size:10px}.watchhead strong{color:var(--gold)}.watchhead #close{margin-left:auto;height:32px;font-size:11px;padding:0 12px}.watching #s-game button:disabled{opacity:1;cursor:default}.watching .hand .cb{position:absolute;width:var(--hw)}
-</style>
-
