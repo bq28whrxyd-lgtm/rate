@@ -1,5 +1,5 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-const VERSION = 'v114-2026-10-11';
+const VERSION = 'v117-2026-10-11';
 const CACHE = 'ladder-' + VERSION;
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'tcg_spectator.js', 'motion_lifecycle.js',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg',
@@ -32,5 +32,24 @@ self.addEventListener('fetch', e => {
   e.respondWith(caches.match(req).then(hit => {
     const net = fetch(req).then(r => { if (r.ok || r.type === 'opaque') { const c = r.clone(); caches.open(CACHE).then(x => x.put(req, c)); } return r; });
     return hit || net;
+  }));
+});
+
+/* ---- push notifications (sent by the Firebase functions as data messages) ---- */
+self.addEventListener('push', e => {
+  let j = {};
+  try { j = e.data ? e.data.json() : {}; } catch (x) { try { j = { data: { body: e.data.text() } }; } catch (y) {} }
+  const d = j.data || j, n = j.notification || {};
+  const title = d.title || n.title || 'きもオタレート', body = d.body || n.body || '';
+  const opt = { body, icon: 'icon-192.png', badge: 'icon-192.png', data: { go: d.go || 'home' } };
+  if (d.tag) { opt.tag = d.tag; opt.renotify = true; }
+  e.waitUntil(self.registration.showNotification(title, opt));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const go = (e.notification.data && e.notification.data.go) || 'home';
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+    for (const c of cs) { if (c.url.startsWith(self.registration.scope)) { c.postMessage({ kgo: go }); return c.focus(); } }
+    return self.clients.openWindow(self.registration.scope + '?go=' + encodeURIComponent(go));
   }));
 });
