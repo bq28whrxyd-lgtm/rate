@@ -1210,6 +1210,7 @@ textarea{font:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(
 .supv{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px}
 .supbar{height:4px;border-radius:2px;background:var(--line);overflow:hidden}.supbar i{display:block;height:100%;border-radius:2px}
 .supcfg{margin-top:14px}.supcfg summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--mut);padding:6px 0}
+#admSupSign{display:flex;gap:0;margin-bottom:8px;border:1px solid var(--line,rgba(255,255,255,.15));border-radius:10px;overflow:hidden}#admSupSign button{flex:1;margin:0;border:0;border-radius:0;background:transparent;color:#cfcfd6;box-shadow:none;opacity:.75}#admSupSign button.on{background:var(--acc,#6a7cff);color:#fff;opacity:1}#admSupSign button[data-s="-1"].on{background:#c8504a}
 #admSupCfg{display:flex;flex-direction:column;gap:8px;margin-top:6px}#admSupCfg input{width:100%}
 .supcg{display:flex;flex-direction:column;gap:6px}.supcr{display:flex;align-items:center;gap:8px}.supcr .supn{flex:1.3;min-width:0}.supcr .supt{flex:1;min-width:0}
 .supme{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;border:1px solid var(--line);background:color-mix(in srgb,var(--fg) 4%,transparent);margin-bottom:10px}
@@ -2549,9 +2550,10 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 </div>
 <div class="admcard" id="admSup"><div class="admct">サポーターランク</div><div class="admcd">ここで足した値の合計で6段階のランクが決まります。値はあなたにしか見えず、みんなに見えるのはランクのバッジだけです。</div>
 <div class="admstep">値を足す・引く</div>
-<div class="row"><select id="admSupP" aria-label="相手" style="flex:1;min-width:0"></select><input id="admSupV" type="number" inputmode="numeric" placeholder="例: 5000" aria-label="値" style="width:96px;flex:none"><span class="sub supunit" style="flex:none"></span></div>
+<div class="supsign" id="admSupSign"><button type="button" data-s="1" class="on">足す</button><button type="button" data-s="-1">引く</button></div>
+<div class="row"><select id="admSupP" aria-label="相手" style="flex:1;min-width:0"></select><input id="admSupV" type="text" inputmode="numeric" autocomplete="off" placeholder="例: 5000" aria-label="値" style="width:96px;flex:none"><span class="sub supunit" style="flex:none"></span></div>
 <input id="admSupNote" maxlength="30" placeholder="メモ(任意・あなただけに見えます)" style="width:100%;margin-top:8px">
-<button id="admSupGo" style="width:100%;margin-top:8px">記録する</button><div class="sub" style="margin-top:4px;font-size:11.5px">間違えたときは、マイナスの値で記録すると取り消せます。</div><div id="admSupMsg" class="sub" style="margin-top:6px"></div>
+<button id="admSupGo" style="width:100%;margin-top:8px">記録する</button><div class="sub" style="margin-top:4px;font-size:11.5px">間違えたときは「引く」で同じ値を記録すると取り消せます。</div><div id="admSupMsg" class="sub" style="margin-top:6px"></div>
 <div class="admstep">いまのランク</div><div id="admSupList"></div>
 <details class="supcfg"><summary>ランクの名前と区切りを変える</summary><div id="admSupCfg"></div></details>
 </div>
@@ -5192,7 +5194,8 @@ function supGem(n,sz){const w=sz||16,u='g'+n+'_'+(Math.random()*1e7|0),big=w>=28
 function supBadge(pid,mini){const n=supTier(pid);if(!n)return null;const b=el('span','supb st'+n+(mini?' mini':''));b.setAttribute('role','button');b.onclick=e=>{e.stopPropagation();openSupPage()};b.innerHTML=supGem(n,mini?13:15);if(!mini)b.append(el('span',null,supNames()[n-1]));b.title='サポーター '+supNames()[n-1];return b}
 function supTotals(){const T={};supLogs.forEach(l=>{T[l.pid]=(T[l.pid]||0)+(+l.v||0)});return T}
 const supTierOf=v=>supTh().filter(x=>v>=x).length;
-async function supRecalc(){if(!isAdmin())return;const T=supTotals(),r={};players.forEach(p=>{r[p.id]=supTierOf(Math.max(0,T[p.id]||0))});
+async function supRecalc(onlyIfChanged){if(!isAdmin()||!playersLoaded)return;const T=supTotals(),r={};players.forEach(p=>{r[p.id]=supTierOf(Math.max(0,T[p.id]||0))});
+  if(onlyIfChanged&&supPub&&supPub.r&&players.every(p=>(+supPub.r[p.id]||0)===r[p.id]))return;
   const names=(supCfg&&Array.isArray(supCfg.names)&&supCfg.names.length===6)?supCfg.names:SUP_DEF.names;
   try{await db.doc('config/suprank').set({r,names,h:(supPub&&supPub.h)||{}},{merge:true})}catch(e){}}
 /* perk: エメラルド and above get a 10連 ticket whenever a limited / coin gacha starts (the coin gacha has no 10連, so 10 coin tickets) */
@@ -5212,7 +5215,7 @@ async function supTcgNewPacks(){if(!isAdmin()||supPkBusy||supPk===undefined||!su
 function supAdmStart(){if(supSubbed||!isAdmin()||!db)return;supSubbed=true;
   db.doc('sup/tcgpk').onSnapshot(s=>{const first=supPk===undefined;supPk=s.exists?s.data():null;if(first)setTimeout(supTcgNewPacks,1500)},()=>{});
   db.doc('sup/cfg').onSnapshot(s=>{supCfg=s.exists?s.data():null;supAdmRender()},()=>{});
-  db.collection('suplog').orderBy('t','desc').onSnapshot(s=>{supLogs=s.docs.map(d=>({id:d.id,...d.data()}));supAdmRender()},()=>{})}
+  db.collection('suplog').orderBy('t','desc').onSnapshot(s=>{supLogs=s.docs.map(d=>({id:d.id,...d.data()}));supAdmRender();if(!(s.metadata&&s.metadata.fromCache))supRecalc(true)},()=>{})}
 function admScrRender(){const sp=$('admScrP'),sc=$('admScrC');if(!sp||typeof TCGD==='undefined')return;
   {const v=sp.value;sp.replaceChildren();players.filter(p=>!p.ban).sort((a,b)=>a.name.localeCompare(b.name,'ja')).forEach(p=>{const o=el('option',null,p.name);o.value=p.id;sp.append(o)});if(v&&players.some(p=>p.id===v))sp.value=v}
   if(!sc.options.length){const R={GR:'ガチレア',R:'レア',C:'コモン'};Object.keys(TCGD.packs).forEach(pk=>{const P=TCGD.packs[pk],og=el('optgroup');og.label=P.n;
@@ -5288,9 +5291,11 @@ function renderSupSelf(){renderThanks();supCheckUp();const sec=$('supsec'),me=my
   const pl=el('div','supmine');pl.append(el('div','supmh','使える特典'));for(let k=1;k<=n;k++)SUP_PERKS[k-1].forEach(([a,b])=>{const r=el('div','supp done');r.style.setProperty('--sc',SUPC[k-1]);const ic=el('span','suppi');ic.innerHTML=supGem(k,16);const tx=el('div');tx.append(el('b',null,a),el('span',null,b));r.append(ic,tx);pl.append(r)});
   if(n<6){pl.append(el('div','supmh','次のランク「'+supNames()[n]+'」で増える特典'));SUP_PERKS[n].forEach(([a,b])=>{const r=el('div','supp next');const ic=el('span','suppi');ic.innerHTML=supGem(n+1,16);const tx=el('div');tx.append(el('b',null,a),el('span',null,b));r.append(ic,tx);pl.append(r)})}
   const all=el('button','sec supall','ランクと特典の一覧を見る');all.onclick=()=>openSupPage();box.append(pl,all)}
-$('admSupGo')&&($('admSupGo').onclick=()=>{const p=players.find(x=>x.id===$('admSupP').value),v=Math.round(+$('admSupV').value||0);if(!p||!v){$('admSupMsg').textContent='相手と値を入れてください';return}
-  askSheet({title:'サポーターランク',lines:[p.name+' に '+(v>0?'+':'')+v.toLocaleString()+' '+supUnit()+' を記録します。'],ok:'記録する',run:async()=>{
-    try{await db.collection('suplog').add({pid:p.id,v,note:$('admSupNote').value.trim().slice(0,30),t:now()});supLogs.unshift({pid:p.id,v,t:now()});await supRecalc();$('admSupV').value='';$('admSupNote').value='';$('admSupMsg').textContent=p.name+' に記録しました';supAdmRender()}
+const supNum=x=>{const t=String(x||'').replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-65248)).replace(/[,，、\s]/g,'').replace(/[ー－−‐]/g,'-');return /^-?\d+$/.test(t)?parseInt(t,10):NaN};
+$('admSupSign')&&$('admSupSign').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('admSupSign').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('admSupGo').textContent=b.dataset.s==='-1'?'引いて記録する':'記録する'});
+$('admSupGo')&&($('admSupGo').onclick=()=>{const p=players.find(x=>x.id===$('admSupP').value),raw=supNum($('admSupV').value),sg=+(($('admSupSign').querySelector('.on')||{}).dataset||{}).s||1;if(!isNaN(raw)&&Math.abs(raw)>10000000){$('admSupMsg').textContent='値が大きすぎます';return}const v=isNaN(raw)?0:Math.abs(raw)*(raw<0?-1:sg);if(!p||!v){$('admSupMsg').textContent='相手と値を入れてください';return}
+  askSheet({title:'サポーターランク',lines:[p.name+' に '+(v>0?'+':'−')+Math.abs(v).toLocaleString()+' '+supUnit()+' を記録します。','記録後の合計: '+Math.max(0,(supTotals()[p.id]||0)+v).toLocaleString()+' '+supUnit()],ok:'記録する',run:async()=>{
+    try{await db.collection('suplog').add({pid:p.id,v,note:$('admSupNote').value.trim().slice(0,30),t:now()});await supRecalc();$('admSupV').value='';$('admSupNote').value='';$('admSupMsg').textContent=p.name+' に記録しました';supAdmRender()}
     catch(e){$('admSupMsg').textContent='記録できませんでした('+(e.code||e.message)+')'}}})});
 const PLANS=[[100,200],[300,600],[500,1000],[1000,2100],[2000,4300],[3000,6600],[5000,11500],[10000,24000]];
 function admExtraRender(){
@@ -5653,7 +5658,7 @@ function tcgPublicCoins(d,first){return(first==='b'?[d.b,d.a]:[d.a,d.b]).map(id=
 window.TCGHOST={own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
-  const f=el('iframe');f.src='tcg_play.html?v=112'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+  const f=el('iframe');f.src='tcg_play.html?v=113'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
 function tcgClose(){if(typeof tcgLive!=='undefined')tcgLive=null;const o=$('tcgw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');renderTcg()}
 /* your own coin decides who goes first, then your own 対戦演出 opens the match */
 function tcgToss(info,cb){const side=coinToss({id:'tcg'},myCoin());let fired=false;const t0=Date.now();
@@ -5790,7 +5795,7 @@ function tcgSpectatorSection(){const s=el('section','tcgobserve');s.append(el('h
   live.forEach(d=>{const row=el('div','tcgfr'),tx=el('div');tx.append(el('b',null,d.an+' vs '+d.bn),el('div','sub',(now()-d.updated>90000?'更新待ち · ':'LIVE · ')+d.state.turns+'ターン'));
     const b=el('button','sec','観戦する');b.onclick=()=>tcgSpectate(d.id);row.append(tx,b);s.append(row)});return s}
 function tcgSpectate(id){if(!db||$('tcgw')){toast('対戦・編成を閉じてから観戦してください');return}
-  const o=el('div','tcgw');o.id='tcgw';const f=el('iframe');f.src='tcg_play.html?v=112#watch='+encodeURIComponent(id);f.title='きもオタTCG ライブ観戦';o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+  const o=el('div','tcgw');o.id='tcgw';const f=el('iframe');f.src='tcg_play.html?v=113#watch='+encodeURIComponent(id);f.title='きもオタTCG ライブ観戦';o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
 window.TCGWATCH={effectCoin:info=>tcgShowEffectCoin(info),subscribe:(id,cb,onError)=>{if(!db){onError&&onError();return()=>{}}return db.doc('tcgwatch/'+id).onSnapshot(s=>cb(s.exists?s.data():null),onError)},close:()=>tcgClose()};
 window.TCGHOST.publishSpectator=payload=>{try{payload=JSON.parse(JSON.stringify(payload))}catch(e){return Promise.resolve()}/* made inside the game frame: copy into this window first, Firestore refuses the frame's arrays */
   const L=tcgLive,me=myPlayer();if(!L||L.id!==payload.id||!db||!me)return Promise.resolve();
