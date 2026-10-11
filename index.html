@@ -2596,6 +2596,9 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 </div>
 <div class="admcard"><div class="admct">操作の履歴</div><div id="admLog"></div>
 </div>
+<div class="admcard"><div class="admct">保存データの読み直し</div><div class="admcd">みんなのスマホは対戦・配布などの記録を保存しておき、新しい分だけ読み込みます。Firebaseの画面で昔の記録を直したり消したりしたときだけ押してください。次に開いたとき、全員が一度だけすべて読み直します。</div>
+<button id="admResync" class="sec" style="width:100%;margin-top:8px">全員に読み直してもらう</button><div id="admResyncMsg" class="sub" style="margin-top:6px"></div>
+</div>
 </div>
 <div class="admpg" data-t="set" hidden>
 <div class="admcard"><div class="admct">ジャンル</div><div class="admcd">追加したジャンルは全員の画面の上のタブに出ます。消してもそのジャンルの記録は残ります。</div><div id="admGen"></div>
@@ -3800,7 +3803,7 @@ function askSheet(o){document.querySelectorAll('.md.ask').forEach(x=>x.remove())
   (o.lines||[]).forEach(l=>{if(l)c.append(Array.isArray(l)?el('p',l[0],l[1]):el('p',null,l))});
   const ok=el('button',o.danger?'askok danger':'askok',o.ok),cn=el('button','sec askno','キャンセル'),close=()=>m.remove();
   ok.disabled=!!o.disabled;ok.onclick=()=>{if(ok.disabled)return;ok.disabled=true;close();o.run()};cn.onclick=close;m.onclick=e=>{if(e.target===m)close()};
-  c.append(ok,cn);document.body.append(m);return m}
+  c.append(ok);if(!o.info)c.append(cn);document.body.append(m);return m}
 const ASK={'勝った':['勝ちを報告','勝ったと報告します。相手が承認すると結果が確定します。'],'負けた':['負けを報告','負けたと報告します。相手が承認すると結果が確定します。'],
   '中止':['対戦を中止','この対戦を中止します。賭けは無効になります。'],'中止を申請':['中止を申請','相手に中止を申請します。相手が同意すると中止になります。'],'中止に同意':['中止に同意','この対戦を中止します。賭けは無効になります。'],
   '承認する':['結果を承認','相手の報告を承認して、結果を確定します。'],'これにする':['これにする','この内容で決定します。'],'削除':['削除','削除します。元に戻せません。'],'消す':['削除','削除します。元に戻せません。'],
@@ -4691,13 +4694,16 @@ function renderGw(){
 /* ---- admin: purchases and genre weeks ---- */
 /* ---- presence: each player records when they last had the app open (only the admin can read it) ---- */
 const APP_VER='v55';
+/* read savers (the PWA adapter has db.synced / where; the older adapter falls back to the plain listener) */
+function dbSynced(c,f,sort){return db.synced?db.synced(c,{f,sort:sort||'t'}):db.collection(c).orderBy(sort||'t','desc')}
+function dbRecent(c,f,ms){const q=db.collection(c);return q.where?q.where(f,'>',now()-ms):q}
 let seenMap={},seenSub=null,lastPing=0;
-function ping(force){const me=myPlayer();if(!db||!me||document.visibilityState!=='visible')return;if(!force&&now()-lastPing<110000)return;lastPing=now();db.doc('seen/'+me.id).set({t:now(),v:APP_VER}).catch(()=>{})}
-setInterval(()=>ping(),120000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping(true)});
+function ping(force){const me=myPlayer();if(!db||!me||document.visibilityState!=='visible')return;if(now()-lastPing<(force?30000:290000))return;lastPing=now();db.doc('seen/'+me.id).set({t:now(),v:APP_VER}).catch(()=>{})}
+setInterval(()=>ping(),300000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping(true)});
 function admSeenRender(){
   const box=$('admSeen');if(!box)return;
   if(!seenSub&&isAdmin())seenSub=db.collection('seen').onSnapshot(s=>{seenMap={};s.docs.forEach(d=>seenMap[d.id]=d.data());admSeenRender()},()=>{});
-  box.replaceChildren();const ON=3*60000;
+  box.replaceChildren();const ON=6*60000;
   const L=players.slice().sort((a,b)=>((seenMap[b.id]||{}).t||0)-((seenMap[a.id]||{}).t||0));
   L.forEach(p=>{const x=seenMap[p.id],on=x&&now()-x.t<ON,r=el('div','sn'+(on?' on':''));
     r.append(el('i'),el('b',null,p.name),el('span',null,!x?'まだ記録なし':on?'オンライン':ago(x.t)));
@@ -5658,7 +5664,7 @@ function tcgPublicCoins(d,first){return(first==='b'?[d.b,d.a]:[d.a,d.b]).map(id=
 window.TCGHOST={own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
-  const f=el('iframe');f.src='tcg_play.html?v=113'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+  const f=el('iframe');f.src='tcg_play.html?v=114'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
 function tcgClose(){if(typeof tcgLive!=='undefined')tcgLive=null;const o=$('tcgw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');renderTcg()}
 /* your own coin decides who goes first, then your own 対戦演出 opens the match */
 function tcgToss(info,cb){const side=coinToss({id:'tcg'},myCoin());let fired=false;const t0=Date.now();
@@ -5786,7 +5792,7 @@ function renderTcg(){
 }
 /* ===== read-only live observation: a separate public stream, never a replay of private moves ===== */
 let tcgWatches=[],tcgWatchLoaded=false,tcgWatchError=false,tcgWatchUnsub=null;
-function watchTcgSpectators(){if(tcgWatchUnsub||!db)return;tcgWatchUnsub=db.collection('tcgwatch').orderBy('updated','desc').limit(30).onSnapshot(s=>{
+function watchTcgSpectators(){if(tcgWatchUnsub||!db)return;tcgWatchUnsub=(q=>q.where?q.where('updated','>',now()-15*60000):q)(db.collection('tcgwatch')).orderBy('updated','desc').limit(30).onSnapshot(s=>{
   tcgWatches=s.docs.map(d=>({id:d.id,...d.data()}));tcgWatchLoaded=true;tcgWatchError=false;if(curView==='tcg'&&!$('tcgw'))renderTcg();
 },()=>{tcgWatchLoaded=true;tcgWatchError=true;if(curView==='tcg'&&!$('tcgw'))renderTcg()})}
 function tcgSpectatorSection(){const s=el('section','tcgobserve');s.append(el('h2',null,'ライブ観戦'),el('p','sub','対戦中の場をリアルタイムで見る。手札・伏せカードは非公開。'));
@@ -5795,7 +5801,7 @@ function tcgSpectatorSection(){const s=el('section','tcgobserve');s.append(el('h
   live.forEach(d=>{const row=el('div','tcgfr'),tx=el('div');tx.append(el('b',null,d.an+' vs '+d.bn),el('div','sub',(now()-d.updated>90000?'更新待ち · ':'LIVE · ')+d.state.turns+'ターン'));
     const b=el('button','sec','観戦する');b.onclick=()=>tcgSpectate(d.id);row.append(tx,b);s.append(row)});return s}
 function tcgSpectate(id){if(!db||$('tcgw')){toast('対戦・編成を閉じてから観戦してください');return}
-  const o=el('div','tcgw');o.id='tcgw';const f=el('iframe');f.src='tcg_play.html?v=113#watch='+encodeURIComponent(id);f.title='きもオタTCG ライブ観戦';o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+  const o=el('div','tcgw');o.id='tcgw';const f=el('iframe');f.src='tcg_play.html?v=114#watch='+encodeURIComponent(id);f.title='きもオタTCG ライブ観戦';o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
 window.TCGWATCH={effectCoin:info=>tcgShowEffectCoin(info),subscribe:(id,cb,onError)=>{if(!db){onError&&onError();return()=>{}}return db.doc('tcgwatch/'+id).onSnapshot(s=>cb(s.exists?s.data():null),onError)},close:()=>tcgClose()};
 window.TCGHOST.publishSpectator=payload=>{try{payload=JSON.parse(JSON.stringify(payload))}catch(e){return Promise.resolve()}/* made inside the game frame: copy into this window first, Firestore refuses the frame's arrays */
   const L=tcgLive,me=myPlayer();if(!L||L.id!==payload.id||!db||!me)return Promise.resolve();
@@ -5809,7 +5815,7 @@ window.TCGHOST.spectatorSeq=()=>tcgLive?tcgLive.mine.length+tcgLive.delivered:0;
    the winner's chest counts only when both results agree, the match lasted 6 turns or more, and it is one of their first 5 wins that day ---- */
 let tcgms=[],tcgmLoaded=false,tcgmUnsub=null,tcgLive=null;const tcgStarted={},tcgAsked={},tcgMine={};
 const TCG_WAIT=10*60000;
-function watchTcgm(){if(tcgmUnsub||!db)return;tcgmUnsub=db.collection('tcgm').onSnapshot(s=>{tcgms=s.docs.map(d=>Object.assign({id:d.id},d.data()));tcgmLoaded=true;tcgmTick()},()=>{tcgmLoaded=true})}
+function watchTcgm(){if(tcgmUnsub||!db)return;tcgmUnsub=(db.synced?db.synced('tcgm',{f:'u',sort:'t'}):db.collection('tcgm')).onSnapshot(s=>{tcgms=s.docs.map(d=>Object.assign({id:d.id},d.data()));tcgmLoaded=true;tcgmTick()},()=>{tcgmLoaded=true})}
 const tcgOther=(d,me)=>d.a===me?{id:d.b,n:d.bn}:{id:d.a,n:d.an};
 const tcgDone=d=>d.wa!=null&&d.wb!=null&&d.wa===d.wb;
 /* the seed and who goes first mix in a value from the player who accepts, so neither side can pick them */
@@ -5885,7 +5891,7 @@ function tcgmTick(){const me=myPlayer();if(!me)return;const t=now();
     if((d.st==='decline'||d.st==='cancel')&&tcgMine[d.id]){delete tcgMine[d.id];document.querySelectorAll('.tcgmd[data-wait="'+d.id+'"]').forEach(x=>x.remove());if(d.st==='decline')toast(d.bn+' にことわられました')}
     if(d.st==='cancel'&&tcgAsked[d.id]===1&&d.b===me.id){tcgAsked[d.id]=2;document.querySelectorAll('.tcgmd').forEach(x=>x.remove())}
     /* both results are in: the moves are no longer needed */
-    {const sd=d.a===me.id?'a':d.b===me.id?'b':null;if(sd&&d.wa!=null&&d.wb!=null&&(d['m'+sd]||[]).length&&!(tcgLive&&tcgLive.id===d.id))db.doc('tcgm/'+d.id).update({['m'+sd]:[]}).catch(()=>{})}
+    {const sd=d.a===me.id?'a':d.b===me.id?'b':null;if(sd&&d.wa!=null&&d.wb!=null&&(d['m'+sd]||[]).length&&!(tcgLive&&tcgLive.id===d.id))db.doc('tcgm/'+d.id).update({['m'+sd]:[],u:now()}).catch(()=>{})}
   });
   /* new moves for the match being played */
   const L=tcgLive;if(L){const d=tcgms.find(x=>x.id===L.id),other=L.side==='a'?'b':'a',mv=d&&d['m'+other]||[];if(mv.length>L.delivered&&L.cb){for(let i=L.delivered;i<mv.length;i++)L.cb(tcgUnpack(mv[i]));L.delivered=mv.length}}
@@ -6245,7 +6251,9 @@ function renderGrantMsg(){
   card.replaceChildren(el('div','dmk','FROM ADMIN'),el('h3',null,sum?'管理者から '+(sum>0?'+':'')+sum+'pt 届きました':'管理者からチケットが届きました'),L,f);
 }
 function admTab(t){document.querySelectorAll('#admTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));document.querySelectorAll('#admPanel .admpg').forEach(p=>p.hidden=p.dataset.t!==t);try{localStorage.setItem('admTab',t)}catch(e){}}
-document.querySelectorAll('#admTabs button').forEach(b=>b.onclick=()=>admTab(b.dataset.t));try{const t=localStorage.getItem('admTab');if(t&&document.querySelector('#admTabs [data-t="'+t+'"]'))admTab(t)}catch(e){}
+document.querySelectorAll('#admTabs button').forEach(b=>b.onclick=()=>admTab(b.dataset.t));
+$('admResync')&&($('admResync').onclick=()=>askSheet({title:'保存データの読み直し',lines:['全員のスマホが、次に開いたときに記録を一度だけすべて読み直します。','読み込みの回数がその分増えるので、記録を直したときだけ使ってください。'],ok:'読み直してもらう',run:async()=>{
+  try{await db.doc('config/sync').set({v:now()});$('admResyncMsg').textContent='送りました。全員が次に開いたときに読み直します'}catch(e){$('admResyncMsg').textContent='送れませんでした('+(e.code||e.message)+')'}}}));try{const t=localStorage.getItem('admTab');if(t&&document.querySelector('#admTabs [data-t="'+t+'"]'))admTab(t)}catch(e){}
 function admSetMode(v){admMode=v;$('admModeG').classList.toggle('on',v>0);$('admModeT').classList.toggle('on',v<0);document.querySelector('.admseg').classList.toggle('take',v<0);admList()}
 $('admModeG').onclick=()=>admSetMode(1);$('admModeT').onclick=()=>admSetMode(-1);
 document.querySelectorAll('.admchips button').forEach(b=>b.onclick=()=>{$('admPt').value=b.dataset.v;document.querySelectorAll('.admchips button').forEach(x=>x.classList.toggle('on',x===b))});
@@ -6400,7 +6408,8 @@ render();
   $('logoutBtn').onclick=()=>twoTap($('logoutBtn'),'ログアウト',()=>FB.logout());
   if(myId)db.doc('data/users/'+myId+'/me').onSnapshot(s=>{const v=s.exists?s.data():null;mePid=v&&v.pid?v.pid:null;meLoaded=true;syncSeasons();queueRender();onChallenges()},()=>{meLoaded=true;queueRender()});
   db.collection('players').onSnapshot(s=>{players=s.docs.map(d=>({id:d.id,...d.data()}));playersLoaded=true;syncSeasons();queueRender();onChallenges()},()=>{});
-  db.collection('matches').orderBy('t','desc').onSnapshot(onMatches,()=>{});
+  /* matches, grants and predictions only grow: db.synced keeps a saved copy on the phone and reads only the new ones */
+  dbSynced('matches','t').onSnapshot(onMatches,()=>{});
   watchTcgSpectators();
   db.doc('config/coinev').onSnapshot(s=>{coinev=s.exists?s.data():null;queueRender()},()=>{});
   db.collection('tours').orderBy('t','desc').onSnapshot(s=>{toursLoaded=true;tours=s.docs.map(d=>({id:d.id,...d.data()}));queueRender()},()=>{toursLoaded=true;queueRender()});
@@ -6409,14 +6418,15 @@ render();
   db.doc('config/suprank').onSnapshot(s=>{supPub=s.exists?s.data():null;queueRender();if(isAdmin()){supAdmRender();supTcgNewPacks()}},()=>{});
   db.doc('config/genres').onSnapshot(s=>{applyGenres(s.exists?s.data():null);queueRender();renderAdmin()},()=>{});
   db.doc('config/gweek').onSnapshot(s=>{gweekLoaded=true;gweek=(s.exists&&s.data().list)||[];queueRender()},()=>{});
-  db.collection('preds').orderBy('t','desc').onSnapshot(s=>{predsLoaded=true;preds=s.docs.map(d=>({id:d.id,...d.data()}));checkPredHits();queueRender()},()=>{});
+  dbSynced('preds','t').onSnapshot(s=>{predsLoaded=true;preds=s.docs.map(d=>({id:d.id,...d.data()}));checkPredHits();queueRender()},()=>{});
   db.collection('msgs').orderBy('t','desc').limit(20).onSnapshot(s=>{devMsgs=s.docs.map(d=>({id:d.id,...d.data()}));renderDevMsg();if(isAdmin())admMsgRender()},()=>{});
   db.collection('feed').orderBy('t','desc').limit(40).onSnapshot(s=>{feed=s.docs.map(d=>({id:d.id,...d.data()}));renderFeed()},()=>{});
   setInterval(()=>{if(curView==='home')tickPreds()},1000);
   setInterval(()=>{if(curView==='gacha')renderLim()},60000);
   db.doc('config/admin').onSnapshot(s=>{adminCfg=s.exists?s.data():null;adminLoaded=true;queueRender()},()=>{adminLoaded=true});
-  db.collection('grants').orderBy('t','desc').onSnapshot(s=>{grantsLoaded=true;grants=s.docs.map(d=>({id:d.id,...d.data()}));queueRender();grantNotice();if(typeof tcgScrGifts==='function')tcgScrGifts()},()=>{});
-  db.collection('challenges').orderBy('t','desc').limit(300).onSnapshot(s=>{chsLoaded=true;chs=s.docs.map(d=>({id:d.id,...d.data()}));onChallenges();renderGacha()},()=>{});
+  dbSynced('grants','t').onSnapshot(s=>{grantsLoaded=true;grants=s.docs.map(d=>({id:d.id,...d.data()}));queueRender();grantNotice();if(typeof tcgScrGifts==='function')tcgScrGifts()},()=>{});
+  /* challenges only matter while they are live (3 hours at most): the last 2 days are plenty */
+  dbRecent('challenges','t',2*864e5).orderBy('t','desc').limit(300).onSnapshot(s=>{chsLoaded=true;chs=s.docs.map(d=>({id:d.id,...d.data()}));onChallenges();renderGacha()},()=>{});
   setInterval(onChallenges,30000);
 })();
 </script>
@@ -6437,7 +6447,7 @@ if('serviceWorker' in navigator){
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,setDoc,updateDoc,deleteDoc,addDoc,onSnapshot,query,orderBy,limit} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,setDoc,updateDoc,deleteDoc,addDoc,onSnapshot,query,orderBy,limit,where} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 const app=initializeApp({apiKey:"AIzaSyDv_SJ6OgLHYXiZx6iKS1rcNk1RqqsKkwk",authDomain:"kimoota-15777.firebaseapp.com",projectId:"kimoota-15777",storageBucket:"kimoota-15777.firebasestorage.app",messagingSenderId:"86788820983",appId:"1:86788820983:web:c129695a288eb9ce05e8f2"});
 const auth=getAuth(app);
 let FS;
@@ -6445,10 +6455,50 @@ try{FS=initializeFirestore(app,{ignoreUndefinedProperties:true,localCache:persis
 catch(e){FS=initializeFirestore(app,{ignoreUndefinedProperties:true})}
 /* same small API the app was written against: db.doc(path) / db.collection(name) */
 const snap=s=>({id:s.id,exists:s.exists(),data:()=>s.data()});
+/* ---- safety brake: a bug that writes or listens in a loop is stopped on this phone before it can use up the daily quota.
+   Normal play (TCG moves included) stays far below these limits ---- */
+const BRK={w:[],p:{},l:[],hit:false};
+const brake=(kind,path)=>{const t=Date.now(),cut=t-60000;
+  if(kind==='w'){BRK.w=BRK.w.filter(x=>x>cut);BRK.w.push(t);const a=(BRK.p[path]||[]).filter(x=>x>cut);a.push(t);BRK.p[path]=a;
+    if(BRK.w.length>400||a.length>90){if(!BRK.hit){BRK.hit=true;console.warn('write brake',path,a.length,BRK.w.length);try{window.toast&&toast('通信が多すぎるため、少しのあいだ保存を止めています')}catch(e){}setTimeout(()=>{BRK.hit=false},60000)}return true}}
+  else{BRK.l=BRK.l.filter(x=>x>cut);BRK.l.push(t);if(BRK.l.length>200){console.warn('listen brake',path);return true}}
+  return false};
+const W=(path,f)=>brake('w',path)?Promise.reject(Object.assign(new Error('throttled'),{code:'throttled'})):f();
+const LS=(path,f,er)=>{if(brake('l',path)){setTimeout(()=>(er||(()=>{}))(Object.assign(new Error('throttled'),{code:'throttled'})),0);return()=>{}}return f()};
+/* ---- saved copies (IndexedDB) for collections that only grow: after the first time, opening the app reads only what is new ---- */
+const IDB=(()=>{let P=null;const op=()=>P||(P=new Promise((res,rej)=>{try{const r=indexedDB.open('kimoota-sync',1);r.onupgradeneeded=()=>r.result.createObjectStore('c');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}));
+  const tx=(mode,fn)=>op().then(d=>new Promise(res=>{try{const t=d.transaction('c',mode),st=t.objectStore('c'),q=fn(st);t.oncomplete=()=>res(q&&q.result!==undefined?q.result:true);t.onerror=t.onabort=()=>res(null)}catch(e){res(null)}})).catch(()=>null);
+  return{get:k=>tx('readonly',st=>st.get(k)),put:(k,v)=>tx('readwrite',st=>st.put(v,k)),del:k=>tx('readwrite',st=>st.delete(k))}})();
+/* config/sync {v}: the admin bumps it to make every phone drop its saved copies and read everything again once */
+let syncV=null,syncVWait=[];const syncSubs=new Set();
+const syncVReady=()=>syncV!==null?Promise.resolve(syncV):new Promise(r=>{syncVWait.push(r);setTimeout(()=>{if(syncV===null){syncV=0;syncVWait.splice(0).forEach(f=>f(0))}},4000)});
+let syncVStarted=false;const syncVStart=()=>{if(syncVStarted)return;syncVStarted=true;
+  onSnapshot(doc(FS,'config/sync'),s=>{const v=(s.exists()&&+s.data().v)||0,old=syncV;syncV=v;syncVWait.splice(0).forEach(r=>r(v));if(old!==null&&old!==v)syncSubs.forEach(f=>f(v))},()=>{if(syncV===null){syncV=0;syncVWait.splice(0).forEach(r=>r(0))}})};
+/* the demo (fake database, new every load) keeps no saved copies unless a test asks for it */
+const EPOCH=window.__SYNCEPOCH||'',NOSAVE=!!window.__FAKE&&!window.__SYNCEPOCH;
+/* synced(c,{f,sort}): same snapshots as a full listener on c, but only documents whose field f is newer than the saved copy
+   (minus a 2 day margin for phones with a wrong clock) are read from the server */
+const MARGIN=2*864e5;
+const synced=(c,o)=>({onSnapshot:(cb,er)=>{const f=o.f,sf=o.sort||f;let map=new Map(),un=null,dead=false,saveT=0,v=0,gen=0;
+  const key=()=>EPOCH+'|'+((auth.currentUser&&auth.currentUser.uid)||'-')+'|'+c;
+  const emit=()=>{if(dead)return;const ds=[];map.forEach((d,id)=>ds.push({id,exists:true,data:()=>d}));ds.sort((a,b)=>(+b.data()[sf]||0)-(+a.data()[sf]||0));cb({docs:ds})};
+  const save=()=>{if(NOSAVE)return;clearTimeout(saveT);const my=gen;saveT=setTimeout(()=>{if(dead||my!==gen)return;const lim=Date.now()+3600000;let mx=0;const docs={};map.forEach((d,id)=>{docs[id]=d;const x=+d[f]||0;if(x>mx&&x<lim)mx=x});IDB.put(key(),{v,f,mx,docs,at:Date.now()})},1500)};
+  const start=async(fresh)=>{const my=++gen;clearTimeout(saveT);if(un){un();un=null}v=await syncVReady();if(dead||my!==gen)return;
+    let rec=fresh||NOSAVE?null:await IDB.get(key());if(dead||my!==gen)return;
+    if(rec&&(rec.v!==v||rec.f!==f||!rec.docs))rec=null;
+    map=new Map(rec?Object.entries(rec.docs):[]);if(rec)emit();
+    const from=rec&&rec.mx?rec.mx-MARGIN:null;
+    const q=from==null?query(collection(FS,c)):query(collection(FS,c),where(f,'>',from));
+    un=LS(c,()=>onSnapshot(q,s=>{if(dead||my!==gen)return;s.docChanges().forEach(ch=>{if(ch.type==='removed')map.delete(ch.doc.id);else map.set(ch.doc.id,ch.doc.data())});emit();if(!s.metadata.fromCache)save()},e=>{(er||(()=>{}))(e)}),er)};
+  const onV=nv=>{if(nv!==v)start(false)};/* the saved copy is used again only if it was made with this version */
+  syncVStart();syncSubs.add(onV);start(false);
+  return()=>{dead=true;syncSubs.delete(onV);clearTimeout(saveT);if(un)un()}}});
 const db={
-  doc:p=>{const r=doc(FS,p);return{set:(d,o)=>o?setDoc(r,d,o):setDoc(r,d),update:d=>updateDoc(r,d),delete:()=>deleteDoc(r),onSnapshot:(cb,er)=>onSnapshot(r,s=>cb(snap(s)),er||(()=>{}))}},
-  collection:c=>{const mk=cs=>({orderBy:(f,d)=>mk([...cs,orderBy(f,d||'asc')]),limit:n=>mk([...cs,limit(n)]),add:d=>addDoc(collection(FS,c),d),
-    onSnapshot:(cb,er)=>onSnapshot(query(collection(FS,c),...cs),s=>cb({docs:s.docs.map(snap)}),er||(()=>{}))});return mk([])}
+  doc:p=>{const r=doc(FS,p);return{set:(d,o)=>W(p,()=>o?setDoc(r,d,o):setDoc(r,d)),update:d=>W(p,()=>updateDoc(r,d)),delete:()=>W(p,()=>deleteDoc(r)),onSnapshot:(cb,er)=>LS(p,()=>onSnapshot(r,s=>cb(snap(s)),er||(()=>{})),er)}},
+  collection:c=>{const mk=cs=>({orderBy:(f,d)=>mk([...cs,orderBy(f,d||'asc')]),limit:n=>mk([...cs,limit(n)]),where:(f,op,v)=>mk([...cs,where(f,op,v)]),add:d=>W(c+'/+',()=>addDoc(collection(FS,c),d)),
+    onSnapshot:(cb,er)=>LS(c,()=>onSnapshot(query(collection(FS,c),...cs),s=>cb({docs:s.docs.map(snap)}),er||(()=>{})),er)});return mk([])},
+  synced,
+  resetSaved:async()=>{for(const c of ['matches','grants','preds','tcgm'])await IDB.del(EPOCH+'|'+((auth.currentUser&&auth.currentUser.uid)||'-')+'|'+c)}
 };
 const L=document.getElementById('login'),err=document.getElementById('lgErr'),btn=document.getElementById('gLogin');
 const prov=new GoogleAuthProvider();prov.setCustomParameters({prompt:'select_account'});
