@@ -3112,7 +3112,7 @@ body.ui2 .bnav .navink{background:rgba(255,255,255,.14)!important;box-shadow:ins
 .kb-d.now small{color:#f4f1ea}
 .kb-note{margin-top:14px;font:600 13px/1.4 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:#8a857e}
 .kb-note b{color:#ecd18f;font-family:ui-rounded,"SF Pro Rounded","Nunito",sans-serif}
-.kb-btn{position:absolute;left:24px;right:24px;bottom:calc(env(safe-area-inset-bottom,0px) + 28px);max-width:420px;margin:0 auto;height:56px;border:0;border-radius:999px;background:#f4f1ea;color:#111;font:800 17px/56px var(--kjf,-apple-system),"Hiragino Sans",sans-serif;cursor:pointer;transition:transform .45s cubic-bezier(.2,.9,.25,1.06)}
+.kb-btn{position:absolute;left:24px;right:24px;bottom:calc(env(safe-area-inset-bottom,0px) + 28px);max-width:420px;margin:0 auto;height:56px;padding:0;border:0;border-radius:999px;background:#f4f1ea;color:#111;font:800 17px/56px var(--kjf,-apple-system),"Hiragino Sans",sans-serif;cursor:pointer;transition:transform .45s cubic-bezier(.2,.9,.25,1.06)}
 .kb-btn:active{transform:scale(.96);transition:transform .12s}
 .kb.out{opacity:0;transition:opacity .35s ease}
 /* settings row */
@@ -3493,7 +3493,7 @@ body.ui2 .kvs-seam i{position:absolute;left:-1px;right:-1px;top:0;height:64px;bo
 body.ui2 .kvs-vs{position:absolute;left:50%;top:50%;z-index:6;width:68px;height:68px;margin:-34px 0 0 -34px;pointer-events:none}
 body.ui2 .kvs-vs>b{position:absolute;inset:0;z-index:2;display:grid;place-items:center;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 28%,#35333b,#131216 62%,#0b0b0e);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 1px rgba(255,255,255,.07),0 0 0 3px #0a0a0d,0 0 0 4.5px var(--vr,#b8924a),0 14px 30px rgba(0,0,0,.75)}
-body.ui2 .kvs-vs>b>span{position:relative;z-index:1;margin-left:-2px;font:900 italic 26px/1 var(--x-ni);letter-spacing:-.06em;background:linear-gradient(180deg,#fff 12%,#f6e3b4 50%,#c08f3e 88%);-webkit-background-clip:text;background-clip:text;color:transparent}
+body.ui2 .kvs-vs>b>span{position:relative;z-index:1;padding:.04em .2em .04em .08em;margin:0 0 0 -.05em;font:900 italic 26px/1 var(--x-ni);letter-spacing:-.06em;background:linear-gradient(180deg,#fff 12%,#f6e3b4 50%,#c08f3e 88%);-webkit-background-clip:text;background-clip:text;color:transparent}
 body.ui2 .kvs-vs .sw{position:absolute;top:-30%;bottom:-30%;left:0;width:36%;z-index:2;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.3),rgba(255,255,255,0));transform:translateX(-170%) skewX(-18deg);animation:kvsSweep 5s cubic-bezier(.45,0,.25,1) 2s infinite}
 @keyframes kvsSweep{0%{transform:translateX(-170%) skewX(-18deg)}36%,100%{transform:translateX(330%) skewX(-18deg)}}
 body.ui2 .kvs-vs .glow{position:absolute;inset:-48px;border-radius:50%;background:radial-gradient(closest-side,rgba(246,227,180,.5),rgba(226,191,114,.14) 55%,rgba(226,191,114,0));animation:kvsBreath 3.4s ease-in-out infinite}
@@ -3988,6 +3988,122 @@ html.kf-zkg{--kjf:"Zen Kaku Gothic New",-apple-system}
 @keyframes kfSpin{to{transform:rotate(360deg)}}
 #kfsec .kf-note{margin:10px 4px 0;font:500 12px/1.65 var(--x-f);color:rgba(244,241,234,.46)}
 @media (prefers-reduced-motion:reduce){#kfsec .kx-kf.ld>i::after{animation:none}}
+
+/* ---------- the VS disc is the button (rate: send the request, TCG: start / send) ---------- */
+body.ui2 .kvs-vs.kx-vsb{pointer-events:auto;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;outline:0}
+body.ui2 .kvs-vs.kx-vsb>b{display:grid;place-content:center;justify-items:center;row-gap:3px;transition:transform .4s var(--x-sp)}
+body.ui2 .kvs-vs.kx-vsb.press>b{transform:scale(.9);transition-duration:.1s}
+body.ui2 .kvs-vs.kx-vsb:focus-visible>b{box-shadow:0 0 0 2px #fff,0 0 0 5px rgba(255,255,255,.25)}
+body.ui2 .kvs-cap{position:relative;z-index:1;display:block;font:800 9.5px/1 var(--x-f);font-style:normal;letter-spacing:.04em;color:rgba(255,255,255,.62);white-space:nowrap;transition:color .25s}
+body.ui2 .kvs.go .kvs-cap{color:#fff}
+body.ui2 .kvs-vs.kx-vsb>b>span{font-size:24px}
+/* ready: a thin ring keeps leaving the disc (transform + opacity only) */
+body.ui2 .kvs-vs.kx-vsb::after{content:"";position:absolute;inset:-6px;border-radius:50%;box-shadow:0 0 0 2px var(--vr,#e2bf72);opacity:0;pointer-events:none;z-index:1}
+body.ui2 .kvs.go .kvs-vs.kx-vsb::after{animation:kxVsPing 2.4s cubic-bezier(.2,.7,.3,1) 1.2s infinite}
+body.ui2 .kvs-tcg .kvs-vs.kx-vsb::after{box-shadow:0 0 0 2px #a99bff}
+@keyframes kxVsPing{0%{opacity:.9;transform:scale(.94)}70%,100%{opacity:0;transform:scale(1.5)}}
+body.ui2 .kvs.kx-off .kvs-vs.kx-vsb::after{animation-play-state:paused}
+body.ui2 .kvs .kx-spkv{z-index:8}
+@media (prefers-reduced-motion:reduce){body.ui2 .kvs.go .kvs-vs.kx-vsb::after{animation:none;opacity:.6;transform:none}}
+/* Safari puts a button's line at the top of its padding box when the line is taller than the box: keep fixed-height buttons padding-free */
+body.ui2 .pushask .pano{padding-top:0!important;padding-bottom:0!important;line-height:42px}
+/* the stage's coin particles share the login bonus coin's class name: drop its shine (a full repaint every frame) on the stage */
+body.ui2 .kvs-fx .k-coin::after{content:none;animation:none}
+/* sections below the stage are skipped (layout, paint, their animations) while they are off screen */
+body.ui2 #kxrate>.kx-card,body.ui2 #kxtcg>.kx-card,body.ui2.kxon #tcgbox>section{content-visibility:auto;contain-intrinsic-size:auto 260px}
+/* the switch: the pill sits above the labels with its own dark copy of them (see kx.js) */
+body.ui2.kxon #kbseg.kx-hasink .kx-ink{z-index:2;overflow:hidden}
+body.ui2.kxon #kbseg .kx-inkl{position:absolute;left:0;top:0;bottom:0;width:calc(400% + 6px);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));column-gap:2px;
+  transform:translateX(calc(var(--i,0) * (-25% - .5px)));transition:transform .5s var(--x-sp)}
+body.ui2.kxon #kbseg .kx-inkl span{display:flex;align-items:center;justify-content:center;padding:0 4px;font:700 14px/1 var(--x-f);color:#121214;white-space:nowrap;overflow:hidden}
+body.ui2.kxon #kbseg.kx-hasink button,body.ui2.kxon #kbseg.kx-hasink button.on{color:var(--x-mut)!important;transition:none}
+/* ---------- ランキング: きもオタTCG as one more ladder ---------- */
+body.ui2 .kx-grsep{height:.5px;margin:6px 4px;background:var(--x-line2)}
+body.ui2 .kx-gr.kx-grt{background:linear-gradient(135deg,rgba(139,123,255,.16),rgba(103,232,249,.06)),var(--x-s2);box-shadow:inset 0 0 0 .5px rgba(169,155,255,.35)}
+body.ui2 .kx-rknote{display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 14px;border-radius:16px;background:linear-gradient(90deg,rgba(139,123,255,.14),rgba(103,232,249,.05));box-shadow:inset 0 0 0 .5px rgba(169,155,255,.28);font:600 12.5px/1.5 var(--x-f);color:var(--x-fg2)}
+body.ui2.kxon #tcgbox .tcgrkw{display:none!important}
+body.ui2 .kx-trow{flex-wrap:wrap;row-gap:8px}
+body.ui2 .kx-trow .kx-trec{flex:1 1 100%;text-align:left;padding:0 4px}
+/* ===== v121 rating trend (kt). Dark SaaS look: one gradient line (violet to cyan), a soft area under it,
+   rank borders as dotted lines, the number on top. Only transform/opacity move. ===== */
+
+/* ---------- home: the trend row inside the rank panel ---------- */
+body.ui2 #lob .lpan .ltr{all:unset;box-sizing:border-box;position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) 14px;align-items:center;gap:12px;width:100%;
+  min-height:46px;padding:6px 8px 6px 12px;border-radius:14px;background:rgba(255,255,255,.045);box-shadow:inset 0 .5px 0 rgba(255,255,255,.1),inset 0 0 0 .5px rgba(255,255,255,.06);cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:transform .35s var(--lsp,cubic-bezier(.2,.9,.25,1.06)),background .2s}
+body.ui2 #lob .lpan .ltr:active{transform:scale(.98);background:rgba(255,255,255,.07)}
+body.ui2 #lob .lpan .ltr:focus-visible{box-shadow:0 0 0 2px #fff}
+body.ui2 #lob .ltr-t{display:flex;flex-direction:column;gap:4px;min-width:0}
+body.ui2 #lob .ltr-l{font:700 11px/1 var(--x-f,var(--body));letter-spacing:.02em;color:rgba(244,241,234,.6);white-space:nowrap}
+body.ui2 #lob .ltr-d{display:inline-flex;align-items:center;gap:3px;white-space:nowrap;font:800 15px/1 var(--x-n,"Geist",sans-serif);font-variant-numeric:tabular-nums;color:#f4f1ea}
+body.ui2 #lob .ltr-d svg{width:10px;height:10px}
+body.ui2 #lob .ltr-d small{margin-left:4px;font:700 10.5px/1 var(--x-f,var(--body));color:rgba(244,241,234,.5)}
+body.ui2 #lob .ltr-d.up{color:#4ade80}body.ui2 #lob .ltr-d.dn{color:#ff8a8a}
+body.ui2 #lob .ltr-d em{font:600 11.5px/1.3 var(--x-f,var(--body));font-style:normal;color:rgba(244,241,234,.55);white-space:normal}
+body.ui2 #lob .ltr-c{display:block;height:34px;min-width:0}
+body.ui2 #lob .ltr-c svg{display:block;width:100%;height:34px;overflow:visible}
+body.ui2 #lob .ltr-line{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+body.ui2 #lob .ltr-dot{fill:#fff;filter:drop-shadow(0 0 4px rgba(103,232,249,.9))}
+body.ui2 #lob .ltr-flat{fill:none;stroke:rgba(255,255,255,.18);stroke-width:1.5;stroke-dasharray:3 4}
+body.ui2 #lob .ltr-go{display:grid;place-items:center;color:rgba(244,241,234,.45)}
+body.ui2 #lob .ltr-go svg{width:14px;height:14px}
+@media (max-height:740px){body.ui2 #lob .lpan .ltr{min-height:40px}body.ui2 #lob .ltr-c,body.ui2 #lob .ltr-c svg{height:28px}}
+
+/* ---------- the full chart (sheet) ---------- */
+body.ui2 .kt-w .kt-sh{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 18px)!important}
+body.ui2 .kt{display:flex;flex-direction:column;gap:14px;font-family:var(--x-f,var(--body));color:#f4f1ea}
+body.ui2 .kt button{all:unset;box-sizing:border-box;cursor:pointer;-webkit-tap-highlight-color:transparent}
+body.ui2 .kt button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+/* genres */
+body.ui2 .kt-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:2px 16px 4px;-webkit-mask:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 16px),transparent);mask:linear-gradient(90deg,transparent 0,#000 16px,#000 calc(100% - 16px),transparent)}
+body.ui2 .kt-chips::-webkit-scrollbar{display:none}
+body.ui2 .kt .kt-chip{flex:none;height:34px;padding:0 14px;border-radius:999px;display:inline-flex;align-items:center;font:700 13px/1 var(--x-f,var(--body));color:rgba(244,241,234,.66);background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1);white-space:nowrap;transition:background .2s,color .2s}
+body.ui2 .kt .kt-chip.on{background:#f2efe9;color:#121214;box-shadow:none}
+/* the number on top */
+body.ui2 .kt-hd{display:flex;flex-direction:column;gap:8px;min-height:76px}
+body.ui2 .kt-num{display:flex;align-items:baseline;gap:10px}
+body.ui2 .kt-v{font:800 44px/.95 var(--x-n,"Geist",sans-serif);letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:#fff}
+body.ui2 .kt-tier{font:800 11px/1 var(--x-n,"Geist",sans-serif);letter-spacing:.1em;color:rgba(244,241,234,.55);white-space:nowrap}
+body.ui2 .kt-sub{display:flex;align-items:center;gap:8px;min-height:24px;min-width:0}
+body.ui2 .kt-dl{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 9px;border-radius:999px;font:800 13px/1 var(--x-n,"Geist",sans-serif);font-variant-numeric:tabular-nums;white-space:nowrap}
+body.ui2 .kt-dl:empty{display:none}
+body.ui2 .kt-dl svg{width:10px;height:10px}
+body.ui2 .kt-dl.up{color:#4ade80;background:rgba(74,222,128,.12)}
+body.ui2 .kt-dl.dn{color:#ff8a8a;background:rgba(255,122,122,.12)}
+body.ui2 .kt-dl.eq{color:rgba(244,241,234,.7);background:rgba(255,255,255,.07)}
+body.ui2 .kt-cap{min-width:0;font:600 12.5px/1.3 var(--x-f,var(--body));color:rgba(244,241,234,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* the chart */
+body.ui2 .kt-chart{position:relative;margin:0 -6px;padding:0 0 2px;touch-action:pan-y;-webkit-user-select:none;user-select:none;cursor:crosshair}
+body.ui2 .kt-svg{height:186px}
+body.ui2 .kt-svg svg{display:block;width:100%;height:100%;overflow:visible}
+body.ui2 .kt-line{fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+body.ui2 .kt-glow{fill:none;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;opacity:.35}
+body.ui2 .kt-tl{stroke-width:1;stroke-dasharray:2 5;opacity:.38}
+body.ui2 .kt-tt{font:800 10px var(--x-f,var(--body));letter-spacing:.04em;opacity:.8;paint-order:stroke;stroke:#141418;stroke-width:4px;stroke-linejoin:round}
+body.ui2 .kt-sl{stroke:rgba(255,255,255,.22);stroke-width:1;stroke-dasharray:3 4}
+body.ui2 .kt-dot{fill:#fff}
+body.ui2 .kt-halo{fill:rgba(103,232,249,.25);transform-box:fill-box;transform-origin:center;animation:ktHalo 2.4s cubic-bezier(.2,.7,.3,1) 1.2s infinite}
+@keyframes ktHalo{0%{transform:scale(.5);opacity:.9}70%,100%{transform:scale(1.8);opacity:0}}
+body.ui2 .kt-cl{stroke:rgba(255,255,255,.55);stroke-width:1;stroke-dasharray:2 3}
+body.ui2 .kt-cd{fill:#0b0b10;stroke:#fff;stroke-width:2.2}
+body.ui2 .kt-chart.scrub .kt-now{opacity:.35}
+body.ui2 .kt-empty{display:grid;place-items:center;height:186px;padding:0 24px;text-align:center;font:600 13px/1.6 var(--x-f,var(--body));color:rgba(244,241,234,.5);
+  background:repeating-linear-gradient(0deg,transparent 0 45px,rgba(255,255,255,.05) 45px 46px);border-radius:16px}
+body.ui2 .kt-ticks{position:relative;height:8px;margin:6px 6px 0}
+body.ui2 .kt-ticks i{position:absolute;top:0;width:3px;height:8px;margin-left:-1.5px;border-radius:2px;background:#4ade80;opacity:.85}
+body.ui2 .kt-ticks i.l{background:#ff7a7a}
+body.ui2 .kt-x{display:flex;justify-content:space-between;margin:8px 6px 0;font:600 11px/1 var(--x-n,"Geist",sans-serif);color:rgba(244,241,234,.42);font-variant-numeric:tabular-nums}
+/* period */
+body.ui2 .kt-seg{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:3px;border-radius:999px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08)}
+body.ui2 .kt .kt-pb{height:34px;border-radius:999px;display:grid!important;place-items:center;font:700 13px/1 var(--x-f,var(--body));color:rgba(244,241,234,.6);transition:background .2s,color .2s}
+body.ui2 .kt .kt-pb.on{background:#f2efe9;color:#121214}
+/* three numbers */
+body.ui2 .kt-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,.06)}
+body.ui2 .kt-stats>div{display:flex;flex-direction:column;gap:6px;padding:12px 14px;background:#141418}
+body.ui2 .kt-stats small{font:600 11px/1 var(--x-f,var(--body));color:rgba(244,241,234,.5)}
+body.ui2 .kt-stats b{font:800 17px/1 var(--x-n,"Geist",sans-serif);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (prefers-reduced-motion:reduce){body.ui2 .kt-halo{animation:none;opacity:.5}}
+@media (max-height:720px){body.ui2 .kt{gap:10px}body.ui2 .kt-v{font-size:36px}body.ui2 .kt-hd{min-height:64px}body.ui2 .kt-stats>div{padding:10px 12px}}
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -9157,12 +9273,19 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   {const h=$i('hist');pg(h&&h.closest('section'),'tour')}
   const lastSeg=()=>{try{const s=localStorage.getItem('kbseg');return SEGS.some(x=>x[0]===s)?s:'rate'}catch(e){return 'rate'}};
   let cur=lastSeg();
-  function paint(){seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.s===cur));vb.dataset.bp=cur}
-  function goSeg(k){cur=k;try{localStorage.setItem('kbseg',k)}catch(e){}paint();
-    if(k==='tcg'){if(curView!=='tcg')setView('tcg');else place()}
-    else{if(curView!=='battle')setView('battle');else{place();scrollTo(0,0)}}}
+  function paint(){seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.s===cur));if(cur!=='tcg'||curView==='tcg')vb.dataset.bp=cur}
+  let segQ=0;
+  function goSeg(k,now){cur=k;try{localStorage.setItem('kbseg',k)}catch(e){}paint();
+    const go=()=>{segQ=0;if(cur!==k)return;
+      if(k==='tcg'){if(curView!=='tcg')setView('tcg');else place()}
+      else{if(curView!=='battle')setView('battle');else{place();scrollTo(0,0)}}};
+    const inTab=curView==='battle'||curView==='tcg';
+    if(now||!inTab||!window.requestAnimationFrame){go();return}
+    if(segQ)cancelAnimationFrame(segQ);segQ=requestAnimationFrame(()=>setTimeout(go,0))}
   window.kbSeg=goSeg;window.kbSegEl=seg;
-  function place(){const host=curView==='tcg'?vt:vb;if(seg.parentNode!==host)host.prepend(seg);paint()}
+  function place(){const kh=$i('khead');const on=curView==='battle'||curView==='tcg';
+    if(kh&&kh.parentNode){if(seg.previousElementSibling!==kh)kh.after(seg);if(seg.hidden===on)seg.hidden=!on}
+    else{const host=curView==='tcg'?vt:vb;if(seg.parentNode!==host)host.prepend(seg)}paint()}
 
   /* デッキ is its own page in 対戦 (kx.js draws it); the TCG 図鑑 opens as a panel from コレクション */
   const T0=window.tcgDeckView;
@@ -9178,6 +9301,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     document.body.dataset.kv=now;
     if(now==='tcg'){cur='tcg'}else if(now==='battle'&&cur==='tcg'){cur='rate'}
     if(now==='battle'||now==='tcg'){place();const b=nav&&nav.querySelector('button[data-v=battle]');if(b)b.classList.add('on');try{requestAnimationFrame(moveNavInk)}catch(e){}}
+    else if(seg.parentNode&&seg.parentNode.id!=='v-battle'&&seg.parentNode.id!=='v-tcg')seg.hidden=true;
     /* the ガチャ switch measured its highlight while the screen was hidden (width 0): measure again once visible */
     if(now==='gacha'&&typeof gInk==='function')requestAnimationFrame(gInk);
     return r};
@@ -9264,6 +9388,10 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const w=mk('div','shw'),sh=mk('div','sht'),hd=mk('div','shh'),cl=mk('button','sec','閉じる');cl.type='button';hd.append(mk('b',null,esc(title)),cl);sh.append(mk('div','grab'),hd,body);w.append(sh);document.body.append(w);
     const close=()=>{try{sheetOut(w)}catch(e){w.remove()}};cl.onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});return close}
 
+  /* ---------- the ランキング tab can show きもオタTCG as one more ladder (chosen from the genre pill) ---------- */
+  let rkTcg=false;try{rkTcg=localStorage.getItem('kxrk')==='tcg'}catch(e){}
+  const rkSet=v=>{rkTcg=!!v;try{localStorage.setItem('kxrk',rkTcg?'tcg':'')}catch(e){}};
+  window.__kxRankTcg=v=>{rkSet(v);try{rankSig='';refresh()}catch(e){}};
   /* ---------- frame ---------- */
   const main=document.querySelector('main');if(!main)return;
   /* the bar must be a direct child of main: a sticky element only sticks inside its parent, and a wrapper made it scroll away */
@@ -9282,14 +9410,19 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const vp=$i('v-profile'),inSet=v==='profile'&&vp&&vp.dataset.pt==='set';if(inSet)t='設定・要望';kback.hidden=!inSet;
     if(h1.textContent!==t)h1.textContent=t;
     const gt=$i('gtabs');const showG=!!gt&&!gt.hidden&&v!=='home';gpill.hidden=!showG||(v==='profile'&&['col','set'].includes(($i('v-profile')||{}).dataset&&$i('v-profile').dataset.pt));
-    const gn=GN(typeof game!=='undefined'?game:'');const sp=gpill.querySelector('span');if(sp.textContent!==gn)sp.textContent=gn;
+    const gn=v==='rank'&&rkTcg?'きもオタTCG':GN(typeof game!=='undefined'?game:'');const sp=gpill.querySelector('span');if(sp.textContent!==gn)sp.textContent=gn;
     gear.hidden=v!=='profile'||inSet}
   gear.onclick=()=>{try{psubSet('set');scrollTo(0,0);slideIn($i('v-profile'),1)}catch(e){}frameSync()};
   gpill.onclick=()=>{const me=ME();const L=mk('div','kx-gl');
     Object.keys(GAMES).forEach(g=>{const pv=me&&typeof pView==='function'?pView(me.id,g):null,r=pv?pv.rating:1500,w=pv?pv.wins||0:0,l=pv?pv.losses||0:0;
-      const b=mk('button','kx-gr'+(g===game?' on':''));b.type='button';let em;try{em=emblem(TI(r),34)}catch(e){em=mk('span')}
+      const b=mk('button','kx-gr'+(g===game&&!(curView==='rank'&&rkTcg)?' on':''));b.type='button';let em;try{em=emblem(TI(r),34)}catch(e){em=mk('span')}
       const t=mk('span','t');t.append(mk('b',null,esc(GAMES[g])),mk('small',null,w+l?esc(RNk(r))+' ・ '+w+'勝 '+l+'敗':'まだ対戦していません'));
-      b.append(em,t,mk('span','v',String(r)));b.onclick=()=>{close();if(g!==game)try{pickGame(g)}catch(e){}};L.append(b)});
+      b.append(em,t,mk('span','v',String(r)));b.onclick=()=>{close();const was=rkTcg;rkSet(false);if(g!==game){try{pickGame(g)}catch(e){}}else if(was){rankSig='';refresh()}};L.append(b)});
+    /* on the ランキング tab, きもオタTCG is one more ladder */
+    if(curView==='rank'&&typeof tcgRatings==='function'&&me){let r=1500,w=0,l=0;try{const K=tcgRatings();r=tcgRating(me.id);w=K.w[me.id]||0;l=K.l[me.id]||0}catch(e){}
+      const b=mk('button','kx-gr kx-grt'+(rkTcg?' on':''));b.type='button';let em;try{em=emblem(TI(r),34)}catch(e){em=mk('span')}
+      const t=mk('span','t');t.append(mk('b',null,'きもオタTCG'),mk('small',null,w+l?esc(RNk(r))+' ・ '+w+'勝 '+l+'敗':'友達戦をすると載ります'));
+      b.append(em,t,mk('span','v',String(r)));b.onclick=()=>{close();if(!rkTcg){rkSet(true);rankSig='';refresh()}};L.append(mk('div','kx-grsep'),b)}
     const close=panel('ジャンル',L)};
   /* the top bar values keep updating while you are on another screen */
   {const hb=$i('hbar');let p=0;const tick=()=>{if(p||curView==='home')return;p=requestAnimationFrame(()=>{p=0;try{window.__lobTop&&__lobTop()}catch(e){}})};
@@ -9321,20 +9454,38 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   const vsMarkup='<div class="kvs-seam"><b></b><i></i></div><div class="kvs-vs"><i class="flare"></i><i class="glow"></i><i class="ring"></i><b><span>VS</span><i class="sw"></i></b></div>'+
     '<div class="kvs-top"><div class="kvs-state" hidden><i></i><span></span></div><div class="kvs-stake" hidden><i class="coin"></i><b class="kx-num"></b></div></div>';
   const vs=mk('div','kvs');vs.innerHTML=vsMarkup;if(offIO)offIO.observe(vs);
+  /* the VS disc is the button: it sends the request (rate) or starts the match (TCG). A short label sits under VS. */
+  function vsBtn(st,tap){const v=st.querySelector('.kvs-vs'),b=v.querySelector('b');v.classList.add('kx-vsb');v.setAttribute('role','button');v.tabIndex=0;
+    const cap=mk('em','kvs-cap');b.append(cap);const up=()=>v.classList.remove('press');
+    v.addEventListener('pointerdown',()=>v.classList.add('press'));['pointerup','pointercancel','pointerleave'].forEach(t=>v.addEventListener(t,up));
+    v.addEventListener('click',e=>{e.stopPropagation();up();tap()});
+    v.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tap()}});
+    return {set(t,on,aria){if(cap.textContent!==t)cap.textContent=t;st.classList.toggle('go',!!on);v.setAttribute('aria-label',aria||t)}}}
+  /* sparks from the disc, inside the stage */
+  function burstVS(st,cls){if(RMO)return;const v=st.querySelector('.kvs-vs');const r=v.getBoundingClientRect(),pr=st.getBoundingClientRect();const cx=r.left-pr.left+r.width/2,cy=r.top-pr.top+r.height/2;
+    for(let k=0;k<18;k++){const d=mk('i','kx-spk kx-spkv'+(cls?' '+cls:''));d.style.left=cx+'px';d.style.top=cy+'px';st.append(d);const a=k/18*Math.PI*2+Math.random()*.3,dist=60+Math.random()*70;
+      const an=d.animate([{transform:'translate(-50%,-50%) scale(1.2)',opacity:1},{transform:'translate(calc(-50% + '+(Math.cos(a)*dist).toFixed(1)+'px),calc(-50% + '+(Math.sin(a)*dist*.7).toFixed(1)+'px)) scale(.2)',opacity:0}],{duration:620+Math.random()*260,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'});an.onfinish=()=>d.remove()}
+    ani(v.querySelector('.ring'),[{opacity:.95,transform:'scale(.7)'},{opacity:0,transform:'scale(2.2)'}],{duration:640,fill:'none'})}
   const rOpps=mk('div','kx-card kx-glass'),rBet=mk('div','kx-card kx-glass'),rGo=mk('div','kx-go'),rLive=mk('div','kx-live');rLive.hidden=true;
   rOpps.innerHTML='<div class="kx-h"><h2>相手</h2><span class="kx-hs"></span></div><div class="kx-opps" role="listbox" aria-label="対戦相手"></div>';
   rBet.innerHTML='<div class="kx-h"><h2>賭けるポイント</h2><span class="kx-hs"></span></div><div class="kx-bets"></div><div class="kx-odds"><span class="w">勝てば<b>+0</b></span><span class="l">負ければ<b>0</b></span></div>';
-  rGo.innerHTML='<button type="button" class="kx-cta kx-shine" disabled>相手を選んでください</button><p class="kx-err"></p><p class="kx-foot">相手の画面に承認の確認が出ます。結果もお互いの承認で確定します。</p>';
+  rGo.innerHTML='<button type="button" class="kx-cta kx-shine" disabled>相手を選んでください</button><p class="kx-err"></p><p class="kx-foot">上のVSを押すと申し込めます。相手の画面に承認の確認が出て、結果もお互いの承認で確定します。</p>';
   rLive.innerHTML='<i></i><span></span>';
   pRate.append(vs,rLive,rOpps,rBet,rGo);
   {const rm=$i('rmcard');if(rm)pRate.insertBefore(rm,rOpps)}
   BETS.forEach(v=>{const b=mk('button','kx-bet'+(v?'':' zero')+(v>=300?' hi':''),(v?String(v)+'<small>pt</small>':'なし')+'<i class="sh"></i>');b.type='button';b.dataset.v=v;
     b.onclick=()=>{const was=selBet;selBet=v;try{localStorage.setItem('kxbet',v)}catch(e){}if(was!==v){ani(b.querySelector('.sh'),[{transform:'translateX(-120%)'},{transform:'translateX(120%)'}],{duration:620,easing:'cubic-bezier(.4,0,.2,1)'});sfx('tick')}paintRate()};rBet.querySelector('.kx-bets').append(b)});
   const cta=rGo.querySelector('.kx-cta'),err=rGo.querySelector('.kx-err');
+  cta.hidden=true;
+  const rV=vsBtn(vs,()=>{const me=ME();if(!me)return;const lv=myLive(me);
+    if(lv){const mine=lv.a===me.id;toast(lv.st==='pending'?(mine?'相手の承認を待っています':'届いている申し込みを先に確認してください'):'対戦が終わると申し込めます');return}
+    if(sending)return;
+    if(!selOpp){toast('下の「相手」から選んでください');try{rOpps.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}return}
+    cta.disabled=false;cta.click()});
   let sending=false;
   cta.onclick=async()=>{const me=ME();if(!me||!selOpp||sending)return;sending=true;err.textContent='';paintRate();
     let e='';try{e=await challengeTo(selOpp,game,selBet)}catch(x){e='送信できませんでした。通信を確認してください'}
-    sending=false;err.textContent=e||'';if(!e){burst(cta);sfx('chime')}paintRate()};
+    sending=false;err.textContent=e||'';if(e){try{toast(e)}catch(x){}}else{burstVS(vs);sfx('chime')}paintRate()};
   /* a short spark burst from a button (spans on top, removed afterwards) */
   function burst(host){if(RMO)return;const r=host.getBoundingClientRect(),pr=rGo.getBoundingClientRect();const cx=r.left-pr.left+r.width/2,cy=r.top-pr.top+r.height/2;
     for(let k=0;k<16;k++){const d=mk('i','kx-spk');d.style.left=cx+'px';d.style.top=cy+'px';rGo.append(d);const a=k/16*Math.PI*2+Math.random()*.3,dist=70+Math.random()*80;
@@ -9464,7 +9615,9 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     if(lv){const oid=lv.a===me.id?lv.b:lv.a;o=players.find(p=>p.id===oid)||o}
     paintVS(me,o,lv,lv?(+lv.bet||0):selBet);
     cta.disabled=!selOpp||!!lv||sending;
-    cta.innerHTML=sending?'送信中…':lv?'対戦が終わると申し込めます':!selOpp?'相手を選んでください':esc((players.find(p=>p.id===selOpp)||{}).name||'')+'に申し込む'+(selBet?' <small>· '+selBet+'pt</small>':'')}
+    cta.innerHTML=sending?'送信中…':lv?'対戦が終わると申し込めます':!selOpp?'相手を選んでください':esc((players.find(p=>p.id===selOpp)||{}).name||'')+'に申し込む'+(selBet?' <small>· '+selBet+'pt</small>':'');
+    {let t='申し込む',on=true;if(sending){t='送信中';on=false}else if(lv){const mine=lv.a===me.id;t=lv.st==='pending'?(mine?'承認待ち':'申し込みあり'):'対戦中';on=false}else if(!selOpp){t='相手を選ぶ';on=false}
+      const nm=(players.find(p=>p.id===selOpp)||{}).name||'';rV.set(t,on,on?nm+'に申し込む'+(selBet?'(賭け '+selBet+'pt)':''):t)}}
 
   /* the challenge popups show both players face to face, each in their own collection */
   if(typeof challengeModal==='function'){const CM=challengeModal;
@@ -9562,19 +9715,21 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   tCpu.innerHTML='<div class="kx-h"><h2>CPUの設定</h2></div><div class="kx-tseg" role="radiogroup" aria-label="CPUの強さ"><button type="button" class="kx-tsb" role="radio" data-v="normal"><b>ふつう</b><small>いつものCPU</small></button><button type="button" class="kx-tsb" role="radio" data-v="strong"><b>つよい</b><small>先の展開を読んで、いちばん勝てる手を選ぶ</small></button></div>'+
     '<div class="kx-topts" role="radiogroup" aria-label="CPUのデッキ"></div><p class="kx-sub kx-toptd"></p>';
   tGo.innerHTML='<button type="button" class="kx-cta kx-shine kx-tcta">CPUと対戦</button><p class="kx-foot"></p>';
-  tRow.innerHTML='<button type="button" class="kx-tpack">パックを開ける'+S.right+'</button><span class="kx-trec"></span>';
+  tRow.innerHTML='<button type="button" class="kx-tpack">パックを開ける'+S.right+'</button><button type="button" class="kx-tpack kx-trk">ランキング'+S.right+'</button><span class="kx-trec"></span>';
   tHero.append(tvs,tOpps,tDk,tCpu,tGo,tRow);
   tDk.querySelector('.kx-link').onclick=()=>{try{kbSeg('deck')}catch(e){}};
   tRow.querySelector('.kx-tpack').onclick=()=>{try{tcgGoPacks()}catch(e){}};
+  tRow.querySelector('.kx-trk').onclick=()=>{rkSet(true);rankSig='';try{setView('rank');scrollTo(0,0)}catch(e){}};
   tCpu.querySelectorAll('.kx-tseg button').forEach(b=>b.onclick=()=>{if(tLv===b.dataset.v)return;tLv=b.dataset.v;LSset('kotcg_cpulv',tLv);sfx('tick');paintTcg()});
   TOPT.forEach(([k,n])=>{const b=mk('button','kx-tob',esc(n));b.type='button';b.setAttribute('role','radio');b.dataset.v=k;b.onclick=()=>{if(tOpt===k)return;tOpt=k;LSset('kxtcpu',k);sfx('tick');paintTcg()};tCpu.querySelector('.kx-topts').append(b)});
   const tCta=tGo.querySelector('.kx-cta');let tSending=false;
+  tCta.hidden=true;const tV=vsBtn(tvs,()=>tCta.onclick());
   tCta.onclick=async()=>{const me=ME();if(!me||tSending)return;let st=false;try{st=tcgHasSt()}catch(e){}
     if(!st){const s=document.querySelector('#tcgbox .tcgst');if(s)s.scrollIntoView({behavior:'smooth',block:'start'});return}
     const deck=tSel();if(!deck||!tcgOk(deck)){try{kbSeg('deck')}catch(e){}return}
-    if(tOpp==='cpu'){LSset('kotcg_cpulv',tLv);burst2(tCta);sfx('slam');setTimeout(()=>{try{tcgPlay('cpu='+tDeck+'.'+tOpt)}catch(e){}},260);return}
+    if(tOpp==='cpu'){LSset('kotcg_cpulv',tLv);burstVS(tvs,'v');sfx('slam');setTimeout(()=>{try{tcgPlay('cpu='+tDeck+'.'+tOpt)}catch(e){}},260);return}
     const p=players.find(x=>x.id===tOpp);if(!p)return;tSending=true;paintTcg();
-    try{await tcgChallenge(p,tcgPlainDeck(deck));if(document.querySelector('.tcgmd[data-wait]')){burst2(tCta);sfx('chime')}}catch(e){}tSending=false;paintTcg()};
+    try{await tcgChallenge(p,tcgPlainDeck(deck));if(document.querySelector('.tcgmd[data-wait]')){burstVS(tvs,'v');sfx('chime')}}catch(e){}tSending=false;paintTcg()};
   function burst2(host){if(RMO)return;const r=host.getBoundingClientRect(),pr=tGo.getBoundingClientRect();const cx=r.left-pr.left+r.width/2,cy=r.top-pr.top+r.height/2;
     for(let k=0;k<16;k++){const d=mk('i','kx-spk v');d.style.left=cx+'px';d.style.top=cy+'px';tGo.append(d);const a=k/16*Math.PI*2+Math.random()*.3,dist=70+Math.random()*80;
       const an=d.animate([{transform:'translate(-50%,-50%) scale(1.2)',opacity:1},{transform:'translate(calc(-50% + '+(Math.cos(a)*dist).toFixed(1)+'px),calc(-50% + '+(Math.sin(a)*dist*.5).toFixed(1)+'px)) scale(.2)',opacity:0}],{duration:640+Math.random()*280,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'});an.onfinish=()=>d.remove()}}
@@ -9633,10 +9788,10 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     paintTStage(me,deck);
     const p=tOpp==='cpu'?null:players.find(x=>x.id===tOpp);
     tCta.classList.toggle('strong',!p&&tLv==='strong');
-    if(!st){tCta.disabled=false;tCta.textContent='スターターデッキを選ぶ';tGo.querySelector('.kx-foot').textContent='3つのうち1つを選ぶと、CPUや友達と対戦できます'}
-    else if(!deck||!tcgOk(deck)){tCta.disabled=false;tCta.textContent='デッキを組む';tGo.querySelector('.kx-foot').textContent='使えるデッキがありません。デッキのページで組んでください'}
-    else if(p){tCta.disabled=tSending;tCta.innerHTML=tSending?'送信中…':esc(p.name)+'に申し込む';tGo.querySelector('.kx-foot').textContent='相手が受けると始まります(10分有効)。勝つと宝箱(最大50pt)'}
-    else{tCta.disabled=false;tCta.textContent=tLv==='strong'?'つよいCPUと対戦':'CPUと対戦';tGo.querySelector('.kx-foot').textContent='練習やデッキの試しに。レートは変わりません'}}
+    if(!st){tCta.disabled=false;tCta.textContent='スターターデッキを選ぶ';tGo.querySelector('.kx-foot').textContent='VSを押して、3つのスターターデッキから1つ選ぶと、CPUや友達と対戦できます';tV.set('はじめる',true,'スターターデッキを選ぶ')}
+    else if(!deck||!tcgOk(deck)){tCta.disabled=false;tCta.textContent='デッキを組む';tGo.querySelector('.kx-foot').textContent='使えるデッキがありません。VSを押すとデッキのページへ移ります';tV.set('デッキへ',true,'デッキを組む')}
+    else if(p){tCta.disabled=tSending;tCta.innerHTML=tSending?'送信中…':esc(p.name)+'に申し込む';tGo.querySelector('.kx-foot').textContent='VSを押すと申し込みます。相手が受けると始まります(10分有効)。勝つと宝箱(最大50pt)';tV.set(tSending?'送信中':'申し込む',!tSending,p.name+'に申し込む')}
+    else{tCta.disabled=false;tCta.textContent=tLv==='strong'?'つよいCPUと対戦':'CPUと対戦';tGo.querySelector('.kx-foot').textContent='VSを押すと始まります。練習やデッキの試しに。レートは変わりません';tV.set('対戦する',true,tLv==='strong'?'つよいCPUと対戦':'CPUと対戦')}}
   /* entrance: same as the rate stage, then both cards are dealt face up */
   let tIntroN=0;
   function introT(){if(!tMe||!tOp)return;const full=tIntroN++===0;
@@ -9698,14 +9853,18 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   const mvpB=mk('button','kx-mvp');mvpB.type='button';mvpB.innerHTML=S.trophy+'<span><small>先週の週間MVP</small><b></b></span>'+S.right;
   mvpB.onclick=()=>{const t=document.querySelectorAll('#tiles .tile')[2];if(t)t.click()};
   const pod=mk('div','kx-pod'),list=mk('div','kx-list'),pin=mk('button','kx-pin');pin.type='button';pin.hidden=true;
-  pRank.append(mvpB,pod,list,pin);
+  const tNote=mk('div','kx-rknote');tNote.hidden=true;
+  pRank.append(mvpB,tNote,pod,list,pin);
   let rankSig='',meRow=null;
   const io='IntersectionObserver' in window?new IntersectionObserver(es=>{es.forEach(e=>{if(e.target===meRow)pin.hidden=e.isIntersecting||curView!=='rank'})}):null;
   function mvpText(){try{const w=weekNo(now())-1;if(w<MVP0)return '';const M=mvpOf(w),nm=id=>(players.find(p=>p.id===id)||{}).name||'?';
       return MVPK.filter(([k])=>k!=='p').map(([k,lab])=>M[k]&&M[k].ids.length?lab+' '+M[k].ids.map(nm).join('・'):'').filter(Boolean).join('  /  ')}catch(e){return ''}}
-  function renderRank(){const me=ME();let sorted=[];try{sorted=view().filter(p=>!p.ban&&(p.wins+p.losses)>0).sort((a,b)=>b.rating-a.rating)}catch(e){}
-    const mt=mvpText();const sig=JSON.stringify([game,sorted.map(p=>[p.id,p.name,p.rating,p.wins,p.losses]),mt,me&&me.id]);if(sig===rankSig)return;rankSig=sig;
-    mvpB.hidden=!mt;mvpB.querySelector('b').textContent=mt;
+  function renderRank(){const me=ME();let sorted=[];
+    if(rkTcg&&typeof tcgRatings==='function'){try{const K=tcgRatings();sorted=players.filter(p=>!p.ban&&K.n[p.id]).map(p=>Object.assign({},p,{rating:tcgRating(p.id),wins:K.w[p.id]||0,losses:K.l[p.id]||0})).sort((a,b)=>b.rating-a.rating)}catch(e){}}
+    else{try{sorted=view().filter(p=>!p.ban&&(p.wins+p.losses)>0).sort((a,b)=>b.rating-a.rating)}catch(e){}}
+    const mt=rkTcg?'':mvpText();let tn='';if(rkTcg){try{const sn=seasonNo(now()),left=Math.max(0,seasonEnd(sn)-now());tn='友達戦(6ターン以上)で上下 ・ シーズン'+sn+' 残り'+Math.floor(left/864e5)+'日'}catch(e){}}
+    const sig=JSON.stringify([rkTcg,game,sorted.map(p=>[p.id,p.name,p.rating,p.wins,p.losses]),mt,tn,me&&me.id]);if(sig===rankSig)return;rankSig=sig;
+    mvpB.hidden=!mt;mvpB.querySelector('b').textContent=mt;tNote.hidden=!rkTcg;tNote.textContent=tn;
     const top=sorted.slice(0,3),rest=sorted.length>=3?sorted.slice(3):[];
     pod.hidden=sorted.length<3;
     if(sorted.length>=3){pod.replaceChildren(...[1,0,2].map(i=>{const p=top[i],c=mk('button','kx-pc p'+(i+1));c.type='button';
@@ -9717,7 +9876,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
       const t=mk('span','t'),b=mk('b');b.append(NAME(p.name,TI(p.rating)));t.append(b,mk('small',null,esc(RNk(p.rating))));
       const v=mk('span','v');v.append(mk('b',null,String(p.rating)),mk('small',null,p.wins+'勝 '+p.losses+'敗'));
       r.append(mk('span','no',String(i+1)),AV(p.id,40),t,v);r.onclick=()=>{try{showProfile(p,statLine(p))}catch(e){}};if(me&&p.id===me.id)meRow=r;return r}));
-    if(!sorted.length)list.replaceChildren(mk('div','kx-empty','まだこの種目で対戦した人がいません')),list.hidden=false;
+    if(!sorted.length)list.replaceChildren(mk('div','kx-empty',rkTcg?'まだ友達戦をした人がいません。友達と1試合(6ターン以上)すると、ここに載ります':'まだこの種目で対戦した人がいません')),list.hidden=false;
     const mi=me?sorted.findIndex(p=>p.id===me.id):-1;
     if(mi>=0){const p=sorted[mi];pin.replaceChildren(mk('span','no',(mi+1)+'位'),AV(p.id,40),mk('b',null,esc(p.name)),mk('span','v',String(p.rating)));pin.onclick=()=>{const r=meRow||pod;r.scrollIntoView({behavior:'smooth',block:'center'})}}
     if(mi<3)meRow=null;pin.hidden=true;if(meRow&&io)io.observe(meRow)}
@@ -9728,16 +9887,20 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   const rise=(e,d,dx)=>ani(e,[{opacity:0,transform:dx?'translateX('+dx+'px)':'translateY(16px)'},{opacity:1,transform:'none'}],{duration:520,delay:d||0});
   function countUp(els){if(RMO)return;els.forEach(b=>{const m=/^(\d+)(.*)$/.exec(b.textContent);if(!m||!+m[1])return;const v=+m[1],suf=m[2],t0=performance.now(),D=720;
     b.textContent='0'+suf;const step=n=>{const k=Math.min(1,(n-t0)/D);b.textContent=Math.round(v*(1-Math.pow(1-k,3)))+suf;if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)})}
+  /* coming back to a page: the whole page glides in from the side you moved toward (nothing blinks out) */
+  const slidePage=(els,dir)=>els.forEach(e=>{if(e&&!e.hidden)ani(e,[{opacity:.25,transform:'translateX('+(dir||1)*26+'px)'},{opacity:1,transform:'none'}],{duration:340,easing:'cubic-bezier(.2,.8,.2,1)'})});
   function enter(pg,dir){if(RMO)return;const dx=dir*22;
-    if(pg==='rate'){if(document.querySelector('body>.km-splash'))addEventListener('kmo:reveal',()=>introVS(),{once:true});else introVS();return}
-    if(pg==='tcg'){introT();return}
+    if(pg==='rate'){if(introN>0){slidePage([pRate],dir);return}if(document.querySelector('body>.km-splash'))addEventListener('kmo:reveal',()=>introVS(),{once:true});else introVS();return}
+    if(pg==='tcg'){if(tIntroN>0){slidePage([tHero,$i('tcgbox')],dir);return}introT();return}
     if(pg==='deck'){[...pDeck.children].slice(0,9).forEach((e,k)=>rise(e,k*45,dx));return}
     if(pg==='tour'){const ts=$i('toursec');let k=0;if(ts&&!ts.hidden){rise(ts,0,dx);k++}rise(pHist,k*60,dx);
       pHist.querySelectorAll('.kx-hr').forEach((r,j)=>{if(j<10)rise(r,140+j*35)});countUp(pHist.querySelectorAll('.kx-sum b'))}}
   /* the 対戦 switch: one ivory pill that slides to the chosen page. The four buttons are equal, so the pill moves by index (no layout reads). */
-  {const sg=$i('kbseg')||window.kbSegEl;if(sg){const ink=mk('i','kx-ink');sg.prepend(ink);sg.classList.add('kx-hasink');let cur=-1;
+  /* The pill carries its own dark copy of the four labels and slides them the other way, so the label under the pill is always dark
+     and the rest light, frame by frame on the compositor (a colour transition stalled while the page was being built and both labels vanished). */
+  {const sg=$i('kbseg')||window.kbSegEl;if(sg){const ink=mk('i','kx-ink');const strip=mk('span','kx-inkl');[...sg.querySelectorAll('button')].forEach(b=>strip.append(mk('span',null,esc(b.textContent))));ink.append(strip);sg.prepend(ink);sg.classList.add('kx-hasink');let cur=-1;
     const move=()=>{const L=[...sg.querySelectorAll('button')],i=L.findIndex(b=>b.classList.contains('on'));if(i<0||i===cur)return;
-      if(cur<0){ink.style.transition='none';requestAnimationFrame(()=>requestAnimationFrame(()=>{ink.style.transition=''}))}cur=i;ink.style.setProperty('--i',i)};
+      if(cur<0){ink.style.transition=strip.style.transition='none';requestAnimationFrame(()=>requestAnimationFrame(()=>{ink.style.transition=strip.style.transition=''}))}cur=i;ink.style.setProperty('--i',i)};
     new MutationObserver(move).observe(sg,{subtree:true,attributes:true,attributeFilter:['class']});window.__kxInk=move;move()}}
 
   /* ---------- refresh whatever is showing ---------- */
@@ -9751,6 +9914,10 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   window.__kxRefresh=()=>{rateSig=histSig=deckSig=tOppSig=tDkSig=rankSig='';refresh()};
   window.__kxEnter=()=>{lastPg=null;introN=0;tIntroN=0;refresh()};
   try{const R0=render;render=function(){const r=R0.apply(this,arguments);later();return r}}catch(e){}
+  /* switching to TCG rebuilt the old TCG sections every time: skip that while nothing has changed since the last build */
+  try{let dirty=true,inSV=false;const R1=render;render=function(){dirty=true;return R1.apply(this,arguments)};
+    const SV1=setView;setView=function(){inSV=true;try{return SV1.apply(this,arguments)}finally{inSV=false}};
+    if(typeof renderTcg==='function'){const T1=renderTcg;renderTcg=function(){const tb=$i('tcgbox');if(inSV&&!dirty&&tb&&tb.firstChild)return;dirty=false;return T1.apply(this,arguments)}}}catch(e){}
   /* home is one still screen: it always opens at the top */
   {const SV=setView;setView=function(){const r=SV.apply(this,arguments);if(curView==='home'){try{scrollTo(0,0)}catch(e){}}refresh();return r}}
   /* the 対戦 switch (kn.js) changes the page without changing curView: draw it before the next frame so the entrance starts clean */
@@ -9795,7 +9962,132 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   {const vp=document.getElementById('v-profile');if(vp)new MutationObserver(row).observe(vp,{attributes:true,attributeFilter:['data-pt']})}
   setTimeout(row,1600)
 })();
-/*KXJS-END*/</script>
+/*KXJS-END*/
+/*KT-START*/
+/* ===== v121 rating trend (kt): a small trend line in the home rank panel, and a full chart that opens from it.
+   Pattern: the number on top, the change for the chosen period next to it, one clean line under it.
+   Drag across the chart to read any match; the number on top follows your finger. ===== */
+(function(){
+  if(typeof rateSeries!=='function'||typeof rateWindow!=='function'||typeof rateCur!=='function')return;
+  const $i=id=>document.getElementById(id);
+  const mk=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+  const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+  const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ME=()=>{try{return myPlayer()}catch(e){return null}};
+  const GN=g=>g==='tcg'?'きもオタTCG':(typeof GAMES!=='undefined'&&GAMES[g])||g;
+  const RNk=r=>{try{return RN(+r||1500)}catch(e){return ''}};
+  const f1=v=>(Math.round(v*10)/10).toString();
+  const DAY=864e5;
+  const md=t=>{const z=new Date(t+9*36e5);return (z.getUTCMonth()+1)+'/'+z.getUTCDate()};
+  const mdhm=t=>{const z=new Date(t+9*36e5);return (z.getUTCMonth()+1)+'/'+z.getUTCDate()+' '+String(z.getUTCHours()).padStart(2,'0')+':'+String(z.getUTCMinutes()).padStart(2,'0')};
+  const ARR={up:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 2.5 10 8.5H2Z" fill="currentColor"/></svg>',dn:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 9.5 2 3.5h8Z" fill="currentColor"/></svg>'};
+  const CHEV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+
+  /* a smooth line through the points that never overshoots them (monotone cubic, as in d3's curveMonotoneX) */
+  function mono(P){const n=P.length;if(!n)return '';let d='M'+f1(P[0][0])+' '+f1(P[0][1]);if(n<2)return d;if(n===2)return d+'L'+f1(P[1][0])+' '+f1(P[1][1]);
+    const dx=[],m=[],t=[];for(let i=0;i<n-1;i++){dx[i]=Math.max(1e-6,P[i+1][0]-P[i][0]);m[i]=(P[i+1][1]-P[i][1])/dx[i]}
+    t[0]=m[0];t[n-1]=m[n-2];for(let i=1;i<n-1;i++){if(m[i-1]*m[i]<=0)t[i]=0;else{const a=2*dx[i]+dx[i-1],b=dx[i]+2*dx[i-1];t[i]=(a+b)/(a/m[i-1]+b/m[i])}}
+    for(let i=0;i<n-1;i++){const h=dx[i]/3;d+='C'+f1(P[i][0]+h)+' '+f1(P[i][1]+t[i]*h)+' '+f1(P[i+1][0]-h)+' '+f1(P[i+1][1]-t[i+1]*h)+' '+f1(P[i+1][0])+' '+f1(P[i+1][1])}return d}
+  /* the series for one player and genre, inside a period (0 = everything), with "now" as the last point */
+  function data(pid,g,days){const S=rateSeries(pid,g),cur=rateCur(pid,g);let W=rateWindow(S,days?Date.now()-days*DAY:0);
+    if(W.length){const last=W[W.length-1];if(last.r!==cur||Date.now()-last.t>60e3)W=W.concat([{t:Date.now(),r:cur,now:1}])}
+    const ms=W.filter(x=>x.o!=null);return {S,W,cur,ms,start:W.length?W[0].r:cur}}
+  let gid=0;
+  function grads(id){return '<defs><linearGradient id="'+id+'l" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#8b7bff"/><stop offset="1" stop-color="#67e8f9"/></linearGradient>'+
+    '<linearGradient id="'+id+'a" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#8b7bff" stop-opacity=".34"/><stop offset=".6" stop-color="#67e8f9" stop-opacity=".08"/><stop offset="1" stop-color="#67e8f9" stop-opacity="0"/></linearGradient>'+
+    '<filter id="'+id+'b" x="-10%" y="-40%" width="120%" height="180%"><feGaussianBlur stdDeviation="4"/></filter></defs>'}
+
+  /* ---------- home: a trend row inside the rank panel ---------- */
+  const SP_DAYS=30;
+  let row=null,sig='';
+  function homeRow(){const pan=document.querySelector('#lob .lpan');if(!pan)return null;let r=pan.querySelector('.ltr');
+    if(!r){r=mk('button','ltr kx-ltr');r.type='button';r.setAttribute('aria-label','レートの推移を見る');
+      r.innerHTML='<span class="ltr-t"><span class="ltr-l">レートの推移</span><span class="ltr-d"></span></span><span class="ltr-c"></span><span class="ltr-go">'+CHEV+'</span>';
+      r.addEventListener('click',e=>{e.stopPropagation();open(typeof game!=='undefined'?game:'')});
+      r.addEventListener('pointerdown',e=>e.stopPropagation());r.addEventListener('pointerup',e=>e.stopPropagation());
+      const bot=pan.querySelector('.lbot');pan.insertBefore(r,bot||null)}
+    return r}
+  function drawHome(){const me=ME();const r=homeRow();if(!r||!me)return;const g=typeof game!=='undefined'?game:'';
+    const D=data(me.id,g,SP_DAYS),box=r.querySelector('.ltr-c');const w=Math.round(box.clientWidth)||180,h=34;
+    const k=JSON.stringify([g,w,D.W.map(x=>[x.t,x.r]).slice(-60),D.cur]);if(k===sig)return;sig=k;
+    const dv=D.cur-D.start,dEl=r.querySelector('.ltr-d');
+    if(D.W.length<2){dEl.className='ltr-d';dEl.innerHTML='<em>対戦するとグラフになります</em>';box.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" aria-hidden="true"><path d="M0 '+(h-6)+'H'+w+'" class="ltr-flat"/></svg>';return}
+    dEl.className='ltr-d '+(dv>0?'up':dv<0?'dn':'eq');dEl.innerHTML=(dv?ARR[dv>0?'up':'dn']:'')+'<b>'+(dv>0?'+':dv<0?'−':'±')+Math.abs(dv)+'</b><small>'+SP_DAYS+'日</small>';
+    const t0=D.W[0].t,t1=D.W[D.W.length-1].t,r0=Math.min(...D.W.map(x=>x.r)),r1=Math.max(...D.W.map(x=>x.r)),sp=Math.max(40,r1-r0),mid=(r0+r1)/2;
+    const X=t=>3+(t-t0)/Math.max(1,t1-t0)*(w-9),Y=v=>h-4-((v-(mid-sp/2))/sp)*(h-9);
+    const P=D.W.map(x=>[X(x.t),Y(x.r)]),d=mono(P),id='ktg'+(++gid),L=P[P.length-1];
+    box.innerHTML='<svg viewBox="0 0 '+w+' '+h+'" aria-hidden="true">'+grads(id)+'<path d="'+d+'L'+f1(L[0])+' '+h+'L'+f1(P[0][0])+' '+h+'Z" fill="url(#'+id+'a)"/><path d="'+d+'" class="ltr-line" stroke="url(#'+id+'l)"/><circle cx="'+f1(L[0])+'" cy="'+f1(L[1])+'" r="3" class="ltr-dot"/></svg>'}
+  let rq=0;const later=()=>{if(rq)return;rq=requestAnimationFrame(()=>{rq=0;try{drawHome()}catch(e){console.warn('kt home',e)}})};
+  try{const R0=render;render=function(){const r=R0.apply(this,arguments);later();return r}}catch(e){}
+  {const gt=$i('gtabs');if(gt)new MutationObserver(later).observe(gt,{attributes:true,subtree:true,attributeFilter:['class']})}
+  addEventListener('resize',()=>{sig='';later()});
+  later();if(document.readyState!=='complete')addEventListener('load',later);setInterval(()=>{if(typeof curView!=='undefined'&&curView==='home'&&!document.hidden)later()},15000);
+
+  /* ---------- the full chart ---------- */
+  const PER=[[7,'7日'],[30,'30日'],[90,'90日'],[0,'すべて']];
+  function sheet(title,body){document.querySelectorAll('.shw').forEach(x=>{try{sheetOut(x)}catch(e){x.remove()}});
+    const w=mk('div','shw kt-w'),sh=mk('div','sht kt-sh'),hd=mk('div','shh'),cl=mk('button','sec','閉じる');cl.type='button';hd.append(mk('b',null,esc(title)),cl);sh.append(mk('div','grab'),hd,body);w.append(sh);document.body.append(w);
+    const close=()=>{try{sheetOut(w)}catch(e){w.remove()}};cl.onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()});return close}
+  function open(g0){const me=ME();if(!me)return;let per=30;try{per=+(localStorage.getItem('ktper')||30);if(!PER.some(p=>p[0]===per))per=30}catch(e){}
+    const games=Object.keys(typeof GAMES!=='undefined'?GAMES:{}).concat(typeof tcgSeries==='function'?['tcg']:[]);let g=games.includes(g0)?g0:(games[0]||'');
+    const body=mk('div','kt');
+    body.innerHTML='<div class="kt-chips" role="tablist" aria-label="ジャンル"></div>'+
+      '<div class="kt-hd"><div class="kt-num"><b class="kt-v kx-num"></b><span class="kt-tier"></span></div><div class="kt-sub"><span class="kt-dl"></span><span class="kt-cap"></span></div></div>'+
+      '<div class="kt-chart"><div class="kt-svg"></div><div class="kt-ticks" aria-hidden="true"></div><div class="kt-x" aria-hidden="true"><span></span><span></span><span>いま</span></div></div>'+
+      '<div class="kt-seg" role="radiogroup" aria-label="期間"></div>'+
+      '<div class="kt-stats"><div><small>最高</small><b class="kx-num"></b></div><div><small>勝敗</small><b></b></div><div><small>勝率</small><b class="kx-num"></b></div></div>';
+    const chips=body.querySelector('.kt-chips'),seg=body.querySelector('.kt-seg'),vEl=body.querySelector('.kt-v'),tierEl=body.querySelector('.kt-tier'),dl=body.querySelector('.kt-dl'),cap=body.querySelector('.kt-cap'),svgBox=body.querySelector('.kt-svg'),ticks=body.querySelector('.kt-ticks'),xl=body.querySelectorAll('.kt-x span'),st=body.querySelectorAll('.kt-stats b');
+    games.forEach(k=>{const b=mk('button','kt-chip',esc(GN(k)));b.type='button';b.setAttribute('role','tab');b.dataset.g=k;b.onclick=()=>{if(g===k)return;g=k;draw(true)};chips.append(b)});
+    PER.forEach(([v,n])=>{const b=mk('button','kt-pb',n);b.type='button';b.setAttribute('role','radio');b.dataset.v=v;b.onclick=()=>{if(per===v)return;per=v;try{localStorage.setItem('ktper',v)}catch(e){}draw(true)};seg.append(b)});
+    let D=null,X=null,Y=null,P=[],W=0;const H=innerHeight<720?136:186;svgBox.style.height=H+'px';
+    const head=(r,sub,dvCls,dvHtml)=>{vEl.textContent=String(r);tierEl.textContent=RNk(r);dl.className='kt-dl '+(dvCls||'');dl.innerHTML=dvHtml||'';cap.textContent=sub||''};
+    const restHead=()=>{if(!D)return;const dv=D.cur-D.start;head(D.cur,D.W.length>=2?(per?per+'日の変化':'はじめからの変化'):'',D.W.length>=2?(dv>0?'up':dv<0?'dn':'eq'):'',D.W.length>=2?(dv?ARR[dv>0?'up':'dn']:'')+(dv>0?'+':dv<0?'−':'±')+Math.abs(dv):'')};
+    function draw(anim){chips.querySelectorAll('.kt-chip').forEach(b=>{const on=b.dataset.g===g;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false')});
+      seg.querySelectorAll('.kt-pb').forEach(b=>{const on=+b.dataset.v===per;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false')});
+      {const c=chips.querySelector('.kt-chip.on');if(c){const L=c.offsetLeft-12;if(L<chips.scrollLeft||c.offsetLeft+c.offsetWidth>chips.scrollLeft+chips.clientWidth)chips.scrollTo({left:Math.max(0,L),behavior:anim&&!RM?'smooth':'auto'})}}
+      D=data(me.id,g,per);restHead();
+      const wins=D.ms.filter(x=>x.win).length,loss=D.ms.length-wins;
+      st[0].textContent=D.W.length?String(Math.max(...D.W.map(x=>x.r))):String(D.cur);st[1].textContent=D.ms.length?wins+'勝 '+loss+'敗':'—';st[2].textContent=D.ms.length?Math.round(wins/D.ms.length*100)+'%':'—';
+      W=Math.round(svgBox.clientWidth)||320;
+      if(D.W.length<2){svgBox.innerHTML='<div class="kt-empty" style="height:'+H+'px">'+(D.S.length?'この期間は対戦がありません。期間を広げると出ます':'まだ対戦がありません。対戦するとここにグラフが出ます')+'</div>';ticks.innerHTML='';xl.forEach(s=>s.textContent='');xl[2].textContent='いま';P=[];return}
+      const t0=D.W[0].t,t1=D.W[D.W.length-1].t;let r0=Math.min(...D.W.map(x=>x.r)),r1=Math.max(...D.W.map(x=>x.r));const mid=(r0+r1)/2,sp=Math.max(120,(r1-r0)*1.25);r0=mid-sp/2;r1=mid+sp/2;
+      const pt=16,pb=10;X=t=>4+(t-t0)/Math.max(1,t1-t0)*(W-16);Y=v=>pt+(1-(v-r0)/(r1-r0))*(H-pt-pb);
+      P=D.W.map(x=>[X(x.t),Y(x.r),x]);const d=mono(P.map(p=>[p[0],p[1]])),id='ktc'+(++gid),L=P[P.length-1];
+      let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(GN(g))+'のレートの推移">'+grads(id);
+      /* the rank borders inside the range: a dotted line and the rank's name */
+      try{TIERS.slice(0,-1).forEach(([th,n])=>{if(th<=r0||th>=r1)return;const y=f1(Y(th)),ti=tidx(th),c=(METAL[ti]||{}).l||'#fff';s+='<line x1="0" x2="'+W+'" y1="'+y+'" y2="'+y+'" class="kt-tl" style="stroke:'+c+'"/><text x="2" y="'+f1(+y-5)+'" class="kt-tt" style="fill:'+c+'">'+esc(n)+'</text>'})}catch(e){}
+      /* season ends */
+      D.W.forEach(x=>{if(x.reset){const xx=f1(X(x.t));s+='<line x1="'+xx+'" x2="'+xx+'" y1="'+pt+'" y2="'+(H-pb)+'" class="kt-sl"/>'}});
+      s+='<path d="'+d+'L'+f1(L[0])+' '+H+'L'+f1(P[0][0])+' '+H+'Z" fill="url(#'+id+'a)" class="kt-area"/>'+
+        '<path d="'+d+'" class="kt-glow" stroke="url(#'+id+'l)" filter="url(#'+id+'b)"/><path d="'+d+'" class="kt-line" stroke="url(#'+id+'l)"/>'+
+        '<g class="kt-now" transform="translate('+f1(L[0])+' '+f1(L[1])+')"><circle r="9" class="kt-halo"/><circle r="4.5" class="kt-dot"/></g>'+
+        '<g class="kt-cur" style="display:none"><line y1="'+pt+'" y2="'+(H-pb)+'" class="kt-cl"/><circle r="5.5" class="kt-cd"/></g></svg>';
+      svgBox.innerHTML=s;
+      /* each match as a small tick under the line: green won, red lost */
+      ticks.innerHTML=D.ms.map(x=>'<i class="'+(x.win?'w':'l')+'" style="left:'+f1(X(x.t)/W*100)+'%"></i>').join('');
+      xl[0].textContent=md(t0);xl[1].textContent=md((t0+t1)/2);xl[2].textContent='いま';
+      if(anim&&!RM){const ln=svgBox.querySelector('.kt-line'),gl=svgBox.querySelector('.kt-glow');try{const len=ln.getTotalLength();[ln,gl].forEach(p=>{p.style.strokeDasharray=len;p.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:820,easing:'cubic-bezier(.65,0,.35,1)',fill:'backwards'})})}catch(e){}
+        svgBox.querySelector('.kt-area').animate([{opacity:0},{opacity:1}],{duration:500,delay:420,fill:'backwards'});
+        svgBox.querySelector('.kt-now').animate([{opacity:0,transform:'translate('+f1(L[0])+'px,'+f1(L[1])+'px) scale(.2)'},{opacity:1,transform:'translate('+f1(L[0])+'px,'+f1(L[1])+'px) scale(1)'}],{duration:420,delay:760,easing:'cubic-bezier(.3,1.5,.5,1)',fill:'backwards'})}}
+    /* drag across the chart: the nearest point shows its value, date and match on top */
+    const chart=body.querySelector('.kt-chart');let scrub=false;
+    const show=e=>{if(!P.length)return;const sv=svgBox.querySelector('svg');if(!sv)return;const rc=sv.getBoundingClientRect(),vx=(e.clientX-rc.left)/rc.width*W;let best=P[0],bd=1e9;P.forEach(p=>{const dd=Math.abs(p[0]-vx);if(dd<bd){bd=dd;best=p}});
+      const cur=sv.querySelector('.kt-cur');cur.style.display='';cur.setAttribute('transform','translate('+f1(best[0])+' 0)');cur.querySelector('.kt-cd').setAttribute('cy',f1(best[1]));
+      const x=best[2];let sub='',cls='',dv='';
+      if(x.reset){sub=md(x.t)+' シーズンの区切り(1500との差が半分に)';cls='eq'}
+      else if(x.o!=null){sub=mdhm(x.t)+'  vs '+x.o;cls=x.win?'up':'dn';dv=(x.win?'勝ち ':'負け ')+(x.d>0?'+':'−')+Math.abs(x.d)}
+      else if(x.now){sub='いま';cls='eq'}else if(x.start){sub=md(x.t)+' この期間のはじめ';cls='eq'}else{sub=md(x.t);cls='eq'}
+      head(x.r,sub,cls,dv);chart.classList.add('scrub')};
+    const end=()=>{scrub=false;chart.classList.remove('scrub');const cur=svgBox.querySelector('.kt-cur');if(cur)cur.style.display='none';restHead()};
+    chart.addEventListener('pointerdown',e=>{scrub=true;try{chart.setPointerCapture(e.pointerId)}catch(x){}show(e)});
+    chart.addEventListener('pointermove',e=>{if(scrub||e.pointerType==='mouse')show(e)});
+    ['pointerup','pointercancel','pointerleave'].forEach(t=>chart.addEventListener(t,end));
+    sheet('レートの推移',body);requestAnimationFrame(()=>draw(true))}
+  window.kxTrend=open;
+  /* every old way in (the TCG page button, the old home tile) opens the new chart */
+  try{openRateChart=function(g){open(g)};window.openRateChart=openRateChart}catch(e){}
+})();
+/*KT-END*/</script>
 <script>
 /* data carried over from the Claude version (imported once by the first person who presses the button) */
 window.MIGRATE={"admin": "3kcrm26nwc6hhos2mgxd", "players": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"eq": {"b": null, "f": null, "t": null, "v": null, "x": "x40"}, "name": "山田", "season": 1}}], "inv": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"own": {"f00": 3, "f01": 1, "f02": 2, "t00": 1, "t10": 1, "t14": 2, "x00": 1, "x10": 1, "x11": 1, "x21": 1, "x40": 1}, "packs": 3, "shards": 6, "since": 0}}]};
