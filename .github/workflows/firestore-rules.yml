@@ -1,0 +1,46 @@
+# Puts firestore.rules into Firebase (project kimoota-15777) whenever that file changes on main.
+# The key is the repository secret FIREBASE_SA (a Firebase service-account JSON); it is never printed.
+# The result is written to the branch "rules-status" (status.txt) so it can be checked without opening Actions.
+name: Firestore rules
+on:
+  push:
+    branches: [main]
+    paths: ['firestore.rules', 'firebase.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: firestore-rules
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Deploy rules
+        id: deploy
+        env:
+          SA: ${{ secrets.FIREBASE_SA }}
+        run: |
+          set -o pipefail
+          if [ -z "$SA" ]; then echo "FIREBASE_SA secret is missing" | tee "$RUNNER_TEMP/log.txt"; exit 1; fi
+          printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx -y firebase-tools@13 deploy --only firestore:rules --project kimoota-15777 --non-interactive 2>&1 | tee "$RUNNER_TEMP/log.txt"
+          rm -f "$RUNNER_TEMP/sa.json"
+      - name: Report result
+        if: always()
+        env:
+          RESULT: ${{ steps.deploy.outcome }}
+          TOKEN: ${{ github.token }}
+        run: |
+          rm -f "$RUNNER_TEMP/sa.json"
+          mkdir -p "$RUNNER_TEMP/rs" && cd "$RUNNER_TEMP/rs"
+          git init -q -b rules-status
+          { echo "result: $RESULT"; echo "commit: $GITHUB_SHA"; echo "time: $(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo; tail -n 40 "$RUNNER_TEMP/log.txt" 2>/dev/null; } > status.txt
+          git add status.txt
+          git -c user.name=rules-bot -c user.email=rules-bot@users.noreply.github.com commit -qm "$RESULT $GITHUB_SHA"
+          git push -fq "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:rules-status

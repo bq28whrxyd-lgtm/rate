@@ -1,0 +1,397 @@
+rules_version = '2';
+// カードゲーム レート表 — Firestore セキュリティルール
+// Firebaseコンソール → Firestore Database → ルール に全部貼り付けて「公開」
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function adminPath() { return /databases/$(database)/documents/config/admin; }
+    function isAdmin() { return signedIn() && exists(adminPath()) && get(adminPath()).data.uid == me(); }
+    function mePath() { return /databases/$(database)/documents/data/users/$(me())/me; }
+    function myPid() { return (signedIn() && exists(mePath())) ? get(mePath()).data.get('pid', '') : ''; }
+    function chal(id) { return get(/databases/$(database)/documents/challenges/$(id)).data; }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+    function newV(k, d) { return request.resource.data.get(k, d); }
+    function oldV(k, d) { return resource.data.get(k, d); }
+
+    // a match moves a rating by at most 32; with a season reset in the same write it may also move toward 1500 (never past it by more than 32)
+    function ratingOk(g) {
+      return !(g in changed())
+        || math.abs(newV(g, 1500) - oldV(g, 1500)) <= 32
+        || (seasonUp()
+            && newV(g, 1500) >= (oldV(g, 1500) < 1500 ? oldV(g, 1500) : 1500) - 32
+            && newV(g, 1500) <= (oldV(g, 1500) > 1500 ? oldV(g, 1500) : 1500) + 32);
+    }
+    function stepOk(k) { return newV(k, 0) - oldV(k, 0) == 0 || newV(k, 0) - oldV(k, 0) == 1; }
+    // season reset: rating only moves toward 1500 (staying on the same side), and only when the season number goes up
+    function between15(g) {
+      return (newV(g, 1500) - 1500) * (oldV(g, 1500) - 1500) >= 0
+        && math.abs(newV(g, 1500) - 1500) <= math.abs(oldV(g, 1500) - 1500);
+    }
+    function shrinkOk(g) {
+      return !(g in changed()) || (seasonUp() && between15(g));
+    }
+    // genre slots (ygo, dm and g1..g12 added by the admin); each has <slot>_rating/_wins/_losses/_sp
+    function slots() { return ['ygo', 'dm', 'g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'g7', 'g8', 'g9', 'g10', 'g11', 'g12']; }
+    function rk() { return ['ygo_rating', 'dm_rating', 'g1_rating', 'g2_rating', 'g3_rating', 'g4_rating', 'g5_rating', 'g6_rating', 'g7_rating', 'g8_rating', 'g9_rating', 'g10_rating', 'g11_rating', 'g12_rating']; }
+    function allShrink() { return shrinkOk('ygo_rating')
+        && shrinkOk('dm_rating')
+        && shrinkOk('g1_rating')
+        && shrinkOk('g2_rating')
+        && shrinkOk('g3_rating')
+        && shrinkOk('g4_rating')
+        && shrinkOk('g5_rating')
+        && shrinkOk('g6_rating')
+        && shrinkOk('g7_rating')
+        && shrinkOk('g8_rating')
+        && shrinkOk('g9_rating')
+        && shrinkOk('g10_rating')
+        && shrinkOk('g11_rating')
+        && shrinkOk('g12_rating'); }
+    // in a match only that genre's rating moves; the others can only take a season reset
+    function oneMoves(c) { return (c.g + '_rating' == 'ygo_rating' ? ratingOk('ygo_rating') : shrinkOk('ygo_rating'))
+        && (c.g + '_rating' == 'dm_rating' ? ratingOk('dm_rating') : shrinkOk('dm_rating'))
+        && (c.g + '_rating' == 'g1_rating' ? ratingOk('g1_rating') : shrinkOk('g1_rating'))
+        && (c.g + '_rating' == 'g2_rating' ? ratingOk('g2_rating') : shrinkOk('g2_rating'))
+        && (c.g + '_rating' == 'g3_rating' ? ratingOk('g3_rating') : shrinkOk('g3_rating'))
+        && (c.g + '_rating' == 'g4_rating' ? ratingOk('g4_rating') : shrinkOk('g4_rating'))
+        && (c.g + '_rating' == 'g5_rating' ? ratingOk('g5_rating') : shrinkOk('g5_rating'))
+        && (c.g + '_rating' == 'g6_rating' ? ratingOk('g6_rating') : shrinkOk('g6_rating'))
+        && (c.g + '_rating' == 'g7_rating' ? ratingOk('g7_rating') : shrinkOk('g7_rating'))
+        && (c.g + '_rating' == 'g8_rating' ? ratingOk('g8_rating') : shrinkOk('g8_rating'))
+        && (c.g + '_rating' == 'g9_rating' ? ratingOk('g9_rating') : shrinkOk('g9_rating'))
+        && (c.g + '_rating' == 'g10_rating' ? ratingOk('g10_rating') : shrinkOk('g10_rating'))
+        && (c.g + '_rating' == 'g11_rating' ? ratingOk('g11_rating') : shrinkOk('g11_rating'))
+        && (c.g + '_rating' == 'g12_rating' ? ratingOk('g12_rating') : shrinkOk('g12_rating')); }
+    function curSeason() { return int((request.time.toMillis() - 1791039600000) / 2592000000) + 1; }
+    function histOk() { return newV('season', 1) <= curSeason() + 1 && newV('hist', []).size() <= oldV('hist', []).size() + 1; }
+    function seasonUp() { return !('season' in resource.data) || newV('season', 1) > oldV('season', 1); }
+
+    // ---- admin (one person, first come; cannot be changed afterwards) ----
+    match /config/admin {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.uid == me();
+      allow update, delete: if false;
+    }
+
+    // ---- limited banner (period-limited pack), set by the admin ----
+    match /config/banner {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---- supporter rank: the tiers everyone may see ({r:{pid:tier}, names, h:{pid:bool}, nc:{pid:bool}}).
+    //      The admin writes it; a player may only flip their own entries in h (hide the badge) and nc (name colour) ----
+    match /config/suprank {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+      allow update: if signedIn() && myPid() != ''
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['h', 'nc'])
+        && request.resource.data.get('h', {}).diff(resource.data.get('h', {})).affectedKeys().hasOnly([myPid()])
+        && request.resource.data.get('nc', {}).diff(resource.data.get('nc', {})).affectedKeys().hasOnly([myPid()]);
+    }
+
+    // ---- coin gacha period ({start, end}), set by the admin ----
+    match /config/coinev {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+    // ---- genre weeks ({list: [{g, s, e}]}), set by the admin ----
+    match /config/gweek {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---- genre list ({list: [{id, n, off}]}), edited by the admin ----
+    match /config/genres {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---- {v}: the admin bumps it so every phone drops its saved copies and reads everything again once ----
+    match /config/sync {
+      allow read: if signedIn();
+      allow write: if isAdmin() && request.resource.data.keys().hasOnly(['v']) && request.resource.data.v is int;
+    }
+
+    // ---- which player this Google account is ----
+    match /data/users/{u}/me {
+      allow read, delete: if signedIn() && u == me();
+      allow create, update: if signedIn() && u == me() && (
+        request.resource.data.pid == ''
+        || get(/databases/$(database)/documents/players/$(request.resource.data.pid)).data.get('uid', '') in ['', me()]);
+    }
+
+    // ---- players ----
+    function ownerUpdate(pid) {
+      return (oldV('uid', '') == me() || myPid() == pid)
+        && changed().hasOnly(['name', 'eq', 'uid', 'season', 'hist', 'decks'].concat(rk()))
+        && newV('uid', '') in ['', me()]
+        && (!('decks' in changed()) || (request.resource.data.decks is map && request.resource.data.decks.size() <= 14))
+        && ((!changed().hasAny(rk()) && !('hist' in changed()))
+            || (seasonUp() && histOk() && allShrink()));
+    }
+    function claimUpdate(pid) {
+      return oldV('uid', '') == '' && changed().hasOnly(['uid']) && newV('uid', '') == me() && myPid() == pid;
+    }
+    // result of a match: written by the player who confirms the other player's report
+    function pUid(id) { return get(/databases/$(database)/documents/players/$(id)).data.get('uid', ''); }
+    function twoPeople(c) { return pUid(c.a) != '' && pUid(c.b) != '' && pUid(c.a) != pUid(c.b); }
+    function matchUpdateWith(pid, c) {
+      return c.st == 'reported' && myPid() in [c.a, c.b] && pid in [c.a, c.b] && c.rep.by != myPid() && twoPeople(c)
+        && c.g in slots()
+        && changed().hasOnly(['last_cid', 'peak', 'season', 'hist', c.g + '_wins', c.g + '_losses', c.g + '_sp'].concat(rk()))
+        && histOk() && oneMoves(c)
+        && stepOk(c.g + '_wins') && stepOk(c.g + '_losses');
+    }
+    function matchUpdate(pid) {
+      return newV('last_cid', '') != '' && newV('last_cid', '') != oldV('last_cid', '')
+        && matchUpdateWith(pid, chal(newV('last_cid', '')));
+    }
+    match /players/{pid} {
+      allow read: if signedIn();
+      allow create: if isAdmin()
+        || (signedIn() && newV('uid', '') == me() && request.resource.data.keys().hasOnly(['name', 'uid']));
+      allow update: if isAdmin() || (signedIn() && (ownerUpdate(pid) || claimUpdate(pid) || matchUpdate(pid)));
+      allow delete: if isAdmin() || (signedIn() && oldV('uid', '') == me());
+    }
+
+    // ---- match requests: both players approve the start and the result ----
+    function nst() { return request.resource.data.st; }
+    function ost() { return resource.data.st; }
+    function asKept() { return newV('as', 0) == oldV('as', 0); }
+    function transitionOk() {
+      return (nst() == 'active' && ost() == 'pending') ? (myPid() == resource.data.b && math.abs(newV('as', 0) - request.time.toMillis()) < 120000)
+        : (nst() == 'active') ? (ost() in ['active', 'reported', 'abortreq'] && asKept())
+        : (nst() == 'reported') ? (ost() == 'active' && request.resource.data.rep.by == myPid() && asKept()
+            && request.time.toMillis() - oldV('as', 0) >= 170000)
+        : (nst() == 'done') ? (ost() == 'done' || (ost() == 'reported' && resource.data.rep.by != myPid()))
+        : (nst() == 'abortreq') ? (ost() == 'active' && newV('ab', '') == myPid() && asKept())
+        : (nst() == 'aborted') ? (ost() == 'pending' || ost() == 'aborted' || (ost() == 'abortreq' ? oldV('ab', '') != myPid()
+            : (oldV('bet', 0) == 0 || request.time.toMillis() - oldV('as', 0) < 240000)))
+        : (nst() in ['declined', 'cancelled']) ? ost() == 'pending'
+        : false;
+    }
+    // a tournament match: the tour is running, same genre, both players are in it
+    function tourOk(tid, d) {
+      let T = get(/databases/$(database)/documents/tours/$(tid)).data;
+      return T.st == 'live' && T.g == d.g && d.a in T.get('ps', []) && d.b in T.get('ps', []);
+    }
+    match /challenges/{cid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.a == myPid() && pUid(request.resource.data.b) != me()
+        && request.resource.data.get('bet', 0) is int && request.resource.data.get('bet', 0) >= 0 && request.resource.data.get('bet', 0) <= 500
+        && request.resource.data.b != myPid() && request.resource.data.st == 'pending' && request.resource.data.g in slots()
+        && (request.resource.data.get('tid', '') == '' || tourOk(request.resource.data.tid, request.resource.data));
+      allow update: if isAdmin() || (signedIn() && myPid() in [resource.data.a, resource.data.b]
+        && request.resource.data.a == resource.data.a && request.resource.data.b == resource.data.b
+        && request.resource.data.g == resource.data.g && request.resource.data.get('bet', 0) == resource.data.get('bet', 0)
+        && newV('tid', '') == oldV('tid', '')
+        && (newV('da', null) == oldV('da', null) || myPid() == resource.data.a)
+        && (newV('db', null) == oldV('db', null) || myPid() == resource.data.b)
+        && (ost() == 'pending' || (newV('oa', 0) == oldV('oa', 0) && newV('ob', 0) == oldV('ob', 0)))
+        && transitionOk());
+      allow delete: if isAdmin() || (signedIn() && myPid() in [resource.data.a, resource.data.b]);
+    }
+
+    // ---- finished matches (id = the challenge id) ----
+    function matchCreateWith(mid, c) {
+      return c.st == 'reported' && myPid() in [c.a, c.b] && c.rep.by != myPid() && twoPeople(c)
+        && request.resource.data.cid == mid && request.resource.data.w == c.rep.win
+        && request.resource.data.get('bet', 0) == c.get('bet', 0)
+        && request.resource.data.get('l', '') == (c.rep.win == c.a ? c.b : c.a)
+        && request.resource.data.get('d', 1) is int && request.resource.data.get('d', 1) >= 1 && request.resource.data.get('d', 1) <= 32
+        && request.resource.data.get('wr', 1500) is int && request.resource.data.get('wr', 1500) >= 0 && request.resource.data.get('wr', 1500) <= 6000
+        && request.resource.data.get('lr', 1500) is int && request.resource.data.get('lr', 1500) >= 0 && request.resource.data.get('lr', 1500) <= 6000
+        && nz(request.resource.data.get('tid', '')) == nz(c.get('tid', ''))
+        && nz(request.resource.data.get('wd', '')) == nz(c.rep.win == c.a ? c.get('da', '') : c.get('db', ''))
+        && nz(request.resource.data.get('ld', '')) == nz(c.rep.win == c.a ? c.get('db', '') : c.get('da', ''));
+    }
+    function nz(v) { return v == null ? '' : v; }
+    match /matches/{mid} {
+      allow read: if signedIn();
+      allow create: if isAdmin() || (signedIn() && matchCreateWith(mid, chal(mid)));
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- きもオタTCG friend battles: both players see the match. Each player writes only their own moves (ma / mb),
+    //      their own result (wa+ta+ca / wb+tb+cb) once, and the accepter adds their deck and seed part (db, sb) once ----
+    match /tcgm/{mid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.a == myPid() && request.resource.data.b != myPid()
+        && request.resource.data.st == 'wait' && tcgNow(request.resource.data.t)
+        && !('wa' in request.resource.data) && !('wb' in request.resource.data) && !('ta' in request.resource.data) && !('tb' in request.resource.data)
+        && !('ca' in request.resource.data) && !('cb' in request.resource.data) && !('db' in request.resource.data) && !('sb' in request.resource.data)
+        && request.resource.data.get('mb', []).size() == 0;
+      allow update: if signedIn() && (myPid() == resource.data.a || myPid() == resource.data.b)
+        && tcgSame('a') && tcgSame('b') && tcgSame('t') && tcgSame('seed') && tcgSame('da')
+        && tcgOwnField('wa', resource.data.a) && tcgOwnField('ta', resource.data.a) && tcgOwnField('ca', resource.data.a) && tcgClaimTime('ca')
+        && tcgOwnField('wb', resource.data.b) && tcgOwnField('tb', resource.data.b) && tcgOwnField('cb', resource.data.b) && tcgClaimTime('cb')
+        && tcgOwnField('db', resource.data.b) && tcgOwnField('sb', resource.data.b)
+        && tcgMoves('ma', resource.data.a) && tcgMoves('mb', resource.data.b);
+      allow delete: if isAdmin();
+    }
+    function tcgNow(t) { return t is int && t > request.time.toMillis() - 120000 && t < request.time.toMillis() + 120000; }
+    function tcgSame(f) { return request.resource.data.get(f, null) == resource.data.get(f, null); }
+    function tcgOwnField(f, owner) {
+      return (f in resource.data) ? (f in request.resource.data && request.resource.data[f] == resource.data[f])
+        : (!(f in request.resource.data) || myPid() == owner);
+    }
+    function tcgClaimTime(f) { return (f in resource.data) || !(f in request.resource.data) || tcgNow(request.resource.data[f]); }
+    function tcgMoves(f, owner) { return tcgSame(f) || myPid() == owner; }
+
+    // ---- collection / packs (only you and the admin can see yours) ----
+    // ---- きもオタTCG live watching: a public summary of a friend battle (no hands, decks or moves).
+    //      Only the two players of that match may write it; anyone signed in may watch ----
+    // ---- push notifications: your phones' tokens (tk), your choices (p) and a test request (test). Only you; the server reads them ----
+    match /push/{pid} {
+      allow read, delete: if signedIn() && pid == myPid();
+      allow create, update: if signedIn() && pid == myPid() && request.resource.data.keys().hasOnly(['tk', 'p', 'test'])
+        && request.resource.data.get('tk', {}) is map && request.resource.data.get('tk', {}).size() <= 10
+        && request.resource.data.get('p', {}) is map && request.resource.data.get('p', {}).keys().hasOnly(['ch', 'msg', 'give']);
+    }
+    match /tcgwatch/{mid} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && exists(/databases/$(database)/documents/tcgm/$(mid))
+        && (myPid() == get(/databases/$(database)/documents/tcgm/$(mid)).data.a || myPid() == get(/databases/$(database)/documents/tcgm/$(mid)).data.b)
+        && request.resource.data.a == get(/databases/$(database)/documents/tcgm/$(mid)).data.a
+        && request.resource.data.b == get(/databases/$(database)/documents/tcgm/$(mid)).data.b
+        && request.resource.data.keys().hasOnly(['v', 'coins', 'frames', 'a', 'b', 'an', 'bn', 'first', 'seq', 'started', 'updated', 'state'])
+        && request.resource.data.updated is int && request.resource.data.seq is int;
+      allow delete: if isAdmin();
+    }
+
+    match /inv/{pid} {
+      allow read: if isAdmin() || (signedIn() && myPid() == pid);
+      allow create: if isAdmin() || (signedIn() && myPid() == pid
+        && newV('packs', 0) >= 0 && newV('lpacks', 0) >= 0 && newV('tused', 0) >= 0
+        && newV('tpacks', 0) >= 0
+        && newV('pspent', 0) >= 0 && newV('pspent', 0) <= newV('packs', 0) * 100 + newV('lpacks', 0) * 200 + newV('tpacks', 0) * 100
+        && newV('lfree', 0) >= 0 && newV('lfree', 0) <= newV('lpacks', 0)
+        && newV('wused', 0) * 350 <= newV('lpacks', 0)
+        && (newV('mpts', 0) == 0 || (newV('mpts', 0) == 100 && newV('md', -1) == today()))
+        && (newV('lbp', 0) == 0 || (newV('lbp', 0) >= 30 && newV('lbp', 0) <= 50 && newV('lbd', -1) == today())));
+      allow update: if isAdmin() || (signedIn() && myPid() == pid
+        && newV('packs', 0) >= oldV('packs', 0) && newV('lpacks', 0) >= oldV('lpacks', 0)
+        && newV('tused', 0) >= oldV('tused', 0) && (!('tix' in resource.data) || 'tix' in request.resource.data)
+        && newV('tpacks', 0) >= oldV('tpacks', 0) && tcgStOk()
+        && pspentOk() && missionOk() && loginOk()
+        && newV('lfree', 0) >= oldV('lfree', 0) && newV('lfree', 0) - oldV('lfree', 0) <= newV('lpacks', 0) - oldV('lpacks', 0)
+        && newV('wused', 0) >= oldV('wused', 0)
+        && (newV('wused', 0) == oldV('wused', 0) || newV('wused', 0) * 350 <= newV('lpacks', 0)));
+      allow delete: if isAdmin();
+    }
+
+    // daily missions: +100 at most once per day (a day starts at 5:00 JST)
+    function today() { return int((request.time.toMillis() + 14400000) / 86400000); }
+    function missionOk() {
+      return (newV('mpts', 0) == oldV('mpts', 0) && newV('md', -1) == oldV('md', -1))
+        || (newV('mpts', 0) == oldV('mpts', 0) + 100 && newV('md', -1) > oldV('md', -1) && newV('md', -1) == today());
+    }
+    // login bonus: 30-50 at most once per day
+    function loginOk() {
+      return (newV('lbp', 0) == oldV('lbp', 0) && newV('lbd', -1) == oldV('lbd', -1))
+        || (newV('lbd', -1) > oldV('lbd', -1) && newV('lbd', -1) == today()
+            && newV('lbp', 0) - oldV('lbp', 0) >= 30 && newV('lbp', 0) - oldV('lbp', 0) <= 50);
+    }
+    // きもオタTCG: the starter deck is chosen once and never changes
+    function tcgSt(d) { return ('tcg' in d) && ('st' in d.tcg) ? d.tcg.st : ''; }
+    function tcgStOk() { return tcgSt(resource.data) == '' || tcgSt(request.resource.data) == tcgSt(resource.data); }
+    // purchased points can only be used up by opening packs
+    function pspentOk() {
+      return newV('pspent', 0) >= oldV('pspent', 0)
+        && newV('pspent', 0) - oldV('pspent', 0) <= (newV('packs', 0) - oldV('packs', 0)) * 100 + (newV('lpacks', 0) - oldV('lpacks', 0)) * 200
+           + (newV('tpacks', 0) - oldV('tpacks', 0)) * 100;
+    }
+
+    // ---- predictions on someone else's match, placed within 30 seconds of its start (45s allowed for clock drift); never changed afterwards ----
+    function predOk(c) {
+      return c.st == 'active' && !(myPid() in [c.a, c.b])
+        && request.time.toMillis() - c.get('as', 0) < 45000
+        && request.resource.data.pick in [c.a, c.b]
+        && request.resource.data.stake is int && request.resource.data.stake >= 10 && request.resource.data.stake <= 500
+        && request.resource.data.odds is number && request.resource.data.odds >= 1.05 && request.resource.data.odds <= 4
+        && request.resource.data.odds == (request.resource.data.pick == c.a ? c.get('oa', 0) : c.get('ob', 0))
+        && request.resource.data.keys().hasOnly(['cid', 'pid', 'pick', 'stake', 'odds', 't', 'g']);
+    }
+    match /preds/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.pid == myPid()
+        && id == request.resource.data.cid + '_' + myPid() && predOk(chal(request.resource.data.cid));
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // ---- timeline: anyone posts as themselves; afterwards only their own reaction can change ----
+    match /feed/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.by == myPid()
+        && request.resource.data.keys().hasOnly(['t', 'k', 'by', 'p', 'n', 'x', 'r', 'g'])
+        && request.resource.data.r == {} && request.resource.data.x is string && request.resource.data.x.size() <= 140
+        && math.abs(request.resource.data.t - request.time.toMillis()) < 300000;
+      allow update: if signedIn() && myPid() != ''
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['r'])
+        && request.resource.data.r.diff(resource.data.r).affectedKeys().hasOnly([myPid()])
+        && request.resource.data.r.get(myPid(), '') in ['', 'w', 'o', 'k', 'd', 'z'];
+      allow delete: if isAdmin();
+    }
+
+    // ---- when each player last had the app open: written by that player, readable by the admin only ----
+    match /seen/{pid} {
+      allow read: if isAdmin();
+      allow write: if signedIn() && myPid() == pid
+        && request.resource.data.keys().hasOnly(['t', 'v'])
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000
+        && request.resource.data.get('v', '') is string && request.resource.data.get('v', '').size() <= 16;
+    }
+
+    // ---- messages from the developer to everyone ----
+    match /msgs/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---- requests to the developer: anyone sends as themselves, only the admin reads ----
+    match /reqs/{id} {
+      allow read: if isAdmin();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.pid == myPid()
+        && request.resource.data.keys().hasOnly(['pid', 'n', 'x', 't'])
+        && request.resource.data.x is string && request.resource.data.x.size() > 0 && request.resource.data.x.size() <= 500
+        && request.resource.data.n is string && request.resource.data.n.size() <= 40
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // ---- tournaments: the admin runs them, players enter themselves ----
+    match /tours/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+    match /tentry/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.pid == myPid()
+        && id == request.resource.data.tid + '_' + myPid()
+        && request.resource.data.keys().hasOnly(['tid', 'pid', 't'])
+        && get(/databases/$(database)/documents/tours/$(request.resource.data.tid)).data.st == 'entry';
+      allow update: if false;
+      allow delete: if isAdmin() || (signedIn() && resource.data.pid == myPid());
+    }
+
+    // ---- points handed out by the admin ----
+    // ---- supporter values: only the admin can read or write them ----
+    match /sup/{d} {
+      allow read, write: if isAdmin();
+    }
+    match /suplog/{d} {
+      allow read, write: if isAdmin();
+    }
+
+    match /grants/{g} {
+      allow read: if signedIn();
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+  }
+}
