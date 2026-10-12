@@ -1895,6 +1895,9 @@ const BUILD_ONLY=!!HOST&&/^#build=/.test(location.hash);
 const GOKU_DEMO=/^#gokudemo/.test(location.hash);
 /* #gokuview=<card id>: only the 極 premiere, on its own (from the 図鑑) */
 const GOKU_VIEW=/^#gokuview=/.test(location.hash)?decodeURIComponent(location.hash.slice(10)):'';
+/* #cpu=<deck index>.<opponent>: the app's 対戦 page already chose your deck and what the CPU plays, so the match starts at once
+   (opponent: auto = おまかせ, rand = ランダム構築, rec = おすすめデッキ, mirror = the same deck as yours). The CPU's strength is read from kotcg_cpulv as usual. */
+const CPU_GO=/^#cpu=/.test(location.hash)?decodeURIComponent(location.hash.slice(5)):'';
 const FOIL=id=>HOST&&HOST.foil?((HOST.foil()||{})[id]||0):0;
 const NORM=id=>HOST?((HOST.own()||{})[id]||0):9;
 const OWN=id=>HOST?NORM(id)+FOIL(id)+ALTOWN(id).length:9;
@@ -2027,6 +2030,13 @@ function cpuPick(d){const mine=loadDecks().filter(x=>CD.validDeck(x.cards,x.lead
     opt('おすすめデッキ','11族のおすすめデッキから1つ',()=>{const others=Object.keys(CD.STARTERS).filter(x=>x!==BY[d.lead].f);startMatch(d,presetOf(others[Math.floor(Math.random()*others.length)]))});
     if(mine.length){L.append(el('div','cpuh','自分のデッキを使わせる'));mine.forEach(x=>opt(x.name,'リーダー:'+BY[x.lead].n+'('+CD.FNAME[BY[x.lead].f]+')',()=>startMatch(d,Object.assign({},x,{name:x.name+'(CPU)',cards:x.cards.slice()}))))}
     s.append(L);const c=el('button','btn sec','やめる');c.onclick=close;s.append(c)})}
+function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]],o=p[1]||'auto';deckScreen();if(!d||!CD.validDeck(d.cards,d.lead))return;
+  let cpu=null;
+  if(o==='rand')cpu=AI.makeDeck(Math.random);
+  else if(o==='rec'){const others=Object.keys(CD.STARTERS).filter(x=>x!==BY[d.lead].f);cpu=presetOf(others[Math.floor(Math.random()*others.length)])}
+  else if(o==='mirror')cpu=Object.assign({},d,{name:d.name+'(CPU)',cards:d.cards.slice()});
+  if(!cpu){let Hh=[];try{Hh=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,Hh);Hh.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(Hh.slice(-12)))}catch(e){}cpu=x}
+  startMatch(d,cpu)}
 function startMatch(d,cpu){if(!cpu&&!AUTO){cpuPick(d);return}if(!cpu)cpu=AI.pickDeck(Math.random);
   myDeck=d;myKey=BY[d.lead].f;cpuDeck=cpu;cpuKey=BY[cpu.lead].f;const ck=cpuKey;
   if(HOST){busy=true;HOST.toss({cpu:BY[cpuDeck.lead].n,cpuLead:cpuDeck.lead,deck:d.name},heads=>{busy=false;H=heads?0:1;beginGame()});return}
@@ -2775,7 +2785,7 @@ function startWatch(){const wh=window.parent!==window&&window.parent.TCGWATCH;if
 
 $('goDeck').onclick=deckScreen;$('goHelp').onclick=helpSheet;
 const PVP=HOST&&HOST.pvp?HOST.pvp():null;
-if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
+if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(CPU_GO)cpuGo(CPU_GO);else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
 clearTimeout(window.__tcgBootTimer);if(document.documentElement.classList.contains('tcg-embedded')&&!HOST&&!(WATCH&&window.parent!==window&&window.parent.TCGWATCH)){const b=$('tcgBoot');b.classList.add('slow');b.querySelector('[role="status"]').textContent='アプリから編成・対戦・観戦を開き直してください。'}else document.documentElement.classList.remove('tcg-booting');
 window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},endMyTurn,startMatch,E,AI};
 })();

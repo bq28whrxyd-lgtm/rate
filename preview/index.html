@@ -3584,43 +3584,143 @@ body.ui2 .kx-off *,body.ui2 .kx-off *::before,body.ui2 .kx-off *::after,body.ui2
   body.ui2 .kvs-fx,body.ui2 .kvs-seam i,body.ui2 .kvs-vs .sw,body.ui2 .kx-holo{display:none}
   body.ui2 .kvs *,body.ui2 .kvs *::before,body.ui2 .kvs *::after,body.ui2 #kxtcg *,body.ui2 #kxtcg::before,body.ui2 #kxtcg::after,body.ui2 .kx-shine::after{animation:none!important}}
 
-/* ---------- 対戦 > TCG ---------- */
-body.ui2 #kxtcg{position:relative;overflow:hidden;isolation:isolate;border-radius:26px;padding:20px 18px 18px;background:linear-gradient(180deg,#18161f,#111014);
-  box-shadow:inset 0 .5px 0 rgba(255,255,255,.1),inset 0 0 0 .5px rgba(255,255,255,.06);display:flex;flex-direction:column;gap:12px;margin-bottom:12px}
-/* two slow lights drift behind it (large soft gradients, moved by transform only) */
-body.ui2 #kxtcg::before,body.ui2 #kxtcg::after{content:"";position:absolute;z-index:0;border-radius:50%;pointer-events:none}
-body.ui2 #kxtcg::before{right:-34%;top:-58%;width:112%;height:124%;background:radial-gradient(closest-side,rgba(140,110,255,.34),rgba(140,110,255,0));animation:kxAur 15s ease-in-out infinite alternate}
-body.ui2 #kxtcg::after{left:-38%;top:-34%;width:92%;height:104%;background:radial-gradient(closest-side,rgba(226,191,114,.22),rgba(226,191,114,0));animation:kxAur2 19s ease-in-out infinite alternate}
-@keyframes kxAur{to{transform:translate3d(-26%,18%,0) scale(1.12)}}
-@keyframes kxAur2{to{transform:translate3d(30%,24%,0) scale(.9)}}
+/* ---------- 対戦 > TCG: the same VS stage, dressed like a modern dark product page:
+   near-black canvas, one slow aurora behind the stage, a faint grid that fades out, hairline gradient borders,
+   a light running around the frame, and a white button with a violet glow. Accent: violet #8b7bff to cyan #67e8f9. ---------- */
+body.ui2 #kxtcg{--tv:#8b7bff;--tc:#67e8f9;--tp:#c4b5fd;position:relative;isolation:isolate;display:flex;flex-direction:column;gap:12px;margin:0 0 14px;padding:0;background:none;box-shadow:none;border-radius:0;overflow:visible}
 body.ui2 #kxtcg>*{position:relative;z-index:1}
-body.ui2 #kxtcg .kx-tt{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-body.ui2 #kxtcg .kx-tt h2{margin:0!important;font:800 24px/1.2 var(--x-f)!important;letter-spacing:-.01em!important;color:var(--x-fg)!important}
-body.ui2 #kxtcg .kx-tt p{margin:6px 0 0;font:500 13px/1.6 var(--x-f);color:var(--x-fg2)}
-/* the three cards float, each on its own beat, and a holo light crosses them */
-body.ui2 #kxtcg .kx-fan{position:relative;flex:none;width:118px;height:100px}
-body.ui2 #kxtcg .kx-fan .tcf{position:absolute;top:0;width:62px;border-radius:7px;box-shadow:0 12px 24px rgba(0,0,0,.55);transform:rotate(var(--rr,0deg)) translateY(var(--ty,0px));animation:kxBob 5.6s ease-in-out infinite}
-body.ui2 #kxtcg .kx-fan .tcf:nth-child(1){left:0;--rr:-12deg;--ty:10px;animation-delay:-1.4s}
-body.ui2 #kxtcg .kx-fan .tcf:nth-child(2){left:28px;z-index:2;--rr:0deg;--ty:-2px;animation-delay:-3.2s}
-body.ui2 #kxtcg .kx-fan .tcf:nth-child(3){left:56px;--rr:12deg;--ty:10px;animation-delay:-.3s}
-@keyframes kxBob{0%,100%{transform:rotate(var(--rr,0deg)) translateY(var(--ty,0px))}50%{transform:rotate(calc(var(--rr,0deg) + 1.6deg)) translateY(calc(var(--ty,0px) - 5px))}}
+body.ui2 #kxtcg>[hidden]{display:none}
+body.ui2 #kxtcg::before{content:"";position:absolute;z-index:0;left:-16px;right:-16px;top:-56px;height:520px;pointer-events:none;
+  background:radial-gradient(42% 34% at 18% 24%,rgba(139,123,255,.42),rgba(139,123,255,0) 72%),radial-gradient(38% 30% at 84% 16%,rgba(103,232,249,.26),rgba(103,232,249,0) 72%),radial-gradient(46% 36% at 58% 64%,rgba(236,72,153,.14),rgba(236,72,153,0) 72%);
+}
+body.ui2 #kxtcg::after{content:"";position:absolute;z-index:0;left:-16px;right:-16px;top:-40px;height:470px;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px,rgba(255,255,255,0) 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,rgba(255,255,255,0) 1px);background-size:30px 30px;background-position:center -1px;
+  -webkit-mask-image:radial-gradient(62% 52% at 50% 32%,#000,rgba(0,0,0,0) 76%);mask-image:radial-gradient(62% 52% at 50% 32%,#000,rgba(0,0,0,0) 76%)}
+
+/* the stage frame: a hairline gradient border (light from the top left, violet to cyan on the right) and a running light */
+body.ui2 .kvs.kvs-tcg{--kd:26px;--ka:9.46deg;height:312px;border-radius:26px;background:#0a0a12;box-shadow:0 34px 70px -36px rgba(0,0,0,.95),0 0 60px -30px rgba(139,123,255,.55)}
+body.ui2 .kvs-tcg::after{content:"";position:absolute;inset:0;z-index:8;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(140deg,rgba(255,255,255,.34),rgba(255,255,255,.05) 34%,rgba(139,123,255,.2) 68%,rgba(103,232,249,.42));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+/* light runs along the frame: one glint across the top edge, one back along the bottom (small layers, transform only) */
+body.ui2 .kvs-beam{position:absolute;inset:0;z-index:9;border-radius:inherit;overflow:hidden;pointer-events:none;font-style:normal}
+body.ui2 .kvs-beam::before,body.ui2 .kvs-beam::after{content:"";position:absolute;width:120px;height:1.5px;border-radius:2px;opacity:0;
+  background:linear-gradient(90deg,rgba(139,123,255,0),#c4b5fd 38%,#e6fcff 62%,rgba(103,232,249,0));box-shadow:0 0 10px 1px rgba(167,139,250,.6)}
+body.ui2 .kvs-beam::before{top:0;left:0;animation:kvsGlintT 6.4s cubic-bezier(.45,0,.25,1) 1.4s infinite}
+body.ui2 .kvs-beam::after{bottom:0;right:0;animation:kvsGlintB 6.4s cubic-bezier(.45,0,.25,1) 4.6s infinite}
+@keyframes kvsGlintT{0%{opacity:0;transform:translateX(-130px)}8%{opacity:1}42%{opacity:1;transform:translateX(440px)}43%,100%{opacity:0;transform:translateX(440px)}}
+@keyframes kvsGlintB{0%{opacity:0;transform:translateX(130px)}8%{opacity:1}42%{opacity:1;transform:translateX(-440px)}43%,100%{opacity:0;transform:translateX(-440px)}}
+body.ui2 .kvs-tcg .kvs-seam b{box-shadow:0 0 8px rgba(255,255,255,.45),0 0 24px 3px rgba(139,123,255,.55)}
+body.ui2 .kvs-tcg .kvs-vs>b{box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 0 1px rgba(255,255,255,.08),0 0 0 3px #0a0a12,0 0 0 4.5px rgba(167,139,250,.85),0 14px 30px rgba(0,0,0,.75)}
+body.ui2 .kvs-tcg .kvs-vs>b>span{background:linear-gradient(180deg,#fff 10%,#e4dcff 48%,#8fe6f3 92%);-webkit-background-clip:text;background-clip:text;color:transparent}
+body.ui2 .kvs-tcg .kvs-vs .glow{background:radial-gradient(closest-side,rgba(196,181,253,.5),rgba(139,123,255,.16) 55%,rgba(139,123,255,0))}
+
+/* each half: icon and name on top, the deck's card below */
+body.ui2 .kvs-tside .kvs-body{justify-content:flex-start;padding:24px 0 12px}
+body.ui2 .kvs-tside .kvs-avw{width:60px;height:60px}
+body.ui2 .kvs-tside .kvs-nm{margin-top:15px;font-size:15px}
+body.ui2 .kvs-tside .kvs-meta{font-size:13.5px;margin-top:4px}
+body.ui2 .kvs-tside .kvs-ttl{display:none}
+body.ui2 .kvs-tcard{position:relative;margin-top:16px;width:86px;display:flex;flex-direction:column;align-items:center}
+body.ui2 .kvs-tci{width:86px;transform:rotate(var(--rr,0deg)) translateY(var(--ty,0px));animation:kxBob 5.6s ease-in-out infinite}
+body.ui2 .kvs-side.me .kvs-tci{--rr:-6deg;animation-delay:-1.3s}
+body.ui2 .kvs-side.op .kvs-tci{--rr:6deg;animation-delay:-3.6s}
+body.ui2 .kvs-tci .tcf{width:86px;border-radius:8px;box-shadow:0 18px 30px -12px rgba(0,0,0,.9),0 0 0 .5px rgba(255,255,255,.14)}
+body.ui2 .kvs-tdeck{margin-top:12px;max-width:100%;font:700 12px/1.3 var(--x-f);color:rgba(255,255,255,.78);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* a face-down card: dark glass with a violet edge */
+body.ui2 .kx-cback{position:relative;aspect-ratio:3/4;width:100%;border-radius:8px;overflow:hidden;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 2px,rgba(255,255,255,0) 2px 9px),radial-gradient(120% 80% at 50% 0%,rgba(139,123,255,.5),rgba(139,123,255,0) 62%),radial-gradient(100% 70% at 50% 100%,rgba(103,232,249,.26),rgba(103,232,249,0) 60%),linear-gradient(160deg,#1a1631,#0b0b16);
+  box-shadow:inset 0 0 0 1px rgba(196,181,253,.42),0 18px 30px -12px rgba(0,0,0,.9)}
+body.ui2 .kx-cback>i{position:absolute;inset:7px;border-radius:5px;box-shadow:inset 0 0 0 1px rgba(196,181,253,.26)}
+body.ui2 .kx-cback>b{position:absolute;inset:0;display:grid;place-items:center;font:800 30px/1 var(--x-n);color:rgba(255,255,255,.9);text-shadow:0 0 18px rgba(167,139,250,.9)}
+/* the CPU half: a slow aurora over a faint grid, an original emblem with a turning dial */
+body.ui2 .kvs-bgcpu{background:#0b0a17}
+body.ui2 .kvs-bgcpu>i{position:absolute;border-radius:50%;pointer-events:none}
+body.ui2 .kvs-bgcpu .a1{width:150%;height:86%;left:-16%;top:-22%;background:radial-gradient(closest-side,rgba(139,123,255,.62),rgba(139,123,255,0));animation:kvsDrift 13s ease-in-out infinite alternate}
+body.ui2 .kvs-bgcpu .a2{width:130%;height:80%;left:4%;top:42%;background:radial-gradient(closest-side,rgba(103,232,249,.32),rgba(103,232,249,0));animation:kvsDrift2 16s ease-in-out infinite alternate}
+body.ui2 .kvs-bgcpu .gd{inset:0;border-radius:0;background-image:linear-gradient(rgba(255,255,255,.06) 1px,rgba(255,255,255,0) 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,rgba(255,255,255,0) 1px);background-size:22px 22px;
+  -webkit-mask-image:radial-gradient(70% 56% at 50% 34%,#000,rgba(0,0,0,0));mask-image:radial-gradient(70% 56% at 50% 34%,#000,rgba(0,0,0,0))}
+body.ui2 .kvs-cpu.strong .kvs-bgcpu .a1{background:radial-gradient(closest-side,rgba(251,113,133,.55),rgba(251,113,133,0))}
+body.ui2 .kvs-cpu.strong .kvs-bgcpu .a2{background:radial-gradient(closest-side,rgba(167,139,250,.4),rgba(167,139,250,0))}
+@keyframes kvsDrift{to{transform:translate3d(-12%,8%,0) scale(1.1)}}
+@keyframes kvsDrift2{to{transform:translate3d(10%,-10%,0) scale(.92)}}
+body.ui2 .kvs-cpuav svg,body.ui2 .kx-cpuav svg{width:100%;height:100%;display:block}
+body.ui2 .kvs-cpuav{filter:drop-shadow(0 0 14px rgba(139,123,255,.55))}
+body.ui2 .kvs-cpuav::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px dashed rgba(196,181,253,.5);animation:kvsSpin 16s linear infinite}
+body.ui2 .kvs-cpu.strong .kvs-cpuav{filter:drop-shadow(0 0 14px rgba(251,113,133,.6))}
+body.ui2 .kvs-cpu.strong .kvs-cpuav::after{border-color:rgba(253,164,175,.6);animation-duration:6s}
+body.ui2 .kvs-cpuav .core{animation:kvsCore 2.6s ease-in-out infinite}
+@keyframes kvsCore{50%{opacity:.55}}
+body.ui2 .kvs-lv{display:inline-flex;align-items:center;height:22px;padding:0 10px;border-radius:999px;font:800 11.5px/1 var(--x-f);color:#e9e4ff;background:rgba(139,123,255,.2);box-shadow:inset 0 0 0 .5px rgba(196,181,253,.5)}
+body.ui2 .kvs-lv.hi{color:#ffe4e8;background:rgba(251,113,133,.22);box-shadow:inset 0 0 0 .5px rgba(253,164,175,.6)}
+body.ui2 .kvs-fx .k-bit{border-radius:1px;animation-name:kvsRise;box-shadow:0 0 6px var(--c)}
+/* the record, top centre */
+body.ui2 .kvs-tag{display:inline-flex;align-items:center;height:26px;padding:0 12px;border-radius:999px;background:rgba(10,10,18,.8);box-shadow:inset 0 0 0 .5px rgba(196,181,253,.35);font:700 12px/1 var(--x-f);color:#e4defc;white-space:nowrap}
+body.ui2 .kvs-tag:empty{display:none}
+
+/* glass cards under the stage: a faint fill and a hairline gradient border */
+body.ui2 .kx-card.kx-glass{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.016));box-shadow:0 22px 44px -32px #000}
+body.ui2 .kx-glass::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.05) 46%,rgba(255,255,255,.025));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+body.ui2 #kxtcg .kx-opp{background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.09)}
+body.ui2 #kxtcg .kx-opp.on{box-shadow:inset 0 0 0 1.5px rgba(167,139,250,.85),0 12px 28px -16px rgba(139,123,255,.95)}
+body.ui2 #kxtcg .kx-opp .ck{background:linear-gradient(135deg,#c4b5fd,#67e8f9)}
+body.ui2 #kxtcg .kx-opp em.new{color:#b8acff}
+body.ui2 .kx-oswcpu{background:radial-gradient(70% 90% at 30% 0%,rgba(139,123,255,.75),rgba(139,123,255,0) 70%),radial-gradient(60% 80% at 85% 10%,rgba(103,232,249,.5),rgba(103,232,249,0) 70%),#0d0b1c}
+body.ui2 .kx-cpuav{display:inline-grid;place-items:center;filter:drop-shadow(0 0 10px rgba(139,123,255,.55))}
+/* decks: the leader card and the name; the chosen one glows violet */
+body.ui2 .kx-tdecks{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;margin:0 -18px;padding:4px 18px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+body.ui2 .kx-tdecks::-webkit-scrollbar{display:none}
+body.ui2 .kx-tdk{position:relative;flex:none;width:98px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px 10px;border:0;border-radius:18px;
+  background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.09);color:var(--x-fg);text-align:center;transition:transform .35s var(--x-sp),box-shadow .25s,background .25s;-webkit-tap-highlight-color:transparent}
+body.ui2 .kx-tdk:active{transform:scale(.95)}
+body.ui2 .kx-tdk .tcf{width:54px;border-radius:6px;box-shadow:0 8px 16px -6px rgba(0,0,0,.8)}
+body.ui2 .kx-tdk b{display:block;width:100%;font:800 12.5px/1.25 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ui2 .kx-tdk small{font:600 11px/1.2 var(--x-f);color:var(--x-mut);white-space:nowrap}
+body.ui2 .kx-tdk.on{background:linear-gradient(180deg,rgba(139,123,255,.2),rgba(103,232,249,.06));box-shadow:inset 0 0 0 1.5px rgba(167,139,250,.8),0 12px 28px -16px rgba(139,123,255,.95)}
+body.ui2 .kx-tdk.bad{opacity:.5}
+body.ui2 .kx-tdk.new{justify-content:center;gap:8px;min-height:118px;background:none;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.12);color:var(--x-fg2);font:700 12.5px/1.3 var(--x-f)}
+body.ui2 .kx-tdk.new svg{width:20px;height:20px}
+/* CPU settings */
+body.ui2 .kx-tseg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+body.ui2 .kx-tseg button{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:64px;padding:12px 14px;border:0;border-radius:16px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.09);color:var(--x-fg);text-align:left;transition:background .25s,box-shadow .25s,transform .35s var(--x-sp)}
+body.ui2 .kx-tseg button:active{transform:scale(.97)}
+body.ui2 .kx-tseg b{font:800 15px/1.2 var(--x-f)}
+body.ui2 .kx-tseg small{font:600 11.5px/1.4 var(--x-f);color:var(--x-mut)}
+body.ui2 .kx-tseg button.on{background:linear-gradient(135deg,rgba(139,123,255,.24),rgba(103,232,249,.08));box-shadow:inset 0 0 0 1.5px rgba(167,139,250,.75)}
+body.ui2 .kx-tseg button[data-v=strong].on{background:linear-gradient(135deg,rgba(251,113,133,.24),rgba(139,123,255,.1));box-shadow:inset 0 0 0 1.5px rgba(253,164,175,.75)}
+body.ui2 .kx-topts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+body.ui2 .kx-topts button{height:36px;padding:0 14px;border:0;border-radius:999px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12);color:var(--x-fg2);font:700 13px/1 var(--x-f);transition:background .2s,color .2s}
+body.ui2 .kx-topts button.on{background:var(--x-iv);color:#121214;box-shadow:none}
+body.ui2 .kx-toptd{margin-top:10px!important}
+/* the main button: white, with a violet glow and a violet-to-cyan glint */
+body.ui2 .kx-cta.kx-tcta{background:#f7f8f8;color:#0d0d12;box-shadow:inset 0 .5px 0 #fff,0 0 0 .5px rgba(255,255,255,.5),0 16px 36px -12px rgba(139,123,255,.8)}
+body.ui2 .kx-cta.kx-tcta.strong{box-shadow:inset 0 .5px 0 #fff,0 0 0 .5px rgba(255,255,255,.5),0 16px 36px -12px rgba(251,113,133,.85)}
+body.ui2 .kx-cta.kx-tcta:disabled{background:var(--x-s3);color:var(--x-mut);box-shadow:none}
+body.ui2 .kx-tcta.kx-shine::after{background:linear-gradient(100deg,rgba(139,123,255,0),rgba(139,123,255,.5),rgba(103,232,249,.75) 55%,rgba(103,232,249,0))}
+body.ui2 .kx-spk.v{background:radial-gradient(circle,#fff 0 30%,#c4b5fd 52%,rgba(103,232,249,0) 74%)}
+body.ui2 .kx-trow{display:flex;align-items:center;gap:12px;padding:0 2px}
+body.ui2 .kx-tpack{flex:none;display:inline-flex;align-items:center;gap:4px;height:40px;padding:0 12px 0 16px;border:0;border-radius:999px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14);color:var(--x-fg);font:700 13.5px/1 var(--x-f)}
+body.ui2 .kx-tpack svg{width:15px;height:15px;opacity:.6}
+body.ui2 .kx-trec{flex:1;min-width:0;text-align:right;font:600 12px/1.5 var(--x-f);color:var(--x-mut)}
+body.ui2 .kx-trec b{font-weight:800;background:linear-gradient(90deg,#d6ccff,#9eeaf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* the TCG page's own sections below: the same glass */
+body.ui2.kxon #v-tcg #tcgbox>section{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.014))!important;box-shadow:inset 0 .5px 0 rgba(255,255,255,.14),inset 0 0 0 .5px rgba(255,255,255,.07)!important}
+body.ui2.kxon #tcgbox>.tcgh{display:none!important}
+body.ui2.kxon #tcgbox .rkhd h2,body.ui2.kxon #tcgbox section>h2{font:800 20px/1.3 var(--x-f)!important}
+body.ui2.kxon #tcgbox .tcgsban{border-radius:16px!important}
 body.ui2 .kx-holo{position:absolute;inset:0;z-index:8;pointer-events:none;overflow:hidden;border-radius:inherit;font-style:normal}
 body.ui2 .kx-holo::before{content:"";position:absolute;top:-25%;bottom:-25%;left:0;width:60%;background:linear-gradient(100deg,rgba(255,255,255,0),rgba(255,206,240,.3) 34%,rgba(255,255,255,.6) 50%,rgba(170,232,255,.3) 66%,rgba(255,255,255,0));
   transform:translateX(-130%) skewX(-16deg);animation:kxHolo 5.6s cubic-bezier(.45,0,.25,1) infinite;animation-delay:var(--hd,0s)}
 @keyframes kxHolo{0%{transform:translateX(-130%) skewX(-16deg)}30%,100%{transform:translateX(240%) skewX(-16deg)}}
-body.ui2 .kx-deckchip{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 12px 8px 14px;border:0;border-radius:16px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 .5px var(--x-line2);color:var(--x-fg);text-align:left;-webkit-tap-highlight-color:transparent}
-body.ui2 .kx-deckchip span{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-body.ui2 .kx-deckchip small{font:700 11.5px/1 var(--x-f);color:var(--x-mut)}
-body.ui2 .kx-deckchip b{font:800 15px/1.2 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.ui2 .kx-deckchip>svg{width:18px;height:18px;flex:none;opacity:.5}
-body.ui2 .kx-deckchip em{font:700 13px/1 var(--x-f);font-style:normal;color:var(--x-gold)}
-body.ui2 .kx-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-body.ui2 .kx-rec{margin:0;text-align:center;font:600 12.5px/1.5 var(--x-f);color:var(--x-mut)}
-body.ui2.kxon #tcgbox>.tcgh{display:none!important}
+@keyframes kxBob{0%,100%{transform:rotate(var(--rr,0deg)) translateY(var(--ty,0px))}50%{transform:rotate(calc(var(--rr,0deg) + 1.6deg)) translateY(calc(var(--ty,0px) - 5px))}}
+@media (prefers-reduced-motion:reduce){body.ui2 #kxtcg::before,body.ui2 .kvs-beam,body.ui2 .kvs-bgcpu>i,body.ui2 .kvs-tci,body.ui2 .kvs-cpuav::after{animation:none!important}}
 
 /* ---------- 対戦 > デッキ ---------- */
 body.ui2 #kxdeck{display:flex;flex-direction:column;gap:10px}
-body.ui2 .kx-drow{display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;padding:14px;border-radius:22px;background:linear-gradient(180deg,#17171b,#111114);box-shadow:inset 0 .5px 0 rgba(255,255,255,.08),inset 0 0 0 .5px rgba(255,255,255,.05)}
+body.ui2 .kx-drow{position:relative;display:grid;grid-template-columns:64px 1fr;gap:14px;align-items:center;padding:14px;border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.016));box-shadow:0 22px 44px -32px #000}
+body.ui2 .kx-drow::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.05) 46%,rgba(255,255,255,.025));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
 body.ui2 .kx-drow .tcf{width:64px;border-radius:8px;box-shadow:0 8px 18px rgba(0,0,0,.45)}
 body.ui2 .kx-drow .t{min-width:0;display:flex;flex-direction:column;gap:4px}
 body.ui2 .kx-drow .t b{font:800 17px/1.3 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -3786,9 +3886,6 @@ body.ui2.kxon #v-gacha .tkrow{display:flex!important;align-items:center;gap:12px
 body.ui2.kxon #v-gacha .tkn{flex:1;min-width:0;font:700 14px/1.4 var(--x-f)!important}
 body.ui2.kxon #v-gacha .tkbtn{flex:none;min-width:72px;min-height:40px!important;padding:0 16px!important;white-space:nowrap;font:800 14px/1 var(--x-f)!important;border-radius:999px!important}
 
-/* ---------- TCG page: the old sections below the hero ---------- */
-body.ui2.kxon #tcgbox .rkhd h2,body.ui2.kxon #tcgbox section>h2{font:800 20px/1.3 var(--x-f)!important}
-body.ui2.kxon #tcgbox .tcgsban{border-radius:16px!important}
 
 /* ---------- 管理: the tab row is a sideways row of chips ---------- */
 body.ui2.kxon #admTabs{display:flex!important;gap:8px!important;overflow-x:auto;margin:0 -18px 14px!important;padding:2px 18px 4px!important;scrollbar-width:none;background:none!important;box-shadow:none!important}
@@ -6954,7 +7051,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';return M[id]||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=120';
+const TCG_SRC='tcg_play.html?v=121';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -8207,9 +8304,9 @@ function makeSplash(root,o){o=o||{};
     const L=logoPoints(cx,cy,LS);const ang=(px,py)=>Math.atan2(py-cy,px-cx);
     /* the logo is built from the inner part of the grid (what is on screen when the camera dives) */
     const inner=grid.filter(p=>Math.abs(p.gx-cx)<W*.48&&Math.abs(p.gy-cy)<H*.36);const step=Math.max(1,Math.floor(inner.length/L.length));
-    const pool=inner.filter((_,k)=>k%step===0).slice(0,L.length);while(pool.length<L.length)pool.push(inner[Math.floor(R()*inner.length)]);
+    const pool=inner.filter((_,k)=>k%step===0).slice(0,L.length);while(inner.length&&pool.length<L.length)pool.push(inner[Math.floor(R()*inner.length)]);
     pool.sort((a,b)=>ang(a.gx,a.gy)-ang(b.gx,b.gy));const Ls=L.slice().sort((a,b)=>ang(a[0],a[1])-ang(b[0],b[1]));
-    pool.forEach((p,k)=>{p.tx=Ls[k][0];p.ty=Ls[k][1];p.c=Ls[k][2];p.logo=true;p.lensL=Math.hypot(p.tx-lens.x,p.ty-lens.y)>lens.r*.78&&Math.hypot(p.tx-lens.x,p.ty-lens.y)<lens.r*1.08});
+    pool.forEach((p,k)=>{if(!p||!Ls[k])return;p.tx=Ls[k][0];p.ty=Ls[k][1];p.c=Ls[k][2];p.logo=true;p.lensL=Math.hypot(p.tx-lens.x,p.ty-lens.y)>lens.r*.78&&Math.hypot(p.tx-lens.x,p.ty-lens.y)<lens.r*1.08});
     parts=grid;const maxd=Math.hypot(W,H)/2;parts.forEach(p=>{p.dn=p.d/maxd});
     /* logo particles leave in order of distance from the centre */
     const lp=parts.filter(p=>p.logo).sort((a,b)=>a.d-b.d);lp.forEach((p,k)=>p.ord=k/lp.length)}
@@ -8884,9 +8981,10 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   function splash(short){if(document.querySelector('body>.km-splash'))return;hold(true);
     const r=document.createElement('div');r.className='km-splash';document.body.append(r);
     const lob=document.getElementById('lob');const piece=K.makeSplash(r,{short,under:lob});
-    const run=K.runner(piece,piece.dur,()=>{r.remove();if(lob)lob.style.transform='';hold(false)});
+    const rs=()=>{if(r.isConnected)piece.layout()};
+    const run=K.runner(piece,piece.dur,()=>{r.remove();removeEventListener('resize',rs);if(lob)lob.style.transform='';hold(false)});
     window.__kmRevealed=false;const rv=()=>{if(window.__kmRevealed)return;window.__kmRevealed=true;hold(false);try{window.__lobSync&&__lobSync()}catch(e){}const waiting=window.__lobWaiting;dispatchEvent(new Event('kmo:reveal'));if(!waiting&&window.__lobIntro)window.__lobIntro()};
-    r.addEventListener('pointerdown',()=>{run.skip();rv()});const rs=()=>piece.layout();addEventListener('resize',rs);
+    r.addEventListener('pointerdown',()=>{run.skip();rv()});addEventListener('resize',rs);
     setTimeout(rv,(short?.5:1.95)*1000);run.start();return r}
   /* ---------- the splash as a pre-rendered video: the phone's decoder plays it at 60fps no matter how busy the app is.
      Cached as a blob (Safari wants real range support for <video>, which a service worker cannot give); the canvas
@@ -9138,7 +9236,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   {const h=$i('hist');const hs=h&&h.closest('section');if(hs)hs.dataset.bp='old'}
   const pRate=mk('div');pRate.id='kxrate';pRate.dataset.bp='rate';
   const pDeck=mk('div');pDeck.id='kxdeck';pDeck.dataset.bp='deck';
-  const pHist=mk('div','kx-card');pHist.id='kxhist';pHist.dataset.bp='tour';
+  const pHist=mk('div','kx-card kx-glass');pHist.id='kxhist';pHist.dataset.bp='tour';
   vb.append(pRate,pDeck,pHist);
   {const rm=$i('rmcard');if(rm){pRate.append(rm)}}
   const tHero=mk('div');tHero.id='kxtcg';
@@ -9158,7 +9256,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   const vsMarkup='<div class="kvs-seam"><b></b><i></i></div><div class="kvs-vs"><i class="flare"></i><i class="glow"></i><i class="ring"></i><b><span>VS</span><i class="sw"></i></b></div>'+
     '<div class="kvs-top"><div class="kvs-state" hidden><i></i><span></span></div><div class="kvs-stake" hidden><i class="coin"></i><b class="kx-num"></b></div></div>';
   const vs=mk('div','kvs');vs.innerHTML=vsMarkup;if(offIO)offIO.observe(vs);
-  const rOpps=mk('div','kx-card'),rBet=mk('div','kx-card'),rGo=mk('div','kx-go'),rLive=mk('div','kx-live');rLive.hidden=true;
+  const rOpps=mk('div','kx-card kx-glass'),rBet=mk('div','kx-card kx-glass'),rGo=mk('div','kx-go'),rLive=mk('div','kx-live');rLive.hidden=true;
   rOpps.innerHTML='<div class="kx-h"><h2>相手</h2><span class="kx-hs"></span></div><div class="kx-opps" role="listbox" aria-label="対戦相手"></div>';
   rBet.innerHTML='<div class="kx-h"><h2>賭けるポイント</h2><span class="kx-hs"></span></div><div class="kx-bets"></div><div class="kx-odds"><span class="w">勝てば<b>+0</b></span><span class="l">負ければ<b>0</b></span></div>';
   rGo.innerHTML='<button type="button" class="kx-cta kx-shine" disabled>相手を選んでください</button><p class="kx-err"></p><p class="kx-foot">相手の画面に承認の確認が出ます。結果もお互いの承認で確定します。</p>';
@@ -9182,7 +9280,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
 
   /* ambient particles from the player's 対戦演出 (its particle kinds and palette). Without one: a little dust in the rank's colour. */
   const PK={fire:'rise',rise:'rise',burst:'rise',rocket:'rise',ink:'ink',stars:'tw',warp:'tw',petal:'petal',snow:'snow',bolt:'bolt',bubble:'bubble',streak:'streak',leaf:'leaf',
-    code:'code',feather:'feather',dfeather:'dfeather',meteor:'meteor',coin:'coin',shuriken:'shuriken',heart:'heart',shard:'shard'};
+    code:'code',feather:'feather',dfeather:'dfeather',meteor:'meteor',coin:'coin',shuriken:'shuriken',heart:'heart',shard:'shard',bit:'bit'};
   const CAP={bolt:2,meteor:5,streak:7,shuriken:5};
   const RR=(a,b)=>a+Math.random()*(b-a),SG=()=>Math.random()<.5?-1:1,GLY='01<>/+=アイウエオカキクケコ';
   function fxInto(box,X,which,n0){const kinds=[];((X&&X.ex)||[]).forEach(e=>{const k=PK[e[0]];if(k&&!kinds.includes(k))kinds.push(k)});
@@ -9195,6 +9293,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
       let x=RR(4,96),y=null,s=4,d=4,sw=RR(-24,24),r='0deg';
       switch(k){
         case 'rise':s=RR(2.4,5.4);d=RR(3,5.4);break;
+        case 'bit':s=RR(2,4.4);d=RR(3.6,6.4);break;
         case 'dust':s=RR(1.6,3);d=RR(6,9.5);sw=RR(-14,14);break;
         case 'tw':s=RR(7,13);d=RR(2.2,3.8);y=RR(6,80);break;
         case 'petal':case 'leaf':s=RR(8,13);d=RR(5,8);sw=SG()*RR(16,38);r=(SG()*RR(180,420)).toFixed(0)+'deg';break;
@@ -9214,7 +9313,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
       S('--sw',sw.toFixed(0)+'px');S('--r',r);S('--c',pal?pal[ci++%pal.length]:'var(--ml,#cdd6e3)');box.append(i)}})}
 
   /* one half of the stage, built from that player's collection */
-  function sideEl(p,which,av,rt){const r=p?(rt||rOf(p)):1500,ti=TI(r),s=mk('div','kvs-side '+which);if(p){try{mvars(s,ti)}catch(e){}}
+  function sideEl(p,which,av,rt,np){const r=p?(rt||rOf(p)):1500,ti=TI(r),s=mk('div','kvs-side '+which);if(p){try{mvars(s,ti)}catch(e){}}
     const X=p?xsOf(p):null,bv=p?bgOf(p):null,bg=mk('div','kvs-bg');
     if(bv){bg.classList.add('pb-'+bv);try{bgLayer(bg,bv)}catch(e){}}
     else if(X&&X.K&&X.K.img){const im=mk('img','kvs-art');im.alt='';im.decoding='async';im.src=X.K.img;im.style.objectPosition=(X.K.fx||50)+'% '+(X.K.fy||30)+'%';bg.append(im)}
@@ -9223,7 +9322,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     s.append(bg);
     if(X&&X.en){const w=mk('div','kvs-wm');w.style.setProperty('--wc',(X.tx&&X.tx[1])||'#fff');w.append(mk('b',null,esc(X.en)));s.append(w)}
     s.append(mk('div','kvs-shade'));
-    const fx=mk('div','kvs-fx');fxInto(fx,X,which,p?(av&&av<80?9:12):6);s.append(fx);
+    const fx=mk('div','kvs-fx');fxInto(fx,X,which,np||(p?(av&&av<80?9:12):6));s.append(fx);
     const body=mk('div','kvs-body');
     if(p){const aw=mk('div','kvs-avw');aw.append(AV(p.id,av||80),mk('i','kvs-ring'));body.append(aw);
       const n=mk('div','kvs-nm');n.append(NAME(p.name,ti));body.append(n);
@@ -9356,21 +9455,142 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const nb=mk('button','kx-dnew',S.plus+'新しいデッキを組む');nb.type='button';nb.onclick=()=>{try{tcgPlay('build=new')}catch(e){}};pDeck.append(nb);
     pDeck.append(mk('p','kx-sub','デッキは20枚。同じカードは2枚まで。金枠カードはリーダーにしたものだけ、デッキに2枚まで(引いたら生贄1体で出せる)。'))}
 
-  /* TCG hero */
-  let heroSig='',heroLoad=false;
-  function renderHero(){const me=ME();let T={};try{T=tcgOf(inv)}catch(e){}const st=(()=>{try{return tcgHasSt()}catch(e){return false}})();
-    const L=T.decks||[];let fr='';try{fr=tcgFriendRec(me&&me.id)}catch(e){}
-    const sig=JSON.stringify([st,L.length,L[0]&&L[0].name,T.w,T.l,fr,!!window.CARD_IMG,!!me]);if(sig===heroSig)return;heroSig=sig;
-    if(!window.CARD_IMG&&!heroLoad){heroLoad=true;try{tcgLoad().then(()=>{heroSig='';renderHero()})}catch(e){}}
-    tHero.replaceChildren();const tt=mk('div','kx-tt'),tx=mk('div');tx.append(mk('h2',null,'きもオタTCG'),mk('p',null,'推しを出して、重ねて育てて、覚醒させるカードバトル'));tt.append(tx);
-    if(window.CARD_IMG){const fan=mk('div','kx-fan');['q8','w8','y8'].forEach((id,k)=>{try{const f=tcgFace(id),h=mk('i','kx-holo');h.style.setProperty('--hd',(k*.45).toFixed(2)+'s');f.append(h);fan.append(f)}catch(e){}});tt.append(fan)}
-    tHero.append(tt);
-    if(!st){tHero.append(mk('p','kx-sub','はじめにスターターデッキを1つ選びます。下の3つから選んでください。'));return}
-    const dc=mk('button','kx-deckchip');dc.type='button';dc.innerHTML='<span><small>デッキ</small><b>'+esc(L[0]?L[0].name:'まだありません')+'</b></span><em>'+(L.length>1?'ほか'+(L.length-1)+'個':'')+'</em>'+S.right;dc.onclick=()=>{try{kbSeg('deck')}catch(e){}};
-    const cpu=mk('button','kx-cta kx-shine','CPUと対戦');cpu.type='button';cpu.disabled=!me;cpu.onclick=()=>{try{tcgPlay()}catch(e){}};
-    const two=mk('div','kx-2'),fb=mk('button','kx-btn2','友達と対戦<small>勝つと宝箱 最大50pt</small>'),pk=mk('button','kx-btn2','パックを開ける<small>ガチャのTCGカードへ</small>');
-    fb.type=pk.type='button';fb.disabled=!me;fb.onclick=()=>{try{tcgFriendPick()}catch(e){}};pk.onclick=()=>{try{tcgGoPacks()}catch(e){}};two.append(fb,pk);
-    tHero.append(dc,cpu,two,mk('p','kx-rec','CPU戦 '+(T.w||0)+'勝 '+(T.l||0)+'敗 ・ 友達戦 '+esc(fr||'0勝 0敗')))}
+  /* ---------- 対戦 > TCG: the same VS stage. Your collection and your deck's leader card against the CPU or a friend ---------- */
+  const LS=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:v}catch(e){return d}},LSset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+  let tOpp=LS('kxtopp','cpu'),tDeck=+LS('kxtdeck',0)||0,tLv=LS('kotcg_cpulv','normal')==='strong'?'strong':'normal',tOpt=LS('kxtcpu','auto');
+  const TOPT=[['auto','おまかせ','CPUが強いと判断したデッキから選ぶ。毎回入れ替わる'],['rand','ランダム構築','CPUがその場で組む。強さはばらばら'],['rec','おすすめ','11族のおすすめデッキから1つ'],['mirror','同じデッキ','あなたと同じデッキをCPUが使う']];
+  if(!TOPT.some(o=>o[0]===tOpt))tOpt='auto';
+  let cpuN=0;
+  /* an original emblem for the CPU: a dial, a hexagon and a lit core */
+  function cpuSVG(strong){const k='kc'+(++cpuN),a=strong?'#fda4af':'#c4b5fd',b=strong?'#c4b5fd':'#67e8f9',c=strong?'#fb7185':'#8b7bff';
+    return '<svg viewBox="0 0 80 80" aria-hidden="true"><defs><linearGradient id="'+k+'g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+a+'"/><stop offset="1" stop-color="'+b+'"/></linearGradient>'+
+      '<radialGradient id="'+k+'c"><stop offset="0" stop-color="#fff"/><stop offset=".38" stop-color="'+a+'"/><stop offset="1" stop-color="'+c+'" stop-opacity="0"/></radialGradient></defs>'+
+      '<circle cx="40" cy="40" r="38.5" fill="#0c0b18" stroke="url(#'+k+'g)" stroke-width="1.4"/>'+
+      '<circle cx="40" cy="40" r="31" fill="none" stroke="url(#'+k+'g)" stroke-width="1" stroke-dasharray="1.2 4.6" opacity=".75"/>'+
+      '<path d="M40 19 58.2 29.5v21L40 61 21.8 50.5v-21z" fill="none" stroke="url(#'+k+'g)" stroke-width="1.5" stroke-linejoin="round"/>'+
+      '<path d="M40 27.5 50.8 33.7v12.6L40 52.5 29.2 46.3V33.7z" fill="rgba(255,255,255,.04)" stroke="url(#'+k+'g)" stroke-width=".8" opacity=".7"/>'+
+      '<circle class="core" cx="40" cy="40" r="12" fill="url(#'+k+'c)"/><circle cx="40" cy="40" r="3.6" fill="#fff"/></svg>'}
+  const tcgOk=d=>{try{return tcgDeckOk(d)}catch(e){return false}};
+  const tRate=id=>{try{return tcgRating(id)}catch(e){return 1500}};
+  function tH2H(me,oid){let w=0,l=0,last=0;try{tcgms.forEach(d=>{if(!tcgDone(d))return;const pair=(d.a===me&&d.b===oid)||(d.a===oid&&d.b===me);if(!pair)return;last=Math.max(last,d.t||0);if(d.wa===me)w++;else if(d.wa===oid)l++})}catch(e){}return{w,l,last}}
+  function tDecksOf(){let T={};try{T=tcgOf(inv)}catch(e){}return T.decks||[]}
+  function tSel(){const L=tDecksOf();if(!L[tDeck]||!tcgOk(L[tDeck])){const i=L.findIndex(tcgOk);tDeck=i<0?0:i}return L[tDeck]||null}
+  /* a card for the stage: your leader face, the CPU's face-down card, or a friend's face-down card */
+  function tCard(face,label,back){const w=mk('div','kvs-tcard'),i=mk('div','kvs-tci');
+    if(face){let f;try{f=tcgFace(face.lead,null,((face.scr||{})[face.lead]||0)>0)}catch(e){f=mk('div','tcf')}const h=mk('i','kx-holo');h.style.setProperty('--hd','.6s');f.append(h);i.append(f)}
+    else{const b=mk('div','kx-cback');b.innerHTML='<i></i><b>'+(back||'?')+'</b>';const h=mk('i','kx-holo');h.style.setProperty('--hd','1.4s');b.append(h);i.append(b)}
+    w.append(i,mk('div','kvs-tdeck',esc(label||'')));return w}
+  function tMeSide(me,deck){const s=sideEl(me,'me',60,tRate(me.id),9);s.classList.add('kvs-tside');const body=s.querySelector('.kvs-body');
+    body.append(deck?tCard(deck,deck.name):tCard(null,'デッキを組む','+'));return s}
+  function tCpuSide(deck){const s=mk('div','kvs-side op kvs-cpu kvs-tside'+(tLv==='strong'?' strong':''));s.style.setProperty('--mg',tLv==='strong'?'#fb7185':'#8b7bff');s.style.setProperty('--ml',tLv==='strong'?'#fda4af':'#c4b5fd');
+    const bg=mk('div','kvs-bg kvs-bgcpu');bg.innerHTML='<i class="a1"></i><i class="a2"></i><i class="gd"></i>';s.append(bg,mk('div','kvs-shade'));
+    const fx=mk('div','kvs-fx');fxInto(fx,{ex:[['bit',1],['stars',1]],pal:tLv==='strong'?['#fda4af','#c4b5fd','#fb7185']:['#a5b4fc','#67e8f9','#c4b5fd']},'op',8);s.append(fx);
+    const body=mk('div','kvs-body'),aw=mk('div','kvs-avw kvs-cpuav');aw.innerHTML=cpuSVG(tLv==='strong');aw.append(mk('i','kvs-ring'));body.append(aw);
+    body.append(mk('div','kvs-nm','CPU'));const m=mk('div','kvs-meta');m.append(mk('span','kvs-lv'+(tLv==='strong'?' hi':''),tLv==='strong'?'つよい':'ふつう'));body.append(m);
+    const o=TOPT.find(x=>x[0]===tOpt)||TOPT[0];body.append(tOpt==='mirror'&&deck?tCard(deck,'同じデッキ'):tCard(null,o[1],'?'));s.append(body);return s}
+  function tFriendSide(p){const s=sideEl(p,'op',60,tRate(p.id),9);s.classList.add('kvs-tside');s.querySelector('.kvs-body').append(tCard(null,'相手が選ぶ','?'));return s}
+
+  const tvs=mk('div','kvs kvs-tcg');tvs.innerHTML=vsMarkup+'<i class="kvs-beam"></i>';tvs.querySelector('.kvs-top').append(mk('div','kvs-tag'));if(offIO)offIO.observe(tvs);
+  const tOpps=mk('div','kx-card kx-glass'),tDk=mk('div','kx-card kx-glass'),tCpu=mk('div','kx-card kx-glass'),tGo=mk('div','kx-go'),tRow=mk('div','kx-trow');
+  tOpps.innerHTML='<div class="kx-h"><h2>相手</h2><span class="kx-hs">CPUか友達を選ぶ</span></div><div class="kx-opps" role="listbox" aria-label="TCGの対戦相手"></div>';
+  tDk.innerHTML='<div class="kx-h"><h2>デッキ</h2><button type="button" class="kx-link">デッキのページ'+S.right+'</button></div><div class="kx-tdecks" role="listbox" aria-label="使うデッキ"></div>';
+  tCpu.innerHTML='<div class="kx-h"><h2>CPUの設定</h2></div><div class="kx-tseg" role="radiogroup" aria-label="CPUの強さ"><button type="button" class="kx-tsb" role="radio" data-v="normal"><b>ふつう</b><small>いつものCPU</small></button><button type="button" class="kx-tsb" role="radio" data-v="strong"><b>つよい</b><small>先の展開を読んで、いちばん勝てる手を選ぶ</small></button></div>'+
+    '<div class="kx-topts" role="radiogroup" aria-label="CPUのデッキ"></div><p class="kx-sub kx-toptd"></p>';
+  tGo.innerHTML='<button type="button" class="kx-cta kx-shine kx-tcta">CPUと対戦</button><p class="kx-foot"></p>';
+  tRow.innerHTML='<button type="button" class="kx-tpack">パックを開ける'+S.right+'</button><span class="kx-trec"></span>';
+  tHero.append(tvs,tOpps,tDk,tCpu,tGo,tRow);
+  tDk.querySelector('.kx-link').onclick=()=>{try{kbSeg('deck')}catch(e){}};
+  tRow.querySelector('.kx-tpack').onclick=()=>{try{tcgGoPacks()}catch(e){}};
+  tCpu.querySelectorAll('.kx-tseg button').forEach(b=>b.onclick=()=>{if(tLv===b.dataset.v)return;tLv=b.dataset.v;LSset('kotcg_cpulv',tLv);sfx('tick');paintTcg()});
+  TOPT.forEach(([k,n])=>{const b=mk('button','kx-tob',esc(n));b.type='button';b.setAttribute('role','radio');b.dataset.v=k;b.onclick=()=>{if(tOpt===k)return;tOpt=k;LSset('kxtcpu',k);sfx('tick');paintTcg()};tCpu.querySelector('.kx-topts').append(b)});
+  const tCta=tGo.querySelector('.kx-cta');let tSending=false;
+  tCta.onclick=async()=>{const me=ME();if(!me||tSending)return;let st=false;try{st=tcgHasSt()}catch(e){}
+    if(!st){const s=document.querySelector('#tcgbox .tcgst');if(s)s.scrollIntoView({behavior:'smooth',block:'start'});return}
+    const deck=tSel();if(!deck||!tcgOk(deck)){try{kbSeg('deck')}catch(e){}return}
+    if(tOpp==='cpu'){LSset('kotcg_cpulv',tLv);burst2(tCta);sfx('slam');setTimeout(()=>{try{tcgPlay('cpu='+tDeck+'.'+tOpt)}catch(e){}},260);return}
+    const p=players.find(x=>x.id===tOpp);if(!p)return;tSending=true;paintTcg();
+    try{await tcgChallenge(p,tcgPlainDeck(deck));if(document.querySelector('.tcgmd[data-wait]')){burst2(tCta);sfx('chime')}}catch(e){}tSending=false;paintTcg()};
+  function burst2(host){if(RMO)return;const r=host.getBoundingClientRect(),pr=tGo.getBoundingClientRect();const cx=r.left-pr.left+r.width/2,cy=r.top-pr.top+r.height/2;
+    for(let k=0;k<16;k++){const d=mk('i','kx-spk v');d.style.left=cx+'px';d.style.top=cy+'px';tGo.append(d);const a=k/16*Math.PI*2+Math.random()*.3,dist=70+Math.random()*80;
+      const an=d.animate([{transform:'translate(-50%,-50%) scale(1.2)',opacity:1},{transform:'translate(calc(-50% + '+(Math.cos(a)*dist).toFixed(1)+'px),calc(-50% + '+(Math.sin(a)*dist*.5).toFixed(1)+'px)) scale(.2)',opacity:0}],{duration:640+Math.random()*280,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'});an.onfinish=()=>d.remove()}}
+
+  let tMe=null,tOp=null,tOppSig='',tDkSig='',tLoad=false;
+  /* the card turns over when only the deck changes; a new opponent slides in and the VS lands */
+  function flipIn(side){const c=side&&side.querySelector('.kvs-tcard');ani(c,[{transform:'perspective(700px) rotateY(-90deg)',opacity:.4},{transform:'perspective(700px) rotateY(0deg)',opacity:1}],{duration:520,easing:'cubic-bezier(.2,.9,.3,1.1)'})}
+  function paintTStage(me,deck){
+    const kMe=me.id+'|'+tRate(me.id)+'|'+JSON.stringify(me.eq||{})+'|'+(deck?deck.lead+deck.name:'-')+'|'+!!window.CARD_IMG;
+    if(!tMe||tMe.dataset.k!==kMe){const n=tMeSide(me,deck);n.dataset.k=kMe;n.dataset.who=me.id+'|'+JSON.stringify(me.eq||{});const old=tMe;if(old)old.replaceWith(n);else tvs.prepend(n);tMe=n;if(old&&old.dataset.who===n.dataset.who)flipIn(n)}
+    const p=tOpp==='cpu'?null:players.find(x=>x.id===tOpp);
+    const kOp=p?'p|'+p.id+'|'+tRate(p.id)+'|'+JSON.stringify(p.eq||{}):'cpu|'+tLv+'|'+tOpt+'|'+(tOpt==='mirror'&&deck?deck.lead+'|'+!!window.CARD_IMG:'');
+    if(!tOp||tOp.dataset.k!==kOp){const n=p?tFriendSide(p):tCpuSide(deck);n.dataset.k=kOp;n.dataset.who=p?p.id:'cpu';const old=tOp;tOp=n;tMe.after(n);
+      if(old&&old.dataset.who!==n.dataset.who){const a=ani(old,[{opacity:1,transform:'none'},{opacity:0,transform:'translateX(24px)'}],{duration:180,easing:'ease-in',fill:'forwards'});if(a)a.onfinish=()=>old.remove();else old.remove();
+        ani(n,[{opacity:0,transform:'translateX(40px)'},{opacity:1,transform:'none'}],{duration:560,delay:70});
+        ani(n.querySelector('.kvs-avw'),[{transform:'scale(.6)'},{transform:'scale(1.08)',offset:.6},{transform:'scale(1)'}],{duration:640,delay:110});punch(tvs);sfx('slam')}
+      else{if(old)old.remove();if(old)flipIn(n)}}
+    const tag=tvs.querySelector('.kvs-tag');let tx='';
+    if(p){const h=tH2H(me.id,p.id);tx=h.w+h.l?'通算 '+h.w+'勝 '+h.l+'敗':'はじめての対戦'}else{let T={};try{T=tcgOf(inv)}catch(e){}tx='CPU戦 '+(T.w||0)+'勝 '+(T.l||0)+'敗'}
+    if(tag.textContent!==tx)tag.textContent=tx}
+  function renderTcg2(){const me=ME();let st=false;try{st=tcgHasSt()}catch(e){}
+    if(!window.CARD_IMG&&!tLoad){tLoad=true;try{tcgLoad().then(()=>{tOppSig=tDkSig='';renderTcg2()})}catch(e){}}
+    tHero.classList.toggle('nost',!st);
+    if(!me){[tvs,tOpps,tDk,tCpu,tGo,tRow].forEach(e=>e.hidden=true);return}[tvs,tOpps,tDk,tGo,tRow].forEach(e=>e.hidden=false);
+    /* opponents: the CPU first, then friends (recent rivals first) */
+    if(tOpp!=='cpu'&&!players.some(p=>p.id===tOpp&&!p.ban))tOpp='cpu';
+    const fr=players.filter(p=>p.id!==me.id&&!p.ban&&!p.hidden).map(p=>({p,id:p.id,r:tRate(p.id),h:tH2H(me.id,p.id)})).sort((a,b)=>(b.h.last-a.h.last)||(b.r-a.r));
+    let T={};try{T=tcgOf(inv)}catch(e){}
+    const os=JSON.stringify([fr.map(o=>[o.id,o.p.name,o.r,o.h.w,o.h.l,bgOf(o.p),o.p.eq&&o.p.eq.a,o.p.eq&&o.p.eq.f]),T.w,T.l,tLv]);
+    if(os!==tOppSig){tOppSig=os;const box=tOpps.querySelector('.kx-opps');
+      const c=mk('button','kx-opp kx-ocpu');c.type='button';c.dataset.id='cpu';c.setAttribute('role','option');const sw=mk('i','kx-osw kx-oswcpu'),av=mk('span','kav kx-cpuav');av.style.setProperty('--es','56px');av.innerHTML=cpuSVG(tLv==='strong');
+      c.append(sw,mk('i','ck'),av,mk('b',null,'CPU'),mk('small',null,tLv==='strong'?'つよい':'ふつう'),mk('em','new',(T.w||0)+'勝 '+(T.l||0)+'敗'));c.onclick=()=>{if(tOpp==='cpu')return;tOpp='cpu';LSset('kxtopp','cpu');paintTcg();ani(c,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
+      const L=[c].concat(fr.map(o=>{const b=mk('button','kx-opp');b.type='button';b.dataset.id=o.id;b.setAttribute('role','option');
+        const sw=mk('i','kx-osw'),bv=bgOf(o.p);if(bv)sw.classList.add('pb-'+bv);else sw.classList.add('none');try{mvars(b,TI(o.r))}catch(e){}
+        b.append(sw,mk('i','ck'),AV(o.id,56),mk('b',null,esc(o.p.name)),mk('small',null,esc(RNk(o.r))),mk('em',o.h.w+o.h.l?'':'new',o.h.w+o.h.l?o.h.w+'勝 '+o.h.l+'敗':'初対戦'));
+        b.onclick=()=>{tOpp=tOpp===o.id?'cpu':o.id;LSset('kxtopp',tOpp);paintTcg();ani(b,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};return b}));
+      box.replaceChildren(...L)}
+    /* decks */
+    const DL=tDecksOf();const ds=JSON.stringify([st,DL.map(d=>[d.name,d.lead,(d.cards||[]).length,tcgOk(d),((d.scr||{})[d.lead]||0)>0]),!!window.CARD_IMG]);
+    if(ds!==tDkSig){tDkSig=ds;const box=tDk.querySelector('.kx-tdecks');
+      const L=DL.map((d,i)=>{const ok=tcgOk(d),b=mk('button','kx-tdk'+(ok?'':' bad'));b.type='button';b.dataset.i=i;b.setAttribute('role','option');let f;try{f=tcgFace(d.lead,null,((d.scr||{})[d.lead]||0)>0)}catch(e){f=mk('div','tcf')}
+        b.append(f,mk('b',null,esc(d.name)),mk('small',null,ok?(d.cards||[]).length+'枚':'組み直しが必要'));b.onclick=()=>{if(!ok){try{tcgPlay('build='+i)}catch(e){}return}if(tDeck===i)return;tDeck=i;LSset('kxtdeck',i);sfx('tick');paintTcg()};return b});
+      const nb=mk('button','kx-tdk new',S.plus+'<span>新しく組む</span>');nb.type='button';nb.onclick=()=>{try{tcgPlay('build=new')}catch(e){}};L.push(nb);
+      box.replaceChildren(...L);if(!st)box.replaceChildren(mk('div','kx-empty','スターターデッキを選ぶと、ここにデッキが並びます'))}
+    let fr2='';try{fr2=tcgFriendRec(me.id)}catch(e){}
+    tRow.querySelector('.kx-trec').innerHTML='CPU戦 <b>'+(T.w||0)+'勝 '+(T.l||0)+'敗</b> ・ 友達戦 <b>'+esc(fr2||'0勝 0敗')+'</b>';
+    paintTcg()}
+  function paintTcg(){const me=ME();if(!me)return;let st=false;try{st=tcgHasSt()}catch(e){}
+    tOpps.querySelectorAll('.kx-opp').forEach(b=>{const on=b.dataset.id===tOpp;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false')});
+    const deck=st?tSel():null;
+    tDk.querySelectorAll('.kx-tdk[data-i]').forEach(b=>{const on=+b.dataset.i===tDeck;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false')});
+    tCpu.hidden=tOpp!=='cpu';
+    tCpu.querySelectorAll('.kx-tseg button').forEach(b=>{const on=b.dataset.v===tLv;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false')});
+    tCpu.querySelectorAll('.kx-topts button').forEach(b=>{const on=b.dataset.v===tOpt;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false')});
+    tCpu.querySelector('.kx-toptd').textContent=(TOPT.find(x=>x[0]===tOpt)||TOPT[0])[2];
+    paintTStage(me,deck);
+    const p=tOpp==='cpu'?null:players.find(x=>x.id===tOpp);
+    tCta.classList.toggle('strong',!p&&tLv==='strong');
+    if(!st){tCta.disabled=false;tCta.textContent='スターターデッキを選ぶ';tGo.querySelector('.kx-foot').textContent='3つのうち1つを選ぶと、CPUや友達と対戦できます'}
+    else if(!deck||!tcgOk(deck)){tCta.disabled=false;tCta.textContent='デッキを組む';tGo.querySelector('.kx-foot').textContent='使えるデッキがありません。デッキのページで組んでください'}
+    else if(p){tCta.disabled=tSending;tCta.innerHTML=tSending?'送信中…':esc(p.name)+'に申し込む';tGo.querySelector('.kx-foot').textContent='相手が受けると始まります(10分有効)。勝つと宝箱(最大50pt)'}
+    else{tCta.disabled=false;tCta.textContent=tLv==='strong'?'つよいCPUと対戦':'CPUと対戦';tGo.querySelector('.kx-foot').textContent='練習やデッキの試しに。レートは変わりません'}}
+  /* entrance: same as the rate stage, then both cards are dealt face up */
+  let tIntroN=0;
+  function introT(){if(!tMe||!tOp)return;const full=tIntroN++===0;
+    ani(tMe,[{opacity:0,transform:'translateX('+(full?-36:-18)+'px)'},{opacity:1,transform:'none'}],{duration:full?640:380});
+    ani(tOp,[{opacity:0,transform:'translateX('+(full?36:18)+'px)'},{opacity:1,transform:'none'}],{duration:full?640:380,delay:full?50:0});
+    const v=tvs.querySelector('.kvs-vs');ani(v,[{opacity:0,transform:'scale('+(full?2.4:1.6)+')'},{opacity:1,transform:'scale(.92)',offset:.7},{opacity:1,transform:'scale(1)'}],{duration:full?560:420,delay:full?300:80,easing:'cubic-bezier(.5,0,.3,1)'});
+    ani(v.querySelector('.ring'),[{opacity:.95,transform:'scale(.6)'},{opacity:0,transform:'scale(2.2)'}],{duration:700,delay:full?690:300,fill:'none'});
+    [tMe,tOp].forEach((s,k)=>ani(s.querySelector('.kvs-tcard'),[{opacity:0,transform:'translateY(40px) rotate('+(k?14:-14)+'deg) scale(.7)'},{opacity:1,transform:'none'}],{duration:full?720:460,delay:full?420+k*90:120+k*60,easing:'cubic-bezier(.2,.9,.3,1.12)'}));
+    if(full){ani(tvs.querySelector('.kvs-seam b'),[{transform:'scaleY(0)'},{transform:'scaleY(1)'}],{duration:520,delay:140,easing:'cubic-bezier(.7,0,.2,1)'});
+      ani(tvs,[{transform:'translateX(0)'},{transform:'translateX(-3px)'},{transform:'translateX(2px)'},{transform:'translateX(-1px)'},{transform:'translateX(0)'}],{duration:260,delay:700,easing:'linear',fill:'none'});
+      [...tHero.children].filter(e=>e!==tvs&&!e.hidden).forEach((e,k)=>rise(e,420+k*70));const tb=$i('tcgbox');if(tb)rise(tb,700)}}
+
+  /* TCG challenge popups: the same small stage as the rate ones */
+  function tMini(c,p,state){try{const me=ME();if(!me||!c||!p)return;const st=mk('div','kvs kvs-mini kvs-tmini');st.innerHTML=vsMarkup;
+      st.prepend(sideEl(me,'me',64,tRate(me.id)),sideEl(p,'op',64,tRate(p.id)));stakeOn(st,0);stateOn(st,state?'承認待ち':'',state?'wait':'');
+      const t=c.querySelector('.mdt');if(t)t.after(st);else c.prepend(st);c.classList.add('kmdvs');
+      const v=st.querySelector('.kvs-vs');ani(v,[{opacity:0,transform:'scale(2.2)'},{opacity:1,transform:'scale(.92)',offset:.7},{opacity:1,transform:'scale(1)'}],{duration:520,delay:200,easing:'cubic-bezier(.5,0,.3,1)'})}catch(e){console.warn('kx tmini',e)}}
+  if(typeof tcgWaitModal==='function'){const W0=tcgWaitModal;tcgWaitModal=function(id,nm){const r=W0.apply(this,arguments);const c=document.querySelector('.tcgmd .mdc');tMini(c,players.find(p=>p.name===nm),true);return r}}
+  if(typeof tcgIncoming==='function'){const I0=tcgIncoming;tcgIncoming=function(d){const r=I0.apply(this,arguments);const c=document.querySelector('.tcgmd .mdc');tMini(c,d&&players.find(p=>p.id===d.a),false);return r}}
 
   /* ---------- ランキング ---------- */
   const pRank=mk('div');pRank.id='kxrank';if(vr)vr.append(pRank);
@@ -9409,11 +9629,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     b.textContent='0'+suf;const step=n=>{const k=Math.min(1,(n-t0)/D);b.textContent=Math.round(v*(1-Math.pow(1-k,3)))+suf;if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)})}
   function enter(pg,dir){if(RMO)return;const dx=dir*22;
     if(pg==='rate'){if(document.querySelector('body>.km-splash'))addEventListener('kmo:reveal',()=>introVS(),{once:true});else introVS();return}
-    if(pg==='tcg'){const fan=tHero.querySelector('.kx-fan');rise(tHero,0,dx);
-      tHero.querySelectorAll('.kx-tt h2,.kx-tt p').forEach((e,k)=>rise(e,80+k*60));
-      if(fan)ani(fan,[{opacity:0,transform:'translateY(30px) scale(.84) rotate(-8deg)'},{opacity:1,transform:'none'}],{duration:760,delay:120,easing:'cubic-bezier(.2,.9,.3,1.12)'});
-      [...tHero.children].filter(e=>!e.classList.contains('kx-tt')).forEach((e,k)=>rise(e,220+k*60));
-      const tb=$i('tcgbox');if(tb)rise(tb,380);return}
+    if(pg==='tcg'){introT();return}
     if(pg==='deck'){[...pDeck.children].slice(0,9).forEach((e,k)=>rise(e,k*45,dx));return}
     if(pg==='tour'){const ts=$i('toursec');let k=0;if(ts&&!ts.hidden){rise(ts,0,dx);k++}rise(pHist,k*60,dx);
       pHist.querySelectorAll('.kx-hr').forEach((r,j)=>{if(j<10)rise(r,140+j*35)});countUp(pHist.querySelectorAll('.kx-sum b'))}}
@@ -9427,12 +9643,12 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   let rq=0;
   function refresh(){rq=0;try{frameSync()}catch(e){}
     try{if(curView==='battle'){const bp=vb.dataset.bp||'rate';if(bp==='rate')renderRate();else if(bp==='tour')renderHist();else if(bp==='deck')renderDeck()}
-      else if(curView==='tcg')renderHero();else if(curView==='rank')renderRank()}catch(e){console.warn('kx',e)}
+      else if(curView==='tcg')renderTcg2();else if(curView==='rank')renderRank()}catch(e){console.warn('kx',e)}
     const pg=curPg();if(pg!==lastPg){const a=PORD.indexOf(lastPg),b=PORD.indexOf(pg);lastPg=pg;if(pg){try{enter(pg,a>=0&&b>=0?Math.sign(b-a):0)}catch(e){console.warn('kx enter',e)}}}
     if(pg){try{window.__kxInk&&__kxInk()}catch(e){}}}
   const later=()=>{if(!rq)rq=requestAnimationFrame(refresh)};
-  window.__kxRefresh=()=>{rateSig=histSig=deckSig=heroSig=rankSig='';refresh()};
-  window.__kxEnter=()=>{lastPg=null;introN=0;refresh()};
+  window.__kxRefresh=()=>{rateSig=histSig=deckSig=tOppSig=tDkSig=rankSig='';refresh()};
+  window.__kxEnter=()=>{lastPg=null;introN=0;tIntroN=0;refresh()};
   try{const R0=render;render=function(){const r=R0.apply(this,arguments);later();return r}}catch(e){}
   /* home is one still screen: it always opens at the top */
   {const SV=setView;setView=function(){const r=SV.apply(this,arguments);if(curView==='home'){try{scrollTo(0,0)}catch(e){}}refresh();return r}}
