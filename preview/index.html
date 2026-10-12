@@ -3089,15 +3089,15 @@ body.ui2 .bnav .navink{background:rgba(255,255,255,.14)!important;box-shadow:ins
 .kb-btn:active{transform:scale(.96);transition:transform .12s}
 .kb.out{opacity:0;transition:opacity .35s ease}
 /* settings row */
-#ksfxsec .ksfx{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08);cursor:pointer;position:relative}
-#ksfxsec .ksfx span{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-#ksfxsec .ksfx b{font-size:15px}
-#ksfxsec .ksfx small{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5}
-#ksfxsec .ksfx input{position:absolute;opacity:0;pointer-events:none}
-#ksfxsec .ksfx i{flex:none;width:51px;height:31px;border-radius:99px;background:rgba(120,120,128,.36);position:relative;transition:background .25s}
-#ksfxsec .ksfx i::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.25);transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
-#ksfxsec .ksfx input:checked+i{background:#34c759}
-#ksfxsec .ksfx input:checked+i::after{transform:translateX(20px)}
+:is(#ksfxsec,#koshisec) .ksfx{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08);cursor:pointer;position:relative}
+:is(#ksfxsec,#koshisec) .ksfx span{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+:is(#ksfxsec,#koshisec) .ksfx b{font-size:15px}
+:is(#ksfxsec,#koshisec) .ksfx small{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5}
+:is(#ksfxsec,#koshisec) .ksfx input{position:absolute;opacity:0;pointer-events:none}
+:is(#ksfxsec,#koshisec) .ksfx i{flex:none;width:51px;height:31px;border-radius:99px;background:rgba(120,120,128,.36);position:relative;transition:background .25s}
+:is(#ksfxsec,#koshisec) .ksfx i::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.25);transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
+:is(#ksfxsec,#koshisec) .ksfx input:checked+i{background:#34c759}
+:is(#ksfxsec,#koshisec) .ksfx input:checked+i::after{transform:translateX(20px)}
 @media (prefers-reduced-motion:reduce){.km-splash{display:none}}
 
 .km-splash.km-vid{background:#050506}
@@ -8191,7 +8191,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   const clock=()=>window.__kmT!=null?window.__kmT:performance.now()/1000;
   let stCol='';function stageCols(){if(!stage)return;const k=col.join();if(k!==stCol){stCol=k;stage.setColors(col)}}
   /* oshi on stage: demo picture for now (the oshi gacha will set the real one) */
-  function oshiSrc(){try{return localStorage.getItem('oshiDemo')?'fx_oshi_demo.webp':''}catch(e){return ''}}
+  /* only the admin can put an oshi on the stage for now (test). Everyone else always sees the rank emblem. */
+  function oshiSrc(){try{if(typeof isAdmin!=='function'||!isAdmin())return '';return localStorage.getItem('oshiDemo')?'fx_oshi_demo.webp':''}catch(e){return ''}}
   function syncOshi(){const src=oshiSrc(),os=q('.losh'),im=os.querySelector('img');const want=!!src;
     if(want&&im.getAttribute('src')!==src){im.src=src;im.onload=()=>{geo=null;stage&&stage.setOshi({img:im,x:0,y:0,w:1,h:1})}}
     if(want!==oshiOn){oshiOn=want;os.hidden=!want;lob.classList.toggle('hasoshi',want);geo=null;if(stage)stage.setOshi(want?{img:im,x:0,y:0,w:1,h:1}:null)}}
@@ -8373,6 +8374,15 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     s.innerHTML='<h2>効果音</h2><label class="ksfx"><span><b>演出の効果音と振動</b><small>起動・ログインボーナスなどで鳴ります。iPhoneは画面に一度触れてから鳴ります</small></span><input type="checkbox" role="switch"><i></i></label>';
     const cb=s.querySelector('input');cb.checked=K.SFX.on();cb.addEventListener('change',()=>{K.SFX.set(cb.checked);if(cb.checked)K.SFX.play('pop')});ps.after(s)}
   sfxRow();if(document.readyState!=='complete')addEventListener('load',sfxRow);
+  /* ---------- 設定・要望 > 推しキャラ(管理者だけ・テスト) ---------- */
+  function oshiRow(){const after=document.getElementById('ksfxsec')||document.getElementById('pushsec');if(!after)return;
+    let s=document.getElementById('koshisec');const adm=typeof isAdmin==='function'&&isAdmin();
+    if(!s){s=document.createElement('section');s.id='koshisec';s.dataset.pg='set';
+      s.innerHTML='<h2>推しキャラ</h2><label class="ksfx"><span><b>ホームの舞台に推しを立たせる</b><small>管理者だけの設定です。ほかの人には表示されず、ほかの人は付けられません(今は見本の絵)</small></span><input type="checkbox" role="switch"><i></i></label>';
+      const cb=s.querySelector('input');cb.addEventListener('change',()=>{try{cb.checked?localStorage.setItem('oshiDemo','1'):localStorage.removeItem('oshiDemo')}catch(e){}window.__lobOshi&&__lobOshi()});after.after(s)}
+    if(s.hidden!==!adm)s.hidden=!adm;
+    const cb=s.querySelector('input');let on=false;try{on=!!localStorage.getItem('oshiDemo')}catch(e){}if(cb.checked!==on)cb.checked=on}
+  oshiRow();if(document.readyState!=='complete')addEventListener('load',oshiRow);setInterval(oshiRow,1500);
 })();
 /*KMO-END*/
 /*KVJS-START*/
