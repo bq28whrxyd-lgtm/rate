@@ -2872,17 +2872,22 @@ body.ui2 .lempty{padding:18px 16px;font:600 13px/1.6 var(--body);color:var(--lmu
 /* oshi on the stage */
 body.ui2 .lst .losh{position:absolute;left:0;right:0;top:0;height:70%;overflow:hidden;pointer-events:none;z-index:1;transform-origin:50% 30%}
 body.ui2 .lst .losh[hidden]{display:none}
-body.ui2 .lst .losh img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;transform-origin:50% 35%;animation:lsway 7s ease-in-out infinite;will-change:transform;user-select:none;-webkit-user-drag:none}
-@keyframes lsway{50%{transform:scale(1.025) translateY(-4px)}}
-body.ui2 .lst .losh .lsf{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,10,.35) 0%,transparent 18%,transparent 48%,rgba(8,8,10,.85) 80%,var(--lbg,#08080a) 100%),linear-gradient(90deg,rgba(8,8,10,.55),transparent 45%)}
+body.ui2 .lst .losh img,body.ui2 .lst .losh video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 18%;user-select:none;-webkit-user-drag:none;pointer-events:none}
+body.ui2 .lst .losh video{opacity:0;transition:opacity .45s ease}
+body.ui2 .lst .losh video.on{opacity:1}
+body.ui2 .lst .losh .lsf{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,10,.35) 0%,transparent 18%,transparent 48%,rgba(8,8,10,.85) 80%,var(--lbg,#09090b) 100%),linear-gradient(90deg,rgba(8,8,10,.55),transparent 45%)}
 body.ui2 #lob.hasoshi .lst canvas,body.ui2 #lob.hasoshi .lst>.fd{visibility:hidden}
-body.ui2 #lob .lbub{position:absolute;right:16px;top:200px;z-index:4;max-width:calc(100% - 100px);padding:12px 14px;border-radius:20px 20px 6px 20px;text-align:left;font:700 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;color:#111;background:rgba(255,255,255,.92);box-shadow:0 12px 30px rgba(0,0,0,.35);transform-origin:100% 100%;-webkit-tap-highlight-color:transparent}
+body.ui2 #lob.hasoshi .ltag{visibility:hidden}
+/* the oshi talks in a see-through window right above my rank panel (it never sits on the face) */
+body.ui2 #lob .lbub{position:absolute;left:16px;right:16px;bottom:300px;z-index:4;display:flex;flex-direction:column;gap:4px;padding:11px 40px 12px 16px;border-radius:18px;text-align:left;color:#fff;
+  background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.05));box-shadow:inset 0 .5px 0 rgba(255,255,255,.28),inset 0 0 0 .5px rgba(255,255,255,.14),0 10px 28px rgba(0,0,0,.22);-webkit-tap-highlight-color:transparent;transition:transform .35s cubic-bezier(.2,.9,.25,1.06)}
 body.ui2 #lob .lbub[hidden]{display:none}
-body.ui2 #lob .lbub .bt{display:block;white-space:nowrap}
-body.ui2 #lob.hasoshi .ltag{position:relative;z-index:2}
-body.ui2 #lob .lbub small{display:block;font:600 10.5px/1 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;color:#7a756e;margin-top:6px}
-body.ui2 #lob .lbub:active{transform:scale(.96)}
-@media (prefers-reduced-motion:reduce){body.ui2 .lst .losh img{animation:none}}
+body.ui2 #lob .lbub .lb-nm{font:800 11px/1 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;letter-spacing:.06em;color:#f3d58a;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+body.ui2 #lob .lbub .lb-tx{display:block;font:700 14px/1.55 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;text-shadow:0 1px 8px rgba(0,0,0,.55);text-wrap:pretty}
+body.ui2 #lob .lbub .lb-nx{position:absolute;right:16px;bottom:14px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid rgba(255,255,255,.8);animation:lnx 1.2s ease-in-out infinite}
+@keyframes lnx{50%{transform:translateY(3px);opacity:.35}}
+body.ui2 #lob .lbub:active{transform:scale(.98)}
+@media (prefers-reduced-motion:reduce){body.ui2 #lob .lbub .lb-nx{animation:none}}
 body.ui2 #lob.hasoshi .emb2{visibility:hidden}
 body.ui2 .lst .emb2{will-change:transform,translate}
 body.ui2 .ltag .lmc{display:inline-block;width:9px;height:11px;margin-right:7px;vertical-align:-1px;background:linear-gradient(180deg,var(--c1),var(--c3) 50%,var(--c2));clip-path:polygon(50% 0,100% 16%,100% 52%,50% 100%,0 52%,0 16%)}
@@ -3117,36 +3122,36 @@ body.ui2 .bnav .navink{background:rgba(255,255,255,.14)!important;box-shadow:ins
 /* 推しキャラ: settings row + picker */
 #koshisec .kosr{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08);text-align:left;color:inherit;font:inherit}
 #koshisec .kosr:active{background:rgba(255,255,255,.09)}
-#koshisec .kt{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-#koshisec .kt b{font-size:15px}
-#koshisec .kt small{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5}
-#koshisec .kc{flex:none;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.62);font-size:13px;font-weight:600}
-#koshisec .kc em{font-style:normal;max-width:7.5em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#koshisec .kc img{width:30px;height:38px;border-radius:8px;object-fit:cover;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2)}
-#koshisec .kc i{width:8px;height:8px;border:solid currentColor;border-width:2px 2px 0 0;transform:rotate(45deg);opacity:.6;margin-left:2px}
+#koshisec .kos-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+#koshisec .kos-t b{font-size:15px}
+#koshisec .kos-t small{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5}
+#koshisec .kos-c{flex:none;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.62);font-size:13px;font-weight:600}
+#koshisec .kos-c em{font-style:normal;max-width:7.5em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#koshisec .kos-c img{width:30px;height:38px;border-radius:8px;object-fit:cover;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2)}
+#koshisec .kos-c i{width:8px;height:8px;border:solid currentColor;border-width:2px 2px 0 0;transform:rotate(45deg);opacity:.6;margin-left:2px}
 .sht.kosp .kosn{margin:-2px 2px 14px;font-size:12.5px;line-height:1.6;color:rgba(255,255,255,.55)}
 .sht.kosp .kosg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .kost{display:flex;flex-direction:column;align-items:center;gap:8px;padding:0;background:none;border:0;color:inherit;font:inherit;-webkit-tap-highlight-color:transparent}
-.kost .ph{position:relative;display:block;width:100%;aspect-ratio:3/4;border-radius:16px;overflow:hidden;
+.kost .kos-ph{position:relative;display:block;width:100%;aspect-ratio:3/4;border-radius:16px;overflow:hidden;
   background:radial-gradient(120% 80% at 50% 108%,rgba(255,214,140,.22),transparent 60%),linear-gradient(180deg,#24212a,#141217);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1);transition:box-shadow .2s,transform .2s cubic-bezier(.3,1.4,.5,1)}
-.kost .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
-.kost .ph svg{width:40%;align-self:center;color:#d9b45a}
+.kost .kos-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
+.kost .kos-ph svg{width:40%;align-self:center;color:#d9b45a}
 .kost b{font-size:12px;font-weight:700;color:rgba(255,255,255,.78);text-align:center;line-height:1.3}
-.kost:active .ph{transform:scale(.96)}
-.kost.on .ph{box-shadow:inset 0 0 0 2px #e9c46a,0 0 0 4px rgba(233,196,106,.16)}
+.kost:active .kos-ph{transform:scale(.96)}
+.kost.on .kos-ph{box-shadow:inset 0 0 0 2px #e9c46a,0 0 0 4px rgba(233,196,106,.16)}
 .kost.on b{color:#f3d58a}
-.kost .ck{position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#e9c46a;opacity:0;transform:scale(.6);transition:opacity .18s,transform .25s cubic-bezier(.3,1.6,.5,1)}
-.kost .ck::after{content:"";position:absolute;left:7px;top:4px;width:5px;height:9px;border:solid #1a1408;border-width:0 2px 2px 0;transform:rotate(45deg)}
-.kost.on .ck{opacity:1;transform:none}
+.kost .kos-ck{position:absolute;top:7px;right:7px;width:20px;height:20px;border-radius:50%;background:#e9c46a;opacity:0;transform:scale(.6);transition:opacity .18s,transform .25s cubic-bezier(.3,1.6,.5,1)}
+.kost .kos-ck::after{content:"";position:absolute;left:7px;top:4px;width:5px;height:9px;border:solid #1a1408;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.kost.on .kos-ck{opacity:1;transform:none}
 
 .sht.kosp .kosx{display:flex;align-items:center;gap:12px;width:100%;margin-top:12px;padding:12px 14px;border-radius:16px;border:0;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1);color:rgba(255,255,255,.8);font:700 13px/1.3 inherit;text-align:left;position:relative;-webkit-tap-highlight-color:transparent}
 .sht.kosp .kosx svg{width:20px;height:24px;color:#d9b45a;flex:none}
 .sht.kosp .kosx span{flex:1}
-.sht.kosp .kosx .ck{position:static;flex:none}
+.sht.kosp .kosx .kos-ck{position:static;flex:none}
 .sht.kosp .kosx.on{box-shadow:inset 0 0 0 2px #e9c46a;color:#f3d58a}
-.sht.kosp .kosx .ck{width:20px;height:20px;border-radius:50%;background:#e9c46a;opacity:0;transform:scale(.6);transition:opacity .18s,transform .25s cubic-bezier(.3,1.6,.5,1);position:relative}
-.sht.kosp .kosx .ck::after{content:"";position:absolute;left:7px;top:4px;width:5px;height:9px;border:solid #1a1408;border-width:0 2px 2px 0;transform:rotate(45deg)}
-.sht.kosp .kosx.on .ck{opacity:1;transform:none}
+.sht.kosp .kosx .kos-ck{width:20px;height:20px;border-radius:50%;background:#e9c46a;opacity:0;transform:scale(.6);transition:opacity .18s,transform .25s cubic-bezier(.3,1.6,.5,1);position:relative}
+.sht.kosp .kosx .kos-ck::after{content:"";position:absolute;left:7px;top:4px;width:5px;height:9px;border:solid #1a1408;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.sht.kosp .kosx.on .kos-ck{opacity:1;transform:none}
 /* ===== v121 skin: every screen in the home's language. iOS grouping, one warm ivory for actions, gold only as an accent,
    big concentric radii, hairline highlights instead of borders, no backdrop blur (phones stay smooth). ===== */
 body.ui2{--k3-bg:#09090b;--k3-card:linear-gradient(180deg,#1d1c21,#141317);--k3-card2:#232228;--k3-line:rgba(255,255,255,.08);--k3-hi:rgba(255,255,255,.14);
@@ -3190,7 +3195,7 @@ body.ui2 .empty{font-size:13.5px!important;line-height:1.7}
 body.ui2 .top3,body.ui2 .rmcard,body.ui2 .evtour,body.ui2 .tile,body.ui2 .dexh{background:var(--k3-card)!important;border:0!important;box-shadow:var(--k3-sh)!important;border-radius:24px!important}
 /* ---- buttons: ivory for actions, dark capsule for secondary, gold only for the pack ---- */
 body.ui2 button{font-family:var(--body)}
-body.ui2 main button:not(.sec):not(.tab):not(.rk):not(.top3):not(.lgl):not(.lgo):not(.llive):not(.lpan):not(.lgen):not(.lev):not(.lrw):not(.pt):not(.bell):not(.supbtn):not(.evtour):not(.rx):not(.more):not(.t3c):not([class*="tcg"]):not(.gseg button):not(.psub button):not(.k-btn):not(.kb-btn){
+body.ui2 main button:not(.sec):not(.tab):not(.rk):not(.top3):not(.lgl):not(.lgo):not(.llive):not(.lpan):not(.lbub):not(.kosr):not(.lgen):not(.lev):not(.lrw):not(.pt):not(.bell):not(.supbtn):not(.evtour):not(.rx):not(.more):not(.t3c):not([class*="tcg"]):not(.gseg button):not(.psub button):not(.k-btn):not(.kb-btn){
   background:linear-gradient(180deg,#fbf9f4,#ebe7df)!important;color:#111!important;border:0!important;border-radius:999px!important;min-height:50px;padding:0 18px!important;font:700 15px/1.2 var(--body)!important;
   box-shadow:inset 0 .5px 0 #fff,0 10px 24px -12px rgba(0,0,0,.8)!important;transition:transform .45s var(--k3-sp),filter .3s;margin-top:0}
 body.ui2 main button:active:not(.tab){transform:scale(.965);transition:transform .12s;filter:brightness(.96)}
@@ -8032,12 +8037,12 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   let oshiOn=false,geo=null,geoAt=0;
   /* ---- skeleton ---- */
   const lob=mk('div');lob.id='lob';
-  lob.innerHTML='<div class="lst"><canvas></canvas><div class="emb2"></div><div class="losh" hidden><img alt="" decoding="async"><i class="lsf"></i></div><i class="fd"></i></div>'+
+  lob.innerHTML='<div class="lst"><canvas></canvas><div class="emb2"></div><div class="losh" hidden><img alt="" decoding="async"><video muted playsinline loop preload="auto" disablepictureinpicture></video><i class="lsf"></i></div><i class="fd"></i></div>'+
    '<div class="lbar"><button type="button" class="llv lgl" aria-label="レベル"><span class="lvr"><svg viewBox="0 0 36 36"><circle class="tk" cx="18" cy="18" r="15.5"/><circle class="pr" cx="18" cy="18" r="15.5" stroke-dasharray="97.4" stroke-dashoffset="97.4"/></svg><b class="lvn tn">1</b></span><span class="lvt"><small>LEVEL</small><span class="lvx"></span></span></button><span class="lsp"></span><button type="button" class="lwal lgl"><i class="p"><u>P</u><span class="lpt tn">0</span></i><hr><i class="t"><u>T</u><span class="ltk tn">0</span></i></button><button type="button" class="lgift lgl" aria-label="プレゼント">'+IC.gift+'<b></b></button><button type="button" class="lbell lgl" aria-label="通知">'+IC.bell+'<b></b></button></div>'+
    '<div class="lside l"><button type="button" class="lgl" data-a="0">'+IC.dm+'お題<em class="lb-dm"></em></button><button type="button" class="lgl" data-a="2">'+IC.mvp+'MVP</button><button type="button" class="lgl" data-a="3">'+IC.ss+'シーズン<em class="lb-ss"></em></button></div>'+
    '<div class="lside r">'+
    '<button type="button" class="lgl" data-s="ev">'+IC.ev+'開催中<em class="lb-ev"></em></button><button type="button" class="lgl" data-s="tl">'+IC.tl+'みんな<em class="lb-tl dot"></em></button></div>'+
-   '<button type="button" class="lbub" hidden><span class="bt"></span><small>タップで話しかける</small></button>'+
+   '<button type="button" class="lbub" hidden><span class="lb-nm"></span><span class="lb-tx"></span><i class="lb-nx" aria-hidden="true"></i></button>'+
    '<div class="ltag"></div>'+
    '<div class="lpan" role="button" tabindex="0"><div class="lr1"><div class="lwho"><div class="lav"><div class="face"></div><i class="ring0"></i></div><div class="lnmc"><span class="lnm"></span><span class="lttl r0"></span></div></div><div class="lrt"><b class="lrate tn">0</b><span class="ltier"></span></div></div>'+
    '<div class="lr1" style="margin-top:-2px"><div class="lpos"></div><button type="button" class="lgen"></button></div>'+
@@ -8121,7 +8126,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const bar=q('.lbar2 i');if(bar){const w=bar.style.width;tl.fromTo(bar,{width:'0%'},{width:w||'0%',duration:.9,ease:'expo.out'},.75)}
     const rt=q('.lrate');if(rt){const v=+rt.dataset.v||+rt.textContent||0;if(v){rt.textContent=Math.max(0,v-120)}tl.call(()=>roll(rt,v,1100,Math.max(0,v-120)),null,.5)}
     if(oshiOn){const os=q('.losh'),bb=q('.lbub');tl.fromTo(os,{opacity:0,scale:1.07},{opacity:1,scale:1,duration:1.2,ease:'expo.out',clearProps:'transform,opacity'},0);
-      if(!bb.hidden)tl.fromTo(bb,{opacity:0,scale:.4},{opacity:1,scale:1,duration:.6,ease:'back.out(1.7)',clearProps:'transform,opacity'},.75)}}
+      if(!bb.hidden)tl.fromTo(bb,{opacity:0,y:14},{opacity:1,y:0,duration:.6,ease:'expo.out',clearProps:'transform,opacity'},.62)}}
   new MutationObserver(homeOn).observe(vh,{attributes:true,attributeFilter:['hidden']});homeOn();
 
   /* ---- helpers ---- */
@@ -8238,32 +8243,35 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   let stCol='';function stageCols(){if(!stage)return;const k=col.join();if(k!==stCol){stCol=k;stage.setColors(col)}}
   /* ---- oshi in the lobby (plan B "推しがいる"): the KMR picture fills the upper screen behind everything,
      shaded at the top, left and bottom, sways slowly, and talks in a bubble. Only the admin can set one for now (test). ---- */
-  const OSHI=[{id:'chibi',n:'ふくれっつら',src:'kmr_chibi.jpg',fx:50,fy:16},{id:'hood',n:'オーバーサイズ',src:'kmr_hood.jpg',fx:54,fy:18},{id:'hoodie2',n:'ためいき',src:'kmr_hoodie2.jpg',fx:53,fy:18},
-    {id:'vt1',n:'ひだまりニット',src:'kmr_vt1.jpg',fx:50,fy:18},{id:'vt2',n:'はなかんむり',src:'kmr_vt2.jpg',fx:50,fy:16},{id:'vt3',n:'堕ちた天使',src:'kmr_vt3.jpg',fx:56,fy:18}];
+  const OSHI=[{id:'chibi',n:'ふくれっつら',src:'kmr_chibi.jpg',vid:'kmr_chibi.mp4',fx:50,fy:16},{id:'hood',n:'オーバーサイズ',src:'kmr_hood.jpg',vid:'kmr_hood.mp4',fx:54,fy:18},{id:'hoodie2',n:'ためいき',src:'kmr_hoodie2.jpg',fx:53,fy:18},
+    {id:'vt1',n:'ひだまりニット',src:'kmr_vt1.jpg',vid:'kmr_vt1.mp4',fx:50,fy:18},{id:'vt2',n:'はなかんむり',src:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',fx:50,fy:16},{id:'vt3',n:'堕ちた天使',src:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',fx:56,fy:18}];
   function oshiGet(){try{let v=localStorage.getItem('oshiPick');if(v===null&&localStorage.getItem('oshiDemo'))v='vt1';return OSHI.some(o=>o.id===v)?v:''}catch(e){return ''}}
   function oshiSet(id){try{localStorage.setItem('oshiPick',id||'');localStorage.removeItem('oshiDemo')}catch(e){}window.__lobOshi&&__lobOshi()}
   window.__oshiList=OSHI;window.__oshiGet=oshiGet;window.__oshiSet=oshiSet;
   function oshiCur(){if(typeof isAdmin!=='function'||!isAdmin())return null;const id=oshiGet();return OSHI.find(x=>x.id===id)||null}
   function syncOshi(){const o=oshiCur(),os=q('.losh'),im=os.querySelector('img'),bb=q('.lbub');const want=!!o;
-    if(o&&im.getAttribute('src')!==o.src){if(oshiOn&&window.gsap){gsap.fromTo(os,{opacity:.2},{opacity:1,duration:.5,ease:'power2.out',clearProps:'opacity'})}im.src=o.src;im.style.objectPosition=o.fx+'% '+o.fy+'%'}
+    if(o&&im.getAttribute('src')!==o.src){if(oshiOn&&window.gsap){gsap.fromTo(os,{opacity:.2},{opacity:1,duration:.5,ease:'power2.out',clearProps:'opacity'})}im.src=o.src;im.style.objectPosition=o.fx+'% '+o.fy+'%';
+      /* the KMR's own movement: its movie plays over the still picture once it is really playing */
+      const vd=os.querySelector('video');vd.classList.remove('on');vd.style.objectPosition=im.style.objectPosition;if(o.vid){vd.src=o.vid;vd.load()}else{vd.removeAttribute('src');vd.load()}}
+    if(o)q('.lbub .lb-nm').textContent=o.n;
     if(want!==oshiOn){oshiOn=want;os.hidden=!want;bb.hidden=!want;lob.classList.toggle('hasoshi',want);geo=null;if(stage)stage.setOshi(null);if(want){bi=0;talk(false)}}
     try{syncPanel()}catch(e){}}
   /* what the oshi says: built from what is on the home right now; tap for the next line */
   let bi=0;
   function lines(){const L=[];const tx=s=>(s&&s.textContent||'').replace(/\s+/g,' ').trim();
-    const dm=tx(q('.lb-dm')).match(/(\d+)\s*\/\s*(\d+)/);if(dm){const r=+dm[2]-+dm[1];L.push(r>0?'今日のお題、あと'+r+'つだよ。<br>一緒にがんばろ':'今日のお題、ぜんぶできたね。<br>おつかれさま')}
-    const nl=tx(q('.lnxl')).replace(/\s*まで$/,''),nv=tx(q('.lnxv')).match(/(\d+)/);if(nl&&nv)L.push(esc(nl.replace(/\s+/g,''))+'まであと'+nv[1]+'。<br>次の1勝で届くかも');
-    const lv=liveItems&&liveItems[0];if(lv&&lv.t&&lv.t.length<=13)L.push(esc(lv.t)+'だって。<br>ちょっと見に行こ');
-    const tt=tx(q('.lttl'));if(tt)L.push((tt.length<=9?'「'+esc(tt)+'」、':'その称号、')+'<br>似合ってるね');
-    L.push('今日もおつかれさま。<br>一戦いっとく?');return L}
-  function talk(anim){const bb=q('.lbub'),L=lines();bi=bi%L.length;bb.querySelector('.bt').innerHTML=L[bi];
-    if(anim&&window.gsap)gsap.fromTo(bb,{scale:.55,opacity:0},{scale:1,opacity:1,duration:.55,ease:'back.out(1.8)',clearProps:'transform,opacity'})}
+    const dm=tx(q('.lb-dm')).match(/(\d+)\s*\/\s*(\d+)/);if(dm){const r=+dm[2]-+dm[1];L.push(r>0?'今日のお題、あと'+r+'つだよ。一緒にがんばろ':'今日のお題、ぜんぶできたね。おつかれさま')}
+    const nl=tx(q('.lnxl')).replace(/\s*まで$/,''),nv=tx(q('.lnxv')).match(/(\d+)/);if(nl&&nv)L.push(esc(nl.replace(/\s+/g,''))+'まであと'+nv[1]+'。次の1勝で届くかも');
+    const lv=liveItems&&liveItems[0];if(lv&&lv.t&&lv.t.length<=22)L.push(esc(lv.t)+'だって。ちょっと見に行こ');
+    const tt=tx(q('.lttl'));if(tt)L.push((tt.length<=12?'「'+esc(tt)+'」の称号、':'その称号、')+'似合ってるね');
+    L.push('今日もおつかれさま。一戦いっとく?');return L}
+  function talk(anim){const bb=q('.lbub'),L=lines();bi=bi%L.length;bb.querySelector('.lb-tx').innerHTML=L[bi];
+    if(anim&&window.gsap){const t=bb.querySelector('.lb-tx');gsap.fromTo(t,{opacity:0,y:6},{opacity:1,y:0,duration:.35,ease:'power2.out',clearProps:'transform,opacity'})}}
   q('.lbub').addEventListener('click',e=>{e.stopPropagation();bi++;talk(true);try{KMotion.SFX.play('pop')}catch(x){}});
   window.__lobOshi=()=>{syncOshi();shown=false;homeOn()};
   function measure(){const r=cv.getBoundingClientRect(),em=q('.emb2'),er=em.getBoundingClientRect();const g={c:[er.left-r.left+er.width/2,er.top-r.top+er.height/2,er.width*.5]};
     if(oshiOn){/* the art runs from the very top to a little below the top of my panel, where it melts into the page */
       const os=q('.losh'),pr=q('.lpan').getBoundingClientRect(),h=Math.max(260,pr.top-r.top+pr.height*.6);if(os.style.height!==h+'px')os.style.height=h+'px';
-      const sr=q('.lside.r').getBoundingClientRect(),bb=q('.lbub'),bt=Math.round(sr.bottom-r.top+16)+'px';if(bb.style.top!==bt)bb.style.top=bt}
+      const bb=q('.lbub'),bo=Math.round(r.bottom-pr.top+10)+'px';if(bb.style.bottom!==bo)bb.style.bottom=bo}
     return g}
   function frame(t){if(!stage)return;stageCols();const now=performance.now();if(!geo||now-geoAt>700){geo=measure();geoAt=now}
     if(oshiOn)return;/* the picture is the stage: nothing to draw on the canvas (also lighter) */
@@ -8272,7 +8280,13 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const em=q('.emb2');em.style.translate='0 '+(Math.sin(t*1.25)*4).toFixed(2)+'px';
     const gl=em.querySelector('#lgl');if(gl){const u=((t%6)/.9);if(u<=1.05){const xx=-30+Math.min(1,u)*130;gl.setAttribute('x1',xx.toFixed(1));gl.setAttribute('x2',(xx+16).toFixed(1))}}}
   const active=()=>document.body.classList.contains('lobhome')&&!document.hidden&&!document.body.classList.contains('tcgon')&&!(document.querySelector('body>.km-splash')&&!window.__kmRevealed);
-  (function f(){requestAnimationFrame(f);if(window.__kmT!=null||!active())return;frame(clock())})();
+  const ovd=q('.losh video');ovd.addEventListener('playing',()=>ovd.classList.add('on'));
+  /* play only while the lobby is on screen; if this phone cannot play it, the still picture simply stays */
+  function vidCtl(a){const src=ovd.getAttribute('src');if(!oshiOn||!src||ovd.__bad===src){if(!ovd.paused)ovd.pause();return}
+    if(a&&ovd.paused&&!ovd.__pp){ovd.__pp=1;let pr;try{pr=ovd.play()}catch(e){}if(pr&&pr.then)pr.then(()=>{ovd.__pp=0},e=>{ovd.__pp=0;if(e&&e.name!=='AbortError'&&e.name!=='NotAllowedError')ovd.__bad=src});else ovd.__pp=0}
+    else if(!a&&!ovd.paused)ovd.pause()}
+  ovd.addEventListener('error',()=>{ovd.__bad=ovd.getAttribute('src')});
+  (function f(){requestAnimationFrame(f);const a=active();vidCtl(a);if(window.__kmT!=null||!a)return;frame(clock())})();
   window.__lobStep=t=>{window.__kmT=t;if(window.gsap){if(!window.__kmG){window.__kmG=1;gsap.ticker.remove(gsap.updateRoot)}gsap.updateRoot(t)}frame(t)};
   lob.addEventListener('pointermove',e=>{if(!stage)return;const r=lob.getBoundingClientRect();stage.pointer((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)},{passive:true});
   lob.addEventListener('pointerleave',()=>stage&&stage.pointer(0,0));
@@ -8446,11 +8460,11 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const g=sh.querySelector('.kosg');const cur=window.__oshiGet?__oshiGet():'';
     const pickIt=(b,id)=>{sh.querySelectorAll('.kost,.kosx').forEach(x=>x.classList.toggle('on',x===b));window.__oshiSet&&__oshiSet(id);oshiRow();try{K.SFX.play('pop')}catch(e){}};
     const tile=o=>{const b=document.createElement('button');b.type='button';b.className='kost'+(o.id===cur?' on':'');b.dataset.id=o.id;
-      b.innerHTML='<span class="ph"><img src="'+o.src+'" alt="" decoding="async" loading="lazy" style="object-position:'+o.fx+'% '+o.fy+'%"><i class="ck"></i></span><b>'+esc(o.n)+'</b>';
+      b.innerHTML='<span class="kos-ph"><img src="'+o.src+'" alt="" decoding="async" loading="lazy" style="object-position:'+o.fx+'% '+o.fy+'%"><i class="kos-ck"></i></span><b>'+esc(o.n)+'</b>';
       b.onclick=()=>pickIt(b,o.id);return b};
     g.append(...L.map(tile));
     const nb=document.createElement('button');nb.type='button';nb.className='kosx'+(cur?'':' on');nb.dataset.id='';
-    nb.innerHTML='<svg viewBox="0 0 48 56" aria-hidden="true"><path d="M24 3 44 10v17c0 13-9 22-20 26C13 49 4 40 4 27V10Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M24 15 31 28 24 41 17 28Z" fill="currentColor" opacity=".85"/></svg><span>なし(ランクの紋章に戻す)</span><i class="ck"></i>';
+    nb.innerHTML='<svg viewBox="0 0 48 56" aria-hidden="true"><path d="M24 3 44 10v17c0 13-9 22-20 26C13 49 4 40 4 27V10Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M24 15 31 28 24 41 17 28Z" fill="currentColor" opacity=".85"/></svg><span>なし(ランクの紋章に戻す)</span><i class="kos-ck"></i>';
     nb.onclick=()=>pickIt(nb,'');g.after(nb);
     w.append(sh);document.body.append(w);
     const close=()=>{try{sheetOut(w)}catch(e){w.remove()}};sh.querySelector('.shh .sec').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()})}
@@ -8458,10 +8472,10 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   function oshiRow(){const after=document.getElementById('ksfxsec')||document.getElementById('pushsec');if(!after)return;
     let s=document.getElementById('koshisec');const adm=typeof isAdmin==='function'&&isAdmin();
     if(!s){s=document.createElement('section');s.id='koshisec';s.dataset.pg='set';
-      s.innerHTML='<h2>推しキャラ</h2><button type="button" class="kosr"><span class="kt"><b>ホームに出す推し</b><small>管理者だけの設定です。ほかの人には表示されず、ほかの人は付けられません</small></span><span class="kc"><img alt="" hidden><em></em><i aria-hidden="true"></i></span></button>';
+      s.innerHTML='<h2>推しキャラ</h2><button type="button" class="kosr"><span class="kos-t"><b>ホームに出す推し</b><small>管理者だけの設定です。ほかの人には出ません</small></span><span class="kos-c"><img alt="" hidden><em></em><i aria-hidden="true"></i></span></button>';
       s.querySelector('.kosr').onclick=oshiPicker;after.after(s)}
     if(s.hidden!==!adm)s.hidden=!adm;
-    const id=window.__oshiGet?__oshiGet():'',o=(window.__oshiList||[]).find(x=>x.id===id);const em=s.querySelector('.kc em'),im=s.querySelector('.kc img');
+    const id=window.__oshiGet?__oshiGet():'',o=(window.__oshiList||[]).find(x=>x.id===id);const em=s.querySelector('.kos-c em'),im=s.querySelector('.kos-c img');
     const nm=o?o.n:'なし';if(em.textContent!==nm)em.textContent=nm;if(o){if(im.getAttribute('src')!==o.src){im.src=o.src;im.style.objectPosition=o.fx+'% '+o.fy+'%'}im.hidden=false}else im.hidden=true}
   oshiRow();if(document.readyState!=='complete')addEventListener('load',oshiRow);setInterval(oshiRow,1500);
 })();
