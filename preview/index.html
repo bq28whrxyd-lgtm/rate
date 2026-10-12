@@ -2838,9 +2838,9 @@ body.ui2 .lpg i.on{width:22px;background:#f2efe9}
 
 /* grouped lists */
 body.ui2 .lgrp{border-radius:24px;background:var(--l1);overflow:hidden;box-shadow:inset 0 0 0 .5px var(--lline)}
-body.ui2 .lsec .lrw{display:grid;grid-template-columns:34px 44px 1fr auto;align-items:center;gap:10px;width:100%;min-height:64px;padding:8px 16px;position:relative;transition:background .2s}
+body.ui2 .lsec .lrw{display:grid;grid-template-columns:30px 56px 1fr auto;align-items:center;gap:12px;width:100%;min-height:64px;padding:8px 16px;position:relative;transition:background .2s}
 body.ui2 .lsec .lrw:active{background:var(--l2);transform:none}
-body.ui2 .lrw+.lrw::before{content:"";position:absolute;top:0;left:104px;right:0;border-top:.5px solid var(--lline)}
+body.ui2 .lrw+.lrw::before{content:"";position:absolute;top:0;left:114px;right:0;border-top:.5px solid var(--lline)}
 body.ui2 .lrw .no{font:900 18px/1 var(--num);text-align:center;color:var(--lmut)}
 body.ui2 .lrw.r1 .no{color:var(--ac)}
 body.ui2 .lrw .a{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font:800 16px/1 var(--num);color:#fff}
@@ -2882,6 +2882,14 @@ body.ui2 .bnav button.on svg .f{display:inline}
 body.ui2 .bnav button.on svg .o{display:none}
 body.ui2 .bnav button{--tabbg:#2b2b30}
 body.ui2 .bnav button.on{--tabbg:#45454b}
+
+body.ui2 .kav{display:inline-grid;place-items:center;width:var(--es);height:var(--es);flex:none;border-radius:50%;font:800 15px/1 var(--num);color:#fff;background:radial-gradient(circle at 35% 30%,#4a4452,#17151b)}
+body.ui2 .kav:has(.avf){background:none}
+body.ui2 .kav .ef{--es:inherit!important}
+body.ui2 .lav{display:grid;place-items:center}
+body.ui2 .lrw .kav{justify-self:center}
+
+body.ui2 .lpan{touch-action:pan-y}
 /* ===== v121 kit: splash, login bonus, pass daily pt, weekly MVP, update news. iPhone-native: system type, rounded
    numerals, deep glass, concentric corners, spring motion. Only active with html.ui2pre / body.ui2. ===== */
 :root{--k-sp:cubic-bezier(.2,.9,.25,1.06);--k-out:cubic-bezier(.16,1,.3,1);--k-in:cubic-bezier(.55,0,.75,.2);
@@ -7854,7 +7862,7 @@ function makeBonus(root,o){/* o: {amt, cur, label, sub, next, days:[{label,amt,s
    ===================================================================== */
 function hexRgb(h){h=String(h||'#f5c84c').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);return[n>>16&255,n>>8&255,n&255]}
 function makeStage(cv){const x=cv.getContext('2d');const R=rng(29);
-  const TIERS=[{dpr:2,floor:1,dust:1,bokeh:1,fps:60},{dpr:1.5,floor:1,dust:.6,bokeh:1,fps:60},{dpr:1.25,floor:.6,dust:.4,bokeh:0,fps:60},{dpr:1,floor:0,dust:.3,bokeh:0,fps:30}];
+  const TIERS=[{dpr:1.5,floor:1,dust:1,bokeh:1,fps:60},{dpr:1.5,floor:1,dust:.6,bokeh:1,fps:60},{dpr:1.25,floor:.6,dust:.4,bokeh:0,fps:60},{dpr:1,floor:0,dust:.3,bokeh:0,fps:30}];
   let tier=0,W=0,H=0,dpr=1,cx=0,cy=0,emR=80,oshi=null;
   const C=[[92,61,6],[207,157,44],[255,240,184],[245,200,76]];let cache=null,prev=null,mixT=1,colKey='';
   const far=[],mid=[],near=[];for(let i=0;i<40;i++)far.push({x:R(),y:R(),r:.5+R()*.7,p:R()*TAU,v:.2+R()*.5});for(let i=0;i<18;i++)mid.push({x:R(),y:R(),r:1+R()*1.2,p:R()*TAU,v:.5+R()*.8});for(let i=0;i<6;i++)near.push({x:R(),y:R(),r:12+R()*16,p:R()*TAU,v:.3+R()*.4});
@@ -8118,9 +8126,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const pi=mr.querySelector('.prog i');const bw=pi?pi.style.width:'0%';setTimeout(()=>{q('.lbar2 i').style.width=bw},changed?80:0);
     const me=ME();const name=me?me.name:'あなた';setT(q('.lnm'),name);
     /* icon: KMR face if equipped, else the initial; frame skin from the old card */
-    const face=q('.lav .face'),kf=mr.querySelector('.kmrf .av')||mr.querySelector('.av.kmr');
-    if(kf){const c=kf.cloneNode(true);c.style.cssText='width:100%;height:100%;border-radius:50%;overflow:hidden';if(!face.firstChild||face.firstChild.outerHTML!==c.outerHTML)face.replaceChildren(c)}else setT(face,[...name][0]||'?');
-    const fs=mr.querySelector('.fsk');let lf=q('.lav .fsk');if(fs){if(!lf||lf.innerHTML!==fs.innerHTML){lf=lf||mk('span','fsk');lf.innerHTML=fs.innerHTML;q('.lav').append(lf)}q('.lav .ring0').style.display='none'}else{lf&&lf.remove();q('.lav .ring0').style.display=''}
+    {const lav=q('.lav');const sig=(me?me.id:'')+'|'+JSON.stringify((me&&me.eq)||{})+'|'+rate;if(lav.dataset.sig!==sig){lav.dataset.sig=sig;lav.replaceChildren(avOf(me?me.id:name,44))}}
     /* title: equipped title with its rarity colour, else the rank title */
     let tt=null;try{tt=me&&me.eq&&me.eq.t&&ITEM(me.eq.t)}catch(e){}
     const ch=q('.lttl');if(tt){setT(ch,tt.n);ch.className='lttl r'+Math.min(4,tt.r|0)}else{setT(ch,txt(mr.querySelector('.mych .rtl'))||tierN);ch.className='lttl r0'}
@@ -8154,10 +8160,14 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     if(ev.dataset.k!==key){ev.dataset.k=key;ev.replaceChildren(...items.map(o=>{const b=mk('button','lev '+o.c,'<i class="art"></i>'+(o.chip?'<span class="chip'+(o.w?' w':'')+'">'+esc(o.chip)+'</span>':'')+'<span class="k">'+esc(o.k)+'</span><b>'+esc(o.t)+'</b><span class="s">'+esc(o.s)+'</span>');b.type='button';b.onclick=()=>{o.go();if(openW){try{sheetOut(openW)}catch(e){openW.remove()}openW=null}};return b}))}
     setT(q('.lb-ev'),items.length?String(items.length):'')}
 
+  /* everyone's icon is what they set (KMR icon / frame), or their rank emblem when they set none */
+  function avOf(key,size){let p=null;try{const L=typeof view==='function'?view():[];p=L.find(x=>x.id===key||x.name===key)||players.find(x=>x.id===key||x.name===key)}catch(e){}
+    const w=mk('span','kav');w.style.setProperty('--es',size+'px');if(p){try{const v=Object.assign({},p);if(v.rating==null){try{v.rating=effR(p,game)}catch(e){}}w.append(avatarFull(v))}catch(e){w.textContent=[...String(key)][0]||''}}else w.textContent=[...String(key)][0]||'';return w}
+  window.__kavOf=avOf;
   function syncTop3(){const t3=$i('top3'),grp=secTl.querySelector('.lrk');
     const cells=t3&&!t3.hidden?[...t3.querySelectorAll('.t3c')]:[];const me=ME();
     const rows=cells.map((c,i)=>({n:txt(c.querySelector('.nxt'))||txt(c.querySelector('.t3m')),v:txt(c.querySelector('em'))}));
-    const key=JSON.stringify(rows);if(grp.dataset.k!==key){grp.dataset.k=key;grp.replaceChildren(...rows.map((r,i)=>{const b=mk('button','lrw r'+(i+1)+(me&&r.n===me.name?' me':''),'<span class="no">'+(i+1)+'</span><span class="a" style="background:'+HUE(r.n)+'">'+esc([...r.n][0]||'')+'</span><span class="n"><b>'+esc(r.n)+'</b><small>'+esc(tierJp(+r.v||1500))+'</small></span><span class="v tn">'+esc(r.v)+'</span>');b.type='button';b.onclick=()=>t3.click();return b}))}
+    const key=JSON.stringify(rows);if(grp.dataset.k!==key){grp.dataset.k=key;grp.replaceChildren(...rows.map((r,i)=>{const b=mk('button','lrw r'+(i+1)+(me&&r.n===me.name?' me':''),'<span class="no">'+(i+1)+'</span><span class="a"></span><span class="n"><b>'+esc(r.n)+'</b><small>'+esc(tierJp(+r.v||1500))+'</small></span><span class="v tn">'+esc(r.v)+'</span>');b.type='button';b.querySelector('.a').replaceWith(avOf(r.n,36));b.onclick=()=>t3.click();return b}))}
     grp.hidden=!rows.length}
 
   function syncFeed(){const feed=$i('feed'),box=secTl.querySelector('.ltl');if(!feed)return;const posts=[...feed.querySelectorAll('.fd')];
@@ -8171,7 +8181,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     box.replaceChildren(...out);q('.lb-tl').textContent=posts.length?' ':''}
 
   function sync(){order();try{syncOshi()}catch(e){}try{tabIcons()}catch(e){}try{syncTop()}catch(e){}try{syncPanel()}catch(e){}try{syncLive()}catch(e){}try{syncEvents()}catch(e){}try{syncTop3()}catch(e){}try{syncFeed()}catch(e){}}
-  {let p=0;const kick=()=>{if(p)return;p=requestAnimationFrame(()=>{p=0;sync()})};
+  {let p=0;const kick=()=>{if(p||vh.hidden)return;p=setTimeout(()=>{p=0;if(!vh.hidden)sync()},140)};
     new MutationObserver(recs=>{if(recs.every(r=>lob.contains(r.target)))return;kick()}).observe(vh,{childList:true,subtree:true,attributes:true,characterData:true});
     const hb=document.querySelector('.hbar');if(hb)new MutationObserver(kick).observe(hb,{childList:true,subtree:true,characterData:true,attributes:true});
     const gt=$i('gtabs');if(gt)new MutationObserver(kick).observe(gt,{attributes:true,subtree:true,attributeFilter:['class']});sync();setInterval(sync,15000)}
@@ -8201,7 +8211,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   window.__lobStep=t=>{window.__kmT=t;if(window.gsap){if(!window.__kmG){window.__kmG=1;gsap.ticker.remove(gsap.updateRoot)}gsap.updateRoot(t)}frame(t)};
   lob.addEventListener('pointermove',e=>{if(!stage)return;const r=lob.getBoundingClientRect();stage.pointer((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)},{passive:true});
   lob.addEventListener('pointerleave',()=>stage&&stage.pointer(0,0));
-  window.__lobIntro=()=>{shown=false;homeOn()};window.__lobSync=sync;
+  window.__lobIntro=()=>{shown=false;homeOn()};
+  addEventListener('touchstart',e=>{const v=e.target.closest&&e.target.closest('#v-home,#v-rank,#v-profile');if(v)e.stopPropagation()},{capture:true,passive:true});window.__lobSync=sync;
   /* on the lobby, a genre change is our burst + morph, not the app's page fade/slide */
   try{const op=pickGame;pickGame=function(){const home=document.body.classList.contains('lobhome');const r=op.apply(this,arguments);
     if(home){vh.style.opacity='';requestAnimationFrame(()=>{vh.style.opacity='';try{vh.__an&&vh.__an.cancel()}catch(e){}})}return r}}catch(e){}
@@ -8255,7 +8266,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
 
   /* ---- weekly MVP ---- */
   const TRO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4.5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a3 3 0 0 0 3 4M17 6h2.5a3 3 0 0 1-3 4M12 13.5V17M8.5 20.5h7M10 17h4v3.5h-4z"/></svg>';
-  const who=(id,me)=>{const p=(typeof players!=='undefined'?players:[]).find(x=>x.id===id);if(!p)return '';return '<span class="k-who"><span class="k-av" style="background:'+HUE(p.name)+'">'+esc([...p.name][0]||'')+'</span>'+esc(p.name)+(id===me.id?'<span class="k-you">あなた</span>':'')+'</span>'};
+  const who=(id,me)=>{const p=(typeof players!=='undefined'?players:[]).find(x=>x.id===id);if(!p)return '';let av='';try{av=window.__kavOf?__kavOf(id,28).outerHTML:''}catch(e){}if(!av)av='<span class="k-av" style="background:'+HUE(p.name)+'">'+esc([...p.name][0]||'')+'</span>';return '<span class="k-who">'+av+esc(p.name)+(id===me.id?'<span class="k-you">あなた</span>':'')+'</span>'};
   try{showMvpAnn=function(w,M,ks,me,T,gs){T=T||{};gs=gs||[];
     const mine=ks.filter(([k])=>M[k].ids.includes(me.id)),myG=gs.filter(g=>T[g].ids.includes(me.id));
     const o=mk('div','k-ov k-mvp'),c=mk('div','k-card');let range='';try{range=wkRange(w)}catch(e){}
