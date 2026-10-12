@@ -2516,6 +2516,20 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 @keyframes mvpUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes mvpSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.mvpann,.mvpann *{animation:none!important}}
+/* photo viewer */
+.picv{position:fixed;inset:0;z-index:160;background:#000;animation:fade .2s both}
+.picv.out{opacity:0;transition:opacity .2s}
+.picvs{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;touch-action:pan-x}
+.picvs::-webkit-scrollbar{display:none}
+.picvp{touch-action:pan-x;flex:0 0 100%;height:100%;display:grid;place-items:center;overflow:hidden;scroll-snap-align:center;padding:calc(env(safe-area-inset-top,0px) + 56px) 0 calc(env(safe-area-inset-bottom,0px) + 44px)}
+.picvp img{max-width:100%;max-height:100%;object-fit:contain;transform-origin:center;transition:transform .12s ease-out;user-select:none;-webkit-user-select:none}
+.picvp.zoom{touch-action:none}
+.picvx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;width:44px;height:44px;border-radius:50%;border:0;background:#ffffff26;color:#fff;font-size:26px;line-height:1;display:grid;place-items:center;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.picvc{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);text-align:center;color:#fff;font-size:13px;opacity:.8;font-variant-numeric:tabular-nums;pointer-events:none}
+.mbimg{cursor:zoom-in}
+/* the weekly announcement never scrolls sideways */
+.mvpann{overflow-x:hidden}
+.mvpray{position:fixed}
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
 #login h1{margin:4px 0 0}#login button{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -4854,13 +4868,27 @@ const msgTagEl=t=>el('span','mtag mt-'+t,MSGTAG[t]);
 const msgPics=m=>Array.isArray(m.imgs)&&m.imgs.length?m.imgs.slice(0,4):m.img?[m.img]:[];
 const msgDate=t=>new Date(t).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
 function msgHead(m){const b=el('b','msgh');if(m.tag&&MSGTAG[m.tag])b.append(msgTagEl(m.tag));b.append(document.createTextNode(m.title||'お知らせ'));return b}
+/* full-screen photo viewer: swipe between photos, pinch or double-tap to zoom, × or tap outside a zoomed photo to close */
+function openPicView(ps,start){document.querySelectorAll('.picv').forEach(x=>x.remove());const o=el('div','picv'),strip=el('div','picvs'),x=el('button','picvx','×'),cnt=el('div','picvc');x.setAttribute('aria-label','閉じる');
+  const close=()=>{o.classList.add('out');setTimeout(()=>o.remove(),200);document.removeEventListener('keydown',key)};const key=e=>{if(e.key==='Escape')close()};document.addEventListener('keydown',key);
+  ps.forEach(u=>{const sl=el('div','picvp'),im=el('img');im.src=u;im.alt='';sl.append(im);let z=1,tx=0,ty=0,pd=0,pz=1,last=0,sx=0,sy=0,ox=0,oy=0;
+    const ap=()=>{im.style.transform='translate('+tx+'px,'+ty+'px) scale('+z+')';sl.classList.toggle('zoom',z>1.01)};
+    const clamp=()=>{const r=sl.getBoundingClientRect(),mx=r.width*(z-1)/2,my=r.height*(z-1)/2;tx=Math.max(-mx,Math.min(mx,tx));ty=Math.max(-my,Math.min(my,ty))};
+    sl.addEventListener('touchstart',e=>{if(e.touches.length===2){const [a,b]=e.touches;pd=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);pz=z}else if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY;ox=tx;oy=ty;const n=Date.now();if(n-last<280){z=z>1?1:2.5;tx=ty=0;ap()}last=n}},{passive:true});
+    sl.addEventListener('touchmove',e=>{if(e.touches.length===2){e.preventDefault();const [a,b]=e.touches;z=Math.max(1,Math.min(5,pz*Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)/pd));clamp();ap()}else if(z>1&&e.touches.length===1){e.preventDefault();tx=ox+e.touches[0].clientX-sx;ty=oy+e.touches[0].clientY-sy;clamp();ap()}},{passive:false});
+    sl.addEventListener('touchend',()=>{if(z<1.05){z=1;tx=ty=0;ap()}});
+    sl.addEventListener('dblclick',()=>{z=z>1?1:2.5;tx=ty=0;ap()});
+    strip.append(sl)});
+  const upd=()=>{const i=Math.round(strip.scrollLeft/Math.max(1,strip.clientWidth));cnt.textContent=ps.length>1?(i+1)+' / '+ps.length:''};
+  strip.addEventListener('scroll',upd,{passive:true});x.onclick=close;o.append(strip,x,cnt);document.body.append(o);
+  requestAnimationFrame(()=>{strip.scrollLeft=strip.clientWidth*(start||0);upd()})}
 /* the notice board: list on the left, the chosen notice (photo first) on the right */
 function openMsgBoard(id){if(!devMsgs.length)return;document.querySelectorAll('.mboard').forEach(x=>x.remove());
   const o=el('div','mboard'),w=el('div','mbw'),hd=el('div','mbhd'),list=el('div','mbl'),view=el('div','mbv'),ft=el('div','mbft'),ok=el('button',null,'確認');
   hd.append(el('div','eyebrow','KIMOOTA LADDER'),el('h2',null,'お知らせ'));
   const L=devMsgs.slice(0,20);let cur=L.find(m=>m.id===id)||L[0];
   const show=m=>{cur=m;list.querySelectorAll('.mbi').forEach(b=>b.classList.toggle('on',b.dataset.id===m.id));view.replaceChildren();view.scrollTop=0;
-    {const ps=msgPics(m);if(ps.length){const g=el('div','mbgal'),strip=el('div','mbstrip');ps.forEach(u=>{const im=el('img','mbimg');im.src=u;im.alt='';strip.append(im)});g.append(strip);
+    {const ps=msgPics(m);if(ps.length){const g=el('div','mbgal'),strip=el('div','mbstrip');ps.forEach((u,k)=>{const im=el('img','mbimg');im.src=u;im.alt='写真 '+(k+1)+'(タップで大きく表示)';im.onclick=()=>openPicView(ps,k);strip.append(im)});g.append(strip);
       if(ps.length>1){const dots=el('div','mbdots');ps.forEach((_,i)=>dots.append(el('i',i?null:'on')));g.append(dots,el('span','mbcnt','1 / '+ps.length));
         strip.addEventListener('scroll',()=>{const i=Math.round(strip.scrollLeft/Math.max(1,strip.clientWidth));dots.querySelectorAll('i').forEach((d,k)=>d.classList.toggle('on',k===i));g.querySelector('.mbcnt').textContent=(i+1)+' / '+ps.length},{passive:true})}
       view.append(g)}}
@@ -5806,7 +5834,7 @@ function tcgPublicCoins(d,first){return(first==='b'?[d.b,d.a]:[d.a,d.b]).map(id=
 window.TCGHOST={own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
-  const f=el('iframe');f.src='tcg_play.html?v=118'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+  const f=el('iframe');f.src='tcg_play.html?v=119'+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
 function tcgClose(){if(typeof tcgLive!=='undefined')tcgLive=null;const o=$('tcgw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');renderTcg()}
 /* your own coin decides who goes first, then your own 対戦演出 opens the match */
 function tcgToss(info,cb){const side=coinToss({id:'tcg'},myCoin());let fired=false;const t0=Date.now();
@@ -5943,7 +5971,7 @@ function tcgSpectatorSection(){const s=el('section','tcgobserve');s.append(el('h
   live.forEach(d=>{const row=el('div','tcgfr'),tx=el('div');tx.append(el('b',null,d.an+' vs '+d.bn),el('div','sub',(now()-d.updated>90000?'更新待ち · ':'LIVE · ')+d.state.turns+'ターン'));
     const b=el('button','sec','観戦する');b.onclick=()=>tcgSpectate(d.id);row.append(tx,b);s.append(row)});return s}
 function tcgSpectate(id){if(!db||$('tcgw')){toast('対戦・編成を閉じてから観戦してください');return}
-  const o=el('div','tcgw');o.id='tcgw';const f=el('iframe');f.src='tcg_play.html?v=118#watch='+encodeURIComponent(id);f.title='きもオタTCG ライブ観戦';o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+  const o=el('div','tcgw');o.id='tcgw';const f=el('iframe');f.src='tcg_play.html?v=119#watch='+encodeURIComponent(id);f.title='きもオタTCG ライブ観戦';o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
 window.TCGWATCH={effectCoin:info=>tcgShowEffectCoin(info),subscribe:(id,cb,onError)=>{if(!db){onError&&onError();return()=>{}}return db.doc('tcgwatch/'+id).onSnapshot(s=>cb(s.exists?s.data():null),onError)},close:()=>tcgClose()};
 window.TCGHOST.publishSpectator=payload=>{try{payload=JSON.parse(JSON.stringify(payload))}catch(e){return Promise.resolve()}/* made inside the game frame: copy into this window first, Firestore refuses the frame's arrays */
   const L=tcgLive,me=myPlayer();if(!L||L.id!==payload.id||!db||!me)return Promise.resolve();
@@ -6421,7 +6449,7 @@ const NEWS=NEWS_EXP?[
  ['新しい効果',['相手のキャラを自分の場に連れてくる / 伏せトラップを壊す・封印する / ★を下げる / 手札を捨てさせる / 倒されたら相手も道連れ など','くわしくは対戦画面のメニュー「遊び方」と、カードをタップしたときの説明に']],
  ['カードの絵',['新カードの絵は順番に追加していきます。届くまでは名前入りの仮の絵になります']],
 ]:[
- ['CPU戦の相手を選べるように',['CPU戦で自分のデッキを選ぶと、続けて「相手のデッキを選ぶ」画面が出る','おまかせ:CPUが毎回ちがうデッキを組んでくる(1つの族 / 2つの族の組み合わせ / トラップ型・育成型などのテーマ)','おすすめデッキ:11族のおすすめデッキから1つ','自分のデッキを使わせる:保存してある自分のデッキをCPUが使って戦ってくる']],
+ ['CPU戦の相手を選べるように',['CPU戦で自分のデッキを選ぶと、続けて「相手のデッキを選ぶ」画面が出る','おまかせ:CPUが何千試合も試して強いと判断したデッキの中から選んでくる。同じデッキが続かないように毎回入れ替わる','ランダム構築:CPUがその場でデッキを組む(1つの族 / 2つの族の組み合わせ / テーマ型)','おすすめデッキ:11族のおすすめデッキから1つ','自分のデッキを使わせる:保存してある自分のデッキをCPUが使って戦ってくる']],
  ['週間MVPの発表',['月曜朝5時をすぎて最初にアプリを開いたとき、先週の週間MVP(最多勝・最多対戦)とジャンル別の1位が画面いっぱいに発表される。1週間に1回だけ','自分が受賞・1位だったら、もらったptやチケットも一緒に表示']],
  ['つよいCPU',['CPU戦の強さを「ふつう」と「つよい」から選べる','つよいCPUは、先の展開を何通りも試して一番勝てる手を選ぶ。あなたの手札や伏せたカードは見ていない']],
 ];
