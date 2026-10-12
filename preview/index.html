@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja"><head><script>/*UI2PRE*/try{if(localStorage.getItem('ui2')!=='0')document.documentElement.classList.add('ui2pre')}catch(e){document.documentElement.classList.add('ui2pre')}</script><link rel="preload" as="fetch" href="fx_splash.mp4" crossorigin="anonymous"><meta charset="utf-8">
+<html lang="ja"><head><script>/*UI2PRE*/try{if(localStorage.getItem('ui2')!=='0')document.documentElement.classList.add('ui2pre')}catch(e){document.documentElement.classList.add('ui2pre')}</script><link rel="preload" as="fetch" href="fx_splash.mp4?v=v3" crossorigin="anonymous"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>きもオタレート(お試し)</title>
 <meta name="theme-color" content="#0b0d12">
@@ -8293,7 +8293,9 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   /* ---------- the splash as a pre-rendered video: the phone's decoder plays it at 60fps no matter how busy the app is.
      Cached as a blob (Safari wants real range support for <video>, which a service worker cannot give); the canvas
      version plays when the video is not ready (first launch) or cannot play. ---------- */
-  const VSRC={l:'fx_splash.mp4',s:'fx_splash_s.mp4'};const vurl={};
+  const VV='v3';const VSRC={l:'fx_splash.mp4?v='+VV,s:'fx_splash_s.mp4?v='+VV};const vurl={};
+  /* a new splash version replaces the saved one */
+  try{caches.open('ladder-media').then(c=>c.keys().then(ks=>ks.forEach(r=>{if(!/[?&]v=v3\b/.test(r.url))c.delete(r)}))).catch(()=>{})}catch(e){}
   async function vblob(name){if(vurl[name])return vurl[name];const c=window.caches?await caches.open('ladder-media').catch(()=>null):null;let res=c&&await c.match(name);
     if(!res){res=await fetch(name,{cache:'force-cache'});if(c&&res.ok)try{await c.put(name,res.clone())}catch(e){}}if(!res||!res.ok)throw new Error('novideo');const b=await res.blob();return vurl[name]=URL.createObjectURL(b)}
   setTimeout(()=>vblob(VSRC.s).catch(()=>{}),4000);/* the short version is warmed after startup; the long one is fetched by the splash itself */
