@@ -3091,6 +3091,9 @@ body.ui2 .bnav .navink{background:rgba(255,255,255,.14)!important;box-shadow:ins
 #ksfxsec .ksfx input:checked+i{background:#34c759}
 #ksfxsec .ksfx input:checked+i::after{transform:translateX(20px)}
 @media (prefers-reduced-motion:reduce){.km-splash{display:none}}
+
+.km-splash.km-vid{background:#050506}
+.km-splash.km-vid video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#050506;will-change:opacity}
 /* ===== v121 skin: every screen in the home's language. iOS grouping, one warm ivory for actions, gold only as an accent,
    big concentric radii, hairline highlights instead of borders, no backdrop blur (phones stay smooth). ===== */
 body.ui2{--k3-bg:#09090b;--k3-card:linear-gradient(180deg,#1d1c21,#141317);--k3-card2:#232228;--k3-line:rgba(255,255,255,.08);--k3-hi:rgba(255,255,255,.14);
@@ -8174,7 +8177,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   window.__lobStep=t=>{window.__kmT=t;if(window.gsap){if(!window.__kmG){window.__kmG=1;gsap.ticker.remove(gsap.updateRoot)}gsap.updateRoot(t)}frame(t)};
   lob.addEventListener('pointermove',e=>{if(!stage)return;const r=lob.getBoundingClientRect();stage.pointer((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)},{passive:true});
   lob.addEventListener('pointerleave',()=>stage&&stage.pointer(0,0));
-  window.__lobIntro=()=>{shown=false;homeOn()};
+  window.__lobIntro=()=>{shown=false;homeOn()};window.__lobSync=sync;
   /* on the lobby, a genre change is our burst + morph, not the app's page fade/slide */
   try{const op=pickGame;pickGame=function(){const home=document.body.classList.contains('lobhome');const r=op.apply(this,arguments);
     if(home){vh.style.opacity='';requestAnimationFrame(()=>{vh.style.opacity='';try{vh.__an&&vh.__an.cancel()}catch(e){}})}return r}}catch(e){}
@@ -8283,13 +8286,32 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const r=document.createElement('div');r.className='km-splash';document.body.append(r);
     const lob=document.getElementById('lob');const piece=K.makeSplash(r,{short,under:lob});
     const run=K.runner(piece,piece.dur,()=>{r.remove();if(lob)lob.style.transform='';hold(false)});
-    window.__kmRevealed=false;const rv=()=>{if(window.__kmRevealed)return;window.__kmRevealed=true;hold(false);const waiting=window.__lobWaiting;dispatchEvent(new Event('kmo:reveal'));if(!waiting&&window.__lobIntro)window.__lobIntro()};
+    window.__kmRevealed=false;const rv=()=>{if(window.__kmRevealed)return;window.__kmRevealed=true;hold(false);try{window.__lobSync&&__lobSync()}catch(e){}const waiting=window.__lobWaiting;dispatchEvent(new Event('kmo:reveal'));if(!waiting&&window.__lobIntro)window.__lobIntro()};
     r.addEventListener('pointerdown',()=>{run.skip();rv()});const rs=()=>piece.layout();addEventListener('resize',rs);
     setTimeout(rv,(short?.5:1.95)*1000);run.start();return r}
-  window.kmoSplash=splash;
+  /* ---------- the splash as a pre-rendered video: the phone's decoder plays it at 60fps no matter how busy the app is.
+     Cached as a blob (Safari wants real range support for <video>, which a service worker cannot give); the canvas
+     version plays when the video is not ready (first launch) or cannot play. ---------- */
+  const VSRC={l:'fx_splash.mp4',s:'fx_splash_s.mp4'};const vurl={};
+  async function vblob(name){if(vurl[name])return vurl[name];const c=window.caches?await caches.open('ladder-media').catch(()=>null):null;let res=c&&await c.match(name);
+    if(!res){res=await fetch(name,{cache:'force-cache'});if(c&&res.ok)try{await c.put(name,res.clone())}catch(e){}}if(!res||!res.ok)throw new Error('novideo');const b=await res.blob();return vurl[name]=URL.createObjectURL(b)}
+  Object.values(VSRC).forEach(n=>setTimeout(()=>vblob(n).catch(()=>{}),4000));/* warm the cache after startup */
+  function splashVideo(short){if(document.querySelector('body>.km-splash'))return;const name=short?VSRC.s:VSRC.l;
+    const r=document.createElement('div');r.className='km-splash km-vid';const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';r.append(v);document.body.append(r);hold(true);
+    const T0=short?.5:1.95,T1=short?.62:2.05,END=short?1.03:2.45;const cues=short?[[.02,'blip'],[.5,'dive']]:[[.07,'blip'],[.5,'whoosh'],[1.45,'slam'],[1.95,'dive']];let ci=0;
+    window.__kmRevealed=false;let done=false;const rv=()=>{if(window.__kmRevealed)return;window.__kmRevealed=true;hold(false);try{window.__lobSync&&__lobSync()}catch(e){}const waiting=window.__lobWaiting;dispatchEvent(new Event('kmo:reveal'));if(!waiting&&window.__lobIntro)window.__lobIntro()};
+    const finish=()=>{if(done)return;done=true;rv();r.remove();hold(false)};
+    const fallback=()=>{if(done)return;done=true;r.remove();hold(false);splash(short)};
+    const tick=()=>{if(done||!r.isConnected)return;const t=v.currentTime;while(ci<cues.length&&cues[ci][0]<=t){K.SFX.play(cues[ci][1]);ci++}if(t>=T0)rv();if(t>T1)v.style.opacity=Math.max(0,1-(t-T1)/(END-T1)).toFixed(3);if(t>=END-.02||v.ended)finish();else requestAnimationFrame(tick)};
+    v.addEventListener('ended',finish);v.addEventListener('error',fallback,{once:true});
+    r.addEventListener('pointerdown',()=>{try{if(v.currentTime<T0)v.currentTime=T0}catch(e){}rv()});
+    const guard=setTimeout(()=>{if(v.currentTime===0)fallback()},900);
+    vblob(name).then(u=>{if(done)return;v.src=u;const pr=v.play();if(pr&&pr.catch)pr.catch(fallback);v.addEventListener('playing',()=>{clearTimeout(guard);requestAnimationFrame(tick)},{once:true})}).catch(fallback);
+    return r}
+  window.kmoSplash=splash;window.kmoSplashVideo=splashVideo;
   const sp=document.getElementById('splash');
   if(sp&&!RM){let short=false;try{short=localStorage.getItem('kspl')===today();localStorage.setItem('kspl',today())}catch(e){}
-    sp.style.visibility='hidden';splash(short)}
+    sp.style.visibility='hidden';let useVideo=true;try{useVideo=localStorage.getItem('kspl_canvas')!=='1'}catch(e){}if(useVideo&&'caches' in window)splashVideo(short);else splash(short)}
 
   /* ---------- login bonus / pass ---------- */
   const amtOf=k=>{try{return lbAmt(k)}catch(e){return Math.min(50,30+5*(k-1))}};
