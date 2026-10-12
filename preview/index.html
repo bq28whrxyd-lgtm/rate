@@ -9252,7 +9252,13 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     let lab='',cls='';if(lv){const mine=lv.a===me.id;if(lv.st==='pending'){lab=mine?'承認待ち':'申し込みあり';cls=mine?'wait':'inbox'}else{lab='対戦中';cls='fight'}}
     stateOn(vs,lab,cls)}
   /* entrance: both halves slide in, the seam is drawn, VS lands with a ring and a small shake, then the rest rises */
-  function introVS(){if(!vsMe||!vsOp)return;
+  /* the first time in a session it plays in full; after that a short version, so coming back to the tab never feels slow */
+  let introN=0;
+  function introVS(){if(!vsMe||!vsOp)return;const full=introN++===0;
+    if(!full){ani(vsMe,[{opacity:0,transform:'translateX(-18px)'},{opacity:1,transform:'none'}],{duration:380});
+      ani(vsOp,[{opacity:0,transform:'translateX(18px)'},{opacity:1,transform:'none'}],{duration:380});
+      const v=vs.querySelector('.kvs-vs');ani(v,[{opacity:0,transform:'scale(1.6)'},{opacity:1,transform:'scale(1)'}],{duration:420,delay:80,easing:'cubic-bezier(.3,1.3,.5,1)'});
+      ani(v.querySelector('.ring'),[{opacity:.9,transform:'scale(.7)'},{opacity:0,transform:'scale(1.9)'}],{duration:560,delay:300,fill:'none'});return}
     ani(vsMe,[{opacity:0,transform:'translateX(-36px)'},{opacity:1,transform:'none'}],{duration:640});
     ani(vsOp,[{opacity:0,transform:'translateX(36px)'},{opacity:1,transform:'none'}],{duration:640,delay:50});
     ani(vs.querySelector('.kvs-seam b'),[{transform:'scaleY(0)'},{transform:'scaleY(1)'}],{duration:520,delay:140,easing:'cubic-bezier(.7,0,.2,1)'});
@@ -9397,7 +9403,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   function countUp(els){if(RMO)return;els.forEach(b=>{const m=/^(\d+)(.*)$/.exec(b.textContent);if(!m||!+m[1])return;const v=+m[1],suf=m[2],t0=performance.now(),D=720;
     b.textContent='0'+suf;const step=n=>{const k=Math.min(1,(n-t0)/D);b.textContent=Math.round(v*(1-Math.pow(1-k,3)))+suf;if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step)})}
   function enter(pg,dir){if(RMO)return;const dx=dir*22;
-    if(pg==='rate'){introVS();return}
+    if(pg==='rate'){if(document.querySelector('body>.km-splash'))addEventListener('kmo:reveal',()=>introVS(),{once:true});else introVS();return}
     if(pg==='tcg'){const fan=tHero.querySelector('.kx-fan');rise(tHero,0,dx);
       tHero.querySelectorAll('.kx-tt h2,.kx-tt p').forEach((e,k)=>rise(e,80+k*60));
       if(fan)ani(fan,[{opacity:0,transform:'translateY(30px) scale(.84) rotate(-8deg)'},{opacity:1,transform:'none'}],{duration:760,delay:120,easing:'cubic-bezier(.2,.9,.3,1.12)'});
@@ -9421,7 +9427,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     if(pg){try{window.__kxInk&&__kxInk()}catch(e){}}}
   const later=()=>{if(!rq)rq=requestAnimationFrame(refresh)};
   window.__kxRefresh=()=>{rateSig=histSig=deckSig=heroSig=rankSig='';refresh()};
-  window.__kxEnter=()=>{lastPg=null;refresh()};
+  window.__kxEnter=()=>{lastPg=null;introN=0;refresh()};
   try{const R0=render;render=function(){const r=R0.apply(this,arguments);later();return r}}catch(e){}
   /* home is one still screen: it always opens at the top */
   {const SV=setView;setView=function(){const r=SV.apply(this,arguments);if(curView==='home'){try{scrollTo(0,0)}catch(e){}}refresh();return r}}
