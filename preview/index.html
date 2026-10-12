@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja"><head><script>/*UI2PRE*/try{if(localStorage.getItem('ui2')!=='0')document.documentElement.classList.add('ui2pre')}catch(e){document.documentElement.classList.add('ui2pre')}</script><meta charset="utf-8">
+<html lang="ja"><head><script>/*UI2PRE*/try{if(localStorage.getItem('ui2')!=='0')document.documentElement.classList.add('ui2pre')}catch(e){document.documentElement.classList.add('ui2pre')}</script><link rel="preload" as="fetch" href="fx_splash.mp4" crossorigin="anonymous"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>きもオタレート(お試し)</title>
 <meta name="theme-color" content="#0b0d12">
@@ -8295,7 +8295,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   const VSRC={l:'fx_splash.mp4',s:'fx_splash_s.mp4'};const vurl={};
   async function vblob(name){if(vurl[name])return vurl[name];const c=window.caches?await caches.open('ladder-media').catch(()=>null):null;let res=c&&await c.match(name);
     if(!res){res=await fetch(name,{cache:'force-cache'});if(c&&res.ok)try{await c.put(name,res.clone())}catch(e){}}if(!res||!res.ok)throw new Error('novideo');const b=await res.blob();return vurl[name]=URL.createObjectURL(b)}
-  Object.values(VSRC).forEach(n=>setTimeout(()=>vblob(n).catch(()=>{}),4000));/* warm the cache after startup */
+  setTimeout(()=>vblob(VSRC.s).catch(()=>{}),4000);/* the short version is warmed after startup; the long one is fetched by the splash itself */
   function splashVideo(short){if(document.querySelector('body>.km-splash'))return;const name=short?VSRC.s:VSRC.l;
     const r=document.createElement('div');r.className='km-splash km-vid';const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';r.append(v);document.body.append(r);hold(true);
     const T0=short?.5:1.95,T1=short?.62:2.05,END=short?1.03:2.45;const cues=short?[[.02,'blip'],[.5,'dive']]:[[.07,'blip'],[.5,'whoosh'],[1.45,'slam'],[1.95,'dive']];let ci=0;
@@ -8305,7 +8305,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const tick=()=>{if(done||!r.isConnected)return;const t=v.currentTime;while(ci<cues.length&&cues[ci][0]<=t){K.SFX.play(cues[ci][1]);ci++}if(t>=T0)rv();if(t>T1)v.style.opacity=Math.max(0,1-(t-T1)/(END-T1)).toFixed(3);if(t>=END-.02||v.ended)finish();else requestAnimationFrame(tick)};
     v.addEventListener('ended',finish);v.addEventListener('error',fallback,{once:true});
     r.addEventListener('pointerdown',()=>{try{if(v.currentTime<T0)v.currentTime=T0}catch(e){}rv()});
-    const guard=setTimeout(()=>{if(v.currentTime===0)fallback()},900);
+    const guard=setTimeout(()=>{if(v.currentTime===0)fallback()},6000);/* the video is the splash; the drawn version only if it truly cannot play */
     vblob(name).then(u=>{if(done)return;v.src=u;const pr=v.play();if(pr&&pr.catch)pr.catch(fallback);v.addEventListener('playing',()=>{clearTimeout(guard);requestAnimationFrame(tick)},{once:true})}).catch(fallback);
     return r}
   window.kmoSplash=splash;window.kmoSplashVideo=splashVideo;
