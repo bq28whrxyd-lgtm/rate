@@ -3195,6 +3195,17 @@ body.ui2 .pcard{border-radius:var(--k3-r)!important;border:0!important;box-shado
 body.ui2 .pcard:not([class*="pb-"]){background:var(--k3-card)!important}
 body.ui2 .pcg>div,body.ui2 .pcg>button{background:var(--k3-card2)!important;border:0!important;border-radius:18px!important;box-shadow:inset 0 .5px 0 var(--k3-hi)}
 body.ui2 .pcg b,body.ui2 .pcg .tnum{font-variant-numeric:tabular-nums}
+
+/* panels: a centred card that pops out of the button you pressed (no bottom sheets) */
+body.ui2 .shw{align-items:center!important;justify-content:center!important;padding:calc(env(safe-area-inset-top,0px) + 20px) 16px calc(env(safe-area-inset-bottom,0px) + 20px)!important;background:rgba(0,0,0,.52)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+body.ui2 .shw .sht{margin:0!important;width:100%!important;max-width:400px!important;max-height:74vh!important;max-height:74dvh!important;border:0!important;border-radius:34px!important;padding:8px 16px 18px!important;
+  background:linear-gradient(180deg,rgba(42,41,48,.985),rgba(21,21,25,.99))!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  box-shadow:0 34px 90px -20px rgba(0,0,0,.8),inset 0 .5px 0 rgba(255,255,255,.2),inset 0 0 0 .5px rgba(255,255,255,.08)!important;will-change:transform,opacity;overscroll-behavior:contain}
+body.ui2 .shw .sht .grab{display:none!important}
+body.ui2 .shw .sht .shh{position:sticky;top:-8px;z-index:2;margin:0 -16px 10px!important;padding:14px 16px 10px;background:linear-gradient(180deg,rgba(42,41,48,1) 70%,rgba(42,41,48,0))}
+body.ui2 .shw .sht .shh b{font:700 17px/1.2 var(--body)}
+body.ui2 .shw .sht .shh button{min-height:32px!important;padding:0 14px!important;font:600 13px/32px var(--body)!important;border-radius:999px!important}
+body.ui2 .shw.closing .sht{animation:none!important}
 /*KV-START*/
 /* ===== v121 screens built like the home: a stage, a panel, one action. Ranking / battle / pack / TCG / profile ===== */
 body.ui2 .view>.kv{display:flex;flex-direction:column;gap:10px;position:relative;margin:-20px -16px 0;padding:0 16px 0;
@@ -8000,6 +8011,18 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   q('.lgen').onclick=e=>{e.stopPropagation();nextGenre(1)};
   {const pan=q('.lpan');let sx=null,moved=false;pan.addEventListener('pointerdown',e=>{sx=e.clientX;moved=false});pan.addEventListener('pointerup',e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;moved=Math.abs(dx)>8;if(Math.abs(dx)>50)nextGenre(dx<0?1:-1)});
     pan.addEventListener('click',e=>{if(moved||e.target.closest('.lgen'))return;const m=$i('myrank');m&&m.click()})}
+  /* ---- every panel opened by a button pops out of that button into the centre (iOS: popovers expand from their source) ---- */
+  if(!window.__kpop){window.__kpop=1;let pt={x:innerWidth/2,y:innerHeight*.62};
+    addEventListener('pointerdown',e=>{pt={x:e.clientX,y:e.clientY}},{capture:true,passive:true});
+    let SPR='cubic-bezier(.2,1.12,.3,1)';try{if(CSS.supports('transition-timing-function','linear(0,1)')){const f=2.2,z=.72,w=2*Math.PI*f,wd=w*Math.sqrt(1-z*z),p=[];for(let i=0;i<=40;i++){const t=i/40*.62;p.push((1-Math.exp(-z*w*t)*(Math.cos(wd*t)+z*w/wd*Math.sin(wd*t))).toFixed(4))}p[40]='1';SPR='linear('+p.join(',')+')'}}catch(e){}
+    const RMq=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const pop=w=>{const sh=w.querySelector('.sht');if(!sh||!sh.animate||RMq)return;const from={x:pt.x,y:pt.y};
+      requestAnimationFrame(()=>{const r=sh.getBoundingClientRect();const dx=from.x-(r.left+r.width/2),dy=from.y-(r.top+r.height/2);w.__d=[dx,dy];
+        sh.animate([{transform:'translate('+dx+'px,'+dy+'px) scale(.3)'},{transform:'none'}],{duration:560,easing:SPR});
+        sh.animate([{opacity:0},{opacity:1}],{duration:200,easing:'ease-out'});
+        new MutationObserver((m,ob)=>{if(!w.classList.contains('closing'))return;ob.disconnect();const d=w.__d||[0,60];
+          sh.animate([{transform:'none',opacity:1},{transform:'translate('+d[0]+'px,'+d[1]+'px) scale(.35)',opacity:0}],{duration:280,easing:'cubic-bezier(.45,0,.9,.4)',fill:'forwards'})}).observe(w,{attributes:true,attributeFilter:['class']})})};
+    new MutationObserver(recs=>{for(const r of recs)for(const n of r.addedNodes)if(n.classList&&n.classList.contains('shw'))pop(n)}).observe(document.body,{childList:true})}
   let openW=null;
   function sheet(title,sec){document.querySelectorAll('.shw').forEach(x=>{try{sheetOut(x)}catch(e){x.remove()}});
     const w=mk('div','shw'),sh=mk('div','sht'),hd=mk('div','shh'),cl=mk('button','sec','閉じる');cl.type='button';hd.append(mk('b',null,title),cl);sh.append(mk('div','grab'),hd,sec);w.append(sh);document.body.append(w);openW=w;document.body.classList.add('lobsheet');
