@@ -2805,7 +2805,7 @@ body.ui2 .llive .dot{width:8px;height:8px;border-radius:50%;background:#ff453a;f
 @keyframes lobpulse{50%{box-shadow:0 0 0 7px rgba(255,69,58,0)}}
 body.ui2 .llive .tag{flex:none;font:800 11px/1 var(--body);letter-spacing:.06em;color:#fff;padding:4px 8px;border-radius:8px;background:linear-gradient(135deg,#ff5fa2,#a35cff)}
 body.ui2 .llive .txt{flex:1;min-width:0;position:relative;height:20px;font:600 14px/20px var(--body);overflow:hidden}
-body.ui2 .llive .txt span{position:absolute;inset:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:transform .55s var(--lsp),opacity .25s}
+body.ui2 .llive .txt>span{position:absolute;inset:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:transform .55s var(--lsp),opacity .25s}
 body.ui2 .llive.fd-streak .tag{background:#c48a2a}body.ui2 .llive.fd-geko .tag{background:#6a5ae0}body.ui2 .llive.fd-gr .tag{background:#b8902a}
 body.ui2 .llive time{flex:none;font:600 12px/1 var(--body);color:var(--lmut)}
 
@@ -2905,6 +2905,17 @@ body.ui2 .lav{display:grid;place-items:center}
 body.ui2 .lrw .kav{justify-self:center}
 
 body.ui2 .lpan{touch-action:pan-y}
+
+/* rank-styled names (the app's nameEl) inside lobby texts */
+body.ui2 .lptx b.lpn{color:inherit}
+body.ui2 .lptx .nx,body.ui2 .llive .txt .nx,body.ui2 .lrw .n .nx{vertical-align:baseline}
+body.ui2 .llive .txt .nxt{vertical-align:bottom}
+body.ui2 .llive .txt>span .nx{position:relative}
+body.ui2 .llive .txt>span .nxc{display:none}
+body.ui2 .mvpr b .nx,body.ui2 .mvpc b .nx{margin:0 .12em}
+/* the one-line live strip clips anything around the text, so it keeps only the coloured letters */
+body.ui2 .llive .txt .nx::before,body.ui2 .llive .txt .nx::after,body.ui2 .llive .txt .nxk{display:none}
+body.ui2 .llive .txt .nxt{filter:none!important;font-size:1em}
 /* ===== v121 kit: splash, login bonus, pass daily pt, weekly MVP, update news. iPhone-native: system type, rounded
    numerals, deep glass, concentric corners, spring motion. Only active with html.ui2pre / body.ui2. ===== */
 :root{--k-sp:cubic-bezier(.2,.9,.25,1.06);--k-out:cubic-bezier(.16,1,.3,1);--k-in:cubic-bezier(.55,0,.75,.2);
@@ -5380,10 +5391,10 @@ function showMvpAnn(w,M,ks,me,T,gs){T=T||{};gs=gs||[];const o=el('div','mvpann')
   st.append(el('div','mvpey','WEEKLY MVP  ·  '+wkRange(w)),el('h2','mvpt',ks.length?'先週の週間MVP':'先週のジャンル別1位'));
   const L=el('div','mvpl');ks.forEach(([k,lab,u],i)=>{const row=el('div','mvpw'+(M[k].ids.includes(me.id)?' me':''));row.style.animationDelay=(.55+i*.18)+'s';
     const hd=el('div','mvpwh');hd.append(el('span','mvpcat',lab),el('span','mvpval',M[k].v+u));row.append(hd);
-    const ppl=el('div','mvpwp');M[k].ids.forEach(id=>{const p=players.find(x=>x.id===id);if(!p)return;const c=el('div','mvpwho');const fr=avatarFull(p);c.append(fr,el('b',null,p.name));if(id===me.id)c.append(el('span','mvpyou','あなた'));ppl.append(c)});row.append(ppl);L.append(row)});
+    const ppl=el('div','mvpwp');M[k].ids.forEach(id=>{const p=players.find(x=>x.id===id);if(!p)return;const c=el('div','mvpwho');const fr=avatarFull(p),nb=el('b');nb.append(nameEl('',p.name,bestTier(p)));c.append(fr,nb);if(id===me.id)c.append(el('span','mvpyou','あなた'));ppl.append(c)});row.append(ppl);L.append(row)});
   if(ks.length)st.append(L);
   if(gs.length){const G=el('div','mvpg');G.style.animationDelay=(.6+ks.length*.18)+'s';G.append(el('div','mvpgh',ks.length?'ジャンル別 1位(週の終わりのレート)':'週の終わりのレート'));
-    gs.forEach(g=>{const x=T[g],r=el('div','mvpgr'+(x.ids.includes(me.id)?' me':''));const who=el('div','mvpgw');x.ids.forEach(id=>{const p=players.find(y=>y.id===id);if(!p)return;const c=el('span','mvpgp');c.append(avatar(p),el('b',null,p.name));if(id===me.id)c.append(el('span','mvpyou','あなた'));who.append(c)});
+    gs.forEach(g=>{const x=T[g],r=el('div','mvpgr'+(x.ids.includes(me.id)?' me':''));const who=el('div','mvpgw');x.ids.forEach(id=>{const p=players.find(y=>y.id===id);if(!p)return;const c=el('span','mvpgp'),nb=el('b');nb.append(nameEl('',p.name,tidx(+x.r||START)));c.append(avatar(p),nb);if(id===me.id)c.append(el('span','mvpyou','あなた'));who.append(c)});
       r.append(el('span','mvpgn',g==='tcg'?'きもオタTCG':gname(g)),who,el('span','mvpgv',String(x.r)));G.append(r)});st.append(G)}
   if(myG.length)st.append(el('div','mvpnote',myG.map(g=>g==='tcg'?'きもオタTCG':gname(g)).join(' / ')+' で週間1位。好きなガチャのチケット ×'+myG.reduce((a,g)=>a+WK1_N(g),0)+' が届いています'));
   st.append(el('div','mvpnote',mine.length?'受賞おめでとう。'+mine.length*500+'pt が入っています。今週はプロフィールにMVPマークがつきます':'各部門の1位に500pt。今週の争いは月曜朝5時にリセット済み'));
@@ -5598,17 +5609,19 @@ function mvpPts(pid){const cw=weekNo(now());let pt=0;for(let w=MVP0;w<cw;w++){co
 function mvpBadge(pid){const w=weekNo(now())-1;if(w<MVP0)return null;const M=mvpOf(w),ks=mvpK(w).filter(([k])=>k!=='p'&&M[k].ids.includes(pid)).map(x=>x[1]);return ks.length?el('span','mvpchip','週間MVP  ·  '+ks.join(' / ')):null}
 function renderMvp(){
   const box=$('mvpcard');if(!box)return;box.replaceChildren();const cw=weekNo(now()),nm=id=>(players.find(p=>p.id===id)||{}).name||'?';
+  /* names in the player's rank look (nameEl). ti(p): which rank decides the look for that row */
+  const nms=(ids,ti,tail)=>{const b=el('b');ids.forEach((id,i)=>{const p=players.find(q=>q.id===id);if(i)b.append(document.createTextNode(' / '));b.append(p?nameEl('',p.name,ti(p)):document.createTextNode('?'))});if(tail)b.append(document.createTextNode(tail));return b};
   if(!HM.mvp){const last=cw-1>=MVP0,M=mvpOf(last?cw-1:cw),hd=el('div','mvpx'),bt=el('button',null,'くわしく');bt.onclick=()=>{HM.mvp=true;renderMvp()};
     hd.append(el('span',null,last?'先週の週間MVP(各500pt)':'今週の週間MVP争い'),bt);const g=el('div','mvpc');
-    MVPK.filter(([k])=>k!=='p').forEach(([k,lab,u])=>{const c=el('div');c.append(el('span',null,lab),el('b',null,M[k].ids.length?M[k].ids.map(nm).join(' / '):'—'),el('small',null,M[k].ids.length?(k==='p'?'+':'')+M[k].v+u:''));g.append(c)});
+    MVPK.filter(([k])=>k!=='p').forEach(([k,lab,u])=>{const c=el('div');c.append(el('span',null,lab),M[k].ids.length?nms(M[k].ids,bestTier):el('b',null,'—'),el('small',null,M[k].ids.length?(k==='p'?'+':'')+M[k].v+u:''));g.append(c)});
     box.append(hd,g);return}
   {const hd=el('div','mvpx'),bt=el('button',null,'閉じる');bt.onclick=()=>{HM.mvp=false;renderMvp()};hd.append(el('span',null,'週間MVP'),bt);box.append(hd)}
   const card=(title,M,foot)=>{const d=el('div','mvp');d.append(el('div','mvph',title));
-    MVPK.filter(([k])=>k!=='p').forEach(([k,lab,u])=>{const r=el('div','mvpr');r.append(el('span','sub',lab),el('b',null,M[k].ids.length?M[k].ids.map(nm).join(' / ')+'  '+(k==='p'?'+':'')+M[k].v+u:'—'));d.append(r)});
+    MVPK.filter(([k])=>k!=='p').forEach(([k,lab,u])=>{const r=el('div','mvpr');r.append(el('span','sub',lab),M[k].ids.length?nms(M[k].ids,bestTier,'  '+(k==='p'?'+':'')+M[k].v+u):el('b',null,'—'));d.append(r)});
     if(foot)d.append(el('div','sub',foot));return d};
   if(cw-1>=MVP0)box.append(card('先週の週間MVP',mvpOf(cw-1),'各部門 500pt  ·  1週間プロフィールにMVPマーク'));
   {const wk=cw-1>=WK1_0?cw-1:cw,T=wkTop(wk),d=el('div','mvp');d.append(el('div','mvph',(wk<cw?'先週':'今週')+'のジャンル別 1位(週の終わりのレート)'));
-    const gs=Object.keys(GAMES).concat(['tcg']);gs.forEach(g=>{const x=T[g],r=el('div','mvpr');r.append(el('span','sub',g==='tcg'?'きもオタTCG':gname(g)),el('b',null,x?x.ids.map(nm).join(' / ')+'  '+x.r:'—'));d.append(r)});
+    const gs=Object.keys(GAMES).concat(['tcg']);gs.forEach(g=>{const x=T[g],r=el('div','mvpr');r.append(el('span','sub',g==='tcg'?'きもオタTCG':gname(g)),x?nms(x.ids,()=>tidx(+x.r||START),'  '+x.r):el('b',null,'—'));d.append(r)});
     d.append(el('div','sub','その週に対戦した人の中でレート1位  ·  好きなガチャのチケット きもオタTCG 5枚 / ほかのジャンル 3枚'));box.append(d)}
   box.append(card(cw<MVP0?'週間MVPは来週の月曜朝5時から始まります(今はお試し集計)':'今週のトップ(月曜朝5時に確定)',mvpOf(cw),'各部門 500pt'));
 }
@@ -8187,14 +8200,16 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   }
 
   let liveItems=[],li=0,liveT=0;
+  /* a feed line as HTML, keeping the player's rank-styled name from the app */
+  function nxHtml(e){if(!e)return '';const t=txt(e),nx=e.querySelector('.nx'),n=nx?txt(nx):'';return nx&&n&&t.startsWith(n)?nx.outerHTML+esc(t.slice(n.length)):esc(t)}
   function syncLive(){const f=$i('ftick'),feed=$i('feed'),L=q('.llive');const items=[];
-    if(f&&!f.hidden&&f.querySelector('.ftx'))items.push({k:[...f.classList].find(c=>c.startsWith('fd-'))||'',tag:txt(f.querySelector('.fdk')),t:txt(f.querySelector('.ftx')),a:txt(f.querySelector('.fta')),go:()=>f.click()});
-    if(feed)[...feed.querySelectorAll('.fd')].slice(0,4).forEach(p=>{const t=txt(p.querySelector('.fdx'));if(items.some(x=>x.t===t))return;items.push({k:[...p.classList].find(c=>c.startsWith('fd-'))||'',tag:txt(p.querySelector('.fdk')),t,a:txt(p.querySelector('.fdt .sub')).split('·')[0].trim(),go:()=>sheet('みんなの動き',secTl)})});
+    if(f&&!f.hidden&&f.querySelector('.ftx'))items.push({k:[...f.classList].find(c=>c.startsWith('fd-'))||'',tag:txt(f.querySelector('.fdk')),t:txt(f.querySelector('.ftx')),h:nxHtml(f.querySelector('.ftx')),a:txt(f.querySelector('.fta')),go:()=>f.click()});
+    if(feed)[...feed.querySelectorAll('.fd')].slice(0,4).forEach(p=>{const t=txt(p.querySelector('.fdx'));if(items.some(x=>x.t===t))return;items.push({k:[...p.classList].find(c=>c.startsWith('fd-'))||'',tag:txt(p.querySelector('.fdk')),t,h:nxHtml(p.querySelector('.fdx')),a:txt(p.querySelector('.fdt .sub')).split('·')[0].trim(),go:()=>sheet('みんなの動き',secTl)})});
     const key=items.map(x=>x.t).join('|');if(key!==liveItems.map(x=>x.t).join('|')){liveItems=items;li=0;showLive(false)}L.hidden=!items.length}
   function showLive(anim){const L=q('.llive'),it=liveItems[li];if(!it)return;const box=L.querySelector('.txt'),old=box.firstElementChild;
     L.className='llive '+it.k;setT(L.querySelector('.tag'),it.tag);setT(L.querySelector('time'),it.a);L.onclick=it.go;
-    if(!anim||!old){box.innerHTML='<span>'+esc(it.t)+'</span>';return}
-    [...box.children].slice(0,-1).forEach(e=>e.remove());const n=mk('span',null,esc(it.t));n.style.transform='translateY(16px)';n.style.opacity='0';box.append(n);old.style.transition='transform .28s cubic-bezier(.4,0,1,1),opacity .18s';old.style.transform='translateY(-16px)';old.style.opacity='0';
+    if(!anim||!old){box.innerHTML='<span>'+(it.h||esc(it.t))+'</span>';return}
+    [...box.children].slice(0,-1).forEach(e=>e.remove());const n=mk('span',null,it.h||esc(it.t));n.style.transform='translateY(16px)';n.style.opacity='0';box.append(n);old.style.transition='transform .28s cubic-bezier(.4,0,1,1),opacity .18s';old.style.transform='translateY(-16px)';old.style.opacity='0';
     setTimeout(()=>{n.style.transform='';n.style.opacity=''},150);setTimeout(()=>{if(old.isConnected)old.remove()},420)}
   setInterval(()=>{if(document.hidden||liveItems.length<2||!document.body.classList.contains('lobhome'))return;li=(li+1)%liveItems.length;showLive(true)},4200);
 
@@ -8218,14 +8233,15 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   function syncTop3(){const t3=$i('top3'),grp=secTl.querySelector('.lrk');
     const cells=t3&&!t3.hidden?[...t3.querySelectorAll('.t3c')]:[];const me=ME();
     const rows=cells.map((c,i)=>({n:txt(c.querySelector('.nxt'))||txt(c.querySelector('.t3m')),v:txt(c.querySelector('em'))}));
-    const key=JSON.stringify(rows);if(grp.dataset.k!==key){grp.dataset.k=key;grp.replaceChildren(...rows.map((r,i)=>{const b=mk('button','lrw r'+(i+1)+(me&&r.n===me.name?' me':''),'<span class="no">'+(i+1)+'</span><span class="a"></span><span class="n"><b>'+esc(r.n)+'</b><small>'+esc(tierJp(+r.v||1500))+'</small></span><span class="v tn">'+esc(r.v)+'</span>');b.type='button';b.querySelector('.a').replaceWith(avOf(r.n,36));b.onclick=()=>t3.click();return b}))}
+    const key=JSON.stringify(rows);if(grp.dataset.k!==key){grp.dataset.k=key;grp.replaceChildren(...rows.map((r,i)=>{const b=mk('button','lrw r'+(i+1)+(me&&r.n===me.name?' me':''),'<span class="no">'+(i+1)+'</span><span class="a"></span><span class="n"><b>'+esc(r.n)+'</b><small>'+esc(tierJp(+r.v||1500))+'</small></span><span class="v tn">'+esc(r.v)+'</span>');b.type='button';b.querySelector('.a').replaceWith(avOf(r.n,36));
+        try{const nb=b.querySelector('.n b');nb.replaceChildren(nameEl('',r.n,tidx(+r.v||1500)))}catch(e){}b.onclick=()=>t3.click();return b}))}
     grp.hidden=!rows.length}
 
   function syncFeed(){const feed=$i('feed'),box=secTl.querySelector('.ltl');if(!feed)return;const posts=[...feed.querySelectorAll('.fd')];
     const sig=feed.innerHTML.length+':'+posts.map(p=>txt(p)).join('|');if(box.dataset.k===sig)return;box.dataset.k=sig;
     const out=[];const emp=feed.querySelector('.empty');if(emp)out.push(mk('div','lempty',esc(txt(emp))));
     posts.forEach(p=>{const kind=[...p.classList].find(c=>c.startsWith('fd-'))||'fd-x';const d=mk('div','lpost');
-      const nm=p.querySelector('.fdx .nxt');const body=p.querySelector('.fdx');let html='';if(nm&&body){const t=txt(body);const n=txt(nm);html=t.startsWith(n)?'<b>'+esc(n)+'</b>'+esc(t.slice(n.length)):esc(t)}else html=esc(txt(body));
+      const nm=p.querySelector('.fdx .nxt');const body=p.querySelector('.fdx');let html='';if(nm&&body){const t=txt(body);const n=txt(nm);const nx=nm.closest('.nx');html=t.startsWith(n)?'<b class="lpn">'+(nx?nx.outerHTML:esc(n))+'</b>'+esc(t.slice(n.length)):esc(t)}else html=esc(txt(body));
       d.innerHTML='<div class="lpm"><span class="tg k-'+esc(kind.slice(3))+'">'+esc(txt(p.querySelector('.fdk')))+'</span>'+esc(txt(p.querySelector('.fdt .sub')))+'</div><div class="lptx">'+html+'</div>';
       const re=mk('div','lre');[...p.querySelectorAll('.rx')].forEach(rx=>{const t=txt(rx),m=t.match(/^(.*?)\s+(\d+)$/);const b=mk('button',rx.classList.contains('on')?'on':'',m?esc(m[1])+'<span>'+m[2]+'</span>':esc(t));b.type='button';b.disabled=rx.disabled;b.onclick=()=>rx.click();re.append(b)});d.append(re);out.push(d)});
     const more=feed.querySelector('.more');if(more){const b=mk('button','lmore',esc(txt(more)));b.type='button';b.onclick=()=>more.click();out.push(b)}
@@ -8345,7 +8361,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
 
   /* ---- weekly MVP ---- */
   const TRO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v4.5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a3 3 0 0 0 3 4M17 6h2.5a3 3 0 0 1-3 4M12 13.5V17M8.5 20.5h7M10 17h4v3.5h-4z"/></svg>';
-  const who=(id,me)=>{const p=(typeof players!=='undefined'?players:[]).find(x=>x.id===id);if(!p)return '';let av='';try{av=window.__kavOf?__kavOf(id,28).outerHTML:''}catch(e){}if(!av)av='<span class="k-av" style="background:'+HUE(p.name)+'">'+esc([...p.name][0]||'')+'</span>';return '<span class="k-who">'+av+esc(p.name)+(id===me.id?'<span class="k-you">あなた</span>':'')+'</span>'};
+  const who=(id,me,ti)=>{const p=(typeof players!=='undefined'?players:[]).find(x=>x.id===id);if(!p)return '';let av='';try{av=window.__kavOf?__kavOf(id,28).outerHTML:''}catch(e){}if(!av)av='<span class="k-av" style="background:'+HUE(p.name)+'">'+esc([...p.name][0]||'')+'</span>';let nm=esc(p.name);try{if(typeof nameEl==='function'){const t=ti!=null?ti:(typeof bestTier==='function'?bestTier(p):0);nm=nameEl('',p.name,t).outerHTML}}catch(e){}
+    return '<span class="k-who">'+av+nm+(id===me.id?'<span class="k-you">あなた</span>':'')+'</span>'};
   try{showMvpAnn=function(w,M,ks,me,T,gs){T=T||{};gs=gs||[];
     const mine=ks.filter(([k])=>M[k].ids.includes(me.id)),myG=gs.filter(g=>T[g].ids.includes(me.id));
     const o=mk('div','k-ov k-mvp'),c=mk('div','k-card');let range='';try{range=wkRange(w)}catch(e){}
@@ -8353,7 +8370,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const scr=mk('div','k-scr');let i=0;const delay=el=>{el.style.transitionDelay=(.25+i++*.09)+'s';return el};
     if(ks.length){const g=mk('div','k-grp');ks.forEach(([k,lab,u])=>{const r=mk('div','k-row'+(M[k].ids.includes(me.id)?' me':''),'<span class="cat"><b>'+esc(lab)+'</b><small>'+esc(M[k].v+u)+'</small></span><span class="ppl">'+M[k].ids.map(id=>who(id,me)).join('')+'</span>');g.append(r)});scr.append(delay(g))}
     if(gs.length){const g=mk('div','k-grp','<div class="gh">'+(ks.length?'ジャンル別 1位(週の終わりのレート)':'週の終わりのレート')+'</div>');
-      gs.forEach(x=>{const t=T[x];let gn='';try{gn=x==='tcg'?'きもオタTCG':gname(x)}catch(e){gn=x}g.append(mk('div','k-row'+(t.ids.includes(me.id)?' me':''),'<span class="cat"><b>'+esc(gn)+'</b></span><span class="ppl">'+t.ids.map(id=>who(id,me)).join('')+'</span><span class="gv tnum">'+esc(t.r)+'</span>'))});scr.append(delay(g))}
+      gs.forEach(x=>{const t=T[x];let gn='';try{gn=x==='tcg'?'きもオタTCG':gname(x)}catch(e){gn=x}g.append(mk('div','k-row'+(t.ids.includes(me.id)?' me':''),'<span class="cat"><b>'+esc(gn)+'</b></span><span class="ppl">'+t.ids.map(id=>who(id,me,typeof tidx==='function'?tidx(+t.r||1500):null)).join('')+'</span><span class="gv tnum">'+esc(t.r)+'</span>'))});scr.append(delay(g))}
     if(myG.length){let n=0;try{n=myG.reduce((a,g)=>a+WK1_N(g),0)}catch(e){}let gl='';try{gl=myG.map(g=>g==='tcg'?'きもオタTCG':gname(g)).join(' / ')}catch(e){}scr.append(delay(mk('div','k-msg hi',esc(gl)+' で週間1位。好きなガチャのチケット ×'+n+' が届いています')))}
     scr.append(delay(mk('div','k-msg'+(mine.length?' hi':''),mine.length?'受賞おめでとう。'+mine.length*500+'pt が入っています。今週はプロフィールにMVPマークがつきます':'各部門の1位に500pt。今週の争いは月曜朝5時にリセット済み')));
     const ft=mk('div','k-ft');const ok=mk('button','k-btn','確認');ft.append(ok);c.append(top,scr,ft);o.append(c);open(o);
