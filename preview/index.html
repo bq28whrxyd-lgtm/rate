@@ -3093,6 +3093,7 @@ body.ui2 .bnav .navink{background:rgba(255,255,255,.14)!important;box-shadow:ins
 @media (prefers-reduced-motion:reduce){.km-splash{display:none}}
 
 .km-splash.km-vid{background:#050506}
+.km-splash.km-vid.on{background:transparent}
 .km-splash.km-vid video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#050506;will-change:opacity}
 /* ===== v121 skin: every screen in the home's language. iOS grouping, one warm ivory for actions, gold only as an accent,
    big concentric radii, hairline highlights instead of borders, no backdrop blur (phones stay smooth). ===== */
@@ -8042,7 +8043,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
       .fromTo(q('.lgo'),{opacity:0,y:34,scale:.95},{opacity:1,y:0,scale:1,duration:.75,ease:'back.out(1.3)'},.56);
     const lv=q('.llive');if(lv&&!lv.hidden)tl.fromTo(lv,{opacity:0,y:18},{opacity:1,y:0,duration:.6,ease:'expo.out'},.5);
     const bar=q('.lbar2 i');if(bar){const w=bar.style.width;tl.fromTo(bar,{width:'0%'},{width:w||'0%',duration:.9,ease:'expo.out'},.75)}
-    const rt=q('.lrate');if(rt){const v=+rt.dataset.v||+rt.textContent||0;tl.call(()=>roll(rt,v,1100,Math.max(0,v-120)),null,.5)}
+    const rt=q('.lrate');if(rt){const v=+rt.dataset.v||+rt.textContent||0;if(v){rt.textContent=Math.max(0,v-120)}tl.call(()=>roll(rt,v,1100,Math.max(0,v-120)),null,.5)}
     if(oshiOn){const os=q('.losh');tl.fromTo(os,{opacity:0,y:30,scale:.94},{opacity:1,y:0,scale:1,duration:.9,ease:'expo.out'},.05)}}
   new MutationObserver(homeOn).observe(vh,{attributes:true,attributeFilter:['hidden']});homeOn();
 
@@ -8298,20 +8299,20 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   setTimeout(()=>vblob(VSRC.s).catch(()=>{}),4000);/* the short version is warmed after startup; the long one is fetched by the splash itself */
   function splashVideo(short){if(document.querySelector('body>.km-splash'))return;const name=short?VSRC.s:VSRC.l;
     const r=document.createElement('div');r.className='km-splash km-vid';const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';r.append(v);document.body.append(r);hold(true);
-    const T0=short?.5:1.95,T1=short?.62:2.05,END=short?1.03:2.45;const cues=short?[[.02,'blip'],[.5,'dive']]:[[.07,'blip'],[.5,'whoosh'],[1.45,'slam'],[1.95,'dive']];let ci=0;
+    const sp0=document.getElementById('splash');const T0=short?.5:1.95,T1=short?.62:2.05,END=short?1.03:2.45;const cues=short?[[.02,'blip'],[.5,'dive']]:[[.07,'blip'],[.5,'whoosh'],[1.45,'slam'],[1.95,'dive']];let ci=0;
     window.__kmRevealed=false;let done=false;const rv=()=>{if(window.__kmRevealed)return;window.__kmRevealed=true;hold(false);try{window.__lobSync&&__lobSync()}catch(e){}const waiting=window.__lobWaiting;dispatchEvent(new Event('kmo:reveal'));if(!waiting&&window.__lobIntro)window.__lobIntro()};
     const finish=()=>{if(done)return;done=true;rv();r.remove();hold(false)};
-    const fallback=()=>{if(done)return;done=true;r.remove();hold(false);splash(short)};
+    const fallback=()=>{if(done)return;done=true;r.remove();hold(false);if(sp0)sp0.style.visibility='hidden';splash(short)};
     const tick=()=>{if(done||!r.isConnected)return;const t=v.currentTime;while(ci<cues.length&&cues[ci][0]<=t){K.SFX.play(cues[ci][1]);ci++}if(t>=T0)rv();if(t>T1)v.style.opacity=Math.max(0,1-(t-T1)/(END-T1)).toFixed(3);if(t>=END-.02||v.ended)finish();else requestAnimationFrame(tick)};
     v.addEventListener('ended',finish);v.addEventListener('error',fallback,{once:true});
     r.addEventListener('pointerdown',()=>{try{if(v.currentTime<T0)v.currentTime=T0}catch(e){}rv()});
     const guard=setTimeout(()=>{if(v.currentTime===0)fallback()},6000);/* the video is the splash; the drawn version only if it truly cannot play */
-    vblob(name).then(u=>{if(done)return;v.src=u;const pr=v.play();if(pr&&pr.catch)pr.catch(fallback);v.addEventListener('playing',()=>{clearTimeout(guard);requestAnimationFrame(tick)},{once:true})}).catch(fallback);
+    vblob(name).then(u=>{if(done)return;v.src=u;const pr=v.play();if(pr&&pr.catch)pr.catch(fallback);v.addEventListener('playing',()=>{clearTimeout(guard);r.classList.add('on');if(sp0)sp0.style.visibility='hidden';requestAnimationFrame(tick)},{once:true})}).catch(fallback);
     return r}
   window.kmoSplash=splash;window.kmoSplashVideo=splashVideo;
   const sp=document.getElementById('splash');
   if(sp&&!RM){let short=false;try{short=localStorage.getItem('kspl')===today();localStorage.setItem('kspl',today())}catch(e){}
-    sp.style.visibility='hidden';let useVideo=true;try{useVideo=localStorage.getItem('kspl_canvas')!=='1'}catch(e){}if(useVideo&&'caches' in window)splashVideo(short);else splash(short)}
+    let useVideo=true;try{useVideo=localStorage.getItem('kspl_canvas')!=='1'}catch(e){}if(useVideo&&'caches' in window)splashVideo(short);else{sp.style.visibility='hidden';splash(short)}}
 
   /* ---------- login bonus / pass ---------- */
   const amtOf=k=>{try{return lbAmt(k)}catch(e){return Math.min(50,30+5*(k-1))}};
