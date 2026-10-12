@@ -8718,6 +8718,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     if(now==='tcg'){cur='tcg'}else if(now==='battle'&&cur==='tcg'){cur='rate'}
     if(now==='battle'||now==='tcg'){place();const b=nav&&nav.querySelector('button[data-v=battle]');if(b)b.classList.add('on');try{requestAnimationFrame(moveNavInk)}catch(e){}}
     if(now==='battle'&&cur==='deck')deckOn();else deckOff();
+    /* the ガチャ switch measured its highlight while the screen was hidden (width 0): measure again once visible */
+    if(now==='gacha'&&typeof gInk==='function')requestAnimationFrame(gInk);
     return r};
   const navB=nav&&nav.querySelector('button[data-v=battle]');if(navB)navB.onclick=()=>goSeg(lastSeg());
 
