@@ -11580,7 +11580,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const later=(fn,ms)=>setTimeout(()=>{if(!ended&&o.isConnected)fn()},ms);
     /* ---- sparks (the blade and the rare cards), drawn from real time ---- */
     const SP=[];let raf=0,dead=false;
-    function spark(x,y,k,cols,pow){for(let i=0;i<k;i++){const a=Math.random()*6.283,v=(pow||1)*(60+Math.random()*260);SP.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-40,l:.4+Math.random()*.7,t0:performance.now(),c:cols[i%cols.length],s:1+Math.random()*2})}if(!raf)raf=requestAnimationFrame(loop)}
+    function spark(x,y,k,cols,pow){if(RM)return;for(let i=0;i<k;i++){const a=Math.random()*6.283,v=(pow||1)*(60+Math.random()*260);SP.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-40,l:.4+Math.random()*.7,t0:performance.now(),c:cols[i%cols.length],s:1+Math.random()*2})}if(!raf)raf=requestAnimationFrame(loop)}
     function loop(){raf=0;if(dead||!o.isConnected)return;const {x,W,H}=C,now=performance.now();x.clearRect(0,0,W,H);x.globalCompositeOperation='lighter';
       for(let i=SP.length-1;i>=0;i--){const p=SP[i],u=(now-p.t0)/1000;if(u>p.l){SP.splice(i,1);continue}const k=(1-Math.exp(-3*u))/3;x.globalAlpha=1-u/p.l;const s=p.s*5;
         x.drawImage(sprite(p.c),p.x+p.vx*k-s,p.y+p.vy*k+120*u*u-s,s*2,s*2)}
@@ -11635,7 +11635,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
       if(!RM){st.style.zIndex='7';const H=stack.getBoundingClientRect().height;
         els.forEach((c,i)=>{const p=pos(i,0);G.fromTo(c,{y:H*.12,scale:.78,opacity:i>2?0:1,rotation:0},Object.assign({duration:.9,delay:.03*i,ease:'expo.out'},p))});
         G.fromTo([dots,cap],{opacity:0},{opacity:1,duration:.4,delay:.7})}
-      else els.forEach((c,i)=>G.set(c,pos(i,0)));
+      else{els.forEach((c,i)=>G.set(c,pos(i,0)));dots.style.opacity=cap.style.opacity='1'}
       later(()=>{swipe.classList.add('on');arrive()},RM?40:760);wire()}
     function arrive(){const x=res[cur],c=els[cur];if(!c)return;setCap(cur);c.classList.add('on');
       /* the card under this one glows when it is a ガチレア or a secret */
@@ -11749,15 +11749,15 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
       /* the glow behind the coin: grows while it wobbles, full at the end */
       const cur=t<TP?shown:tier,aur=t<TD?.25+.15*cur:t<TS?lerp(.35,1,seg(t,TD,TS))*(.35+cur*.13):(.45+tier*.11);au.style.opacity=clamp(aur,0,1).toFixed(2);
       if(cur!==lastCur){lastCur=cur;au.style.background='radial-gradient(closest-side,'+(cur>=4?'#fff':TC[cur])+',transparent 70%)';o.style.setProperty('--tc',TC[cur]);o.classList.toggle('rb',cur>=4)}
-      /* canvas: trail, landing ring, bursts */
-      x.clearRect(0,0,CW,H);x.globalCompositeOperation='lighter';
+      /* canvas: trail, landing ring, bursts (none when motion is reduced) */
+      x.clearRect(0,0,CW,H);if(!RM){x.globalCompositeOperation='lighter';
       if(t>TL&&t<TD+.25){const fade=t>TD?1-seg(t,TD,TD+.25):1,pts=[];for(let k=0;k<TRN;k++){const tk=t-k*.0075;if(tk<TL||tk>TD)continue;const f=fly(tk);pts.push({x:g.cx,y:g.cy+f.y,f:fade,c:tk<TP?shown:tier})}
         streak(x,pts,j=>kcCol(pts[j].c)||RAINBOW[(j>>2)%RAINBOW.length],34);if(pts.length&&t<TD){const h=pts[0],s=26;x.globalAlpha=.8;x.drawImage(sprite(kcCol(h.c)||'#ffffff'),h.x-s,h.y-s,s*2,s*2)}}
       if(ring(t)){const u=seg(t,TD,TD+.7),rx=60+u*170,ry=rx*.28;x.globalAlpha=(1-u)*.8;x.strokeStyle=kcCol(tier)||'#ffd970';x.lineWidth=2.5*(1-u)+.5;x.beginPath();x.ellipse(g.cx,g.cy+70,rx,ry,0,0,6.283);x.stroke()}
       if(climb&&t>TP-.02&&t<TP+.9){const u=seg(t,TP-.02,TP+.9);const f=fly(TP);parts.slice(0,40).forEach((p,i)=>{const d=eo(u)*p.v*160;x.globalAlpha=(1-u)*.9;const cc=kcCol(tier)||RAINBOW[i%5];const s=p.s*5;x.drawImage(sprite(cc),g.cx+Math.cos(p.a)*d-s,g.cy+f.y+Math.sin(p.a)*d-s,s*2,s*2)})}
       if(t>TS&&t<TS+1.8){const u=(t-TS);parts.forEach((p,i)=>{if(u>p.l*1.6)return;const k=(1-Math.exp(-3*u))/3,d=p.v*(220+tier*50)*k;x.globalAlpha=Math.max(0,1-u/(p.l*1.6));const cc=kcCol(tier)||RAINBOW[i%5],s=p.s*(4+tier*.6);
         x.drawImage(sprite(cc),g.cx+Math.cos(p.a)*d-s,g.cy+Math.sin(p.a)*d+60*u*u-s,s*2,s*2)})}
-      x.globalAlpha=1;x.globalCompositeOperation='source-over';
+      x.globalAlpha=1;x.globalCompositeOperation='source-over'}
       /* the settle: flash, rays, tint and the words, all from the same clock */
       const fu=t>=TS?seg(t,TS,TS+(tier>=3?.95:.65)):1,fo=t>=TS?(tier>=3?.95:.55)*(1-fu)*(1-fu):0,cf=climb&&t>=TP&&t<TP+.5?.55*Math.pow(1-seg(t,TP,TP+.5),2):0;
       setO(FL,Math.max(fo,cf));setO(RY,tier>=2?eo(seg(t,TS,TS+.8))*(tier>=4?.95:.72):0);setO(TN,t>=TS?.55*eo(seg(t,TS,TS+.6)):t>=TD?.18*seg(t,TD,TS):0);
