@@ -981,6 +981,95 @@ body.gkview .scr{display:none!important}
 .gkendb .btn.sec{background:#fff!important;color:#7a4a90!important;box-shadow:0 3px 0 #e9d6ff!important;border:0!important}
 .gkendb .btn:not(.sec){background:linear-gradient(90deg,#ff8fc0,#c4a8ff)!important;color:#fff!important;box-shadow:0 3px 0 #d98ac8!important;border:0!important}
 
+/* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
+   hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
+:root{--vs-a1:#8b7bff;--vs-a2:#67e8f9;--vs-pink:#ff5fb0;--vs-fg:#f4f1ea;--vs-mut:rgba(244,241,234,.55);--vs-num:"Geist","Inter Tight",-apple-system,system-ui,sans-serif}
+/* the ground is on the body, so the status-bar area is the same picture and not a black band */
+html,body{background:#07070c}
+body:not(.gkview){background:
+  radial-gradient(70% 36% at 50% -4%,rgba(139,123,255,.34),transparent 70%),
+  radial-gradient(62% 34% at 50% 104%,rgba(103,232,249,.22),transparent 70%),
+  linear-gradient(180deg,#0b0a16,#08080f 48%,#07070c)}
+#s-game{background:none}
+#s-game::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(80% 60% at 50% 50%,#000 20%,transparent 90%);mask-image:radial-gradient(80% 60% at 50% 50%,#000 20%,transparent 90%)}
+#s-game>*{position:relative;z-index:1}
+#s-game #feed,#s-game #hint{z-index:30}
+/* ---- HUD: glass capsules on a hairline ---- */
+.hud{gap:7px;padding:6px 10px}
+.hud.opp{padding-top:8px}
+.hud.me{padding-bottom:6px}
+.av{width:44px;height:44px}
+.av .ph{inset:4px;box-shadow:0 0 0 1.5px #0b0a16,0 0 0 2.5px rgba(255,255,255,.22)}
+.av>svg{opacity:.9}
+.life{min-width:72px;padding:4px 8px 5px;border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14),inset 0 1px 0 rgba(255,255,255,.08)}
+.life small{font:700 9px/1 var(--body);letter-spacing:.1em;color:var(--vs-mut)}
+.life b{font:800 21px/1 var(--vs-num);letter-spacing:-.01em;color:#fff;font-variant-numeric:tabular-nums}
+.life .lbar{width:72px;height:4px;border-radius:999px;background:rgba(255,255,255,.1);margin-top:1px}
+.life .lbar i{background:linear-gradient(90deg,var(--vs-a1),var(--vs-a2));box-shadow:0 0 8px rgba(103,232,249,.45)}
+.life.low .lbar i{background:linear-gradient(90deg,#ff5f86,#ffb08a);box-shadow:0 0 8px rgba(255,95,134,.5)}
+.trchip{max-width:124px;min-width:54px;padding:5px 8px;border:0;border-radius:999px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14);color:var(--vs-mut);font:700 10.5px/1.2 var(--body)}
+.trchip.on{color:#fff;background:color-mix(in srgb,var(--dc,#8b7bff) 18%,rgba(255,255,255,.04));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--dc,#8b7bff) 55%,transparent)}
+.meta{gap:4px;padding:0 8px;height:30px;flex:none;border-radius:999px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12);color:var(--vs-mut)}
+.meta b{font:800 14px/1 var(--vs-num);margin-right:4px}
+.meta b small{font:800 10px/1 var(--vs-num);color:var(--vs-mut)}
+.ic.hcard{width:10px;height:14px;border-radius:2.5px;background:linear-gradient(160deg,#3a2f74,#17123a);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.ic.gem{background:linear-gradient(135deg,#fff3c4,#e2bd62);box-shadow:0 0 6px rgba(226,189,98,.5)}
+.tchip{padding:4px 9px;flex:none;border:0;border-radius:12px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14)}
+.tchip b{font:800 13px/1 var(--vs-num);color:#fff}
+.tchip span{font:700 9.5px/1 var(--body);color:var(--vs-mut)}
+.tchip .heat{color:#ffb08a}
+.energy .gems i{width:8px;height:8px;border-radius:2px;background:rgba(255,255,255,.1)}
+.energy .gems i.on{background:linear-gradient(135deg,#fff3c4,#e2bd62);box-shadow:0 0 6px rgba(226,189,98,.6)}
+.energy b{font:800 15px/1 var(--vs-num);color:#fff}
+/* the turn button: white when it is your turn, glass while you wait */
+.endb{width:60px;height:60px;color:#101014;background:linear-gradient(180deg,#fff,#e9e6f5);box-shadow:0 0 0 1px rgba(255,255,255,.45),0 14px 30px -12px var(--vs-a1),0 0 36px -14px var(--vs-a2);transition:transform .25s cubic-bezier(.2,.9,.25,1.06),box-shadow .3s,background .3s,color .3s}
+.endb:active:not(:disabled){transform:scale(.95)}
+.endb span{font:800 11.5px/1.15 var(--body);margin-top:-5px}
+.endb small{font:800 10px/1 var(--vs-num);color:#5a5670;opacity:1}
+.endb svg{inset:-5px;width:70px;height:70px}
+.endb .tr{stroke:var(--vs-a1)}
+.endb.off{background:rgba(255,255,255,.06);color:var(--vs-mut);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14)}
+.endb.off small{color:var(--vs-mut)}
+.endb.warn{background:linear-gradient(180deg,#ffd0dc,#ff5f86 70%,#e23f6a);color:#2a0310;box-shadow:0 0 0 1px rgba(255,255,255,.4),0 14px 30px -10px rgba(255,95,134,.8)}
+.endb.warn small{color:#5a0a20}
+.endb.warn .tr{stroke:#ff5f86}
+/* ---- the table: one mat with a hairline edge; the far half leans violet-pink, yours leans cyan ---- */
+.field{margin:2px 10px 4px;padding:8px 8px 6px;border-radius:24px;gap:6px 6px;
+  background:linear-gradient(180deg,rgba(255,95,176,.05),rgba(255,255,255,.02) 42%,rgba(255,255,255,.02) 58%,rgba(103,232,249,.05));
+  box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1),inset 0 1px 0 rgba(255,255,255,.06),0 30px 60px -40px rgba(0,0,0,.9)}
+.field::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--vs-pink) 45%,transparent),transparent 30%,transparent 70%,color-mix(in srgb,var(--vs-a2) 45%,transparent));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.lane{border-radius:14px}
+.lane::before{border-radius:14px;background:radial-gradient(60% 55% at 50% 50%,rgba(255,255,255,.04),transparent 70%)}
+.lane.o::before{background:radial-gradient(60% 55% at 50% 45%,rgba(255,95,176,.06),transparent 70%)}
+.slot{position:relative;border:0;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12),inset 0 0 24px rgba(0,0,0,.35)}
+.slot::after{content:"";position:absolute;left:50%;top:50%;width:26%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;opacity:.5;
+  background:radial-gradient(closest-side,rgba(255,255,255,.12),transparent)}
+.lane.m .slot::after{background:radial-gradient(closest-side,rgba(103,232,249,.18),transparent)}
+.lane.o .slot::after{background:radial-gradient(closest-side,rgba(255,95,176,.16),transparent)}
+.lane.m.pick .slot{box-shadow:inset 0 0 0 1.5px #8affc8,0 0 22px rgba(138,255,200,.55);background:rgba(138,255,200,.08)}
+.midl{height:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--vs-pink) 60%,transparent) 25%,color-mix(in srgb,var(--vs-a2) 60%,transparent) 75%,transparent)}
+.midl::after{content:"";position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;box-shadow:0 0 10px 2px rgba(255,255,255,.55)}
+/* trap rows */
+.strow{gap:8px;padding:3px 0}
+.strow .stl{font:700 10px/1 var(--body);letter-spacing:.04em;color:#c9bfff;padding:4px 9px;border-radius:999px;background:rgba(180,140,255,.1);box-shadow:inset 0 0 0 .5px rgba(180,140,255,.3);margin-right:2px}
+.strow.sealed .stl{color:#b7c6ff;background:rgba(159,180,255,.08);box-shadow:inset 0 0 0 .5px rgba(159,180,255,.28)}
+.strow .z{width:30px;height:44px;border-radius:7px;border:0;background:rgba(180,140,255,.07);box-shadow:inset 0 0 0 .5px rgba(180,140,255,.45)}
+.strow .z::after{content:"";position:absolute;inset:4px;border-radius:4px;border:1px dashed rgba(180,140,255,.35)}
+.strow .z.me .cb{box-shadow:0 0 0 1.5px rgba(180,140,255,.9),0 0 10px rgba(180,140,255,.5)}
+.strow.sealed .z{filter:none;opacity:.45}
+/* ---- the hand: a glass tray with a bright top edge; the cards sit on it ---- */
+.hand{margin:0 0 max(6px,env(safe-area-inset-bottom,0px))}
+.hand::before{content:"";position:absolute;left:8px;right:8px;top:2px;bottom:-4px;border-radius:22px 22px 0 0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.015));box-shadow:inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 .5px rgba(255,255,255,.08)}
+.hand .bc.can{box-shadow:0 0 0 1.5px #ffe9a8,0 0 16px rgba(255,211,107,.45),0 10px 20px rgba(0,0,0,.75)}
+/* notices and hint in the same glass */
+#hint{border:0;border-radius:16px;background:rgba(18,17,32,.9);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14),0 16px 40px rgba(0,0,0,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+@media (prefers-reduced-motion:reduce){.endb{transition:none}}
+
 </style>
 
 <div id="tcgBoot"><b>きもオタTCG</b><span role="status">読み込んでいます…</span><div class="bootActions"><button class="btn" onclick="location.reload()">もう一度読み込む</button><button class="btn sec" onclick="try{(parent.TCGWATCH||parent.TCGHOST).close()}catch(e){history.back()}">アプリに戻る</button></div></div>
@@ -2182,7 +2271,8 @@ function cpuPick(d){const mine=loadDecks().filter(x=>CD.validDeck(x.cards,x.lead
     opt('おすすめデッキ','11族のおすすめデッキから1つ',()=>{const others=Object.keys(CD.STARTERS).filter(x=>x!==BY[d.lead].f);startMatch(d,presetOf(others[Math.floor(Math.random()*others.length)]))});
     if(mine.length){L.append(el('div','cpuh','自分のデッキを使わせる'));mine.forEach(x=>opt(x.name,'リーダー:'+BY[x.lead].n+'('+CD.FNAME[BY[x.lead].f]+')',()=>startMatch(d,Object.assign({},x,{name:x.name+'(CPU)',cards:x.cards.slice()}))))}
     s.append(L);const c=el('button','btn sec','やめる');c.onclick=close;s.append(c)})}
-function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]],o=p[1]||'auto';deckScreen();if(!d||!CD.validDeck(d.cards,d.lead))return;
+/* started from the app's 対戦 page: nothing of the old deck screen shows; the match begins on the dark stage, and a bad deck sends you back to the app */
+function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]],o=p[1]||'auto';if(!d||!CD.validDeck(d.cards,d.lead)){deckScreen();return}
   let cpu=null;
   if(o==='rand')cpu=AI.makeDeck(Math.random);
   else if(o==='rec'){const others=Object.keys(CD.STARTERS).filter(x=>x!==BY[d.lead].f);cpu=presetOf(others[Math.floor(Math.random()*others.length)])}
@@ -2951,6 +3041,7 @@ function finish(){if(done)return;queueSpectator(g&&g.ev);done=true;stopTimer();b
   const o=el('div','ovl'),b=el('div','box');o.append(b);b.append(el('div',null,myDeck.name+' vs '+cpuDeck.name));
   b.append(el('h2',w==='lose'?'lose':'win',w==='win'?'勝利':w==='lose'?'敗北':'引き分け'),el('div','why',(e&&e.why==='time'?'時間切れ ・ ':'')+'あなたのライフ '+g.p[H].life+' ・ 相手のライフ '+g.p[1-H].life));
   if(NET){const r=el('button','btn','アプリに戻る');r.onclick=()=>HOST.close();const l=el('button','btn sec','流れを見る');l.onclick=logSheet;b.append(r,l)}
+  else if(HOST&&CPU_GO){const r=el('button','btn','アプリに戻る');r.onclick=()=>HOST.close();const a=el('button','btn sec','同じ相手ともう一度');a.onclick=()=>{o.remove();startMatch(myDeck,cpuDeck)};const l=el('button','btn sec','流れを見る');l.onclick=logSheet;b.append(r,a,l)}
   else{const r=el('button','btn','同じデッキでもう一度');r.onclick=()=>{o.remove();startMatch(myDeck)};const d=el('button','btn sec','デッキを選び直す');d.onclick=()=>{o.remove();deckScreen()};const l=el('button','btn sec','流れを見る');l.onclick=logSheet;b.append(r,d,l)}
   setTimeout(()=>document.body.append(o),D(700))}
 

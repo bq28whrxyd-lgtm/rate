@@ -4338,12 +4338,12 @@ body.ui2 .bnav button:focus-visible{outline:2px solid #fff;outline-offset:-4px;b
 body.ui2 .bnav .navink{z-index:0;top:6px!important;bottom:6px!important;height:auto!important;border-radius:999px!important;
   background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.06))!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.36),inset 0 -1px 0 rgba(255,255,255,.05),0 8px 22px -8px rgba(139,123,255,.6)!important;
-  transition:transform .56s cubic-bezier(.2,.9,.25,1.06),width .56s cubic-bezier(.2,.9,.25,1.06)!important}
+  transition:transform .56s cubic-bezier(.2,.9,.25,1.06)!important;will-change:transform;contain:layout paint}
 body.ui2 .bnav .navink::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
   background:linear-gradient(160deg,rgba(255,255,255,.5),rgba(255,255,255,.08) 45%,rgba(139,123,255,.45) 80%,rgba(103,232,249,.65));
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
 body.ui2 .bnav .navink::after{content:"";position:absolute;left:18%;right:18%;bottom:-3px;height:10px;border-radius:50%;pointer-events:none;
-  background:radial-gradient(closest-side,rgba(139,123,255,.75),rgba(103,232,249,.2) 60%,rgba(103,232,249,0));filter:blur(3px)}
+  background:radial-gradient(closest-side,rgba(139,123,255,.55),rgba(103,232,249,.14) 55%,rgba(103,232,249,0))}
 body.ui2 .bnav button .dot{background:radial-gradient(circle at 35% 35%,#ffc2cd,#ff3b5c 62%)!important;box-shadow:0 0 0 1.5px rgba(255,255,255,.65),0 0 10px rgba(255,59,92,.8)!important}
 @media (prefers-reduced-transparency:reduce){body.ui2 .bnav{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:#15151c!important}
   body.ui2 #lob .lside .lgl,body.ui2 :is(#lob,#ktop) .lbar .lgl{background:rgba(18,18,26,.92)!important}}
@@ -11501,9 +11501,12 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
      fixed it at 60px, so it sat 2-3px left of the icon and プロフィール spilled out of it). It stretches a little while it
      slides to the new tab, like a drop of liquid. ---------- */
   function fitInk(){try{const nav=document.querySelector('.bnav'),on=nav&&nav.querySelector('button.on'),ink=nav&&nav.querySelector('.navink');if(!on||!ink)return;
-      const n=nav.getBoundingClientRect(),b=on.getBoundingClientRect();if(!n.width||!b.width)return;const sp=on.querySelector('span'),lw=sp?sp.getBoundingClientRect().width:0;
+      const n=nav.getBoundingClientRect(),b=on.getBoundingClientRect();if(!n.width||!b.width)return;
+      /* one width for every tab (the widest name), so a change of tab only moves the capsule: a transform the phone can
+         animate off the main thread, while the next screen is being built. Animating the width made it stutter. */
+      let lw=0;nav.querySelectorAll('button span').forEach(sp=>{lw=Math.max(lw,sp.getBoundingClientRect().width)});
       let w=Math.round(Math.max(b.width-4,lw+20));w=Math.min(w,n.width-10);let x=b.left-n.left+(b.width-w)/2;x=Math.max(5,Math.min(n.width-5-w,x));
-      ink.style.setProperty('width',w+'px','important');ink.style.transform='translate3d('+x.toFixed(1)+'px,0,0)'}catch(e){}}
+      if(ink.style.width!==w+'px')ink.style.setProperty('width',w+'px','important');ink.style.transform='translate3d('+x.toFixed(1)+'px,0,0)'}catch(e){}}
   try{const M0=moveNavInk;moveNavInk=function(){const ink=document.querySelector('.bnav .navink'),before=ink?ink.style.transform:'';const r=M0.apply(this,arguments);fitInk();
       const ink2=document.querySelector('.bnav .navink');if(ink2&&before&&ink2.style.transform!==before&&!RM&&ink2.animate){try{ink2.animate([{scale:'1 1'},{scale:'1.14 .9',offset:.38},{scale:'.98 1.03',offset:.72},{scale:'1 1'}],{duration:560,easing:'ease-in-out'})}catch(e){}}
       return r};
