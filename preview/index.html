@@ -4366,6 +4366,39 @@ body.ui2 .k3-edge{height:calc(var(--kf-nb) + 100px)}
    short phrases together where the text marks them */
 body.ui2{line-break:strict;text-wrap:pretty}
 body.ui2 :is(.kcolc small,#koshisec .kosr small){word-break:keep-all;overflow-wrap:anywhere}
+/* ---------- 相手を探す: a magnifier in the header opens a search field under it ---------- */
+body.ui2 .kx-h.kfs-h{align-items:center}
+body.ui2 .kx-h.kfs-h .kx-hs{margin-left:auto}
+body.kfon .kfs-btn{all:unset;box-sizing:border-box;position:relative;flex:none;display:grid;place-items:center;width:36px;height:36px;margin:-6px -4px -6px 0;border-radius:50%;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.03));box-shadow:inset 0 1px 0 rgba(255,255,255,.2),inset 0 0 0 .5px rgba(255,255,255,.12);
+  transition:transform .2s cubic-bezier(.2,.9,.25,1.06),background .25s,box-shadow .25s}
+body.kfon .kfs-btn svg{width:19px;height:19px}
+body.kfon .kfs-btn:active{transform:scale(.9)}
+body.kfon .kfs-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+body.kfon .kx-card.kfs-on .kfs-btn{background:linear-gradient(135deg,rgba(160,143,255,.42),rgba(61,216,240,.22));box-shadow:inset 0 0 0 1px rgba(196,181,253,.6),0 0 18px -4px rgba(139,123,255,.85)}
+body.kfon .kfs-w{display:grid;grid-template-rows:0fr;margin:0;transition:grid-template-rows .36s cubic-bezier(.2,.9,.25,1),margin .36s cubic-bezier(.2,.9,.25,1)}
+body.kfon .kx-card.kfs-on .kfs-w{grid-template-rows:1fr;margin:0 0 12px}
+body.kfon .kfs-in{min-height:0;overflow:hidden;display:flex;align-items:center;gap:10px;padding:3px 2px;opacity:0;transform:translateY(-6px);transition:opacity .25s,transform .36s cubic-bezier(.2,.9,.25,1)}
+body.kfon .kx-card.kfs-on .kfs-in{opacity:1;transform:none}
+body.kfon .kfs{position:relative;flex:1;min-width:0;display:flex;align-items:center;height:44px;padding:0 4px 0 13px;border-radius:14px;cursor:text;
+  background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14);transition:box-shadow .2s,background .2s}
+body.kfon .kfs:focus-within{background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(196,181,253,.6),0 0 0 3px rgba(139,123,255,.18)}
+body.kfon .kfs-i{flex:none;width:18px;height:18px;margin-right:8px}
+body.kfon .kfs input{all:unset;display:block;flex:1;min-width:0;height:44px;font:600 16px/44px var(--x-f,-apple-system,sans-serif);color:#fff;caret-color:#a493ff}
+body.ui2.kxon main>.view:not(#v-home) .kfs input:not([type="checkbox"]):not([type="radio"]){background:none!important;box-shadow:none!important;border:0!important;border-radius:0!important;padding:0!important;margin:0!important;height:44px!important;min-height:0!important}
+body.kfon .kfs input::placeholder{color:rgba(244,241,234,.38);opacity:1}
+body.kfon .kfs input::-webkit-search-cancel-button,body.kfon .kfs input::-webkit-search-decoration{-webkit-appearance:none;display:none}
+body.kfon .kfs-n{flex:none;margin:0 2px 0 6px;font:700 12.5px/1 var(--x-n,"Geist",sans-serif);color:#c4b5fd;font-variant-numeric:tabular-nums}
+body.kfon .kfs-n[hidden],body.kfon .kfs-x[hidden],body.kfon .kfs-none[hidden]{display:none}
+body.kfon .kfs-x{all:unset;flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent}
+body.kfon .kfs-x svg{width:16px;height:16px;fill:none;stroke:rgba(244,241,234,.75);stroke-width:2.2;stroke-linecap:round}
+body.kfon .kfs-x:active{background:rgba(255,255,255,.08)}
+body.kfon .kfs-c{all:unset;flex:none;height:44px;padding:0 2px;font:700 15px/44px var(--x-f,-apple-system,sans-serif);color:#c4b5fd;cursor:pointer;-webkit-tap-highlight-color:transparent}
+body.kfon .kfs-c:focus-visible,body.kfon .kfs-x:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:8px}
+body.kfon .kx-opp.kfs-off{display:none!important}
+body.kfon .kx-opps.kfs-zero{display:none}
+body.kfon .kfs-none{padding:16px 8px 6px;text-align:center;font:600 14px/1.6 var(--x-f,-apple-system,sans-serif);color:var(--x-mut,rgba(236,231,220,.58));word-break:keep-all;overflow-wrap:anywhere}
+@media (prefers-reduced-motion:reduce){body.kfon .kfs-w,body.kfon .kfs-in{transition:none}}
 /* icons in the ランキング strip */
 body.ui2 .krk-pill.krk-season svg{stroke:url(#kfgA)}
 
@@ -8744,7 +8777,7 @@ const SFX=(function(){let ac=null,master=null,base=0;
   const on=()=>{try{return localStorage.getItem('ksfx')==='1'}catch(e){return false}};
   function ctx(){if(ac)return ac;const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;ac=new C();master=ac.createGain();master.gain.value=.55;
     const comp=ac.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;master.connect(comp);comp.connect(ac.destination);return ac}
-  function unlock(){const a=ctx();if(a&&a.state==='suspended')a.resume();}
+  function unlock(){if(!ac&&!on())return;const a=ctx();if(a&&a.state==='suspended')a.resume();}/* no audio engine at all until sound is turned on (creating it cost a hitch on the first tap) */
   ['pointerdown','touchend','keydown'].forEach(ev=>addEventListener(ev,unlock,{passive:true,capture:true}));
   function tone(f0,f1,dur,type,vol,at=0){const a=ac,t=a.currentTime+base+at,o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+dur);
     g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.02)}
@@ -9201,8 +9234,19 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   function order(){if(vh.firstElementChild!==lob)vh.prepend(lob)}
   order();
   let shown=false;
-  function homeOn(){const on=!vh.hidden;document.body.classList.toggle('lobhome',on);if(on&&!shown){shown=true;enter()}if(!on)shown=false}
-  function enter(){if(!window.__kmRevealed&&(document.querySelector('body>.km-splash')||(document.getElementById('splash')&&window.KMotion&&!KMotion.RM))){window.__lobWaiting=true;addEventListener('kmo:reveal',()=>{window.__lobWaiting=false;enter()},{once:true});return}
+  function homeOn(){const on=!vh.hidden;document.body.classList.toggle('lobhome',on);if(on&&!shown){shown=true;enter(!enter.__seen)}if(!on)shown=false}
+  function enter(full){if(!window.__kmRevealed&&(document.querySelector('body>.km-splash')||(document.getElementById('splash')&&window.KMotion&&!KMotion.RM))){window.__lobWaiting=true;addEventListener('kmo:reveal',()=>{window.__lobWaiting=false;enter(true)},{once:true});return}
+    /* coming back to the home from another tab: a short, light arrival. The top bar stays put (it was on the last screen
+       too), the stage keeps running, nothing counts up again; the parts just fade in and settle (about 0.45s) */
+    if(full===false&&window.gsap&&!(window.KMotion&&KMotion.RM)){(enter.__an||[]).forEach(a=>{try{a.cancel()}catch(e){}});const AN=enter.__an=[];
+      const EO='cubic-bezier(.16,1,.3,1)';const A=(el,a,b,dur,delay)=>{if(!el||!el.animate)return;try{AN.push(el.animate([a,b],{duration:dur,delay:delay,easing:EO,fill:'backwards'}))}catch(e){}};
+      A(q('.lst'),{opacity:0},{opacity:1},300,0);
+      if(oshiOn)A(q('.losh'),{scale:'1.025'},{scale:'1'},700,0);else A(q('.emb2 svg'),{opacity:0,scale:'.92'},{opacity:1,scale:'1'},460,30);
+      [...lob.querySelectorAll('.lside.l>*')].forEach((e,i)=>A(e,{opacity:0,translate:'-10px 0'},{opacity:1,translate:'0 0'},400,40+i*30));
+      [...lob.querySelectorAll('.lside.r>*')].forEach((e,i)=>A(e,{opacity:0,translate:'10px 0'},{opacity:1,translate:'0 0'},400,60+i*30));
+      ['.ltag','.lbub','.llive','.lpan','.lgo'].map(x=>q(x)).filter(e=>e&&!e.hidden).forEach((e,i)=>A(e,{opacity:0,translate:'0 12px'},{opacity:1,translate:'0 0'},440,50+i*35));
+      return}
+    enter.__seen=true;
     const els=['.lbar','.lside.l','.lside.r','.emb2','.ltag','.lpan','.llive','.lgo'].map(x=>q(x)).filter(Boolean);
     if(!window.gsap||(window.KMotion&&KMotion.RM)){els.forEach((e,i)=>{e.classList.add('lin');e.style.transitionDelay=(i*30)+'ms'});requestAnimationFrame(()=>requestAnimationFrame(()=>{els.forEach(e=>e.classList.add('lin-on'));setTimeout(()=>els.forEach(e=>{e.classList.remove('lin','lin-on');e.style.transitionDelay=''}),1400)}));return}
     /* make the content final first, then animate only transform/opacity with the Web Animations API:
@@ -9367,7 +9411,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   function talk(anim){const bb=q('.lbub'),L=lines();bi=bi%L.length;bb.querySelector('.lb-tx').innerHTML=L[bi];
     if(anim&&window.gsap){const t=bb.querySelector('.lb-tx');gsap.fromTo(t,{opacity:0,y:6},{opacity:1,y:0,duration:.35,ease:'power2.out',clearProps:'transform,opacity'})}}
   q('.lbub').addEventListener('click',e=>{e.stopPropagation();bi++;talk(true);try{KMotion.SFX.play('pop')}catch(x){}});
-  window.__lobOshi=()=>{syncOshi();shown=false;homeOn()};
+  window.__lobOshi=()=>{syncOshi();shown=false;enter.__seen=false;homeOn()};
   function measure(){const r=cv.getBoundingClientRect(),em=q('.emb2');/* layout box only: the float and the intro move it a little, which must not count as a move */
     const g={c:[em.offsetLeft,em.offsetTop+em.offsetHeight/2,em.offsetWidth*.5]};
     if(oshiOn){/* the art runs from the very top to a little below the top of my panel, where it melts into the page */
@@ -9381,7 +9425,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     /* gentle life: the emblem floats; the oshi breathes; a gloss band crosses the emblem every 6s */
     const em=q('.emb2');em.style.translate='0 '+(Math.sin(t*1.25)*4).toFixed(2)+'px';
     const gl=em.querySelector('#lgl');if(gl){const u=((t%6)/.9);if(u<=1.05){const xx=-30+Math.min(1,u)*130;gl.setAttribute('x1',xx.toFixed(1));gl.setAttribute('x2',(xx+16).toFixed(1))}}}
-  const active=()=>{const c=document.body.classList;if(!c.contains('lobhome')||document.hidden||c.contains('tcgon'))return false;return window.__kmRevealed||!document.querySelector('body>.km-splash')};
+  const active=()=>{const c=document.body.classList;if(!c.contains('lobhome')||document.hidden||c.contains('tcgon')||window.__kfFT)return false;return window.__kmRevealed||!document.querySelector('body>.km-splash')};
   const ovd=q('.losh video');ovd.addEventListener('playing',()=>ovd.classList.add('on'));
   /* play only while the lobby is on screen; if this phone cannot play it, the still picture simply stays */
   function vidCtl(a){const src=ovd.getAttribute('src');if(!oshiOn||!src||ovd.__bad===src){if(!ovd.paused)ovd.pause();return}
@@ -9392,7 +9436,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   window.__lobStep=t=>{window.__kmT=t;if(window.gsap){if(!window.__kmG){window.__kmG=1;gsap.ticker.remove(gsap.updateRoot)}gsap.updateRoot(t)}frame(t)};
   lob.addEventListener('pointermove',e=>{if(!stage)return;const r=lob.getBoundingClientRect();stage.pointer((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)},{passive:true});
   lob.addEventListener('pointerleave',()=>stage&&stage.pointer(0,0));
-  window.__lobIntro=()=>{shown=false;homeOn()};
+  window.__lobIntro=()=>{shown=false;enter.__seen=false;homeOn()};
   addEventListener('touchstart',e=>{const v=e.target.closest&&e.target.closest('#v-home,#v-rank,#v-profile');if(v)e.stopPropagation()},{capture:true,passive:true});window.__lobSync=sync;
   /* on the lobby, a genre change is our burst + morph, not the app's page fade/slide */
   try{const op=pickGame;pickGame=function(){const home=document.body.classList.contains('lobhome');const r=op.apply(this,arguments);
@@ -10607,27 +10651,60 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     spark:'<path d="M12 3.5 13.6 9l5.4 1.6-5.4 1.6L12 17.7l-1.6-5.5L5 10.6 10.4 9z"/><path d="M18.5 15.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>'};
   window.__kfIcon=(k,cls)=>SVG(IC[k]||'',cls);
 
-  /* ---------- soft screen changes. Where the phone supports View Transitions (iOS 18 and later) the old screen fades out
-     while the new one rises in; elsewhere the new screen fades in. The tab bar and the top bar stay still. ---------- */
-  const VT=typeof document.startViewTransition==='function'&&!RM;
-  let vtOn=false,vtNow=null,skipT=0;
+  /* ---------- soft screen changes, "fade through" (the pattern Material Design gives bottom tabs): the old screen fades
+     out in 90ms, the screen is swapped while nothing is visible, then the new screen fades in and settles up a few pixels.
+     The heavy part (building the new screen) happens in the empty moment, so a busy phone never shows a frozen half-switch.
+     Only opacity/transform on the content move (compositor); the top bar, the tab bar and its capsule stay live and still.
+     A second tap during a change finishes the first one at once. (View Transitions were dropped here: taking a picture of
+     the whole page before every switch cost up to a few hundred ms on a phone, which was the stutter.) ---------- */
+  let vtOn=false,ftCur=null,ftIn=[];const OUT=80;
+  const vis=e=>!!e&&e.isConnected&&!e.hidden;/* cheap on purpose: no computed style, so nothing forces the browser to lay out early */
+  function content(){const L=[],kh=$i('khead'),sg=$i('kbseg'),m=document.querySelector('main'),home=curView==='home';if(!home&&vis(kh))L.push(kh);if(!home&&vis(sg)&&sg.parentNode===m)L.push(sg);
+    const v=document.querySelector('main>.view:not([hidden])');
+    if(v){if(v.id==='v-home'){const lob=$i('lob');[...v.children].forEach(c=>{if(c!==lob&&vis(c))L.push(c)});if(lob)[...lob.children].forEach(c=>{if(!c.classList.contains('lbar'))L.push(c)})}else L.push(v)}
+    return L}
+  function finish(){if(ftCur&&!ftCur.done){clearTimeout(ftCur.t);ftCur.go()}}
+  function fadeOut(){const outs=content();const op=outs.map(el=>{try{return getComputedStyle(el).opacity}catch(e){return '1'}});
+    ftIn.forEach(a=>{try{a.cancel()}catch(e){}});ftIn=[];
+    return {outs,anims:outs.map((el,k)=>{try{return el.animate([{opacity:op[k]},{opacity:0}],{duration:OUT,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'})}catch(e){return null}}).filter(Boolean)}}
+  /* a finger on a tab already starts the fade (a tap lasts about 0.1s), so by the time it lifts the old screen is gone and
+     the new one is built at once. If the finger slides off instead, everything comes back. */
+  let pre=null;
+  function prefade(btn){if(pre||ftCur||RM||document.querySelector('body>.km-splash'))return;const f=fadeOut();const prevOn=document.querySelector('.bnav button.on');
+    document.querySelectorAll('.bnav button').forEach(x=>x.classList.toggle('on',x===btn));try{moveNavInk()}catch(e){}window.__kfFT=true;
+    pre=Object.assign(f,{btn,at:performance.now(),prevOn,view:curView,timer:setTimeout(()=>unpre(true),800)})}
+  function unpre(restore){if(!pre)return null;const p=pre;pre=null;clearTimeout(p.timer);
+    if(restore){p.anims.forEach(a=>{try{a.cancel()}catch(e){}});window.__kfFT=false;if(curView!==p.view)return p;p.outs.forEach(el=>ani(el,[{opacity:0},{opacity:1}],{duration:180,easing:'ease-out'}));
+      document.querySelectorAll('.bnav button').forEach(x=>x.classList.toggle('on',x===p.prevOn));try{moveNavInk()}catch(e){}}
+    return p}
+  addEventListener('pointerdown',e=>{if(!e.isPrimary||e.button>0)return;const b=e.target.closest&&e.target.closest('.bnav button');if(b&&!b.classList.contains('on')&&!b.hidden)prefade(b)},{capture:true,passive:true});
+  addEventListener('pointercancel',()=>{if(pre)unpre(true)},{capture:true});
   function soft(update){
     const run=()=>{try{update()}catch(e){console.warn('kf',e)}};
-    if(RM||document.hidden||document.querySelector('body>.km-splash')){run();return}
-    if(VT&&!vtOn){try{vtOn=true;document.documentElement.classList.add('kfvt');const t=document.startViewTransition(run);vtNow=t;
-        const done=()=>{vtOn=false;vtNow=null;document.documentElement.classList.remove('kfvt')};t.finished.then(done,done);return}catch(e){vtOn=false;vtNow=null;document.documentElement.classList.remove('kfvt')}}
-    run();const v=document.querySelector('main>.view:not([hidden])')||document.querySelector('.view:not([hidden])');
-    ani(v,[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:380})}
-  window.kSoft=soft;
-  /* a tap while the new screen is still settling: finish the transition at once and send the tap to what is under the finger
-     (during a transition the page is a picture, so the tap would otherwise land on nothing) */
-  addEventListener('pointerdown',()=>{if(vtNow){try{vtNow.skipTransition()}catch(e){}skipT=performance.now()}},{capture:true,passive:true});
-  addEventListener('click',e=>{if(!skipT||performance.now()-skipT>900)return;const t=e.target;if(t!==document.documentElement&&t!==document.body)return;skipT=0;
-    const el=document.elementFromPoint(e.clientX,e.clientY);const b=el&&el.closest('button,[role=button],a,label,summary,input,select');if(b&&b!==t){e.stopPropagation();e.preventDefault();try{b.focus({preventScroll:true})}catch(x){}b.click()}},{capture:true});
+    const p=unpre(false);
+    finish();
+    if(RM||document.hidden||document.querySelector('body>.km-splash')){if(p)p.anims.forEach(a=>{try{a.cancel()}catch(e){}});run();return}
+    const f=p||fadeOut(),anims=f.anims,wait=p?Math.max(0,OUT-(performance.now()-p.at)):OUT;
+    const st={done:false};ftCur=st;window.__kfFT=true;vtOn=true;
+    st.go=()=>{if(st.done)return;st.done=true;ftCur=null;
+      run();anims.forEach(a=>{try{a.cancel()}catch(e){}});
+      const home=curView==='home';
+      /* the home has its own arrival (ui2.js); everything else fades in from the first frame it is drawn and settles up a few
+         pixels. The fade runs on the compositor, so work the new screen still does in its first frames cannot make it stutter. */
+      if(!home){const ins=content(),v=document.querySelector('main>.view:not([hidden])'),kids=v?[...v.children].filter(vis).slice(0,4):[];
+        ins.forEach((el,k)=>{try{ftIn.push(el.animate([{opacity:0},{opacity:1}],{duration:260,delay:k?16:0,easing:'cubic-bezier(.2,.7,.3,1)',fill:'backwards'}))}catch(e){}});
+        kids.forEach((c,k)=>{try{ftIn.push(c.animate([{transform:'translateY(10px)'},{transform:'none'}],{duration:440,delay:k*24,easing:'cubic-bezier(.16,1,.3,1)',fill:'backwards'}))}catch(e){}});
+        setTimeout(()=>{if(!ftCur){window.__kfFT=false;vtOn=false}},300)}
+      else setTimeout(()=>{if(!ftCur){window.__kfFT=false;vtOn=false}},60)};
+    st.t=setTimeout(st.go,wait)}
+  window.kSoft=soft;window.__kfFinish=finish;
   /* while a view transition plays, the app's own small fade-in of a page is not needed */
   try{const S0=slideIn;slideIn=function(){if(vtOn)return;return S0.apply(this,arguments)}}catch(e){}
   const wrap=(b,always)=>{if(!b||b.__kf||typeof b.onclick!=='function')return;b.__kf=1;const h=b.onclick;
-    b.onclick=function(e){if(!always&&this.classList.contains('on')&&this.closest('.bnav'))return h.call(this,e);soft(()=>h.call(this,e))}};
+    b.onclick=function(e){if(!always&&this.classList.contains('on')&&this.closest('.bnav')&&!(pre&&pre.btn===this))return h.call(this,e);
+      /* the tab bar answers at once: the capsule starts sliding before the old screen has faded */
+      if(this.closest('.bnav')){const me=this;document.querySelectorAll('.bnav button').forEach(x=>x.classList.toggle('on',x===me));try{moveNavInk()}catch(x){}}
+      soft(()=>h.call(this,e))}};
   function wireAll(){document.querySelectorAll('.bnav button').forEach(b=>wrap(b));
     document.querySelectorAll('#psub button').forEach(b=>wrap(b,true));
     ['#khead .kx-gear','#khead .kx-back','#v-profile .kback'].forEach(s=>wrap(document.querySelector(s),true))}
@@ -10755,6 +10832,40 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     addEventListener('pointermove',mv,{passive:true});addEventListener('pointerup',up);
     new MutationObserver((r,ob)=>{if(!o.isConnected){ob.disconnect();removeEventListener('pointermove',mv);removeEventListener('pointerup',up)}}).observe(document.body,{childList:true});
     return o}
+
+  /* ---------- 相手を探す: a search field for the opponent cards (対戦 > レート and TCG). The magnifier in the header opens it;
+     typing filters the cards by name or rank name (ひらがな/カタカナ, full/half width and capitals don't matter). Enter with
+     one match picks that person. The cards keep their order; the list scrolls back to the start. ---------- */
+  const KQ=s=>String(s==null?'':s).normalize('NFKC').toLowerCase().replace(/[\u30a1-\u30f6]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60)).replace(/\s+/g,' ').trim();
+  const SRCH='<circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.6 15.6 4.4 4.4"/>';
+  function oppSearch(card){if(!card||card.__kfs)return;const box=card.querySelector('.kx-opps'),hd=card.querySelector('.kx-h');if(!box||!hd)return;card.__kfs=1;
+    const btn=mk('button','kx-b kfs-btn');btn.type='button';btn.setAttribute('aria-label','相手を名前で探す');btn.setAttribute('aria-expanded','false');btn.innerHTML=SVG(SRCH);
+    hd.classList.add('kfs-h');hd.append(btn);
+    const wrap=mk('div','kfs-w'),inn=mk('div','kfs-in'),f=mk('div','kfs');f.innerHTML=SVG(SRCH,'kfs-i');
+    const inp=mk('input');inp.type='search';inp.placeholder='名前やランクで探す';inp.setAttribute('aria-label','相手を名前やランクで探す');inp.enterKeyHint='search';inp.autocomplete='off';inp.spellcheck=false;
+    inp.setAttribute('autocapitalize','off');inp.setAttribute('autocorrect','off');
+    const cnt=mk('span','kfs-n');cnt.hidden=true;
+    const x=mk('button','kx-b kfs-x');x.type='button';x.setAttribute('aria-label','入力を消す');x.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 7.5l9 9M16.5 7.5l-9 9"/></svg>';x.hidden=true;
+    const cl=mk('button','kx-b kfs-c','閉じる');cl.type='button';
+    f.append(inp,cnt,x);inn.append(f,cl);wrap.append(inn);hd.after(wrap);f.addEventListener('click',e=>{if(!e.target.closest('button,input'))inp.focus()});
+    const emp=mk('div','kfs-none');emp.hidden=true;emp.setAttribute('role','status');box.after(emp);
+    let q='',hits=[];
+    const keyOf=b=>KQ(((b.querySelector('b')||{}).textContent||'')+' '+((b.querySelector('small')||{}).textContent||''));
+    function apply(){const tok=KQ(q).split(' ').filter(Boolean);hits=[];
+      box.querySelectorAll('.kx-opp').forEach(b=>{if(b.dataset.kq==null)b.dataset.kq=keyOf(b);const hit=!tok.length||tok.every(t=>b.dataset.kq.includes(t));b.classList.toggle('kfs-off',!hit);if(hit)hits.push(b)});
+      const none=!!tok.length&&!hits.length;box.classList.toggle('kfs-zero',none);emp.hidden=!none;if(none)emp.textContent='「'+q.trim()+'」に合う相手はいません';
+      cnt.hidden=!tok.length||none;if(!cnt.hidden)cnt.textContent=hits.length+'人'}
+    new MutationObserver(()=>{if(q)apply()}).observe(box,{childList:true});
+    function open(){if(card.classList.contains('kfs-on'))return;card.classList.add('kfs-on');btn.setAttribute('aria-expanded','true');try{inp.focus({preventScroll:true})}catch(e){inp.focus()}}
+    function close(){card.classList.remove('kfs-on');btn.setAttribute('aria-expanded','false');q='';inp.value='';x.hidden=true;apply();inp.blur()}
+    btn.onclick=()=>card.classList.contains('kfs-on')?close():open();cl.onclick=close;
+    x.onclick=()=>{inp.value='';q='';x.hidden=true;apply();inp.focus()};
+    inp.addEventListener('input',()=>{q=inp.value;x.hidden=!q;apply();try{box.scrollTo({left:0,behavior:RM?'auto':'smooth'})}catch(e){box.scrollLeft=0}});
+    inp.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close()}else if(e.key==='Enter'){e.preventDefault();inp.blur();if(hits.length===1&&!hits[0].disabled&&!hits[0].classList.contains('on'))hits[0].click()}})}
+  function wireSearch(){document.querySelectorAll('.kx-card').forEach(c=>{if(c.querySelector(':scope>.kx-opps'))oppSearch(c)})}
+  wireSearch();setTimeout(wireSearch,1500);if(document.readyState!=='complete')addEventListener('load',wireSearch);
+  window.__kfOppSearch=(v,txt)=>{const c=[...document.querySelectorAll('.kx-card')].find(c=>c.__kfs&&c.offsetParent);if(!c)return;const b=c.querySelector('.kfs-btn');if(!c.classList.contains('kfs-on'))b.click();
+    if(txt!=null){const i=c.querySelector('.kfs input');i.value=txt;i.dispatchEvent(new Event('input'))}};
 })();
 /*KFJS-END*/</script>
 <script>
