@@ -3233,12 +3233,13 @@ window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},fxt:{scrReveal,onoma,focusL
       event rebuilt the whole table (and re-decoded every picture), which is what made the match feel laggy on a phone.
    2) the turn banner is a glass pill with one light sweep, in the app's language.
    The function declarations below replace the earlier ones of the same name (last declaration wins). */
-const V2={av:{},lane:[],hand:'',traps:['','']};
+/* var, not const: a match can start (the 極 demo does) before this line has run, and the first render then makes the cache */
+var V2=V2||{av:{},lane:[],hand:'',traps:['','']};
 function v2unitKey(u,S,side){if(!u)return'';let ready=0;try{if(side==='me'&&S.cur===H&&!S.over&&!busy&&g){const m=E.find(g,u.uid);if(m&&E.canAttack(g,H,m)&&!(mode&&mode.k!=='atk'))ready=1}}catch(e){}
   let v=0;try{v=WATCH?(u.scr?1:0)+'/'+(u.ga|0):unitVar(u,S)}catch(e){}
   return [u.uid,u.id,u.A,u.D,u.star,u.awk?1:0,u.sick?1:0,u.rush?1:0,u.cover?1:0,u.gutsUsed?1:0,u.under|0,ready,v].join('|')}
 function v2trapKey(P){return [P.st.length,P.seal?1:0,P.st.map(t=>t.uid+(t.ready?'r':'w')).join(',')].join('|')}
-function render(S){view=S;queueSpectator();const me=S.p[H],op=S.p[1-H];
+function render(S){if(!V2)V2={av:{},lane:[],hand:'',traps:['','']};view=S;queueSpectator();const me=S.p[H],op=S.p[1-H];
   /* the avatars: kept while the gauge and the leader's state are the same (their picture is the heavy part) */
   const avOf=(P,key,isOpp)=>{const k=[key,P.gauge,P.skillUsed?1:0,P.lead&&P.lead.out?1:0,P.lead?P.lead.id:''].join('|');const c=V2.av[isOpp?'o':'m'];if(c&&c.k===k&&c.el)return c.el;const e=avatar(P,key,isOpp);V2.av[isOpp?'o':'m']={k,el:e};return e};
   const ob=$('oppBar');ob.replaceChildren();ob.append(avOf(op,cpuKey,true),lifeEl(op,true),traitEl(op,1-H),el('div','sp'));
