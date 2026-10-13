@@ -5434,6 +5434,15 @@ body .tcghl .tcghr b{flex:none}
 @keyframes kmpUp{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.kmp,.kmpw,.kmp.out{animation-duration:.01s}}
 /*KMSGPOP-END*/
+/*KGIFT-START*/
+/* presents: 受け取る on each waiting gift, まとめて受け取る on top, taken ones dimmed */
+body.ui2 .lgf .lgall,body.ui2 .lgall{display:flex!important;align-items:center;justify-content:center;width:100%!important;height:48px!important;margin:0 0 12px!important;padding:0!important;border:0!important;border-radius:999px!important;background:#f4f1ea!important;color:#0b0a0e!important;font:800 15px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif!important;box-shadow:0 8px 24px -10px rgba(244,241,234,.45)!important}
+body.ui2 .lgr .lgtake{flex:none;height:34px;padding:0 14px;border:0;border-radius:999px;background:linear-gradient(180deg,#fff3cf,#e2bf72);color:#1b1405;font:800 13px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif}
+body.ui2 .lgr .lgtake:disabled{opacity:.6}
+body.ui2 .lgr .lgdone{flex:none;font:600 12px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:#86817a}
+body.ui2 .lgr.got .gi{opacity:.45;filter:saturate(.5)}
+body.ui2 .lgr.got .gt b{color:#a9a49c}
+/*KGIFT-END*/
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -7409,7 +7418,23 @@ const dayKey=t=>new Date(t+9*3600000).toISOString().slice(0,10);
 /* from RULE3 on: a win opens a treasure chest (10-100pt or a normal pack ticket) */
 const RULE3=Date.UTC(2026,9,3,21,55);
 const ticketsWon=pid=>matches.reduce((a,m)=>a+(m.w===pid&&m.t>=RULE3?chestTix(m):0),0);
-const grantTk=(pid,kind,ev)=>grants.reduce((a,g)=>a+(g.pid===pid&&g.kind===kind&&(ev==null||g.ev===ev)?(+g.n||0):0),0);
+/* ---- presents: a gift (pt, tickets, TCG tickets and secrets from the admin or a reward) counts only after the player taps 受け取る.
+   inv.gotG = the ids taken; inv.gotB = the moment this version first ran for the player (everything before it was already in effect).
+   Other players' gifts are counted as before (their inv is not loaded here). Minus points and ban/unban are not gifts. */
+const giftable=g=>{const k=g.kind||'pt';if(k==='pt'||k==='buy')return(+g.pt||0)>0;return !!((typeof TKNAME!=='undefined'&&TKNAME[k])||(typeof TCG_TK!=='undefined'&&TCG_TK[k])||k==='tscg')};
+const giftGot=g=>{if(typeof invFor==='undefined'||g.pid!==invFor||!giftable(g))return true;const b=inv&&inv.gotB;if(b==null)return true;if((g.t||0)<=b)return true;return Array.isArray(inv.gotG)&&inv.gotG.includes(g.id)};
+const giftsWaiting=pid=>grants.filter(g=>g.pid===pid&&giftable(g)&&!giftGot(g)).sort((a,b)=>b.t-a.t);
+const giftName=g=>{const k=g.kind||'pt';if(typeof TKNAME!=='undefined'&&TKNAME[k])return TKNAME[k]+' ×'+(g.n||1);if(typeof TCG_TK!=='undefined'&&TCG_TK[k])return TCG_TK[k].n+' ×'+(g.n||1);if(k==='tscg')return 'TCGシークレット「'+((typeof TC!=='undefined'&&TC[g.cid]&&TC[g.cid].n)||'カード')+'」';return((+g.pt>0?'+':'')+(+g.pt||0)+'pt'+(k==='buy'?'(購入)':''))};
+let giftBusy=false;
+/* take some gifts (ids) or all of them (null): written to inv.gotG, then the balance and tickets include them */
+async function takeGifts(ids){const me=myPlayer();if(!db||!me||giftBusy||!invLoaded||invFor!==me.id)return false;const G=giftsWaiting(me.id).filter(g=>!ids||ids.includes(g.id));if(!G.length)return false;giftBusy=true;
+  try{const B=inv.gotB||0,keep=(Array.isArray(inv.gotG)?inv.gotG:[]).filter(id=>grants.some(g=>g.id===id&&(g.t||0)>B));G.forEach(g=>{if(!keep.includes(g.id))keep.push(g.id)});
+    const n=Object.assign({},inv,{gotG:keep});if(n.gotB==null)n.gotB=B;await db.doc('inv/'+me.id).set(n);inv=n;
+    const pt=G.reduce((a,g)=>a+(((g.kind||'pt')==='pt'||g.kind==='buy')?(+g.pt||0):0),0),other=G.filter(g=>!((g.kind||'pt')==='pt'||g.kind==='buy'));
+    toast('受け取りました  '+[pt?'+'+pt+'pt':'',...other.slice(0,2).map(giftName)].filter(Boolean).join(' / ')+(other.length>2?' ほか':''));
+    try{render()}catch(e){}try{renderGacha()}catch(e){}try{renderTcg()}catch(e){}if(typeof tcgScrGifts==='function')setTimeout(tcgScrGifts,400);giftBusy=false;return true}
+  catch(e){giftBusy=false;toast('受け取れませんでした。通信を確認してください');return false}}
+const grantTk=(pid,kind,ev)=>grants.reduce((a,g)=>a+(g.pid===pid&&g.kind===kind&&(ev==null||g.ev===ev)&&giftGot(g)?(+g.n||0):0),0);
 /* limited-gacha tickets: handed out by the admin for the running banner only (inv.lte = banner start, inv.ltn = used) */
 /* 限定10連 tickets belong to one event, like the single ones */
 const limTk10=pid=>{if(!banner||!limActive())return 0;const g=grantTk(pid,'ltk10',banner.start),u=inv.lte10===banner.start?(+inv.ltn10||0):0;return Math.max(0,g-u)};
@@ -7512,7 +7537,7 @@ const chestTix=m=>{const c=chestFor(m);return (c.v==='T'?1:c.v==='T3'?3:0)*((m.t
 const gekoOf=m=>m&&m.t>=RULE4&&m.t<RULE6&&m.wr!=null&&m.lr!=null?(tidx(m.lr)>tidx(m.wr)?50:m.lr-m.wr>=100?30:0):0;
 
 /* purchased points (grants with kind 'buy') are for packs only. Packs use them up first (inv.pspent) */
-const buyPts=pid=>grants.reduce((a,g)=>a+(g.pid===pid&&g.kind==='buy'?(+g.pt||0):0),0);
+const buyPts=pid=>grants.reduce((a,g)=>a+(g.pid===pid&&g.kind==='buy'&&giftGot(g)?(+g.pt||0):0),0);
 const paidLeft=pid=>Math.max(0,buyPts(pid)+(pid===invFor?(+inv.ppp||0):0)-(pid===invFor?(+inv.pspent||0):0));
 const freeBal=pid=>balance(pid)-paidLeft(pid);
 
@@ -8739,7 +8764,7 @@ async function tcgRedeemScr(pk,tk,id){const me=myPlayer();if(!db||!me||opening||
 /* a secret of one card sent by the admin (kind 'tscg', cid): added once, remembered in inv.tscgD */
 let tcgGiftBusy=false;
 async function tcgScrGifts(){const me=myPlayer();if(!db||!me||tcgGiftBusy||opening||!invLoaded||invFor!==me.id||typeof grants==='undefined')return;
-  const done=new Set(Array.isArray(inv.tscgD)?inv.tscgD:[]),G=grants.filter(g=>g.pid===me.id&&g.kind==='tscg'&&TC[g.cid]&&!done.has(g.id));if(!G.length)return;
+  const done=new Set(Array.isArray(inv.tscgD)?inv.tscgD:[]),G=grants.filter(g=>g.pid===me.id&&g.kind==='tscg'&&TC[g.cid]&&!done.has(g.id)&&(typeof giftGot!=='function'||giftGot(g)));if(!G.length)return;
   tcgGiftBusy=true;try{const t=Object.assign({},tcgOf(inv)),f=Object.assign({},t.foil||{});G.forEach(g=>{f[g.cid]=(f[g.cid]||0)+1;done.add(g.id)});t.foil=f;
     const n=Object.assign({},inv,{tcg:t,tscgD:[...done]});await db.doc('inv/'+me.id).set(n);inv=n;renderTcg();
     whenFree(()=>tcgBoxCinematic(Object.keys(TCGD.packs)[0],G.map(g=>({c:tcgItem(g.cid),isNew:true,sh:0,foil:true})),()=>{},()=>{},{revealed:true}));toast('シークレットが届きました')}
@@ -9270,7 +9295,7 @@ function watchInv(){
   watchTcgm();
   const me=myPlayer(),id=me&&me.id;if(!db||id===invFor)return;
   if(invUnsub){invUnsub();invUnsub=null}invFor=id;invLoaded=false;inv={own:{},packs:0,since:0,shards:0};
-  if(id)invUnsub=db.doc('inv/'+id).onSnapshot(s=>{inv=s.exists?Object.assign({own:{},packs:0,since:0,shards:0},s.data()):{own:{},packs:0,since:0,shards:0};invLoaded=true;renderGacha();renderTcg();if(typeof tcgScrGifts==='function')setTimeout(tcgScrGifts,0);if(typeof loginBonus==='function')setTimeout(loginBonus,700)},()=>{});
+  if(id)invUnsub=db.doc('inv/'+id).onSnapshot(s=>{inv=s.exists?Object.assign({own:{},packs:0,since:0,shards:0},s.data()):{own:{},packs:0,since:0,shards:0};invLoaded=true;if(s.exists&&inv.gotB==null&&id===invFor){inv.gotB=now();db.doc('inv/'+id).set({gotB:inv.gotB},{merge:true}).catch(()=>{})}renderGacha();renderTcg();if(typeof tcgScrGifts==='function')setTimeout(tcgScrGifts,0);if(typeof loginBonus==='function')setTimeout(loginBonus,700)},()=>{});
 }
 /* ---- limited banner (config/banner: {set,start,end}) ---- */
 let banner=null;
@@ -9418,7 +9443,7 @@ function openCollection(asPlayer){
    Every action is a doc in "grants": {pid,pn,kind:'pt'|'ban'|'unban',pt,note,t} ---- */
 let adminCfg=null,adminLoaded=false,grants=[];
 const isAdmin=()=>!!(adminCfg&&myId&&adminCfg.uid===myId);
-const grantPts=pid=>grants.reduce((a,g)=>a+(g.pid===pid&&((g.kind||'pt')==='pt'||g.kind==='buy')?(+g.pt||0):0),0);
+const grantPts=pid=>grants.reduce((a,g)=>a+(g.pid===pid&&((g.kind||'pt')==='pt'||g.kind==='buy')&&giftGot(g)?(+g.pt||0):0),0);
 function toast(t){const e=el('div','toast',t);document.body.append(e);setTimeout(()=>e.remove(),4200)}
 let admMode=1;const admInvSub={};
 const admAmt=()=>Math.max(0,Math.round(+$('admPt').value||0));
@@ -10292,17 +10317,22 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   function syncLv(){const me=ME();if(!me||typeof lvOf!=='function')return;const v=lvOf(me.id);setT(q('.lvn'),String(v.L));setH(q('.lvx'),'あと <b class="tn">'+Math.max(0,v.need-v.cur)+'</b> XP');
     q('.lvr .pr').style.strokeDashoffset=(97.4*(1-Math.min(1,v.cur/Math.max(1,v.need)))).toFixed(1)}
   /* ---- present box: what was given to you (admin pt, tickets, rewards). Uses the same "seen" mark as the old card ---- */
-  const GK=k=>({ptk:'pk',ptk10:'pk',ctk:'cn',ltk:'pk',ltk10:'pk'})[k]||'pt';
-  function giftList(){const me=ME();if(!me||typeof grants==='undefined')return{all:[],seen:0};let seen=0;try{seen=+localStorage.getItem('gseen_'+me.id)||0}catch(e){}
-    const all=grants.filter(g=>g.pid===me.id&&((g.kind||'pt')==='pt'||g.kind==='buy'||(typeof TKNAME!=='undefined'&&TKNAME[g.kind]))).sort((a,b)=>b.t-a.t).slice(0,40);return{all,seen}}
-  function syncGift(){const {all,seen}=giftList();const unseen=seen?all.filter(g=>g.t>seen):[];setT(q('.lgift b'),unseen.length?String(unseen.length):'');
-    const sig=all.map(g=>g.id||g.t).join(',')+'|'+seen;if(secGf.dataset.k===sig)return;secGf.dataset.k=sig;
+  const GK=k=>({ptk:'pk',ptk10:'pk',ctk:'cn',ltk:'pk',ltk10:'pk',tscg:'pk'})[k]||(/^(tp1_|tpb_|tsc_)/.test(k||'')?'pk':'pt');
+  /* presents: each gift waits with its own 受け取る button (and まとめて受け取る); taken ones stay in the list, dimmed */
+  function giftList(){const me=ME();if(!me||typeof grants==='undefined')return{all:[],wait:[]};
+    const all=grants.filter(g=>g.pid===me.id&&(typeof giftable==='function'?giftable(g):((g.kind||'pt')==='pt'||g.kind==='buy'))).sort((a,b)=>b.t-a.t).slice(0,40);
+    const wait=typeof giftsWaiting==='function'?giftsWaiting(me.id):[];return{all,wait}}
+  function syncGift(){const {all,wait}=giftList();setT(q('.lgift b'),wait.length?String(wait.length):'');
+    const sig=all.map(g=>g.id||g.t).join(',')+'|'+wait.map(g=>g.id).join(',');if(secGf.dataset.k===sig)return;secGf.dataset.k=sig;
     if(!all.length){secGf.innerHTML='<div class="lempty">まだ届いたものはありません。管理者からのptやチケット、MVPなどの報酬がここに届きます。</div>';return}
-    const rows=all.map(g=>{const nw=seen&&g.t>seen;const tk=typeof TKNAME!=='undefined'&&TKNAME[g.kind];const name=tk?tk+' ×'+(g.n||1):((+g.pt>0?'+':'')+(+g.pt||0)+'pt'+(g.kind==='buy'?'(購入)':''));
+    const W=new Set(wait.map(g=>g.id));
+    const rows=all.map(g=>{const nw=W.has(g.id);const name=typeof giftName==='function'?giftName(g):((+g.pt>0?'+':'')+(+g.pt||0)+'pt');
       let when='';try{when=ago(g.t)}catch(e){}
-      return '<div class="lgr'+(nw?' nw':'')+'"><span class="gi g-'+GK(g.kind)+'"></span><span class="gt"><b>'+esc(name)+'</b><small>'+esc(g.note||'管理者から')+' ・ '+esc(when)+'</small></span>'+(nw?'<em>NEW</em>':'')+'</div>'}).join('');
-    secGf.innerHTML='<div class="lgrp">'+rows+'</div>'+(unseen.length?'<button type="button" class="lmore lgok">すべて確認した</button>':'');
-    const ok=secGf.querySelector('.lgok');if(ok)ok.onclick=()=>{const me=ME();try{localStorage.setItem('gseen_'+me.id,Math.max(...all.map(g=>g.t)))}catch(e){}try{renderGrantMsg()}catch(e){}secGf.dataset.k='';syncGift()}}
+      return '<div class="lgr'+(nw?' nw':' got')+'" data-g="'+esc(g.id||'')+'"><span class="gi g-'+GK(g.kind)+'"></span><span class="gt"><b>'+esc(name)+'</b><small>'+esc(g.note||'管理者から')+' ・ '+esc(when)+'</small></span>'+(nw?'<button type="button" class="lgtake">受け取る</button>':'<span class="lgdone">受け取り済み</span>')+'</div>'}).join('');
+    secGf.innerHTML=(wait.length?'<button type="button" class="lgall">まとめて受け取る('+wait.length+')</button>':'')+'<div class="lgrp">'+rows+'</div>';
+    const go=async(ids,btn)=>{if(btn){btn.disabled=true;btn.textContent='受け取り中…'}const ok=typeof takeGifts==='function'&&await takeGifts(ids);if(!ok&&btn){btn.disabled=false;btn.textContent=ids?'受け取る':'まとめて受け取る'}secGf.dataset.k='';syncGift()};
+    secGf.querySelectorAll('.lgtake').forEach(b=>b.onclick=()=>go([b.closest('.lgr').dataset.g],b));
+    const all1=secGf.querySelector('.lgall');if(all1)all1.onclick=()=>go(null,all1)}
   function syncTop(){syncLv();syncGift();
     const pt=document.querySelector('.hbar .pt b');setT(q('.lpt'),pt?Number(pt.textContent.replace(/\D/g,'')||0).toLocaleString():'0');
     const me=ME();let tk=0;try{tk=me&&typeof coinTk==='function'?coinTk(me.id):0}catch(e){}setT(q('.ltk'),String(tk));
