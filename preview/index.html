@@ -5011,6 +5011,220 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .kbr .kp-zoom{position:fixed;z-index:5}
 @media (prefers-reduced-motion:reduce){.kg-au,.kg-rays,.kg-cb::after{animation:none}}
 /*KG-END*/
+/* ===== v121 ガチャ画面 (kgu): banner chips + one big banner card, the old sections hidden underneath ===== */
+@property --a1{syntax:'<color>';inherits:true;initial-value:#8b7bff}
+@property --a2{syntax:'<color>';inherits:true;initial-value:#3dd8f0}
+#v-gacha.kgu #gp-skin>section:not(#tixsec),#v-gacha.kgu #tcgpacks{display:none!important}
+#v-gacha.kgu #tixsec:has(#gtix:empty){display:none!important}
+.kgu-page{position:relative;isolation:isolate;padding-top:2px;--a1:#8b7bff;--a2:#3dd8f0;transition:--a1 .6s,--a2 .6s;font-family:var(--x-f,-apple-system,"Hiragino Sans",sans-serif);color:var(--x-fg,#f4f1ea)}
+.kgu-page>*{position:relative;z-index:1}
+.kgu-page>.kgu-au{position:absolute;z-index:0;left:-16px;right:-16px;top:-150px;height:620px;pointer-events:none;
+  background:radial-gradient(46% 34% at 24% 30%,color-mix(in srgb,var(--a1) 26%,transparent),transparent 70%),radial-gradient(40% 30% at 82% 22%,color-mix(in srgb,var(--a2) 20%,transparent),transparent 72%);
+  -webkit-mask-image:linear-gradient(180deg,#000 40%,transparent);mask-image:linear-gradient(180deg,#000 40%,transparent)}
+.kgu-b{-webkit-tap-highlight-color:transparent;font-family:inherit}
+/* ---- the chips: a small key art for each banner, the name under it ---- */
+.kgu-rail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(104px,1fr);gap:8px;overflow-x:auto;margin:0 -16px 14px;padding:3px 16px 6px;scrollbar-width:none;scroll-snap-type:x proximity}
+.kgu-rail::-webkit-scrollbar{display:none}
+.kgu .kgu-chip{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:7px;min-width:0;height:auto;min-height:0;margin:0;padding:5px 5px 9px;border:0;border-radius:18px;cursor:pointer;scroll-snap-align:start;
+  background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.09);color:var(--x-mut,rgba(244,241,234,.52));transition:background .3s,box-shadow .3s,color .3s,transform .35s var(--x-sp,cubic-bezier(.2,.9,.25,1.06))}
+.kgu .kgu-chip:active{transform:scale(.96)}
+.kgu .kgu-chip.on{background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035));color:var(--x-fg,#f4f1ea);box-shadow:0 14px 30px -18px var(--a1),inset 0 1px 0 rgba(255,255,255,.1)}
+.kgu .kgu-chip.on::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:linear-gradient(140deg,rgba(255,255,255,.45),color-mix(in srgb,var(--a1) 60%,transparent) 50%,color-mix(in srgb,var(--a2) 70%,transparent));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.kgu-tn{position:relative;display:block;height:48px;border-radius:13px;overflow:hidden;background:#121219;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1);opacity:.55;transition:opacity .3s}
+.kgu-chip.on .kgu-tn{opacity:1}
+.kgu-tn img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.kgu-tn.n{background:radial-gradient(70% 110% at 50% 30%,rgba(139,123,255,.6),rgba(61,216,240,.12) 55%,#100e1c 85%)}
+.kgu-tn.n svg{position:absolute;left:50%;top:54%;width:62px;height:auto;margin:-21px 0 0 -31px;overflow:visible;filter:drop-shadow(0 0 8px rgba(255,217,112,.45))}
+.kgu-tn.c{background:radial-gradient(80% 120% at 50% 40%,#2c2542,#0c0b13 80%)}
+.kgu-tnc{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.kgu-tnc>.coin{flex:none}
+.kgu-tnc>.coin:nth-child(2){position:relative;z-index:1;margin:0 -5px}
+.kgu-tnc>.coin:not(:nth-child(2)){opacity:.8}
+.kgu-tn.t{background:linear-gradient(160deg,var(--p1),var(--p2))}
+.kgu-tn.t::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,color-mix(in srgb,var(--p2) 55%,transparent))}
+.kgu-bd{position:absolute;left:5px;top:5px;z-index:2;display:inline-flex;align-items:center;gap:4px;height:15px;padding:0 5px;border-radius:5px;font:900 8.5px/1 var(--x-n);font-style:normal;letter-spacing:.06em;color:#fff}
+.kgu-bd.lv{background:#e62117}
+.kgu-bd.lv i{width:4.5px;height:4.5px;border-radius:50%;background:#fff}
+.kgu-bd.au{color:#2a1c02;background:linear-gradient(180deg,#fff2c4,#f5c84c);font:800 8.5px/1 var(--x-f);letter-spacing:0}
+.kgu-cl{display:block;padding:0 2px;text-align:center;font:800 12.5px/1.15 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* ---- the banner card ---- */
+.kgu-card{position:relative;border-radius:30px;padding:6px;background:linear-gradient(180deg,#141419,#0b0b10);box-shadow:0 34px 70px -34px rgba(0,0,0,.95),0 0 70px -40px var(--a1)}
+.kgu-card::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;z-index:3;background:linear-gradient(150deg,rgba(255,255,255,.34),rgba(255,255,255,.05) 34%,color-mix(in srgb,var(--a1) 35%,transparent) 68%,color-mix(in srgb,var(--a2) 55%,transparent));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.kgu-artw{position:relative;aspect-ratio:16/12.6;border-radius:24px;overflow:hidden;background:#0a0a10;isolation:isolate}
+.kgu-artw::after{content:"";position:absolute;left:0;right:0;bottom:0;height:52%;z-index:4;pointer-events:none;background:linear-gradient(to top,rgba(6,6,10,.94),rgba(6,6,10,.55) 45%,rgba(6,6,10,0))}
+.kgu-art{position:absolute;inset:0;overflow:hidden;touch-action:pan-y}
+.kgu-art.out{pointer-events:none}
+.kgu-art>i{position:absolute;display:block;pointer-events:none}
+.kgu-ov{position:absolute;left:18px;right:18px;bottom:16px;z-index:5;display:flex;flex-direction:column;align-items:flex-start;gap:6px;pointer-events:none}
+.kgu-ov h3{margin:2px 0 0;font:900 29px/1.12 var(--x-f);letter-spacing:.01em;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.5);text-wrap:balance}
+.kgu-ov p{margin:0;font:700 12.5px/1.45 var(--x-f);color:rgba(244,241,234,.78);text-wrap:pretty}
+.kgu-nw{white-space:nowrap}
+.kgu-tags{display:flex;flex-wrap:wrap;gap:6px}
+.kgu-tag{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;font:800 11px/1 var(--x-f);color:rgba(255,255,255,.88);background:rgba(10,10,16,.5);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.22);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.kgu-tag.hot{color:#fff;background:linear-gradient(135deg,var(--a1),var(--a2));box-shadow:none}
+.kgu-tag.time{font-family:var(--x-n);font-variant-numeric:tabular-nums}
+.kgu-tag.hi{color:#1a1204;background:linear-gradient(180deg,#fff2c4,#f5c84c);box-shadow:none}
+.kgu-tag.scr{color:#fff;background:linear-gradient(100deg,#ff7ab8,#ffb347,#7fd8ff,#c79bff);box-shadow:none;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+/* normal pack: the KIMOOTA lens over a violet sky, three of the best items fanned out */
+.a-normal .kgu-sky{inset:0;background:radial-gradient(60% 55% at 50% 30%,rgba(139,123,255,.5),transparent 70%),radial-gradient(40% 40% at 85% 70%,rgba(61,216,240,.28),transparent 70%),linear-gradient(180deg,#141029,#07070c)}
+.a-normal .kgu-floor{left:-30%;right:-30%;bottom:-8%;height:52%;transform:perspective(380px) rotateX(64deg);transform-origin:50% 100%;
+  background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);background-size:36px 36px;-webkit-mask-image:linear-gradient(to top,#000 10%,transparent 85%);mask-image:linear-gradient(to top,#000 10%,transparent 85%)}
+.kgu-lg{position:absolute;left:3%;width:50%;top:13%;z-index:2;filter:drop-shadow(0 0 16px rgba(255,217,112,.45));animation:kguFloat 5s ease-in-out infinite}
+.kgu-lg svg{display:block;width:100%;height:auto;overflow:visible}
+.kgu-lens{animation:kguLens 3.2s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes kguLens{50%{opacity:.55}}
+@keyframes kguFloat{50%{transform:translateY(-6px)}}
+.kgu-fan{position:absolute;right:1%;top:7%;width:45%;height:70%;z-index:3}
+.kgu-fc{position:absolute;left:50%;top:9%;width:86px;height:120.4px;margin-left:-43px;--ks:.796;transform-origin:50% 125%;transform:rotate(calc((var(--i) - 1) * 18deg));
+  filter:drop-shadow(0 14px 18px rgba(0,0,0,.6))}
+.kgu-fc:not(.mid){opacity:.92}
+.kgu-fc.mid{top:4%;width:92px;height:128.8px;margin-left:-46px;--ks:.852;filter:drop-shadow(0 18px 22px rgba(0,0,0,.65)) drop-shadow(0 0 22px color-mix(in srgb,#ff6ad5 45%,transparent))}
+.kgu-fc .gcf,.kgu-it .gcf,.kgu-gi .gcf{left:0!important;top:0!important;right:auto!important;bottom:auto!important;width:108px!important;height:151.2px!important;transform:scale(var(--ks,1))!important;transform-origin:0 0;
+  border-radius:calc(12px / var(--ks,1));border:0!important;background:radial-gradient(100% 60% at 50% 0%,color-mix(in srgb,var(--rc) 24%,transparent),transparent 70%),linear-gradient(180deg,#1a1a22,#101016)!important;
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--rc) 80%,rgba(255,255,255,.2))!important;position:absolute!important}
+.kgu-spk{inset:0;z-index:2;opacity:.9;background-image:radial-gradient(1.5px 1.5px at 18% 22%,#fff,transparent),radial-gradient(1px 1px at 72% 14%,#fff,transparent),radial-gradient(1.5px 1.5px at 86% 46%,#ffe9a8,transparent),radial-gradient(1px 1px at 34% 58%,#cfe0ff,transparent),radial-gradient(1.2px 1.2px at 58% 34%,#fff,transparent),radial-gradient(1px 1px at 8% 64%,#fff,transparent);animation:kguTw 3.6s ease-in-out infinite}
+@keyframes kguTw{50%{opacity:.35}}
+/* limited (Vtuber): the KMR on stream, LIVE, and the ¥1,000,000 super chat */
+.a-lim .kgu-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.04)}
+.a-lim .kgu-shade{inset:0;z-index:1;background:linear-gradient(180deg,rgba(6,4,10,.55),transparent 28%,transparent 50%,rgba(6,4,10,.3))}
+.kgu-live{position:absolute;left:14px;top:14px;z-index:5;display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:6px;font:900 12px/1 var(--x-n);letter-spacing:.08em;color:#fff;background:#e62117}
+.kgu-live i{width:7px;height:7px;border-radius:50%;background:#fff;animation:kguTw 1.4s ease-in-out infinite}
+.kgu-vw{position:absolute;left:84px;top:14px;z-index:5;display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:6px;font:800 12px/1 var(--x-n);color:#fff;background:rgba(0,0,0,.5);font-variant-numeric:tabular-nums}
+.kgu-vw svg{width:14px;height:14px}
+.kgu-sc{position:absolute;right:12px;top:12px;z-index:5;width:min(46%,176px);padding:1.5px;border-radius:11px;background:linear-gradient(120deg,#ff7ab8,#ffd970 30%,#8fffb0 52%,#7fd8ff 74%,#c79bff);box-shadow:0 14px 30px -10px rgba(255,60,120,.75);animation:kguFloat 4s ease-in-out infinite}
+.kgu-sch{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:9.5px 9.5px 0 0;background:#b2140e}
+.kgu-sch i{flex:none;width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.35)}
+.kgu-sch b{font:700 10px/1 var(--x-f);color:rgba(255,255,255,.9);white-space:nowrap}
+.kgu-sch em{margin-left:auto;font:900 12px/1 var(--x-n);font-style:normal;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
+.kgu-sct{padding:6px 8px 7px;border-radius:0 0 9.5px 9.5px;background:#e62117;font:800 11.5px/1.3 var(--x-f);color:#fff}
+/* coin: under a spotlight, the KMR coin between GR and UR */
+.a-coin{background:radial-gradient(70% 55% at 50% 40%,#1c1830,#07070c 75%)}
+.a-coin .kgu-spot{left:50%;top:-10%;width:120%;height:90%;margin-left:-60%;z-index:0;background:conic-gradient(from 180deg at 50% 0%,transparent 160deg,rgba(255,240,210,.09) 170deg,rgba(255,240,210,.16) 180deg,rgba(255,240,210,.09) 190deg,transparent 200deg)}
+.a-coin .kgu-table{left:50%;top:58%;width:110%;height:34%;margin-left:-55%;z-index:0;border-radius:50%;background:radial-gradient(closest-side,rgba(255,236,200,.14),rgba(140,128,190,.06) 60%,transparent)}
+.kgu-coins{position:absolute;left:0;right:0;top:10%;height:56%;z-index:3;display:flex;align-items:center;justify-content:center;gap:0;perspective:700px}
+.kgu-cn{position:relative;flex:none;transform-style:preserve-3d;filter:drop-shadow(0 18px 22px rgba(0,0,0,.6))}
+.kgu-cn.l{transform:translate(18px,14px) rotateY(32deg) rotateZ(-8deg);z-index:1}
+.kgu-cn.r{transform:translate(-18px,14px) rotateY(-32deg) rotateZ(8deg);z-index:1}
+.kgu-cn.m{z-index:2;animation:kguSway 5s ease-in-out infinite}
+@keyframes kguSway{0%,100%{transform:rotateY(-16deg) translateY(0)}50%{transform:rotateY(16deg) translateY(-6px)}}
+/* TCG: the sealed pack in front of its box */
+.a-tcg .kgu-sky{inset:0;background:radial-gradient(60% 60% at 30% 30%,color-mix(in srgb,var(--p1) 42%,transparent),transparent 70%),radial-gradient(55% 55% at 80% 60%,color-mix(in srgb,var(--p2) 36%,transparent),transparent 72%),linear-gradient(180deg,#0f0e16,#07070c)}
+.kgu-bx{position:absolute;right:-4%;top:12%;width:62%;aspect-ratio:1/.6;z-index:1;border-radius:6px;overflow:hidden;transform:rotate(5deg);
+  background:linear-gradient(160deg,var(--p1),color-mix(in srgb,var(--p1) 45%,var(--p2)) 55%,color-mix(in srgb,var(--p2) 62%,#06070c));box-shadow:inset 0 0 0 1px rgba(255,255,255,.28),0 26px 40px -16px rgba(0,0,0,.85)}
+.kgu-bx img{position:absolute;right:-6%;top:0;width:64%;height:100%;object-fit:cover;object-position:50% 14%;-webkit-mask-image:linear-gradient(90deg,transparent,#000 34%);mask-image:linear-gradient(90deg,transparent,#000 34%)}
+.kgu-bxn{position:absolute;left:7%;top:16%;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:4px;color:#fff}
+.kgu-bxn small{font:800 6.5px/1 var(--x-n);letter-spacing:.28em;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.kgu-bxn .kp-lg{font-size:15px!important}
+.kgu-bxn .kp-lg .o{-webkit-text-stroke-width:4px}
+.kgu-bxn .kp-lg>span{text-align:left}
+.kgu-bxs{position:absolute;inset:0;z-index:3;background:linear-gradient(118deg,transparent 20%,rgba(255,255,255,.2) 24%,transparent 30%)}
+.kgu-pk{position:absolute;left:10%;top:6%;width:33%;aspect-ratio:5/8;z-index:3;transform:rotate(-7deg);animation:kguPk 5s ease-in-out infinite;filter:drop-shadow(0 22px 26px rgba(0,0,0,.7))}
+@keyframes kguPk{50%{transform:rotate(-5deg) translateY(-7px)}}
+.kgu-pk .kp-pk{transform:none;transition:none}
+.kgu-pk .kp-lg{font-size:12.5px!important}
+.kgu-pk .kp-lg .o{-webkit-text-stroke-width:3.5px}
+.kgu-pk .kp-name{gap:3px}
+.kgu-pk .kp-name small,.kgu-pk .kp-name em{font-size:4.5px;letter-spacing:.2em}
+.kgu-pk .kp-foot{font-size:5.5px}
+.kgu-pk .kp-shine{background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.9) 46%,transparent 62%)}
+/* ---- the card body ---- */
+.kgu-body{display:flex;flex-direction:column;gap:12px;padding:14px 10px 8px}
+.kgu-line{display:flex;align-items:center;gap:10px;margin-top:4px;padding-top:14px;border-top:.5px solid rgba(255,255,255,.07)}
+.kgu-th{flex:1;min-width:0;display:flex;gap:7px;overflow:hidden}
+.kgu .kgu-it{flex:none;position:relative;width:46px;height:64.4px;padding:0;border:0;border-radius:9px;background:none;cursor:pointer;--ks:.426}
+.kgu .kgu-it.c{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(closest-side,rgba(255,255,255,.08),transparent)}
+.kgu .kgu-it.c .coin{--cz:40px}
+.kgu .kgu-it.t{width:48px;height:64px}
+.kgu .kgu-it.t .tcf{position:absolute;inset:0;border-radius:7px}
+.kgu .kgu-it:active{transform:scale(.94)}
+.kgu .kgu-all{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:58px;height:64px;padding:0;border:0;border-radius:14px;cursor:pointer;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12);color:var(--x-fg2)}
+.kgu-all span{font:700 10.5px/1 var(--x-f);color:var(--x-mut)}
+.kgu-all b{font:800 12.5px/1 var(--x-f)}
+.kgu-progs{display:grid;gap:12px}
+.kgu-progs.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.kgu-prog{display:flex;flex-direction:column;gap:7px;padding:0 2px;min-width:0}
+.kgu-progs.two .kgu-pl{flex-direction:column;align-items:flex-start;gap:4px}
+.kgu-progs.two .kgu-pl span{font-size:11.5px;white-space:nowrap}
+.kgu-progs.two .kgu-pl b{font-size:14.5px}
+.kgu-pl{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.kgu-pl span{font:700 12.5px/1.2 var(--x-f);color:var(--x-mut)}
+.kgu-pl b{font:800 13.5px/1.2 var(--x-n);color:var(--x-fg);font-variant-numeric:tabular-nums;white-space:nowrap}
+.kgu-bar{position:relative;height:6px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08)}
+.kgu-bar i{position:absolute;inset:0;transform-origin:0 50%;border-radius:inherit;background:linear-gradient(90deg,#b678ff,#ff4f8b)}
+.kgu-prog.kmr .kgu-bar i{background:linear-gradient(90deg,#ff7ab8,#ffd970,#8fffb0,#7fd8ff,#c79bff)}
+.kgu-stat{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:16px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1)}
+.kgu-stat span{font:700 13px/1.2 var(--x-f);color:var(--x-fg2)}
+.kgu-stat b{font:800 24px/1 var(--x-n);font-variant-numeric:tabular-nums}
+.kgu-stat small{margin-left:3px;font:700 12px/1 var(--x-f);color:var(--x-mut)}
+.kgu-acts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kgu-acts.one{grid-template-columns:1fr}
+.kgu .kgu-pull{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:66px;padding:10px 8px;border:0;border-radius:20px;cursor:pointer;
+  color:var(--x-fg);background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.04));box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 0 1px 0 rgba(255,255,255,.08);transition:transform .3s var(--x-sp),opacity .2s}
+.kgu .kgu-pull.main{color:#101014;background:linear-gradient(180deg,#fff,#e9e6f5);box-shadow:0 0 0 1px rgba(255,255,255,.4),0 16px 34px -14px var(--a1),0 0 40px -18px var(--a2)}
+.kgu .kgu-pull:active{transform:scale(.97)}
+.kgu .kgu-pull:disabled{opacity:.42;cursor:default;transform:none}
+.kgu .kgu-pull.main:disabled{opacity:1;color:rgba(244,241,234,.5);background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.05));box-shadow:inset 0 0 0 .5px rgba(255,255,255,.18)}
+.kgu .kgu-pull.main:disabled .kgu-pt{opacity:.6}
+.kgu-pull b{font:800 16.5px/1 var(--x-f)}
+.kgu-c{display:inline-flex;align-items:center;gap:4px;font:800 13px/1 var(--x-n);font-variant-numeric:tabular-nums;opacity:.9}
+.kgu-pt{width:14px;height:14px;flex:none}
+.kgu-tki{width:16px;height:12px;flex:none}
+.kgu-pull small{font:700 10.5px/1.2 var(--x-f);opacity:.66}
+.kgu-pull.main small{opacity:.6}
+.kgu .kgu-pull small.kgu-need{opacity:1;color:#ff8fb1}
+.kgu .kgu-pull.main:not(:disabled) small.kgu-need{color:#c2185b}
+.kgu-own{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;font:600 12px/1.4 var(--x-f);color:var(--x-mut)}
+.kgu-own span{display:inline-flex;align-items:center;gap:4px}
+.kgu-own b{font:800 12.5px/1 var(--x-n);color:var(--x-fg2);font-variant-numeric:tabular-nums}
+.kgu-own .kgu-pt{width:12px;height:12px}
+.kgu-tks{display:flex;flex-direction:column;gap:8px}
+.kgu .kgu-tk{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:48px;padding:0 16px;border:0;border-radius:16px;cursor:pointer;color:var(--x-fg);
+  background:linear-gradient(90deg,color-mix(in srgb,var(--a1) 20%,transparent),color-mix(in srgb,var(--a2) 12%,transparent));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a1) 40%,rgba(255,255,255,.1))}
+.kgu-tk span{display:inline-flex;align-items:center;gap:8px;font:800 14px/1.2 var(--x-f)}
+.kgu-tk b{font:800 14px/1 var(--x-n)}
+.kgu .kgu-tk:disabled{opacity:.42}
+.kgu .kgu-more{align-self:center;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:0;border-radius:999px;cursor:pointer;background:none;color:var(--x-fg2);font:700 13px/1 var(--x-f)}
+.kgu .kgu-more::after{content:"";width:6px;height:6px;border-right:1.6px solid currentColor;border-bottom:1.6px solid currentColor;transform:rotate(-45deg);margin-left:2px}
+.kgu-links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.kgu .kgu-lk{height:50px;border:0;border-radius:16px;cursor:pointer;color:var(--x-fg);font:800 14px/1 var(--x-f);background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12)}
+#v-gacha.kgu #tixsec{margin-top:18px;padding:16px 14px 14px;border:0;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1)}
+#v-gacha.kgu #tixsec>h2{margin:0 0 12px 2px!important;font:800 15px/1.2 var(--x-f)!important;letter-spacing:0!important}
+#v-gacha.kgu #gtix .tkrow{border:0!important;background:linear-gradient(90deg,rgba(255,106,213,.14),rgba(184,138,255,.06))!important;box-shadow:inset 0 0 0 1px rgba(255,106,213,.26)}
+#v-gacha.kgu #gtix .tkn{font:800 14px/1.35 var(--x-f)}
+#v-gacha.kgu #gtix .tkbtn{background:#fff!important;color:#101014!important;box-shadow:0 8px 20px -10px rgba(255,106,213,.8)}
+/* ---- 排出率・中身 sheet ---- */
+.kgu-sh{position:fixed;inset:0;z-index:120;background:rgba(3,3,6,.6);font-family:var(--x-f,-apple-system,"Hiragino Sans",sans-serif);color:var(--x-fg,#f4f1ea)}
+.kgu-shp{position:absolute;left:0;right:0;bottom:0;max-height:88vh;overflow-y:auto;overscroll-behavior:contain;border-radius:28px 28px 0 0;padding:6px 16px calc(env(safe-area-inset-bottom,0px) + 24px);
+  background:linear-gradient(180deg,#16161d,#0c0c11 40%);box-shadow:0 -20px 60px -20px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.12)}
+.kgu-grab{display:block;width:40px;height:5px;margin:4px auto 6px;border-radius:3px;background:rgba(255,255,255,.2)}
+.kgu-shh{position:sticky;top:-6px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0 10px;background:linear-gradient(180deg,#16161d 70%,rgba(22,22,29,0))}
+.kgu-shh b{font:800 18px/1.2 var(--x-f)}
+.kgu-sh .kgu-x{height:36px;padding:0 14px;border:0;border-radius:999px;cursor:pointer;color:var(--x-fg);font:700 13px/1 var(--x-f);background:rgba(255,255,255,.08)}
+.kgu-h{margin:18px 0 10px;font:800 15px/1.2 var(--x-f)}
+.kgu-h small{margin-left:6px;font:600 11.5px/1 var(--x-f);color:var(--x-mut)}
+.kgu-rt{width:100%;border-collapse:collapse;font:600 13.5px/1.2 var(--x-n);font-variant-numeric:tabular-nums}
+.kgu-rt th{padding:8px 6px;text-align:right;font:700 11.5px/1 var(--x-f);color:var(--x-mut);border-bottom:1px solid rgba(255,255,255,.08)}
+.kgu-rt td{padding:10px 6px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05)}
+.kgu-rt th:first-child,.kgu-rt td:first-child{text-align:left}
+.kgu-rt th small{display:block;margin-top:4px;font:600 9.5px/1 var(--x-f);opacity:.8}
+.kgu-rt td b{font:800 13.5px/1 var(--x-n);letter-spacing:.04em}
+.kgu-note{margin:12px 0 0;font:500 12.5px/1.65 var(--x-f);color:var(--x-fg2)}
+.kgu-gr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 8px}
+.kgu .kgu-gi,.kgu-sh .kgu-gi{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;padding:0;border:0;background:none;cursor:pointer;color:var(--x-fg2);--ks:.68}
+.kgu-gi>.gcf{position:relative!important}
+.kgu-sh .kgu-gi:not(.c):not(.t)::before{content:"";display:block;width:73.4px;height:102.8px;flex:none}
+.kgu-sh .kgu-gi:not(.c):not(.t){position:relative}
+.kgu-sh .kgu-gi:not(.c):not(.t) .gcf{position:absolute!important;left:50%!important;top:0!important;margin-left:-36.7px}
+.kgu-gi span{max-width:100%;font:700 10.5px/1.3 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kgu-gi small{font:600 10px/1 var(--x-f);color:var(--x-mut)}
+.kgu-gr.coins .kgu-gi .coin{--cz:54px}
+.kgu-gi.t .tcf{position:relative;width:100%;border-radius:8px}
+.kgu-sh .chbox{margin-top:18px}
+.kgu-zh{position:fixed;inset:0;z-index:125;background:rgba(5,5,9,.88);animation:kguIn .25s ease-out both}
+@keyframes kguIn{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){.kgu-lg,.kgu-lens,.kgu-spk,.kgu-sc,.kgu-cn.m,.kgu-pk,.kgu-live i{animation:none}}
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -8854,7 +9068,7 @@ function renderLim(){
   const byR='';
   det.innerHTML='<summary>限定パックの中身と排出率</summary><table><tr><th></th><th>1〜4枚目</th><th>5枚目(R以上確定)</th></tr>'+
     RAR.map((x,i)=>'<tr><td class="r'+i+'">'+x.k+'</td><td>'+LRATE[i]+'%</td><td>'+(LRATE_G[i]?LRATE_G[i]+'%':'—')+'</td></tr>').join('')+
-    '</table><p>1パック5枚・'+LPACK+'pt。通常より高レア率。SR・URは半分の確率で限定アイテム、<b>GR以上は必ず限定アイテム</b>です(N・Rは通常アイテム)。限定パックを350パック開けるごとに<b>好きな限定KMRの選択チケット</b>が1枚もらえます。KMRは必ず限定KMRです。限定KMR「ひだまりニット」「はなかんむり」「堕ちた天使」はこのパックでしか出ません。KMRは選択チケットになり、アイコン・対戦演出・勝利演出から1つ選べます。GR確定までのカウントは通常パックと共通です。</p>'+byR+'<p>限定アイテムはかけらとの交換はできません。</p>';
+    '</table><p>1パック5枚・'+LPACK+'pt。通常より高レア率。SR・URは半分の確率で限定アイテム、<b>GR以上は必ず限定アイテム</b>です(N・Rは通常アイテム)。限定パックを350パック開けるごとに<b>好きな限定KMRの選択チケット</b>が1枚もらえます。KMRは必ず限定KMRです。限定KMR「ひだまりニット」「はなかんむり」「堕ちた天使」はこのパックでしか出ません。KMRは選択チケットになり、アイコン・対戦演出・勝利演出から1つ選べます。GR確定までのカウントは通常パックとは別に数えます。</p>'+byR+'<p>限定アイテムはかけらとの交換はできません。</p>';
   {/* every limited item, tap to preview */
     det.append(el('p','limph','限定アイテム一覧(タップでプレビュー)'));const g=el('div','limgrid');
     set.slice().sort((a,b)=>b.r-a.r).forEach(it=>{const c=el('button','limcell');c.append(cardFace(it),el('span','limk',KIND[it.k]));c.onclick=()=>previewAny(it);g.append(c)});det.append(g);
@@ -12207,7 +12421,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     if(!res||!res.length||!G)return OPV.apply(this,arguments);
     try{if(theme==='vt')return stream(res,onMore,(typeof LIMS!=='undefined'&&LIMS.vt&&LIMS.vt.name)||'Vtuberガチャ',opt);const L=(!label||label==='PREMIUM PACK')?'通常パック':label==='PREMIUM ×10'?'通常パック 10連':label==='STARTER DECK'?'スターターデッキ':label;return summon(res,onMore,L,opt)}
     catch(e){console.warn('kg',e);document.querySelectorAll('body>.kgo').forEach(x=>x.remove());return OPV.apply(this,arguments)}};
-  window.__kgSummon=summon;window.__kgStream=stream;window.__kgPack=tcgPack;window.__kcShow=coinShow;window.__kcTray=coinTray;window.__kbBox=tcgBox;window.__kbSecret=kgSecret;window.__kbSummary=boxSummary;
+  window.__kgSummon=summon;window.__kgStream=stream;window.__kgPack=tcgPack;window.__kcShow=coinShow;window.__kcTray=coinTray;window.__kbBox=tcgBox;window.__kbSecret=kgSecret;window.__kbSummary=boxSummary;window.__kgHeroSrc=heroSrc;window.__kgPackLogo=packLogo;window.__kgZoomCard=zoomCard;
   /* TCGボックス: the new box, the new secret scene, the new result. Anything unexpected falls back to the old ones */
   if(typeof tcgBoxCinematic==='function'){const TBC=tcgBoxCinematic;tcgBoxCinematic=function(pk,res,onPacks,onSummary,opt){opt=opt||{};if(!G||typeof TCGD==='undefined'||!TCGD.packs[pk]||!res||!res.length)return TBC.apply(this,arguments);
     try{if(opt.revealed){const xs=res.filter(x=>x.foil);return kgSecret(pk,xs.length?xs:res,onPacks)}return tcgBox(pk,res,{packs:onPacks,all:onSummary})}
@@ -12229,7 +12443,237 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   if(typeof tcgPackView==='function'){const TPV=tcgPackView;tcgPackView=function(pk,res,onMore,opt){if(!G||!res||!res.length||typeof TCGD==='undefined'||!TCGD.packs[pk])return TPV.apply(this,arguments);
     try{return tcgPack(pk,res,onMore,opt)}catch(e){console.warn('kg tcg',e);document.querySelectorAll('body>.kgo.kg-tcg').forEach(x=>x.remove());return TPV.apply(this,arguments)}}}
 })();
-/*KGJS-END*/</script>
+/*KGJS-END*/
+/*KGUJS-START*/
+/* ===== v121 ガチャ画面 (kgu): one banner at a time, like the gacha screens of current games =====
+   A row of banner chips (each with a small picture) and one big banner card: its key visual in the same language as its pull
+   (the KIMOOTA lens, the live stream, the coin on the table, the sealed pack and box), what is in it, the pity bar, and the pull
+   buttons with the cost on them. 排出率・中身 opens a sheet. The old sections stay in the page, hidden, so every app function and
+   every update keeps working; this layer only reads the same state and calls the same actions (PULLS.*, coinPull, tcgAskPack...). */
+(function(){
+  let on=true;try{on=localStorage.getItem('ui2')!=='0'}catch(e){}
+  if(!on)return;
+  const $i=id=>document.getElementById(id),vg=$i('v-gacha'),gs=$i('gp-skin'),gt=$i('gp-tcg');
+  if(!vg||!gs||!gt||typeof PULLS==='undefined'||typeof renderGacha!=='function')return;
+  const G=window.gsap,RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
+  const mk=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const bt=(c,h)=>{const b=mk('button','kx-b kgu-b'+(c?' '+c:''),h);b.type='button';return b};
+  const fmt=n=>Number(n||0).toLocaleString('ja-JP');
+  const me=()=>{try{return myPlayer()}catch(e){return null}};
+  const ready=()=>{const m=me();try{return !!m&&invLoaded&&invFor===m.id&&econReady()&&!m.ban}catch(e){return false}};
+  const left=end=>{const t=end-now();if(t<=0)return '終了';const d=Math.floor(t/864e5),h=Math.floor(t%864e5/36e5),mi=Math.floor(t%36e5/6e4);return '残り '+(d?d+'日 ':'')+h+'時間'+(d?'':' '+mi+'分')};
+  const RC=['#a3a9b4','#4aa3ff','#b678ff','#f5c84c','#ff4f8b','#ff6ad5'];
+  vg.classList.add('kgu');
+  const pages={skin:mk('div','kgu-page'),tcg:mk('div','kgu-page')};pages.skin.id='kgu-skin';pages.tcg.id='kgu-tcg';
+  gs.prepend(pages.skin);gt.prepend(pages.tcg);
+  /* the banner the person picked, kept with the list of banners it was picked from: when a new banner starts (or one ends), the first one shows again */
+  const sel={skin:null,tcg:null};try{['skin','tcg'].forEach(pg=>{const v=JSON.parse(localStorage.getItem(pg==='tcg'?'kgu_t':'kgu_s')||'null');if(v&&v.id)sel[pg]=v})}catch(e){}
+
+  /* ---------- a few pieces of art ---------- */
+  /* the KIMOOTA glasses with the crown (same drawing as the splash and the summon), in gold */
+  const CH=sx=>{const L=[[-30,30],[-14,18],[-2,24],[14,2],[26,8],[34,-10]];return 'M'+L.map(([x,y])=>(sx*54+x*.9).toFixed(1)+' '+(10+y*.9).toFixed(1)).join(' L')};
+  /* the gradients live once in the page, in an svg that is never display:none (a gradient inside a hidden page would paint nothing) */
+  if(!document.getElementById('kgu-defs')){const d=document.createElementNS('http://www.w3.org/2000/svg','svg');d.id='kgu-defs';d.setAttribute('aria-hidden','true');d.setAttribute('width','0');d.setAttribute('height','0');d.style.cssText='position:absolute;width:0;height:0;overflow:hidden;pointer-events:none';
+    d.innerHTML='<defs><radialGradient id="kguLens" cx="50%" cy="46%" r="52%"><stop offset="0" stop-color="#fff"/><stop offset=".4" stop-color="#ffd970"/><stop offset="1" stop-color="#ffd970" stop-opacity="0"/></radialGradient>'+
+      '<linearGradient id="kguGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6dc"/><stop offset=".55" stop-color="#f3d58e"/><stop offset="1" stop-color="#c99a3f"/></linearGradient>'+
+      '<linearGradient id="kguPt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1c4"/><stop offset="1" stop-color="#d9a640"/></linearGradient></defs>';document.body.append(d)}
+  const LOGO='<svg class="kgu-logo" viewBox="-112 -84 224 150" aria-hidden="true">'+
+    '<g class="kgu-lens"><circle cx="-54" cy="10" r="38" fill="url(#kguLens)"/><circle cx="54" cy="10" r="38" fill="url(#kguLens)"/></g>'+
+    '<g fill="none" stroke="url(#kguGold)" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"><circle cx="-54" cy="10" r="42"/><circle cx="54" cy="10" r="42"/>'+
+    '<path d="M-14 -4 Q0 -17 14 -4"/><path d="M-96 4 L-109 2.4"/><path d="M96 4 L109 2.4"/><path stroke-width="3" d="'+CH(-1)+'"/><path stroke-width="3" d="'+CH(1)+'"/>'+
+    '<path d="M-30 -46 L-30 -62 L-18 -52 L0 -74 L18 -52 L30 -62 L30 -46 Z"/></g></svg>';
+  const EYE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const PT='<svg class="kgu-pt" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.2" fill="url(#kguPt)"/><text x="8" y="11.4" text-anchor="middle" font-size="9.5" font-weight="900" fill="#5a3d07" font-family="Geist,sans-serif">P</text></svg>';
+  const TKI='<svg class="kgu-tki" viewBox="0 0 20 14" aria-hidden="true"><path d="M2 2h16v3.2a1.8 1.8 0 0 0 0 3.6V12H2V8.8a1.8 1.8 0 0 0 0-3.6Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 3.5v7" stroke="currentColor" stroke-width="1.4" stroke-dasharray="1.4 1.6"/></svg>';
+  const face=it=>{try{return cardFace(it)}catch(e){return mk('div','gcf')}};
+  const coin=(v,z,big)=>{try{return coinEl(v,z,big)}catch(e){return mk('div','coin')}};
+  /* the highlights of a banner: one KMR icon per KMR, then GR items, chosen once per launch so they don't reshuffle on every refresh */
+  const FEAT={};
+  const shuf=a=>{const p=a.slice();for(let i=p.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[p[i],p[j]]=[p[j],p[i]]}return p};
+  function lineup(key,pool){if(!FEAT[key]){const k=pool.filter(x=>x.r===5&&x.k==='a'),g=shuf(pool.filter(x=>x.r===4&&x.k!=='t'&&x.k!=='c'));
+      const seen=new Set(),L=k.concat(g).filter(x=>!seen.has(x.id)&&seen.add(x.id));FEAT[key]=L.slice(0,5)}return FEAT[key]}
+  const nPool=()=>ITEMS.filter(x=>!x.lim&&!x.retired&&x.k!=='c');
+  const lPool=()=>{try{return ITEMS.filter(x=>x.lim===banner.set&&!x.retired)}catch(e){return []}};
+  const urPool=()=>ITEMS.filter(x=>x.r>=3&&!x.lim&&!x.retired&&x.k!=='c'&&x.k!=='t');
+
+  function artNormal(){const a=mk('div','kgu-art a-normal');a.append(mk('i','kgu-sky'),mk('i','kgu-floor'));
+    const lg=mk('div','kgu-lg',LOGO);a.append(lg);
+    /* three cards fanned out: the KMR in the middle and in front, a GR on each side */
+    const L=lineup('n',nPool()),mid=L[0],side=L.filter(x=>x.r===4).slice(0,2),fan=mk('div','kgu-fan');
+    [[side[0],0],[side[1],2],[mid,1]].forEach(([it,i])=>{if(!it)return;const w=mk('div','kgu-fc'+(i===1?' mid':''));w.style.setProperty('--i',i);w.append(face(it));fan.append(w)});a.append(fan,mk('i','kgu-spk'));return a}
+  function limKmr(){try{return KMRS.filter(K=>K.lim===banner.set)}catch(e){return []}}
+  function artLim(){const a=mk('div','kgu-art a-lim'),K=limKmr()[0];
+    if(K){const im=mk('img','kgu-bg');im.alt='';im.decoding='async';im.src=K.img;im.style.objectPosition=(K.fx||50)+'% '+(K.fy||25)+'%';a.append(im)}
+    a.append(mk('i','kgu-shade'),mk('span','kgu-live','<i></i>LIVE'),mk('span','kgu-vw',EYE+'<b>1,284</b>'));
+    const sc=mk('div','kgu-sc','<div class="kgu-sch"><i></i><b>石油王</b><em>¥1,000,000</em></div><div class="kgu-sct">キモオタ乙www</div>');a.append(sc);return a}
+  function artCoin(){const a=mk('div','kgu-art a-coin');a.append(mk('i','kgu-spot'),mk('i','kgu-table'));
+    const row=mk('div','kgu-coins');[['eldorado',86,false,'l'],['kmr1',128,true,'m'],['crystal',86,false,'r']].forEach(([v,z,b,c])=>{const w=mk('div','kgu-cn '+c);w.append(coin(v,z,b));row.append(w)});
+    a.append(row,mk('i','kgu-spk'));return a}
+  function packEl(pk){const P=TCGD.packs[pk],w=mk('div','kgu-pk'),pkk=mk('div','kp-pk'),body=mk('div','kp-body'),strip=mk('div','kp-strip');
+    const art=mk('div','kp-art'),im=mk('img');im.alt='';im.decoding='async';try{im.src=window.__kgHeroSrc?__kgHeroSrc(pk):''}catch(e){}art.append(im);
+    const nm=mk('div','kp-name');nm.append(mk('small',null,'KIMOOTA TCG'),window.__kgPackLogo?__kgPackLogo(P):mk('b','kp-lg',esc(P.n)),mk('em',null,esc(P.en||'')));
+    body.append(art,nm,mk('div','kp-foot',TCGD.size+' CARDS'),mk('i','kp-holo'),mk('i','kp-shine'),mk('i','kp-edge'));strip.append(mk('i','kp-holo'),mk('i','kp-shine'),mk('i','kp-edge'));
+    pkk.append(body,strip);w.append(pkk);return w}
+  function artTcg(pk){const P=TCGD.packs[pk],a=mk('div','kgu-art a-tcg');a.style.setProperty('--p1',P.c1);a.style.setProperty('--p2',P.c2);a.append(mk('i','kgu-sky'));
+    /* the box behind (its front), the pack in front */
+    const bx=mk('div','kgu-bx'),bim=mk('img');bim.alt='';bim.decoding='async';try{bim.src=window.__kgHeroSrc?__kgHeroSrc(pk):''}catch(e){}
+    const bn=mk('div','kgu-bxn');bn.append(mk('small',null,'BOOSTER BOX'),window.__kgPackLogo?__kgPackLogo(P):mk('b',null,esc(P.n)));bx.append(bim,bn,mk('i','kgu-bxs'));
+    a.append(bx,packEl(pk),mk('i','kgu-spk'));return a}
+
+  /* ---------- the banners ---------- */
+  /* the small key art on each banner chip */
+  const tnImg=(src,pos)=>{const im=mk('img');im.alt='';im.decoding='async';if(src)im.src=src;if(pos)im.style.objectPosition=pos;return im};
+  function mNormal(){const m=me(),b=m?balance(m.id):0,ok=ready()&&!opening,since=inv.since||0;
+    const tks=[];if(m){const n=ticketsLeft(m.id);if(n>0)tks.push({l:'チケットで1パック',n,on:ready()&&!opening,go:()=>PULLS.nt1()});const t=ten10Left(m.id);if(t>0)tks.push({l:'10連チケットで開ける',n:t,on:ready()&&!opening,go:()=>PULLS.nt10()})}
+    return{id:'normal',chip:'通常パック',ac:['#8b7bff','#3dd8f0'],thumb:()=>mk('span','kgu-tn n',LOGO),
+      title:'通常パック',sub:'アイコン・フレーム・背景・対戦演出・称号',tags:[['5枚入り'],['10連はSR以上1枚確定','hi']],art:artNormal,
+      line:{items:lineup('n',nPool())},
+      prog:[{k:'GR確定まで',v:since,max:PITY,tx:'あと '+(PITY-since)+' パック',c:'gr'}],
+      bal:b,acts:[{l:'1パック',c:PACK,need:PACK-b,on:ok&&b>=PACK,go:()=>PULLS.n1()},{l:'10連',c:PACK*TEN,need:PACK*TEN-b,note:'SR以上1枚確定',main:1,on:ok&&b>=PACK*TEN,go:()=>PULLS.n10()}],tks,sheet:shNormal}}
+  function mLim(){const m=me(),b=m?balance(m.id):0,ok=ready()&&!opening,L=LIMS[banner.set],set=lPool(),own=set.filter(x=>(inv.own||{})[x.id]).length,ls=inv.lsince||0,lp=(inv.lpacks||0)%WILD;
+    const tks=[];if(m){const n=limTk(m.id);if(n>0)tks.push({l:'限定チケットで1パック',n,on:ready()&&!opening,go:()=>PULLS.lt1()});const t=limTk10(m.id);if(t>0)tks.push({l:'限定10連チケットで開ける',n:t,on:ready()&&!opening,go:()=>PULLS.lt10()})}
+    const K=limKmr();
+    return{id:'lim',ak:'lim-'+banner.set,chip:L.name,ac:['#ff3b6b','#ff7ac6'],thumb:()=>{const t=mk('span','kgu-tn l');if(K[0])t.append(tnImg(K[0].img,(K[0].fx||50)+'% '+(K[0].fy||25)+'%'));t.append(mk('em','kgu-bd lv','<i></i>LIVE'));return t},
+      title:L.name,sub:K.length?'限定KMR「'+K.map(k=>k.n).join('」「')+'」':'限定アイテム',subH:K.length?'限定KMR'+K.map(k=>'<span class="kgu-nw">「'+esc(k.n)+'」</span>').join(''):null,tags:[['期間限定','hot'],[left(banner.end),'time'],['限定 '+own+'/'+set.length+' 所持']],art:artLim,
+      line:{items:lineup('l'+banner.set,set)},
+      prog:[{k:'GR確定まで',v:ls,max:PITY,tx:'あと '+(PITY-ls)+' パック',c:'gr'},{k:'好きな限定KMRまで',v:lp,max:WILD,tx:'あと '+(WILD-lp)+' パック',c:'kmr'}],
+      bal:b,acts:[{l:'1パック',c:LPACK,need:LPACK-b,on:ok&&b>=LPACK,go:()=>PULLS.l1()},{l:'10連',c:LPACK*TEN,need:LPACK*TEN-b,note:'SR以上1枚確定',main:1,on:ok&&b>=LPACK*TEN,go:()=>PULLS.l10()}],tks,sheet:shLim}}
+  function mCoin(){const m=me(),n=m?coinTk(m.id):0,ok=ready()&&!opening&&!coinBusy;
+    return{id:'coin',chip:'コインガチャ',ac:['#f5c84c','#ff9f6b'],thumb:()=>{const t=mk('span','kgu-tn c'),w=mk('span','kgu-tnc');w.append(coin('eldorado',27,false),coin('kmr1',38,false),coin('crystal',27,false));t.append(w,mk('em','kgu-bd au','期間限定'));return t},
+      title:'コインガチャ',sub:'対戦の先攻・後攻を決めるコイン',tags:[['期間限定','hot'],[left(coinev.end),'time'],['チケットで引く']],art:artCoin,
+      coins:ITEMS.filter(x=>x.k==='c').sort((a,b)=>b.r-a.r),
+      stat:{k:'コインチケット',v:n,u:'枚'},
+      acts:[{l:'1回',c:1,u:'tk',need:1-n,on:ok&&n>=1,go:()=>coinPull(1)},{l:'10連',c:10,u:'tk',need:10-n,main:1,on:ok&&n>=10,go:()=>coinPull(10)}],tks:[],sheet:shCoin}}
+  function mTcg(pk){const P=TCGD.packs[pk],m=me(),b=m?balance(m.id):0,ok=ready()&&!opening,st=tcgHasSt();
+    const tks=[];if(m&&st){[['tp1_'+pk,'チケットで1パック'],['tpb_'+pk,'チケットでボックス'],['tsc_'+pk,'好きなシークレットを選ぶ']].forEach(([k,l])=>{const n=tcgTk(m.id,k);if(n>0)tks.push({l,n,on:ok,go:()=>{TCG_TK[k].k==='sel'?tcgPickScr(pk,k):tcgAskTk(pk,k)()}})})}
+    const gr=(()=>{try{return tcgPool(pk).filter(c=>c.r==='GR').map(c=>c.id)}catch(e){return []}})();
+    return{id:pk,chip:P.n,ac:[P.c1,P.c2],thumb:()=>{const t=mk('span','kgu-tn t');t.style.setProperty('--p1',P.c1);t.style.setProperty('--p2',P.c2);let s='';try{s=__kgHeroSrc(pk)}catch(e){}t.append(tnImg(s,'50% 18%'));return t},
+      title:P.n,sub:P.f.map(f=>TCGD.fname[f]).join('・')+' + 共通カード',tags:[[TCGD.size+'枚入り'],['ボックスはシークレット1枚確定','scr']],art:()=>artTcg(pk),
+      cards:gr.slice(0,5),
+      bal:b,acts:st?[{l:'1パック',c:TPACK,need:TPACK-b,on:ok&&b>=TPACK,go:()=>tcgAskPack(pk)()},{l:'1ボックス',c:TCG_BOX_PRICE,need:TCG_BOX_PRICE-b,note:TCG_BOX_PACKS+'パック',main:1,on:ok&&b>=TCG_BOX_PRICE,go:()=>tcgConfirmBox(pk)}]
+        :[{l:'スターターデッキを選ぶ',note:'先にTCGで1つ選ぶ',main:1,on:true,go:()=>{try{window.kbSeg?kbSeg('tcg'):setView('tcg')}catch(e){setView('tcg')}}}],tks,sheet:()=>shTcg(pk)}}
+  function list(pg){if(pg==='tcg'){try{return Object.keys(TCGD.packs).map(mTcg)}catch(e){return []}}
+    const L=[];try{if(limActive())L.push(mLim())}catch(e){}try{if(coinOn(now()))L.push(mCoin())}catch(e){}try{L.push(mNormal())}catch(e){}return L}
+
+  /* ---------- drawing ---------- */
+  const st={skin:{sig:'',art:'',ids:'',id:''},tcg:{sig:'',art:'',ids:'',id:''}};
+  function paint(pg,force){const host=pages[pg];if(!host)return;let L;try{L=list(pg)}catch(e){console.warn('kgu',e);return}if(!L.length){host.replaceChildren();return}
+    const ids=L.map(b=>b.id).join(','),want=sel[pg]&&sel[pg].ids===ids?sel[pg].id:null,cur=L.find(b=>b.id===want)||L[0];
+    const S=st[pg],key=ids+(window.CARD_IMG?'+':'');
+    /* the chips (only when there is more than one banner) */
+    if(S.ids!==key||force){S.ids=key;S.art='';host.replaceChildren();host.append(mk('i','kgu-au'));
+      if(L.length>1){const rail=mk('div','kgu-rail');rail.setAttribute('role','tablist');rail.style.setProperty('--n',L.length);
+        L.forEach(b=>{const c=bt('kgu-chip');c.dataset.b=b.id;c.setAttribute('role','tab');const th=b.thumb();th.setAttribute('aria-hidden','true');c.append(th,mk('span','kgu-cl',esc(b.chip)));c.onclick=()=>pick(pg,b.id);rail.append(c)});host.append(rail)}
+      const card=mk('div','kgu-card');card.append(mk('div','kgu-artw'),mk('div','kgu-body'));host.append(card);
+      if(pg==='tcg'){const lk=mk('div','kgu-links'),a=bt('kgu-lk','TCGデッキ・図鑑'),b=bt('kgu-lk','TCGで遊ぶ');a.onclick=()=>{try{tcgDeckView()}catch(e){}};b.onclick=()=>{try{window.kbSeg?kbSeg('tcg'):setView('tcg')}catch(e){setView('tcg')}};lk.append(a,b);host.append(lk)}}
+    host.querySelectorAll('.kgu-chip').forEach(c=>{const on=c.dataset.b===cur.id;c.classList.toggle('on',on);c.setAttribute('aria-selected',on?'true':'false')});
+    host.style.setProperty('--a1',cur.ac[0]);host.style.setProperty('--a2',cur.ac[1]);
+    const card=host.querySelector('.kgu-card'),aw=card.querySelector('.kgu-artw'),body=card.querySelector('.kgu-body');
+    /* the art: built once per banner and kept (so pictures and the coin canvases don't reload), swapped when the banner changes */
+    const artKey=pg+':'+(cur.ak||cur.id)+(pg==='tcg'&&window.CARD_IMG?'+':'');
+    if(S.art!==artKey||!aw.querySelector('.kgu-art:not(.out)')){const fresh=!!S.id&&S.id!==cur.id;S.art=artKey;S.id=cur.id;card.dataset.b=cur.id;S.sig='';
+      const prev=[...aw.children].filter(x=>x.classList.contains('kgu-art')&&!x.classList.contains('out')).pop()||null;
+      aw.querySelectorAll('.kgu-art.out').forEach(x=>{if(G)G.killTweensOf(x);x.remove()});
+      const a=artFor(pg,cur,artKey);
+      /* a new banner slides in over the old one (no dark gap between them); the old one drifts the other way and goes */
+      if(fresh&&!RM&&G&&prev&&prev!==a){const d=S.dir||1;prev.classList.add('out');G.to(prev,{x:-d*16,duration:.5,ease:'power2.out'});
+        aw.append(a);G.fromTo(a,{opacity:0,x:d*30},{opacity:1,x:0,duration:.46,ease:'expo.out',clearProps:'transform,opacity',onComplete:()=>aw.querySelectorAll('.kgu-art.out').forEach(x=>x.remove())});
+        G.fromTo(body,{opacity:0,y:8},{opacity:1,y:0,duration:.34,ease:'power3.out',clearProps:'transform,opacity'})}
+      else aw.replaceChildren(a)}
+    else{const ov=aw.querySelector('.kgu-art:not(.out) .kgu-ov');if(ov)ov.replaceWith(overlay(cur))}
+    /* the body: rebuilt when anything in it changed */
+    const sig=JSON.stringify([cur.id,cur.tags,cur.prog,cur.bal,cur.stat,(cur.acts||[]).map(a=>[a.l,a.c,!!a.on]),(cur.tks||[]).map(t=>[t.l,t.n,!!t.on]),typeof opening!=='undefined'&&opening,inv.shards||0,ready()]);
+    if(S.sig!==sig){S.sig=sig;body.replaceChildren(...bodyOf(cur))}
+    /* build the other banners' art while the phone is idle, so the first switch to them is smooth too */
+    if(S.warm!==key){S.warm=key;const idle=window.requestIdleCallback||(f=>setTimeout(f,500));idle(()=>{try{list(pg).forEach(b=>{const k=pg+':'+(b.ak||b.id)+(pg==='tcg'&&window.CARD_IMG?'+':'');if(!ARTC[k]){ARTC[k]=b.art();swipe(pg,ARTC[k])}})}catch(e){}})}}
+  const ARTC={};
+  function artFor(pg,cur,key){let a=ARTC[key];if(!a){a=ARTC[key]=cur.art();swipe(pg,a)}
+    a.classList.remove('out');if(G)G.killTweensOf(a);a.style.transform='';a.style.opacity='';a.remove();
+    const ov=a.querySelector('.kgu-ov');if(ov)ov.remove();a.append(overlay(cur));return a}
+  function overlay(b){const ov=mk('div','kgu-ov'),tg=mk('div','kgu-tags');(b.tags||[]).forEach(([t,c])=>tg.append(mk('span','kgu-tag'+(c?' '+c:''),esc(t))));
+    ov.append(tg,mk('h3',null,esc(b.title)),mk('p',null,b.subH||esc(b.sub)));return ov}
+  function bodyOf(b){const out=[];
+    /* how far to the guarantee (two side by side when there are two) */
+    const pr=b.prog||[];if(pr.length){const w=mk('div','kgu-progs'+(pr.length>1?' two':''));pr.forEach(p=>{const r=mk('div','kgu-prog '+p.c),f=Math.max(0,Math.min(1,p.v/p.max));
+      r.innerHTML='<div class="kgu-pl"><span>'+esc(p.k)+'</span><b>'+esc(p.tx)+'</b></div><div class="kgu-bar"><i style="transform:scaleX('+f.toFixed(3)+')"></i></div>';w.append(r)});out.push(w)}
+    if(b.stat){const r=mk('div','kgu-stat','<span>'+esc(b.stat.k)+'</span><b>'+fmt(b.stat.v)+'<small>'+esc(b.stat.u)+'</small></b>');out.push(r)}
+    /* the pulls: the cost is on the button */
+    const acts=mk('div','kgu-acts'+((b.acts||[]).length===1?' one':'')),rd=ready();(b.acts||[]).forEach(a=>{const x=bt('kgu-pull'+(a.main?' main':''));x.disabled=!a.on;
+      const cost=a.c==null?'':a.u==='tk'?'<span class="kgu-c">'+TKI+'チケット'+a.c+'枚</span>':'<span class="kgu-c">'+PT+fmt(a.c)+'</span>';
+      /* when it can't be pulled for lack of points or tickets, the button says how many more */
+      const short=rd&&a.need>0,note=short?(a.u==='tk'?'あと'+a.need+'枚':'あと '+fmt(a.need)+'P'):a.note;
+      x.innerHTML='<b>'+esc(a.l)+'</b>'+cost+(note?'<small'+(short?' class="kgu-need"':'')+'>'+esc(note)+'</small>':'');x.onclick=()=>{if(x.disabled)return;try{a.go()}catch(e){console.warn('kgu',e)}};acts.append(x)});out.push(acts);
+    if(b.bal!=null){const m=me();let paid=0;try{paid=m?Math.min(paidLeft(m.id),b.bal):0}catch(e){}
+      const ow=mk('div','kgu-own','<span>所持 '+PT+'<b>'+(rd?fmt(b.bal):'…')+'</b></span>'+(paid>0?'<span>うち購入 '+fmt(paid)+'</span>':'')+'<span>かけら <b>'+fmt(inv.shards||0)+'</b></span>');out.push(ow)}
+    if((b.tks||[]).length){const r=mk('div','kgu-tks');b.tks.forEach(t=>{const x=bt('kgu-tk');x.disabled=!t.on;x.innerHTML='<span>'+TKI+esc(t.l)+'</span><b>×'+t.n+'</b>';x.onclick=()=>{if(!x.disabled)try{t.go()}catch(e){console.warn('kgu',e)}};r.append(x)});out.push(r)}
+    /* what is in it: the highlights, tap one to preview it; すべて opens the sheet */
+    if(b.line&&b.line.items.length){const r=mk('div','kgu-line'),th=mk('div','kgu-th');b.line.items.forEach(it=>{const c=bt('kgu-it r'+it.r);c.setAttribute('aria-label',it.n+'をプレビュー');c.append(face(it));c.onclick=()=>{try{previewAny(it)}catch(e){}};th.append(c)});
+      const all=bt('kgu-all','<span>中身</span><b>すべて</b>');all.onclick=()=>b.sheet();r.append(th,all);out.push(r)}
+    if(b.coins){const r=mk('div','kgu-line coins'),th=mk('div','kgu-th');b.coins.slice(0,5).forEach(it=>{const c=bt('kgu-it c r'+it.r);c.setAttribute('aria-label',it.n+'をプレビュー');c.append(coin(it.v,40,false));c.onclick=()=>{try{previewAny(it)}catch(e){}};th.append(c)});
+      const all=bt('kgu-all','<span>中身</span><b>すべて</b>');all.onclick=()=>b.sheet();r.append(th,all);out.push(r)}
+    if(b.cards&&b.cards.length){const r=mk('div','kgu-line cards'),th=mk('div','kgu-th');b.cards.forEach(id=>{const c=bt('kgu-it t');try{c.append(tcgFace(id))}catch(e){}c.onclick=()=>zoomTcg(id);th.append(c)});
+      const all=bt('kgu-all','<span>ガチレア</span><b>すべて</b>');all.onclick=()=>b.sheet();r.append(th,all);out.push(r)}
+    const more=bt('kgu-more','排出率・中身を見る');more.onclick=()=>b.sheet();out.push(more);
+    return out}
+  const curId=pg=>{const c=pages[pg]&&pages[pg].querySelector('.kgu-card');return c?c.dataset.b:null};
+  function pick(pg,id,dir){const was=curId(pg);if(was===id)return;const L=list(pg),ids=L.map(b=>b.id).join(','),a=L.findIndex(b=>b.id===was),z=L.findIndex(b=>b.id===id);if(z<0)return;
+    st[pg].dir=dir||(z>a?1:-1);sel[pg]={id,ids};
+    try{localStorage.setItem(pg==='tcg'?'kgu_t':'kgu_s',JSON.stringify(sel[pg]))}catch(e){}try{window.KMotion&&KMotion.SFX.play('tick')}catch(e){}paint(pg);
+    /* keep the picked chip in view inside the rail (sideways only, the page itself never jumps) */
+    const c=pages[pg].querySelector('.kgu-chip.on'),r=c&&c.parentElement;if(r&&r.scrollWidth>r.clientWidth+2)try{r.scrollTo({left:Math.max(0,c.offsetLeft-(r.clientWidth-c.offsetWidth)/2),behavior:RM?'auto':'smooth'})}catch(e){}}
+  /* swipe the art sideways to the next banner (the page swipe between スキン and TCG does not start here) */
+  function swipe(pg,a){let sx=null,sy=null,lock=0;
+    a.addEventListener('touchstart',e=>{sx=null;if(pages[pg].querySelectorAll('.kgu-chip').length<2)return;e.stopPropagation();const t=e.touches[0];sx=t.clientX;sy=t.clientY;lock=0},{passive:true});
+    a.addEventListener('touchmove',e=>{if(sx==null)return;e.stopPropagation();const t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(!lock)lock=Math.abs(dx)>Math.abs(dy)+4?1:Math.abs(dy)>8?2:0},{passive:true});
+    a.addEventListener('touchend',e=>{if(sx==null)return;e.stopPropagation();const t=e.changedTouches[0],dx=t.clientX-sx;sx=null;if(lock!==1||Math.abs(dx)<44)return;
+      const ids=list(pg).map(b=>b.id);if(ids.length<2)return;const k=Math.max(0,ids.indexOf(curId(pg))),n=(k+(dx<0?1:-1)+ids.length)%ids.length;pick(pg,ids[n],dx<0?1:-1)},{passive:true})}
+
+  /* ---------- 排出率・中身 (a sheet) ---------- */
+  function sheet(title,build){document.querySelectorAll('body>.kgu-sh').forEach(x=>x.remove());
+    const o=mk('div','kgu-sh'),p=mk('div','kgu-shp'),h=mk('div','kgu-shh'),x=bt('kgu-x','閉じる'),b=mk('div','kgu-shb');h.append(mk('b',null,esc(title)),x);p.append(mk('i','kgu-grab'),h,b);o.append(p);
+    try{build(b)}catch(e){console.warn('kgu',e)}document.body.append(o);
+    const close=()=>{if(RM||!G){o.remove();return}G.to(p,{y:'100%',duration:.3,ease:'power3.in'});G.to(o,{opacity:0,duration:.3,onComplete:()=>o.remove()})};
+    x.onclick=close;o.addEventListener('click',e=>{if(e.target===o)close()});
+    if(!RM&&G){G.fromTo(o,{opacity:0},{opacity:1,duration:.25});G.fromTo(p,{y:'100%'},{y:0,duration:.5,ease:'expo.out'})}return o}
+  const table=(head,rows)=>{const t=mk('table','kgu-rt');t.innerHTML='<tr>'+head.map(h=>'<th>'+h+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map((c,i)=>i?'<td>'+c+'</td>':'<td><b style="color:'+c[1]+'">'+c[0]+'</b></td>').join('')+'</tr>').join('');return t};
+  /* the rule notes are read from the app's own rates section, so they stay in step with it */
+  const noteEls=sel2=>[...document.querySelectorAll(sel2)].filter(p=>!p.closest('.limgrid,.chbox,#gcheer')&&!p.classList.contains('limph')&&(p.textContent||'').trim()).map(p=>mk('p','kgu-note',esc(p.textContent.trim())));
+  const notes=(host,sel2)=>noteEls(sel2).forEach(n=>host.append(n));
+  const grid=(items,lab)=>{const g=mk('div','kgu-gr');items.forEach(it=>{const c=bt('kgu-gi r'+it.r);c.append(face(it),mk('span',null,esc(lab?lab(it):it.n)));c.onclick=()=>{try{previewAny(it)}catch(e){}};g.append(c)});return g};
+  const sec=(host,h,sub)=>host.append(mk('h4','kgu-h',esc(h)+(sub?'<small>'+esc(sub)+'</small>':'')));
+  function shNormal(){sheet('通常パック',b=>{sec(b,'排出率');b.append(table(['','1〜4枚目','5枚目<small>R以上確定</small>'],RAR.map((x,i)=>[[x.k,RC[i]],(+x.p).toFixed(2).replace(/\.?0+$/,'')+'%',RATE_G[i]?RATE_G[i]+'%':'—'])));
+    const N=noteEls('#gacha details.grate>p');if(N[0])b.append(N[0]);sec(b,'UR以上のアイテム',' タップでプレビュー');b.append(grid(urPool().sort((a,c)=>c.r-a.r),it=>it.n));
+    try{b.append(cheerBox(KMRS.map((K,i)=>K.lim?-1:i).filter(i=>i>=0),'通常KMRの応援は、「がんばれ!」などの文字が大きく出ます。'))}catch(e){}
+    if(N.length>1){sec(b,'ポイントのもらい方・そのほか');N.slice(1).forEach(n=>b.append(n))}})}
+  function shLim(){const L=LIMS[banner.set];sheet(L.name,b=>{sec(b,'排出率');b.append(table(['','1〜4枚目','5枚目<small>R以上確定</small>'],RAR.map((x,i)=>[[x.k,RC[i]],LRATE[i]+'%',LRATE_G[i]?LRATE_G[i]+'%':'—'])));
+    notes(b,'#lim details.grate>p');sec(b,'限定アイテム',' タップでプレビュー');b.append(grid(ITEMS.filter(x=>x.lim===banner.set).sort((a,c)=>c.r-a.r),it=>it.n));
+    try{b.append(cheerBox(KMRS.map((K,i)=>K.lim===banner.set?i:-1).filter(i=>i>=0),'限定KMRの応援は、応援の文字が配信コメントのように流れます。'))}catch(e){}})}
+  function shCoin(){sheet('コインガチャ',b=>{sec(b,'排出率');b.append(table(['','出る確率','1種類あたり'],RAR.map((x,i)=>{const n=ITEMS.filter(y=>y.k==='c'&&y.r===i).length;return[[x.k,RC[i]],CRATE[i]+'%',n?(+(CRATE[i]/n).toFixed(3))+'%':'—']})));
+    sec(b,'コイン(タップでコイントスを見る)');const g=mk('div','kgu-gr coins');ITEMS.filter(x=>x.k==='c').sort((a,c)=>c.r-a.r).forEach(it=>{const own=((inv.own||{})[it.id]||0)>0,c=bt('kgu-gi c r'+it.r);c.append(coin(it.v,54,false),mk('span',null,esc(it.n)),mk('small',null,own?'所持':'未所持'));c.onclick=()=>{try{previewAny(it)}catch(e){}};g.append(c)});b.append(g);
+    notes(b,'#coinsec details>p')})}
+  function zoomTcg(id){try{const it=tcgItem(id);if(window.__kgZoomCard){const host=mk('div','kgu-zh');document.body.append(host);__kgZoomCard(host,{c:it,isNew:false,sh:0,foil:false});
+      const z=host.querySelector('.kp-zoom');if(z){const old=z.onclick;z.onclick=()=>{old&&old();host.style.transition='opacity .26s';host.style.opacity='0';setTimeout(()=>host.remove(),280)}}}}catch(e){console.warn('kgu',e)}}
+  function shTcg(pk){const P=TCGD.packs[pk];sheet(P.n,b=>{sec(b,'排出率');b.append(table(['','1・2枚目','3枚目'],[[['ガチレア','#f5c84c'],TCGD.rates.GR+'%',TCGD.rates.GR+'%'],[['レア','#b678ff'],TCGD.rates.R+'%',(100-TCGD.rates.GR)+'%'],[['コモン','#a3a9b4'],TCGD.rates.C+'%','—']]));
+    b.append(mk('p','kgu-note','どのカードも1%でシークレット(キラ)になります。ボックスは15パック・45枚で、シークレットが1枚以上入っています(20箱に1つは2枚)。同じカードは2枚まで持てて(リーダーは3枚)、それ以上はかけら(コモン1・レア3・ガチレア40)になります。'));
+    const pool=(()=>{try{return tcgPool(pk).slice()}catch(e){return []}})(),ord={GR:0,R:1,C:2};pool.sort((a,c)=>ord[a.r]-ord[c.r]);
+    [['GR','ガチレア'],['R','レア'],['C','コモン']].forEach(([r,lab])=>{const L=pool.filter(c=>c.r===r);if(!L.length)return;sec(b,lab+' '+L.length+'種類');const g=mk('div','kgu-gr tcg');
+      L.forEach(c=>{const x=bt('kgu-gi t');try{x.append(tcgFace(c.id))}catch(e){}x.append(mk('span',null,esc(c.n)));x.onclick=()=>zoomTcg(c.id);g.append(x)});b.append(g)})})}
+
+  /* ---------- keep it in step with the app ---------- */
+  const vis=pg=>{try{return curView==='gacha'&&gPage===pg}catch(e){return false}};
+  function paintAll(){['skin','tcg'].forEach(pg=>{if(vis(pg)||!st[pg].ids)try{paint(pg)}catch(e){console.warn('kgu',e)}})}
+  /* the app calls these by their global names, so the wrappers replace them */
+  try{const RG=renderGacha;renderGacha=function(){const r=RG.apply(this,arguments);try{paintAll()}catch(e){}return r}}catch(e){}
+  try{const RT=renderTcgPacks;renderTcgPacks=function(){const r=RT.apply(this,arguments);try{if(vis('tcg')||!st.tcg.ids)paint('tcg')}catch(e){}return r}}catch(e){}
+  try{const RC2=renderCoinSec;renderCoinSec=function(){const r=RC2.apply(this,arguments);try{if(vis('skin'))paint('skin')}catch(e){}return r}}catch(e){}
+  try{const GP=gpageSet;gpageSet=function(pg){const r=GP.apply(this,arguments);try{paint(gPage==='tcg'?'tcg':'skin')}catch(e){}return r}}catch(e){}
+  /* the countdowns tick while the screen is open */
+  setInterval(()=>{if(document.hidden)return;['skin','tcg'].forEach(pg=>{if(vis(pg))try{paint(pg)}catch(e){}})},30000);
+  window.__kguPick=(pg,id)=>pick(pg,id);window.__kguPaint=()=>{st.skin.ids=st.tcg.ids='';paintAll()};
+  try{paint('skin');if(typeof TCGD!=='undefined')paint('tcg')}catch(e){console.warn('kgu',e)}
+})();
+/*KGUJS-END*/</script>
 <script>
 /* data carried over from the Claude version (imported once by the first person who presses the button) */
 window.MIGRATE={"admin": "3kcrm26nwc6hhos2mgxd", "players": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"eq": {"b": null, "f": null, "t": null, "v": null, "x": "x40"}, "name": "山田", "season": 1}}], "inv": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"own": {"f00": 3, "f01": 1, "f02": 2, "t00": 1, "t10": 1, "t14": 2, "x00": 1, "x10": 1, "x11": 1, "x21": 1, "x40": 1}, "packs": 3, "shards": 6, "since": 0}}]};
