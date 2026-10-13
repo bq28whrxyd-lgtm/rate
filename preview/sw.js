@@ -1,9 +1,10 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-const VERSION = 'v121-preview-2026-10-13zq';
+const VERSION = 'v122-preview-2026-10-14a';
 const CACHE = 'ladder-preview-' + VERSION;
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'tcg_spectator.js', 'motion_lifecycle.js',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg',
-  'fx_chest.webp', 'fx_chest.png', 'fx_kmrcoin_a.jpg', 'fx_kmrcoin_b.jpg', 'fx_coin.webp', 'fx_coin_hi.webp'];
+  'fx_chest.webp', 'fx_chest.png', 'fx_kmrcoin_a.jpg', 'fx_kmrcoin_b.jpg', 'fx_coin.webp', 'fx_coin_hi.webp',
+  'fx_chest_closed.jpg', 'fx_chest_open.jpg', 'fx_chest_gold_closed.jpg', 'fx_chest_gold_open.jpg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).catch(() => {}));

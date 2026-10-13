@@ -981,6 +981,10 @@ body.gkview .scr{display:none!important}
 .gkendb .btn.sec{background:#fff!important;color:#7a4a90!important;box-shadow:0 3px 0 #e9d6ff!important;border:0!important}
 .gkendb .btn:not(.sec){background:linear-gradient(90deg,#ff8fc0,#c4a8ff)!important;color:#fff!important;box-shadow:0 3px 0 #d98ac8!important;border:0!important}
 
+/* スーパーレア (HR): a platinum frame between レア and ガチレア's gold */
+.u.r-HR{box-shadow:var(--under,0 0 0 0 transparent),0 0 0 1px #000,0 0 0 2px #a9e6ff,0 0 14px #7cc8ff55,0 10px 18px #000b}
+.u.r-HR .face>.art::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#ffffff38 48%,#a6f0ff2a 54%,transparent 66%);background-size:100% 100%;animation:holoT 3.6s linear infinite;will-change:transform;pointer-events:none}
+
 /* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
    hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
 :root{--vs-a1:#8b7bff;--vs-a2:#67e8f9;--vs-pink:#ff5fb0;--vs-fg:#f4f1ea;--vs-mut:rgba(244,241,234,.55);--vs-num:"Geist","Inter Tight",-apple-system,system-ui,sans-serif}
@@ -1395,22 +1399,22 @@ add('gen',[
 ]);
 /* ===== 拡張パック第1弾「修羅場パック」 (set:1) ===== */
 /* EXP1=false builds a release without the expansion (its cards simply do not exist) */
-const EXP1=false;
+const EXP1=true;
 const X1=(f,L)=>{if(EXP1)add(f,L.map(c=>Object.assign({set:1},c)))};
 X1('weak',[
- {id:'w9',n:'元カノを引きずる男',r:'SR',type:'chara',c:2,atk:1100,def:1000,kw:{revenge:1},aw:{k:'atk',n:600}},
+ {id:'w9',n:'元カノを引きずる男',r:'HR',type:'chara',c:2,atk:1100,def:1000,kw:{revenge:1},aw:{k:'atk',n:600}},
  {id:'w10',n:'土下座',r:'R',type:'spell',c:0,quick:1,ops:[{op:'debuffAll',atk:700,temp:1},{op:'draw',n:1}]},
  {id:'w11',n:'下剋上の王',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,atk:3200,def:2400,kw:{rush:1,adv:500},onPlay:[{op:'ifBehind',ops:[{op:'destroyBest'}]}],aw:{k:'twice'}},
 ]);
 X1('girl',[
- {id:'q9',n:'増殖するブス',r:'R',type:'spell',c:0,quick:1,ops:[{op:'draw',n:1},{op:'fx',k:'dos'}]},
- {id:'q10',n:'ブスの言い訳',r:'R',type:'trap',c:2,lim:1,when:'play',ops:[{op:'negate'},{op:'seal',n:1}]},
+ {id:'q9',n:'増殖するブス',r:'HR',type:'spell',c:0,quick:1,ops:[{op:'draw',n:1},{op:'fx',k:'dos'}]},
+ {id:'q10',n:'ブスの言い訳',r:'HR',type:'trap',c:2,lim:1,when:'play',ops:[{op:'negate'},{op:'seal',n:1}]},
  {id:'q11',n:'ブスの女帝',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3300,def:2500,onPlay:[{op:'starDownAll',n:1}],aw:{k:'ops',ops:[{op:'starDownAll',n:2}]}},
 ]);
 X1('gay',[
- {id:'y9',n:'二丁目の常連',r:'R',type:'chara',c:2,atk:1000,def:1200,kw:{bond:300},onPlay:[{op:'drawIfTribe',f:'gay',min:3,n:1}],aw:{k:'buffAll',atk:300,def:300,others:1}},
- {id:'y10',n:'ゲイの誘惑',r:'SR',type:'spell',c:4,lim:1,tgt:'enemyStar',max:2,ops:[{op:'steal'}]},
- {id:'y11',n:'漢の楽園の主',r:'N',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3100,def:2900,onPlay:[{op:'revive',f:'gay',maxC:9,n:2}],aw:{k:'evoAll'}},
+ {id:'y9',n:'二丁目の常連',r:'HR',type:'chara',c:2,atk:1000,def:1200,kw:{bond:300},onPlay:[{op:'drawIfTribe',f:'gay',min:3,n:1}],aw:{k:'buffAll',atk:300,def:300,others:1}},
+ {id:'y10',n:'ゲイの誘惑',r:'HR',type:'spell',c:4,lim:1,tgt:'enemyStar',max:2,ops:[{op:'steal'}]},
+ {id:'y11',n:'漢の楽園の主',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3100,def:2900,onPlay:[{op:'revive',f:'gay',maxC:9,n:2}],aw:{k:'evoAll'}},
 ]);
 X1('gachi',[
  {id:'g9',n:'転売ヤー',r:'N',type:'chara',c:2,atk:1300,def:900,onDeath:[{op:'discard',n:1}],aw:{k:'draw',n:1}},
@@ -1419,7 +1423,7 @@ X1('gachi',[
 ]);
 X1('idol',[
  {id:'i9',n:'推し変されたアイドル',r:'N',type:'chara',c:2,atk:1100,def:1200,onDeath:[{op:'revive',maxC:2}],aw:{k:'heal',n:800}},
- {id:'i10',n:'握手会の剥がし',r:'R',type:'trap',c:2,when:'attack',ops:[{op:'bounce'}]},
+ {id:'i10',n:'握手会の剥がし',r:'HR',type:'trap',c:2,when:'attack',ops:[{op:'bounce'}]},
  {id:'i11',n:'頂点アイドルユニット',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3000,def:2800,onPlay:[{op:'heal',n:1200},{op:'buffAll',atk:0,def:400,others:1}],aw:{k:'heal',n:2000}},
 ]);
 X1('vt',[
@@ -1435,17 +1439,17 @@ X1('cre',[
 X1('chu',[
  {id:'d9',n:'包帯の少年',r:'R',type:'chara',c:2,atk:1400,def:800,kw:{revenge:1},aw:{k:'atk',n:600}},
  {id:'d10',n:'封印術式',r:'N',type:'spell',c:1,ops:[{op:'seal',n:2},{op:'draw',n:1}]},
- {id:'d11',n:'終焉の魔王',r:'R',type:'chara',c:4,trib:2,same:1,lim:1,kw:{rush:1},atk:3500,def:2300,onPlay:[{op:'weakenAll',n:400}],onDeath:[{op:'burn',n:800}],aw:{k:'wipeLow',max:1500}},
+ {id:'d11',n:'終焉の魔王',r:'SR',type:'chara',c:4,trib:2,same:1,lim:1,kw:{rush:1},atk:3500,def:2300,onPlay:[{op:'weakenAll',n:400}],onDeath:[{op:'burn',n:800}],aw:{k:'wipeLow',max:1500}},
 ]);
 X1('neta',[
  {id:'n9',n:'すべり芸人',r:'R',type:'chara',c:2,atk:500,def:1700,kw:{cover:1},onDeath:[{op:'debuffAll',atk:300}],aw:{k:'def',n:500}},
  {id:'n10',n:'すかし',r:'N',type:'trap',c:1,when:'attack',ops:[{op:'swapAttacker'}]},
- {id:'n11',n:'お笑い怪獣',r:'R',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:2500,def:3200,onPlay:[{op:'swapAll'}],aw:{k:'ops',ops:[{op:'swapAll'}]}},
+ {id:'n11',n:'お笑い怪獣',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:2500,def:3200,onPlay:[{op:'swapAll'}],aw:{k:'ops',ops:[{op:'swapAll'}]}},
 ]);
 X1('sei',[
  {id:'s9',n:'インスタ映え女子',r:'R',type:'chara',c:2,atk:1100,def:1100,kw:{star2:1},aw:{k:'atk',n:500}},
- {id:'s10',n:'全顔整形',r:'R',type:'spell',c:3,ops:[{op:'starAll',n:1}]},
- {id:'s11',n:'整形界の女王',r:'R',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3100,def:2600,onPlay:[{op:'buffAll',atk:600,def:0,others:1}],aw:{k:'atk',n:800}},
+ {id:'s10',n:'全顔整形',r:'HR',type:'spell',c:3,ops:[{op:'starAll',n:1}]},
+ {id:'s11',n:'整形界の女王',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3100,def:2600,onPlay:[{op:'buffAll',atk:600,def:0,others:1}],aw:{k:'atk',n:800}},
 ]);
 X1('hage',[
  {id:'o9',n:'つるピカ部長',r:'N',type:'chara',c:2,atk:1300,def:1500,onPlay:[{op:'breakTrapRand'}],aw:{k:'def',n:500}},
@@ -1453,23 +1457,23 @@ X1('hage',[
  {id:'o11',n:'頭皮の帝王',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:2900,def:3300,onPlay:[{op:'breakTraps'},{op:'buffAll',atk:0,def:500,others:1}],aw:{k:'def',n:800}},
 ]);
 X1('gen',[
- {id:'x5',n:'フェアリーライフ',r:'R',type:'spell',c:1,ops:[{op:'ramp',n:1,now:1}]},
+ {id:'x5',n:'フェアリーライフ',r:'HR',type:'spell',c:1,ops:[{op:'ramp',n:1,now:1}]},
  {id:'x6',n:'ギャンブルコイン',r:'R',type:'spell',c:0,ops:[{op:'coin',h:[{op:'burn',n:1000}],t:[{op:'selfDmg',n:1000}]},{op:'draw',n:1}]},
- {id:'x7',n:'同族の絆',r:'SR',type:'spell',c:2,cond:'pure2',ops:[{op:'buffAll',atk:500,def:500},{op:'draw',n:1}]},
- {id:'x8',n:'三位一体',r:'R',type:'spell',c:3,cond:'pure3',tgt:'enemy',ops:[{op:'destroy'}]},
+ {id:'x7',n:'同族の絆',r:'HR',type:'spell',c:2,cond:'pure2',ops:[{op:'buffAll',atk:500,def:500},{op:'draw',n:1}]},
+ {id:'x8',n:'三位一体',r:'HR',type:'spell',c:3,cond:'pure3',tgt:'enemy',ops:[{op:'destroy'}]},
  {id:'x9',n:'量産型オタク',r:'R',type:'chara',c:2,atk:1200,def:1200,kw:{mimic:1,syn:300},aw:{k:'draw',n:1}},
  {id:'x10',n:'黒歴史暴露',r:'N',type:'spell',c:1,tgt:'enemy',ops:[{op:'starDown',n:1}]},
  {id:'x11',n:'ネタバレ',r:'N',type:'spell',c:1,ops:[{op:'discard',n:1},{op:'draw',n:1}]},
  {id:'x12',n:'道連れのストーカー',r:'R',type:'chara',c:2,atk:1300,def:1000,kw:{revenge:1},aw:{k:'atk',n:600}},
  {id:'x13',n:'倍返し',r:'N',type:'trap',c:2,when:'direct',ops:[{op:'reflect',p:100}]},
  {id:'x14',n:'ドタキャン',r:'N',type:'spell',c:0,quick:1,ops:[{op:'fx',k:'noSpell'},{op:'draw',n:1}]},
- {id:'x15',n:'論破',r:'R',type:'spell',c:1,tgt:'enemy',ops:[{op:'atkZero'},{op:'draw',n:1}]},
+ {id:'x15',n:'論破',r:'HR',type:'spell',c:1,tgt:'enemy',ops:[{op:'atkZero'},{op:'draw',n:1}]},
  {id:'x16',n:'同窓会',r:'N',type:'spell',c:3,cond:'mixed3',ops:[{op:'draw',n:3}]},
- {id:'x17',n:'一族の長老',r:'R',type:'chara',c:3,atk:1400,def:1600,kw:{mimic:1,pure:500},aw:{k:'buffAll',atk:300,def:300,others:1}},
+ {id:'x17',n:'一族の長老',r:'HR',type:'chara',c:3,atk:1400,def:1600,kw:{mimic:1,pure:500},aw:{k:'buffAll',atk:300,def:300,others:1}},
  {id:'x18',n:'元カレ',r:'N',type:'chara',c:1,atk:1000,def:700,onDeath:[{op:'starDownBest',n:1}],aw:{k:'ops',ops:[{op:'starDownBest',n:1}]}},
  {id:'x19',n:'浮気現場',r:'N',type:'trap',c:3,when:'attack',ops:[{op:'destroyAttacker'}]},
  {id:'x20',n:'示談金',r:'N',type:'spell',c:1,life:1000,ops:[{op:'selfDmg',n:1000},{op:'draw',n:2},{op:'energy',n:1}]},
- {id:'x21',n:'泥沼',r:'R',type:'spell',c:4,ops:[{op:'wipeAll'}]},
+ {id:'x21',n:'泥沼',r:'HR',type:'spell',c:4,ops:[{op:'wipeAll'}]},
 ]);
 const SKILLS={
  weak:{n:'逆転の咆哮',t:'このターン、自分のキャラ全員のATK+1000。自分のライフが相手より少なければ、全員出たばかりでも攻撃できる'},
@@ -1529,7 +1533,7 @@ function text(c){const t=[],k=c.kw||{};
   if(k.syn)t.push('【同族】リーダーと同じ族なら、ATK・DEF+'+k.syn);if(k.bond)t.push('【絆】ほかの味方キャラが出るたびにATK+'+k.bond);if(k.cover)t.push('【かばう】相手はまずこのキャラを攻撃しなければならない');
   const O=L=>(L||[]).map(op).filter(Boolean).join('。');
   if(c.onPlay)t.push('出たとき:'+O(c.onPlay));if(c.onDeath)t.push('倒れたとき:'+O(c.onDeath));
-  if(c.type==='spell')t.push((c.quick?'【割り込み】相手のターンの始めに、残った熱量で手札から使える(自分のターンには使えない。トラップで止められない)。':'')+(c.cond==='behind'?'自分のライフが相手より少ないときだけ使える。':'')+({pure2:'味方のキャラが2体以上いて全員同じ族のときだけ使える。',pure3:'味方のキャラが3体以上いて、全員同じ族のときだけ使える。',mixed3:'味方のキャラが3体以上いて、全員ちがう族のときだけ使える。'}[c.cond]||'')+(c.life?'ライフが'+c.life+'より多いときだけ使える。':'')+(c.tgt==='enemy'?'相手のキャラ1体を選んで':c.tgt==='enemyLow'?'相手のATK'+c.max+'以下のキャラ1体を選んで':c.tgt==='enemyStar'?'相手の★'+c.max+'以下のキャラ1体(リーダー・ボスはのぞく)を選んで':c.tgt==='trap'?'相手の伏せトラップ1枚を選んで':c.tgt==='trapOpt'?'相手の伏せトラップ1枚を選んで壊す(伏せトラップがなくても使える)。':'')+O(c.ops));
+  if(c.type==='spell')t.push((c.quick?'【割り込み】相手のターンの始めに、残った熱量で手札から使える(自分のターンには使えない)。':'')+(c.cond==='behind'?'自分のライフが相手より少ないときだけ使える。':'')+({pure2:'味方のキャラが2体以上いて全員同じ族のときだけ使える。',pure3:'味方のキャラが3体以上いて、全員同じ族のときだけ使える。',mixed3:'味方のキャラが3体以上いて、全員ちがう族のときだけ使える。'}[c.cond]||'')+(c.life?'ライフが'+c.life+'より多いときだけ使える。':'')+(c.tgt==='enemy'?'相手のキャラ1体を選んで':c.tgt==='enemyLow'?'相手のATK'+c.max+'以下のキャラ1体を選んで':c.tgt==='enemyStar'?'相手の★'+c.max+'以下のキャラ1体(リーダー・ボスはのぞく)を選んで':c.tgt==='trap'?'相手の伏せトラップ1枚を選んで':c.tgt==='trapOpt'?'相手の伏せトラップ1枚を選んで壊す(伏せトラップがなくても使える)。':'')+O(c.ops));
   if(c.type==='trap')t.push({attack:'相手のキャラが攻撃してきたとき',direct:'相手のキャラがライフを直接攻撃してきたとき',spell:'相手が魔法を使ったとき',any:'相手が攻撃か魔法をしてきたとき',play:'相手がキャラを出したときか魔法を使ったとき'}[c.when]+'、発動するか選べる:'+O(c.ops));
   if(c.aw)t.push('★3覚醒:'+awText(c.aw));
   if(c.lim)t.unshift('【制限】デッキに1枚しか入れられない');
@@ -1680,7 +1684,10 @@ function playChara(g,pi,hi,L,tribs,answer){const P=g.p[pi],id=P.hand[hi];if(!id)
   if(L==null)L=P.slot.findIndex(x=>!x);if(!canPlay(g,pi,hi,L))return false;P.energy-=d.c;P.hand.splice(hi,1);g.acted=(g.acted||0)+1;if(summonAnswer(g,pi,id,answer))return true;place(g,pi,id,L);return true}
 /* 割り込み: at the start of the opponent's turn, before they act, using the energy left over from your own turn. Traps can't stop it */
 function canQuick(g,pi,hi){const P=g.p[pi],id=P.hand[hi];if(!id||g.over||g.pending||g.cur===pi||(g.acted||0)>0)return false;const d=BY[id];return!!d.quick&&d.c<=P.energy}
-function castQuick(g,pi,hi){if(!canQuick(g,pi,hi))return false;const P=g.p[pi],id=P.hand[hi];P.energy-=BY[id].c;P.hand.splice(hi,1);P.gy.push(id);ev(g,{t:'spell',who:pi,id,quick:true});run(g,pi,BY[id].ops,{});return true}
+/* the traps that can answer a quick spell: those of the player whose turn it is (a quick spell can be stopped like any spell) */
+function quickWin(g,pi){const P=g.p[opp(pi)];if((P.seal||0)>=g.turns)return[];return P.st.filter(t=>{const w=BY[t.id].when;return t.ready&&(w==='spell'||w==='any'||w==='play')}).map(t=>t.uid)}
+function castQuick(g,pi,hi,answer){if(!canQuick(g,pi,hi))return false;const P=g.p[pi],id=P.hand[hi];P.energy-=BY[id].c;P.hand.splice(hi,1);P.gy.push(id);ev(g,{t:'spell',who:pi,id,quick:true});const ctx={id};
+  if(answer&&quickWin(g,pi).includes(answer))fire(g,opp(pi),answer,ctx);if(ctx.negated){ev(g,{t:'negated',who:pi,id});return true}run(g,pi,BY[id].ops,ctx);return true}
 function castSpell(g,pi,hi,target,answer){if(!canPlay(g,pi,hi))return false;const P=g.p[pi],id=P.hand[hi],d=BY[id];if(d.type!=='spell')return false;if(d.tgt&&!targets(g,pi,id).includes(target)&&!(d.tgt==='trapOpt'&&!targets(g,pi,id).length))return false;
   P.energy-=d.c;P.hand.splice(hi,1);P.gy.push(id);ev(g,{t:'spell',who:pi,id,target});g.acted=(g.acted||0)+1;const ctx={target,id};if(answer)fire(g,opp(pi),answer,ctx);
   if(ctx.negated){ev(g,{t:'negated',who:pi,id});return true}run(g,pi,d.ops,ctx);return true}
@@ -1735,7 +1742,7 @@ function endTurn(g){if(g.over||g.pending)return false;g.p.forEach(P=>P.slot.forE
    The uid counter is put back afterwards so the real game's numbering never changes. */
 function clone(g,seed){const r=g.r,ev=g.ev;g.r=null;g.ev=[];const c=JSON.parse(JSON.stringify(g));g.r=r;g.ev=ev;c.r=rng(seed);return c}
 const uidGet=()=>UID,uidSet=v=>{UID=v};
-module.exports={clone,uidGet,uidSet,fam,pureN,mixedN,canQuick,castQuick,tribPool,canLeader,summonLeader,leaderCost,POW,evoCost,R,BY,newGame,startTurn,endTurn,playChara,castSpell,setTrap,evolve,canEvolve,attack,attackTargets,canAttack,canPlay,targets,cost,window,fire,canSkill,skill,ATK,DEF,find,units,opp,hasCover,maxAttacks};
+module.exports={quickWin,clone,uidGet,uidSet,fam,pureN,mixedN,canQuick,castQuick,tribPool,canLeader,summonLeader,leaderCost,POW,evoCost,R,BY,newGame,startTurn,endTurn,playChara,castSpell,setTrap,evolve,canEvolve,attack,attackTargets,canAttack,canPlay,targets,cost,window,fire,canSkill,skill,ATK,DEF,find,units,opp,hasCover,maxAttacks};
 
 });
 __def('./ai4.js',function(module,exports,require){
@@ -1745,7 +1752,7 @@ const val=(g,m)=>E.ATK(g,m)+E.DEF(g,m)*0.6+(E.hasCover(m)?300:0)+(m.star-1)*400;
 function preview(g,pi,m,uid){if(uid==='life')return{kind:'direct',dmg:E.POW(g,m)};const t=E.find(g,uid);
   const A=E.POW(g,m),D=E.DEF(g,t),B=E.ATK(g,t),AD=E.DEF(g,m);const kt=BY[t.id].kw||{},km=BY[m.id].kw||{};
   const over=A>D,kill=over&&!(kt.guts&&!t.gutsUsed),die=B>AD&&!(km.guts&&!m.gutsUsed);return{kind:'battle',t,kill,die,over,dmg:kill?A-D:0,back:die?B-AD:0}}
-const cardVal=id=>{const d=BY[id];return d.c*380+(d.type==='chara'?250:0)+(d.r==='SR'?600:0)};
+const cardVal=id=>{const d=BY[id];return d.c*380+(d.type==='chara'?250:0)+(d.r==='SR'?600:d.r==='HR'?350:0)};
 function bestAttack(g,pi,m){const T=E.attackTargets(g,pi);let best=null;
   for(const u of T){const p=preview(g,pi,m,u);let s=-1;
     if(p.kind==='direct')s=2000+p.dmg;
@@ -1844,7 +1851,7 @@ function exec(g,pi,a,responder){const resp=responder||((k,c,u)=>answer(g,1-pi,k,
   if(a.type==='skill')return E.skill(g,pi,a.target);
   if(a.type==='attack'){const m=E.find(g,a.uid);const kind=a.target==='life'?'direct':'attack';const u=E.window(g,kind);return E.attack(g,pi,a.uid,a.target,u.length?resp(kind,{attacker:m,target:a.target},u):0)}
   return false}
-function playTurn(g){const pi=g.cur;E.startTurn(g);{const q=quick(g,1-pi);if(q>=0)E.castQuick(g,1-pi,q)}let n=0;while(!g.over&&n++<40){const a=next(g,pi);if(a.type==='end')break;if(!exec(g,pi,a))break}E.endTurn(g)}
+function playTurn(g){const pi=g.cur;E.startTurn(g);{const q=quick(g,1-pi);if(q>=0){const u=E.quickWin(g,1-pi);E.castQuick(g,1-pi,q,u.length?answer(g,pi,'spell',{id:g.p[1-pi].hand[q]},u):0)}}let n=0;while(!g.over&&n++<40){const a=next(g,pi);if(a.type==='end')break;if(!exec(g,pi,a))break}E.endTurn(g)}
 function game(dA,dB,seed,lA,lB){const g=E.newGame(dA,dB,seed,lA,lB);let n=0;while(!g.over&&n++<60)playTurn(g);if(!g.over){g.over=true;g.win=-1}return g}
 /* CPU decks with many shapes: one tribe, two tribes mixed, or a theme (traps / interrupts / bosses / coins / raising).
    r() is a random source; the result is always a legal 20-card deck */
@@ -1888,7 +1895,7 @@ function hide(c,pi,r){const O=c.p[1-pi],pool=O.hand.concat(O.deck,O.st.map(t=>t.
   O.hand=pool.slice(0,O.hand.length);O.deck=pool.slice(O.hand.length);
   const P=c.p[pi];for(let i=P.deck.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[P.deck[i],P.deck[j]]=[P.deck[j],P.deck[i]]}}
 function finishTurn(c,pi){let n=0;while(!c.over&&n++<40){const a=next(c,pi);if(a.type==='end')break;if(!exec(c,pi,a))break}if(!c.over)E.endTurn(c)}
-function playout(c,pi){let n=0;while(!c.over&&n++<40){E.startTurn(c);{const q=quick(c,1-c.cur);if(q>=0)E.castQuick(c,1-c.cur,q)}finishTurn(c,c.cur)}
+function playout(c,pi){let n=0;while(!c.over&&n++<40){E.startTurn(c);{const q=quick(c,1-c.cur);if(q>=0){const u=E.quickWin(c,1-c.cur);E.castQuick(c,1-c.cur,q,u.length?answer(c,c.cur,'spell',{id:c.p[1-c.cur].hand[q]},u):0)}}finishTurn(c,c.cur)}
   if(!c.over)return .5;if(c.win<0){const d=c.p[pi].life-c.p[1-pi].life;return .5+Math.max(-.4,Math.min(.4,d/10000))}return c.win===pi?1:0}
 const same=(a,b)=>a.type===b.type&&a.hand===b.hand&&a.uid===b.uid&&a.target===b.target;
 function strong(g,pi,o){o=o||{};const budget=o.n||240,uid0=E.uidGet();let seed=(o.seed||((g.turns+1)*7919+g.p[pi].hand.length*131+g.p[pi].energy))>>>0;const r=()=>{seed=(seed*1103515245+12345)>>>0;return(seed%1000000)/1000000};
@@ -2355,10 +2362,12 @@ function stats(a,d){const s=el('div','st2');const A=el('b','a');A.append(el('sma
 let GLITTER=null;function glitterTex(){if(GLITTER)return GLITTER;try{const n=192,cv=document.createElement('canvas');cv.width=cv.height=n;const x=cv.getContext('2d'),C=['255,255,255','255,236,250','236,248,255','255,247,224','244,236,255'];
   for(let i=0;i<340;i++){const r=Math.random(),a=r<.7?.18+Math.random()*.35:.6+Math.random()*.4,s=r<.85?.35+Math.random()*.5:.9+Math.random()*.7;x.fillStyle='rgba('+C[i%5]+','+a.toFixed(2)+')';x.beginPath();x.arc(Math.random()*n,Math.random()*n,s,0,6.283);x.fill()}
   GLITTER='url('+cv.toDataURL()+')';document.documentElement.style.setProperty('--glitter',GLITTER)}catch(e){GLITTER='none'}return GLITTER}
-function bigCard(id,mini,foil,ga){ga=CARD_ALT[id]?(ga|0):0;if(ga>=2)foil=true;if(foil)glitterTex();foil=!!foil;const c=BY[id],d=el('div','bc '+FAC(id)+(mini?' mini':'')+(c.type!=='chara'?' '+c.type:'')+(c.r==='SR'?' holo':'')+(foil?' foilc':'')+(CD.isLeader(id)?' ace':c.same?' boss':'')+(c.lim?' limc':''));
+/* the rarity as the app writes it: コモン C, レア R, スーパーレア SR, ガチレア GR */
+const RCODE=r=>({N:'C',R:'R',HR:'SR',SR:'GR'})[r]||r;
+function bigCard(id,mini,foil,ga){ga=CARD_ALT[id]?(ga|0):0;if(ga>=2)foil=true;if(foil)glitterTex();foil=!!foil;const c=BY[id],d=el('div','bc '+FAC(id)+(mini?' mini':'')+(c.type!=='chara'?' '+c.type:'')+(c.r==='SR'||c.r==='HR'?' holo':'')+(c.r==='HR'?' hr':'')+(foil?' foilc':'')+(CD.isLeader(id)?' ace':c.same?' boss':'')+(c.lim?' limc':''));
   const h=el('div','bh');h.append(el('span','gem',c.c),el('span','bn',c.n));const a=el('div','bart');a.append(artEl(id,ga));if(ga){d.classList.add('altc','alt'+ga);d.append(el('i','alttag',['','絵違い','絵違い キラ','絵違い 極'][ga]))}d.append(h,a);
   if(c.lim)d.append(el('i','limtag','制限'));
-  const bt=el('div','bt');bt.append(el('span',null,TYN[c.type]+' ・ '+CD.FNAME[c.f]),el('span','rar',CD.isLeader(id)?'LEADER':c.same?'BOSS ・ '+c.r:c.r));d.append(bt);
+  const bt=el('div','bt');bt.append(el('span',null,TYN[c.type]+' ・ '+CD.FNAME[c.f]),el('span','rar',CD.isLeader(id)?'LEADER':c.same?'BOSS ・ '+RCODE(c.r):RCODE(c.r)));d.append(bt);
   if(c.type==='chara')d.append(stats(c.atk,c.def));else if(mini)d.append(el('div','tyb '+(c.type==='spell'?'s':'t'),TYN[c.type]));
   if((c.kw||{}).syn)d.append(el('div','synchip','同族'));
   d.append(el('i','cn tl'),el('i','cn tr'),el('i','cn bl'),el('i','cn br'));
@@ -2864,7 +2873,7 @@ async function gokuRevealFire(e,kind,zone){if(FAST)return;const mine=WATCH?e.who
   /* the plate: name in heavy italic, then kind / family / stats, with a line that draws itself */
   const line=el('i','g2line'),nm=el('div','g2name'),nmi=el('span',null,c.n);nm.append(nmi);const meta=el('div','g2meta');
   meta.append(el('span','g2k','ALT ART ・ 極'),el('span',null,TYN[c.type]+' ・ '+CD.FNAME[c.f]+' ・ 熱量'+c.c));
-  const st=el('div','g2stats');if(c.type==='chara'){st.append(el('b',null,'ATK '+c.atk),el('b',null,'DEF '+c.def))}else st.append(el('b',null,c.r==='SR'?'SUPER RARE':c.r==='R'?'RARE':'NORMAL'));
+  const st=el('div','g2stats');if(c.type==='chara'){st.append(el('b',null,'ATK '+c.atk),el('b',null,'DEF '+c.def))}else st.append(el('b',null,c.r==='SR'?'GACHI RARE':c.r==='HR'?'SUPER RARE':c.r==='R'?'RARE':'NORMAL'));
   const stars=el('div','g2stars');const sn=c.type==='chara'?3:0;for(let i=0;i<sn;i++)stars.append(el('i',null,'★'));
   plate.append(line,nm,meta,st,stars);
   o.append(stage,floor,cv,plate,flash);document.body.append(o);o.onclick=()=>{if(skip)return;skip=true;o.getAnimations({subtree:true}).forEach(a=>{try{if(a.effect&&a.effect.getComputedTiming().iterations!==Infinity)a.finish()}catch(_){}})};
@@ -3067,7 +3076,7 @@ function evLine(e){const who=e.who===H?'あなた':'相手',n=e.id&&BY[e.id]?BY[
     case'coin':return'コイントス:'+(e.h?'表':'裏');case'steal':return who+':「'+n+'」を寝返らせた';case'bounce':return'「'+n+'」が手札に戻された';case'break':return'伏せトラップ「'+n+'」が壊された';case'seal':return(e.who===H?'あなた':'相手')+'のトラップが封印された';case'discard':return(e.who===H?'あなた':'相手')+'の手札「'+n+'」が捨てられた';case'stealSpell':return who+':魔法「'+n+'」を奪った';case'ramp':return who+':熱量の最大値+'+e.n;case'skill':return who+':必殺技「'+CD.SKILLS[e.k].n+'」';case'turn':return'― '+who+'のターン '+e.n+' ―';default:return null}}
 function logSheet(){sheet((s,close)=>{s.append(el('h3',null,'これまでの流れ'));const L=el('div','log');LOG.slice(-90).reverse().forEach(e=>{const t=evLine(e);if(t)L.append(el('div',e.t==='turn'?'':e.who===H?'me':e.who===1-H?'op':'',t))});if(!L.childNodes.length)L.append(el('div',null,'まだ何も起きていません'));s.append(L);const x=el('button','btn sec','閉じる');x.onclick=close;s.append(x)})}
 const RULES_EXP=CD.SET1.length?[
-  ['割り込み','【割り込み】の魔法は自分のターンには使えない。相手のターンが始まったとき、自分のターンで残しておいた熱量で使える。トラップでは止められない。'],
+  ['割り込み','【割り込み】の魔法は自分のターンには使えない。相手のターンが始まったとき、自分のターンで残しておいた熱量で使える。ふつうの魔法と同じように、相手のトラップで止められることがある。'],
   ['ボス(二体生贄)','同じ族の自分のキャラ2体を生贄にして出す大型キャラ。出たターンから攻撃できる。どのデッキにも入れられるが【制限】で1枚まで。'],
   ['制限','【制限】のカードはデッキに1枚しか入れられない。']]:[];
 const RULES=[['勝ち方','相手のライフ('+E.R.LIFE+')を0にしたら勝ち。8ターンずつ終わったら、ライフが多い方の勝ち。'],
@@ -3118,13 +3127,15 @@ function netAsk(kind,extra){busy=true;render(snap());hint('相手の反応を待
 function onNet(m){lastNet=Date.now();Q.push(m);pump()}
 function applyMove(m){RPEND=null;if(m.pv!==undefined&&g&&m.by!==H){const i=m.f==='qk'?m.h:(m.a||[])[0];const id=typeof i==='number'&&g.p[m.by]?g.p[m.by].hand[i]:null;if(id)RPEND={pi:m.by,id,v:m.pv}}
   if(m.f==='endTurn'){E.endTurn(g);if(!g.over)E.startTurn(g);return}
-  if(m.f==='qk'){if(m.h>=0)E.castQuick(g,m.by,m.h);return}
+  if(m.f==='qk'){if(m.h>=0){if(E.quickWin(g,m.by).length)PQK={by:m.by,h:m.h};else E.castQuick(g,m.by,m.h)}return}
+  if(m.f==='qa'){if(PQK){const q=PQK;PQK=null;E.castQuick(g,q.by,q.h,m.ans)}return}
   if(m.f==='resign'){g.over=true;g.win=1-m.by;return}if(m.f==='timeout'){g.over=true;g.win=m.by;return}if(m.f==='ask'||m.f==='ans')return;
   if(E[m.f])E[m.f](g,m.by,...(m.a||[]))}
 async function pump(){if(pumping)return;pumping=true;
   try{while(Q.length&&g){const m=Q[0];
     if(m.f==='ans'){Q.shift();if(askRes&&m.q===askQ){const r=askRes;askRes=null;r(m.u)}continue}
     if(m.f==='qk'){Q.shift();if(qkRes)qkRes(m.h);else qkStash=m.h;continue}
+    if(m.f==='qa'){Q.shift();if(qaRes)qaRes(m.ans);else qaStash=m.ans;continue}
     if(m.f==='resign'||m.f==='timeout'){Q.shift();if(g.over)continue;closeSheets();stopTimer();applyMove(m);busy=false;caption(m.f==='resign'?'相手が降参しました':'時間切れで決着');render(snap());finish();continue}
     if(!waitingRemote)break;Q.shift();
     if(m.f==='ask'){await answerAsk(m);continue}
@@ -3156,7 +3167,7 @@ async function summonMine(hi,L,tribs){if(NET){if(busy||!g||g.over)return;const u
   return act1(()=>{const u=E.window(g,'summon');const ans=u.length?AI.answer(g,1-H,'summon',{id:g.p[H].hand[hi]},u):0;return (pend(hi),E.playChara(g,H,hi,L,tribs,ans))})}
 /* 割り込み: right after a turn starts, the waiting player may play a quick card from hand */
 const quickable=pi=>g.p[pi].hand.map((id,i)=>i).filter(i=>E.canQuick(g,pi,i));
-let qkRes=null,qkStash=null;
+let qkRes=null,qkStash=null,qaRes=null,qaStash=null,PQK=null;
 function quickPrompt(){const L=quickable(H);if(!L.length)return Promise.resolve(-1);if(AUTO)return Promise.resolve(AI.quick(g,H));
   return new Promise(res=>{const SEC=10;let t;const w=sheet((s,close)=>{s.classList.add('prompt');s.parentElement.classList.add('center');s.append(el('div','k','INTERRUPT'),el('h3',null,'割り込みますか?'));
     s.append(el('div','ctx','相手のターンが始まりました。残った熱量 '+g.p[H].energy+' で、割り込みカードを使えます。'));const cd=el('div','cd'),bar=el('i');bar.style.animationDuration=SEC+'s';cd.append(bar);s.append(cd);
@@ -3166,11 +3177,16 @@ function quickPrompt(){const L=quickable(H);if(!L.length)return Promise.resolve(
     t=setTimeout(()=>{w.remove();res(-1)},SEC*1000)})}
 /* the waiting side decides; in friend battles the active side waits for that decision before acting */
 async function quickWindow(mine){if(g.over)return;const who=mine?1-H:H;if(!quickable(who).length)return;
-  let h=-1;
-  if(!mine){h=await quickPrompt();if(NET){const m={f:'qk',h,by:H};if(h>=0){try{m.pv=handVar(snap(),h)}catch(_){}}NET.send(m)}}
-  else if(NET){hint('相手の割り込みを待っています…');h=await new Promise(r=>{if(qkStash!=null){const v=qkStash;qkStash=null;return r(v)}const t=setTimeout(()=>{qkRes=null;r(-1)},45000);qkRes=v=>{clearTimeout(t);qkRes=null;r(v)}});hint('')}
-  else h=AI.quick(g,who);
-  if(h>=0&&!g.over){g.ev=[];if(who===H)pend(h);E.castQuick(g,who,h);const evs=g.ev.splice(0);await step(evs,snap())}}
+  let h=-1,ans=0;
+  if(!mine){h=await quickPrompt();const u=h>=0?E.quickWin(g,H):[];
+    if(NET){const m={f:'qk',h,by:H};if(h>=0){try{m.pv=handVar(snap(),h)}catch(_){}}NET.send(m);
+      /* the other phone may answer it with a trap */
+      if(u.length){hint('相手の反応を待っています…');ans=await new Promise(r=>{if(qaStash!=null){const v=qaStash;qaStash=null;return r(v)}const t=setTimeout(()=>{qaRes=null;r(0)},20000);qaRes=v=>{clearTimeout(t);qaRes=null;r(v||0)}});hint('')}}
+    else if(u.length)ans=AI.answer(g,1-H,'spell',{id:g.p[H].hand[h]},u)}
+  else if(NET){hint('相手の割り込みを待っています…');h=await new Promise(r=>{if(qkStash!=null){const v=qkStash;qkStash=null;return r(v)}const t=setTimeout(()=>{qkRes=null;r(-1)},45000);qkRes=v=>{clearTimeout(t);qkRes=null;r(v)}});hint('');
+    if(h>=0&&!g.over){const u=E.quickWin(g,who);if(u.length){ans=await trapPrompt('spell',{id:g.p[who].hand[h]},u);NET.send({f:'qa',ans,by:H})}}}
+  else{h=AI.quick(g,who);if(h>=0){const u=E.quickWin(g,who);if(u.length)ans=await trapPrompt('spell',{id:g.p[who].hand[h]},u)}}
+  if(h>=0&&!g.over){g.ev=[];if(who===H)pend(h);E.castQuick(g,who,h,ans);const evs=g.ev.splice(0);await step(evs,snap())}}
 async function castMine(hi,target){if(NET){if(busy||!g||g.over)return;const u=E.window(g,'spell');const ans=u.length?await netAsk('spell',{hand:hi}):0;return act1(()=>X('castSpell',hi,target,ans))}
   return act1(()=>{const u=E.window(g,'spell');const ans=u.length?AI.answer(g,1-H,'spell',{id:g.p[H].hand[hi]},u):0;return (pend(hi),E.castSpell(g,H,hi,target,ans))})}
 async function doAttack(uid,target){mode=null;if(NET){if(busy||!g||g.over)return;const m=E.find(g,uid);if(!m||!E.canAttack(g,H,m))return;const kind=target==='life'?'direct':'attack';const u=E.window(g,kind);const ans=u.length?await netAsk(kind,{uid,target}):0;return act1(()=>X('attack',uid,target,ans))}
