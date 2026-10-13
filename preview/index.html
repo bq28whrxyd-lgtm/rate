@@ -5404,6 +5404,36 @@ body.ui2 :is(.krk-n2,.krk-n3) .krk-gap{white-space:normal;max-width:78%;margin-i
 body .tcghl .tcghr{width:100%;flex:none;min-width:0;gap:12px}
 body .tcghl .tcghr span{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;writing-mode:horizontal-tb}
 body .tcghl .tcghr b{flex:none}
+/*KMSGPOP-START*/
+/* the notice that comes up at every launch: photos first (swipe), then the text, one ivory button */
+.kmp{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px calc(env(safe-area-inset-bottom,0px) + 18px);background:rgba(4,3,8,.72);animation:kmpIn .28s ease both}
+.kmp.out{animation:kmpOut .22s ease both}
+.kmpw{position:relative;width:min(420px,100%);max-height:100%;display:flex;flex-direction:column;border-radius:26px;overflow:hidden;background:linear-gradient(180deg,#17121c,#0e0b12);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14),0 30px 80px -20px rgba(0,0,0,.9);animation:kmpUp .38s cubic-bezier(.2,.9,.25,1) both}
+.kmpw::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,150,.6),rgba(150,200,255,.5),transparent);z-index:2}
+.kmpg{position:relative;flex:none;background:#000}
+.kmps{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.kmps::-webkit-scrollbar{display:none}
+.kmps img{flex:0 0 100%;width:100%;aspect-ratio:4/5;max-height:min(52vh,525px);object-fit:cover;scroll-snap-align:center;display:block;cursor:zoom-in}
+.kmpd{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.kmpd i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);transition:width .2s,background .2s}
+.kmpd i.on{width:18px;border-radius:3px;background:#fff}
+.kmpb{padding:16px 20px 6px;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:8px}
+.kmpm{display:flex;align-items:center;gap:8px;font:600 12px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:rgba(244,241,234,.55)}
+.kmpb h3{margin:0;font:800 19px/1.35 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:#f4f1ea;line-break:strict}
+.kmpx{font:500 14px/1.7 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:rgba(244,241,234,.78);white-space:pre-wrap;word-break:break-word;line-break:strict}
+.kmpf{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px 16px;border-top:.5px solid rgba(255,255,255,.08)}
+.kmpf .sub{font-size:11.5px;color:rgba(244,241,234,.45)}
+.kmpf button{flex:none;min-width:120px;height:44px;border:0;border-radius:999px;background:#f4f1ea;color:#0b0a0e;font:800 15px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif}
+.kmpopt{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13.5px;line-height:1.4}
+.kmpopt input[type=checkbox]{flex:none;width:20px!important;height:20px;margin:0;padding:0}
+.kmpopt span{flex:1;min-width:0}
+.kmpopt select{flex:none;width:92px!important;margin:0}
+.kmpon{background:linear-gradient(180deg,#fff0c2,#e2a73c)!important;color:#1b1405!important}
+@keyframes kmpIn{from{opacity:0}to{opacity:1}}
+@keyframes kmpOut{to{opacity:0}}
+@keyframes kmpUp{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kmp,.kmpw,.kmp.out{animation-duration:.01s}}
+/*KMSGPOP-END*/
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -5539,7 +5569,7 @@ body .tcghl .tcghr b{flex:none}
 <div class="admpg" data-t="news" hidden>
 <div class="admcard"><div class="admct">みんなへのメッセージ</div><div class="admcd">送るとみんなのホームにお知らせとして出ます。</div>
 <div class="msgtag" id="admMsgTag" style="margin-top:12px"><button data-v="" class="on">なし</button><button data-v="imp">重要</button><button data-v="ev">イベント</button><button data-v="up">更新</button></div><input id="admMsgT" maxlength="40" placeholder="タイトル(例: 今週末に大会やります)" style="width:100%;margin-top:8px"><label class="msgpick" id="admMsgPick"><input id="admMsgF" type="file" accept="image/*" multiple hidden><span class="msgpk0">写真を追加（任意・最大4枚）</span><span class="msgpk1">まとめて選べます。横長の写真がきれいに見えます</span></label><div class="msgprev" id="admMsgPrev" hidden></div>
-<textarea id="admMsgX" maxlength="800" rows="3" placeholder="本文" style="width:100%;margin-top:8px;resize:vertical"></textarea>
+<textarea id="admMsgX" maxlength="800" rows="3" placeholder="本文" style="width:100%;margin-top:8px;resize:vertical"></textarea><label class="kmpopt"><input type="checkbox" id="admMsgPop" checked><span>アプリを開くたびにポップアップで出す</span><select id="admMsgPopD" aria-label="出す日数"><option value="3">3日間</option><option value="7" selected>7日間</option><option value="14">14日間</option><option value="30">30日間</option></select></label>
 <button id="admMsgGo" style="width:100%;margin-top:8px">みんなに送る</button><div id="admMsgR" class="sub" style="margin-top:6px;min-height:18px"></div><div id="admMsgList"></div>
 </div>
 <div class="admcard"><div class="admct">届いた要望</div><div id="admReq"></div>
@@ -7787,6 +7817,20 @@ function openMsgBoard(id){if(!devMsgs.length)return;document.querySelectorAll('.
   /* only 確認 closes the board, and only 確認 marks the notices as read (tapping outside does nothing) */
   const close=()=>{try{const top=Math.max(...L.map(m=>m.t||0));if(top>msgSeen())localStorage.setItem('msgSeen',top)}catch(e){}o.classList.add('out');setTimeout(()=>{o.remove();renderDevMsg()},220)};ok.onclick=close;
   const body=el('div','mbb');body.append(list,view);ft.append(ok);w.append(hd,body,ft);o.append(w);document.body.append(o);show(cur)}
+/* ---- a notice the admin marked 「アプリを開くたびに出す」 (m.pop = until when): a popup once per app launch ---- */
+let msgPopDone=false,msgPopTry=0;
+const msgPopNow=()=>devMsgs.find(m=>m.pop&&m.pop>now()&&!m.deleted);
+function maybeMsgPop(){if(msgPopDone)return;if(!myPlayer()){if(msgPopTry++<25)setTimeout(maybeMsgPop,800);return}msgPopDone=true;const m=msgPopNow();if(m)msgPopView(m.id)}
+function msgPopView(id){const m=devMsgs.find(x=>x.id===id)||msgPopNow();if(!m)return;document.querySelectorAll('.kmp').forEach(x=>x.remove());
+  const o=el('div','kmp'),w=el('div','kmpw'),body=el('div','kmpb'),ps=msgPics(m);o.setAttribute('role','dialog');o.setAttribute('aria-label',m.title||'お知らせ');
+  if(ps.length){const g=el('div','kmpg'),strip=el('div','kmps');ps.forEach((u,k)=>{const im=el('img');im.src=u;im.alt='写真 '+(k+1)+'(タップで大きく表示)';im.decoding='async';im.onclick=()=>openPicView(ps,k);strip.append(im)});g.append(strip);
+    if(ps.length>1){const dots=el('div','kmpd');ps.forEach((_,i)=>dots.append(el('i',i?null:'on')));g.append(dots);
+      strip.addEventListener('scroll',()=>{const i=Math.round(strip.scrollLeft/Math.max(1,strip.clientWidth));dots.querySelectorAll('i').forEach((d,k)=>d.classList.toggle('on',k===i))},{passive:true})}
+    w.append(g)}
+  const meta=el('div','kmpm');if(m.tag&&MSGTAG[m.tag])meta.append(msgTagEl(m.tag));meta.append(el('span',null,msgDate(m.t)));
+  body.append(meta,el('h3',null,m.title||'お知らせ'),el('div','kmpx',m.x||''));
+  const ft=el('div','kmpf'),ok=el('button',null,'閉じる');const close=()=>{try{if((m.t||0)>msgSeen())localStorage.setItem('msgSeen',m.t)}catch(e){}o.classList.add('out');setTimeout(()=>{o.remove();try{renderDevMsg()}catch(e){}},240)};
+  ok.onclick=close;ft.append(el('span','sub','アプリを開くたびに表示されます'),ok);w.append(body,ft);o.append(w);o.onclick=e=>{if(e.target===o)close()};document.body.append(o)}
 function renderDevMsg(){
   const card=$('devmsg'),me=myPlayer(),m=devMsgs[0];if(!card)return;
   card.hidden=!me||!m||m.t<=msgSeen();
@@ -7809,7 +7853,7 @@ $('reqgo').onclick=async()=>{
 };
 $('admMsgGo').onclick=()=>twoTap($('admMsgGo'),'みんなに送る',async()=>{
   const t=$('admMsgT').value.trim(),x=$('admMsgX').value.trim();if(!isAdmin()||!x)return;
-  const doc={title:t.slice(0,40),x:x.slice(0,800),t:now()};if(admMsgPics.length)doc.imgs=admMsgPics.slice(0,MSG_MAXPIC);if(admMsgTagV)doc.tag=admMsgTagV;
+  const doc={title:t.slice(0,40),x:x.slice(0,800),t:now()};if($('admMsgPop')&&$('admMsgPop').checked)doc.pop=now()+(+$('admMsgPopD').value||7)*864e5;if(admMsgPics.length)doc.imgs=admMsgPics.slice(0,MSG_MAXPIC);if(admMsgTagV)doc.tag=admMsgTagV;
   try{await db.collection('msgs').add(doc);$('admMsgT').value='';$('admMsgX').value='';admMsgPics=[];admMsgDrawPics();admMsgSetTag('');$('admMsgR').textContent='送りました'}
   catch(e){$('admMsgR').textContent='送れませんでした('+(e.code||e.message)+')'}});
 /* announcement photo: shrunk in the browser to a JPEG (long side 1080px, about 150KB at most) and kept inside the msgs document */
@@ -7830,7 +7874,7 @@ document.querySelectorAll('#admMsgTag button').forEach(b=>b.onclick=()=>admMsgSe
 function admMsgRender(){
   const L=$('admMsgList'),R2=$('admReq');if(!L)return;
   L.replaceChildren();devMsgs.slice(0,5).forEach(m=>{const d=el('div','msgi'),r=el('div','row'),del=el('button','danger','消す');
-    del.onclick=()=>twoTap(del,'消す',()=>db.doc('msgs/'+m.id).delete().catch(()=>{}));r.append(el('span','sub',ago(m.t)),del);{const ps=msgPics(m);if(ps.length){const g=el('div','msgths');ps.forEach(u=>{const im=el('img','msgth');im.src=u;im.alt='';g.append(im)});d.append(g)}}d.append(msgHead(m),el('p',null,m.x||''),r);L.append(d)});
+    del.onclick=()=>twoTap(del,'消す',()=>db.doc('msgs/'+m.id).delete().catch(()=>{}));const live=m.pop&&m.pop>now(),pp=el('button',live?'kmpon':'sec',live?'毎回出す:'+new Date(m.pop).toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'})+'まで':'毎回出す:オフ');pp.onclick=()=>db.doc('msgs/'+m.id).update({pop:live?0:now()+7*864e5}).catch(()=>{});r.append(el('span','sub',ago(m.t)),pp,del);{const ps=msgPics(m);if(ps.length){const g=el('div','msgths');ps.forEach(u=>{const im=el('img','msgth');im.src=u;im.alt='';g.append(im)});d.append(g)}}d.append(msgHead(m),el('p',null,m.x||''),r);L.append(d)});
   if(!reqSub&&isAdmin())reqSub=db.collection('reqs').orderBy('t','desc').limit(100).onSnapshot(s=>{reqs=s.docs.map(d=>({id:d.id,...d.data()}));admMsgRender()},()=>{reqSub=null});
   R2.replaceChildren();if(!reqs.length)R2.append(el('div','sub','まだ要望は届いていません'));
   reqs.forEach(q=>{const d=el('div','msgi'),r=el('div','row'),del=el('button','sec','消す');
@@ -9680,7 +9724,7 @@ render();
   db.doc('config/genres').onSnapshot(s=>{applyGenres(s.exists?s.data():null);queueRender();renderAdmin()},()=>{});
   db.doc('config/gweek').onSnapshot(s=>{gweekLoaded=true;gweek=(s.exists&&s.data().list)||[];queueRender()},()=>{});
   dbSynced('preds','t').onSnapshot(s=>{predsLoaded=true;preds=s.docs.map(d=>({id:d.id,...d.data()}));checkPredHits();queueRender()},()=>{});
-  db.collection('msgs').orderBy('t','desc').limit(20).onSnapshot(s=>{devMsgs=s.docs.map(d=>({id:d.id,...d.data()}));renderDevMsg();if(isAdmin())admMsgRender()},()=>{});
+  db.collection('msgs').orderBy('t','desc').limit(20).onSnapshot(s=>{devMsgs=s.docs.map(d=>({id:d.id,...d.data()}));renderDevMsg();if(!msgPopDone)setTimeout(maybeMsgPop,1200);if(isAdmin())admMsgRender()},()=>{});
   db.collection('feed').orderBy('t','desc').limit(40).onSnapshot(s=>{feed=s.docs.map(d=>({id:d.id,...d.data()}));renderFeed()},()=>{});
   setInterval(()=>{if(curView==='home')tickPreds()},1000);
   setInterval(()=>{if(curView==='gacha')renderLim()},60000);
@@ -13079,7 +13123,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
 (function(){
   let on=true;try{on=localStorage.getItem('ui2')!=='0'}catch(e){}
   if(!on)return;
-  const T0=performance.now(),PRI={mvp:3,news:2,pass:1};let shown=false,pending=[],timer=0;
+  const T0=performance.now(),PRI={mvp:3,news:2,msg:1.5,pass:1};let shown=false,pending=[],timer=0;
   /* opened by a tap: the call comes inside (or right after) a click on a button */
   let lastTap=-1e9;addEventListener('click',()=>{lastTap=performance.now()},true);
   const gest=()=>performance.now()-lastTap<450;
@@ -13093,6 +13137,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   try{if(typeof showNews==='function'){const f=showNews;showNews=gate('news',f)}}catch(e){}
   try{if(typeof showMvpAnn==='function'){const f=showMvpAnn;showMvpAnn=gate('mvp',f)}}catch(e){}
   try{if(typeof passAdView==='function'){const f=passAdView;passAdView=gate('pass',f)}}catch(e){}
+  try{if(typeof msgPopView==='function'){const f=msgPopView;msgPopView=gate('msg',f)}}catch(e){}
   window.__kpop={get shown(){return shown},reset(){shown=false;pending=[]}};
 })();
 /*KPOPJS-END*/</script>
