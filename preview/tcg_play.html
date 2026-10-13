@@ -3290,27 +3290,29 @@ function banner(mine){const b=el('div','tbanner v2'+(mine?' me':' op'));const n=
 /* ---- BGM for the match: one looping track, quiet by default (30%), with its own switch and volume in the menu.
    It starts with the match; if the phone refuses to play before a touch inside the game, it starts on the first touch. ---- */
 const BGM={a:null,vol:.3,on:true,src:'tcg_bgm.mp3',started:false};
+/* inside the app the music belongs to the app (window.__kbgm): the match never starts a second copy, the menu row just controls that one */
+const PB=(()=>{try{return !WATCH&&HOST&&window.parent.__kbgm||null}catch(e){return null}})();
 try{const v=localStorage.getItem('kotcg_bgm');if(v!=null){const o=JSON.parse(v);if(typeof o.vol==='number')BGM.vol=Math.max(0,Math.min(1,o.vol));if(typeof o.on==='boolean')BGM.on=o.on}}catch(e){}
 function bgmSave(){try{localStorage.setItem('kotcg_bgm',JSON.stringify({vol:BGM.vol,on:BGM.on}))}catch(e){}}
 function bgmEl(){if(BGM.a)return BGM.a;const a=new Audio(BGM.src);a.loop=true;a.preload='auto';a.volume=BGM.vol;BGM.a=a;return a}
-function bgmPlay(){if(!BGM.on||WATCH)return;const a=bgmEl();a.volume=0;let pr;try{pr=a.play()}catch(e){pr=Promise.reject(e)}
+function bgmPlay(){if(PB){try{PB.play()}catch(e){}return}if(!BGM.on||WATCH)return;const a=bgmEl();a.volume=0;let pr;try{pr=a.play()}catch(e){pr=Promise.reject(e)}
   const fade=()=>{BGM.started=true;const t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/1200);a.volume=BGM.vol*k;if(k<1&&BGM.on)requestAnimationFrame(step)};step()};
   if(pr&&pr.then)pr.then(fade,()=>{/* no touch yet: the first touch in the game starts it */const once=()=>{document.removeEventListener('pointerdown',once,true);document.removeEventListener('touchstart',once,true);if(!BGM.on)return;a.play().then(fade,()=>{})};document.addEventListener('pointerdown',once,true);document.addEventListener('touchstart',once,true)});else fade()}
-function bgmStop(){const a=BGM.a;if(!a)return;const v0=a.volume,t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/500);a.volume=v0*(1-k);if(k<1)requestAnimationFrame(step);else{a.pause();a.currentTime=0}};step()}
-function bgmSet(on,vol){if(vol!=null)BGM.vol=Math.max(0,Math.min(1,vol));if(on!=null)BGM.on=on;bgmSave();const a=BGM.a;
+function bgmStop(){if(PB)return;const a=BGM.a;if(!a)return;const v0=a.volume,t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/500);a.volume=v0*(1-k);if(k<1)requestAnimationFrame(step);else{a.pause();a.currentTime=0}};step()}
+function bgmSet(on,vol){if(PB){try{PB.set(on,vol)}catch(e){}return}if(vol!=null)BGM.vol=Math.max(0,Math.min(1,vol));if(on!=null)BGM.on=on;bgmSave();const a=BGM.a;
   if(!BGM.on){if(a)a.pause();return}if(a){a.volume=BGM.vol;if(a.paused&&g&&!g.over)a.play().catch(()=>{})}else if(g&&!g.over)bgmPlay()}
 /* the music row for the menu: a switch and a slider */
-function bgmRow(){const r=el('div','bgmrow');const sw=el('button','bgmsw'+(BGM.on?' on':''));sw.type='button';sw.setAttribute('aria-label','BGM');sw.append(el('i'));
-  const lab=el('div','bgmlab');lab.append(el('b',null,'BGM'),el('span',null,BGM.on?'流れています':'止めています'));
-  const sl=el('input');sl.type='range';sl.min='0';sl.max='100';sl.value=String(Math.round(BGM.vol*100));sl.className='bgmvol';sl.setAttribute('aria-label','BGMの音量');
-  sw.onclick=()=>{bgmSet(!BGM.on,null);sw.classList.toggle('on',BGM.on);lab.lastChild.textContent=BGM.on?'流れています':'止めています'};
+function bgmRow(){const B=PB?PB.state:BGM;const r=el('div','bgmrow');const sw=el('button','bgmsw'+(B.on?' on':''));sw.type='button';sw.setAttribute('aria-label','BGM');sw.append(el('i'));
+  const lab=el('div','bgmlab');lab.append(el('b',null,'BGM'),el('span',null,B.on?'流れています':'止めています'));
+  const sl=el('input');sl.type='range';sl.min='0';sl.max='100';sl.value=String(Math.round(B.vol*100));sl.className='bgmvol';sl.setAttribute('aria-label','BGMの音量');
+  sw.onclick=()=>{const cur=(PB?PB.state:BGM).on;bgmSet(!cur,null);const now=(PB?PB.state:BGM).on;sw.classList.toggle('on',now);lab.lastChild.textContent=now?'流れています':'止めています'};
   sl.oninput=()=>{bgmSet(null,(+sl.value)/100)};
   r.append(sw,lab,sl);return r}
 {const BG2=beginGame;beginGame=function(){const r=BG2.apply(this,arguments);try{bgmPlay()}catch(e){}return r}}
 {const F0=finish;finish=function(){const r=F0.apply(this,arguments);try{setTimeout(bgmStop,900)}catch(e){}return r}}
-try{window.addEventListener('pagehide',()=>{try{BGM.a&&BGM.a.pause()}catch(e){}});if(HOST&&!WATCH)bgmEl()}catch(e){}
+try{window.addEventListener('pagehide',()=>{try{BGM.a&&BGM.a.pause()}catch(e){}});if(HOST&&!WATCH&&!PB)bgmEl()}catch(e){}
 function menuSheet(){sheet((s,close)=>{s.append(el('h3',null,'メニュー'));s.append(bgmRow());const a=el('div','acts');a.style.flexDirection='column';const mk=(t,fn,c)=>{const b=el('button','btn'+(c?' '+c:''),t);b.onclick=()=>{close();fn()};a.append(b)};mk('これまでの流れ',logSheet,'sec');mk('遊び方',helpSheet,'sec');if(g&&!g.over)mk('降参する',()=>{if(!g||g.over)return;if(NET)NET.send({f:'resign',by:H});g.over=true;g.win=1-H;stopTimer();finish()},'sec');if(HOST)mk('アプリに戻る',()=>HOST.close(),'sec');mk('閉じる',()=>{},'sec');s.append(a)})}
-window.__bgm={play:bgmPlay,stop:bgmStop,set:bgmSet,get state(){return{on:BGM.on,vol:BGM.vol,playing:!!(BGM.a&&!BGM.a.paused)}}};
+window.__bgm={play:bgmPlay,stop:bgmStop,set:bgmSet,get state(){return PB?PB.state:{on:BGM.on,vol:BGM.vol,playing:!!(BGM.a&&!BGM.a.paused)}}};
 
 })();
 

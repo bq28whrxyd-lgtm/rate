@@ -3130,15 +3130,15 @@ body.ui2 .bnav .navink{background:rgba(255,255,255,.14)!important;box-shadow:ins
 .kb-btn:active{transform:scale(.96);transition:transform .12s}
 .kb.out{opacity:0;transition:opacity .35s ease}
 /* settings row */
-:is(#ksfxsec,#koshisec) .ksfx{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08);cursor:pointer;position:relative}
-:is(#ksfxsec,#koshisec) .ksfx span{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-:is(#ksfxsec,#koshisec) .ksfx b{font-size:15px}
-:is(#ksfxsec,#koshisec) .ksfx small{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5}
-:is(#ksfxsec,#koshisec) .ksfx input{position:absolute;opacity:0;pointer-events:none}
-:is(#ksfxsec,#koshisec) .ksfx i{flex:none;width:51px;height:31px;border-radius:99px;background:rgba(120,120,128,.36);position:relative;transition:background .25s}
-:is(#ksfxsec,#koshisec) .ksfx i::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.25);transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
-:is(#ksfxsec,#koshisec) .ksfx input:checked+i{background:#34c759}
-:is(#ksfxsec,#koshisec) .ksfx input:checked+i::after{transform:translateX(20px)}
+:is(#ksfxsec,#koshisec,#kbgmsec) .ksfx{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08);cursor:pointer;position:relative}
+:is(#ksfxsec,#koshisec,#kbgmsec) .ksfx span{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+:is(#ksfxsec,#koshisec,#kbgmsec) .ksfx b{font-size:15px}
+:is(#ksfxsec,#koshisec,#kbgmsec) .ksfx small{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5}
+:is(#ksfxsec,#koshisec,#kbgmsec) .ksfx input{position:absolute;opacity:0;pointer-events:none}
+:is(#ksfxsec,#koshisec,#kbgmsec) .ksfx i{flex:none;width:51px;height:31px;border-radius:99px;background:rgba(120,120,128,.36);position:relative;transition:background .25s}
+:is(#ksfxsec,#koshisec,#kbgmsec) .ksfx i::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.25);transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
+:is(#ksfxsec,#koshisec,#kbgmsec) .ksfx input:checked+i{background:#34c759}
+:is(#ksfxsec,#koshisec,#kbgmsec) .ksfx input:checked+i::after{transform:translateX(20px)}
 @media (prefers-reduced-motion:reduce){.km-splash{display:none}}
 
 .km-splash.km-vid{background:#050506}
@@ -5247,81 +5247,53 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .kgu-zh{position:fixed;inset:0;z-index:125;background:rgba(5,5,9,.88);animation:kguIn .25s ease-out both}
 @keyframes kguIn{from{opacity:0}}
 @media (prefers-reduced-motion:reduce){.kgu-sch,.kgu-sct,.kgu-lg,.kgu-lens,.kgu-spk,.kgu-sc,.kgu-cn.m,.kgu-pk,.kgu-live i{animation:none}}
-/* ===== v121 宝箱 (kch): the victory chest ===== */
-.chest.kch{background:radial-gradient(70% 45% at 50% 58%,#2a1d0a,#07060a 70%);gap:0;justify-content:center;overflow:hidden;--cw:min(62vw,250px);--g1:#fff3c4;--g2:#f2c24a;--g3:#b8861f;--w1:#7a4a22;--w2:#4a2812;--w3:#2a1408}
-.chest.kch.gold{background:radial-gradient(70% 45% at 50% 58%,#2b2410,#07060a 70%);--w1:#e8c76a;--w2:#b88a2c;--w3:#6d4a0e;--g1:#ffffff;--g2:#fff1b8;--g3:#d9ab42}
-.chest.kch .kch-k{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 18%);text-align:center;font:800 11px/1 "Geist","Inter Tight",-apple-system,system-ui,sans-serif;letter-spacing:.34em;color:#e0b84a;opacity:0}
+/* ===== v121 宝箱 (kch): the victory chest, a rendered film with HTML on top ===== */
+.chest.kch{background:#000;display:block;gap:0;overflow:hidden;animation:none}
+/* the clip's frame: 9:16, full height, centered (cropped at the sides on a narrow phone, black at the sides on a wide screen) */
+.chest.kch .kch-fr{position:absolute;top:0;bottom:0;left:50%;height:100%;aspect-ratio:9/16;transform:translateX(-50%);will-change:transform;background:#000}
+.chest.kch .kch-fr video,.chest.kch .kch-fr img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#000}
+.chest.kch .kch-vb{opacity:0}
+.chest.kch .kch-fr video[hidden]{display:none}
+.chest.kch .kch-ui{position:absolute;top:0;bottom:0;left:50%;height:100%;aspect-ratio:9/16;transform:translateX(-50%);pointer-events:none}
+/* words, placed in the clip's frame: the kicker above the shaft of light, the amount under the box, the hint at the bottom */
+.chest.kch .kch-k{position:absolute;left:0;right:0;top:max(7.5%,calc(env(safe-area-inset-top,0px) + 28px));text-align:center;font:800 11px/1 "Geist","Inter Tight",-apple-system,system-ui,sans-serif;letter-spacing:.36em;color:#d9b24a;opacity:0}
 .chest.kch.gold .kch-k{color:#fff1b8}
-.kch-stage{position:relative;width:100%;height:min(62vw,250px);display:flex;align-items:flex-end;justify-content:center;perspective:640px;perspective-origin:50% -60%;margin-top:-6vh}
-.kch-stage>i{position:absolute;pointer-events:none}
-/* the column of light and the floor */
-.kch-beam{left:50%;top:-110vh;width:calc(var(--cw) * 1.25);height:200vh;transform:translateX(-50%);transform-origin:50% 0;opacity:0;
-  background:linear-gradient(180deg,transparent 0%,rgba(255,226,150,.0) 35%,rgba(255,226,150,.22) 55%,rgba(255,226,150,.14) 66%,transparent 72%);
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent)}
-.kch-floor{left:50%;bottom:-6%;width:calc(var(--cw) * 1.9);height:18%;transform:translateX(-50%);border-radius:50%;opacity:0;background:radial-gradient(closest-side,rgba(255,215,120,.28),rgba(255,215,120,.08) 55%,transparent)}
-.kch-ring{left:50%;bottom:0;width:calc(var(--cw) * 1.3);height:12%;transform:translateX(-50%);transform-origin:50% 50%;border-radius:50%;opacity:0;box-shadow:0 0 0 2px rgba(255,226,150,.8),0 0 18px rgba(255,226,150,.6)}
-.kch-burst{left:50%;top:18%;width:calc(var(--cw) * 1.6);height:calc(var(--cw) * 1.6);margin-left:calc(var(--cw) * -.8);border-radius:50%;opacity:0;
-  background:radial-gradient(circle,#fff 0%,#fff6d0 18%,rgba(255,214,120,.55) 40%,rgba(255,180,80,0) 70%)}
-.chest.kch.gold .kch-burst{background:radial-gradient(circle,#fff 0%,#fff6d0 16%,rgba(255,150,210,.5) 38%,rgba(120,220,255,.35) 55%,rgba(255,180,80,0) 72%)}
-.kch-flash{position:fixed!important;inset:0;background:radial-gradient(circle at 50% 42%,#fff,rgba(255,240,200,.6) 30%,transparent 70%);opacity:0}
-/* the chest: a front-facing box with a lid that swings back */
-.kch-chest{position:relative;width:var(--cw);height:calc(var(--cw) * .8);transform-style:preserve-3d;will-change:transform}
-.kch-body{position:absolute;left:0;right:0;bottom:0;height:62%;transform-style:preserve-3d}
-.kch-front{position:absolute;inset:0;border-radius:6px 6px 10px 10px;overflow:hidden;
-  background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 16px,rgba(0,0,0,.22) 16px 18px),linear-gradient(180deg,var(--w1),var(--w2) 55%,var(--w3));
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.18),0 18px 30px rgba(0,0,0,.6)}
-.kch-front::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.35),transparent 18%,transparent 82%,rgba(0,0,0,.4))}
-.kch-front::after{content:"";position:absolute;left:0;right:0;bottom:0;height:9%;background:linear-gradient(180deg,var(--g2),var(--g3));box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
-.kch-band{position:absolute;top:0;bottom:0;width:11%;background:linear-gradient(90deg,var(--g3),var(--g2) 35%,var(--g1) 50%,var(--g2) 65%,var(--g3));box-shadow:0 0 0 1px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.25)}
-.kch-band.l{left:14%}.kch-band.r{right:14%}.kch-band.m{left:50%;transform:translateX(-50%)}
-.kch-rv{position:absolute;width:5.5%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff6c8,var(--g2) 45%,var(--g3) 80%);box-shadow:0 1px 2px rgba(0,0,0,.6)}
-.kch-rv.a{left:4%;top:12%}.kch-rv.b{right:4%;top:12%}.kch-rv.c{left:4%;bottom:16%}.kch-rv.d{right:4%;bottom:16%}
-/* the open top: the rim, the dark inside, the coins, the glow */
-.kch-rim{position:absolute;left:0;right:0;top:-7%;height:14%;border-radius:50%;background:linear-gradient(180deg,var(--g1),var(--g3));box-shadow:inset 0 -2px 0 rgba(0,0,0,.4);transform:translateZ(4px)}
-.kch-inner{position:absolute;left:3%;right:3%;top:-5%;height:10%;border-radius:50%;background:radial-gradient(ellipse at 50% 60%,#2a1708,#0a0604 75%)}
-.kch-coins{position:absolute;left:8%;right:8%;top:-16%;height:30%;opacity:0;transform-origin:50% 100%;transform:translateZ(16px)}
-.kch-coins b{position:absolute;bottom:20%;width:34%;height:46%;border-radius:50%;background:radial-gradient(circle at 40% 30%,#fff8d8,#f2c24a 45%,#b8861f 85%);box-shadow:0 2px 4px rgba(0,0,0,.5),inset 0 -2px 0 rgba(0,0,0,.25)}
-.kch-coins b:nth-child(1){left:2%;bottom:16%}.kch-coins b:nth-child(2){left:22%;bottom:34%;width:36%}.kch-coins b:nth-child(3){left:48%;bottom:20%}.kch-coins b:nth-child(4){left:62%;bottom:40%;width:30%}.kch-coins b:nth-child(5){left:34%;bottom:50%;width:32%;height:40%}
-.kch-glow{position:absolute;left:50%;top:-30%;width:120%;height:70%;margin-left:-60%;border-radius:50%;opacity:0;pointer-events:none;background:radial-gradient(closest-side,rgba(255,240,190,.95),rgba(255,214,120,.45) 45%,transparent 72%);mix-blend-mode:screen;transform:translateZ(18px)}
-/* the lid: an arched front that swings back around its top edge */
-.kch-lid{position:absolute;left:0;right:0;top:0;height:42%;transform-origin:50% 100%;transform-style:preserve-3d;will-change:transform;z-index:3}
-/* the inside of the open lid: a dark arch with a gold rim that stands up behind the body */
-.kch-lidopen{position:absolute;left:2%;right:2%;bottom:62%;height:50%;z-index:0;transform-origin:50% 100%;transform:rotateX(88deg);opacity:0;border-radius:44% 44% 3px 3px / 92% 92% 3px 3px;
-  background:radial-gradient(80% 60% at 50% 70%,#3a2210,#160c05 80%);box-shadow:inset 0 0 0 2.5px var(--g2),inset 0 0 0 5px rgba(0,0,0,.5),inset 0 0 30px rgba(255,214,120,.22),0 -10px 30px rgba(0,0,0,.5)}
-.kch-lidopen::after{content:"";position:absolute;inset:8% 8% 0;border-radius:44% 44% 0 0 / 92% 92% 0 0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.03) 0 10px,rgba(0,0,0,.18) 10px 12px)}
-.kch-body{z-index:2;transform:translateZ(10px)}
-.kch-lock{z-index:4}
-.kch-lidf{position:absolute;inset:0;border-radius:42% 42% 4px 4px / 92% 92% 4px 4px;overflow:hidden;
-  background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0 14px,rgba(0,0,0,.2) 14px 16px),linear-gradient(180deg,color-mix(in srgb,var(--w1) 80%,#fff),var(--w1) 35%,var(--w2));
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.25),0 10px 20px rgba(0,0,0,.45);backface-visibility:hidden}
-.kch-lidf::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.35),transparent 20%,transparent 80%,rgba(0,0,0,.4))}
-.kch-lidf::after{content:"";position:absolute;left:0;right:0;bottom:0;height:16%;background:linear-gradient(180deg,var(--g1),var(--g2) 40%,var(--g3));box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
-.kch-lidf .kch-band{top:0;bottom:16%}
-.kch-lidsheen{position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.28) 44%,rgba(255,255,255,.05) 52%,transparent 60%);transform:translateX(-120%);animation:kchSheen 3.6s ease-in-out infinite}
-@keyframes kchSheen{0%,55%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
-.kch-lidin{position:absolute;inset:0;border-radius:42% 42% 4px 4px / 92% 92% 4px 4px;transform:rotateX(180deg);backface-visibility:hidden;background:linear-gradient(180deg,#2a1708,#120a05 70%);box-shadow:inset 0 0 0 2px var(--g3),inset 0 0 24px rgba(255,214,120,.25)}
-/* the lock and the seam of light */
-.kch-lock{position:absolute;left:50%;top:34%;width:19%;height:26%;margin-left:-9.5%;border-radius:18% 18% 30% 30%;background:linear-gradient(180deg,var(--g1),var(--g2) 40%,var(--g3));box-shadow:0 0 0 1px rgba(0,0,0,.6),0 6px 12px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.6);transform:translateZ(14px);will-change:transform}
-.kch-key{position:absolute;left:50%;top:40%;width:28%;height:38%;margin-left:-14%;border-radius:50% 50% 20% 20%;background:#1a0f06;box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
-.kch-seam{position:absolute;left:4%;right:4%;top:41%;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,#ffe9a8 20%,#fff 50%,#ffe9a8 80%,transparent);box-shadow:0 0 12px 3px rgba(255,226,150,.8);opacity:0;animation:kchSeam 2.4s ease-in-out infinite}
-@keyframes kchSeam{50%{opacity:.55}}
-.kch-shadow{position:absolute;left:4%;right:4%;bottom:-7%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.8),transparent);transform:translateZ(-1px)}
-.chest.kch .kch-opening .kch-seam,.chest.kch.kch-opening .kch-seam{animation:none}
-/* the result */
-.chest.kch .kch-res{position:relative;z-index:3;min-height:72px;margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:8px}
-.kch-n{display:flex;align-items:baseline;gap:6px}
-.kch-n b{font:900 clamp(40px,12vw,54px)/1 "Geist","Inter Tight",-apple-system,system-ui,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#fff,#ffe9a8 45%,#f2c24a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 14px rgba(255,200,80,.35))}
-.kch-n span{font:800 18px/1 var(--kjf,-apple-system),"Hiragino Sans",system-ui,sans-serif;color:#ffd27a}
-.kch-mul{font:700 12px/1 var(--kjf,-apple-system),"Hiragino Sans",system-ui,sans-serif;color:#ffe9a8;padding:5px 10px;border-radius:999px;background:rgba(255,226,150,.12);box-shadow:inset 0 0 0 .5px rgba(255,226,150,.4)}
-.kch-tk{display:flex;align-items:baseline;gap:8px;padding:14px 22px;border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03));box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2),0 20px 50px -20px rgba(255,120,200,.6)}
-.kch-tk b{font:900 20px/1.2 var(--kjf,-apple-system),"Hiragino Sans",system-ui,sans-serif;background:linear-gradient(90deg,#ffb3d9,#fff3c4,#b3ecff,#e2ccff);-webkit-background-clip:text;background-clip:text;color:transparent}
-.kch-tk span{font:800 16px/1 "Geist",-apple-system,system-ui,sans-serif;color:#fff}
-.kch-ct{display:flex;align-items:center;gap:8px;font:700 13px/1 var(--kjf,-apple-system),"Hiragino Sans",system-ui,sans-serif;color:#ffe9a8}
-.chest.kch .kch-h{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 56px);text-align:center;font:700 12.5px/1 var(--kjf,-apple-system),"Hiragino Sans",system-ui,sans-serif;color:rgba(244,241,234,.55);opacity:0}
-.kch-cv{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
-.kch-cv.top{z-index:4}
-.chest.kch .kch-stage{z-index:2}
-@media (prefers-reduced-motion:reduce){.kch-lidsheen,.kch-seam{animation:none}}
+.chest.kch .kch-h{position:absolute;left:0;right:0;bottom:max(7%,calc(env(safe-area-inset-bottom,0px) + 34px));text-align:center;font:600 13px/1 var(--kjf,-apple-system),"Hiragino Sans",system-ui,sans-serif;letter-spacing:.08em;color:rgba(255,255,255,.62);opacity:0}
+.chest.kch .kch-res{position:absolute;left:0;right:0;top:76.5%;display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0}
+.chest.kch .kch-n{display:flex;align-items:baseline;gap:7px}
+.chest.kch .kch-n b{font:900 clamp(46px,15vw,66px)/1 "Geist","Inter Tight",-apple-system,system-ui,sans-serif;letter-spacing:-.025em;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#fff 0%,#fff2c2 42%,#f0c04a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 22px rgba(255,196,70,.35))}
+.chest.kch .kch-n span{font:800 19px/1 var(--kjf,-apple-system),"Hiragino Sans",system-ui,sans-serif;color:#f4cf6a}
+.chest.kch .kch-mul{font:700 13px/1 var(--kjf,-apple-system),"Hiragino Sans",system-ui,sans-serif;letter-spacing:.06em;color:#0e0a04;background:linear-gradient(180deg,#fff0b8,#f0c04a);padding:8px 14px;border-radius:99px;box-shadow:0 6px 18px rgba(240,192,74,.28)}
+.chest.kch .kch-tk{display:flex;flex-direction:column;align-items:center;gap:8px}
+.chest.kch .kch-tk b{font:900 clamp(24px,7.2vw,32px)/1.15 var(--kjf,-apple-system),"Hiragino Sans",system-ui,sans-serif;letter-spacing:.02em;background:linear-gradient(90deg,#ffd1e8,#c8f0ff 35%,#fff2b8 70%,#ffd1e8);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:kgRbw 3s linear infinite;filter:drop-shadow(0 4px 18px rgba(255,210,240,.35))}
+.chest.kch .kch-tk span{font:800 22px/1 "Geist","Inter Tight",-apple-system,system-ui,sans-serif;color:#fff}
+.chest.kch .kch-ct{display:flex;align-items:center;gap:8px;padding:8px 14px 8px 8px;border-radius:99px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14);font:700 13px/1 var(--kjf,-apple-system),"Hiragino Sans",system-ui,sans-serif;color:#fff}
+.chest.kch .kch-ct .coin{flex:none}
+.chest.kch.big .kch-n b{filter:drop-shadow(0 6px 26px rgba(255,196,70,.5))}
+@media (prefers-reduced-motion: reduce){.chest.kch .kch-tk b{animation:none}}
+/*KBGMCSS-START*/
+#kbgmsec .kbgm-vol{display:flex;align-items:center;gap:14px;margin-top:10px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08);transition:opacity .25s}
+#kbgmsec.off .kbgm-vol{opacity:.4;pointer-events:none}
+#kbgmsec .kbgm-vol b{font-size:15px;flex:none}
+#kbgmsec .kbgm-vol em{font-style:normal;flex:none;min-width:3.2em;text-align:right;font-family:var(--num,inherit);font-variant-numeric:tabular-nums;color:rgba(255,255,255,.6);font-size:13px}
+#kbgmsec .kbgm-vol input[type=range]{flex:1;min-width:0;height:31px;margin:0;accent-color:#34c759;background:transparent}
+/*KPERF-START*/
+/* ===== v121 なめらかさ (kperf): animations that made the browser repaint every frame =====
+   1. a frame's breathing glow animated box-shadow (a repaint 60 times a second): now a glow layer whose opacity breathes
+   2. small things that must repaint (gradient-text names, the live dot, bars) get their own layer, so a repaint is the size
+      of the thing instead of the whole screen layer they were drawn into
+   3. the gacha lineup's shine sweep moves by transform; the foil on those small cards stays still (the big card keeps it) */
+.fr.t5,.fr.t6{animation:none;box-shadow:0 0 10px -3px var(--mg)}
+.fr.t5::after,.fr.t6::after{content:"";position:absolute;inset:0;border-radius:50%;z-index:-2;box-shadow:0 0 22px 1px var(--mg);opacity:0;animation:kpGlow 2.8s ease-in-out infinite;pointer-events:none}
+.fr.t6::after{animation-duration:2.2s}
+@keyframes kpGlow{50%{opacity:1}}
+.nx .nxt,.nx6::after,.llive .dot,.prog i,.ttl.r4,.mt.sh,.pb-suptopaz::after,#v-gacha .vt{will-change:transform}
+:is(.kgu-fc,.kgu-it,.kgu-gi) .gcf:is(.r3,.r4,.r5)::before{inset:0 auto 0 0;width:260%;background-size:100% 100%;background-position:0 0;animation:kpSweep 2.6s linear infinite;will-change:transform}
+:is(.kgu-fc,.kgu-it,.kgu-gi) .gcf.r5::before{animation-duration:2.2s}
+@keyframes kpSweep{from{transform:translateX(-98.46%)}to{transform:translateX(61.54%)}}
+:is(.kgu-fc,.kgu-it,.kgu-gi) .holo{animation:none}
+@media (prefers-reduced-motion: reduce){.fr.t5::after,.fr.t6::after{animation:none;opacity:.5}}
+/*KPERF-END*/
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -11526,7 +11498,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     if(v){if(v.id==='v-home'){const lob=$i('lob');[...v.children].forEach(c=>{if(c!==lob&&vis(c))L.push(c)});if(lob)[...lob.children].forEach(c=>{if(!c.classList.contains('lbar'))L.push(c)})}else L.push(v)}
     return L}
   function finish(){if(ftCur&&!ftCur.done){clearTimeout(ftCur.t);ftCur.go()}}
-  function fadeOut(){const outs=content();const op=outs.map(el=>{try{return getComputedStyle(el).opacity}catch(e){return '1'}});
+  function fadeOut(){const outs=content();const op=outs.map(el=>el.style.opacity||'1');/* no computed style: reading it would make the browser lay out early */
     ftIn.forEach(a=>{try{a.cancel()}catch(e){}});ftIn=[];
     return {outs,anims:outs.map((el,k)=>{try{return el.animate([{opacity:op[k]},{opacity:0}],{duration:OUT,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'})}catch(e){return null}}).filter(Boolean)}}
   /* a finger on a tab already starts the fade (a tap lasts about 0.1s), so by the time it lifts the old screen is gone and
@@ -11575,19 +11547,24 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   /* ---------- the tab bar's selection capsule: centred exactly on its tab and wide enough for the tab's name (an old rule
      fixed it at 60px, so it sat 2-3px left of the icon and プロフィール spilled out of it). It stretches a little while it
      slides to the new tab, like a drop of liquid. ---------- */
-  function fitInk(){try{const nav=document.querySelector('.bnav'),on=nav&&nav.querySelector('button.on'),ink=nav&&nav.querySelector('.navink');if(!on||!ink)return;
-      const n=nav.getBoundingClientRect(),b=on.getBoundingClientRect();if(!n.width||!b.width)return;
-      /* one width for every tab (the widest name), so a change of tab only moves the capsule: a transform the phone can
-         animate off the main thread, while the next screen is being built. Animating the width made it stutter. */
-      let lw=0;nav.querySelectorAll('button span').forEach(sp=>{lw=Math.max(lw,sp.getBoundingClientRect().width)});
-      let w=Math.round(Math.max(b.width-4,lw+20));w=Math.min(w,n.width-10);let x=b.left-n.left+(b.width-w)/2;x=Math.max(5,Math.min(n.width-5-w,x));
+  /* The tab positions are measured once (and again only when the screen size or the fonts change), so a tap never makes the
+     browser lay out the whole page just to place the capsule: that forced layout was the stutter on a tab change. */
+  let G0=null;
+  function geo(){if(G0)return G0;const nav=document.querySelector('.bnav');if(!nav)return null;const n=nav.getBoundingClientRect();if(!n.width)return null;
+    const m=new Map();let lw=0;nav.querySelectorAll('button').forEach(b=>{if(b.hidden)return;const r=b.getBoundingClientRect();if(!r.width)return;m.set(b,{l:r.left-n.left,w:r.width});const sp=b.querySelector('span');if(sp)lw=Math.max(lw,sp.getBoundingClientRect().width)});
+    if(!m.size)return null;G0={w:n.width,m,lw};return G0}
+  const regeo=()=>{G0=null;requestAnimationFrame(fitInk)};
+  function fitInk(){try{const nav=document.querySelector('.bnav'),on=nav&&nav.querySelector('button.on');if(!on)return;let ink=nav.querySelector('.navink');if(!ink){ink=document.createElement('i');ink.className='navink';nav.append(ink)}
+      const g=geo();if(!g)return;let b=g.m.get(on);if(!b){G0=null;const g2=geo();b=g2&&g2.m.get(on);if(!b)return}
+      /* one width for every tab (the widest name), so a change of tab only moves the capsule (a transform) */
+      let w=Math.round(Math.max(b.w-4,g.lw+20));w=Math.min(w,g.w-10);let x=b.l+(b.w-w)/2;x=Math.max(5,Math.min(g.w-5-w,x));
       if(ink.style.width!==w+'px')ink.style.setProperty('width',w+'px','important');ink.style.transform='translate3d('+x.toFixed(1)+'px,0,0)'}catch(e){}}
-  try{const M0=moveNavInk;moveNavInk=function(){const ink=document.querySelector('.bnav .navink'),before=ink?ink.style.transform:'';const r=M0.apply(this,arguments);fitInk();
-      const ink2=document.querySelector('.bnav .navink');if(ink2&&before&&ink2.style.transform!==before&&!RM&&ink2.animate){try{ink2.animate([{scale:'1 1'},{scale:'1.14 .9',offset:.38},{scale:'.98 1.03',offset:.72},{scale:'1 1'}],{duration:560,easing:'ease-in-out'})}catch(e){}}
-      return r};
-    addEventListener('resize',()=>requestAnimationFrame(fitInk));
-    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(fitInk));
-    requestAnimationFrame(fitInk);setTimeout(fitInk,900)}catch(e){}
+  try{moveNavInk=function(){const ink=document.querySelector('.bnav .navink'),before=ink?ink.style.transform:'';fitInk();
+      const ink2=document.querySelector('.bnav .navink');if(ink2&&before&&ink2.style.transform!==before&&!RM&&ink2.animate){try{ink2.animate([{scale:'1 1'},{scale:'1.14 .9',offset:.38},{scale:'.98 1.03',offset:.72},{scale:'1 1'}],{duration:560,easing:'ease-in-out'})}catch(e){}}};
+    addEventListener('resize',regeo);addEventListener('orientationchange',regeo);
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(regeo);
+    try{const nav=document.querySelector('.bnav');if(nav)new MutationObserver(regeo).observe(nav,{subtree:true,attributes:true,attributeFilter:['hidden']})}catch(e){}
+    requestAnimationFrame(fitInk);setTimeout(regeo,900)}catch(e){}
 
   /* ---------- popups fade out instead of vanishing (the card sinks a little while the backdrop fades) ---------- */
   const SOFTX=el=>el.parentNode===document.body&&(el.classList.contains('md')&&!el.classList.contains('tcgmd')||el.classList.contains('pwv')||el.classList.contains('pad')||el.classList.contains('shw'));
@@ -12791,113 +12768,127 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
 })();
 /*KGUJS-END*/
 /*KCHJS-START*/
-/* ===== v121 宝箱 (kch): the victory chest, rebuilt as a short motion piece =====
-   1. a column of light comes down; the chest drops into it and lands (squash, dust ring, a small shake)
-   2. it waits, the seam of the lid breathing gold; "タップして開ける"
-   3. tap: it rattles faster and faster, the lock bursts, the lid swings back with a burst of light from inside,
-      coins and sparks fountain out (one canvas), the amount counts up in big numerals
-   Same signature as before: chestView(v | {v,gold,mul,ct}, done). Everything moves by transform/opacity/canvas. */
+/* ===== v121 宝箱 (kch): the victory chest as a rendered film =====
+   The box is a 3D render (three.js, pre-rendered to two short clips so every phone shows the same picture at full quality):
+     a. a black lacquer jewellery box with gold edges is lowered into a shaft of light and waits (the light sweeps slowly, loops)
+     b. tap: the clasp flips, the lid swings back, light floods out, coins fountain up and land around the box
+   The numbers, the kicker and the hints are HTML on top, placed in the clip's own frame (9:16, full height, centered).
+   Same signature as before: chestView(v | {v,gold,mul,ct}, done). Reduced motion / no video: two stills instead. */
 (function(){
   let on=true;try{on=localStorage.getItem('ui2')!=='0'}catch(e){}
   if(!on||typeof chestView!=='function')return;
-  const G=window.gsap;if(!G)return;
+  const G=window.gsap;
   const RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
   const mk=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
-  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const sfx=n=>{try{window.KMotion&&KMotion.SFX.play(n)}catch(e){}};
   const vb=n=>{try{vib(n)}catch(e){}};
   const fmt=n=>Number(n||0).toLocaleString('ja-JP');
-
-  /* the chest itself: body, lid, lock, rivets, inner light. Gold skin for the golden chest. */
-  function chestEl(gold){
-    const c=mk('div','kch-chest'+(gold?' gold':''));
-    c.innerHTML=
-      '<div class="kch-body"><i class="kch-rim"></i><i class="kch-inner"></i><i class="kch-coins"><b></b><b></b><b></b><b></b><b></b></i><i class="kch-glow"></i>'+
-        '<div class="kch-front"><i class="kch-band l"></i><i class="kch-band r"></i><i class="kch-rv a"></i><i class="kch-rv b"></i><i class="kch-rv c"></i><i class="kch-rv d"></i></div></div>'+
-      '<div class="kch-lid"><div class="kch-lidf"><i class="kch-band l"></i><i class="kch-band r"></i><i class="kch-band m"></i><i class="kch-lidsheen"></i></div><div class="kch-lidin"></div></div>'+
-      '<div class="kch-lock"><i class="kch-key"></i></div><i class="kch-lidopen"></i>'+
-      '<i class="kch-seam"></i><i class="kch-shadow"></i>';
-    return c}
-
-  /* coins and sparks on one canvas, drawn from time */
-  function fountain(cv,cx,cy,big,gold){const dpr=Math.min(2,window.devicePixelRatio||1),W=innerWidth,H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;const x=cv.getContext('2d');x.scale(dpr,dpr);
-    const P=[],N=big?64:40;const rnd=(a,b)=>a+Math.random()*(b-a);
-    for(let i=0;i<N;i++){const coin=i%3!==2;const a=-Math.PI/2+rnd(-.9,.9),sp=rnd(big?520:420,big?860:700);P.push({coin,x:cx+rnd(-18,18),y:cy,vx:Math.cos(a)*sp*(coin?1:.7),vy:Math.sin(a)*sp,r:coin?rnd(5,8.5):rnd(1.5,3),ph:rnd(0,6.3),sp:rnd(5,9),t0:rnd(0,.22),col:gold?['#fff6d8','#ffe08a','#ffd36b'][i%3]:['#ffe08a','#f2c24a','#fff3b8'][i%3]})}
-    let raf=0,t0=0;const g=980*1.3;
-    const draw=t=>{x.clearRect(0,0,W,H);let alive=0;
-      for(const p of P){const tt=t-p.t0;if(tt<0){alive++;continue}const px=p.x+p.vx*tt,py=p.y+p.vy*tt+.5*g*tt*tt;if(py>H+30||tt>2.4)continue;alive++;
-        const life=Math.max(0,1-Math.max(0,tt-1.4)/1);x.globalAlpha=life;
-        if(p.coin){const w=Math.abs(Math.cos(p.ph+tt*p.sp))*p.r+1;x.fillStyle=p.col;x.beginPath();x.ellipse(px,py,w,p.r,0,0,6.3);x.fill();x.fillStyle='rgba(255,255,255,.55)';x.beginPath();x.ellipse(px-w*.3,py-p.r*.35,w*.35,p.r*.3,0,0,6.3);x.fill()}
-        else{x.fillStyle='#fff';x.shadowColor=p.col;x.shadowBlur=8;x.beginPath();x.arc(px,py,p.r,0,6.3);x.fill();x.shadowBlur=0}}
-      x.globalAlpha=1;return alive};
-    const loop=now=>{if(!t0)t0=now;const t=(now-t0)/1000;const n=draw(t);if(n&&t<3)raf=requestAnimationFrame(loop);else cv.remove()};
-    raf=requestAnimationFrame(loop);return()=>{cancelAnimationFrame(raf);cv.remove()}}
-
-  /* the light dust that drifts in the column while the chest waits */
-  function dust(cv,stop){const dpr=Math.min(2,window.devicePixelRatio||1),W=innerWidth,H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;const x=cv.getContext('2d');x.scale(dpr,dpr);
-    const P=[];for(let i=0;i<26;i++)P.push({x:W/2+(Math.random()-.5)*150,y:Math.random()*H,r:.8+Math.random()*1.6,v:8+Math.random()*16,a:Math.random()*6.3});
-    let raf=0,t0=0;const loop=now=>{if(stop.v){cv.remove();return}if(!t0)t0=now;const t=(now-t0)/1000;x.clearRect(0,0,W,H);
-      for(const p of P){const py=(p.y-p.v*t)%H,yy=py<0?py+H:py;const px=p.x+Math.sin(t*.7+p.a)*8;x.globalAlpha=.35+.35*Math.sin(t*2+p.a);x.fillStyle='#ffe9a8';x.beginPath();x.arc(px,yy,p.r,0,6.3);x.fill()}
-      x.globalAlpha=1;raf=requestAnimationFrame(loop)};raf=requestAnimationFrame(loop)}
+  const src=n=>{try{return fxSrc(n)}catch(e){return n}};
+  const LOOP_AT=1.6;/* clip a: the box has landed; from here to the end it loops */
+  function vid(cls){const m=document.createElement('video');m.className=cls;m.muted=true;m.defaultMuted=true;m.playsInline=true;m.setAttribute('playsinline','');m.setAttribute('muted','');m.preload='auto';m.disablePictureInPicture=true;m.setAttribute('disableremoteplayback','');return m}
+  /* the first clip is fetched once in the background so the box appears without a wait */
+  function warm(){try{if(typeof FXB==='undefined')return;['fx_chest_a.mp4'].forEach(n=>{if(FXB[n])return;fetch(n).then(r=>r.ok?r.blob():null).then(b=>{if(b&&b.size)FXB[n]=URL.createObjectURL(b)}).catch(()=>{})})}catch(e){}}
+  try{const once=()=>{window.removeEventListener('pointerdown',once,true);setTimeout(warm,20000)};window.addEventListener('pointerdown',once,true)}catch(e){}
+  window.__kchWarm=warm;
 
   chestView=function(v,done){
-    const ch=v&&typeof v==='object'?v:{v,gold:false,mul:1},mul=ch.mul||1;v=ch.v;const tk=v==='T'||v==='T3',big=!!(ch.gold||tk||v>=70),gold=!!ch.gold;
-    const o=mk('div','chest kch'+(gold?' gold':'')+(big?' big':'')),st=mk('div','kch-stage');
-    const beam=mk('i','kch-beam'),floor=mk('i','kch-floor'),ring=mk('i','kch-ring'),burst=mk('i','kch-burst'),flash=mk('i','kch-flash');
-    const chest=chestEl(gold);
-    const kicker=mk('div','kch-k',gold?'GOLDEN CHEST':'VICTORY CHEST');
-    const res=mk('div','kch-res'),hint=mk('div','kch-h','タップして開ける');
-    st.append(beam,floor,ring,burst,chest,flash);o.append(kicker,st,res,hint);
-    const cvd=mk('canvas','kch-cv');o.append(cvd);const stop={v:false};
+    const ch=v&&typeof v==='object'?v:{v,gold:false,mul:1},mul=ch.mul||1;v=ch.v;const tk=v==='T'||v==='T3',gold=!!ch.gold,big=!!(gold||tk||v>=70);
+    const base=gold?'fx_chest_gold':'fx_chest';
+    const o=mk('div','chest kch'+(gold?' gold':'')+(big?' big':''));
+    const fr=mk('div','kch-fr'),ui=mk('div','kch-ui');
+    const kicker=mk('div','kch-k',gold?'GOLDEN CHEST':'VICTORY CHEST'),res=mk('div','kch-res'),hint=mk('div','kch-h','タップして開ける');
+    ui.append(kicker,res,hint);o.append(fr,ui);
+    let vA=null,vB=null,still=false,opened=false,closable=false,timers=[];
+    const later=(fn,ms)=>timers.push(setTimeout(fn,ms));
+    /* stills: reduced motion, or a phone that will not play the clip */
+    function useStills(){if(still)return;still=true;fr.replaceChildren();const im=mk('img','kch-po');im.alt='';im.decoding='async';im.src=base+(opened?'_open':'_closed')+'.jpg';fr.append(im);if(vA){try{vA.pause()}catch(e){}}if(vB){try{vB.pause()}catch(e){}}
+      if(!opened){G&&!RM?G.fromTo(im,{opacity:0},{opacity:1,duration:.5}):0;later(()=>G&&G.to([kicker,hint],{opacity:1,duration:.4}),300)}}
+    if(RM){useStills()}
+    else{vA=vid('kch-va');vB=vid('kch-vb');vA.src=src(base+'_a.mp4');vB.src=src(base+'_b.mp4');fr.append(vA,vB);
+      vA.addEventListener('ended',()=>{if(opened)return;try{vA.currentTime=LOOP_AT;vA.play().catch(()=>{})}catch(e){}});
+      vA.addEventListener('error',useStills);vB.addEventListener('error',useStills);
+      const pr=vA.play();if(pr&&pr.catch)pr.catch(()=>{/* no autoplay: the still box, the tap still opens it */useStills()});
+      try{vB.load()}catch(e){}}
     document.body.append(o);
-    /* 1. the light comes down, the chest drops in */
-    G.set(chest.querySelector('.kch-lid'),{z:22});G.set(chest.querySelector('.kch-lock'),{z:26});
-    const tl=G.timeline({defaults:{ease:'power3.out'}});
-    if(RM){G.set([beam,floor,chest,kicker,hint],{opacity:1});G.set(chest,{y:0})}
-    else{G.set(chest,{y:-420,scaleX:1,scaleY:1,opacity:0});G.set([beam,floor,kicker,hint],{opacity:0});G.set(ring,{opacity:0,scale:.3});
-      tl.to(beam,{opacity:1,duration:.5,ease:'power2.out'},0).to(floor,{opacity:1,duration:.5},.1)
-        .to(chest,{y:0,opacity:1,duration:.5,ease:'power4.in'},.25)
-        .to(chest,{scaleX:1.1,scaleY:.86,duration:.09,ease:'power2.out'},.75).to(chest,{scaleX:.97,scaleY:1.04,duration:.14},.84).to(chest,{scaleX:1,scaleY:1,duration:.3,ease:'elastic.out(1,.5)'},.98)
-        .fromTo(ring,{opacity:.9,scale:.3},{opacity:0,scale:1.6,duration:.6,ease:'power2.out',immediateRender:false},.76)
-        .fromTo(st,{x:0},{x:-4,duration:.05,yoyo:true,repeat:3,immediateRender:false},.76).set(st,{x:0},1)
-        .to(kicker,{opacity:1,duration:.4},.9).to(hint,{opacity:1,duration:.4},1.1);
-      tl.call(()=>{sfx('thud');vb(3)},null,.76)}
-    if(!RM)dust(cvd,stop);
-    let opened=false;
-    const open=()=>{if(opened)return;opened=true;o.classList.add('kch-opening');hint.textContent='';
-      const o2=G.timeline({defaults:{ease:'power3.out'}});
-      const lid=chest.querySelector('.kch-lid'),lock=chest.querySelector('.kch-lock'),seam=chest.querySelector('.kch-seam'),glow=chest.querySelector('.kch-glow'),coins=chest.querySelector('.kch-coins');
-      if(RM){G.set(lid,{opacity:0});G.set(chest.querySelector('.kch-lidopen'),{opacity:1,rotateX:14,z:-8});G.set(lock,{opacity:0});G.set([glow,coins],{opacity:1});showResult(0);return}
-      /* 2. the rattle, faster and faster; the lock bursts */
-      o2.to(chest,{x:-3,duration:.06,yoyo:true,repeat:5,ease:'none'},0).to(chest,{x:4,rotate:1.5,duration:.045,yoyo:true,repeat:7,ease:'none'},.36).set(chest,{x:0,rotate:0},.7);
-      o2.to(seam,{opacity:1,duration:.5},0);
-      o2.to(lock,{y:6,scale:1.12,duration:.12},.6).to(lock,{y:40,opacity:0,rotate:30,scale:.9,duration:.3,ease:'power2.in'},.72);
-      o2.call(()=>{sfx('tick');vb(2)},null,.36).call(()=>{sfx('pop');vb(3)},null,.7);
-      /* 3. the lid swings back, light bursts out, coins fountain */
-      const lo=chest.querySelector('.kch-lidopen');G.set(lo,{z:-8,rotateX:88});G.set(lock,{z:14});o2.to(lid,{rotateX:92,duration:.5,ease:'power3.in'},.78).to(lid,{opacity:0,duration:.12},1.1);
-      o2.to(lo,{opacity:1,duration:.1},.92).to(lo,{rotateX:14,duration:.62,ease:'back.out(1.1)'},.92);
-      o2.fromTo(burst,{opacity:0,scale:.2},{opacity:1,scale:1,duration:.22,ease:'power2.out',immediateRender:false},.8).to(burst,{opacity:0,scale:1.6,duration:.7,ease:'power2.out'},1.02);
-      o2.fromTo(flash,{opacity:0},{opacity:big?.95:.75,duration:.08,immediateRender:false},.82).to(flash,{opacity:0,duration:.5},.9);
-      o2.to([glow,coins],{opacity:1,duration:.3},.84);
-      o2.fromTo(coins,{y:10,scale:.8,z:16},{y:0,scale:1,z:16,duration:.5,ease:'back.out(2)',immediateRender:false},.86);
-      o2.to(beam,{opacity:1,scaleX:1.5,duration:.4},.82).to(beam,{scaleX:1,duration:.8},1.2);
-      o2.fromTo(st,{y:0},{y:4,duration:.05,yoyo:true,repeat:5,immediateRender:false},.82).set(st,{y:0},1.15);
-      o2.call(()=>{sfx('chime');vb(big?6:4);const cv=mk('canvas','kch-cv top');o.append(cv);const r=chest.getBoundingClientRect();fountain(cv,r.left+r.width/2,r.top+r.height*.38,big,gold);try{FX(o,big?5:3,0,tk?XS.rainbow:XS.gold)}catch(e){}},null,.84);
-      o2.call(()=>showResult(1),null,1.05)};
-    function showResult(delay){res.replaceChildren();
-      if(tk){const t=mk('div','kch-tk');t.append(mk('b',null,'通常パックチケット'),mk('span',null,'×'+(v==='T3'?3:1)));res.append(t);
-        if(!RM)G.fromTo(t,{y:30,opacity:0,scale:.8},{y:0,opacity:1,scale:1,duration:.6,ease:'back.out(1.6)',delay:delay*.1})}
-      else{const n=Math.round(v*mul),b=mk('div','kch-n'),num=mk('b',null,'+0'),u=mk('span',null,'pt');b.append(num,u);res.append(b);
-        if(mul>1)res.append(mk('div','kch-mul','ジャンル週間 ×1.5'));
-        if(RM)num.textContent='+'+fmt(n);
-        else{G.fromTo(b,{y:26,opacity:0,scale:.7},{y:0,opacity:1,scale:1,duration:.55,ease:'back.out(1.8)',delay:delay*.1});
-          const c={k:0};G.to(c,{k:1,duration:.9,delay:delay*.1+.1,ease:'power3.out',onUpdate:()=>{num.textContent='+'+fmt(Math.round(n*c.k))},onComplete:()=>{num.textContent='+'+fmt(n);G.fromTo(num,{scale:1.18},{scale:1,duration:.35,ease:'back.out(3)'})}})}}
-      if(ch.ct){const t=mk('div','kch-ct');try{t.append(coinEl('gold',30))}catch(e){}t.append(mk('span',null,'コインチケット +1'));res.append(t);if(!RM)G.fromTo(t,{y:14,opacity:0},{y:0,opacity:1,duration:.5,delay:delay*.1+.5})}
-      setTimeout(()=>{hint.textContent='タップで閉じる';G.to(hint,{opacity:1,duration:.4});o.onclick=()=>{stop.v=true;if(RM){o.remove();done&&done();return}G.to(o,{opacity:0,duration:.25,onComplete:()=>{o.remove();done&&done()}})}},RM?10:700)}
-    o.onclick=open;
+    if(G){G.set([kicker,hint,res],{opacity:0});G.fromTo(o,{opacity:0},{opacity:1,duration:.35,ease:'power2.out'});
+      if(!still){G.to(kicker,{opacity:1,duration:.5,delay:1.35});G.to(hint,{opacity:1,duration:.5,delay:1.9})}}
+    if(!still){later(()=>sfx('beam'),60);later(()=>{sfx('land');vb(3)},1150)}
+    /* tap: clip b takes over on its first frame (the two clips start from the same picture) */
+    function open(){if(opened)return;opened=true;sfx('tick');vb(2);o.classList.add('kch-opening');
+      if(G){G.to(hint,{opacity:0,duration:.2});G.fromTo(fr,{scale:1},{scale:.992,duration:.08,yoyo:true,repeat:1,ease:'power1.inOut'})}
+      let t0=performance.now();
+      if(still){const im=fr.querySelector('.kch-po');if(im)im.src=base+'_open.jpg';showResult(RM?0:400);return}
+      const swap=()=>{if(G)G.to(vB,{opacity:1,duration:.16,ease:'power1.out',onComplete:()=>{try{vA.pause()}catch(e){}vA.hidden=true}});else{vB.style.opacity=1;vA.hidden=true}};
+      let swapped=false;const onPlaying=()=>{if(swapped)return;swapped=true;t0=performance.now();swap();schedule()};
+      vB.addEventListener('playing',onPlaying,{once:true});
+      const pr=vB.play();if(pr&&pr.catch)pr.catch(()=>{useStills();const im=fr.querySelector('.kch-po');if(im)im.src=base+'_open.jpg';showResult(300)});
+      later(()=>{if(!swapped&&!still)onPlaying()},600);
+      function schedule(){later(()=>sfx('pop'),200);later(()=>sfx('whoosh'),380);later(()=>{sfx('chime');vb(big?6:4)},860);later(()=>sfx('collect'),1050);later(()=>showResult(0),1300)}}
+    function showResult(delay){res.replaceChildren();const items=[];
+      if(tk){const t=mk('div','kch-tk');t.append(mk('b',null,'通常パックチケット'),mk('span',null,'×'+(v==='T3'?3:1)));items.push(t)}
+      else{const n=Math.round(v*mul),b=mk('div','kch-n'),num=mk('b',null,'+'+(RM?fmt(n):'0')),u=mk('span',null,'pt');b.append(num,u);items.push(b);
+        if(mul>1)items.push(mk('div','kch-mul','ジャンル週間 ×1.5'));
+        if(!RM&&G){const c={k:0};later(()=>G.to(c,{k:1,duration:.85,ease:'power3.out',onUpdate:()=>{num.textContent='+'+fmt(Math.round(n*c.k))},onComplete:()=>{num.textContent='+'+fmt(n);G.fromTo(num,{scale:1.14},{scale:1,duration:.4,ease:'back.out(3)'})}}),delay+120)}}
+      if(ch.ct){const t=mk('div','kch-ct');try{t.append(coinEl('gold',30))}catch(e){}t.append(mk('span',null,'コインチケット +1'));items.push(t)}
+      res.append(...items);
+      if(G&&!RM){G.set(res,{opacity:1});G.fromTo(items,{y:26,opacity:0,scale:.82},{y:0,opacity:1,scale:1,duration:.6,ease:'back.out(1.7)',stagger:.12,delay:delay/1000})}else res.style.opacity=1;
+      later(()=>{closable=true;hint.textContent='タップで閉じる';if(G)G.to(hint,{opacity:1,duration:.4});else hint.style.opacity=1},RM?10:delay+1100)}
+    function close(){timers.forEach(clearTimeout);const fin=()=>{try{vA&&vA.pause();vB&&vB.pause()}catch(e){}o.remove();done&&done()};
+      if(RM||!G){fin();return}G.to(o,{opacity:0,duration:.28,onComplete:fin})}
+    o.addEventListener('click',()=>{if(!opened)open();else if(closable)close()});
     return o};
 })();
-/*KCHJS-END*/</script>
+/*KCHJS-END*/
+/*KBGMJS-START*/
+/* ===== v121 BGM (kbgm): one track for the whole app =====
+   It loops quietly (30% by default) from the first touch on the screen, on every page. The TCG frame does not play its own copy:
+   its menu row talks to this one (window.__kbgm). Switch and volume live in 設定・要望 > BGM and are remembered on the phone. */
+(function(){
+  let on=true;try{on=localStorage.getItem('ui2')!=='0'}catch(e){}
+  if(!on)return;
+  const ST={on:true,vol:.3,src:'tcg_bgm.mp3',a:null,armed:false,wasPlaying:false,fading:0};
+  try{let v=localStorage.getItem('kbgm');if(v==null)v=localStorage.getItem('kotcg_bgm');/* the match-only setting from the first build carries over */
+    if(v!=null){const o=JSON.parse(v);if(typeof o.vol==='number')ST.vol=Math.max(0,Math.min(1,o.vol));if(typeof o.on==='boolean')ST.on=o.on}}catch(e){}
+  const save=()=>{try{localStorage.setItem('kbgm',JSON.stringify({on:ST.on,vol:ST.vol}))}catch(e){}};
+  const el=()=>{if(ST.a)return ST.a;const a=new Audio();a.loop=true;a.preload='none';a.volume=ST.vol;a.src=ST.src;ST.a=a;return a};
+  /* volume ramps so the music never pops in or out */
+  function ramp(to,ms,then){const a=ST.a;if(!a)return;const id=++ST.fading,v0=a.volume,t0=performance.now();
+    const step=()=>{if(ST.fading!==id)return;const k=Math.min(1,(performance.now()-t0)/ms);a.volume=v0+(to-v0)*k;if(k<1)requestAnimationFrame(step);else then&&then()};step()}
+  function play(){if(!ST.on)return;const a=el();if(!a.paused&&a.currentTime>0&&!a.ended){ramp(ST.vol,400);return}
+    a.volume=0;let pr;try{pr=a.play()}catch(e){pr=Promise.reject(e)}
+    const ok=()=>{ST.wasPlaying=true;ramp(ST.vol,1400)};
+    if(pr&&pr.then)pr.then(ok,()=>arm());else ok()}
+  function stop(now){const a=ST.a;if(!a||a.paused)return;ST.wasPlaying=false;if(now){a.pause();return}ramp(0,500,()=>{a.pause()})}
+  /* phones refuse to play before the first touch: the first touch anywhere starts it. The listeners stay until a play() is accepted,
+     so a touch whose first event is not counted as a gesture still works with its next one (touchend / click) */
+  const EVS=['pointerdown','touchend','click','keydown'];
+  function arm(){if(ST.armed)return;ST.armed=true;
+    const once=()=>{if(!ST.on)return;const a=el();if(!a.paused&&a.currentTime>0){disarm();return}a.volume=0;let pr;try{pr=a.play()}catch(e){pr=Promise.reject(e)}
+      const ok=()=>{disarm();ST.wasPlaying=true;ramp(ST.vol,1400)};if(pr&&pr.then)pr.then(ok,()=>{});else ok()};
+    ST.once=once;EVS.forEach(ev=>window.addEventListener(ev,once,true))}
+  function disarm(){if(!ST.armed)return;ST.armed=false;EVS.forEach(ev=>window.removeEventListener(ev,ST.once,true))}
+  function set(o,vol){if(vol!=null)ST.vol=Math.max(0,Math.min(1,vol));if(o!=null)ST.on=!!o;save();
+    if(!ST.on){stop(false);return}const a=ST.a;if(a&&!a.paused){ST.fading++;a.volume=ST.vol}else play()}
+  /* the app goes to the background: pause; comes back: continue */
+  document.addEventListener('visibilitychange',()=>{const a=ST.a;if(!a)return;if(document.hidden){if(!a.paused){a.pause();ST.wasPlaying=true}}else if(ST.wasPlaying&&ST.on){a.play().catch(()=>arm())}});
+  window.addEventListener('pagehide',()=>{try{ST.a&&ST.a.pause()}catch(e){}});
+  window.__kbgm={play,stop,set,get state(){return{on:ST.on,vol:ST.vol,playing:!!(ST.a&&!ST.a.paused)}}};
+  arm();
+
+  /* ---------- 設定・要望 > BGM ---------- */
+  const pct=()=>Math.round(ST.vol*100)+'%';
+  function row(){const after=document.getElementById('koshisec')||document.getElementById('ksfxsec')||document.getElementById('pushsec');if(!after||document.getElementById('kbgmsec'))return;
+    const s=document.createElement('section');s.id='kbgmsec';s.dataset.pg='set';
+    s.innerHTML='<h2>BGM</h2><label class="ksfx"><span><b>アプリのBGM</b><small>ホームでも対戦でも同じ曲が静かに流れます。iPhoneは画面に一度触れてから鳴ります</small></span><input type="checkbox" role="switch"><i></i></label>'+
+      '<div class="kbgm-vol"><b>音量</b><input type="range" min="0" max="100" step="1" aria-label="BGMの音量"><em></em></div>';
+    const cb=s.querySelector('input[type=checkbox]'),sl=s.querySelector('input[type=range]'),em=s.querySelector('em');
+    cb.checked=ST.on;sl.value=String(Math.round(ST.vol*100));em.textContent=pct();s.classList.toggle('off',!ST.on);
+    cb.addEventListener('change',()=>{set(cb.checked,null);s.classList.toggle('off',!ST.on)});
+    sl.addEventListener('input',()=>{set(null,(+sl.value)/100);em.textContent=pct()});
+    after.after(s)}
+  row();if(document.readyState!=='complete')addEventListener('load',row);setTimeout(row,1200);setTimeout(row,4000);
+})();
+/*KBGMJS-END*/</script>
 <script>
 /* data carried over from the Claude version (imported once by the first person who presses the button) */
 window.MIGRATE={"admin": "3kcrm26nwc6hhos2mgxd", "players": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"eq": {"b": null, "f": null, "t": null, "v": null, "x": "x40"}, "name": "山田", "season": 1}}], "inv": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"own": {"f00": 3, "f01": 1, "f02": 2, "t00": 1, "t10": 1, "t14": 2, "x00": 1, "x10": 1, "x11": 1, "x21": 1, "x40": 1}, "packs": 3, "shards": 6, "since": 0}}]};
