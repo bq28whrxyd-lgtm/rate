@@ -92,6 +92,11 @@ service cloud.firestore {
         && request.resource.data.get('nc', {}).diff(resource.data.get('nc', {})).affectedKeys().hasOnly([myPid()]);
     }
 
+    // ---- monthly pass sale window ({art, st, en}), set by the admin ----
+    match /config/passsale {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
     // ---- coin gacha period ({start, end}), set by the admin ----
     match /config/coinev {
       allow read: if signedIn();
@@ -271,12 +276,13 @@ service cloud.firestore {
         && newV('lfree', 0) >= 0 && newV('lfree', 0) <= newV('lpacks', 0)
         && newV('wused', 0) * 350 <= newV('lpacks', 0)
         && (newV('mpts', 0) == 0 || (newV('mpts', 0) == 100 && newV('md', -1) == today()))
-        && (newV('lbp', 0) == 0 || (newV('lbp', 0) >= 30 && newV('lbp', 0) <= 50 && newV('lbd', -1) == today())));
+        && (newV('lbp', 0) == 0 || (newV('lbp', 0) >= 30 && newV('lbp', 0) <= 50 && newV('lbd', -1) == today()))
+        && newV('ppp', 0) == 0);
       allow update: if isAdmin() || (signedIn() && myPid() == pid
         && newV('packs', 0) >= oldV('packs', 0) && newV('lpacks', 0) >= oldV('lpacks', 0)
         && newV('tused', 0) >= oldV('tused', 0) && (!('tix' in resource.data) || 'tix' in request.resource.data)
         && newV('tpacks', 0) >= oldV('tpacks', 0) && tcgStOk()
-        && pspentOk() && missionOk() && loginOk()
+        && pspentOk() && missionOk() && loginOk() && passOk(pid)
         && newV('lfree', 0) >= oldV('lfree', 0) && newV('lfree', 0) - oldV('lfree', 0) <= newV('lpacks', 0) - oldV('lpacks', 0)
         && newV('wused', 0) >= oldV('wused', 0)
         && (newV('wused', 0) == oldV('wused', 0) || newV('wused', 0) * 350 <= newV('lpacks', 0)));
@@ -290,6 +296,19 @@ service cloud.firestore {
         || (newV('mpts', 0) == oldV('mpts', 0) + 100 && newV('md', -1) > oldV('md', -1) && newV('md', -1) == today());
     }
     // login bonus: 30-50 at most once per day
+    // monthly pass: once a day, at most what the passes active right now give (pass/{pid}: e1/e2/e3 = end time of each grade, written by the admin)
+    function passDay(pid) {
+      let p = get(/databases/$(database)/documents/pass/$(pid)).data;
+      let t = request.time.toMillis();
+      return (p.get('e1', 0) > t ? 70 : 0) + (p.get('e2', 0) > t ? 210 : 0) + (p.get('e3', 0) > t ? 350 : 0);
+    }
+    function passOk(pid) {
+      return (newV('ppp', 0) == oldV('ppp', 0) && newV('ppd', -1) == oldV('ppd', -1))
+        || (newV('ppd', -1) > oldV('ppd', -1) && newV('ppd', -1) == today()
+            && newV('ppp', 0) > oldV('ppp', 0)
+            && exists(/databases/$(database)/documents/pass/$(pid))
+            && newV('ppp', 0) - oldV('ppp', 0) <= passDay(pid));
+    }
     function loginOk() {
       return (newV('lbp', 0) == oldV('lbp', 0) && newV('lbd', -1) == oldV('lbd', -1))
         || (newV('lbd', -1) > oldV('lbd', -1) && newV('lbd', -1) == today()
@@ -388,6 +407,11 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // monthly pass of each player: readable by everyone (it changes XP and shows a badge), written only by the admin
+    match /pass/{pid} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
     match /grants/{g} {
       allow read: if signedIn();
       allow create: if isAdmin();
