@@ -1069,6 +1069,128 @@ body:not(.gkview){background:
 /* notices and hint in the same glass */
 #hint{border:0;border-radius:16px;background:rgba(18,17,32,.9);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14),0 16px 40px rgba(0,0,0,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 @media (prefers-reduced-motion:reduce){.endb{transition:none}}
+/* ===== v2 units: a glass tile per lane. The figure stands on a lit disc in the upper part; the name and the numbers sit
+   on a plate below, the same way up for both players (the far side used to be printed upside down). No 3D pad, no SVG
+   filters on the figures (those made the table slow); the SCR and 極 finishes keep their own rules. ===== */
+.u{perspective:none;border-radius:12px!important;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025))!important;
+  box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 0 1px 0 rgba(255,255,255,.1),0 12px 24px -12px rgba(0,0,0,.9)!important;overflow:visible}
+.u::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+  background:radial-gradient(70% 50% at 50% 38%,color-mix(in srgb,var(--dc) 28%,transparent),transparent 72%)}
+.u.opp::before{background:radial-gradient(70% 50% at 50% 38%,color-mix(in srgb,var(--dc) 22%,transparent),transparent 72%)}
+.u .pad{display:none!important}
+.u .base{bottom:34%;width:70%;height:9%;background:radial-gradient(closest-side,color-mix(in srgb,var(--dc) 75%,#fff),color-mix(in srgb,var(--dc) 35%,transparent) 55%,transparent);opacity:.75;z-index:1}
+.u .stand{left:50%;bottom:36%;width:92%;height:60%;z-index:2}
+.u .stand>svg,.u .stand>img{filter:none;will-change:auto}
+.u .stand::after{display:none}
+.u.sick .stand>svg,.u.sick .stand>img{filter:none;opacity:.42}
+.u.sick .base{opacity:.25}
+.u.ready .stand>svg,.u.ready .stand>img,.u.tgt .stand>svg,.u.aim .stand>svg,.u.tgt .stand>img,.u.aim .stand>img,.u.charge .stand>svg,.u.ace .stand>svg,.u.ace .stand>img{filter:none}
+.u.ace .pad .pimg svg,.u.ace .pad .pimg img,.u.ace .stand>.panel img{filter:none}
+.u .stand>.panel{left:6%;right:6%;top:0;border-radius:8cqw;box-shadow:0 0 0 1.5px rgba(255,255,255,.9),0 8px 14px rgba(0,0,0,.6)}
+/* the plate */
+.u .plate{height:34%;left:0;right:0;bottom:0;transform:none!important;border-radius:0 0 12px 12px;background:linear-gradient(180deg,rgba(6,6,12,0),rgba(6,6,12,.55) 30%,rgba(6,6,12,.7))}
+.u.opp .plate{transform:none!important}
+.u.opp .pad .pimg{transform:none}
+.u .plate .nmb{top:8%;font:800 9cqw/1.15 var(--body);color:#fff;letter-spacing:0;text-shadow:0 1px 4px rgba(0,0,0,.8);padding:0 3cqw}
+.u .plate .ust{left:3cqw;right:3cqw;bottom:3cqw;gap:2.5cqw}
+.u .plate .ust b{flex-direction:row;align-items:baseline;justify-content:center;gap:1.5cqw;padding:1.6cqw 0 1.8cqw;border-radius:3.5cqw;border:0;border-bottom:0;
+  font:800 12cqw/1 var(--vs-num);color:#fff;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16)}
+.u .plate .ust b small{font:800 5.5cqw/1 var(--body);color:var(--vs-mut);letter-spacing:.02em;margin:0}
+.u .plate .ust .a{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 3px 0 0 #ff9a5c}
+.u .plate .ust .d{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 3px 0 0 #69b6ff}
+.u .plate .ust b.up{box-shadow:inset 0 0 0 1px #ffe9a8,0 0 8px rgba(255,211,107,.5)}
+.u .plate .ust b.dn{filter:none;color:#ff9fb1;box-shadow:inset 0 0 0 1px rgba(255,93,108,.8)}
+/* stars and keywords as small pills in the corners */
+.u .stars{top:4cqw;left:4cqw;transform:none;font-size:7.5cqw;padding:1.4cqw 3cqw;border:0;background:rgba(6,6,12,.6);box-shadow:inset 0 0 0 .5px rgba(255,211,107,.45);color:#8e86a8}
+.u .stars.s2{color:#ffd36b}
+.u .stars.s3{color:#2a1d02;background:linear-gradient(90deg,#ffe9a8,#ffd36b);box-shadow:none;text-shadow:none}
+.u .kw{top:4cqw;left:auto;right:4cqw;flex-direction:column;align-items:flex-end;gap:1.6cqw}
+.u .kw i{font:800 7.5cqw/1 var(--body);padding:1.4cqw 2.6cqw;border-radius:3cqw;background:rgba(6,6,12,.62);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.22);color:#fff}
+.u .kw i.w{color:var(--vs-mut);margin:0}
+.u .kw i.y{background:linear-gradient(180deg,#fff2c4,#f5c84c);color:#2a1d02;box-shadow:none}
+.u .kw i.c{background:#e9edf6;color:#1a1f2e;box-shadow:none}
+.u .awl{right:4cqw;bottom:auto;top:30cqw;font:800 7.5cqw/1 var(--body);padding:1.4cqw 2.6cqw;border-radius:3cqw;background:linear-gradient(180deg,#ffe9a8,#f5c84c);color:#2a1d02}
+/* states */
+.u.ready{box-shadow:inset 0 0 0 1.5px var(--vs-a2),0 0 18px rgba(103,232,249,.35),0 12px 24px -12px rgba(0,0,0,.9)!important}
+.u.ready::before{background:radial-gradient(70% 50% at 50% 38%,rgba(103,232,249,.22),transparent 72%)}
+.u.ready::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 0 0 2px var(--vs-a2),0 0 16px 2px rgba(103,232,249,.5);opacity:.35;animation:readyP 1.6s ease-in-out infinite;will-change:opacity}
+.u.sel{transform:translateY(-4px);box-shadow:inset 0 0 0 2px #fff,0 0 26px rgba(103,232,249,.7)!important}
+.u.sel .pad,.u.tgt .pad,.u.aim .pad,.u.ready .pad,.u.ace .pad,.u.awk .pad{box-shadow:none}
+.u.tgt,.u.aim{box-shadow:inset 0 0 0 2px var(--vs-pink),0 0 20px rgba(255,95,176,.55),0 12px 24px -12px rgba(0,0,0,.9)!important}
+.u.aim::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 0 0 2px var(--vs-pink),0 0 18px 2px rgba(255,95,176,.55);opacity:.4;animation:readyP 1s ease-in-out infinite;will-change:opacity}
+.u.charge{box-shadow:inset 0 0 0 2px #fff,0 0 30px var(--vs-pink)!important}
+.u.ace{box-shadow:inset 0 0 0 1.5px #ffd36b,0 0 18px rgba(255,211,107,.3),0 12px 24px -12px rgba(0,0,0,.9)!important}
+.u.ace .nmb{color:#ffe9a8}
+.u.awk{box-shadow:inset 0 0 0 1.5px #ffd36b,0 0 22px rgba(255,211,107,.45),0 12px 24px -12px rgba(0,0,0,.9)!important}
+.u.boss{box-shadow:inset 0 0 0 1.5px #ff8aa4,0 0 20px rgba(255,61,110,.4),0 12px 24px -12px rgba(0,0,0,.9)!important}
+.u.foilc{border-radius:12px}
+/* the stacked copies under a unit: a small count at the bottom-left instead of the shadowed pad */
+.u[data-under]::after{content:"+" attr(data-under);position:absolute;left:4cqw;bottom:36cqw;z-index:4;font:800 7.5cqw/1 var(--vs-num);padding:1.4cqw 2.6cqw;border-radius:3cqw;background:rgba(6,6,12,.62);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.22);color:#fff;opacity:1;animation:none}
+.lane.pick .u{box-shadow:inset 0 0 0 2px #ffd36b,0 0 22px rgba(255,211,107,.6)!important}
+/* the far side: the pink edge, and the figure a touch smaller so the eye reads yours as nearer */
+.u.opp{box-shadow:inset 0 0 0 .5px rgba(255,95,176,.35),inset 0 1px 0 rgba(255,255,255,.1),0 12px 24px -12px rgba(0,0,0,.9)!important}
+/* ---- the turn banner (v2) ---- */
+.tbanner.v2{height:120px;margin-top:-60px;overflow:visible}
+.tbanner.v2 .tline{position:absolute;left:8%;right:8%;top:50%;height:1px;transform-origin:50% 50%;background:linear-gradient(90deg,transparent,var(--vs-a2) 30%,#fff 50%,var(--vs-a1) 70%,transparent);box-shadow:0 0 12px rgba(103,232,249,.6)}
+.tbanner.v2.op .tline{background:linear-gradient(90deg,transparent,var(--vs-pink) 30%,#fff 50%,#b48cff 70%,transparent);box-shadow:0 0 12px rgba(255,95,176,.6)}
+.tbanner.v2 .tpill{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 28px 13px;border-radius:999px;overflow:hidden;
+  background:rgba(14,13,24,.86);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.22),inset 0 1px 0 rgba(255,255,255,.14),0 24px 60px -20px rgba(0,0,0,.9),0 0 50px -20px var(--vs-a2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.tbanner.v2.op .tpill{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.22),inset 0 1px 0 rgba(255,255,255,.14),0 24px 60px -20px rgba(0,0,0,.9),0 0 50px -20px var(--vs-pink)}
+.tbanner.v2 b{font:800 24px/1 var(--body);color:#fff;letter-spacing:.02em;text-shadow:none}
+.tbanner.v2 small{margin:0;font:800 10.5px/1 var(--vs-num);letter-spacing:.24em;color:var(--vs-a2)}
+.tbanner.v2.op small{color:var(--vs-pink)}
+.tbanner.v2 .tsw{position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);transform:translateX(-120%) skewX(-18deg);pointer-events:none}
+/* the clash numbers and the captions in the same glass */
+.clash{border:0;border-radius:16px;background:rgba(14,13,24,.9);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2),0 20px 50px rgba(0,0,0,.75);padding:8px 14px}
+.clash .cr span{font:800 18px/1 var(--vs-num)}
+.clash .cr small{font:800 9px/1 var(--body);color:var(--vs-mut)}
+.clash .cr i{font:800 15px/1 var(--vs-num)}
+.capt{border:0;border-radius:999px;background:rgba(14,13,24,.9);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2),0 16px 40px rgba(0,0,0,.6);font:700 13px/1.4 var(--body)}
+.notice{border:0;border-radius:14px;background:rgba(14,13,24,.9);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 3px 0 0 var(--vs-pink),0 16px 40px rgba(0,0,0,.6)}
+.notice.me{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 3px 0 0 var(--vs-a2),0 16px 40px rgba(0,0,0,.6)}
+.notice.trap{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 3px 0 0 #b48cff,0 16px 40px rgba(0,0,0,.6)}
+.notice.spell{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 3px 0 0 #5ee3b0,0 16px 40px rgba(0,0,0,.6)}
+.notice.gt,.notice.stack{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 3px 0 0 #ffd36b,0 16px 40px rgba(0,0,0,.6)}
+/* the feed sits under the far HUD, never over it */
+#feed{top:68px;left:10px}
+.stamp{font:800 15px/1 var(--body);border-radius:8px;border:1.5px solid #fff}
+/* ---- v2 fixes and lighter impact pieces ---- */
+#s-game>#feed,#s-game>#hint{position:absolute}
+#feed{left:10px;right:10px;top:50%;width:auto;transform:translateY(-50%);align-items:center}
+.notice{width:min(100%,320px)}
+/* the hit: a short burst of lines around the impact (no screen-filling blend layer), the sound word smaller and in the app's type */
+.fx.focus{width:120vmin;height:120vmin;mix-blend-mode:normal;opacity:.7;
+  background:repeating-conic-gradient(from 0deg,transparent 0deg 4deg,color-mix(in srgb,var(--c) 60%,#fff) 4deg 4.6deg,transparent 4.6deg 9deg);
+  -webkit-mask:radial-gradient(circle,transparent calc(10% * var(--s)),#000 calc(18% * var(--s)),#000 30%,transparent 42%);mask:radial-gradient(circle,transparent calc(10% * var(--s)),#000 calc(18% * var(--s)),#000 30%,transparent 42%)}
+.fx.ifr{display:none}
+.fx.ono span{font:900 30px/1 var(--body);color:#fff;-webkit-text-stroke:0;paint-order:normal;text-shadow:0 2px 0 var(--c),0 10px 30px rgba(0,0,0,.6);letter-spacing:.02em}
+.fx.ono.light span{font-size:22px;text-shadow:0 2px 0 var(--c),0 8px 24px rgba(0,0,0,.6)}
+.fx.ono.heavy span{font-size:34px}
+/* short captions sit just above the middle line, where they cover no unit */
+.capt{top:auto;bottom:calc(50% + 18px);transform:translateX(-50%)}
+/* the card notice is one short line over the far trap row (tap it for the full text), so it never sits on a unit or the banner */
+#feed{top:66px;left:10px;right:10px;transform:none;align-items:flex-start}
+.notice{width:auto;max-width:min(100%,320px);padding:4px 12px 4px 4px;gap:8px;border-radius:999px}
+.notice .na{width:30px;height:30px;border-radius:50%}
+.notice .nt{flex-direction:row;align-items:baseline;gap:6px}
+.notice span{display:none}
+.notice small{font:700 10px/1 var(--body);color:var(--vs-mut);white-space:nowrap}
+.notice b{font:800 12.5px/1.2 var(--body);white-space:nowrap}
+.tbanner.v2 b,.tbanner.v2 small{white-space:nowrap}
+.tbanner.v2 .tpill{max-width:none}
+/* ---- labels, result and buttons in the same language ---- */
+.slab{transform:translateX(-50%);padding:6px 14px;border-radius:999px;font:800 12px/1 var(--body);letter-spacing:.06em;color:#fff;background:rgba(14,13,24,.9);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.22),0 12px 30px rgba(0,0,0,.6)}
+.slab.spell{color:#5ee3b0}.slab.trap{color:#c9b6ff}.slab.gt,.slab.ace{color:#ffd36b}
+.finish{font:900 56px/1 var(--body);letter-spacing:.06em;-webkit-text-stroke:0;color:#fff;text-shadow:0 0 30px rgba(255,95,176,.9),0 0 60px rgba(139,123,255,.6)}
+.ovl{background:rgba(4,4,8,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.ovl .box{border:0;border-radius:28px;padding:26px 20px 20px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));box-shadow:inset 0 0 0 .5px rgba(255,255,255,.18),inset 0 1px 0 rgba(255,255,255,.1),0 40px 80px -30px rgba(0,0,0,.9)}
+.ovl .box>div:first-child{font:700 12px/1.4 var(--body);color:var(--vs-mut)}
+.ovl h2{font:900 40px/1.1 var(--body);letter-spacing:.02em}
+.ovl h2.win{background:linear-gradient(180deg,#fff,#ffe9a8 50%,#f5c84c);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ovl h2.lose{color:#8f8ab3}
+.ovl .why{font:600 12.5px/1.5 var(--body);color:var(--vs-mut)}
+.ovl .btn{background:linear-gradient(180deg,#fff,#e9e6f5);color:#101014;box-shadow:0 0 0 1px rgba(255,255,255,.4),0 14px 30px -12px var(--vs-a1)}
+.ovl .btn.sec{background:rgba(255,255,255,.06);color:#fff;border:0;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.18)}
 
 </style>
 
@@ -2345,7 +2467,7 @@ function unitGa(u,S){if(WATCH)return u.ga|0;return gaOf(unitVar(u,S))}
 function handVar(S,i){const P=S.p[H],id=P.hand[i];if(!id)return 0;scrSync();const L=specLeft(S,H,id);let before=0;for(let j=0;j<i;j++)if(P.hand[j]===id)before++;return L[before]||0}
 function handFoil(S,i){return isF(handVar(S,i))}
 const handGa=(S,i)=>gaOf(handVar(S,i));
-function unitEl(u,S,side){const c=BY[u.id],d=el('div','u '+FAC(u.id)+' r-'+c.r+(u.awk?' awk':'')+(CD.isLeader(u.id)?' ace':c.same?' boss':'')+(side==='opp'?' opp':''));d.dataset.uid=u.uid;
+function unitEl(u,S,side){const c=BY[u.id],d=el('div','u '+FAC(u.id)+' r-'+c.r+(u.awk?' awk':'')+(CD.isLeader(u.id)?' ace':c.same?' boss':'')+(side==='opp'?' opp':''));d.dataset.uid=u.uid;if(u.under)d.dataset.under=u.under;
   const pad=el('div','pad');const pi=el('div','pimg');const uga=unitGa(u,S);pi.append(artEl(u.id,Math.min(2,uga)));pad.append(pi);
   if(u.under){const sh=[];for(let i=1;i<=Math.min(u.under,3);i++)sh.push('0 '+(i*3)+'px 0 -1px #3a2f74','0 '+(i*3)+'px 0 0 #b89a5499');pad.style.setProperty('--under',sh.join(','))}
   const stand=el('div','stand');stand.append(figEl(u.id,uga));if(u.awk)stand.append(el('i','aura'));
@@ -3062,6 +3184,63 @@ const PVP=HOST&&HOST.pvp?HOST.pvp():null;
 if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(CPU_GO)cpuGo(CPU_GO);else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
 clearTimeout(window.__tcgBootTimer);if(document.documentElement.classList.contains('tcg-embedded')&&!HOST&&!(WATCH&&window.parent!==window&&window.parent.TCGWATCH)){const b=$('tcgBoot');b.classList.add('slow');b.querySelector('[role="status"]').textContent='アプリから編成・対戦・観戦を開き直してください。'}else document.documentElement.classList.remove('tcg-booting');
 window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},endMyTurn,startMatch,E,AI};
+
+/* ===== v121 duel v2 (ui5_v2.js, appended after ui5_main.js) =====
+   1) drawing is incremental: a lane, a hand card or an avatar is rebuilt only when what it shows has changed. Before, every
+      event rebuilt the whole table (and re-decoded every picture), which is what made the match feel laggy on a phone.
+   2) the turn banner is a glass pill with one light sweep, in the app's language.
+   The function declarations below replace the earlier ones of the same name (last declaration wins). */
+const V2={av:{},lane:[],hand:'',traps:['','']};
+function v2unitKey(u,S,side){if(!u)return'';let ready=0;try{if(side==='me'&&S.cur===H&&!S.over&&!busy&&g){const m=E.find(g,u.uid);if(m&&E.canAttack(g,H,m)&&!(mode&&mode.k!=='atk'))ready=1}}catch(e){}
+  let v=0;try{v=WATCH?(u.scr?1:0)+'/'+(u.ga|0):unitVar(u,S)}catch(e){}
+  return [u.uid,u.id,u.A,u.D,u.star,u.awk?1:0,u.sick?1:0,u.rush?1:0,u.cover?1:0,u.gutsUsed?1:0,u.under|0,ready,v].join('|')}
+function v2trapKey(P){return [P.st.length,P.seal?1:0,P.st.map(t=>t.uid+(t.ready?'r':'w')).join(',')].join('|')}
+function render(S){view=S;queueSpectator();const me=S.p[H],op=S.p[1-H];
+  /* the avatars: kept while the gauge and the leader's state are the same (their picture is the heavy part) */
+  const avOf=(P,key,isOpp)=>{const k=[key,P.gauge,P.skillUsed?1:0,P.lead&&P.lead.out?1:0,P.lead?P.lead.id:''].join('|');const c=V2.av[isOpp?'o':'m'];if(c&&c.k===k&&c.el)return c.el;const e=avatar(P,key,isOpp);V2.av[isOpp?'o':'m']={k,el:e};return e};
+  const ob=$('oppBar');ob.replaceChildren();ob.append(avOf(op,cpuKey,true),lifeEl(op,true),traitEl(op,1-H),el('div','sp'));
+  const oh=el('div','meta');oh.id='oppHand';oh.innerHTML='<span class="ic hcard"></span><b>'+op.hand.length+'</b><span class="ic gem"></span><b>'+op.energy+'<small>/'+op.maxE+'</small></b>';ob.append(oh);
+  const tc=el('button','tchip');tc.append(el('b',null,S.over?'終了':Math.max(1,S.p[S.cur].turn)+'/'+E.R.MAXTURN),el('span',null,'メニュー'));tc.onclick=menuSheet;ob.append(tc);
+  /* the table: built once, then each lane is swapped only when its unit changed */
+  const f=$('field');
+  if(f.children.length!==11||!f.firstElementChild||f.firstElementChild.id!=='oppST'){f.replaceChildren();f.append(trapsEl(op,true));
+    for(let L=0;L<4;L++){const ln=el('div','lane o');ln.dataset.side='o';ln.dataset.l=L;ln.append(el('div','slot'));f.append(ln)}
+    const mid=el('div','midl');mid.id='midl';f.append(mid);
+    for(let L=0;L<4;L++){const ln=el('div','lane m');ln.dataset.side='m';ln.dataset.l=L;ln.append(el('div','slot'));f.append(ln)}
+    f.append(trapsEl(me,false));V2.lane=[];V2.traps=[v2trapKey(op),v2trapKey(me)]}
+  else{const tk=[v2trapKey(op),v2trapKey(me)];if(tk[0]!==V2.traps[0]){f.firstElementChild.replaceWith(trapsEl(op,true))}if(tk[1]!==V2.traps[1]){f.lastElementChild.replaceWith(trapsEl(me,false))}V2.traps=tk}
+  const lanes=[...f.querySelectorAll('.lane')];
+  lanes.forEach((ln,i)=>{const side=i<4?'opp':'me',u=(i<4?op:me).slot[i<4?i:i-4];const k=v2unitKey(u,S,side);
+    if(V2.lane[i]!==k||!ln.firstElementChild){V2.lane[i]=k;ln.replaceChildren(u?unitEl(u,S,side):el('div','slot'))}
+    else{const x=ln.firstElementChild;if(x.classList.contains('u')){x.classList.remove('tgt','sel','aim');x.style.zIndex=''}}
+    ln.classList.remove('pick');ln.onclick=null});
+  const mb=$('myBar');mb.replaceChildren();mb.append(avOf(me,myKey,false));
+  if(!WATCH&&g&&E.canSkill(g,H)&&!busy&&S.cur===H){const sk=el('button','skchip','必殺技');sk.onclick=()=>skillSheet(H);mb.append(sk)}
+  else if(!WATCH&&g&&E.canLeader(g,H)&&!busy&&S.cur===H){const sk=el('button','skchip lead','リーダー');sk.onclick=()=>leaderSheet(H);mb.append(sk)}
+  mb.append(lifeEl(me,false),traitEl(me,H),el('div','sp'));
+  const en=el('div','energy');en.setAttribute('aria-label','熱量 '+me.energy+'/'+me.maxE);const gs=el('div','gems');for(let i=0;i<me.maxE;i++)gs.append(el('i',i<me.energy?'on':''));en.append(gs,el('b',null,me.energy+'/'+me.maxE));mb.append(en,endBtn(S));
+  /* the hand: rebuilt only when the cards or what can be played changed; otherwise just the highlight moves */
+  const hd=$('hand');const flags=me.hand.map((id,i)=>{const ok=liveMine()&&(E.canPlay(g,H,i)||canStackAny(i));const hv=WATCH?0:handVar(S,i);return id+':'+(ok?1:0)+':'+hv});const hk=flags.join(',')+'|'+(WATCH?1:0);
+  if(V2.hand!==hk||hd.querySelectorAll(WATCH?'.cb':'.bc').length!==me.hand.length){V2.hand=hk;hd.replaceChildren();
+    me.hand.forEach((id,i)=>{const ok=liveMine()&&(E.canPlay(g,H,i)||canStackAny(i));const hv=WATCH?0:handVar(S,i),c=WATCH?backCard():bigCard(id,true,isF(hv),gaOf(hv));c.classList.add(ok?'can':'no');c.onclick=()=>handTap(i);hd.append(c)});
+    const dk=el('div','deckmark');dk.id='myDeck';hd.append(dk)}
+  [...hd.querySelectorAll(WATCH?'.cb':'.bc')].forEach((c,i)=>{c.classList.toggle('on',!!(mode&&mode.hi===i));c.onclick=()=>handTap(i)});
+  if(WATCH){document.querySelectorAll('#s-game button').forEach(b=>{b.disabled=true;b.onclick=null});document.querySelectorAll('#field .lane').forEach(b=>b.onclick=null);$('hint').hidden=true;const t=$('endb');t.querySelector('span').textContent='観戦中';}else{bindField(S);renderHint(S)}fit()}
+/* a unit that was hidden by an effect (撃破・生贄) and then rebuilt must not keep the old element: the keys include the uid, so a
+   new unit in the same lane is always a new element; and a lane whose unit died becomes a slot (key '') */
+/* the new game starts with a clean cache */
+{const BG=beginGame;beginGame=function(){V2.av={};V2.lane=[];V2.hand='';V2.traps=['',''];const f=$('field');if(f)f.replaceChildren();return BG.apply(this,arguments)}}
+
+/* ---- the turn banner: a glass pill in the middle, a line of light runs through it once ---- */
+function banner(mine){const b=el('div','tbanner v2'+(mine?' me':' op'));const n=g?g.p[g.cur].turn:WATCH&&view?view.p[view.cur].turn:1;
+  const pill=el('div','tpill');pill.append(el('b',null,mine?'あなたのターン':'相手のターン'),el('small',null,'TURN '+n+' / '+E.R.MAXTURN),el('i','tsw'));
+  const line=el('i','tline');b.append(line,pill);document.body.append(b);
+  const EO='cubic-bezier(.16,1,.3,1)';
+  line.animate([{transform:'scaleX(0)',opacity:0},{transform:'scaleX(1)',opacity:1,offset:.3},{transform:'scaleX(1)',opacity:1,offset:.75},{transform:'scaleX(1.04)',opacity:0}],{duration:D(1100),easing:EO});
+  pill.animate([{transform:'translate(-50%,-50%) translateY(10px) scale(.94)',opacity:0},{transform:'translate(-50%,-50%)',opacity:1,offset:.25},{transform:'translate(-50%,-50%)',opacity:1,offset:.78},{transform:'translate(-50%,-50%) translateY(-8px)',opacity:0}],{duration:D(1100),easing:EO});
+  pill.querySelector('.tsw').animate([{transform:'translateX(-120%) skewX(-18deg)'},{transform:'translateX(220%) skewX(-18deg)'}],{duration:D(650),delay:D(220),easing:'ease-in-out'});
+  return wait(950).then(()=>b.remove())}
+
 })();
 
 </script>
