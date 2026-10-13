@@ -4222,6 +4222,7 @@ body.ui2 .kt-stats b{font:800 17px/1 var(--x-n,"Geist",sans-serif);font-variant-
 /*KF-START*/
 /* ===== v121 flow + SaaS polish (kf). Dark glass surfaces, hairline gradient edges (light from the top left, violet to cyan
    at the bottom right), icons stroked with one violet-to-cyan gradient (#kfgA, see kf.js), white buttons with a violet glow. ===== */
+body.ui2{--kf-nb:max(10px,calc(env(safe-area-inset-bottom,0px) - 14px));--kf-ext:max(0px,calc(env(safe-area-inset-top,0px) - 6px))}
 body.kfon{--kf-v:#8b7bff;--kf-c:#67e8f9;--kf-p:#c4b5fd;--kf-bg:#0b0b0f;--kf-s1:#121217;--kf-s2:#18181f;--kf-fg:#f4f1ea;--kf-fg2:rgba(244,241,234,.74);--kf-mut:rgba(244,241,234,.52);
   --kf-edge:linear-gradient(150deg,rgba(255,255,255,.36),rgba(255,255,255,.06) 36%,rgba(139,123,255,.24) 70%,rgba(103,232,249,.48))}
 
@@ -4269,23 +4270,102 @@ body.kfon .kf-ghost{all:unset;box-sizing:border-box;display:flex;align-items:cen
   font:700 15px/1.2 var(--x-f,-apple-system,sans-serif);color:var(--kf-mut)}
 body.kfon .kf-ghost:active{background:rgba(255,255,255,.05)}
 
-/* ---------- icons on the home and the top bar: dark glass tiles, a gradient edge, violet-to-cyan strokes ---------- */
-body.ui2 #lob .lside .lgl{background:radial-gradient(110% 80% at 28% 0%,rgba(139,123,255,.26),rgba(139,123,255,0) 64%),linear-gradient(180deg,rgba(27,26,35,.9),rgba(11,11,15,.92))!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 12px 28px -12px rgba(0,0,0,.9),0 0 24px -12px rgba(139,123,255,.6)!important;color:#ecebff!important}
-body.ui2 #lob .lside .lgl::after,body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell)::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;padding:1px;pointer-events:none;background:var(--kf-edge);
+/* ---------- icons on the home and the top bar: clear glass. The art behind shows through (a light tint, no blur), a bright
+   rim on the top edge, a hairline gradient edge, and the icon and label carry their own soft shadow so they read on any art ---------- */
+body.ui2 #lob .lside .lgl,body.ui2 :is(#lob,#ktop) .lbar .lgl{background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 46%,rgba(120,110,255,.08)),rgba(12,12,20,.22)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.34),inset 0 -1px 0 rgba(0,0,0,.18),0 10px 26px -12px rgba(0,0,0,.75)!important;color:#fff!important}
+body.ui2 #lob .lside .lgl::after,body.ui2 :is(#lob,#ktop) .lbar .lgl::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(150deg,rgba(255,255,255,.55),rgba(255,255,255,.1) 34%,rgba(255,255,255,.04) 60%,rgba(139,123,255,.4) 82%,rgba(103,232,249,.6));
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
-body.ui2 #lob .lside .lgl svg,body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell) svg{stroke:url(#kfgA);filter:drop-shadow(0 0 5px rgba(139,123,255,.5))}
+body.ui2 #lob .lside .lgl{text-shadow:0 1px 2px rgba(0,0,0,.55),0 2px 10px rgba(0,0,0,.45)}
+body.ui2 #lob .lside .lgl svg,body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell) svg{stroke:url(#kfgA);filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.55)) drop-shadow(0 0 6px rgba(139,123,255,.55))}
 body.ui2 #lob .lside .lgl svg [fill="currentColor"],body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell) svg [fill="currentColor"]{fill:url(#kfgA)}
-body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell){background:radial-gradient(110% 90% at 30% 0%,rgba(139,123,255,.24),rgba(139,123,255,0) 66%),linear-gradient(180deg,rgba(27,26,35,.9),rgba(11,11,15,.92))!important;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 10px 24px -12px rgba(0,0,0,.9)!important}
-body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell) b{z-index:2;box-shadow:0 0 0 2px #0b0b10,0 0 12px rgba(255,69,58,.6)}
+body.ui2 :is(#lob,#ktop) .lbar .lgl :is(small,.lvx,.lpt,.ltk,.lvn){text-shadow:0 1px 2px rgba(0,0,0,.5)}
+body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell) b{z-index:2;box-shadow:0 0 0 2px rgba(10,10,16,.85),0 0 12px rgba(255,69,58,.6)}
 /* counts on the tiles: a violet-to-cyan pill */
-body.ui2 #lob .lside em{z-index:2;top:-7px;right:-8px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;display:grid;place-items:center;font:800 11px/1 var(--x-n,"Geist",sans-serif);
-  font-variant-numeric:tabular-nums;color:#fff;background:linear-gradient(135deg,#a08fff,#3dd8f0);box-shadow:0 0 0 2px #0b0b10,0 6px 14px -4px rgba(139,123,255,.85);text-shadow:0 1px 1px rgba(40,24,110,.35)}
-body.ui2 #lob .lside em.dot{min-width:0;width:10px;height:10px;padding:0;top:-2px;right:-2px;background:radial-gradient(circle at 35% 35%,#ffc2cd,#ff3b5c 62%);box-shadow:0 0 0 2px #0b0b10,0 0 12px rgba(255,59,92,.85)}
-/* the selected tab's icon takes the gradient */
-body.ui2 .bnav button.on svg .f,body.ui2 .bnav button.on svg .f *{fill:url(#kfgA)!important}
-body.ui2 .bnav button.on svg{filter:drop-shadow(0 0 8px rgba(139,123,255,.55))}
+body.ui2 #lob .lside em{z-index:2;top:-8px;right:-8px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;display:grid;place-items:center;font:800 11px/1 var(--x-n,"Geist",sans-serif);
+  font-variant-numeric:tabular-nums;color:#fff;background:linear-gradient(135deg,#a08fff,#3dd8f0);box-shadow:0 0 0 1.5px rgba(255,255,255,.55),0 6px 14px -4px rgba(139,123,255,.85);text-shadow:0 1px 1px rgba(40,24,110,.35)}
+body.ui2 #lob .lside em.dot{min-width:0;width:10px;height:10px;padding:0;top:-2px;right:-2px;background:radial-gradient(circle at 35% 35%,#ffc2cd,#ff3b5c 62%);box-shadow:0 0 0 1.5px rgba(255,255,255,.7),0 0 12px rgba(255,59,92,.85)}
+/* the timeline (now between the oshi's words and my panel) and the words window share the same clear glass */
+body.ui2 #lob .llive{background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.03) 50%,rgba(120,110,255,.06)),rgba(10,10,16,.42)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 26px -14px rgba(0,0,0,.8)!important;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+body.ui2 #lob .llive::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:linear-gradient(150deg,rgba(255,255,255,.4),rgba(255,255,255,.06) 40%,rgba(139,123,255,.3) 80%,rgba(103,232,249,.5));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+body.ui2 #lob .lbub{background:linear-gradient(160deg,rgba(255,255,255,.15),rgba(255,255,255,.04) 50%,rgba(120,110,255,.07)),rgba(10,10,16,.28)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 12px 28px -14px rgba(0,0,0,.7)!important}
+body.ui2 #lob .lbub::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:linear-gradient(150deg,rgba(255,255,255,.5),rgba(255,255,255,.08) 40%,rgba(139,123,255,.3) 80%,rgba(103,232,249,.5));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+body.ui2 :is(#lob,#ktop) .lbar .lgl{position:relative}
+
+/* ---------- the tab bar: a floating capsule of glass (iOS 26 style). Translucent with a bright rim on top, a hairline
+   gradient edge and a faint violet glow; the selected tab sits in a lighter glass capsule that slides, stretching a little on the
+   way like liquid; its icon takes the violet-to-cyan gradient. The five tabs share the width evenly. ---------- */
+body.ui2 .bnav{display:flex!important;align-items:stretch;left:16px!important;right:16px!important;bottom:var(--kf-nb)!important;height:66px!important;padding:0 10px!important;border-radius:999px!important;
+  isolation:isolate;overflow:visible;background:linear-gradient(180deg,rgba(46,45,60,.66),rgba(18,18,26,.8))!important;
+  -webkit-backdrop-filter:blur(18px) saturate(170%)!important;backdrop-filter:blur(18px) saturate(170%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.35),0 18px 40px -14px rgba(0,0,0,.92),0 0 44px -18px rgba(139,123,255,.5)!important}
+/* on the home the stage behind keeps moving, so the bar is tinted glass there instead of blurred glass (no lag) */
+body.ui2[data-kv="home"] .bnav{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(180deg,rgba(40,39,52,.78),rgba(14,14,20,.9))!important}
+body.ui2 .bnav::before{content:"";position:absolute;inset:0;z-index:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(170deg,rgba(255,255,255,.42),rgba(255,255,255,.07) 40%,rgba(139,123,255,.28) 78%,rgba(103,232,249,.5));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+body.ui2 .bnav::after{content:"";position:absolute;left:18px;right:18px;top:0;height:22px;z-index:0;border-radius:999px 999px 40% 40%;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,0))}
+body.ui2 .bnav button{flex:1 1 0;min-width:0;height:66px!important;padding:0 0 14px!important;gap:4px!important;justify-content:flex-end!important;
+  font:600 10px/1 var(--x-f,-apple-system,sans-serif)!important;font-feature-settings:"palt" 1;color:rgba(236,235,245,.56)!important;letter-spacing:.01em!important;white-space:nowrap}
+body.ui2 .bnav button svg{width:24px!important;height:24px!important;stroke-width:1.75}
+body.ui2 .bnav button.on{color:#fff!important;font-weight:700!important;text-shadow:0 0 12px rgba(167,139,250,.55)}
+/* the selected icon fills with the gradient; its cut-out parts (the face in プロフィール, the star in ガチャ) stay dark so
+   the glyph still reads */
+body.ui2 .bnav button.on svg .f [fill="currentColor"],body.ui2 .bnav button.on svg .f[fill="currentColor"]>*{fill:url(#kfgA)!important}
+body.ui2 .bnav button.on{--tabbg:#1c1a30}
+body.ui2 .bnav button.on svg{filter:drop-shadow(0 0 8px rgba(139,123,255,.6))}
+body.ui2 .bnav button:focus-visible{outline:2px solid #fff;outline-offset:-4px;border-radius:999px}
+/* the selection capsule */
+body.ui2 .bnav .navink{z-index:0;top:6px!important;bottom:6px!important;height:auto!important;border-radius:999px!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.06))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.36),inset 0 -1px 0 rgba(255,255,255,.05),0 8px 22px -8px rgba(139,123,255,.6)!important;
+  transition:transform .56s cubic-bezier(.2,.9,.25,1.06),width .56s cubic-bezier(.2,.9,.25,1.06)!important}
+body.ui2 .bnav .navink::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(160deg,rgba(255,255,255,.5),rgba(255,255,255,.08) 45%,rgba(139,123,255,.45) 80%,rgba(103,232,249,.65));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+body.ui2 .bnav .navink::after{content:"";position:absolute;left:18%;right:18%;bottom:-3px;height:10px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(139,123,255,.75),rgba(103,232,249,.2) 60%,rgba(103,232,249,0));filter:blur(3px)}
+body.ui2 .bnav button .dot{background:radial-gradient(circle at 35% 35%,#ffc2cd,#ff3b5c 62%)!important;box-shadow:0 0 0 1.5px rgba(255,255,255,.65),0 0 10px rgba(255,59,92,.8)!important}
+@media (prefers-reduced-transparency:reduce){body.ui2 .bnav{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:#15151c!important}
+  body.ui2 #lob .lside .lgl,body.ui2 :is(#lob,#ktop) .lbar .lgl{background:rgba(18,18,26,.92)!important}}
+/* ---------- positions: one grid for every screen ----------
+   the top bar sits 10px under the status area on every screen (the home was 4px higher, so it jumped when you changed tabs);
+   the home icons keep the same 18px gap under it, with 14px between them so a count badge never touches the icon above. The ガチャ switch has the same height, place and gap as the 対戦 and
+   プロフィール switches. The tab bar lines up with the 16px side margins of the cards and sits low like iOS 26's
+   (20px above the bottom edge on an iPhone instead of 42px). */
+body.ui2 #lob .lbar{top:16px}
+body.ui2 #lob .lside{top:76px;gap:14px}
+body.ui2 #v-gacha>.gseg{margin:4px 0 6px}
+/* everything that floats just above the tab bar follows it down: the home stage ends 12px above it, the 対戦 request bar
+   and the small notices 10-12px above it, my pinned row in ランキング 20px above it */
+body.ui2 #lob{height:calc(100dvh - env(safe-area-inset-top,0px) - var(--kf-nb) - 72px)}
+body.ui2 .rmbar{bottom:calc(var(--kf-nb) + 76px)}
+/* the end of every page stops 44px above the tab bar on every phone (the iPhone's bottom inset was counted twice, so pages
+   ended about 80-100px above the bar there) */
+body.ui2 main{padding-bottom:calc(110px + var(--kf-nb) - env(safe-area-inset-bottom,0px))}
+/* the home stage (the crest's light, or the oshi art) also runs up under the clock and battery instead of stopping in a
+   hard line below them, with a soft dark scrim there so the clock stays readable. The crest keeps its place on screen.
+   (The page itself still can't scroll on the home: the root keeps overflow:hidden; only the body stops clipping.) */
+body.ui2.lobhome{overflow:visible}
+body.ui2 #lob .lst{top:calc(-1 * var(--kf-ext))}
+body.ui2 #lob .lst .emb2{top:calc(50% - 150px + var(--kf-ext) / 2)}
+body.ui2 #lob .lst::after{content:"";position:absolute;left:0;right:0;top:0;z-index:2;pointer-events:none;height:calc(var(--kf-ext) + min(var(--kf-ext),34px));
+  background:linear-gradient(180deg,rgba(6,6,9,.6),rgba(6,6,9,.28) 55%,rgba(6,6,9,0))}
+body.ui2 .utoast{bottom:calc(var(--kf-nb) + 78px)}
+body.ui2 .krk-pin{bottom:calc(var(--kf-nb) + 86px)}
+body.ui2 #v-gacha>.gseg button{padding:7.5px 4px}
+/* the soft edge under the tab bar (content fades out before it reaches the glass, like the "scroll edge effect" in
+   iOS 26) follows the bar down, so it starts about 30px above the bar on every phone */
+body.ui2 .k3-edge{height:calc(var(--kf-nb) + 100px)}
+/* Japanese line breaks: never start a line with ー or a small kana, avoid one lonely character on the last line, and keep
+   short phrases together where the text marks them */
+body.ui2{line-break:strict;text-wrap:pretty}
+body.ui2 :is(.kcolc small,#koshisec .kosr small){word-break:keep-all;overflow-wrap:anywhere}
 /* icons in the ランキング strip */
 body.ui2 .krk-pill.krk-season svg{stroke:url(#kfgA)}
 
@@ -9056,10 +9136,10 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
    '<button type="button" class="lgl" data-s="ev">'+IC.ev+'開催中<em class="lb-ev"></em></button><button type="button" class="lgl" data-s="tl">'+IC.tl+'みんな<em class="lb-tl dot"></em></button></div>'+
    '<button type="button" class="lbub" hidden><span class="lb-nm"></span><span class="lb-tx"></span><i class="lb-nx" aria-hidden="true"></i></button>'+
    '<div class="ltag"></div>'+
+   '<button type="button" class="llive" hidden><i class="dot"></i><span class="tag"></span><span class="txt"><span></span></span><time></time></button>'+
    '<div class="lpan" role="button" tabindex="0"><div class="lr1"><div class="lwho"><div class="lav"><div class="face"></div><i class="ring0"></i></div><div class="lnmc"><span class="lnm"></span><span class="lttl r0"></span></div></div><div class="lrt"><b class="lrate tn">0</b><span class="ltier"></span></div></div>'+
    '<div class="lr1" style="margin-top:-2px"><div class="lpos"></div><button type="button" class="lgen"></button></div>'+
    '<div class="lbot"><div class="lbar2"><i></i></div><div class="lnx"><span class="lnxl"></span><span class="lnxv"></span></div></div></div>'+
-   '<button type="button" class="llive" hidden><i class="dot"></i><span class="tag"></span><span class="txt"><span></span></span><time></time></button>'+
    '<button type="button" class="lgo"><span><b>対戦する</b><small><i></i>相手を選んで申し込む ・ 予想もここから</small></span><span class="ar">'+IC.ar+'</span></button>'+
    '';
   /* the two sheets' contents (kept up to date even while closed) */
@@ -9292,7 +9372,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const g={c:[em.offsetLeft,em.offsetTop+em.offsetHeight/2,em.offsetWidth*.5]};
     if(oshiOn){/* the art runs from the very top to a little below the top of my panel, where it melts into the page */
       const os=q('.losh'),pr=q('.lpan').getBoundingClientRect(),h=Math.max(260,pr.top-r.top+pr.height*.6);if(os.style.height!==h+'px')os.style.height=h+'px';
-      const bb=q('.lbub'),bo=Math.round(r.bottom-pr.top+10)+'px';if(bb.style.bottom!==bo)bb.style.bottom=bo}
+      const lv=q('.llive'),top=(lv&&!lv.hidden&&lv.offsetHeight)?lv.getBoundingClientRect().top:pr.top;
+      const bb=q('.lbub'),bo=Math.round(r.bottom-top+10)+'px';if(bb.style.bottom!==bo)bb.style.bottom=bo}
     return g}
   function frame(t){if(!stage)return;stageCols();const now=performance.now();if(!geo||now-geoAt>700){geo=measure();geoAt=now}
     if(oshiOn)return;/* the picture is the stage: nothing to draw on the canvas (also lighter) */
@@ -9496,7 +9577,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   function oshiRow(){const after=document.getElementById('ksfxsec')||document.getElementById('pushsec');if(!after)return;
     let s=document.getElementById('koshisec');const adm=typeof isAdmin==='function'&&isAdmin();
     if(!s){s=document.createElement('section');s.id='koshisec';s.dataset.pg='set';
-      s.innerHTML='<h2>推しキャラ</h2><button type="button" class="kosr"><span class="kos-t"><b>ホームに出す推し</b><small>管理者だけの設定です。ほかの人には出ません</small></span><span class="kos-c"><img alt="" hidden><em></em><i aria-hidden="true"></i></span></button>';
+      s.innerHTML='<h2>推しキャラ</h2><button type="button" class="kosr"><span class="kos-t"><b>ホームに出す推し</b><small>管理者だけの設定です。<wbr>ほかの人には出ません</small></span><span class="kos-c"><img alt="" hidden><em></em><i aria-hidden="true"></i></span></button>';
       s.querySelector('.kosr').onclick=oshiPicker;after.after(s)}
     if(s.hidden!==!adm)s.hidden=!adm;
     const id=window.__oshiGet?__oshiGet():'',o=(window.__oshiList||[]).find(x=>x.id===id);const em=s.querySelector('.kos-c em'),im=s.querySelector('.kos-c img');
@@ -9578,10 +9659,10 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   col.innerHTML='<h2>コレクション</h2><div class="kcolg">'+
     '<button type="button" class="kcolc" data-c="skin"><span class="kci">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="3"/><circle cx="12" cy="10" r="3.2"/><path d="M7.5 17.5c1.2-2 2.7-3 4.5-3s3.3 1 4.5 3"/></svg></span>'+
-      '<b>スキン・アイコン</b><small>集めたアイコン・フレーム・背景・称号</small><em class="kcn" data-n="skin"></em></button>'+
+      '<b>スキン・アイコン</b><small>集めたアイコン・<wbr>フレーム・<wbr>背景・<wbr>称号</small><em class="kcn" data-n="skin"></em></button>'+
     '<button type="button" class="kcolc" data-c="dex"><span class="kci">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6" width="10" height="14" rx="1.6" transform="rotate(-10 8.5 13)"/><rect x="10.5" y="4" width="10" height="14" rx="1.6" transform="rotate(8 15.5 11)"/></svg></span>'+
-      '<b>きもオタTCG 図鑑</b><small>持っているカードと、まだのカード</small><em class="kcn" data-n="dex"></em></button></div>';
+      '<b>きもオタTCG 図鑑</b><small>持っているカードと、<wbr>まだのカード</small><em class="kcn" data-n="dex"></em></button></div>';
   col.querySelector('[data-c=skin]').onclick=()=>{try{openCollection()}catch(e){}};
   col.querySelector('[data-c=dex]').onclick=()=>window.tcgDeckView('dex');
   const pcard=$i('pcard');if(pcard&&pcard.parentNode)pcard.parentNode.insertBefore(col,$i('msgsec')||null);
@@ -10551,6 +10632,20 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     document.querySelectorAll('#psub button').forEach(b=>wrap(b,true));
     ['#khead .kx-gear','#khead .kx-back','#v-profile .kback'].forEach(s=>wrap(document.querySelector(s),true))}
   wireAll();setTimeout(wireAll,1200);if(document.readyState!=='complete')addEventListener('load',wireAll);
+
+  /* ---------- the tab bar's selection capsule: centred exactly on its tab and wide enough for the tab's name (an old rule
+     fixed it at 60px, so it sat 2-3px left of the icon and プロフィール spilled out of it). It stretches a little while it
+     slides to the new tab, like a drop of liquid. ---------- */
+  function fitInk(){try{const nav=document.querySelector('.bnav'),on=nav&&nav.querySelector('button.on'),ink=nav&&nav.querySelector('.navink');if(!on||!ink)return;
+      const n=nav.getBoundingClientRect(),b=on.getBoundingClientRect();if(!n.width||!b.width)return;const sp=on.querySelector('span'),lw=sp?sp.getBoundingClientRect().width:0;
+      let w=Math.round(Math.max(b.width-4,lw+20));w=Math.min(w,n.width-10);let x=b.left-n.left+(b.width-w)/2;x=Math.max(5,Math.min(n.width-5-w,x));
+      ink.style.setProperty('width',w+'px','important');ink.style.transform='translate3d('+x.toFixed(1)+'px,0,0)'}catch(e){}}
+  try{const M0=moveNavInk;moveNavInk=function(){const ink=document.querySelector('.bnav .navink'),before=ink?ink.style.transform:'';const r=M0.apply(this,arguments);fitInk();
+      const ink2=document.querySelector('.bnav .navink');if(ink2&&before&&ink2.style.transform!==before&&!RM&&ink2.animate){try{ink2.animate([{scale:'1 1'},{scale:'1.14 .9',offset:.38},{scale:'.98 1.03',offset:.72},{scale:'1 1'}],{duration:560,easing:'ease-in-out'})}catch(e){}}
+      return r};
+    addEventListener('resize',()=>requestAnimationFrame(fitInk));
+    if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(fitInk));
+    requestAnimationFrame(fitInk);setTimeout(fitInk,900)}catch(e){}
 
   /* ---------- popups fade out instead of vanishing (the card sinks a little while the backdrop fades) ---------- */
   const SOFTX=el=>el.parentNode===document.body&&(el.classList.contains('md')&&!el.classList.contains('tcgmd')||el.classList.contains('pwv')||el.classList.contains('pad')||el.classList.contains('shw'));
