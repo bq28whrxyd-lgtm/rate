@@ -3795,6 +3795,10 @@ body.ui2 .krk-n1 .krk-wm b{--wc:#f0cf7e;--wf:rgba(240,207,126,.16);font-size:214
 body.ui2 .krk-n2 .krk-wm b{--wc:#e3e8f0;--wf:rgba(227,232,240,.14)}
 body.ui2 .krk-n3 .krk-wm b{--wc:#eeb184;--wf:rgba(238,177,132,.14)}
 body.ui2 .krk-shade{z-index:1}
+body.ui2 .krk-sheen{position:absolute;top:-12%;bottom:-12%;left:0;width:30%;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(255,250,235,0),rgba(255,250,235,.16),rgba(255,250,235,0));
+  transform:translateX(-130%) skewX(-16deg);animation:krkSheen 7s cubic-bezier(.45,0,.25,1) 2.4s infinite}
+@keyframes krkSheen{0%{transform:translateX(-130%) skewX(-16deg)}28%,100%{transform:translateX(370%) skewX(-16deg)}}
+body.ui2 .krk.tcg .krk-sheen{background:linear-gradient(90deg,rgba(220,214,255,0),rgba(220,214,255,.16),rgba(220,214,255,0))}
 body.ui2 .krk-fx{z-index:2}
 body.ui2 .krk-body{position:absolute;top:0;bottom:0;z-index:3;left:var(--l);width:calc(var(--r) - var(--l));display:flex;flex-direction:column;align-items:center;padding:100px 8px 12px;text-align:center;pointer-events:none}
 body.ui2 .krk-body>*{max-width:100%}
@@ -3849,29 +3853,40 @@ body.ui2 .krk-mvp em{font-style:normal}
 body.ui2 .krk-mvp>svg:last-child{width:13px;height:13px}
 body.ui2 main .krk-mvp:active:not(.tab){transform:scale(.97)}
 body.ui2 .krk-note{flex:1 1 0;overflow:hidden;text-overflow:ellipsis;color:#ddd8ff;background:linear-gradient(90deg,rgba(139,123,255,.16),rgba(103,232,249,.05));box-shadow:inset 0 0 0 .5px rgba(169,155,255,.3)}
-/* rows: the place and its movement, the icon with its frame, the name, then the rating; their background shows on the right */
-body.ui2 .krk-list{display:flex;flex-direction:column;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#16161a,#111114);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.07)}
+/* rows: separate cards, each wearing that player's background across its whole width (it drifts slowly) with a few twinkles in their
+   colours; the left side is darkened so the place, icon and name stay readable */
+body.ui2 .krk-list{display:flex;flex-direction:column;gap:6px}
 body.ui2 .krk-list[hidden]{display:none}
+body.ui2 .krk-list>.kx-empty{border-radius:20px;background:#131316;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08)}
 body.ui2 .krk-r{all:unset;box-sizing:border-box;position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:30px 40px minmax(0,1fr) auto;gap:12px;align-items:center;
-  min-height:62px;padding:8px 16px 8px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;color:var(--x-fg);text-align:left}
-body.ui2 .krk-r+.krk-r::before{content:"";position:absolute;z-index:1;top:0;left:92px;right:0;border-top:.5px solid rgba(255,255,255,.07)}
-body.ui2 .krk-r.me+.krk-r::before,body.ui2 .krk-r+.krk-r.me::before{display:none}
-body.ui2 .krk-sw{position:absolute;top:0;bottom:0;right:0;width:64%;z-index:-1;opacity:.5;pointer-events:none;border:0!important;border-radius:0!important;box-shadow:none!important;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 72%);mask-image:linear-gradient(90deg,transparent,#000 72%)}
-body.ui2 .krk-sw::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(17,17,20,0) 40%,rgba(17,17,20,.5))}
-body.ui2 .krk-sw.none{background:linear-gradient(90deg,rgba(0,0,0,0),var(--md,#2c2f36))!important;opacity:.38}
+  min-height:66px;padding:8px 16px 8px 10px;border-radius:18px;cursor:pointer;-webkit-tap-highlight-color:transparent;color:var(--x-fg);text-align:left;
+  background:#121215;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1);-webkit-transform:translateZ(0);transform:translateZ(0)}
+body.ui2 .krk-sw{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none;border-radius:inherit}
+body.ui2 .krk-art{position:absolute;top:0;bottom:0;left:-12%;width:124%;border:0!important;border-radius:0!important;box-shadow:none!important;will-change:transform;
+  animation:krkDrift 15s ease-in-out infinite alternate}
+body.ui2 .krk-art>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+body.ui2 .krk-art>.bgl{z-index:0}
+@keyframes krkDrift{from{transform:translate3d(-3%,0,0)}to{transform:translate3d(6%,0,0)}}
+body.ui2 .krk-sw::after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(11,11,14,.9) 0,rgba(11,11,14,.74) 30%,rgba(11,11,14,.3) 56%,rgba(11,11,14,.06) 76%,rgba(11,11,14,.3) 100%)}
+body.ui2 .krk-sw.none .krk-art{background:radial-gradient(90% 150% at 92% 50%,var(--mg,#7d838e),rgba(0,0,0,0) 72%),linear-gradient(90deg,#121215,var(--md,#2c2f36))!important;opacity:.55;animation:none}
+body.ui2 .krk-rfx{position:absolute;inset:0;z-index:1;pointer-events:none}
+body.ui2 .krk-rfx i{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);background:var(--c);opacity:0;will-change:transform,opacity;
+  -webkit-clip-path:polygon(50% 0,59% 41%,100% 50%,59% 59%,50% 100%,41% 59%,0 50%,41% 41%);clip-path:polygon(50% 0,59% 41%,100% 50%,59% 59%,50% 100%,41% 59%,0 50%,41% 41%);
+  animation:krkTw var(--d) ease-in-out var(--dl) infinite}
+@keyframes krkTw{0%,100%{opacity:0;transform:scale(.2) rotate(0deg)}50%{opacity:1;transform:scale(1) rotate(90deg)}}
 body.ui2 .krk-no{display:flex;flex-direction:column;align-items:center;gap:5px}
 body.ui2 .krk-no>b{display:block;height:16px;overflow:hidden;font:800 16px/16px var(--x-n);color:var(--x-fg2);font-variant-numeric:tabular-nums}
 body.ui2 .krk-t{position:relative;min-width:0;display:flex;flex-direction:column;gap:4px}
-body.ui2 .krk-t b{font:800 16px/1.25 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ui2 .krk-t b{font:800 16px/1.25 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 10px rgba(0,0,0,.65)}
 body.ui2 .krk-t b .nx::before,body.ui2 .krk-t b .nx::after,body.ui2 .krk-t b .nxk,body.ui2 .krk-pin .nx::before,body.ui2 .krk-pin .nx::after,body.ui2 .krk-pin .nxk{display:none}
 body.ui2 .krk-t b .nxt{filter:none!important;font-size:1em!important}
-body.ui2 .krk-t small{font:600 12.5px/1.2 var(--x-f);color:var(--x-mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ui2 .krk-t small{font:600 12.5px/1.2 var(--x-f);color:var(--x-fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 8px rgba(0,0,0,.7)}
 body.ui2 .krk-t small.gap{color:var(--x-gold2);font-weight:700}
-body.ui2 .krk-v{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-shadow:0 1px 10px rgba(0,0,0,.7)}
+body.ui2 .krk-v{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-shadow:0 1px 3px rgba(0,0,0,.55),0 2px 14px rgba(0,0,0,.8)}
 body.ui2 .krk-v b{font:800 19px/1 var(--x-n);font-variant-numeric:tabular-nums}
-body.ui2 .krk-v small{font:700 11.5px/1 var(--x-f);color:var(--x-fg2)}
-body.ui2 .krk-r.me{margin:4px;border-radius:18px;background:linear-gradient(90deg,rgba(226,191,114,.16),rgba(226,191,114,.035));box-shadow:inset 0 0 0 1px rgba(226,191,114,.55),0 10px 24px -14px rgba(226,191,114,.55)}
+body.ui2 .krk-v small{font:700 11.5px/1 var(--x-f);color:rgba(244,241,234,.86)}
+body.ui2 .krk-r.me{box-shadow:inset 0 0 0 1.5px rgba(226,191,114,.8),0 12px 28px -14px rgba(226,191,114,.6)}
+body.ui2 .krk-r.me .krk-sw::after{background:linear-gradient(90deg,rgba(28,22,10,.92) 0,rgba(24,19,9,.74) 30%,rgba(20,16,8,.3) 56%,rgba(11,11,14,.06) 76%,rgba(11,11,14,.3) 100%)}
 body.ui2 .krk-r.me .krk-no>b{color:var(--x-gold)}
 body.ui2 main .krk-r:active:not(.tab){transform:scale(.98)}
 body.ui2 .krk-foot{margin:0 6px;font:600 11.5px/1.5 var(--x-f);color:var(--x-dim)}
@@ -3899,7 +3914,7 @@ body.ui2 .krk-pin .t b{font:800 15px/1.2 var(--x-f);white-space:nowrap;overflow:
 body.ui2 .krk-pin .t small{font:700 11.5px/1.2 var(--x-f);color:var(--x-gold2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.ui2 .krk-pin .v{font:800 19px/1 var(--x-n);font-variant-numeric:tabular-nums}
 @media (max-width:360px){body.ui2 .krk{--kd:16px;--ka:6.5deg}body.ui2 .krk-nm{font-size:13px}body.ui2 .krk-n1 .krk-nm{font-size:15px}body.ui2 .krk-rt{font-size:16px}body.ui2 .krk-n1 .krk-rt{font-size:22px}}
-@media (prefers-reduced-motion:reduce){body.ui2 .krk-fx,body.ui2 .krk-seam i{display:none}body.ui2 .krk *,body.ui2 .krk *::before,body.ui2 .krk *::after{animation:none!important}}
+@media (prefers-reduced-motion:reduce){body.ui2 .krk-fx,body.ui2 .krk-seam i,body.ui2 .krk-rfx,body.ui2 .krk-sheen{display:none}body.ui2 .krk-art{animation:none!important}body.ui2 .krk *,body.ui2 .krk *::before,body.ui2 .krk *::after{animation:none!important}}
 
 /* ---------- genre picker (centred panel) ---------- */
 body.ui2 .kx-gl{display:flex;flex-direction:column;gap:8px}
@@ -9955,7 +9970,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   const pRank=mk('div');pRank.id='kxrank';if(vr)vr.append(pRank);
   const rkSt=mk('div','krk');rkSt.hidden=true;if(offIO)offIO.observe(rkSt);
   const rkMeta=mk('div','krk-meta'),rkL=mk('div','krk-list'),rkFoot=mk('p','krk-foot'),pin=mk('button','kx-b krk-pin');pin.type='button';pin.hidden=true;rkFoot.hidden=true;
-  pRank.append(rkSt,rkMeta,rkL,rkFoot,pin);
+  pRank.append(rkSt,rkMeta,rkL,rkFoot,pin);if(offIO)offIO.observe(rkL);
   let rankSig='',meRow=null,rkIntroN=0,rkDrawn=false;
   const io='IntersectionObserver' in window?new IntersectionObserver(es=>{es.forEach(e=>{if(e.target===meRow)pin.hidden=e.isIntersecting||curView!=='rank'})}):null;
   const WEEK=7*864e5;
@@ -9995,7 +10010,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     else if(X&&X.bg)bg.style.background=X.bg;else bg.classList.add('kvs-bg0');
     s.append(bg);if(place===0)s.append(mk('i','krk-spot'));
     const wm=mk('div','krk-wm');wm.append(mk('b',null,String(place+1)));s.append(wm,mk('div','kvs-shade krk-shade'));
-    const fx=mk('div','kvs-fx krk-fx');fxInto(fx,X,slot==='c'?'op':'me',place===0?10:7);s.append(fx);
+    const fx=mk('div','kvs-fx krk-fx');let X2=X;if(!(X&&X.ex&&X.ex.length)){try{const m=METAL[ti];X2={ex:[['stars',1],['rise',1]],pal:[m.l,m.g,'#ffffff']}}catch(e){}}
+    fxInto(fx,X2,slot==='c'?'op':'me',place===0?11:8);s.append(fx,mk('i','krk-sheen'));
     const body=mk('div','krk-body'),aw=mk('div','kvs-avw krk-avw');
     if(place===0){const cr=mk('i','krk-crown');cr.innerHTML=crownSVG();aw.append(cr)}
     aw.append(AV(p.id,place===0?84:62),mk('i','kvs-ring'),mk('b','krk-medal',String(place+1)));body.append(aw);
@@ -10004,10 +10020,19 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     if(place===0){let tc=null;try{tc=titleChip(p.eq&&p.eq.t)}catch(e){}if(tc){tc.classList.add('kvs-ttl','krk-ttl');body.append(tc)}}
     const sub=gap?mk('em','krk-gap',esc(gap)):mvEl(mv);if(sub)body.append(sub);
     s.append(body);s.onclick=()=>{try{showProfile(p,statLine(p))}catch(e){}};return s}
-  /* a row: rank and movement, icon with frame, name, rank (or for you, the gap), rating and record; their background on the right */
+  /* a few twinkles inside a row, in the colours of that player's 対戦演出 (or of their rank) */
+  function rowFx(box,X,ti){let pal=X&&X.pal&&X.pal.length?X.pal:null;if(!pal){try{const m=METAL[ti];pal=[m.l,m.g,'#ffffff']}catch(e){pal=['#ffffff']}}
+    for(let j=0;j<4;j++){const i=mk('i'),S=(k,v)=>i.style.setProperty(k,v);S('--x',(50+j*11.5+Math.random()*7).toFixed(1)+'%');S('--y',(18+Math.random()*64).toFixed(1)+'%');
+      S('--s',(6+Math.random()*5).toFixed(1)+'px');S('--d',(2.2+Math.random()*1.6).toFixed(2)+'s');S('--dl',(-Math.random()*3.2).toFixed(2)+'s');S('--c',pal[j%pal.length]);box.append(i)}}
+  /* a row: rank and movement, icon with frame, name, rank (or for you, the gap), rating and record. The row wears that player's
+     background across its whole width (drifting slowly), darkened on the left so the name stays readable */
   function rkRow(p,i,me,mv,gap){const ti=TI(p.rating),X=xsOf(p),bv=bgOf(p),mine=!!(me&&p.id===me.id);
     const r=mk('button','kx-b krk-r'+(mine?' me':''));r.type='button';r.dataset.id=p.id;try{mvars(r,ti)}catch(e){}
-    const sw=mk('i','krk-sw');if(bv)sw.classList.add('pb-'+bv);else if(X&&X.bg)sw.style.background=X.bg;else sw.classList.add('none');
+    const sw=mk('i','krk-sw'),art=mk('i','krk-art');sw.append(art);
+    if(bv){art.classList.add('pb-'+bv);try{bgLayer(art,bv)}catch(e){}}
+    else if(X&&X.K&&X.K.img){const im=mk('img');im.alt='';im.decoding='async';im.loading='lazy';im.src=X.K.img;im.style.objectPosition=(X.K.fx||50)+'% '+(X.K.fy||30)+'%';art.append(im)}
+    else if(X&&X.bg)art.style.background=X.bg;else sw.classList.add('none');
+    {const fx=mk('i','krk-rfx');rowFx(fx,X,ti);sw.append(fx)}
     const no=mk('span','krk-no');no.append(mk('b',null,String(i+1)));{const e=mvEl(mv);if(e)no.append(e)}
     const t=mk('span','krk-t'),b=mk('b');b.append(NAME(p.name,ti));t.append(b,mk('small',gap?'gap':null,esc(gap||RNk(p.rating))));
     const v=mk('span','krk-v');v.append(mk('b','kx-num',String(p.rating)),mk('small',null,p.wins+'勝 '+p.losses+'敗'));
@@ -10051,8 +10076,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     pin.hidden=true;if(meRow&&io)io.observe(meRow);
     /* changing genre (or a result coming in) while you watch: rows glide to their new places */
     if(vis&&before.size){rkL.querySelectorAll('.krk-r').forEach((r,k)=>{const y0=before.get(r.dataset.id),y1=r.getBoundingClientRect().top;
-      if(y0==null)ani(r,[{opacity:0,transform:'translateY(14px)'},{opacity:1,transform:'none'}],{duration:420,delay:80+k*30});
-      else if(Math.abs(y0-y1)>1)ani(r,[{transform:'translateY('+(y0-y1).toFixed(1)+'px)'},{transform:'none'}],{duration:600,easing:'cubic-bezier(.2,.8,.2,1)'})})}
+      if(y0==null)rkDeal([r],60+k*40,0,40,480);
+      else if(Math.abs(y0-y1)>1)ani(r,[{transform:'translateY('+(y0-y1).toFixed(1)+'px)'},{transform:'none'}],{duration:720,easing:'cubic-bezier(.22,.9,.24,1)'})})}
     if(curView==='rank'&&!first)rkCheer(vis?650:0)}
   /* your place went up since you last looked at this ladder: the number rolls to the new place, a light passes, a small tag */
   const rkKey=()=>'kxrkseen_'+(rkTcg?'tcg':game);
@@ -10081,11 +10106,23 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
       if(to===1){const cr=el.querySelector('.krk-crown');ani(cr,[{opacity:0,transform:'translateY(-26px) scale(1.5) rotate(-14deg)'},{opacity:1,transform:'scale(.92)',offset:.7},{opacity:1,transform:'none'}],{duration:620,delay:120,easing:'cubic-bezier(.5,0,.3,1)'})}
       ani(el.querySelector('.krk-avw'),[{transform:'scale(1)'},{transform:'scale(1.12)',offset:.35},{transform:'none'}],{duration:620,easing:'cubic-bezier(.3,1.4,.5,1)'})}
     else ani(el,[{transform:'none'},{transform:'scale(1.025)',offset:.35},{transform:'none'}],{duration:620,easing:'cubic-bezier(.3,1.4,.5,1)'})}
-  /* entrance: the 1st place drops in, 2nd and 3rd slide in from their sides, the seams are drawn, the crown lands with a ring
-     and a small shake, then the rows rise and the numbers count up. Full once per session; after that a short version. */
-  function rkEnter(){const go=()=>{if(RMO)return rkCheer(0);const full=rkIntroN++===0;const P=[...rkSt.querySelectorAll('.krk-p')],R=[...rkL.children].filter(e=>!e.hidden);
-    if(!full){ani(rkSt,[{opacity:.2,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:380});
-      [rkMeta,rkL].forEach((e,k)=>ani(e,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:380,delay:60+k*40}));rkCheer(520);return}
+  /* rows come in like cards being dealt from the right, one after another; their background settles; the ▲▼ give a small nudge */
+  function rkDeal(R,d0,step,dx,dur){R.forEach((e,k)=>{const d=d0+k*step;
+    ani(e,[{opacity:0,transform:'translateX('+dx+'px)'},{opacity:1,transform:'none'}],{duration:dur,delay:d});
+    ani(e.querySelector('.krk-sw'),[{opacity:.2,transform:'scale(1.14)'},{opacity:1,transform:'none'}],{duration:dur+420,delay:d});
+    const m=e.querySelector('.krk-mv svg');if(m){const up=!!e.querySelector('.krk-mv.up');ani(m,[{transform:'none'},{transform:'translateY('+(up?-4:4)+'px)'},{transform:'none'},{transform:'translateY('+(up?-3:3)+'px)'},{transform:'none'}],{duration:900,delay:d+dur-80,easing:'ease-in-out',fill:'none'})}
+    const nw=e.querySelector('.krk-mv.nw');if(nw)ani(nw,[{transform:'scale(.6)',opacity:0},{transform:'scale(1.15)',opacity:1,offset:.6},{transform:'none',opacity:1}],{duration:460,delay:d+dur-120})})}
+  /* entrance: the 1st place drops in, 2nd and 3rd slide in from their sides, the seams are drawn, the crown lands with a ring and a
+     small shake, then the rows are dealt in and the numbers count up. Full the first time in a session; after that a quicker version
+     of the same moves (so coming back never feels slow, but you still see it arrive). */
+  function rkEnter(){const go=()=>{if(RMO)return rkCheer(0);const full=rkIntroN++===0;const P=[...rkSt.querySelectorAll('.krk-p')],R=[...rkL.children].filter(e=>!e.hidden&&e.classList.contains('krk-r')).slice(0,10);
+    if(!full){P.forEach(p=>{const s=p.classList.contains('krk-a')?-1:p.classList.contains('krk-c')?1:0;
+        ani(p,[{opacity:0,transform:s?'translateX('+(s*26)+'px)':'translateY(-16px)'},{opacity:1,transform:'none'}],{duration:460,delay:s?50:0});
+        ani(p.querySelector('.krk-avw'),[{transform:'scale(.84)',opacity:0},{transform:'scale(1.04)',opacity:1,offset:.6},{transform:'none',opacity:1}],{duration:480,delay:s?110:60})});
+      const cr=rkSt.querySelector('.krk-crown');if(cr)ani(cr,[{opacity:0,transform:'translateY(-14px) scale(1.25)'},{opacity:1,transform:'none'}],{duration:420,delay:200,easing:'cubic-bezier(.3,1.4,.5,1)'});
+      rkSt.querySelectorAll('.krk-seam b').forEach((b,k)=>ani(b,[{transform:'scaleY(0)'},{transform:'scaleY(1)'}],{duration:420,delay:80+k*50,easing:'cubic-bezier(.7,0,.2,1)'}));
+      [rkMeta,rkFoot].filter(e=>e&&!e.hidden).forEach((e,k)=>ani(e,[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:380,delay:120+k*60}));
+      rkDeal(R,140,45,40,460);rkCheer(800);return}
     P.forEach(p=>{const s=p.classList.contains('krk-a')?-1:p.classList.contains('krk-c')?1:0;
       ani(p,[{opacity:0,transform:s?'translateX('+(s*44)+'px)':'translateY(-30px)'},{opacity:1,transform:'none'}],{duration:680,delay:s?110:0});
       ani(p.querySelector('.krk-avw'),[{transform:'translateY(22px) scale(.72)',opacity:0},{transform:'scale(1.06)',opacity:1,offset:.62},{transform:'none',opacity:1}],{duration:720,delay:s?250:170});
@@ -10095,8 +10132,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const cr=rkSt.querySelector('.krk-crown');if(cr){ani(cr,[{opacity:0,transform:'translateY(-30px) scale(1.5) rotate(-14deg)'},{opacity:1,transform:'scale(.92)',offset:.7},{opacity:1,transform:'none'}],{duration:620,delay:640,easing:'cubic-bezier(.5,0,.3,1)'});
       ani(rkSt.querySelector('.krk-n1 .kvs-ring'),[{opacity:.95,transform:'scale(.7)'},{opacity:0,transform:'scale(2)'}],{duration:760,delay:1050,fill:'none'});
       ani(rkSt,[{transform:'translateX(0)'},{transform:'translateX(-3px)'},{transform:'translateX(2px)'},{transform:'translateX(-1px)'},{transform:'translateX(0)'}],{duration:260,delay:1060,easing:'linear',fill:'none'})}
-    [rkMeta,rkL,rkFoot].filter(e=>e&&!e.hidden).forEach((e,k)=>ani(e,[{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'none'}],{duration:560,delay:500+k*70}));
-    R.slice(0,9).forEach((e,k)=>ani(e,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:480,delay:600+k*50}));
+    [rkMeta,rkFoot].filter(e=>e&&!e.hidden).forEach((e,k)=>ani(e,[{opacity:0,transform:'translateY(16px)'},{opacity:1,transform:'none'}],{duration:540,delay:480+k*300}));
+    rkDeal(R,560,70,64,620);
     countUp(rkSt.querySelectorAll('.krk-rt b'));countUp(rkL.querySelectorAll('.krk-v b'));rkCheer(1500)};
     if(document.querySelector('body>.km-splash'))addEventListener('kmo:reveal',go,{once:true});else go()}
   /* for the demo: play the entrance again (full = as on the first visit of the session) */
