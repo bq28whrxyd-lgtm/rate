@@ -4219,6 +4219,150 @@ body.ui2 .kt-stats small{font:600 11px/1 var(--x-f,var(--body));color:rgba(244,2
 body.ui2 .kt-stats b{font:800 17px/1 var(--x-n,"Geist",sans-serif);font-variant-numeric:tabular-nums;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){body.ui2 .kt-halo{animation:none;opacity:.5}}
 @media (max-height:720px){body.ui2 .kt{gap:10px}body.ui2 .kt-v{font-size:36px}body.ui2 .kt-hd{min-height:64px}body.ui2 .kt-stats>div{padding:10px 12px}}
+/*KF-START*/
+/* ===== v121 flow + SaaS polish (kf). Dark glass surfaces, hairline gradient edges (light from the top left, violet to cyan
+   at the bottom right), icons stroked with one violet-to-cyan gradient (#kfgA, see kf.js), white buttons with a violet glow. ===== */
+body.kfon{--kf-v:#8b7bff;--kf-c:#67e8f9;--kf-p:#c4b5fd;--kf-bg:#0b0b0f;--kf-s1:#121217;--kf-s2:#18181f;--kf-fg:#f4f1ea;--kf-fg2:rgba(244,241,234,.74);--kf-mut:rgba(244,241,234,.52);
+  --kf-edge:linear-gradient(150deg,rgba(255,255,255,.36),rgba(255,255,255,.06) 36%,rgba(139,123,255,.24) 70%,rgba(103,232,249,.48))}
+
+/* ---------- soft screen changes (View Transitions): the old screen fades and settles back, the new one rises in ---------- */
+@media (prefers-reduced-motion:no-preference){
+  ::view-transition-old(root){animation:kfvOut .2s cubic-bezier(.4,0,1,1) both}
+  ::view-transition-new(root){animation:kfvIn .36s cubic-bezier(.16,1,.3,1) both}
+  ::view-transition-group(kfnav),::view-transition-group(kfbar){animation-duration:.32s;animation-timing-function:cubic-bezier(.2,.9,.25,1)}
+  ::view-transition-old(kfnav){display:none}
+  ::view-transition-new(kfnav){animation:none}
+  ::view-transition-old(kfbar){animation:kfvFade .2s ease-in both}
+  ::view-transition-new(kfbar){animation:kfvFade .32s ease-out reverse both}
+}
+@keyframes kfvOut{to{opacity:0;transform:scale(.985)}}
+@keyframes kfvIn{from{opacity:0;transform:translateY(14px) scale(.992)}}
+@keyframes kfvFade{to{opacity:0}}
+html.kfvt body.ui2 .bnav{view-transition-name:kfnav}
+html.kfvt body.ui2 .lbar{view-transition-name:kfbar}
+
+/* ---------- shared pieces ---------- */
+body.kfon .kfc{position:relative;isolation:isolate;border-radius:26px;background:radial-gradient(110% 60% at 50% -12%,rgba(139,123,255,.16),rgba(139,123,255,0) 62%),linear-gradient(180deg,#15151b,#0d0d11);
+  box-shadow:0 30px 80px -24px rgba(0,0,0,.92)}
+body.kfon .kfc::before{content:"";position:absolute;inset:0;z-index:0;border-radius:inherit;padding:1px;pointer-events:none;background:var(--kf-edge);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+body.kfon .kfc>*{position:relative;z-index:1}
+/* an icon in a small glass tile */
+body.kfon .kfi{position:relative;display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:14px;
+  background:radial-gradient(90% 80% at 30% 0%,rgba(139,123,255,.3),rgba(139,123,255,0) 70%),linear-gradient(180deg,#1e1d27,#111117);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 10px 26px -10px rgba(139,123,255,.7)}
+body.kfon .kfi::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;background:var(--kf-edge);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+body.kfon .kfi svg{width:24px;height:24px;filter:drop-shadow(0 0 6px rgba(139,123,255,.5))}
+body.kfon .kfi-lg{width:64px;height:64px;border-radius:20px}
+body.kfon .kfi-lg svg{width:32px;height:32px}
+body.kfon .kfi-sm{width:36px;height:36px;border-radius:12px}
+body.kfon .kfi-sm svg{width:20px;height:20px}
+/* buttons */
+body.kfon .kf-btn{all:unset;box-sizing:border-box;position:relative;display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;padding:0 20px;border-radius:999px;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;font:800 16px/1.2 var(--x-f,-apple-system,sans-serif);color:#101014;text-align:center;background:linear-gradient(180deg,#ffffff,#e8e5f4);
+  box-shadow:inset 0 -1px 0 rgba(0,0,0,.08),0 0 0 1px rgba(255,255,255,.35),0 14px 34px -12px rgba(139,123,255,.95),0 4px 14px -6px rgba(103,232,249,.45);transition:transform .2s cubic-bezier(.2,.9,.25,1.06)}
+body.kfon .kf-btn:active{transform:scale(.97)}
+body.kfon .kf-btn:disabled{opacity:.6}
+body.kfon .kf-btn:focus-visible,body.kfon .kf-ghost:focus-visible{outline:2px solid #fff;outline-offset:3px}
+body.kfon .kf-ghost{all:unset;box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;border-radius:999px;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  font:700 15px/1.2 var(--x-f,-apple-system,sans-serif);color:var(--kf-mut)}
+body.kfon .kf-ghost:active{background:rgba(255,255,255,.05)}
+
+/* ---------- icons on the home and the top bar: dark glass tiles, a gradient edge, violet-to-cyan strokes ---------- */
+body.ui2 #lob .lside .lgl{background:radial-gradient(110% 80% at 28% 0%,rgba(139,123,255,.26),rgba(139,123,255,0) 64%),linear-gradient(180deg,rgba(27,26,35,.9),rgba(11,11,15,.92))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 12px 28px -12px rgba(0,0,0,.9),0 0 24px -12px rgba(139,123,255,.6)!important;color:#ecebff!important}
+body.ui2 #lob .lside .lgl::after,body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell)::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;padding:1px;pointer-events:none;background:var(--kf-edge);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+body.ui2 #lob .lside .lgl svg,body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell) svg{stroke:url(#kfgA);filter:drop-shadow(0 0 5px rgba(139,123,255,.5))}
+body.ui2 #lob .lside .lgl svg [fill="currentColor"],body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell) svg [fill="currentColor"]{fill:url(#kfgA)}
+body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell){background:radial-gradient(110% 90% at 30% 0%,rgba(139,123,255,.24),rgba(139,123,255,0) 66%),linear-gradient(180deg,rgba(27,26,35,.9),rgba(11,11,15,.92))!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 10px 24px -12px rgba(0,0,0,.9)!important}
+body.ui2 :is(#lob,#ktop) .lbar :is(.lgift,.lbell) b{z-index:2;box-shadow:0 0 0 2px #0b0b10,0 0 12px rgba(255,69,58,.6)}
+/* counts on the tiles: a violet-to-cyan pill */
+body.ui2 #lob .lside em{z-index:2;top:-7px;right:-8px;min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;display:grid;place-items:center;font:800 11px/1 var(--x-n,"Geist",sans-serif);
+  font-variant-numeric:tabular-nums;color:#fff;background:linear-gradient(135deg,#a08fff,#3dd8f0);box-shadow:0 0 0 2px #0b0b10,0 6px 14px -4px rgba(139,123,255,.85);text-shadow:0 1px 1px rgba(40,24,110,.35)}
+body.ui2 #lob .lside em.dot{min-width:0;width:10px;height:10px;padding:0;top:-2px;right:-2px;background:radial-gradient(circle at 35% 35%,#ffc2cd,#ff3b5c 62%);box-shadow:0 0 0 2px #0b0b10,0 0 12px rgba(255,59,92,.85)}
+/* the selected tab's icon takes the gradient */
+body.ui2 .bnav button.on svg .f,body.ui2 .bnav button.on svg .f *{fill:url(#kfgA)!important}
+body.ui2 .bnav button.on svg{filter:drop-shadow(0 0 8px rgba(139,123,255,.55))}
+/* icons in the ランキング strip */
+body.ui2 .krk-pill.krk-season svg{stroke:url(#kfgA)}
+
+/* ---------- 週間MVP ---------- */
+body.kfon .mvpann.kfm{display:block;padding:max(26px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom));animation:none;
+  background:radial-gradient(70% 42% at 50% 0%,rgba(139,123,255,.3),rgba(139,123,255,0) 72%),radial-gradient(55% 34% at 92% 22%,rgba(103,232,249,.14),rgba(103,232,249,0) 72%),#07070a!important}
+body.kfon .kfm-aur{position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.035) 1px,rgba(255,255,255,0) 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,rgba(255,255,255,0) 1px);background-size:28px 28px;
+  -webkit-mask-image:radial-gradient(70% 40% at 50% 8%,#000,rgba(0,0,0,0) 80%);mask-image:radial-gradient(70% 40% at 50% 8%,#000,rgba(0,0,0,0) 80%)}
+body.kfon .kfm-in{position:relative;max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+body.kfon .kfm-hd{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 0 6px;text-align:center}
+body.kfon .kfm-hd h2{margin:6px 0 0;font:800 26px/1.2 var(--x-f);letter-spacing:-.01em;color:#fff;text-wrap:balance}
+body.kfon .kfm-date{margin:0;font:700 13px/1 var(--x-n);color:var(--kf-mut);font-variant-numeric:tabular-nums}
+body.kfon .kfm-sec{display:flex;flex-direction:column;padding:6px 16px}
+body.kfon .kfm-sec h3{display:flex;align-items:baseline;gap:8px;margin:10px 0 2px;font:700 13px/1.3 var(--x-f);color:var(--kf-fg2)}
+body.kfon .kfm-sec h3 small{font:600 11.5px/1.3 var(--x-f);color:var(--kf-mut)}
+body.kfon .kfm-row{display:flex;flex-direction:column;gap:9px;padding:12px 0}
+body.kfon .kfm-row+.kfm-row{border-top:.5px solid rgba(255,255,255,.08)}
+body.kfon .kfm-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;min-width:0}
+body.kfon .kfm-h span{min-width:0;font:700 15px/1.3 var(--x-f);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.kfon .kfm-h b{flex:none;font:800 17px/1 var(--x-n);font-variant-numeric:tabular-nums;color:#fff}
+body.kfon .kfm-row.me .kfm-h b{background:linear-gradient(90deg,#f6e3b4,#e2bf72);-webkit-background-clip:text;background-clip:text;color:transparent}
+body.kfon .kfm-who{display:flex;flex-wrap:wrap;gap:6px}
+body.kfon .kfm-p{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 13px 0 6px;border-radius:999px;max-width:100%;
+  background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12)}
+body.kfon .kfm-p .kav{position:relative;flex:none}
+body.kfon .kfm-p .kav>.avf{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0!important}
+body.kfon .kfm-p b{min-width:0;font:700 14px/1 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.kfon .kfm-p b .nx::before,body.kfon .kfm-p b .nx::after,body.kfon .kfm-p b .nxk,body.kfon .kfm-p b .nxc{display:none}
+body.kfon .kfm-p b .nxt{filter:none!important;font-size:1em!important}
+body.kfon .kfm-p.me{background:linear-gradient(90deg,rgba(226,191,114,.2),rgba(226,191,114,.06));box-shadow:inset 0 0 0 1px rgba(226,191,114,.7),0 6px 16px -8px rgba(226,191,114,.7)}
+body.kfon .kfm-rw{display:flex;flex-direction:column;gap:8px;padding:4px 2px 2px}
+body.kfon .kfm-r{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 14px;border-radius:16px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08)}
+body.kfon .kfm-r svg{flex:none;width:22px;height:22px;filter:drop-shadow(0 0 5px rgba(139,123,255,.5))}
+body.kfon .kfm-r span{flex:1;min-width:0;font:600 13px/1.45 var(--x-f);color:var(--kf-fg2);text-wrap:pretty}
+body.kfon .kfm-r b{flex:none;font:800 14px/1.2 var(--x-f);color:#fff;white-space:nowrap}
+body.kfon .kfm-in>.kf-btn{margin-top:6px}
+
+/* ---------- 通知をオンにしませんか ---------- */
+body.kfon .kfp{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);
+  background:radial-gradient(60% 40% at 50% 30%,rgba(139,123,255,.18),rgba(139,123,255,0) 70%),rgba(4,4,8,.74);overflow-y:auto}
+body.kfon .kfp-c{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:26px 20px 14px;text-align:center}
+body.kfon .kfp-c h2{margin:8px 0 0;font:800 22px/1.3 var(--x-f);color:#fff;text-wrap:balance}
+body.kfon .kfp-s{margin:0 0 6px;font:600 13.5px/1.6 var(--x-f);color:var(--kf-fg2);word-break:keep-all;overflow-wrap:anywhere}
+body.kfon .kfp-l{align-self:stretch;display:flex;flex-direction:column;gap:2px;margin:2px 0 8px;padding:6px;border-radius:20px;background:rgba(255,255,255,.03);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.07)}
+body.kfon .kfp-i{display:flex;align-items:center;gap:12px;padding:8px;text-align:left}
+body.kfon .kfp-i div{display:flex;flex-direction:column;gap:3px;min-width:0}
+body.kfon .kfp-i b{font:700 14.5px/1.3 var(--x-f);color:#fff}
+body.kfon .kfp-i span{font:600 12px/1.45 var(--x-f);color:var(--kf-mut)}
+body.kfon .kfp-n{margin:2px 0 4px;font:600 11.5px/1.6 var(--x-f);color:var(--kf-mut);word-break:keep-all;overflow-wrap:anywhere}
+
+/* ---------- アップデート ---------- */
+body.kfon .kfn{position:fixed;inset:0;z-index:140;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,3,7,.62)}
+body.kfon .kfn-s{width:100%;max-width:560px;max-height:min(88dvh,820px);display:flex;flex-direction:column;border-radius:30px 30px 0 0;padding:8px 0 0;overflow:hidden;
+  background:radial-gradient(90% 40% at 50% -6%,rgba(139,123,255,.22),rgba(139,123,255,0) 64%),linear-gradient(180deg,#15151b,#0c0c10)}
+body.kfon .kfn-s::before{border-radius:30px 30px 0 0}
+body.kfon .kfn-grab{display:block;width:40px;height:5px;margin:2px auto 8px;border-radius:3px;background:rgba(255,255,255,.22)}
+body.kfon .kfn-hd{display:flex;align-items:center;gap:14px;padding:6px 20px 14px;touch-action:none}
+body.kfon .kfn-hd img{width:56px;height:56px;border-radius:15px;box-shadow:0 0 0 .5px rgba(255,255,255,.18),0 10px 26px -8px rgba(139,123,255,.75)}
+body.kfon .kfn-hd h2{margin:0;font:800 24px/1.15 var(--x-f);color:#fff}
+body.kfon .kfn-hd small{display:block;margin-top:5px;font:600 12.5px/1 var(--x-n);color:var(--kf-mut)}
+body.kfon .kfn-bd{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px 16px 12px;display:flex;flex-direction:column;gap:10px}
+body.kfon .kfn-sec{padding:16px 16px 14px;border-radius:20px;background:rgba(255,255,255,.035);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08)}
+body.kfon .kfn-sec h3{display:flex;align-items:center;gap:10px;margin:0 0 10px;font:800 16px/1.35 var(--x-f);color:#fff}
+body.kfon .kfn-sec h3 i{flex:none;width:4px;height:18px;border-radius:2px;background:linear-gradient(180deg,#c4b5fd,#67e8f9);box-shadow:0 0 10px rgba(139,123,255,.7)}
+body.kfon .kfn-sec ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+body.kfon .kfn-sec li{position:relative;padding-left:16px;font:600 13.5px/1.65 var(--x-f);color:var(--kf-fg2);text-wrap:pretty}
+body.kfon .kfn-sec li::before{content:"";position:absolute;left:2px;top:.66em;width:6px;height:6px;border-radius:50%;background:linear-gradient(135deg,#c4b5fd,#67e8f9)}
+body.kfon .kfn-old{border-radius:20px;background:rgba(255,255,255,.025);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.06)}
+body.kfon .kfn-old summary{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 16px;list-style:none;cursor:pointer;font:700 14px/1 var(--x-f);color:var(--kf-fg2)}
+body.kfon .kfn-old summary::-webkit-details-marker{display:none}
+body.kfon .kfn-old summary i{width:8px;height:8px;border-right:2px solid var(--kf-mut);border-bottom:2px solid var(--kf-mut);transform:rotate(45deg) translateY(-2px);transition:transform .25s}
+body.kfon .kfn-old[open] summary i{transform:rotate(-135deg)}
+body.kfon .kfn-old .kfn-sec{background:none;box-shadow:none;border-top:.5px solid rgba(255,255,255,.06);border-radius:0}
+body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
+
+@media (prefers-reduced-motion:reduce){body.ui2 .bnav button.on svg{filter:none}}
+/*KF-END*/
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -9290,7 +9434,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   try{caches.open('ladder-media').then(c=>c.keys().then(ks=>ks.forEach(r=>{if(!/[?&]v=v3\b/.test(r.url))c.delete(r)}))).catch(()=>{})}catch(e){}
   async function vblob(name){if(vurl[name])return vurl[name];const c=window.caches?await caches.open('ladder-media').catch(()=>null):null;let res=c&&await c.match(name);
     if(!res){res=await fetch(name,{cache:'force-cache'});if(c&&res.ok)try{await c.put(name,res.clone())}catch(e){}}if(!res||!res.ok)throw new Error('novideo');const b=await res.blob();return vurl[name]=URL.createObjectURL(b)}
-  setTimeout(()=>vblob(VSRC.s).catch(()=>{}),4000);/* the short version is warmed after startup; the long one is fetched by the splash itself */
+  setTimeout(()=>vblob(VSRC.l).catch(()=>{}),4000);/* the full version is kept warm (every launch plays it) */
   function splashVideo(short){if(document.querySelector('body>.km-splash'))return;const name=short?VSRC.s:VSRC.l;
     const r=document.createElement('div');r.className='km-splash km-vid';const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';r.append(v);document.body.append(r);hold(true);
     const sp0=document.getElementById('splash');const T0=short?.65:1.95,T1=short?.75:2.05,END=short?1.15:2.45;const cues=short?[[.02,'blip'],[.12,'slam'],[.65,'dive']]:[[.06,'blip'],[.3,'whoosh'],[1.26,'chime'],[1.42,'slam'],[1.95,'dive']];let ci=0;
@@ -9305,7 +9449,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     return r}
   window.kmoSplash=splash;window.kmoSplashVideo=splashVideo;
   const sp=document.getElementById('splash');
-  if(sp&&!RM){let short=false;try{short=localStorage.getItem('kspl')===today();localStorage.setItem('kspl',today())}catch(e){}
+  /* every launch plays the full splash (the points draw the glasses and crown in lines first); tapping still skips to the end */
+  if(sp&&!RM){let short=false;try{localStorage.setItem('kspl',today())}catch(e){}
     let useVideo=true;try{useVideo=localStorage.getItem('kspl_canvas')!=='1'}catch(e){}if(useVideo&&'caches' in window)splashVideo(short);else{sp.style.visibility='hidden';splash(short)}}
 
   /* ---------- login bonus / pass ---------- */
@@ -9489,6 +9634,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   const TI=r=>{try{return tidx(+r||1500)}catch(e){return 0}};
   const RNk=r=>{try{return RN(+r||1500)}catch(e){return ''}};
   const AGO=t=>{try{return ago(t)}catch(e){return ''}};
+  /* a change of what the screen shows goes through kf.js's soft transition when it is there */
+  const SOFT=f=>{try{if(window.kSoft)return kSoft(f)}catch(e){}f()};
   const S={
     chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
     left:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>',
@@ -9532,12 +9679,12 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     Object.keys(GAMES).forEach(g=>{const pv=me&&typeof pView==='function'?pView(me.id,g):null,r=pv?pv.rating:1500,w=pv?pv.wins||0:0,l=pv?pv.losses||0:0;
       const b=mk('button','kx-gr'+(g===game&&!(curView==='rank'&&rkTcg)?' on':''));b.type='button';let em;try{em=emblem(TI(r),34)}catch(e){em=mk('span')}
       const t=mk('span','t');t.append(mk('b',null,esc(GAMES[g])),mk('small',null,w+l?esc(RNk(r))+' ・ '+w+'勝 '+l+'敗':'まだ対戦していません'));
-      b.append(em,t,mk('span','v',String(r)));b.onclick=()=>{close();const was=rkTcg;rkSet(false);if(g!==game){try{pickGame(g)}catch(e){}}else if(was){rankSig='';refresh()}};L.append(b)});
+      b.append(em,t,mk('span','v',String(r)));b.onclick=()=>{close();const was=rkTcg;if(g===game&&!was)return;SOFT(()=>{rkSet(false);if(g!==game){try{pickGame(g)}catch(e){}}else if(was){rankSig='';refresh()}})};L.append(b)});
     /* on the ランキング tab, きもオタTCG is one more ladder */
     if(curView==='rank'&&typeof tcgRatings==='function'&&me){let r=1500,w=0,l=0;try{const K=tcgRatings();r=tcgRating(me.id);w=K.w[me.id]||0;l=K.l[me.id]||0}catch(e){}
       const b=mk('button','kx-gr kx-grt'+(rkTcg?' on':''));b.type='button';let em;try{em=emblem(TI(r),34)}catch(e){em=mk('span')}
       const t=mk('span','t');t.append(mk('b',null,'きもオタTCG'),mk('small',null,w+l?esc(RNk(r))+' ・ '+w+'勝 '+l+'敗':'友達戦をすると載ります'));
-      b.append(em,t,mk('span','v',String(r)));b.onclick=()=>{close();if(!rkTcg){rkSet(true);rankSig='';refresh()}};L.append(mk('div','kx-grsep'),b)}
+      b.append(em,t,mk('span','v',String(r)));b.onclick=()=>{close();if(!rkTcg)SOFT(()=>{rkSet(true);rankSig='';refresh()})};L.append(mk('div','kx-grsep'),b)}
     const close=panel('ジャンル',L)};
   /* the top bar values keep updating while you are on another screen */
   {const hb=$i('hbar');let p=0;const tick=()=>{if(p||curView==='home')return;p=requestAnimationFrame(()=>{p=0;try{window.__lobTop&&__lobTop()}catch(e){}})};
@@ -10346,7 +10493,175 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   /* every old way in (the TCG page button, the old home tile) opens the new chart */
   try{openRateChart=function(g){open(g)};window.openRateChart=openRateChart}catch(e){}
 })();
-/*KT-END*/</script>
+/*KT-END*/
+/*KFJS-START*/
+/* ===== v121 flow (kf): every change of screen is soft, popups fade out instead of vanishing, the icons get the
+   dark-glass + gradient look, and three screens are redrawn in that look: the weekly MVP, the notification ask
+   and the update news. Motion is transform/opacity only; "reduce motion" keeps everything still. ===== */
+(function(){
+  let on=true;try{on=localStorage.getItem('ui2')!=='0'}catch(e){}
+  if(!on||typeof setView!=='function')return;
+  const $i=id=>document.getElementById(id);
+  const mk=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
+  const ani=(el,kf,o)=>{if(!el||!el.animate||RM)return null;try{return el.animate(kf,Object.assign({duration:420,easing:'cubic-bezier(.16,1,.3,1)',fill:'backwards'},o||{}))}catch(e){return null}};
+  document.body.classList.add('kfon');
+
+  /* ---------- one set of gradients for every icon (in the icons' own 24 x 24 space, so straight lines keep their colour) ---------- */
+  if(!$i('kfdefs')){const d=mk('div');d.innerHTML='<svg id="kfdefs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs>'+
+    '<linearGradient id="kfgA" gradientUnits="userSpaceOnUse" x1="3" y1="2" x2="21" y2="22"><stop offset="0" stop-color="#e2dbff"/><stop offset=".42" stop-color="#a493ff"/><stop offset="1" stop-color="#5ee1f4"/></linearGradient>'+
+    '<linearGradient id="kfgG" gradientUnits="userSpaceOnUse" x1="3" y1="2" x2="21" y2="22"><stop offset="0" stop-color="#fff4d2"/><stop offset=".5" stop-color="#eec672"/><stop offset="1" stop-color="#b9842c"/></linearGradient>'+
+    '</defs></svg>';document.body.prepend(d.firstChild)}
+  const SVG=(p,cls)=>'<svg viewBox="0 0 24 24" fill="none" stroke="url(#kfgA)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"'+(cls?' class="'+cls+'"':'')+'>'+p+'</svg>';
+  const IC={
+    bell:'<path d="M6 10.6a6 6 0 0 1 12 0v3.6l1.5 2.5a.9.9 0 0 1-.8 1.3H5.3a.9.9 0 0 1-.8-1.3L6 14.2z"/><path d="M10.1 20.2a2.1 2.1 0 0 0 3.8 0"/>',
+    swords:'<path d="M4.5 4.5h3.2l7.2 7.2-3.2 3.2-7.2-7.2z"/><path d="M19.5 4.5h-3.2l-7.2 7.2 3.2 3.2 7.2-7.2z"/><path d="M7.4 16.6 5 19M16.6 16.6 19 19"/>',
+    mega:'<path d="M4 10v4a1.6 1.6 0 0 0 1.6 1.6H7l5.4 3.6V4.8L7 8.4H5.6A1.6 1.6 0 0 0 4 10z"/><path d="M15.8 9.3a3.8 3.8 0 0 1 0 5.4M18.3 6.8a7.4 7.4 0 0 1 0 10.4"/>',
+    gift:'<rect x="3.8" y="8.2" width="16.4" height="4.3" rx="1.6"/><path d="M5.4 12.5v6.1a2 2 0 0 0 2 2h9.2a2 2 0 0 0 2-2v-6.1M12 8.2v12.4M12 8.2C10.9 5.2 7.3 4.3 7.3 6.5c0 1.4 2.6 1.7 4.7 1.7zM12 8.2c1.1-3 4.7-3.9 4.7-1.7 0 1.4-2.6 1.7-4.7 1.7z"/>',
+    trophy:'<path d="M8 4.4h8v4.9a4 4 0 0 1-8 0z"/><path d="M8 6.2H6.1a2.4 2.4 0 0 0 2.3 3.7M16 6.2h1.9a2.4 2.4 0 0 1-2.3 3.7M12 13.3v3.1M10 16.4h4l.7 3.8H9.3z"/>',
+    ticket:'<path d="M4 7.4A1.6 1.6 0 0 1 5.6 5.8h12.8A1.6 1.6 0 0 1 20 7.4v2.1a2.5 2.5 0 0 0 0 5v2.1a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 16.6v-2.1a2.5 2.5 0 0 0 0-5z"/><path d="M14.5 6.4v1.4M14.5 11.3v1.4M14.5 16.2v1.4"/>',
+    coin:'<circle cx="12" cy="12" r="8"/><path d="M10 16.2V7.8h2.8a2.4 2.4 0 0 1 0 4.8H10"/>',
+    medal:'<circle cx="12" cy="9.2" r="5"/><path d="m8.7 13 -1.4 7 4.7-2.4 4.7 2.4-1.4-7"/><path d="m12 7 .9 1.6 1.7.3-1.2 1.2.3 1.7-1.7-.8-1.7.8.3-1.7-1.2-1.2 1.7-.3z"/>',
+    spark:'<path d="M12 3.5 13.6 9l5.4 1.6-5.4 1.6L12 17.7l-1.6-5.5L5 10.6 10.4 9z"/><path d="M18.5 15.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>'};
+  window.__kfIcon=(k,cls)=>SVG(IC[k]||'',cls);
+
+  /* ---------- soft screen changes. Where the phone supports View Transitions (iOS 18 and later) the old screen fades out
+     while the new one rises in; elsewhere the new screen fades in. The tab bar and the top bar stay still. ---------- */
+  const VT=typeof document.startViewTransition==='function'&&!RM;
+  let vtOn=false,vtNow=null,skipT=0;
+  function soft(update){
+    const run=()=>{try{update()}catch(e){console.warn('kf',e)}};
+    if(RM||document.hidden||document.querySelector('body>.km-splash')){run();return}
+    if(VT&&!vtOn){try{vtOn=true;document.documentElement.classList.add('kfvt');const t=document.startViewTransition(run);vtNow=t;
+        const done=()=>{vtOn=false;vtNow=null;document.documentElement.classList.remove('kfvt')};t.finished.then(done,done);return}catch(e){vtOn=false;vtNow=null;document.documentElement.classList.remove('kfvt')}}
+    run();const v=document.querySelector('main>.view:not([hidden])')||document.querySelector('.view:not([hidden])');
+    ani(v,[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:380})}
+  window.kSoft=soft;
+  /* a tap while the new screen is still settling: finish the transition at once and send the tap to what is under the finger
+     (during a transition the page is a picture, so the tap would otherwise land on nothing) */
+  addEventListener('pointerdown',()=>{if(vtNow){try{vtNow.skipTransition()}catch(e){}skipT=performance.now()}},{capture:true,passive:true});
+  addEventListener('click',e=>{if(!skipT||performance.now()-skipT>900)return;const t=e.target;if(t!==document.documentElement&&t!==document.body)return;skipT=0;
+    const el=document.elementFromPoint(e.clientX,e.clientY);const b=el&&el.closest('button,[role=button],a,label,summary,input,select');if(b&&b!==t){e.stopPropagation();e.preventDefault();try{b.focus({preventScroll:true})}catch(x){}b.click()}},{capture:true});
+  /* while a view transition plays, the app's own small fade-in of a page is not needed */
+  try{const S0=slideIn;slideIn=function(){if(vtOn)return;return S0.apply(this,arguments)}}catch(e){}
+  const wrap=(b,always)=>{if(!b||b.__kf||typeof b.onclick!=='function')return;b.__kf=1;const h=b.onclick;
+    b.onclick=function(e){if(!always&&this.classList.contains('on')&&this.closest('.bnav'))return h.call(this,e);soft(()=>h.call(this,e))}};
+  function wireAll(){document.querySelectorAll('.bnav button').forEach(b=>wrap(b));
+    document.querySelectorAll('#psub button').forEach(b=>wrap(b,true));
+    ['#khead .kx-gear','#khead .kx-back','#v-profile .kback'].forEach(s=>wrap(document.querySelector(s),true))}
+  wireAll();setTimeout(wireAll,1200);if(document.readyState!=='complete')addEventListener('load',wireAll);
+
+  /* ---------- popups fade out instead of vanishing (the card sinks a little while the backdrop fades) ---------- */
+  const SOFTX=el=>el.parentNode===document.body&&(el.classList.contains('md')&&!el.classList.contains('tcgmd')||el.classList.contains('pwv')||el.classList.contains('pad')||el.classList.contains('shw'));
+  try{const R0=Element.prototype.remove;
+    Element.prototype.remove=function(){
+      try{if(!RM&&!this.__kfOut&&this.isConnected&&this.animate&&!document.hidden&&SOFTX(this)&&!this.classList.contains('out')&&!this.classList.contains('closing')){
+        this.__kfOut=1;this.style.pointerEvents='none';const card=this.querySelector(':scope>.mdc,:scope>.pmw,:scope>.sht,:scope>div');
+        const a=this.animate([{opacity:1},{opacity:0}],{duration:220,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});
+        if(card&&card.animate)card.animate([{transform:'none'},{transform:'translateY(8px) scale(.965)'}],{duration:220,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});
+        const gone=()=>{if(this.isConnected)R0.call(this)};a.onfinish=gone;setTimeout(gone,420);return}}catch(e){}
+      return R0.call(this)}}catch(e){}
+
+  /* our new popups count as busy for the app's queue */
+  try{const wf=whenFree;whenFree=function(fn){if(document.querySelector('body>.kfn,body>.kfp,body>.kfm'))setTimeout(()=>whenFree(fn),600);else wf(fn)}}catch(e){}
+
+  const AV=(id,px)=>{try{return window.__kavOf?__kavOf(id,px):mk('span')}catch(e){return mk('span')}};
+  const NM=(name,ti)=>{try{return nameEl('',name,ti)}catch(e){return document.createTextNode(name)}};
+  const GNAME=g=>{try{return g==='tcg'?'きもオタTCG':gname(g)}catch(e){return g}};
+
+  /* ---------- 週間MVP: one column of cards. Every winner is a chip (icon + name); ties wrap onto more lines instead of
+     piling up, the genre name always has its own line, and you are marked by a gold edge on your chip ---------- */
+  if(typeof showMvpAnn==='function'){const MV0=showMvpAnn;
+    showMvpAnn=function(w,M,ks,me,T,gs){try{return kfMvp(w,M,ks,me,T||{},gs||[])}catch(e){console.warn('kf mvp',e);return MV0.apply(this,arguments)}}}
+  function chip(p,tier,mine){const c=mk('span','kfm-p'+(mine?' me':''));c.append(AV(p.id,28));const b=mk('b');b.append(NM(p.name,tier));c.append(b);if(mine)c.setAttribute('aria-label',p.name+'(あなた)');return c}
+  function kfMvp(w,M,ks,me,T,gs){
+    const mine=ks.filter(([k])=>M[k]&&M[k].ids.includes(me.id)),myG=gs.filter(g=>T[g]&&T[g].ids.includes(me.id));
+    const o=mk('div','mvpann kfm');const inn=mk('div','kfm-in');
+    let rng='';try{rng=wkRange(w)}catch(e){}
+    const hd=mk('div','kfm-hd');hd.innerHTML='<div class="kfi kfi-lg">'+SVG(IC.trophy)+'</div>';
+    hd.append(mk('h2',null,ks.length?'先週の週間MVP':'先週のジャンル別1位'),mk('p','kfm-date',esc(rng)));inn.append(hd);
+    const tierOf=p=>{try{return bestTier(p)}catch(e){return 0}};
+    if(ks.length){const s=mk('section','kfc kfm-sec');
+      ks.forEach(([k,lab,u])=>{const x=M[k];if(!x)return;const r=mk('div','kfm-row'+(x.ids.includes(me.id)?' me':''));
+        const h=mk('div','kfm-h');h.append(mk('span',null,esc(lab)),mk('b','kx-num',esc(x.v+(u||''))));r.append(h);
+        const who=mk('div','kfm-who');x.ids.forEach(id=>{const p=players.find(y=>y.id===id);if(p)who.append(chip(p,tierOf(p),id===me.id))});r.append(who);s.append(r)});
+      inn.append(s)}
+    if(gs.length){const s=mk('section','kfc kfm-sec');s.append(mk('h3',null,ks.length?'ジャンル別 1位<small>週の終わりのレート</small>':'週の終わりのレート'));
+      gs.forEach(g=>{const x=T[g];if(!x)return;const r=mk('div','kfm-row'+(x.ids.includes(me.id)?' me':''));
+        const h=mk('div','kfm-h');h.append(mk('span',null,esc(GNAME(g))),mk('b','kx-num',String(x.r)));r.append(h);
+        const who=mk('div','kfm-who');x.ids.forEach(id=>{const p=players.find(y=>y.id===id);let ti=0;try{ti=tidx(+x.r||START)}catch(e){}if(p)who.append(chip(p,ti,id===me.id))});r.append(who);s.append(r)});
+      inn.append(s)}
+    /* what you got, as short lines with an icon each */
+    const rw=mk('div','kfm-rw');
+    if(myG.length){let n=0;try{n=myG.reduce((a,g)=>a+WK1_N(g),0)}catch(e){}const l=mk('div','kfm-r');l.innerHTML=SVG(IC.ticket);l.append(mk('span',null,esc(myG.map(GNAME).join(' / '))+' で週間1位'),mk('b',null,'ガチャのチケット ×'+n));rw.append(l)}
+    if(mine.length){const l=mk('div','kfm-r');l.innerHTML=SVG(IC.coin);l.append(mk('span',null,'受賞おめでとう'),mk('b',null,'+'+(mine.length*500).toLocaleString()+'pt'));rw.append(l);
+      const l2=mk('div','kfm-r');l2.innerHTML=SVG(IC.medal);l2.append(mk('span',null,'今週はプロフィールにMVPマーク'));rw.append(l2)}
+    if(!mine.length&&!myG.length){const l=mk('div','kfm-r');l.innerHTML=SVG(IC.spark);l.append(mk('span',null,'各部門の1位に500pt。今週の争いは月曜朝5時にリセット済み'));rw.append(l)}
+    inn.append(rw);
+    const ok=mk('button','kf-btn','確認');ok.type='button';inn.append(ok);
+    o.append(mk('i','kfm-aur'),inn);document.body.append(o);
+    ani(o,[{opacity:0},{opacity:1}],{duration:320,easing:'ease-out'});
+    ani(hd.querySelector('.kfi'),[{opacity:0,transform:'translateY(14px) scale(.6)'},{opacity:1,transform:'scale(1.06)',offset:.6},{opacity:1,transform:'none'}],{duration:640,delay:80});
+    [...inn.children].forEach((e,k)=>{if(e===hd)return;ani(e,[{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'none'}],{duration:560,delay:200+k*90})});
+    inn.querySelectorAll('.kfm-p').forEach((c,k)=>ani(c,[{opacity:0,transform:'scale(.8)'},{opacity:1,transform:'none'}],{duration:420,delay:420+k*40,easing:'cubic-bezier(.3,1.4,.5,1)'}));
+    if(mine.length||myG.length){try{navigator.vibrate&&navigator.vibrate([50,40,110])}catch(e){}setTimeout(()=>{if(o.isConnected&&typeof FX==='function')FX(o,4,0,{pal:['#d8ccff','#ffffff','#67e8f9','#f0d48a']})},900)}
+    ok.onclick=()=>{try{localStorage.setItem('mvpseen_'+me.id,w)}catch(e){}o.classList.add('out');o.style.pointerEvents='none';
+      const a=ani(o,[{opacity:1},{opacity:0}],{duration:260,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});ani(inn,[{transform:'none'},{transform:'translateY(10px) scale(.97)'}],{duration:260,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});
+      const end=()=>{if(o.isConnected)o.remove();try{mvpAnnOpen=false}catch(e){}};if(a)a.onfinish=end;else end()};
+    return o}
+
+  /* ---------- 通知をオンにしませんか: a glass card, an icon per kind of notice, a white button with a violet glow ---------- */
+  if(typeof showPushAsk==='function'){const PA0=showPushAsk;
+    showPushAsk=function(st){try{return kfPush(st||{})}catch(e){console.warn('kf push',e);return PA0.apply(this,arguments)}}}
+  function kfPush(st){document.querySelectorAll('body>.kfp').forEach(x=>x.remove());
+    const m=mk('div','kfp'),c=mk('div','kfc kfp-c');m.append(c);
+    const keep=()=>{try{localStorage.setItem('pushAsk',JSON.stringify({n:(st.n||0)+1,t:now()}))}catch(e){}};
+    c.innerHTML='<div class="kfi kfi-lg">'+SVG(IC.bell)+'</div><h2>通知をオンにしませんか</h2><p class="kfp-s">アプリを閉じていても、<wbr>大事なことだけ<wbr>お知らせします</p>';
+    const L=mk('div','kfp-l');[['swords','対戦の申し込み','友達から申し込まれたとき(TCGも)'],['mega','お知らせ','開発者からのお知らせ'],['gift','配布・ガチャ・イベント','ポイントやチケット、新しいガチャ、大会']].forEach(([k,a,b])=>{
+      const r=mk('div','kfp-i');r.innerHTML='<i class="kfi kfi-sm">'+SVG(IC[k])+'</i>';const t=mk('div');t.append(mk('b',null,esc(a)),mk('span',null,esc(b)));r.append(t);L.append(r)});
+    const ok=mk('button','kf-btn','通知をオンにする'),no=mk('button','kf-ghost','あとで');ok.type=no.type='button';
+    c.append(L,ok,no,mk('p','kfp-n','種類ごとのオン・オフは<wbr>「設定・要望」の「通知」で<wbr>いつでも変えられます'));
+    document.body.append(m);
+    ani(m,[{opacity:0},{opacity:1}],{duration:260,easing:'ease-out'});
+    ani(c,[{opacity:0,transform:'translateY(18px) scale(.94)'},{opacity:1,transform:'none'}],{duration:560,easing:'cubic-bezier(.2,1.1,.3,1)'});
+    [...c.children].forEach((e,k)=>ani(e,[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:460,delay:120+k*45}));
+    const close=()=>{if(m.classList.contains('out'))return;m.classList.add('out');m.style.pointerEvents='none';
+      const a=ani(m,[{opacity:1},{opacity:0}],{duration:240,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});ani(c,[{transform:'none'},{transform:'translateY(10px) scale(.96)'}],{duration:240,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});
+      const end=()=>{if(m.isConnected)m.remove()};if(a)a.onfinish=end;else end()};
+    ok.onclick=async()=>{ok.disabled=no.disabled=true;ok.textContent='設定しています…';keep();try{await pushOn()}catch(e){}close()};
+    no.onclick=()=>{keep();close()};m.addEventListener('click',e=>{if(e.target===m){keep();close()}});
+    return m}
+
+  /* ---------- アップデート: a sheet like a product changelog. Each section is a card with a gradient mark; the older
+     updates fold away. It rises from the bottom, and a drag down (or OK) sends it back. ---------- */
+  if(typeof showNews==='function'){const N0=showNews;
+    showNews=function(){try{return kfNews()}catch(e){console.warn('kf news',e);return N0.apply(this,arguments)}}}
+  function kfNews(){if(document.querySelector('body>.kfn'))return;
+    const o=mk('div','kfn'),sh=mk('div','kfc kfn-s');let d='最新のお知らせ';try{if(/^\d{4}-\d{2}-\d{2}/.test(NEWS_ID))d=NEWS_ID.slice(0,10).replace(/-/g,'.')}catch(e){}
+    const sec=([t,L],i)=>'<section class="kfn-sec"><h3><i></i>'+esc(t)+'</h3><ul>'+L.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></section>';
+    let cur='',old='';try{cur=NEWS.map(sec).join('')}catch(e){}try{old=NEWS_PREV.concat(NEWS_OLD).map(sec).join('')}catch(e){}
+    sh.innerHTML='<i class="kfn-grab"></i><div class="kfn-hd"><img src="icon-512.png" alt=""><div><h2>アップデート</h2><small>'+esc(d)+' ・ きもオタレート</small></div></div>'+
+      '<div class="kfn-bd">'+cur+(old?'<details class="kfn-old"><summary>これまでのアップデート<i></i></summary>'+old+'</details>':'')+'</div><div class="kfn-ft"><button type="button" class="kf-btn">OK</button></div>';
+    o.append(sh);document.body.append(o);try{localStorage.setItem('newsSeen',NEWS_ID)}catch(e){}
+    ani(o,[{opacity:0},{opacity:1}],{duration:280,easing:'ease-out'});
+    ani(sh,[{transform:'translateY(100%)'},{transform:'none'}],{duration:620,easing:'cubic-bezier(.2,1,.3,1)'});
+    sh.querySelectorAll('.kfn-bd>.kfn-sec').forEach((s,k)=>ani(s,[{opacity:0,transform:'translateY(14px)'},{opacity:1,transform:'none'}],{duration:500,delay:220+k*70}));
+    let closing=false;
+    const close=()=>{if(closing)return;closing=true;o.classList.add('out');o.style.pointerEvents='none';
+      const cur=getComputedStyle(sh).transform;const a=ani(sh,[{transform:cur==='none'?'none':cur},{transform:'translateY(105%)'}],{duration:360,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});
+      ani(o,[{opacity:1},{opacity:0}],{duration:360,easing:'ease-in',fill:'forwards'});const end=()=>{if(o.isConnected)o.remove()};if(a)a.onfinish=end;else end()};
+    sh.querySelector('.kf-btn').onclick=close;o.addEventListener('click',e=>{if(e.target===o)close()});
+    /* drag the top of the sheet down to close it */
+    let y0=null,dy=0;const grab=[sh.querySelector('.kfn-hd'),sh.querySelector('.kfn-grab')];
+    grab.forEach(h=>h.addEventListener('pointerdown',e=>{y0=e.clientY;dy=0;sh.style.transition='none'}));
+    const mv=e=>{if(y0==null)return;dy=Math.max(0,e.clientY-y0);sh.style.transform='translateY('+dy+'px)'};
+    const up=()=>{if(y0==null)return;y0=null;if(dy>110)close();else{sh.style.transition='transform .35s cubic-bezier(.2,1,.3,1)';sh.style.transform=''}};
+    addEventListener('pointermove',mv,{passive:true});addEventListener('pointerup',up);
+    new MutationObserver((r,ob)=>{if(!o.isConnected){ob.disconnect();removeEventListener('pointermove',mv);removeEventListener('pointerup',up)}}).observe(document.body,{childList:true});
+    return o}
+})();
+/*KFJS-END*/</script>
 <script>
 /* data carried over from the Claude version (imported once by the first person who presses the button) */
 window.MIGRATE={"admin": "3kcrm26nwc6hhos2mgxd", "players": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"eq": {"b": null, "f": null, "t": null, "v": null, "x": "x40"}, "name": "山田", "season": 1}}], "inv": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"own": {"f00": 3, "f01": 1, "f02": 2, "t00": 1, "t10": 1, "t14": 2, "x00": 1, "x10": 1, "x11": 1, "x21": 1, "x40": 1}, "packs": 3, "shards": 6, "since": 0}}]};
