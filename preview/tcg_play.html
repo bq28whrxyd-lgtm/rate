@@ -1069,66 +1069,78 @@ body:not(.gkview){background:
 /* notices and hint in the same glass */
 #hint{border:0;border-radius:16px;background:rgba(18,17,32,.9);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14),0 16px 40px rgba(0,0,0,.7);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 @media (prefers-reduced-motion:reduce){.endb{transition:none}}
-/* ===== v2 units: a glass tile per lane. The figure stands on a lit disc in the upper part; the name and the numbers sit
-   on a plate below, the same way up for both players (the far side used to be printed upside down). No 3D pad, no SVG
-   filters on the figures (those made the table slow); the SCR and 極 finishes keep their own rules. ===== */
-.u{perspective:none;border-radius:12px!important;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025))!important;
-  box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 0 1px 0 rgba(255,255,255,.1),0 12px 24px -12px rgba(0,0,0,.9)!important;overflow:visible}
-.u::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
-  background:radial-gradient(70% 50% at 50% 38%,color-mix(in srgb,var(--dc) 28%,transparent),transparent 72%)}
-.u.opp::before{background:radial-gradient(70% 50% at 50% 38%,color-mix(in srgb,var(--dc) 22%,transparent),transparent 72%)}
-.u .pad{display:none!important}
-.u .base{bottom:34%;width:70%;height:9%;background:radial-gradient(closest-side,color-mix(in srgb,var(--dc) 75%,#fff),color-mix(in srgb,var(--dc) 35%,transparent) 55%,transparent);opacity:.75;z-index:1}
-.u .stand{left:50%;bottom:36%;width:92%;height:60%;z-index:2}
-.u .stand>svg,.u .stand>img{filter:none;will-change:auto}
-.u .stand::after{display:none}
-.u.sick .stand>svg,.u.sick .stand>img{filter:none;opacity:.42}
-.u.sick .base{opacity:.25}
-.u.ready .stand>svg,.u.ready .stand>img,.u.tgt .stand>svg,.u.aim .stand>svg,.u.tgt .stand>img,.u.aim .stand>img,.u.charge .stand>svg,.u.ace .stand>svg,.u.ace .stand>img{filter:none}
-.u.ace .pad .pimg svg,.u.ace .pad .pimg img,.u.ace .stand>.panel img{filter:none}
-.u .stand>.panel{left:6%;right:6%;top:0;border-radius:8cqw;box-shadow:0 0 0 1.5px rgba(255,255,255,.9),0 8px 14px rgba(0,0,0,.6)}
-/* the plate */
-.u .plate{height:34%;left:0;right:0;bottom:0;transform:none!important;border-radius:0 0 12px 12px;background:linear-gradient(180deg,rgba(6,6,12,0),rgba(6,6,12,.55) 30%,rgba(6,6,12,.7))}
-.u.opp .plate{transform:none!important}
+/* ===== v2 units: the acrylic stand, finished. The figure stands on its card, which lies on the table as a thick
+   acrylic plate (3D), with the figure's reflection on the plate, a thin acrylic rim on the figure, a pool of the
+   faction's light under its feet, and the name and the numbers on glass chips below — the same way up for both
+   players. Drawing is incremental now, so the rim filter is rasterized once per unit, not on every event. ===== */
+.u{perspective:260px;border-radius:0!important;background:none!important;box-shadow:none!important;overflow:visible}
+.u::before{content:none}
+/* the plate: the card art lying flat, a glossy top, a visible edge, a gold hairline */
+.u .pad{display:block!important;left:5%;right:5%;bottom:15%;height:38%;transform:rotateX(52deg);transform-origin:50% 100%;border-radius:3cqw;overflow:hidden;background:#0c0a14;
+  box-shadow:var(--under,0 0 0 0 transparent),0 0 0 1px #000,0 0 0 2px var(--gold2,#b48a3c),0 10px 14px rgba(0,0,0,.7)}
+.u .pad::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(118deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,.06) 32%,transparent 50%,rgba(255,255,255,.1) 100%)}
+.u .pad::after{background:linear-gradient(180deg,rgba(12,10,20,.1),rgba(12,10,20,.75))}
 .u.opp .pad .pimg{transform:none}
-.u .plate .nmb{top:8%;font:800 9cqw/1.15 var(--body);color:#fff;letter-spacing:0;text-shadow:0 1px 4px rgba(0,0,0,.8);padding:0 3cqw}
-.u .plate .ust{left:3cqw;right:3cqw;bottom:3cqw;gap:2.5cqw}
-.u .plate .ust b{flex-direction:row;align-items:baseline;justify-content:center;gap:1.5cqw;padding:1.6cqw 0 1.8cqw;border-radius:3.5cqw;border:0;border-bottom:0;
-  font:800 12cqw/1 var(--vs-num);color:#fff;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16)}
-.u .plate .ust b small{font:800 5.5cqw/1 var(--body);color:var(--vs-mut);letter-spacing:.02em;margin:0}
-.u .plate .ust .a{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 3px 0 0 #ff9a5c}
-.u .plate .ust .d{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 3px 0 0 #69b6ff}
+/* the thickness of the plate, drawn under it */
+.u .pthk{position:absolute;left:5%;right:5%;bottom:calc(15% - 3px);height:3px;border-radius:0 0 3cqw 3cqw;background:linear-gradient(180deg,#5a4a7a,#1a1626);z-index:0;pointer-events:none;transform:translateZ(0)}
+/* the light under the feet: the faction's colour pooled on the plate, plus the soft shadow */
+.u .base{bottom:30%;width:74%;height:12%;z-index:1;background:radial-gradient(closest-side,rgba(0,0,0,.85),rgba(0,0,0,.35) 50%,transparent)}
+.u .pool{position:absolute;left:50%;bottom:28%;width:96%;height:18%;transform:translateX(-50%);z-index:1;pointer-events:none;border-radius:50%;opacity:.8;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--dc) 70%,#fff),color-mix(in srgb,var(--dc) 40%,transparent) 45%,transparent 72%);mix-blend-mode:screen}
+/* the figure: the acrylic rim (white, with a pale blue halo) and a soft drop shadow */
+.u .stand{left:50%;bottom:33%;width:92%;height:64%;z-index:3}
+.u .stand>svg,.u .stand>img{filter:url(#acr) drop-shadow(0 6px 5px rgba(0,0,0,.6));will-change:transform}
+.u .stand::after{display:block;left:22%;right:22%;bottom:-1.5%;height:4%;border-radius:40%;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(159,220,255,.45));box-shadow:0 0 6px rgba(159,220,255,.6);opacity:.9}
+/* the reflection of the figure on the plate */
+.u .refl{position:absolute;left:0;right:0;top:calc(100% - 1%);height:44%;overflow:hidden;pointer-events:none;z-index:0;transform:scaleY(-1);transform-origin:50% 0;opacity:.36;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.9) 100%);mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.9) 100%)}
+.u .refl>img{position:absolute;left:0;bottom:0;width:100%;height:228%;object-fit:contain;object-position:50% 100%;display:block}
+.u.sick .stand>svg,.u.sick .stand>img{filter:url(#acr) saturate(.4) brightness(.6) drop-shadow(0 6px 5px rgba(0,0,0,.6))}
+.u.sick .refl{opacity:.15}
+.u.sick .pool{opacity:.3}
+.u .stand>.panel{left:8%;right:8%;top:0;border-radius:7cqw;box-shadow:0 0 0 2px rgba(255,255,255,.92),0 0 0 3.5px rgba(159,220,255,.4),0 8px 12px rgba(0,0,0,.7)}
+/* the plate text: glass chips, readable from your seat on both sides */
+.u .plate{height:30cqw;left:0;right:0;bottom:0;transform:none!important;background:none}
+.u.opp .plate{transform:none!important}
+.u .plate .nmb{top:-8cqw;font:800 8.5cqw/1.15 var(--body);color:#fff;letter-spacing:0;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.8);padding:0 2cqw}
+.u .plate .ust{left:1.5cqw;right:1.5cqw;bottom:2cqw;gap:2cqw}
+.u .plate .ust b{flex-direction:row;align-items:baseline;justify-content:center;gap:1.4cqw;padding:1.6cqw 0 1.8cqw;border-radius:3.5cqw;border:0;border-bottom:0;
+  font:800 11.5cqw/1 var(--vs-num);color:#fff;background:rgba(12,10,20,.72);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2)}
+.u .plate .ust b small{font:800 5.2cqw/1 var(--body);color:var(--vs-mut);letter-spacing:.02em;margin:0}
+.u .plate .ust .a{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2),inset 3px 0 0 #ff9a5c}
+.u .plate .ust .d{box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2),inset 3px 0 0 #69b6ff}
 .u .plate .ust b.up{box-shadow:inset 0 0 0 1px #ffe9a8,0 0 8px rgba(255,211,107,.5)}
 .u .plate .ust b.dn{filter:none;color:#ff9fb1;box-shadow:inset 0 0 0 1px rgba(255,93,108,.8)}
-/* stars and keywords as small pills in the corners */
-.u .stars{top:4cqw;left:4cqw;transform:none;font-size:7.5cqw;padding:1.4cqw 3cqw;border:0;background:rgba(6,6,12,.6);box-shadow:inset 0 0 0 .5px rgba(255,211,107,.45);color:#8e86a8}
+/* stars and keywords as small pills in the top corners */
+.u .stars{top:0;left:2cqw;transform:none;font-size:7.5cqw;padding:1.4cqw 3cqw;border:0;background:rgba(6,6,12,.7);box-shadow:inset 0 0 0 .5px rgba(255,211,107,.45);color:#8e86a8}
 .u .stars.s2{color:#ffd36b}
 .u .stars.s3{color:#2a1d02;background:linear-gradient(90deg,#ffe9a8,#ffd36b);box-shadow:none;text-shadow:none}
-.u .kw{top:4cqw;left:auto;right:4cqw;flex-direction:column;align-items:flex-end;gap:1.6cqw}
-.u .kw i{font:800 7.5cqw/1 var(--body);padding:1.4cqw 2.6cqw;border-radius:3cqw;background:rgba(6,6,12,.62);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.22);color:#fff}
+.u .kw{top:0;left:auto;right:2cqw;flex-direction:column;align-items:flex-end;gap:1.6cqw}
+.u .kw i{font:800 7.5cqw/1 var(--body);padding:1.4cqw 2.6cqw;border-radius:3cqw;background:rgba(6,6,12,.7);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.22);color:#fff}
 .u .kw i.w{color:var(--vs-mut);margin:0}
 .u .kw i.y{background:linear-gradient(180deg,#fff2c4,#f5c84c);color:#2a1d02;box-shadow:none}
 .u .kw i.c{background:#e9edf6;color:#1a1f2e;box-shadow:none}
-.u .awl{right:4cqw;bottom:auto;top:30cqw;font:800 7.5cqw/1 var(--body);padding:1.4cqw 2.6cqw;border-radius:3cqw;background:linear-gradient(180deg,#ffe9a8,#f5c84c);color:#2a1d02}
-/* states */
-.u.ready{box-shadow:inset 0 0 0 1.5px var(--vs-a2),0 0 18px rgba(103,232,249,.35),0 12px 24px -12px rgba(0,0,0,.9)!important}
-.u.ready::before{background:radial-gradient(70% 50% at 50% 38%,rgba(103,232,249,.22),transparent 72%)}
-.u.ready::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 0 0 2px var(--vs-a2),0 0 16px 2px rgba(103,232,249,.5);opacity:.35;animation:readyP 1.6s ease-in-out infinite;will-change:opacity}
-.u.sel{transform:translateY(-4px);box-shadow:inset 0 0 0 2px #fff,0 0 26px rgba(103,232,249,.7)!important}
-.u.sel .pad,.u.tgt .pad,.u.aim .pad,.u.ready .pad,.u.ace .pad,.u.awk .pad{box-shadow:none}
-.u.tgt,.u.aim{box-shadow:inset 0 0 0 2px var(--vs-pink),0 0 20px rgba(255,95,176,.55),0 12px 24px -12px rgba(0,0,0,.9)!important}
-.u.aim::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 0 0 2px var(--vs-pink),0 0 18px 2px rgba(255,95,176,.55);opacity:.4;animation:readyP 1s ease-in-out infinite;will-change:opacity}
-.u.charge{box-shadow:inset 0 0 0 2px #fff,0 0 30px var(--vs-pink)!important}
-.u.ace{box-shadow:inset 0 0 0 1.5px #ffd36b,0 0 18px rgba(255,211,107,.3),0 12px 24px -12px rgba(0,0,0,.9)!important}
+.u .awl{right:2cqw;bottom:auto;top:28cqw;font:800 7.5cqw/1 var(--body);padding:1.4cqw 2.6cqw;border-radius:3cqw;background:linear-gradient(180deg,#ffe9a8,#f5c84c);color:#2a1d02}
+/* states: the plate's rim and the figure's halo change; the pulse is opacity only */
+.u.ready .pad{box-shadow:var(--under,0 0 0 0 transparent),0 0 0 1px #000,0 0 0 2px var(--vs-a2),0 0 18px rgba(103,232,249,.7),0 10px 14px rgba(0,0,0,.7)}
+.u.ready .stand>svg,.u.ready .stand>img{filter:url(#acr) drop-shadow(0 0 6px #49e6ff) drop-shadow(0 6px 5px rgba(0,0,0,.6))}
+.u.ready::before{content:"";position:absolute;left:5%;right:5%;bottom:15%;height:38%;transform:rotateX(52deg);transform-origin:50% 100%;border-radius:3cqw;pointer-events:none;box-shadow:0 0 16px 3px #49e6ff;opacity:.25;animation:readyP 1.6s ease-in-out infinite;will-change:opacity}
+.u.ready::after{content:none}
+.u.sel{transform:translateY(-4px)}
+.u.sel .pad{box-shadow:var(--under,0 0 0 0 transparent),0 0 0 2.5px #fff,0 0 22px rgba(103,232,249,.8),0 10px 14px rgba(0,0,0,.7)}
+.u.tgt .pad,.u.aim .pad{box-shadow:var(--under,0 0 0 0 transparent),0 0 0 2.5px var(--vs-pink),0 0 20px rgba(255,95,176,.7),0 10px 14px rgba(0,0,0,.7)}
+.u.tgt .stand>svg,.u.aim .stand>svg,.u.tgt .stand>img,.u.aim .stand>img{filter:url(#acr) drop-shadow(0 0 7px #ff5fb0) drop-shadow(0 6px 5px rgba(0,0,0,.6))}
+.u.aim::after{content:none}
+.u.charge .stand>svg,.u.charge .stand>img{filter:url(#acr) drop-shadow(0 0 10px #fff) drop-shadow(0 0 18px var(--vs-pink))}
+.u.ace .pad{box-shadow:var(--under,0 0 0 0 transparent),0 0 0 1px #2a1a04,0 0 0 3px #e9cf8a,0 0 16px rgba(233,207,138,.6),0 10px 14px rgba(0,0,0,.7)}
+.u.ace .stand>svg,.u.ace .stand>img{filter:url(#acr) drop-shadow(0 0 6px rgba(255,211,107,.6)) drop-shadow(0 6px 5px rgba(0,0,0,.6))}
+.u.ace .pad .pimg svg,.u.ace .pad .pimg img,.u.ace .stand>.panel img{filter:none}
 .u.ace .nmb{color:#ffe9a8}
-.u.awk{box-shadow:inset 0 0 0 1.5px #ffd36b,0 0 22px rgba(255,211,107,.45),0 12px 24px -12px rgba(0,0,0,.9)!important}
-.u.boss{box-shadow:inset 0 0 0 1.5px #ff8aa4,0 0 20px rgba(255,61,110,.4),0 12px 24px -12px rgba(0,0,0,.9)!important}
-.u.foilc{border-radius:12px}
-/* the stacked copies under a unit: a small count at the bottom-left instead of the shadowed pad */
-.u[data-under]::after{content:"+" attr(data-under);position:absolute;left:4cqw;bottom:36cqw;z-index:4;font:800 7.5cqw/1 var(--vs-num);padding:1.4cqw 2.6cqw;border-radius:3cqw;background:rgba(6,6,12,.62);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.22);color:#fff;opacity:1;animation:none}
-.lane.pick .u{box-shadow:inset 0 0 0 2px #ffd36b,0 0 22px rgba(255,211,107,.6)!important}
-/* the far side: the pink edge, and the figure a touch smaller so the eye reads yours as nearer */
-.u.opp{box-shadow:inset 0 0 0 .5px rgba(255,95,176,.35),inset 0 1px 0 rgba(255,255,255,.1),0 12px 24px -12px rgba(0,0,0,.9)!important}
+.u.awk .pad{box-shadow:var(--under,0 0 0 0 transparent),0 0 0 2px #ffd36b,0 0 18px rgba(255,211,107,.7),0 10px 14px rgba(0,0,0,.7)}
+.u.boss .pad{box-shadow:var(--under,0 0 0 0 transparent),0 0 0 2px #ff8aa4,0 0 20px rgba(255,61,110,.55),0 10px 14px rgba(0,0,0,.7)}
+.lane.pick .u .pad{box-shadow:0 0 0 2.5px #ffd36b,0 0 22px rgba(255,211,107,.7)}
+.lane.pick .u{box-shadow:none!important}
+.u.opp .pad{box-shadow:var(--under,0 0 0 0 transparent),0 0 0 1px #000,0 0 0 2px color-mix(in srgb,var(--vs-pink) 55%,#b48a3c),0 10px 14px rgba(0,0,0,.7)}
 /* ---- the turn banner (v2) ---- */
 .tbanner.v2{height:120px;margin-top:-60px;overflow:visible}
 .tbanner.v2 .tline{position:absolute;left:8%;right:8%;top:50%;height:1px;transform-origin:50% 50%;background:linear-gradient(90deg,transparent,var(--vs-a2) 30%,#fff 50%,var(--vs-a1) 70%,transparent);box-shadow:0 0 12px rgba(103,232,249,.6)}
@@ -1191,6 +1203,21 @@ body:not(.gkview){background:
 .ovl .why{font:600 12.5px/1.5 var(--body);color:var(--vs-mut)}
 .ovl .btn{background:linear-gradient(180deg,#fff,#e9e6f5);color:#101014;box-shadow:0 0 0 1px rgba(255,255,255,.4),0 14px 30px -12px var(--vs-a1)}
 .ovl .btn.sec{background:rgba(255,255,255,.06);color:#fff;border:0;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.18)}
+/* the stand uses the lane's full height (the lanes are taller than a card), so the figure is about a third bigger */
+.u{aspect-ratio:auto;height:min(100%,calc(var(--cw) * 2.05))}
+.u .pad{bottom:19%;height:36%}
+.u .pthk{bottom:calc(19% - 3px)}
+.u .base{bottom:33%}
+.u .pool{bottom:31%}
+.u .stand{bottom:36%;height:62%}
+.u.ready::before{bottom:19%;height:36%}
+.u .plate{height:32cqw}
+/* an empty place is the same height as a stand, with a faint plate drawn where the card would lie */
+.slot{aspect-ratio:auto;height:min(100%,calc(var(--cw) * 2.05))}
+.slot::after{top:auto;bottom:22%;left:50%;width:70%;height:22%;border-radius:4px;transform:translate(-50%,0) perspective(200px) rotateX(52deg);opacity:1;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14)}
+.lane.m .slot::after{box-shadow:inset 0 0 0 .5px rgba(103,232,249,.35)}
+.lane.o .slot::after{box-shadow:inset 0 0 0 .5px rgba(255,95,176,.3)}
 
 </style>
 
@@ -3231,6 +3258,9 @@ function render(S){view=S;queueSpectator();const me=S.p[H],op=S.p[1-H];
 /* the new game starts with a clean cache */
 {const BG=beginGame;beginGame=function(){V2.av={};V2.lane=[];V2.hand='';V2.traps=['',''];const f=$('field');if(f)f.replaceChildren();return BG.apply(this,arguments)}}
 
+/* the finished stand: the plate's thickness, the pool of light under the feet, and the figure's reflection on the plate */
+{const U0=unitEl;unitEl=function(u,S,side){const d=U0.apply(this,arguments);try{d.append(el('i','pthk'),el('i','pool'));
+    const st=d.querySelector('.stand'),fig=st&&st.firstElementChild;if(fig&&fig.tagName==='IMG'&&fig.src){const r=el('div','refl'),im=el('img');im.alt='';im.decoding='async';im.src=fig.src;r.append(im);st.append(r)}}catch(e){}return d}}
 /* ---- the turn banner: a glass pill in the middle, a line of light runs through it once ---- */
 function banner(mine){const b=el('div','tbanner v2'+(mine?' me':' op'));const n=g?g.p[g.cur].turn:WATCH&&view?view.p[view.cur].turn:1;
   const pill=el('div','tpill');pill.append(el('b',null,mine?'あなたのターン':'相手のターン'),el('small',null,'TURN '+n+' / '+E.R.MAXTURN),el('i','tsw'));
