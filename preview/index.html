@@ -3757,48 +3757,149 @@ body.ui2 .kx-sum b{font:800 22px/1 var(--x-n);font-variant-numeric:tabular-nums}
 /* tournament card keeps its content, in the new frame */
 body.ui2.kxon #v-battle #toursec{margin:0}
 
-/* ---------- ランキング ---------- */
+/* ---------- ランキング: one stage for the top three, built like the VS (each panel = that player's collection), then slim rows.
+   Panels share the stage and meet on diagonal seams. --l/--r: a panel's left/right edge at mid-height, --lk/--rk: the lean of
+   that edge (0 at the stage's outer edges), --sk: how far the panel's centre moves between the middle and the top. ---------- */
 body.ui2.kxon #v-rank>.rkw,body.ui2.kxon #v-rank>.kv{display:none!important}
-body.ui2 #kxrank{display:flex;flex-direction:column;gap:12px}
-body.ui2 .kx-mvp{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:10px 14px;border:0;border-radius:18px;background:linear-gradient(90deg,rgba(226,191,114,.16),rgba(226,191,114,.04));box-shadow:inset 0 0 0 .5px rgba(226,191,114,.3);color:var(--x-fg);text-align:left}
-body.ui2 .kx-mvp svg{width:22px;height:22px;color:var(--x-gold);flex:none}
-body.ui2 .kx-mvp span{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-body.ui2 .kx-mvp small{font:700 11.5px/1 var(--x-f);color:var(--x-gold)}
-body.ui2 .kx-mvp b{font:700 14px/1.3 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.ui2 .kx-pod{display:grid;grid-template-columns:1fr 1.12fr 1fr;align-items:end;gap:8px}
-body.ui2 .kx-pc{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 6px 14px;border:0;border-radius:22px;background:linear-gradient(180deg,#19191d,#111114);box-shadow:inset 0 0 0 .5px var(--x-line);color:var(--x-fg);min-width:0}
-body.ui2 .kx-pc.p1{padding-top:20px;background:linear-gradient(180deg,#2a2519,#141210);box-shadow:inset 0 0 0 1px rgba(226,191,114,.45),0 18px 40px -22px rgba(226,191,114,.5)}
-body.ui2 .kx-pc .no{position:absolute;top:10px;left:10px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:800 12px/1 var(--x-n);background:var(--x-s3);color:var(--x-fg2)}
-body.ui2 .kx-pc.p1 .no{background:linear-gradient(180deg,#f6e3b4,#c99a3f);color:#2a1d05}
-body.ui2 .kx-pc.p2 .no{background:linear-gradient(180deg,#f1f3f7,#a7aebb);color:#1d2026}
-body.ui2 .kx-pc.p3 .no{background:linear-gradient(180deg,#f2c39a,#a8653a);color:#2a1508}
-body.ui2 .kx-pc .nm{margin-top:6px;max-width:100%;font:800 14px/1.3 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
-body.ui2 .kx-pc .nm .nx::before,body.ui2 .kx-pc .nm .nx::after,body.ui2 .kx-pc .nm .nxk{display:none}
-body.ui2 .kx-pc .nm .nxt{filter:none!important;font-size:1em!important}
-body.ui2 .kx-pc .rt{font:800 22px/1 var(--x-n);font-variant-numeric:tabular-nums}
-body.ui2 .kx-pc.p1 .rt{font-size:26px}
-body.ui2 .kx-pc small{font:600 11.5px/1 var(--x-f);color:var(--x-mut)}
-body.ui2 .kx-list{display:flex;flex-direction:column;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#17171b,#111114);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.06)}
-body.ui2 .kx-rr{display:grid;grid-template-columns:28px 40px minmax(0,1fr) auto;gap:12px;align-items:center;min-height:64px;padding:8px 16px;border:0;background:none;color:var(--x-fg);text-align:left;position:relative}
-body.ui2 .kx-rr+.kx-rr::before{content:"";position:absolute;top:0;left:96px;right:0;border-top:.5px solid var(--x-line)}
-body.ui2 .kx-rr .no{font:800 15px/1 var(--x-n);color:var(--x-mut);text-align:center;font-variant-numeric:tabular-nums}
-body.ui2 .kx-rr .t{min-width:0;display:flex;flex-direction:column;gap:4px}
-body.ui2 .kx-rr .t b{font:800 16px/1.25 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.ui2 .kx-rr .t b .nx::before,body.ui2 .kx-rr .t b .nx::after,body.ui2 .kx-rr .t b .nxk{display:none}
-body.ui2 .kx-rr .t b .nxt{filter:none!important;font-size:1em!important}
-body.ui2 .kx-rr .t small{font:600 12.5px/1.2 var(--x-f);color:var(--x-mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.ui2 .kx-rr .v{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-body.ui2 .kx-rr .v b{font:800 19px/1 var(--x-n);font-variant-numeric:tabular-nums}
-body.ui2 .kx-rr .v small{font:700 11.5px/1 var(--x-f);color:var(--x-mut)}
-body.ui2 .kx-rr.me{background:linear-gradient(90deg,rgba(226,191,114,.13),rgba(226,191,114,.02))}
-body.ui2 .kx-rr.me .no{color:var(--x-gold)}
-body.ui2 .kx-rr:active{background:rgba(255,255,255,.04)}
-body.ui2 .kx-pin{position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:20;display:grid;grid-template-columns:auto 40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 16px;border-radius:20px;
-  background:#1e1d19;box-shadow:inset 0 0 0 1px rgba(226,191,114,.4),0 16px 34px -12px rgba(0,0,0,.9);color:var(--x-fg)}
-body.ui2 .kx-pin[hidden]{display:none}
-body.ui2 .kx-pin .no{font:800 13px/1 var(--x-f);color:var(--x-gold);white-space:nowrap}
-body.ui2 .kx-pin b{font:800 16px/1.2 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.ui2 .kx-pin .v{font:800 19px/1 var(--x-n);font-variant-numeric:tabular-nums}
+body.ui2 #kxrank{display:flex;flex-direction:column;gap:10px}
+body.ui2 .krk{--kd:20px;--ka:8.13deg;position:relative;flex:none;height:284px;border-radius:28px;overflow:hidden;isolation:isolate;background:#0a0a0d;
+  box-shadow:0 26px 50px -30px #000;-webkit-user-select:none;user-select:none;-webkit-transform:translateZ(0);transform:translateZ(0)}
+body.ui2 .krk[hidden]{display:none}
+body.ui2 .krk::after{content:"";position:absolute;inset:0;z-index:8;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(150deg,rgba(255,255,255,.3),rgba(255,255,255,.05) 36%,rgba(226,191,114,.1) 68%,rgba(226,191,114,.42));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+body.ui2 .krk.tcg{background:#0a0a12;box-shadow:0 30px 60px -34px rgba(0,0,0,.95),0 0 60px -30px rgba(139,123,255,.55);--sg:rgba(139,123,255,.55)}
+body.ui2 .krk.tcg::after{background:linear-gradient(140deg,rgba(255,255,255,.34),rgba(255,255,255,.05) 34%,rgba(139,123,255,.2) 68%,rgba(103,232,249,.42))}
+body.ui2 .krk-p{all:unset;box-sizing:border-box;position:absolute;inset:0;display:block;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  -webkit-clip-path:polygon(calc(var(--l) + var(--lk)) 0,calc(var(--r) + var(--rk)) 0,calc(var(--r) - var(--rk)) 100%,calc(var(--l) - var(--lk)) 100%);
+  clip-path:polygon(calc(var(--l) + var(--lk)) 0,calc(var(--r) + var(--rk)) 0,calc(var(--r) - var(--rk)) 100%,calc(var(--l) - var(--lk)) 100%)}
+body.ui2 main .krk .krk-p:active:not(.tab){transform:none;filter:brightness(1.1);transition:filter .12s}
+body.ui2 .krk-p:focus-visible{outline:none}
+body.ui2 .krk-p:focus-visible .krk-avw{box-shadow:0 0 0 2px #fff;border-radius:50%}
+body.ui2 .krk-c3 .krk-a{--l:0%;--r:30%;--lk:0px;--rk:var(--kd);--sk:calc(var(--kd) / 2)}
+body.ui2 .krk-c3 .krk-b{--l:30%;--r:70%;--lk:var(--kd);--rk:var(--kd);--sk:var(--kd)}
+body.ui2 .krk-c3 .krk-c{--l:70%;--r:100%;--lk:var(--kd);--rk:0px;--sk:calc(var(--kd) / 2)}
+body.ui2 .krk-c2 .krk-a{--l:0%;--r:50%;--lk:0px;--rk:var(--kd);--sk:calc(var(--kd) / 2)}
+body.ui2 .krk-c2 .krk-c{--l:50%;--r:100%;--lk:var(--kd);--rk:0px;--sk:calc(var(--kd) / 2)}
+body.ui2 .krk-c1 .krk-b{--l:0%;--r:100%;--lk:0px;--rk:0px;--sk:0px}
+/* layers of a panel: background, the 1st's spotlight, the place as a large outlined numeral, shade, particles, then the column */
+body.ui2 .krk-bg,body.ui2 .krk-fx,body.ui2 .krk-wm,body.ui2 .krk-spot{position:absolute;top:0;bottom:0;left:calc(var(--l) - var(--lk));width:calc(var(--r) - var(--l) + var(--lk) + var(--rk))}
+body.ui2 .krk-bg{z-index:0;overflow:hidden;border:0!important;border-radius:0!important;box-shadow:none!important}
+body.ui2 .krk-bg>.bgl{z-index:0}
+body.ui2 .krk-spot{z-index:1;bottom:auto;height:230px;pointer-events:none;background:radial-gradient(56% 72% at 50% 0%,rgba(255,236,190,.36),rgba(255,236,190,0) 72%)}
+body.ui2 .krk.tcg .krk-spot{background:radial-gradient(56% 72% at 50% 0%,rgba(196,181,253,.4),rgba(196,181,253,0) 72%)}
+body.ui2 .krk-wm{z-index:1;display:flex;align-items:flex-start;justify-content:center;overflow:hidden;pointer-events:none;opacity:.42}
+body.ui2 .krk-wm b{display:block;flex:none;margin-top:-26px;font:900 italic 170px/1 var(--x-ni);letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1.4px var(--wc,#fff);
+  background:linear-gradient(180deg,var(--wf,rgba(255,255,255,.12)),rgba(255,255,255,0) 64%);-webkit-background-clip:text;background-clip:text;padding:0 .12em;transform:rotate(-8deg)}
+body.ui2 .krk-n1 .krk-wm b{--wc:#f0cf7e;--wf:rgba(240,207,126,.16);font-size:214px;margin-top:-44px}
+body.ui2 .krk-n2 .krk-wm b{--wc:#e3e8f0;--wf:rgba(227,232,240,.14)}
+body.ui2 .krk-n3 .krk-wm b{--wc:#eeb184;--wf:rgba(238,177,132,.14)}
+body.ui2 .krk-shade{z-index:1}
+body.ui2 .krk-fx{z-index:2}
+body.ui2 .krk-body{position:absolute;top:0;bottom:0;z-index:3;left:var(--l);width:calc(var(--r) - var(--l));display:flex;flex-direction:column;align-items:center;padding:100px 8px 12px;text-align:center;pointer-events:none}
+body.ui2 .krk-body>*{max-width:100%}
+body.ui2 .krk-n1 .krk-body{padding-top:56px}
+body.ui2 .krk-c1 .krk-n1 .krk-body{padding-top:62px}
+/* the icon follows the lean of the panel a little, so the column sits in the middle of the slanted shape */
+body.ui2 .krk .kvs-avw{width:62px;height:62px;left:calc(var(--sk) * .1)}
+body.ui2 .krk .krk-n1 .kvs-avw{width:84px;height:84px;left:calc(var(--sk) * .34)}
+body.ui2 .krk .kav,body.ui2 .krk-r .kav,body.ui2 .krk-pin .kav{position:relative}
+body.ui2 .krk .kav>.avf,body.ui2 .krk-r .kav>.avf,body.ui2 .krk-pin .kav>.avf{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0!important}
+body.ui2 .krk-medal{position:absolute;left:-3px;bottom:-3px;z-index:4;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;overflow:hidden;
+  font:800 12.5px/1 var(--x-n);font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#f6e3b4,#c99a3f);color:#2a1d05;box-shadow:0 0 0 2px #0b0b0e,0 4px 12px rgba(0,0,0,.65)}
+body.ui2 .krk-n1 .krk-medal{left:0;bottom:0;width:26px;height:26px;font-size:13.5px}
+body.ui2 .krk-n2 .krk-medal{background:linear-gradient(180deg,#f4f6f9,#a7aebb);color:#1d2026}
+body.ui2 .krk-n3 .krk-medal{background:linear-gradient(180deg,#f4c9a2,#a8653a);color:#2a1508}
+body.ui2 .krk-crown{position:absolute;left:50%;top:-42px;z-index:4;width:40px;height:27px;margin-left:-20px;filter:drop-shadow(0 4px 10px rgba(240,200,110,.5))}
+body.ui2 .krk-crown svg{display:block;width:100%;height:100%}
+body.ui2 .krk-nm{margin-top:20px;max-width:100%;font:800 14px/1.25 var(--x-f);color:#fff;white-space:nowrap;left:calc(var(--sk) * -.12);position:relative}
+body.ui2 .krk-n1 .krk-nm{margin-top:22px;font-size:16px}
+body.ui2 .krk-nm .nx{max-width:100%}
+body.ui2 .krk-rt{position:relative;left:calc(var(--sk) * -.22);display:flex;align-items:center;justify-content:center;gap:5px;margin-top:6px;font:800 18px/1 var(--x-n);color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap}
+body.ui2 .krk-n1 .krk-rt{gap:6px;font-size:25px;letter-spacing:-.01em}
+body.ui2 .krk-rt .emb{flex:none}
+body.ui2 .krk-ttl{position:relative;left:calc(var(--sk) * -.34);margin-top:9px}
+body.ui2 .krk-gap{position:relative;left:calc(var(--sk) * -.4);margin-top:8px;font:700 11.5px/1.25 var(--x-f);font-style:normal;color:var(--x-gold2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ui2 .krk-body>.krk-mv{position:relative;left:calc(var(--sk) * -.4);margin-top:8px}
+/* seams: a lit line on each diagonal, with a light that runs down it now and then */
+body.ui2 .krk-seam{position:absolute;top:-14px;bottom:-14px;width:2px;margin-left:-1px;z-index:5;pointer-events:none;transform:rotate(var(--ka))}
+body.ui2 .krk-c3 .krk-seam.s1{left:30%}body.ui2 .krk-c3 .krk-seam.s2{left:70%}body.ui2 .krk-c2 .krk-seam.s1{left:50%}
+body.ui2 .krk-seam b{position:absolute;inset:0;border-radius:2px;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.72) 22%,#fff 50%,rgba(255,255,255,.72) 78%,rgba(255,255,255,0));
+  box-shadow:0 0 8px rgba(255,255,255,.4),0 0 20px 3px var(--sg,rgba(226,191,114,.38))}
+body.ui2 .krk-seam i{position:absolute;left:-1px;right:-1px;top:0;height:64px;border-radius:2px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 50%,rgba(255,255,255,0));box-shadow:0 0 12px 2px rgba(255,255,255,.55);opacity:0;
+  animation:kvsSeam 4.2s cubic-bezier(.45,0,.55,1) 1.8s infinite}
+body.ui2 .krk-seam.s2 i{animation-delay:3.9s}
+body.ui2 .krk-spk{z-index:7}
+/* movement and the strip under the stage */
+body.ui2 .krk-mv{display:inline-flex;align-items:center;justify-content:center;gap:2px;font:800 11px/1 var(--x-n);font-variant-numeric:tabular-nums;white-space:nowrap}
+body.ui2 .krk-mv svg{width:9px;height:9px;flex:none}
+body.ui2 .krk-mv.up{color:#4ade80}body.ui2 .krk-mv.dn{color:#ff8a8a}
+body.ui2 .krk-mv.nw{height:15px;padding:0 4px;border-radius:5px;font-size:8.5px;letter-spacing:.04em;color:#ece8ff;background:rgba(139,123,255,.3);box-shadow:inset 0 0 0 .5px rgba(196,181,253,.5)}
+body.ui2 .krk-meta{display:flex;flex-wrap:wrap;gap:8px}
+body.ui2 .krk-pill{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 13px;border-radius:999px;min-width:0;white-space:nowrap;
+  background:rgba(255,255,255,.045);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1);font:600 12.5px/1 var(--x-f);color:var(--x-fg2)}
+body.ui2 .krk-pill svg{width:15px;height:15px;flex:none;color:var(--x-mut)}
+body.ui2 .krk-pill b{font:800 12.5px/1 var(--x-f);color:var(--x-fg)}
+body.ui2 .krk-mvp{flex:1 1 0;cursor:pointer;-webkit-tap-highlight-color:transparent;background:linear-gradient(90deg,rgba(226,191,114,.15),rgba(226,191,114,.04));box-shadow:inset 0 0 0 .5px rgba(226,191,114,.34)}
+body.ui2 .krk-mvp>svg:first-child{color:var(--x-gold)}
+body.ui2 .krk-mvp>span{color:var(--x-gold);font-weight:700}
+body.ui2 .krk-mvp b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+body.ui2 .krk-mvp em{font-style:normal}
+@media (max-width:389px){body.ui2 .krk-mvp em{display:none}body.ui2 .krk-pill{padding:0 11px}}
+body.ui2 .krk-mvp>svg:last-child{width:13px;height:13px}
+body.ui2 main .krk-mvp:active:not(.tab){transform:scale(.97)}
+body.ui2 .krk-note{flex:1 1 0;overflow:hidden;text-overflow:ellipsis;color:#ddd8ff;background:linear-gradient(90deg,rgba(139,123,255,.16),rgba(103,232,249,.05));box-shadow:inset 0 0 0 .5px rgba(169,155,255,.3)}
+/* rows: the place and its movement, the icon with its frame, the name, then the rating; their background shows on the right */
+body.ui2 .krk-list{display:flex;flex-direction:column;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#16161a,#111114);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.07)}
+body.ui2 .krk-list[hidden]{display:none}
+body.ui2 .krk-r{all:unset;box-sizing:border-box;position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:30px 40px minmax(0,1fr) auto;gap:12px;align-items:center;
+  min-height:62px;padding:8px 16px 8px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;color:var(--x-fg);text-align:left}
+body.ui2 .krk-r+.krk-r::before{content:"";position:absolute;z-index:1;top:0;left:92px;right:0;border-top:.5px solid rgba(255,255,255,.07)}
+body.ui2 .krk-r.me+.krk-r::before,body.ui2 .krk-r+.krk-r.me::before{display:none}
+body.ui2 .krk-sw{position:absolute;top:0;bottom:0;right:0;width:64%;z-index:-1;opacity:.5;pointer-events:none;border:0!important;border-radius:0!important;box-shadow:none!important;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 72%);mask-image:linear-gradient(90deg,transparent,#000 72%)}
+body.ui2 .krk-sw::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(17,17,20,0) 40%,rgba(17,17,20,.5))}
+body.ui2 .krk-sw.none{background:linear-gradient(90deg,rgba(0,0,0,0),var(--md,#2c2f36))!important;opacity:.38}
+body.ui2 .krk-no{display:flex;flex-direction:column;align-items:center;gap:5px}
+body.ui2 .krk-no>b{display:block;height:16px;overflow:hidden;font:800 16px/16px var(--x-n);color:var(--x-fg2);font-variant-numeric:tabular-nums}
+body.ui2 .krk-t{position:relative;min-width:0;display:flex;flex-direction:column;gap:4px}
+body.ui2 .krk-t b{font:800 16px/1.25 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ui2 .krk-t b .nx::before,body.ui2 .krk-t b .nx::after,body.ui2 .krk-t b .nxk,body.ui2 .krk-pin .nx::before,body.ui2 .krk-pin .nx::after,body.ui2 .krk-pin .nxk{display:none}
+body.ui2 .krk-t b .nxt{filter:none!important;font-size:1em!important}
+body.ui2 .krk-t small{font:600 12.5px/1.2 var(--x-f);color:var(--x-mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ui2 .krk-t small.gap{color:var(--x-gold2);font-weight:700}
+body.ui2 .krk-v{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-shadow:0 1px 10px rgba(0,0,0,.7)}
+body.ui2 .krk-v b{font:800 19px/1 var(--x-n);font-variant-numeric:tabular-nums}
+body.ui2 .krk-v small{font:700 11.5px/1 var(--x-f);color:var(--x-fg2)}
+body.ui2 .krk-r.me{margin:4px;border-radius:18px;background:linear-gradient(90deg,rgba(226,191,114,.16),rgba(226,191,114,.035));box-shadow:inset 0 0 0 1px rgba(226,191,114,.55),0 10px 24px -14px rgba(226,191,114,.55)}
+body.ui2 .krk-r.me .krk-no>b{color:var(--x-gold)}
+body.ui2 main .krk-r:active:not(.tab){transform:scale(.98)}
+body.ui2 .krk-foot{margin:0 6px;font:600 11.5px/1.5 var(--x-f);color:var(--x-dim)}
+body.ui2 .krk-foot[hidden]{display:none}
+/* rank up: the number rolls to the new place, a light passes, and a small tag */
+body.ui2 .krk-roll{display:flex;flex-direction:column;align-self:start}
+body.ui2 .krk-roll span{display:block;height:16px;line-height:16px}
+body.ui2 .krk-medal .krk-roll span{height:24px;line-height:24px}
+body.ui2 .krk-n1 .krk-medal .krk-roll span{height:26px;line-height:26px}
+body.ui2 .krk-sweep{position:absolute;top:0;bottom:0;left:0;width:40%;z-index:6;pointer-events:none;background:linear-gradient(90deg,rgba(255,240,205,0),rgba(255,240,205,.32),rgba(255,240,205,0))}
+body.ui2 .krk-up{position:absolute;z-index:6;display:inline-flex;align-items:center;gap:3px;height:22px;padding:0 9px 0 7px;border-radius:999px;white-space:nowrap;pointer-events:none;
+  font:800 11.5px/1 var(--x-f);color:#1f1606;background:linear-gradient(180deg,#f8e8b4,#d5ac55);box-shadow:0 6px 16px -6px rgba(226,191,114,.8)}
+body.ui2 .krk-up svg{width:9px;height:9px}
+body.ui2 .krk-up b{font:800 11.5px/1 var(--x-n)}
+body.ui2 .krk-t>.krk-up{right:0;top:-2px}
+body.ui2 .krk-body>.krk-up{top:auto;bottom:22px;left:0;right:0;margin:0 auto;width:max-content;max-width:calc(100% - 8px);justify-content:center;font-size:10.5px;padding:0 8px 0 6px;height:21px}
+body.ui2 .krk-body>.krk-up[style*="top"]{bottom:auto}
+/* your place, when your row is out of view */
+body.ui2 .krk-pin{all:unset;box-sizing:border-box;position:sticky;bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:20;display:grid;grid-template-columns:auto 36px minmax(0,1fr) auto;gap:12px;align-items:center;
+  padding:10px 16px;border-radius:20px;cursor:pointer;background:#1e1d19;box-shadow:inset 0 0 0 1px rgba(226,191,114,.45),0 16px 34px -12px rgba(0,0,0,.9);color:var(--x-fg)}
+body.ui2 .krk-pin[hidden]{display:none}
+body.ui2 .krk-pin .no{font:800 13px/1 var(--x-f);color:var(--x-gold);white-space:nowrap}
+body.ui2 .krk-pin .t{min-width:0;display:flex;flex-direction:column;gap:3px}
+body.ui2 .krk-pin .t b{font:800 15px/1.2 var(--x-f);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ui2 .krk-pin .t small{font:700 11.5px/1.2 var(--x-f);color:var(--x-gold2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ui2 .krk-pin .v{font:800 19px/1 var(--x-n);font-variant-numeric:tabular-nums}
+@media (max-width:360px){body.ui2 .krk{--kd:16px;--ka:6.5deg}body.ui2 .krk-nm{font-size:13px}body.ui2 .krk-n1 .krk-nm{font-size:15px}body.ui2 .krk-rt{font-size:16px}body.ui2 .krk-n1 .krk-rt{font-size:22px}}
+@media (prefers-reduced-motion:reduce){body.ui2 .krk-fx,body.ui2 .krk-seam i{display:none}body.ui2 .krk *,body.ui2 .krk *::before,body.ui2 .krk *::after{animation:none!important}}
 
 /* ---------- genre picker (centred panel) ---------- */
 body.ui2 .kx-gl{display:flex;flex-direction:column;gap:8px}
@@ -4020,7 +4121,6 @@ body.ui2.kxon #kbseg.kx-hasink button,body.ui2.kxon #kbseg.kx-hasink button.on{c
 /* ---------- ランキング: きもオタTCG as one more ladder ---------- */
 body.ui2 .kx-grsep{height:.5px;margin:6px 4px;background:var(--x-line2)}
 body.ui2 .kx-gr.kx-grt{background:linear-gradient(135deg,rgba(139,123,255,.16),rgba(103,232,249,.06)),var(--x-s2);box-shadow:inset 0 0 0 .5px rgba(169,155,255,.35)}
-body.ui2 .kx-rknote{display:flex;align-items:center;gap:8px;min-height:44px;padding:10px 14px;border-radius:16px;background:linear-gradient(90deg,rgba(139,123,255,.14),rgba(103,232,249,.05));box-shadow:inset 0 0 0 .5px rgba(169,155,255,.28);font:600 12.5px/1.5 var(--x-f);color:var(--x-fg2)}
 body.ui2.kxon #tcgbox .tcgrkw{display:none!important}
 body.ui2 .kx-trow{flex-wrap:wrap;row-gap:8px}
 body.ui2 .kx-trow .kx-trec{flex:1 1 100%;text-align:left;padding:0 4px}
@@ -9848,38 +9948,159 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     return c}
   if(typeof profileCard==='function'){const PC0=profileCard;profileCard=function(p,stat){try{return kProfile(p,stat)}catch(e){console.warn('kx profile',e);return PC0.apply(this,arguments)}}}
 
-  /* ---------- ランキング ---------- */
+  /* ---------- ランキング: built like the 対戦 stage. The top three share one stage split by diagonal seams (as in the VS);
+     each panel is made of that player's own collection: background, icon and frame, rank-styled name, title and the particles
+     of their 対戦演出. Everyone else is a slim row that wears a strip of their background. ▲▼ = places moved since a week ago;
+     for you, the gap to the next place. Motion is transform/opacity only; the loops pause off screen. ---------- */
   const pRank=mk('div');pRank.id='kxrank';if(vr)vr.append(pRank);
-  const mvpB=mk('button','kx-mvp');mvpB.type='button';mvpB.innerHTML=S.trophy+'<span><small>先週の週間MVP</small><b></b></span>'+S.right;
-  mvpB.onclick=()=>{const t=document.querySelectorAll('#tiles .tile')[2];if(t)t.click()};
-  const pod=mk('div','kx-pod'),list=mk('div','kx-list'),pin=mk('button','kx-pin');pin.type='button';pin.hidden=true;
-  const tNote=mk('div','kx-rknote');tNote.hidden=true;
-  pRank.append(mvpB,tNote,pod,list,pin);
-  let rankSig='',meRow=null;
+  const rkSt=mk('div','krk');rkSt.hidden=true;if(offIO)offIO.observe(rkSt);
+  const rkMeta=mk('div','krk-meta'),rkL=mk('div','krk-list'),rkFoot=mk('p','krk-foot'),pin=mk('button','kx-b krk-pin');pin.type='button';pin.hidden=true;rkFoot.hidden=true;
+  pRank.append(rkSt,rkMeta,rkL,rkFoot,pin);
+  let rankSig='',meRow=null,rkIntroN=0,rkDrawn=false;
   const io='IntersectionObserver' in window?new IntersectionObserver(es=>{es.forEach(e=>{if(e.target===meRow)pin.hidden=e.isIntersecting||curView!=='rank'})}):null;
+  const WEEK=7*864e5;
+  const ARW={up:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 2.4 10.2 8.8H1.8Z" fill="currentColor"/></svg>',dn:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 9.6 1.8 3.2h8.4Z" fill="currentColor"/></svg>'};
+  const CAL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>';
+  let crN=0;
+  /* an original crown: three points, small pearls, one stone */
+  function crownSVG(){const k='kcr'+(++crN);return '<svg viewBox="0 0 44 30" aria-hidden="true"><defs><linearGradient id="'+k+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6d6"/><stop offset=".45" stop-color="#f0cf7e"/><stop offset="1" stop-color="#a87a26"/></linearGradient></defs>'+
+    '<path d="M5 25.5 3 8.6l9.6 7.1L22 3.4l9.4 12.3L41 8.6l-2 16.9z" fill="url(#'+k+')" stroke="#6b4a12" stroke-width=".8" stroke-linejoin="round"/><path d="M6.4 22.4h31.2" stroke="#fff3c4" stroke-opacity=".75" stroke-width="1"/>'+
+    '<circle cx="22" cy="3.5" r="2.3" fill="#fff8e0"/><circle cx="3" cy="8.6" r="1.9" fill="#fff8e0"/><circle cx="41" cy="8.6" r="1.9" fill="#fff8e0"/><path d="M22 12.6l2.6 3.5-2.6 3.5-2.6-3.5z" fill="#fff8e0" opacity=".92"/></svg>'}
   function mvpText(){try{const w=weekNo(now())-1;if(w<MVP0)return '';const M=mvpOf(w),nm=id=>(players.find(p=>p.id===id)||{}).name||'?';
       return MVPK.filter(([k])=>k!=='p').map(([k,lab])=>M[k]&&M[k].ids.length?lab+' '+M[k].ids.map(nm).join('・'):'').filter(Boolean).join('  /  ')}catch(e){return ''}}
-  function renderRank(){const me=ME();let sorted=[];
-    if(rkTcg&&typeof tcgRatings==='function'){try{const K=tcgRatings();sorted=players.filter(p=>!p.ban&&K.n[p.id]).map(p=>Object.assign({},p,{rating:tcgRating(p.id),wins:K.w[p.id]||0,losses:K.l[p.id]||0})).sort((a,b)=>b.rating-a.rating)}catch(e){}}
-    else{try{sorted=view().filter(p=>!p.ban&&(p.wins+p.losses)>0).sort((a,b)=>b.rating-a.rating)}catch(e){}}
-    const mt=rkTcg?'':mvpText();let tn='';if(rkTcg){try{const sn=seasonNo(now()),left=Math.max(0,seasonEnd(sn)-now());tn='友達戦(6ターン以上)で上下 ・ シーズン'+sn+' 残り'+Math.floor(left/864e5)+'日'}catch(e){}}
-    const sig=JSON.stringify([rkTcg,game,sorted.map(p=>[p.id,p.name,p.rating,p.wins,p.losses]),mt,tn,me&&me.id]);if(sig===rankSig)return;rankSig=sig;
-    mvpB.hidden=!mt;mvpB.querySelector('b').textContent=mt;tNote.hidden=!rkTcg;tNote.textContent=tn;
-    const top=sorted.slice(0,3),rest=sorted.length>=3?sorted.slice(3):[];
-    pod.hidden=sorted.length<3;
-    if(sorted.length>=3){pod.replaceChildren(...[1,0,2].map(i=>{const p=top[i],c=mk('button','kx-pc p'+(i+1));c.type='button';
-      c.append(mk('span','no',String(i+1)),AV(p.id,i===0?72:56));const n=mk('div','nm');n.append(NAME(p.name,TI(p.rating)));c.append(n,mk('div','rt',String(p.rating)),mk('small',null,esc(RNk(p.rating))));
-      c.onclick=()=>{try{showProfile(p,statLine(p))}catch(e){}};return c}))}
-    const rows=(sorted.length>=3?rest:sorted);const base=sorted.length>=3?3:0;meRow=null;if(io)io.disconnect();
-    list.hidden=!rows.length;
-    list.replaceChildren(...rows.map((p,k)=>{const i=base+k,r=mk('button','kx-rr'+(me&&p.id===me.id?' me':''));r.type='button';
-      const t=mk('span','t'),b=mk('b');b.append(NAME(p.name,TI(p.rating)));t.append(b,mk('small',null,esc(RNk(p.rating))));
-      const v=mk('span','v');v.append(mk('b',null,String(p.rating)),mk('small',null,p.wins+'勝 '+p.losses+'敗'));
-      r.append(mk('span','no',String(i+1)),AV(p.id,40),t,v);r.onclick=()=>{try{showProfile(p,statLine(p))}catch(e){}};if(me&&p.id===me.id)meRow=r;return r}));
-    if(!sorted.length)list.replaceChildren(mk('div','kx-empty',rkTcg?'まだ友達戦をした人がいません。友達と1試合(6ターン以上)すると、ここに載ります':'まだこの種目で対戦した人がいません')),list.hidden=false;
+  function mvpNames(){try{const w=weekNo(now())-1;if(w<MVP0)return '';const M=mvpOf(w),ids=[];MVPK.filter(([k])=>k!=='p').forEach(([k])=>((M[k]&&M[k].ids)||[]).forEach(id=>{if(!ids.includes(id))ids.push(id)}));
+      return ids.map(id=>(players.find(p=>p.id===id)||{}).name||'?').join('・')}catch(e){return ''}}
+  /* the ladder on screen: a genre, or きもオタTCG (friend battles) */
+  function rkData(){let s=[];
+    if(rkTcg&&typeof tcgRatings==='function'){try{const K=tcgRatings();s=players.filter(p=>!p.ban&&K.n[p.id]).map(p=>Object.assign({},p,{rating:tcgRating(p.id),wins:K.w[p.id]||0,losses:K.l[p.id]||0}))}catch(e){}}
+    else{try{s=view().filter(p=>!p.ban&&(p.wins+p.losses)>0)}catch(e){}}
+    return s.sort((a,b)=>b.rating-a.rating)}
+  /* places moved since a week ago, from each player's rating history. 'new' = had not played yet a week ago */
+  function rkMoves(sorted){const g=rkTcg?'tcg':game,T=now()-WEEK,old=[];
+    sorted.forEach(p=>{let S=[];try{S=rateSeries(p.id,g)||[]}catch(e){}let r=null,pl=false;
+      for(let i=S.length-1;i>=0;i--){if(S[i].t<=T){if(r==null)r=S[i].r;if(S[i].o!=null){pl=true;break}}}
+      if(pl&&r!=null)old.push({id:p.id,r})});
+    old.sort((a,b)=>b.r-a.r);const M={};let any=false;
+    sorted.forEach((p,i)=>{const k=old.findIndex(o=>o.id===p.id);M[p.id]=k<0?'new':k-i;if(k>=0)any=true});
+    if(!any)sorted.forEach(p=>M[p.id]=0);return M}
+  function mvEl(mv){if(!mv)return null;const e=mk('span','krk-mv '+(mv==='new'?'nw':mv>0?'up':'dn'));
+    e.innerHTML=mv==='new'?'NEW':ARW[mv>0?'up':'dn']+'<b>'+Math.abs(mv)+'</b>';e.setAttribute('aria-label',mv==='new'?'新しく載った':Math.abs(mv)+(mv>0?'つ上がった':'つ下がった'));return e}
+  /* one panel of the stage: that player's collection, the place as a large outlined numeral, a medal, and for 1st a crown */
+  function rkPanel(p,place,slot,me,gap,mv){const r=p.rating,ti=TI(r),X=xsOf(p),bv=bgOf(p),mine=!!(me&&p.id===me.id);
+    const s=mk('button','kx-b krk-p krk-'+slot+' krk-n'+(place+1)+(mine?' me':''));s.type='button';s.dataset.id=p.id;try{mvars(s,ti)}catch(e){}
+    s.setAttribute('aria-label',(place+1)+'位 '+p.name+' '+r);
+    const bg=mk('div','krk-bg');
+    if(bv){bg.classList.add('pb-'+bv);try{bgLayer(bg,bv)}catch(e){}}
+    else if(X&&X.K&&X.K.img){const im=mk('img','kvs-art');im.alt='';im.decoding='async';im.src=X.K.img;im.style.objectPosition=(X.K.fx||50)+'% '+(X.K.fy||30)+'%';bg.append(im)}
+    else if(X&&X.bg)bg.style.background=X.bg;else bg.classList.add('kvs-bg0');
+    s.append(bg);if(place===0)s.append(mk('i','krk-spot'));
+    const wm=mk('div','krk-wm');wm.append(mk('b',null,String(place+1)));s.append(wm,mk('div','kvs-shade krk-shade'));
+    const fx=mk('div','kvs-fx krk-fx');fxInto(fx,X,slot==='c'?'op':'me',place===0?10:7);s.append(fx);
+    const body=mk('div','krk-body'),aw=mk('div','kvs-avw krk-avw');
+    if(place===0){const cr=mk('i','krk-crown');cr.innerHTML=crownSVG();aw.append(cr)}
+    aw.append(AV(p.id,place===0?84:62),mk('i','kvs-ring'),mk('b','krk-medal',String(place+1)));body.append(aw);
+    const n=mk('div','krk-nm');n.append(NAME(p.name,ti));body.append(n);
+    const m=mk('div','krk-rt');try{m.append(emblem(ti,place===0?19:15))}catch(e){}m.append(mk('b','kx-num',String(r)));body.append(m);
+    if(place===0){let tc=null;try{tc=titleChip(p.eq&&p.eq.t)}catch(e){}if(tc){tc.classList.add('kvs-ttl','krk-ttl');body.append(tc)}}
+    const sub=gap?mk('em','krk-gap',esc(gap)):mvEl(mv);if(sub)body.append(sub);
+    s.append(body);s.onclick=()=>{try{showProfile(p,statLine(p))}catch(e){}};return s}
+  /* a row: rank and movement, icon with frame, name, rank (or for you, the gap), rating and record; their background on the right */
+  function rkRow(p,i,me,mv,gap){const ti=TI(p.rating),X=xsOf(p),bv=bgOf(p),mine=!!(me&&p.id===me.id);
+    const r=mk('button','kx-b krk-r'+(mine?' me':''));r.type='button';r.dataset.id=p.id;try{mvars(r,ti)}catch(e){}
+    const sw=mk('i','krk-sw');if(bv)sw.classList.add('pb-'+bv);else if(X&&X.bg)sw.style.background=X.bg;else sw.classList.add('none');
+    const no=mk('span','krk-no');no.append(mk('b',null,String(i+1)));{const e=mvEl(mv);if(e)no.append(e)}
+    const t=mk('span','krk-t'),b=mk('b');b.append(NAME(p.name,ti));t.append(b,mk('small',gap?'gap':null,esc(gap||RNk(p.rating))));
+    const v=mk('span','krk-v');v.append(mk('b','kx-num',String(p.rating)),mk('small',null,p.wins+'勝 '+p.losses+'敗'));
+    r.append(sw,no,AV(p.id,40),t,v);r.onclick=()=>{try{showProfile(p,statLine(p))}catch(e){}};return r}
+  /* the stage: 2nd | 1st | 3rd (or 1st | 2nd, or 1st alone) with lit seams between them */
+  function rkStage(top,me,M,gapOf,anim){const n=top.length,old=[...rkSt.querySelectorAll('.krk-p')];
+    ['krk-c1','krk-c2','krk-c3'].forEach(c=>rkSt.classList.toggle(c,c==='krk-c'+n));rkSt.classList.toggle('tcg',!!rkTcg);rkSt.hidden=!n;if(!n){rkSt.replaceChildren();return}
+    const slots=n>=3?[[1,'a'],[0,'b'],[2,'c']]:n===2?[[0,'a'],[1,'c']]:[[0,'b']];
+    const P=slots.map(([i,sl])=>rkPanel(top[i],i,sl,me,gapOf(i),M[top[i].id]));
+    rkSt.querySelectorAll('.krk-seam').forEach(e=>e.remove());
+    const seams=[];for(let k=1;k<n;k++){const sm=mk('div','krk-seam s'+k);sm.innerHTML='<b></b><i></i>';seams.push(sm)}
+    if(anim&&old.length){P.forEach(p=>rkSt.append(p));old.forEach(o=>{o.style.pointerEvents='none';const a=ani(o,[{opacity:1},{opacity:0}],{duration:240,easing:'ease-in',fill:'forwards'});if(a)a.onfinish=()=>o.remove();else o.remove()});
+      P.forEach((p,k)=>{ani(p,[{opacity:0},{opacity:1}],{duration:360,delay:k*50});const aw=p.querySelector('.krk-avw');ani(aw,[{transform:'scale(.82)',opacity:0},{transform:'scale(1.04)',opacity:1,offset:.6},{transform:'none',opacity:1}],{duration:520,delay:80+k*60})})}
+    else{old.forEach(o=>o.remove());P.forEach(p=>rkSt.append(p))}
+    seams.forEach(sm=>rkSt.append(sm))}
+  function renderRank(){const me=ME(),sorted=rkData(),M=rkMoves(sorted);
+    const mt=rkTcg?'':mvpText(),mn=rkTcg?'':mvpNames();let sn=0,left=0;try{sn=seasonNo(now());left=Math.max(0,seasonEnd(sn)-now())}catch(e){}
+    const lt=left>=864e5?'残り'+Math.floor(left/864e5)+'日':left>=36e5?'残り'+Math.floor(left/36e5)+'時間':'まもなく終了';
+    const sig=JSON.stringify([rkTcg,game,sorted.map(p=>[p.id,p.name,p.rating,p.wins,p.losses,p.eq||0]),mt,sn,lt,M,me&&me.id]);if(sig===rankSig)return;
+    const first=!rkDrawn,vis=curView==='rank'&&!document.hidden&&!RMO&&!first;rankSig=sig;rkDrawn=true;
+    const before=new Map();if(vis)rkL.querySelectorAll('.krk-r').forEach(r=>before.set(r.dataset.id,r.getBoundingClientRect().top));
+    const oldTop=[...rkSt.querySelectorAll('.krk-p')].map(p=>p.dataset.id).join(','),top=sorted.slice(0,3);
     const mi=me?sorted.findIndex(p=>p.id===me.id):-1;
-    if(mi>=0){const p=sorted[mi];pin.replaceChildren(mk('span','no',(mi+1)+'位'),AV(p.id,40),mk('b',null,esc(p.name)),mk('span','v',String(p.rating)));pin.onclick=()=>{const r=meRow||pod;r.scrollIntoView({behavior:'smooth',block:'center'})}}
-    if(mi<3)meRow=null;pin.hidden=true;if(meRow&&io)io.observe(meRow)}
+    const gapOf=i=>{if(i!==mi||mi<0)return '';if(i>0){const d=sorted[i-1].rating-sorted[i].rating;return d>0?i+'位まで あと'+d:i+'位と同点'}
+      if(sorted.length<2)return '';const d=sorted[0].rating-sorted[1].rating;return d>0?'2位と'+d+'差':'2位と同点'};
+    rkStage(top,me,M,gapOf,vis&&oldTop!==top.map(p=>p.id).join(','));
+    /* the strip under the stage: the season, and last week's MVP (or how the TCG ladder moves) */
+    rkMeta.replaceChildren();{const sp=mk('span','krk-pill krk-season');sp.innerHTML=CAL+'<span>シーズン'+sn+'</span><b>'+esc(lt)+'</b>';rkMeta.append(sp)}
+    if(rkTcg)rkMeta.append(mk('span','krk-pill krk-note','友達戦(6ターン以上)で上下'));
+    else if(mn){const b=mk('button','kx-b krk-pill krk-mvp');b.type='button';b.innerHTML=S.trophy+'<span><em>先週の</em>MVP</span><b></b>'+S.right;b.querySelector('b').textContent=mn;b.setAttribute('aria-label','先週の週間MVP '+mt);
+      b.onclick=()=>{const t=document.querySelectorAll('#tiles .tile')[2];if(t)t.click()};rkMeta.append(b)}
+    const rows=sorted.slice(3);meRow=null;if(io)io.disconnect();
+    rkL.hidden=!rows.length&&!!sorted.length;
+    if(!sorted.length)rkL.replaceChildren(mk('div','kx-empty',rkTcg?'まだ友達戦をした人がいません。友達と1試合(6ターン以上)すると、ここに載ります':'まだこの種目で対戦した人がいません'));
+    else rkL.replaceChildren(...rows.map((p,k)=>{const r=rkRow(p,3+k,me,M[p.id],gapOf(3+k));if(me&&p.id===me.id)meRow=r;return r}));
+    const anyMv=sorted.some(p=>!!M[p.id]);
+    rkFoot.hidden=!anyMv;rkFoot.textContent='▲▼ は1週間前からの順位の上下';
+    /* your place stays in reach: when your row is scrolled away, a bar shows it at the bottom */
+    if(mi>=3){const p=sorted[mi];const t=mk('span','t');t.append(mk('b',null,esc(p.name)),mk('small',null,esc(gapOf(mi))));
+      pin.replaceChildren(mk('span','no',(mi+1)+'位'),AV(p.id,36),t,mk('span','v kx-num',String(p.rating)));pin.onclick=()=>{if(meRow)meRow.scrollIntoView({behavior:'smooth',block:'center'})}}
+    pin.hidden=true;if(meRow&&io)io.observe(meRow);
+    /* changing genre (or a result coming in) while you watch: rows glide to their new places */
+    if(vis&&before.size){rkL.querySelectorAll('.krk-r').forEach((r,k)=>{const y0=before.get(r.dataset.id),y1=r.getBoundingClientRect().top;
+      if(y0==null)ani(r,[{opacity:0,transform:'translateY(14px)'},{opacity:1,transform:'none'}],{duration:420,delay:80+k*30});
+      else if(Math.abs(y0-y1)>1)ani(r,[{transform:'translateY('+(y0-y1).toFixed(1)+'px)'},{transform:'none'}],{duration:600,easing:'cubic-bezier(.2,.8,.2,1)'})})}
+    if(curView==='rank'&&!first)rkCheer(vis?650:0)}
+  /* your place went up since you last looked at this ladder: the number rolls to the new place, a light passes, a small tag */
+  const rkKey=()=>'kxrkseen_'+(rkTcg?'tcg':game);
+  function rkCheer(delay){const me=ME();if(!me)return;const sorted=rkData(),mi=sorted.findIndex(p=>p.id===me.id);if(mi<0)return;const k=rkKey();
+    let prev=0;try{prev=+localStorage.getItem(k)||0;localStorage.setItem(k,String(mi+1))}catch(e){}
+    if(prev&&prev>mi+1)setTimeout(()=>{try{rkUp(me.id,prev,mi+1)}catch(e){}},delay||0)}
+  function roll(nb,from,to){if(RMO||!(from>to)||from-to>9)return;const col=mk('span','krk-roll');for(let v=from;v>=to;v--)col.append(mk('span',null,String(v)));
+    nb.textContent='';nb.append(col);const h=col.firstChild.getBoundingClientRect().height||16,n=from-to;
+    const a=ani(col,[{transform:'translateY(0)'},{transform:'translateY(-'+(n*h).toFixed(1)+'px)'}],{duration:640+n*120,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'});
+    const done=()=>{nb.textContent=String(to)};if(a)a.onfinish=done;else done()}
+  /* sparks from a panel's icon, inside the stage */
+  function rkSpark(panel,n){if(RMO)return;const aw=panel.querySelector('.krk-avw');if(!aw)return;const r=aw.getBoundingClientRect(),pr=rkSt.getBoundingClientRect();const cx=r.left-pr.left+r.width/2,cy=r.top-pr.top+r.height/2;
+    for(let k=0;k<n;k++){const d=mk('i','kx-spk krk-spk'+(rkTcg?' v':''));d.style.left=cx+'px';d.style.top=cy+'px';rkSt.append(d);const a=k/n*Math.PI*2+Math.random()*.3,dist=50+Math.random()*60;
+      const an=d.animate([{transform:'translate(-50%,-50%) scale(1.2)',opacity:1},{transform:'translate(calc(-50% + '+(Math.cos(a)*dist).toFixed(1)+'px),calc(-50% + '+(Math.sin(a)*dist*.8).toFixed(1)+'px)) scale(.2)',opacity:0}],{duration:620+Math.random()*260,easing:'cubic-bezier(.16,1,.3,1)',fill:'forwards'});an.onfinish=()=>d.remove()}}
+  function rkUp(id,from,to){if(curView!=='rank')return;const el=rkSt.querySelector('.krk-p[data-id="'+id+'"]')||rkL.querySelector('.krk-r[data-id="'+id+'"]');if(!el)return;
+    const st=el.classList.contains('krk-p');sfx('chime');
+    roll(st?el.querySelector('.krk-medal'):el.querySelector('.krk-no b'),from,to);
+    /* the tag: on the stage it takes the place of the line under the rating for a moment; in a row it sits after the name */
+    const chip=mk('span','krk-up',ARW.up+'<b>'+(from-to)+'</b><span>'+(st&&to===1?'1位になりました':'順位アップ')+'</span>');
+    if(st){const body=el.querySelector('.krk-body'),sub=body.querySelector('.krk-gap,.krk-mv');body.append(chip);
+      if(sub){chip.style.top=Math.max(0,sub.offsetTop+sub.offsetHeight/2-11).toFixed(0)+'px';ani(sub,[{opacity:1},{opacity:0,offset:.06},{opacity:0,offset:.9},{opacity:1}],{duration:3000})}}
+    else el.querySelector('.krk-t').append(chip);
+    const a=ani(chip,[{opacity:0,transform:'translateY(8px) scale(.8)'},{opacity:1,transform:'none',offset:.12},{opacity:1,transform:'none',offset:.86},{opacity:0,transform:'translateY(-4px)'}],{duration:3000,fill:'forwards'});if(a)a.onfinish=()=>chip.remove();else setTimeout(()=>chip.remove(),2400);
+    const sw=mk('i','krk-sweep');el.append(sw);const b=ani(sw,[{transform:'translateX(-120%) skewX(-18deg)'},{transform:'translateX(320%) skewX(-18deg)'}],{duration:1000,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});if(b)b.onfinish=()=>sw.remove();else sw.remove();
+    if(st){ani(el.querySelector('.kvs-ring'),[{opacity:.95,transform:'scale(.7)'},{opacity:0,transform:'scale(2.1)'}],{duration:800,fill:'none'});rkSpark(el,to===1?22:12);
+      if(to===1){const cr=el.querySelector('.krk-crown');ani(cr,[{opacity:0,transform:'translateY(-26px) scale(1.5) rotate(-14deg)'},{opacity:1,transform:'scale(.92)',offset:.7},{opacity:1,transform:'none'}],{duration:620,delay:120,easing:'cubic-bezier(.5,0,.3,1)'})}
+      ani(el.querySelector('.krk-avw'),[{transform:'scale(1)'},{transform:'scale(1.12)',offset:.35},{transform:'none'}],{duration:620,easing:'cubic-bezier(.3,1.4,.5,1)'})}
+    else ani(el,[{transform:'none'},{transform:'scale(1.025)',offset:.35},{transform:'none'}],{duration:620,easing:'cubic-bezier(.3,1.4,.5,1)'})}
+  /* entrance: the 1st place drops in, 2nd and 3rd slide in from their sides, the seams are drawn, the crown lands with a ring
+     and a small shake, then the rows rise and the numbers count up. Full once per session; after that a short version. */
+  function rkEnter(){const go=()=>{if(RMO)return rkCheer(0);const full=rkIntroN++===0;const P=[...rkSt.querySelectorAll('.krk-p')],R=[...rkL.children].filter(e=>!e.hidden);
+    if(!full){ani(rkSt,[{opacity:.2,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:380});
+      [rkMeta,rkL].forEach((e,k)=>ani(e,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:380,delay:60+k*40}));rkCheer(520);return}
+    P.forEach(p=>{const s=p.classList.contains('krk-a')?-1:p.classList.contains('krk-c')?1:0;
+      ani(p,[{opacity:0,transform:s?'translateX('+(s*44)+'px)':'translateY(-30px)'},{opacity:1,transform:'none'}],{duration:680,delay:s?110:0});
+      ani(p.querySelector('.krk-avw'),[{transform:'translateY(22px) scale(.72)',opacity:0},{transform:'scale(1.06)',opacity:1,offset:.62},{transform:'none',opacity:1}],{duration:720,delay:s?250:170});
+      ani(p.querySelector('.krk-wm b'),[{opacity:0,transform:'rotate(-8deg) translateY(36px)'},{opacity:1,transform:'rotate(-8deg)'}],{duration:900,delay:s?300:220});
+      [...p.querySelectorAll('.krk-body>*:not(.krk-avw)')].forEach((e,k)=>ani(e,[{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:480,delay:(s?420:360)+k*55}))});
+    rkSt.querySelectorAll('.krk-seam b').forEach((b,k)=>ani(b,[{transform:'scaleY(0)'},{transform:'scaleY(1)'}],{duration:540,delay:220+k*70,easing:'cubic-bezier(.7,0,.2,1)'}));
+    const cr=rkSt.querySelector('.krk-crown');if(cr){ani(cr,[{opacity:0,transform:'translateY(-30px) scale(1.5) rotate(-14deg)'},{opacity:1,transform:'scale(.92)',offset:.7},{opacity:1,transform:'none'}],{duration:620,delay:640,easing:'cubic-bezier(.5,0,.3,1)'});
+      ani(rkSt.querySelector('.krk-n1 .kvs-ring'),[{opacity:.95,transform:'scale(.7)'},{opacity:0,transform:'scale(2)'}],{duration:760,delay:1050,fill:'none'});
+      ani(rkSt,[{transform:'translateX(0)'},{transform:'translateX(-3px)'},{transform:'translateX(2px)'},{transform:'translateX(-1px)'},{transform:'translateX(0)'}],{duration:260,delay:1060,easing:'linear',fill:'none'})}
+    [rkMeta,rkL,rkFoot].filter(e=>e&&!e.hidden).forEach((e,k)=>ani(e,[{opacity:0,transform:'translateY(18px)'},{opacity:1,transform:'none'}],{duration:560,delay:500+k*70}));
+    R.slice(0,9).forEach((e,k)=>ani(e,[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:480,delay:600+k*50}));
+    countUp(rkSt.querySelectorAll('.krk-rt b'));countUp(rkL.querySelectorAll('.krk-v b'));rkCheer(1500)};
+    if(document.querySelector('body>.km-splash'))addEventListener('kmo:reveal',go,{once:true});else go()}
+  /* for the demo: play the entrance again (full = as on the first visit of the session) */
+  window.__kxRankIntro=full=>{if(full)rkIntroN=0;else if(!rkIntroN)rkIntroN=1;if(curView!=='rank'){try{setView('rank');scrollTo(0,0)}catch(e){}}else{scrollTo(0,0);rkEnter()}};
 
   /* ---------- entrances: each 対戦 page has its own, played once each time it comes into view ---------- */
   const PORD=['rate','tcg','deck','tour'];let lastPg=null;
@@ -9904,15 +10125,16 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     new MutationObserver(move).observe(sg,{subtree:true,attributes:true,attributeFilter:['class']});window.__kxInk=move;move()}}
 
   /* ---------- refresh whatever is showing ---------- */
-  let rq=0;
+  let rq=0,lastV=null;
   function refresh(){rq=0;try{frameSync()}catch(e){}
     try{if(curView==='battle'){const bp=vb.dataset.bp||'rate';if(bp==='rate')renderRate();else if(bp==='tour')renderHist();else if(bp==='deck')renderDeck()}
       else if(curView==='tcg')renderTcg2();else if(curView==='rank')renderRank()}catch(e){console.warn('kx',e)}
+    if(curView!==lastV){lastV=curView;if(curView==='rank'){try{rkEnter()}catch(e){console.warn('kx rank enter',e)}}}
     const pg=curPg();if(pg!==lastPg){const a=PORD.indexOf(lastPg),b=PORD.indexOf(pg);lastPg=pg;if(pg){try{enter(pg,a>=0&&b>=0?Math.sign(b-a):0)}catch(e){console.warn('kx enter',e)}}}
     if(pg){try{window.__kxInk&&__kxInk()}catch(e){}}}
   const later=()=>{if(!rq)rq=requestAnimationFrame(refresh)};
   window.__kxRefresh=()=>{rateSig=histSig=deckSig=tOppSig=tDkSig=rankSig='';refresh()};
-  window.__kxEnter=()=>{lastPg=null;introN=0;tIntroN=0;refresh()};
+  window.__kxEnter=()=>{lastPg=null;lastV=null;introN=0;tIntroN=0;rkIntroN=0;refresh()};
   try{const R0=render;render=function(){const r=R0.apply(this,arguments);later();return r}}catch(e){}
   /* switching to TCG rebuilt the old TCG sections every time: skip that while nothing has changed since the last build */
   try{let dirty=true,inSV=false;const R1=render;render=function(){dirty=true;return R1.apply(this,arguments)};
