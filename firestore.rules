@@ -271,8 +271,8 @@ service cloud.firestore {
       allow read: if isAdmin() || (signedIn() && myPid() == pid);
       allow create: if isAdmin() || (signedIn() && myPid() == pid
         && newV('packs', 0) >= 0 && newV('lpacks', 0) >= 0 && newV('tused', 0) >= 0
-        && newV('tpacks', 0) >= 0
-        && newV('pspent', 0) >= 0 && newV('pspent', 0) <= newV('packs', 0) * 100 + newV('lpacks', 0) * 200 + newV('tpacks', 0) * 100
+        && newV('tpacks', 0) >= 0 && newV('xpacks', 0) >= 0 && newV('xpacks', 0) <= newV('tpacks', 0)
+        && newV('pspent', 0) >= 0 && newV('pspent', 0) <= newV('packs', 0) * 100 + newV('lpacks', 0) * 200 + newV('tpacks', 0) * 100 + newV('xpacks', 0) * 80
         && newV('lfree', 0) >= 0 && newV('lfree', 0) <= newV('lpacks', 0)
         && newV('wused', 0) * 350 <= newV('lpacks', 0)
         && (newV('mpts', 0) == 0 || (newV('mpts', 0) == 100 && newV('md', -1) == today()))
@@ -282,6 +282,7 @@ service cloud.firestore {
         && newV('packs', 0) >= oldV('packs', 0) && newV('lpacks', 0) >= oldV('lpacks', 0)
         && newV('tused', 0) >= oldV('tused', 0) && (!('tix' in resource.data) || 'tix' in request.resource.data)
         && newV('tpacks', 0) >= oldV('tpacks', 0) && tcgStOk()
+        && newV('xpacks', 0) >= oldV('xpacks', 0) && newV('xpacks', 0) - oldV('xpacks', 0) <= newV('tpacks', 0) - oldV('tpacks', 0)
         && pspentOk() && missionOk() && loginOk() && passOk(pid)
         && newV('lfree', 0) >= oldV('lfree', 0) && newV('lfree', 0) - oldV('lfree', 0) <= newV('lpacks', 0) - oldV('lpacks', 0)
         && newV('wused', 0) >= oldV('wused', 0)
@@ -321,7 +322,7 @@ service cloud.firestore {
     function pspentOk() {
       return newV('pspent', 0) >= oldV('pspent', 0)
         && newV('pspent', 0) - oldV('pspent', 0) <= (newV('packs', 0) - oldV('packs', 0)) * 100 + (newV('lpacks', 0) - oldV('lpacks', 0)) * 200
-           + (newV('tpacks', 0) - oldV('tpacks', 0)) * 100;
+           + (newV('tpacks', 0) - oldV('tpacks', 0)) * 100 + (newV('xpacks', 0) - oldV('xpacks', 0)) * 80;
     }
 
     // ---- predictions on someone else's match, placed within 30 seconds of its start (45s allowed for clock drift); never changed afterwards ----
