@@ -1219,6 +1219,12 @@ body:not(.gkview){background:
 .lane.m .slot::after{box-shadow:inset 0 0 0 .5px rgba(103,232,249,.35)}
 .lane.o .slot::after{box-shadow:inset 0 0 0 .5px rgba(255,95,176,.3)}
 
+/* the labels over a shown card (魔法発動 / トラップ発動): glass with the kind's colour in the text, never a solid block */
+.slab,.slab.spell,.slab.trap,.slab.gt,.slab.ace{background:rgba(14,13,24,.92);color:#fff}
+.slab.spell{color:#5ee3b0}.slab.trap{color:#c9b6ff}.slab.gt,.slab.ace{color:#ffd36b}
+/* an afterimage of a figure is only the figure */
+.ghost .refl,.ghost .pool,.ghost .pthk{display:none!important}
+
 </style>
 
 <div id="tcgBoot"><b>きもオタTCG</b><span role="status">読み込んでいます…</span><div class="bootActions"><button class="btn" onclick="location.reload()">もう一度読み込む</button><button class="btn sec" onclick="try{(parent.TCGWATCH||parent.TCGHOST).close()}catch(e){history.back()}">アプリに戻る</button></div></div>
@@ -2608,7 +2614,7 @@ function flyCard(fromEl,toEl,face,ms){const a=rectOf(fromEl),b=rectOf(toEl);if(!
 async function spotlight(e,who,color){if(!e)return;const r=rectOf(e),fr=rectOf($('field'));const col=color||(who===H?'#ffe9a8':'#ff9ccf');
   const beam=fx('beam','left:'+(r.left+r.width/2)+'px;top:'+fr.top+'px;height:'+(r.bottom-fr.top+8)+'px;width:'+(r.width*1.5)+'px;--c:'+col);
   anim(beam,[{opacity:0,transform:'translateX(-50%) scaleX(.2)'},{opacity:1,transform:'translateX(-50%) scaleX(1)',offset:.3},{opacity:0,transform:'translateX(-50%) scaleX(1.1)'}],{duration:900,easing:'ease-out'}).then(()=>beam.remove());
-  anim(e,[{transform:'translateY(-26px) scale(1.25)',opacity:0,filter:'brightness(3)'},{transform:'translateY(0) scale(.97)',opacity:1,filter:'brightness(1.6)',offset:.6},{transform:'none',filter:'brightness(1)'}],{duration:480,easing:'cubic-bezier(.3,1.2,.4,1)',fill:'none'});
+  anim(e,[{transform:'translateY(-26px) scale(1.18)',opacity:0,filter:'brightness(1.9)'},{transform:'translateY(0) scale(.98)',opacity:1,filter:'brightness(1.35)',offset:.6},{transform:'none',filter:'brightness(1)'}],{duration:480,easing:'cubic-bezier(.3,1.2,.4,1)',fill:'none'});
   await wait(280);const [x,y]=[r.left+r.width/2,r.bottom-6];const fl=fx('floor','left:'+x+'px;top:'+y+'px;width:'+(r.width*1.6)+'px;--c:'+col);anim(fl,[{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:'translate(-50%,-50%) scale(1.4)',opacity:0}],{duration:520,easing:'ease-out'}).then(()=>fl.remove());
   sparks(x,y-r.height*.3,col,10,r.width*.7);shake(2.5)}
 async function renderAnimated(S){const old=view;
@@ -2643,7 +2649,7 @@ async function aim(ev){const a=uidEl(ev.uid);if(!a)return;aimUid=ev.uid;a.classL
   await anim(a,[{transform:'none'},{transform:'translateY('+(ev.who===H?-10:10)+'px) scale(1.07)'}],{duration:200});
   const t=ev.to?uidEl(ev.to):$(ev.who===H?'oppLife':'myLife');if(t)t.classList.add('aim');await wait(220)}
 const FCOL={weak:'#7fb2ff',girl:'#ff6fae',gay:'#c08cff',gen:'#ffd36b',gachi:'#ff9a3c',idol:'#ffd54a',vt:'#4fd1ff',cre:'#7ee08a',chu:'#a070ff',neta:'#ff6b6b',sei:'#ff9ad5',hage:'#d8c09a'};
-function afterimage(src,dx,dy,k){const r=rectOf(src);if(!r)return;const gh=src.cloneNode(true);gh.classList.add('ghost','after');gh.style.left=r.left+'px';gh.style.top=r.top+'px';gh.style.width=r.width+'px';gh.style.height=r.height+'px';document.body.append(gh);
+function afterimage(src,dx,dy,k){const r=rectOf(src);if(!r)return;const gh=src.cloneNode(true);gh.querySelectorAll('.refl,.scrholo,.scrglint').forEach(x=>x.remove());gh.classList.add('ghost','after');gh.style.left=r.left+'px';gh.style.top=r.top+'px';gh.style.width=r.width+'px';gh.style.height=r.height+'px';document.body.append(gh);
   anim(gh,[{transform:'translate('+(dx*k)+'px,'+(dy*k)+'px)',opacity:.55},{transform:'translate('+(dx*k)+'px,'+(dy*k)+'px) scale(1.05)',opacity:0}],{duration:300}).then(()=>gh.remove())}
 /* manga-style impact pieces */
 function focusLines(x,y,col,big){const f=fx('focus','left:'+x+'px;top:'+y+'px;--c:'+(col||'#fff')+';--s:'+(big?1:.65));anim(f,[{opacity:0,transform:'translate(-50%,-50%) scale(1.25) rotate(0deg)'},{opacity:1,transform:'translate(-50%,-50%) scale(1) rotate(4deg)',offset:.15},{opacity:0,transform:'translate(-50%,-50%) scale(.95) rotate(6deg)'}],{duration:big?520:380,easing:'ease-out'}).then(()=>f.remove())}
