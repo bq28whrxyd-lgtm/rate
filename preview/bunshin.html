@@ -14,7 +14,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 [hidden]{display:none!important}
 .wrap{max-width:520px;margin:0 auto;padding-inline:16px;padding-block:14px 48px;display:flex;flex-direction:column;gap:14px}
 .hd{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-html.inapp .protoonly{display:none!important}html:not(.inapp) .hostonly{display:none!important}html.inapp #lv{display:none}
+html.inapp .protoonly{display:none!important}html.inapp .tabs{grid-template-columns:repeat(4,1fr)}html:not(.inapp) .hostonly{display:none!important}html.inapp #lv{display:none}
 .hclose{flex:none;width:40px;height:40px;border-radius:50%;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);font:400 22px/40px var(--px);color:var(--fg,#fff)}
 .btoast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;max-width:88vw;padding:10px 14px;border-radius:12px;background:#000c;color:#fff;font:500 13px/1.5 var(--jp)}
 .enhov{position:fixed;inset:0;z-index:40;background:rgba(5,4,8,.74);display:flex;align-items:flex-end;justify-content:center}
@@ -158,6 +158,7 @@ html.inapp .protoonly{display:none!important}html:not(.inapp) .hostonly{display:
 .xqc b{font:400 17px/1.2 var(--px);color:var(--xc)}.xqc span{font:500 12px/1.3 var(--jp);color:var(--fg2)}.xqc em{font-style:normal;font:500 12px/1.3 var(--jp);color:var(--gold2)}.xqc small{font:500 11px/1.3 var(--jp);color:var(--mut);min-height:14px}
 .xqc.t1{--xc:#7fd98a}.xqc.t2{--xc:#6fb6ff}.xqc.t3{--xc:#c08bff}.xqc.t4{--xc:#ff5a4f;background:linear-gradient(160deg,rgba(255,90,79,.14),var(--s1) 60%)}
 .xqc.lock{opacity:.45}.xqc.lock em{color:var(--mut)}.xqc:disabled{cursor:default}
+.tapguide{padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,rgba(127,232,255,.10),rgba(255,224,102,.06));box-shadow:inset 0 0 0 1px var(--line);display:grid;gap:4px}.tapguide b{font:400 15px/1.3 var(--px);color:var(--gold2)}.tapguide span{font:500 12.5px/1.6 var(--jp);color:var(--fg2)}.tapguide em{font-style:normal;font-weight:700}.tapguide em.g{color:#ffe066}.tapguide em.c{color:#7fe8ff}
 .quest{display:grid;gap:8px}.qbar{position:relative;height:22px;border-radius:11px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);overflow:hidden}.qbar span{position:relative;z-index:1;display:block;text-align:center;font:400 12px/22px var(--px);color:var(--fg,#fff)}.qbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#8a6216,#e2bf72)}.op.boss{box-shadow:inset 0 0 0 2px #d0283c}
 .op em{font:400 12px/1 var(--px);font-style:normal;color:var(--gold2)}
 .log{max-height:180px;overflow:auto;margin:0;padding:10px 12px;border-radius:12px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);font:500 12px/1.75 var(--jp);color:var(--fg2);list-style:none}
@@ -203,7 +204,7 @@ html.inapp .protoonly{display:none!important}html:not(.inapp) .hostonly{display:
     <button type="button" data-p="stat">ステータス</button>
     <button type="button" data-p="gear">装備</button>
     <button type="button" data-p="fight">対戦</button>
-    <button type="button" data-p="try">試す</button>
+    <button type="button" class="protoonly" data-p="try">試す</button>
   </div>
 
   <section class="pane" id="p-look">
@@ -235,7 +236,7 @@ html.inapp .protoonly{display:none!important}html:not(.inapp) .hostonly{display:
     <div class="sec"><h2>持っている装備<small id="invn"></small></h2><div class="inv" id="inv"></div></div>
   </section>
 
-  <section class="pane" id="p-try" hidden>
+  <section class="pane protoonly" id="p-try" hidden>
     <div class="sec"><h2>武器を選ぶ<small>レア度ごとに別の武器です</small></h2><div class="trylist" id="trylist"></div></div>
     <div class="skill" id="tryinfo"></div>
     <div class="row2"><button type="button" class="btn main" id="trysp">必殺技を見る</button><button type="button" class="btn" id="tryatk">ふつうの攻撃</button></div>
@@ -244,6 +245,7 @@ html.inapp .protoonly{display:none!important}html:not(.inapp) .hostonly{display:
   </section>
 
   <section class="pane" id="p-fight" hidden>
+    <div class="tapguide"><b>バトル中はタップで戦える</b><span>輪が縮んで重なる瞬間に画面をタップ。自分の攻撃なら <em class="g">PERFECT 1.4倍</em>・GOOD 1.2倍、相手の攻撃なら <em class="c">PARRY 0.2倍</em>・GUARD 0.6倍。早すぎると EARLY で失敗。PERFECT と PARRY は必殺技ゲージもたまる。パソコンはスペースキー</span></div>
     <div class="sec"><h2>クエスト</h2><div class="quest" id="quest"></div></div>
     <div class="sec"><h2>経験値クエスト<small id="xqn"></small></h2><div class="xq" id="xq"></div></div>
     <div class="sec"><h2>仲間と戦う</h2><div class="opps" id="opps"></div></div>
@@ -560,7 +562,7 @@ let FIELD=null;
 
 /* ---------- pixel digits and letters (3x5) ---------- */
 const GL={'0':'111101101101111','1':'010110010010111','2':'111001111100111','3':'111001111001111','4':'101101111001001','5':'111100111001111','6':'111100111101111','7':'111001010010010','8':'111101111101111','9':'111101111001111','+':'000010111010000',
-  'M':'101111111101101','I':'111010010010111','S':'111100111001111','C':'111100100100111','R':'110101110101101','T':'111010010010010','A':'010101111101101','L':'100100100100111','K':'101101110101101','O':'111101101101111','H':'101101111101101'};
+  'M':'101111111101101','I':'111010010010111','S':'111100111001111','C':'111100100100111','R':'110101110101101','T':'111010010010010','A':'010101111101101','L':'100100100100111','K':'101101110101101','O':'111101101101111','H':'101101111101101','P':'110101110100100','E':'111100111100111','F':'111100111100100','G':'111100101101111','D':'110101101101110','U':'101101101101111','Y':'101101010010010','!':'010010010000010','N':'110101101101101'};
 function ptext(g,txt,x,y,col,s,alpha){g.save();g.globalAlpha=alpha==null?1:alpha;const w=txt.length*4*s-s;let x0=Math.round(x-w/2);
   for(const pass of [0,1]){let cx=x0;for(const ch of txt){const m=GL[ch];if(m){for(let i=0;i<15;i++)if(m[i]==='1'){const px=cx+(i%3)*s,py=y+Math.floor(i/3)*s;if(pass===0){g.fillStyle='#160d14';g.fillRect(px-1,py-1,s+2,s+2)}else{g.fillStyle=col;g.fillRect(px,py,s,s)}}}cx+=4*s}}g.restore()}
 
@@ -618,6 +620,10 @@ function simulate(A,B,seed,opt){opt=opt||{};const r=rngOf(seed),cond=[0,1].map((
     else{sp[i]=Math.min(100,sp[i]+30);hits=[hit(i,j,wt==='staff'?a.mag*.9:a.atk,{pierce:ab&&wt==='spear'?ab.val:0,critUp:cu})];
       /* sword ability: a second cut */
       if(ab&&wt==='sword'&&!hits[0].miss&&r()<ab.val){const h=hit(i,j,a.atk*.6,{sure:1});h.ab=1;hits.push(h);abn=ab.n}}
+    /* a timed tap (decided by the player while the fight plays; the fight is re-run with it):
+       your attack PERFECT x1.4 + gauge 10 / GOOD x1.2; the opponent's attack PARRY x0.2 + your gauge 20 / GUARD x0.6 */
+    const tp=opt.inp&&opt.inp[ev.length];let tap=null;
+    if(tp==='p'||tp==='g'){const f=i===0?(tp==='p'?1.4:1.2):(tp==='p'?.2:.6);for(const h of hits)if(!h.miss)h.dmg=Math.max(i===0?1:0,Math.round(h.dmg*f));tap=tp;if(tp==='p')sp[0]=Math.min(100,sp[0]+(i===0?10:20))}
     const spBefore=[...sp];
     for(let q=0;q<hits.length;q++){const h=hits[q];if(!h.miss){hp[j]=Math.max(0,hp[j]-h.dmg);sp[j]=Math.min(100,sp[j]+8)}h.hp=hp[j];if(hp[j]<=0){hits.length=q+1;break}}
     if(special&&wt==='hammer'&&hits[0]&&!hits[0].miss)dm[j]=Math.max(.5,dm[j]*.8);
@@ -628,18 +634,19 @@ function simulate(A,B,seed,opt){opt=opt||{};const r=rngOf(seed),cond=[0,1].map((
     if(ab&&wt==='hammer'&&dealt>0&&hp[j]>0&&r()<ab.val){g[j]-=60;stun=1;abn=ab.n}
     if(ab&&wt==='bow'&&hits.some(h=>h.crit))abn=ab.n;
     if(heal&&hp[i]>0){hp[i]=Math.min(max[i],hp[i]+heal)}
-    ev.push({who:i,special,wt,wr:F[i].wr,hits,heal,healTo:hp[i],sp:[...sp],spBefore,ab:abn,stun})}
+    ev.push({who:i,special,wt,wr:F[i].wr,hits,heal,healTo:hp[i],sp:[...sp],spBefore,ab:abn,stun,tap})}
   const win=hp[1]<=0?0:hp[0]<=0?1:(hp[0]/max[0]>=hp[1]/max[1]?0:1);return {ev,win,max,hp,hs}}
 function timeline(res){let t=.7;const hitsAt=[];for(const e of res.ev){const two=!e.special&&e.hits.length>1,dur=e.special?spDur(e):two?1.25:1.0;e.t0=t;e.t1=t+dur;
     const rel=e.special?spHit(e):two?[.32,.58]:[MELEE[e.wt]?.32:.45];e.hits.forEach((h,k)=>{h.t=t+(rel[k]!=null?rel[k]:rel[rel.length-1]);hitsAt.push({t:h.t,j:1-e.who,h})});
     if(e.heal)e.healT=t+dur-.45;t=e.t1+.18}res.koT=t;res.end=t+1.8;res.hitsAt=hitsAt;
   /* hit-stop: light 3 frames, crit 6, a special's last hit 8, the KO hit 17; crits, finishers and the KO also get an impact frame */
   res.stops=[];for(const e of res.ev){const hs=e.hits.filter(h=>!h.miss);hs.forEach((h,n)=>{const last=n===hs.length-1,ko=h.hp<=0,fin=e.special&&last;const d=ko?.28:fin?(e.wt==='spear'&&e.wr==='KMR'?.22:.14):e.special?(e.wt==='sword'&&e.wr==='KMR'?.03:.06):h.crit?.1:.05;res.stops.push({t:h.t,d,imp:ko||fin||(h.crit&&!e.special),ko,h})})}
-  res.stops.sort((a,b)=>a.t-b.t);res.total=res.stops.reduce((a,s)=>a+s.d,0);res.endReal=res.end+res.total;return res}
+  res.stops.sort((a,b)=>a.t-b.t);res.total=res.stops.reduce((a,s)=>a+s.d,0);res.endReal=res.end+res.total;
+  for(const e of res.ev){const h=e.hits.find(h=>!h.miss);e.rt=h?h.t+res.stops.filter(s=>s.t<h.t).reduce((a,s)=>a+s.d,0):null}return res}
 /* real time -> timeline time; during a stop the timeline holds still */
 function mapT(res,Tr){let acc=0;for(const s of res.stops){if(Tr<s.t+acc)return {T:Tr-acc};if(Tr<s.t+acc+s.d)return {T:s.t,stop:s,e:Tr-(s.t+acc)};acc+=s.d}return {T:Tr-acc}}
 let HS=null;/* the stop being held right now: {s, e (seconds into it)} */
-function view(Tr){if(!BT){HS=null;scene(Tr);hud(Tr);return}const m=mapT(BT.res,Tr);HS=m.stop?{s:m.stop,e:m.e}:null;scene(m.T);hud(m.T)}
+let TRL=0;function view(Tr){TRL=Tr;if(!BT){HS=null;scene(Tr);hud(Tr);return}const m=mapT(BT.res,Tr);HS=m.stop?{s:m.stop,e:m.e}:null;scene(m.T);hud(m.T)}
 function hpAt(res,T,j){let v=res.hs?res.hs[j]:res.max[j];for(const e of res.ev){for(const h of e.hits){if(1-e.who===j&&h.t<=T&&!h.miss)v=h.hp}if(e.heal&&e.who===j&&e.healT<=T)v=e.healTo}return v}
 function spAt(res,T,j){let v=0;for(const e of res.ev){if(e.t0<=T)v=(e.special&&e.who===j)?0:e.sp[j]}return v}
 
@@ -1011,6 +1018,7 @@ function scene(T){G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;
     const j=HS.s.h&&R.hitsAt.find(q=>q.h===HS.s.h);if(j){const cx=pos[j.j].x,cy=GY-112;G.save();G.fillStyle='#ffffff';for(let n=0;n<12;n++){const a=n/12*Math.PI*2+.13,L=(n%2?60:110);for(let q=10;q<L;q+=1){const w=Math.max(0,2-q/L*2);G.fillRect(Math.round(cx+Math.cos(a)*q),Math.round(cy+Math.sin(a)*q*.8),w>1?2:1,w>1?2:1)}}G.restore();drawSpark(cx,cy,0,'R')}}
   fxFlush();
   applySlices();
+  tapFx(pos);
   /* numbers */
   for(const q of R.hitsAt){const v=T-q.t;if(v<0||v>.95)continue;const x=pos[q.j].x+(q.j?20:-20),y=GY-176-eo(v/.4)*14+(v<.08?-3:0),a=1-clamp((v-.6)/.35,0,1);
     if(q.h.miss)ptext(G,'MISS',x,y,'#c9d4ff',3,a);else{ptext(G,String(q.h.dmg),x,y,q.h.crit?'#ffe066':'#ffffff',q.h.crit?4:3,a);if(q.h.crit)ptext(G,'CRITICAL',x,y+24,'#ffb347',2,a)}}
@@ -1507,8 +1515,12 @@ function questOpp(n){const rr=rngOf(n*7919+13),boss=n%10===0,w=QW[(n+(boss?1:0))
   const hc=Object.keys(HAIRC),ec=Object.keys(EYEC),e=Math.min(50,Math.floor(n*.35)+(boss?3:0));
   const eq=[[w[1]+wt,wt,e],[['yga','sma','tca'][n%3],ar,e]];if(n>=8)eq.push([['ygx','smx','tcx'][n%3],ar,e]);
   const name=boss?QB[(n/10-1)%QB.length]+(n>50?' 改':''):QN[w[0]][Math.min(3,Math.floor(n/12))];
-  return {name,lv:Math.round(1+n*.9)+(boss?2:0),look:{g:'m',hs:0,hc:hc[Math.floor(rr()*hc.length)],ec:ec[Math.floor(rr()*ec.length)]},eq,style:w[2],boss,stage:n}}
+  return {name,lv:Math.round(1+n*.9)+(boss?2:0),look:{g:'m',hs:0,hc:hc[Math.floor(rr()*hc.length)],ec:ec[Math.floor(rr()*ec.length)]},eq,style:w[2],boss,stage:n,mul:qMul(n)}}
 const QMAX=100;
+/* stage strength on top of the level and gear curve (raised at the user's request): a single fight is about
+   stage 10: Lv20 SR+5 55% / stage 30: Lv35 UR+10 45% / stage 50: Lv50 KMR+20 35% / stage 60-70: Lv60 KMR+40 50% / stage 90: Lv80 all KMR+50 35% / stage 100: same ~25% */
+const QMK=[[1,.99],[10,1.066],[20,1.047],[30,1.02],[40,1.067],[50,1.03],[60,1.056],[70,1.06],[80,1.05],[90,1.06],[100,1.17]];
+function qMul(n){for(let i=1;i<QMK.length;i++)if(n<=QMK[i][0]){const a=QMK[i-1],b=QMK[i];return a[1]+(b[1]-a[1])*(n-a[0])/(b[0]-a[0])}return 1}
 function renderQuest(){const box=$('quest');if(!box)return;const n=Math.min(QMAX,S.qs+1),o=questOpp(n);box.replaceChildren();
   const bar=mk('div','qbar');bar.innerHTML='<span>クリア '+S.qs+' / '+QMAX+'</span><i style="width:'+(S.qs/QMAX*100).toFixed(1)+'%"></i>';box.append(bar);
   const card=oppCard(o,-1);card.classList.add('on');if(o.boss)card.classList.add('boss');card.querySelector('b').textContent=(o.boss?'BOSS ':'')+'ステージ'+n+' '+o.name;card.onclick=null;box.append(card);
@@ -1517,11 +1529,12 @@ function renderQuest(){const box=$('quest');if(!box)return;const n=Math.min(QMAX
   if(S.qs>=1){const p0=questOpp(Math.min(QMAX,S.qs)),b2=mk('button','btn','ステージ'+p0.stage+'(クリア済み)にもう一度挑戦');b2.type='button';b2.onclick=()=>startBattle(p0);box.append(b2,mk('p','note','クリア済みのステージは報酬なし・宝箱10%。何回でも挑戦できます。クエストのバトルはスキップできません。'))}}
 /* ---------- experience quest: four grades, five opponents in a row. HP carries over with half of the max back; beating all five gives account XP (20/40/70/120, the first 3 clears a day). A grade opens once the one before it is cleared ---------- */
 const XQ=[null,
-  {n:'初級',lv:[1,1,2,3,5],wt:['R','R','R','R','R'],ar:'N',e:[0,0,0,0,1],mul:[.78,.78,.78,.78,.82],boss:'師範代ミナ',xp:20},
-  {n:'中級',lv:[6,7,8,10,13],wt:['R','R','R','SR','SR'],ar:'N',e:[1,2,2,3,4],mul:[.86,.86,.86,.86,.9],boss:'道場主ゴウ',xp:40},
-  {n:'上級',lv:[16,18,20,23,27],wt:['SR','SR','SR','UR','UR'],ar:'R',e:[5,6,7,8,10],mul:[.91,.91,.91,.91,.95],boss:'剣豪シグレ',xp:70},
-  {n:'地獄級',lv:[30,33,36,40,45],wt:['UR','UR','UR','UR','KMR'],ar:'SR',e:[12,14,16,18,22],mul:[.93,.93,.93,.93,.97],boss:'獄門のヴァル',xp:120}];
-/* tuned by simulation (heal 50%): 初級 Lv5 wood sword ~65%, 中級 Lv20 SR+5 ~70%, 上級 Lv35 UR+10 ~50%, 地獄級 Lv50 KMR+20 ~25% */
+  {n:'初級',lv:[16,18,20,23,27],wt:['SR','SR','SR','UR','UR'],ar:'R',e:[5,6,7,8,10],mul:[.93,.93,.93,.93,.97],boss:'師範代ミナ',xp:20},
+  {n:'中級',lv:[30,33,36,40,45],wt:['UR','UR','UR','UR','KMR'],ar:'SR',e:[12,14,16,18,22],mul:[.9,.9,.9,.9,.94],boss:'道場主ゴウ',xp:40},
+  {n:'上級',lv:[48,52,56,60,66],wt:['UR','KMR','KMR','KMR','KMR'],ar:'UR',e:[25,28,32,36,42],mul:[.92,.92,.92,.92,.96],boss:'剣豪シグレ',xp:70},
+  {n:'地獄級',lv:[62,67,72,77,84],wt:['KMR','KMR','KMR','KMR','KMR'],ar:'GR',e:[36,40,44,47,50],mul:[.93,.93,.93,.93,.97],boss:'獄門のヴァル',xp:120}];
+/* tuned by simulation (heal 50%), raised twice at the user's request ("もっと上げて"):
+   初級 Lv35 UR+10 ~50%, 中級 Lv50 KMR+20 ~43%, 上級 Lv60 KMR+40 ~35%, 地獄級 Lv80 all KMR+50 ~20% */
 const XQ_HEAL=.5;let XR=null;/* the run in progress: grade t, opponent index i, HP carried in */
 function xqOpp(t,i){const g=XQ[t],last=i===4,w=QW[(t*2+i)%4],rr=rngOf(t*131+i*17+5),hc=Object.keys(HAIRC),ec=Object.keys(EYEC),wr=g.wt[i],ar=last?QRAR[Math.min(5,QRAR.indexOf(g.ar)+1)]:g.ar,e=g.e[i];
   const eq=[[w[1]+wr,wr,e],[['yga','sma','tca'][(t+i)%3],ar,e]];if(t>1||last)eq.push([['ygx','smx','tcx'][(t+i)%3],ar,e]);
@@ -1546,10 +1559,27 @@ function oppCard(o,i){const f=fighterOpp(o);const b=mk('button','op'+(S.opp===i?
   ready.then(()=>{const s=sprite(o.look),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle='#22402a';g.fillRect(0,0,30,30);g.drawImage(s.base,Math.round(s.cx-15),Math.max(0,s.d.top-2),30,30,0,0,30,30)});
   const w=f.wt;b.append(c);b.insertAdjacentHTML('beforeend','<div><b>'+o.name+'</b><small>'+WT[w].n+'・必殺技 '+spOf(w,f.wr).sp+'</small></div><em>Lv'+o.lv+'<br>戦闘力 '+power(f.st)+'</em>');b.onclick=()=>{S.opp=i;save();renderFight()};return b}
 function renderFight(){const box=$('opps');box.replaceChildren(...OPP.map(oppCard));renderQuest();renderXq();if(HOST){const n=HOST.left();$('go').textContent=n>0?'選んだ仲間と対戦する(今日あと'+n+'回)':'今日の仲間との対戦は終わり(朝5時に戻る)';$('go').disabled=n<=0}}
-function startBattle(qo,opt){const cpu=!!(qo&&(qo.stage||qo.xq));if(!(qo&&qo.xq))XR=null;if(HOST&&!cpu){if(!OPP[S.opp])return;if(HOST.left()<=0){toastB('今日の仲間との対戦は5回とも終わりました(朝5時に戻ります)');return}}const seed=(Date.now()&0xffffff),A=fighterMe(),B=fighterOpp(cpu?qo:OPP[S.opp]);const res=timeline(simulate(A,B,seed,opt&&opt.hp0!=null?{hp0:opt.hp0}:{}));BT={res,F:[A,B],quest:qo&&qo.stage?qo:null,xq:qo&&qo.xq?qo:null,seed,opp:cpu?null:OPP[S.opp]};$('bskip').hidden=cpu;T=RM?res.endReal:0;playing=true;$('ctl').hidden=false;$('result').className='result';
-  const L=$('log');L.replaceChildren();const nm=[A.name,B.name];for(const e of res.ev){const dm=e.hits.filter(h=>!h.miss).reduce((a,h)=>a+h.dmg,0),cr=e.hits.some(h=>h.crit),ms=e.hits.every(h=>h.miss);
-    const li=mk('li',e.special?'k':'',nm[e.who]+(e.special?'の必殺技「'+spOf(e.wt,e.wr).sp+'」':'の攻撃')+' → '+(ms?'かわされた':dm+'ダメージ'+(cr?'(会心)':''))+(e.heal?'、'+e.heal+'回復':'')+(e.ab?'(能力「'+e.ab+'」)':''));L.append(li)}
-  L.append(mk('li','k',(res.win===0?'あなたの勝ち':'あなたの負け')));$('stage').scrollIntoView({behavior:RM?'auto':'smooth',block:'nearest'})}
+function battleLog(res,A,B){const L=$('log');L.replaceChildren();const nm=[A.name,B.name];for(const e of res.ev){const dm=e.hits.filter(h=>!h.miss).reduce((a,h)=>a+h.dmg,0),cr=e.hits.some(h=>h.crit),ms=e.hits.every(h=>h.miss);
+    const li=mk('li',e.special?'k':'',nm[e.who]+(e.special?'の必殺技「'+spOf(e.wt,e.wr).sp+'」':'の攻撃')+' → '+(ms?'かわされた':dm+'ダメージ'+(cr?'(会心)':''))+(e.heal?'、'+e.heal+'回復':'')+(e.ab?'(能力「'+e.ab+'」)':'')+(e.tap?(e.who===0?(e.tap==='p'?'【PERFECT 1.4倍】':'【GOOD 1.2倍】'):(e.tap==='p'?'【PARRY ダメージ0.2倍】':'【GUARD ダメージ0.6倍】')):''));L.append(li)}
+  L.append(mk('li','k',(res.win===0?'あなたの勝ち':'あなたの負け')));}
+/* ---------- timed taps: a ring closes on whoever is about to be hit; tap as it closes ----------
+   modelled on the action commands of Paper Mario / Mario & Luigi (a tap at the moment of impact) and the dodge/parry pair of
+   Clair Obscur (a wide window that softens the blow, a tight one that cancels it and pays you back) */
+const TAP_LEAD=.7,TAP_P=[-.08,.05],TAP_G=[-.22,.08];
+function tapNow(){if(!BT||!playing||BT.res.demo)return;const R=BT.res,Tr=T;BT.inp=BT.inp||{};BT.tapAt=BT.tapAt||{};
+  let best=-1,bd=9;R.ev.forEach((e,k)=>{if(e.rt==null||BT.inp[k])return;const d=Tr-e.rt;if(d<-TAP_LEAD||d>TAP_G[1])return;if(Math.abs(d)<bd){bd=Math.abs(d);best=k}});if(best<0)return;
+  const e=R.ev[best],d=Tr-e.rt,g=d>=TAP_P[0]&&d<=TAP_P[1]?'p':d>=TAP_G[0]&&d<=TAP_G[1]?'g':'e';BT.inp[best]=g;BT.tapAt[best]={g,t:Tr,who:e.who};
+  if(g==='e')return;const res=timeline(simulate(BT.F[0],BT.F[1],BT.seed,Object.assign({},BT.opt||{},{inp:BT.inp})));BT.res=res;battleLog(res,BT.F[0],BT.F[1])}
+$('stage').addEventListener('pointerdown',e=>{if(BT&&playing&&!BT.res.demo){e.preventDefault();tapNow()}});
+document.addEventListener('keydown',e=>{if((e.code==='Space'||e.key===' ')&&BT&&playing&&!BT.res.demo){e.preventDefault();tapNow()}});
+function tapFx(pos){if(!BT||BT.res.demo||RM)return;const R=BT.res,Tr=TRL;
+  const ring=(cx,cy,r,col,a,w)=>{w=w||2;G.save();G.globalAlpha=a;const n=Math.max(24,Math.round(r*5));for(const pass of [0,1]){G.fillStyle=pass?col:'#160d14';const o=pass?0:1;for(let q=0;q<n;q++){const t=q/n*Math.PI*2;G.fillRect(Math.round(cx+Math.cos(t)*r)-1-o,Math.round(cy+Math.sin(t)*r*.86)-1-o,w+o*2,w+o*2)}}G.restore()};
+  R.ev.forEach((e,k)=>{if(e.rt==null)return;const j=1-e.who,cx=pos[j].x,cy=GY-112,col=e.who===0?'#ffe066':'#7fe8ff',got=BT.tapAt&&BT.tapAt[k];
+    const u=(e.rt-Tr)/TAP_LEAD;if(!got&&u>0&&u<=1){const a=Math.min(1,(1-u)/.25);ring(cx,cy,14,'#ffffff',.55*a,1);ring(cx,cy,14+50*u,col,a,u<.25?3:2);if(u<.35)ptext(G,'TAP',cx,cy-58,col,2,a)}
+    if(got){const v=Tr-got.t;if(v<0||v>.8)return;const L={p:e.who===0?'PERFECT':'PARRY',g:e.who===0?'GOOD':'GUARD',e:'EARLY'}[got.g],c=got.g==='e'?'#a9a4b8':got.g==='p'?(e.who===0?'#ffe066':'#7fe8ff'):'#ffffff';
+      const a=1-clamp((v-.55)/.25,0,1);ptext(G,L,cx,GY-40-eo(Math.min(1,v/.25))*10,c,got.g==='p'?3:2,a);if(got.g==='p'&&v<.3)ring(cx,cy,14+v*120,c,1-v/.3)}})}
+function startBattle(qo,opt){const cpu=!!(qo&&(qo.stage||qo.xq));if(!(qo&&qo.xq))XR=null;if(HOST&&!cpu){if(!OPP[S.opp])return;if(HOST.left()<=0){toastB('今日の仲間との対戦は5回とも終わりました(朝5時に戻ります)');return}}const seed=(Date.now()&0xffffff),A=fighterMe(),B=fighterOpp(cpu?qo:OPP[S.opp]);const res=timeline(simulate(A,B,seed,opt&&opt.hp0!=null?{hp0:opt.hp0}:{}));BT={res,F:[A,B],quest:qo&&qo.stage?qo:null,xq:qo&&qo.xq?qo:null,seed,opp:cpu?null:OPP[S.opp],opt:opt&&opt.hp0!=null?{hp0:opt.hp0}:{},inp:{},tapAt:{}};$('bskip').hidden=cpu;T=RM?res.endReal:0;playing=true;$('ctl').hidden=false;$('result').className='result';
+  battleLog(res,A,B);$('stage').scrollIntoView({behavior:RM?'auto':'smooth',block:'nearest'})}
 function finish(){const R=BT.res,won=R.win===0;if(R.demo){const el=$('result');el.className='result on';$('resT').textContent='';$('resS').textContent='タップで閉じる';$('ctl').hidden=true;return}const el=$('result');el.className='result on'+(won?'':' lose');$('resT').textContent=won?'WIN':'LOSE';
   if(BT.xq){xqFinish(won);return}
   const qo=BT.quest,cp=qo?QCHEST_P:CHEST_P;if(HOST){finishHost(won,qo,cp);$('ctl').hidden=true;return}const got=Math.random()<cp;let qt='';if(qo){if(won&&qo.stage>S.qs){S.qs=qo.stage;save();renderQuest();qt='ステージ'+qo.stage+' クリア!初回報酬 +'+(qo.boss?100:30)+'pt。'}else if(won)qt='ステージ'+qo.stage+' クリア。';else qt='ステージ'+qo.stage+'、もう一度挑戦できます。'}$('resS').textContent=qt+(got?'宝箱を手に入れた('+Math.round(cp*100)+'%)':'宝箱は出なかった('+Math.round(cp*100)+'%)');$('ctl').hidden=true}
@@ -1575,7 +1605,7 @@ function renderTry(){const box=$('trylist');box.replaceChildren();for(const [wt]
 function startTry(kind){const A=tryFighter(),B0=fighterOpp(OPP[S.opp]),B=Object.assign({},B0,{name:'練習相手',st:Object.assign({},B0.st,{hp:9999})});
   const res=timeline(simulate(A,B,(Date.now()&0xffffff),{demo:kind}));res.demo=1;BT={res,F:[A,B]};T=RM?res.endReal:0;playing=true;$('ctl').hidden=false;$('result').className='result';$('stage').scrollIntoView({behavior:RM?'auto':'smooth',block:'nearest'})}
 $('trysp').onclick=()=>startTry('sp');$('tryatk').onclick=()=>startTry('atk');
-$('tryeq').onclick=()=>{const key=tryKey(TRY.wt,TRY.r);if(!key)return;let it=S.inv.find(x=>x.k===key&&x.r===TRY.r);if(!it){it={id:S.nid++,k:key,r:TRY.r};S.inv.push(it)}S.eq.w=it.id;changed()};
+$('tryeq').onclick=()=>{/* the try tab is prototype only: in the app it must not hand out weapons */if(HOST)return;const key=tryKey(TRY.wt,TRY.r);if(!key)return;let it=S.inv.find(x=>x.k===key&&x.r===TRY.r);if(!it){it={id:S.nid++,k:key,r:TRY.r};S.inv.push(it)}S.eq.w=it.id;changed()};
 
 /* ---------- glue ---------- */
 /* redraw only (no saving): used when new data arrives from the app, so a save never answers a save */
