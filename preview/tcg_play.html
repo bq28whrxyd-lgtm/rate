@@ -984,6 +984,16 @@ body.gkview .scr{display:none!important}
 /* スーパーレア (HR): a platinum frame between レア and ガチレア's gold */
 .u.r-HR{box-shadow:var(--under,0 0 0 0 transparent),0 0 0 1px #000,0 0 0 2px #a9e6ff,0 0 14px #7cc8ff55,0 10px 18px #000b}
 .u.r-HR .face>.art::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,#ffffff38 48%,#a6f0ff2a 54%,transparent 66%);background-size:100% 100%;animation:holoT 3.6s linear infinite;will-change:transform;pointer-events:none}
+/* the opponent's spell or trap: its effect written out under the card while it is shown */
+.scfx{left:50%;z-index:47;transform:translateX(-50%);width:min(92vw,360px);display:flex;flex-direction:column;gap:4px;padding:12px 14px 10px;border-radius:14px;background:#120e2cf5;border:1px solid #ffffff22;border-top:3px solid #5ee3b0;box-shadow:0 18px 40px #000c;color:#fff;text-align:left;pointer-events:none}
+.scfx.trap{border-top-color:#b48cff}
+.scfx small{font-size:11px;font-weight:700;color:#b9b4dc;letter-spacing:.04em}
+.scfx b{font-size:17px;line-height:1.25}
+.scfx span{font-size:14px;line-height:1.55;color:#eeeaff}
+.scfx em{align-self:flex-end;font-style:normal;font-size:10.5px;color:#9a94c4;margin-top:2px}
+/* the opponent's notices in the side feed show the whole effect */
+.notice.full span{-webkit-line-clamp:unset;display:block;font-size:11.5px}
+.notice.full{background:linear-gradient(90deg,#1b1442f5,#17123ae8)}
 
 /* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
    hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
@@ -1404,57 +1414,57 @@ const X1=(f,L)=>{if(EXP1)add(f,L.map(c=>Object.assign({set:1},c)))};
 X1('weak',[
  {id:'w9',n:'元カノを引きずる男',r:'HR',type:'chara',c:2,atk:1100,def:1000,kw:{revenge:1},aw:{k:'atk',n:600}},
  {id:'w10',n:'土下座',r:'R',type:'spell',c:0,quick:1,ops:[{op:'debuffAll',atk:700,temp:1},{op:'draw',n:1}]},
- {id:'w11',n:'下剋上の王',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,atk:3200,def:2400,kw:{rush:1,adv:500},onPlay:[{op:'ifBehind',ops:[{op:'destroyBest'}]}],aw:{k:'twice'}},
+ {id:'w11',n:'下剋上の王',r:'SR',type:'chara',c:2,trib:2,same:1,lim:1,atk:3700,def:2900,kw:{rush:1,guts:1,adv:500},onPlay:[{op:'ifBehind',ops:[{op:'destroyBest'}]}],aw:{k:'twice'}},
 ]);
 X1('girl',[
  {id:'q9',n:'増殖するブス',r:'HR',type:'spell',c:0,quick:1,ops:[{op:'draw',n:1},{op:'fx',k:'dos'}]},
  {id:'q10',n:'ブスの言い訳',r:'HR',type:'trap',c:2,lim:1,when:'play',ops:[{op:'negate'},{op:'seal',n:1}]},
- {id:'q11',n:'ブスの女帝',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3300,def:2500,onPlay:[{op:'starDownAll',n:1}],aw:{k:'ops',ops:[{op:'starDownAll',n:2}]}},
+ {id:'q11',n:'ブスの女帝',r:'SR',type:'chara',c:2,trib:2,same:1,lim:1,kw:{rush:1,guts:1},atk:3800,def:3000,onPlay:[{op:'starDownAll',n:1}],aw:{k:'ops',ops:[{op:'starDownAll',n:2}]}},
 ]);
 X1('gay',[
  {id:'y9',n:'二丁目の常連',r:'HR',type:'chara',c:2,atk:1000,def:1200,kw:{bond:300},onPlay:[{op:'drawIfTribe',f:'gay',min:3,n:1}],aw:{k:'buffAll',atk:300,def:300,others:1}},
  {id:'y10',n:'ゲイの誘惑',r:'HR',type:'spell',c:4,lim:1,tgt:'enemyStar',max:2,ops:[{op:'steal'}]},
- {id:'y11',n:'漢の楽園の主',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3100,def:2900,onPlay:[{op:'revive',f:'gay',maxC:9,n:2}],aw:{k:'evoAll'}},
+ {id:'y11',n:'漢の楽園の主',r:'SR',type:'chara',c:2,trib:2,same:1,lim:1,kw:{rush:1,guts:1},atk:3600,def:3400,onPlay:[{op:'revive',f:'gay',maxC:9,n:2}],aw:{k:'evoAll'}},
 ]);
 X1('gachi',[
  {id:'g9',n:'転売ヤー',r:'N',type:'chara',c:2,atk:1300,def:900,onDeath:[{op:'discard',n:1}],aw:{k:'draw',n:1}},
  {id:'g10',n:'限定グッズ争奪戦',r:'R',type:'spell',c:1,quick:1,ops:[{op:'draw',n:1},{op:'drainE',n:1}]},
- {id:'g11',n:'石油王',r:'SR',type:'chara',c:4,trib:2,same:1,lim:1,kw:{rush:1},atk:3200,def:2700,onPlay:[{op:'ramp',n:1},{op:'draw',n:1}],aw:{k:'draw',n:2}},
+ {id:'g11',n:'石油王',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1,guts:1},atk:3700,def:3200,onPlay:[{op:'ramp',n:1},{op:'draw',n:1}],aw:{k:'draw',n:2}},
 ]);
 X1('idol',[
- {id:'i9',n:'推し変されたアイドル',r:'N',type:'chara',c:2,atk:1100,def:1200,onDeath:[{op:'revive',maxC:2}],aw:{k:'heal',n:800}},
+ {id:'i9',n:'推し変されたアイドル',r:'N',type:'chara',c:2,atk:1100,def:1200,onDeath:[{op:'revive',maxC:2,not:'i9'}],aw:{k:'heal',n:800}},
  {id:'i10',n:'握手会の剥がし',r:'HR',type:'trap',c:2,when:'attack',ops:[{op:'bounce'}]},
- {id:'i11',n:'頂点アイドルユニット',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3000,def:2800,onPlay:[{op:'heal',n:1200},{op:'buffAll',atk:0,def:400,others:1}],aw:{k:'heal',n:2000}},
+ {id:'i11',n:'頂点アイドルユニット',r:'SR',type:'chara',c:2,trib:2,same:1,lim:1,kw:{rush:1,guts:1},atk:3500,def:3300,onPlay:[{op:'heal',n:1200},{op:'buffAll',atk:0,def:400,others:1}],aw:{k:'heal',n:2000}},
 ]);
 X1('vt',[
  {id:'v9',n:'同接1人の配信者',r:'R',type:'chara',c:1,atk:1000,def:1000,onPlay:[{op:'coinN',n:2,h:[{op:'gauge',n:1}]}],aw:{k:'draw',n:1}},
  {id:'v10',n:'凸待ち',r:'R',type:'spell',c:1,ops:[{op:'coin',h:[{op:'summonFromHand',maxC:3}],t:[{op:'draw',n:1}]}]},
- {id:'v11',n:'伝説の炎上回',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3200,def:2200,onPlay:[{op:'coinN',n:3,h:[{op:'burn',n:500}]}],aw:{k:'ops',ops:[{op:'coinN',n:3,h:[{op:'burn',n:500}]}]}},
+ {id:'v11',n:'伝説の炎上回',r:'SR',type:'chara',c:2,trib:2,same:1,lim:1,kw:{rush:1,guts:1},atk:3700,def:2700,onPlay:[{op:'coinN',n:3,h:[{op:'burn',n:500}]}],aw:{k:'ops',ops:[{op:'coinN',n:3,h:[{op:'burn',n:500}]}]}},
 ]);
 X1('cre',[
  {id:'c9',n:'トレパク疑惑の絵師',r:'N',type:'chara',c:2,atk:1000,def:1100,onPlay:[{op:'copyAtk'}],aw:{k:'atk',n:500}},
  {id:'c10',n:'著作権の申し立て',r:'N',type:'trap',c:2,when:'spell',ops:[{op:'negate'},{op:'stealSpell'}]},
- {id:'c11',n:'大御所漫画家',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3000,def:2800,onPlay:[{op:'starAll',n:1,others:1}],aw:{k:'buffAll',atk:300,def:300,others:1}},
+ {id:'c11',n:'大御所漫画家',r:'SR',type:'chara',c:2,trib:2,same:1,lim:1,kw:{rush:1,guts:1},atk:3500,def:3300,onPlay:[{op:'starAll',n:1,others:1}],aw:{k:'buffAll',atk:300,def:300,others:1}},
 ]);
 X1('chu',[
  {id:'d9',n:'包帯の少年',r:'R',type:'chara',c:2,atk:1400,def:800,kw:{revenge:1},aw:{k:'atk',n:600}},
  {id:'d10',n:'封印術式',r:'N',type:'spell',c:1,ops:[{op:'seal',n:2},{op:'draw',n:1}]},
- {id:'d11',n:'終焉の魔王',r:'SR',type:'chara',c:4,trib:2,same:1,lim:1,kw:{rush:1},atk:3500,def:2300,onPlay:[{op:'weakenAll',n:400}],onDeath:[{op:'burn',n:800}],aw:{k:'wipeLow',max:1500}},
+ {id:'d11',n:'終焉の魔王',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1,guts:1},atk:4000,def:2800,onPlay:[{op:'weakenAll',n:400}],onDeath:[{op:'burn',n:800}],aw:{k:'wipeLow',max:1500}},
 ]);
 X1('neta',[
  {id:'n9',n:'すべり芸人',r:'R',type:'chara',c:2,atk:500,def:1700,kw:{cover:1},onDeath:[{op:'debuffAll',atk:300}],aw:{k:'def',n:500}},
  {id:'n10',n:'すかし',r:'N',type:'trap',c:1,when:'attack',ops:[{op:'swapAttacker'}]},
- {id:'n11',n:'お笑い怪獣',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:2500,def:3200,onPlay:[{op:'swapAll'}],aw:{k:'ops',ops:[{op:'swapAll'}]}},
+ {id:'n11',n:'お笑い怪獣',r:'SR',type:'chara',c:2,trib:2,same:1,lim:1,kw:{rush:1,guts:1},atk:3000,def:3700,onPlay:[{op:'swapAll'}],aw:{k:'ops',ops:[{op:'swapAll'}]}},
 ]);
 X1('sei',[
  {id:'s9',n:'インスタ映え女子',r:'R',type:'chara',c:2,atk:1100,def:1100,kw:{star2:1},aw:{k:'atk',n:500}},
  {id:'s10',n:'全顔整形',r:'HR',type:'spell',c:3,ops:[{op:'starAll',n:1}]},
- {id:'s11',n:'整形界の女王',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:3100,def:2600,onPlay:[{op:'buffAll',atk:600,def:0,others:1}],aw:{k:'atk',n:800}},
+ {id:'s11',n:'整形界の女王',r:'SR',type:'chara',c:2,trib:2,same:1,lim:1,kw:{rush:1,guts:1},atk:3600,def:3100,onPlay:[{op:'buffAll',atk:600,def:0,others:1}],aw:{k:'atk',n:800}},
 ]);
 X1('hage',[
  {id:'o9',n:'つるピカ部長',r:'N',type:'chara',c:2,atk:1300,def:1500,onPlay:[{op:'breakTrapRand'}],aw:{k:'def',n:500}},
  {id:'o10',n:'ハゲの吐息',r:'N',type:'spell',c:0,tgt:'trapOpt',ops:[{op:'breakTrap'},{op:'debuffAll',atk:500,temp:1},{op:'draw',n:1}]},
- {id:'o11',n:'頭皮の帝王',r:'SR',type:'chara',c:3,trib:2,same:1,lim:1,kw:{rush:1},atk:2900,def:3300,onPlay:[{op:'breakTraps'},{op:'buffAll',atk:0,def:500,others:1}],aw:{k:'def',n:800}},
+ {id:'o11',n:'頭皮の帝王',r:'SR',type:'chara',c:2,trib:2,same:1,lim:1,kw:{rush:1,guts:1},atk:3400,def:3800,onPlay:[{op:'breakTraps'},{op:'buffAll',atk:0,def:500,others:1}],aw:{k:'def',n:800}},
 ]);
 X1('gen',[
  {id:'x5',n:'フェアリーライフ',r:'HR',type:'spell',c:1,ops:[{op:'ramp',n:1,now:1}]},
@@ -1542,7 +1552,7 @@ function text(c){const t=[],k=c.kw||{};
 function op(o){switch(o.op){case'draw':return o.n+'枚引く';case'drawIfAllies':return'味方のキャラが'+o.min+'体以上なら'+o.n+'枚引く';case'destroy':return'倒す';case'destroyBest':return'相手のATKが一番高いキャラ1体を倒す';
  case'buffAll':return(o.others?'ほかの味方キャラ全員':'味方キャラ全員')+'の'+(o.atk?'ATK+'+o.atk:'')+(o.atk&&o.def?'・':'')+(o.def?'DEF+'+o.def:'')+(o.temp?'(このターンだけ)':'');
  case'gauge':return'推しゲージ+'+o.n;case'heal':return'ライフを'+o.n+'回復';case'dmgAllEnemy':return'相手のキャラ全員のDEF-'+o.def;case'negate':return'それを無効にする';
- case'summonFromHand':return'手札から熱量'+o.maxC+'以下のキャラ1体をタダで出す';case'coin':return'コイントス。表なら'+(o.h||[]).map(op).join('・')+(o.t&&o.t.length?'、裏なら'+o.t.map(op).join('・'):'');case'rush':return'出たターンから攻撃できる';case'burn':return'相手のライフに'+o.n+'ダメージ';case'energy':return'このターン熱量+'+o.n;case'revive':return'自分の捨て札から'+(o.maxC<9?'熱量'+o.maxC+'以下の':'')+(o.f?FNAME[o.f]+'の':'')+'キャラ'+(o.n>1?o.n+'体まで':'1体')+'を場に戻す';case'starBest':return'自分のキャラで一番強い1体の★+'+o.n;
+ case'summonFromHand':return'手札から熱量'+o.maxC+'以下のキャラ1体をタダで出す';case'coin':return'コイントス。表なら'+(o.h||[]).map(op).join('・')+(o.t&&o.t.length?'、裏なら'+o.t.map(op).join('・'):'');case'rush':return'出たターンから攻撃できる';case'burn':return'相手のライフに'+o.n+'ダメージ';case'energy':return'このターン熱量+'+o.n;case'revive':return'自分の捨て札から'+(o.maxC<9?'熱量'+o.maxC+'以下の':'')+(o.f?FNAME[o.f]+'の':'')+'キャラ'+(o.n>1?o.n+'体まで':'1体')+(o.not?'(「'+BY[o.not].n+'」はのぞく)':'')+'を場に戻す';case'starBest':return'自分のキャラで一番強い1体の★+'+o.n;
  case'ifBehind':return'自分のライフが相手より少なければ、'+o.ops.map(op).join('・');case'debuffAll':return'相手のキャラ全員のATK-'+o.atk+(o.temp?'(このターンだけ)':'');case'weakenAll':return'相手のキャラ全員のATK・DEF-'+o.n;
  case'fx':return{dos:'このターンのあいだ、相手がキャラを出すたびに1枚引く',noSpell:'このターン、相手は魔法を使えない'}[o.k];case'seal':return'相手の伏せトラップを'+(o.n>1?'次の自分のターンの終わりまで':'次の自分のターンの終わりまで')+'封印する';
  case'starDownAll':return'相手のキャラ全員の★-'+o.n;case'starDown':return'★-'+o.n+'(覚醒していたら覚醒も解ける)';case'starDownBest':return'相手の★が一番高いキャラ1体の★-'+o.n;case'starAll':return(o.others?'ほかの味方キャラ全員':'味方キャラ全員')+'の★+'+o.n;
@@ -1607,7 +1617,7 @@ function run(g,pi,ops,ctx){if(!ops)return;ctx=ctx||{};for(const o of ops){if(g.o
   case'summonFromHand':{const L=P.slot.findIndex(x=>!x);if(L<0)break;const i=P.hand.map((id,i)=>[id,i]).filter(([id])=>BY[id].type==='chara'&&!BY[id].trib&&BY[id].c<=o.maxC).sort((a,b)=>BY[b[0]].atk-BY[a[0]].atk)[0];if(!i)break;P.hand.splice(i[1],1);place(g,pi,i[0],L,true);break}
   case'coin':{const h=g.r()<.5;ev(g,{t:'coin',who:pi,h});if(h&&tr(g,pi,'vt'))gauge(g,pi,1);run(g,pi,h?o.h:o.t,ctx);break}
   case'energy':P.energy+=o.n;ev(g,{t:'energy',who:pi,n:o.n});break;
-  case'revive':if((o.n||1)>1){for(let k=0;k<o.n;k++)run(g,pi,[Object.assign({},o,{n:1})],ctx);break}{const L=P.slot.findIndex(x=>!x);if(L<0)break;const c=P.gy.map((id,i)=>[id,i]).filter(([id])=>BY[id].type==='chara'&&!BY[id].trib&&BY[id].c<=(o.maxC||9)&&(!o.f||BY[id].f===o.f)).sort((a,b)=>BY[b[0]].atk-BY[a[0]].atk)[0];if(!c)break;P.gy.splice(c[1],1);ev(g,{t:'revive',who:pi,id:c[0]});place(g,pi,c[0],L,true);break}
+  case'revive':if((o.n||1)>1){for(let k=0;k<o.n;k++)run(g,pi,[Object.assign({},o,{n:1})],ctx);break}{const L=P.slot.findIndex(x=>!x);if(L<0)break;const c=P.gy.map((id,i)=>[id,i]).filter(([id])=>BY[id].type==='chara'&&!BY[id].trib&&BY[id].c<=(o.maxC||9)&&(!o.f||BY[id].f===o.f)&&id!==o.not).sort((a,b)=>BY[b[0]].atk-BY[a[0]].atk)[0];if(!c)break;P.gy.splice(c[1],1);ev(g,{t:'revive',who:pi,id:c[0]});place(g,pi,c[0],L,true);break}
   case'starBest':{const m=units(g,pi).filter(x=>x.star<3).sort((a,b)=>b.star-a.star||ATK(g,b)-ATK(g,a))[0];if(m)starUp(g,m,o.n,'effect');break}
   case'rush':if(ctx.self){ctx.self.rush=true;ev(g,{t:'rush',uid:ctx.self.uid})}break;
   /* ---- 修羅場パック ---- */
@@ -2656,19 +2666,25 @@ async function renderAnimated(S){const old=view;
   const od=S.p[1-H].hand.length-oldHand[1];for(let i=0;i<Math.min(od,4);i++)await flyCard($('oppAv'),$('oppHand'),null,220)}
 function notice(id,who,kind,ga){const c=BY[id];const n=el('button','notice '+kind+(who===H?' me':''));const a=el('div','na');a.append(artEl(id,ga|0));
   const tx=el('div','nt');tx.append(el('small',null,(who===H?'あなた':'相手')+'の'+{sum:'登場',spell:'魔法',trap:'トラップ',stack:'育成'}[kind]),el('b',null,c.n),el('span',null,CD.text(c).replace(/\n/g,' ')));n.append(a,tx);
-  n.onclick=()=>cardSheet(id,null,null,ga|0);const feed=$('feed');feed.prepend(n);[...feed.children].slice(1).forEach(x=>x.remove());
+  n.onclick=()=>cardSheet(id,null,null,ga|0);if(who!==H)n.classList.add('full');const feed=$('feed');feed.prepend(n);[...feed.children].slice(who!==H?2:1).forEach(x=>x.remove());
   anim(n,[{transform:'translateX(-110%)',opacity:0},{transform:'none',opacity:1}],{duration:320,easing:'cubic-bezier(.2,1.1,.3,1)',fill:'none'});
-  setTimeout(()=>{anim(n,[{opacity:1},{opacity:0,transform:'translateX(-30%)'}],{duration:300}).then(()=>n.remove())},D(who===H?2600:4200))}
-async function showcase(id,who,kind,ga){const fr=rectOf($('field'));const c=bigCard(id,false,false,ga|0);c.classList.add('ghost','show');const w=Math.min(170,fr.width*.42);
+  setTimeout(()=>{if(!n.isConnected)return;anim(n,[{opacity:1},{opacity:0,transform:'translateX(-30%)'}],{duration:300}).then(()=>n.remove())},D(who===H?2600:7000))}
+async function showcase(id,who,kind,ga){const fr=rectOf($('field'));const c=bigCard(id,false,false,ga|0);c.classList.add('ghost','show');const opp=who!==H&&kind!=='ace',w=Math.min(opp?150:170,fr.width*(opp?.38:.42));
   c.style.width=w+'px';c.style.left=(fr.left+fr.width/2-w/2)+'px';c.style.top=(fr.top+fr.height/2-w*86/59/2)+'px';const col=kind==='trap'?'#b48cff':kind==='ace'?'#ffd36b':'#5ee3b0';c.style.setProperty('--gc',col);
   const halo=fx('halo','left:'+(fr.left+fr.width/2)+'px;top:'+(fr.top+fr.height/2)+'px;--c:'+col);document.body.append(c);
   const lab=fx('slab '+kind,'top:'+(fr.top+fr.height/2-w*86/59/2-6)+'px');lab.textContent={spell:'魔法発動',trap:'トラップ発動',ace:''}[kind];if(kind==='ace')lab.style.display='none';
   anim(halo,[{transform:'translate(-50%,-50%) scale(.2)',opacity:0},{transform:'translate(-50%,-50%) scale(1)',opacity:1}],{duration:380,easing:'ease-out'});
   anim(lab,[{transform:'translateX(-50%) skewX(-12deg) scaleX(0)'},{transform:'translateX(-50%) skewX(-12deg) scaleX(1)'}],{duration:260,easing:'cubic-bezier(.2,1.2,.3,1)'});
   await anim(c,[{transform:'translateY('+(who===H?60:-60)+'px) scale(.5) rotateY(80deg)',opacity:0},{transform:'none',opacity:1}],{duration:420,easing:'cubic-bezier(.2,1.2,.4,1)'});
-  await wait(who===H?650:1100);const [x,y]=ctr(c);sparks(x,y,col,22,120);
-  anim(halo,[{opacity:1},{opacity:0}],{duration:300}).then(()=>halo.remove());anim(lab,[{opacity:1},{opacity:0}],{duration:240}).then(()=>lab.remove());
+  let pn=null;if(opp){/* the opponent's card: what it does, written out large under the card, until a tap (or a few seconds) */
+    const cb=c.getBoundingClientRect();pn=fx('scfx '+kind,'top:'+Math.round(Math.min(innerHeight-150,cb.bottom+10))+'px');pn.append(el('small',null,'相手の'+(kind==='trap'?'トラップ':'魔法')),el('b',null,BY[id].n));
+    CD.text(BY[id]).split('\n').forEach(t=>{if(t)pn.append(el('span',null,t))});pn.append(el('em',null,'タップで次へ'));
+    anim(pn,[{transform:'translateX(-50%) translateY(12px)',opacity:0},{transform:'translateX(-50%)',opacity:1}],{duration:260,easing:'cubic-bezier(.2,1,.3,1)'})}
+  if(opp)await tapOr(FAST?10:3400,500);else await wait(650);const [x,y]=ctr(c);sparks(x,y,col,22,120);
+  anim(halo,[{opacity:1},{opacity:0}],{duration:300}).then(()=>halo.remove());anim(lab,[{opacity:1},{opacity:0}],{duration:240}).then(()=>lab.remove());if(pn)anim(pn,[{opacity:1},{opacity:0}],{duration:220}).then(()=>pn.remove());
   await anim(c,[{transform:'none',opacity:1,filter:'brightness(1)'},{transform:'scale(1.15)',opacity:0,filter:'brightness(3) blur(4px)'}],{duration:320,easing:'ease-in'});c.remove()}
+/* wait up to ms; a tap anywhere ends it early, but not before min */
+function tapOr(ms,min){return new Promise(res=>{const t0=performance.now();let done=false;const end=()=>{if(done)return;done=true;clearTimeout(tm);removeEventListener('pointerdown',on,true);res()};const on=()=>{if(performance.now()-t0>=min)end()};const tm=setTimeout(end,ms);addEventListener('pointerdown',on,true)})}
 let aimUid=null;
 async function aim(ev){const a=uidEl(ev.uid);if(!a)return;aimUid=ev.uid;a.classList.add('charge');a.style.zIndex=20;
   await anim(a,[{transform:'none'},{transform:'translateY('+(ev.who===H?-10:10)+'px) scale(1.07)'}],{duration:200});
@@ -3026,7 +3042,8 @@ async function playEvents(evs){for(let i=0;i<evs.length;i++){const e=evs[i];LOG.
   case'revive':notice(e.id,e.who,'sum');caption('「'+BY[e.id].n+'」がステージに戻ってきた');break;
   case'reshuffle':caption((e.who===H?'あなた':'相手')+'の捨て札を山札に戻した');await wait(400);break;
   }}settle()}
-async function step(evs,S){scrMark(evs,S);queueSpectator(evs);await playEvents(evs);await renderAnimated(S)}
+/* an effect that throws must not leave the match frozen: the board is simply redrawn */
+async function step(evs,S){try{scrMark(evs,S);queueSpectator(evs);await playEvents(evs)}catch(e){console.warn('fx',e);try{settle()}catch(_){}document.querySelectorAll('.ghost,.fx').forEach(x=>x.remove())}try{await renderAnimated(S)}catch(e){try{render(S)}catch(_){}}}
 
 /* ---------- sheets ---------- */
 function closeSheets(){document.querySelectorAll('.sheetw').forEach(x=>x.remove())}
@@ -3166,8 +3183,8 @@ function startPvp(P){NET=P;const other=P.side==='a'?'b':'a',second=P.first==='a'
   view=snap();view.p.forEach(Pp=>{Pp.deckN+=Pp.hand.length;Pp.hand=[]});show('s-game');render(view);dealOpening()}
 
 /* ---------- turn flow ---------- */
-async function act1(fn){if(busy||!g||g.over)return;closeSheets();busy=true;mode=null;g.ev=[];const ok=fn();if(ok===false){busy=false;toast('今はできません');render(snap());return}
-  const evs=g.ev.splice(0);render(view);await step(evs,snap());busy=false;render(snap());if(g.over)finish()}
+async function act1(fn){if(busy||!g||g.over)return;closeSheets();busy=true;mode=null;g.ev=[];let ok;try{ok=fn()}catch(e){console.warn(e);ok=false}if(ok===false){busy=false;toast('今はできません');render(snap());return}
+  const evs=g.ev.splice(0);try{render(view);await step(evs,snap())}finally{busy=false}render(snap());if(g.over)finish()}
 /* a character of mine: the opponent may answer with a 'summon' trap */
 async function summonMine(hi,L,tribs){if(NET){if(busy||!g||g.over)return;const u=E.window(g,'summon');const ans=u.length?await netAsk('summon',{hand:hi}):0;return act1(()=>X('playChara',hi,L,tribs,ans))}
   return act1(()=>{const u=E.window(g,'summon');const ans=u.length?AI.answer(g,1-H,'summon',{id:g.p[H].hand[hi]},u):0;return (pend(hi),E.playChara(g,H,hi,L,tribs,ans))})}
@@ -3198,6 +3215,7 @@ async function castMine(hi,target){if(NET){if(busy||!g||g.over)return;const u=E.
 async function doAttack(uid,target){mode=null;if(NET){if(busy||!g||g.over)return;const m=E.find(g,uid);if(!m||!E.canAttack(g,H,m))return;const kind=target==='life'?'direct':'attack';const u=E.window(g,kind);const ans=u.length?await netAsk(kind,{uid,target}):0;return act1(()=>X('attack',uid,target,ans))}
   return act1(()=>{const m=E.find(g,uid);if(!m)return false;const kind=target==='life'?'direct':'attack';const u=E.window(g,kind);return E.attack(g,H,uid,target,u.length?AI.answer(g,1-H,kind,{attacker:m,target},u):0)})}
 function useSkill(target){return act1(()=>X('skill',target))}
+let stuckS=0;setInterval(()=>{if(!g||g.over||g.cur!==H||!busy||askRes||qkRes||qaRes||document.querySelector('.sheetw')||(NET&&waitingRemote)){stuckS=0;return}if(++stuckS>=15){stuckS=0;busy=false;try{settle()}catch(_){}render(snap());if(!timer)startTimer();caption('止まっていたので操作できるように戻しました')}},1000);
 function startTimer(){stopTimer();left=TURN_SEC;timer=setInterval(()=>{if(busy||document.querySelector('.sheetw'))return;left--;tickEnd();if(left<=0)endMyTurn(true)},1000)}
 function stopTimer(){if(timer)clearInterval(timer);timer=null}
 async function beginTurn(){if(g.over)return finish();const mine=g.cur===H;busy=true;render(view);
@@ -3248,7 +3266,7 @@ $('goDeck').onclick=deckScreen;$('goHelp').onclick=helpSheet;
 const PVP=HOST&&HOST.pvp?HOST.pvp():null;
 if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(CPU_GO)cpuGo(CPU_GO);else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
 clearTimeout(window.__tcgBootTimer);if(document.documentElement.classList.contains('tcg-embedded')&&!HOST&&!(WATCH&&window.parent!==window&&window.parent.TCGWATCH)){const b=$('tcgBoot');b.classList.add('slow');b.querySelector('[role="status"]').textContent='アプリから編成・対戦・観戦を開き直してください。'}else document.documentElement.classList.remove('tcg-booting');
-window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},endMyTurn,startMatch,E,AI};
+window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},endMyTurn,startMatch,E,AI};
 
 /* ===== v121 duel v2 (ui5_v2.js, appended after ui5_main.js) =====
    1) drawing is incremental: a lane, a hand card or an avatar is rebuilt only when what it shows has changed. Before, every
