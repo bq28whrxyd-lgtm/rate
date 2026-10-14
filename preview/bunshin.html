@@ -200,7 +200,7 @@ html.inapp .protoonly{display:none!important}html:not(.inapp) .hostonly{display:
     <div class="skill" id="skill"></div>
     <div class="sec protoonly"><h2>レア度の見本<small>試作用。剣はそのレア度の剣に持ち替え、ほかの武器はレア度だけ切り替えます</small></h2><div class="seg" id="rarsel"></div></div>
     <div class="sec hostonly"><h2>装備ガチャ<small>1回100pt・10連900pt</small></h2><div class="row2"><button type="button" class="btn main" id="ga1">1回引く</button><button type="button" class="btn main" id="ga10">10連(900pt)</button></div><div class="g10" id="g10" hidden></div>
-      <details class="odds"><summary>確率(ガチャと宝箱は同じ)</summary><table><tr><th>種類</th><td>武器 40%(剣・杖・槍・弓 各10%)・防具 30%・アクセ 30%</td></tr><tr><th>武器のレア度</th><td>R 70%・SR 25%・UR 4.5%・KMR 0.5%</td></tr><tr><th>防具・アクセ</th><td>N 59.95%・R 30%・SR 8%・UR 1.7%・GR 0.3%・KMR 0.05%</td></tr><tr><th>例</th><td>KMRの武器 0.2%・KMRの弓 0.05%(1回あたり)</td></tr></table></details></div>
+      <details class="odds"><summary>確率</summary><table><tr><th>種類</th><td>武器 40%(剣・杖・槍・弓 各10%)・防具 30%・アクセ 30%(ガチャも宝箱も同じ)</td></tr><tr><th>ガチャの武器</th><td>R 70%・SR 25%・UR 4.5%・KMR 0.5%</td></tr><tr><th>ガチャの防具・アクセ</th><td>N 59.95%・R 30%・SR 8%・UR 1.7%・GR 0.3%・KMR 0.05%</td></tr><tr><th>宝箱の武器</th><td>R 75%・SR 23.1%・UR 1.7%・KMR 0.2%</td></tr><tr><th>宝箱の防具・アクセ</th><td>N 62%・R 30.95%・SR 6.3%・UR 0.65%・GR 0.08%・KMR 0.02%</td></tr><tr><th>強化の素材</th><td>N・R・SRの装備はなんでも、URはR以上、GRとKMRはSR以上(同じ装備はいつでもOK・2倍)。必要量は SR 1.5倍・UR 2倍・GR 2.5倍・KMR 3倍</td></tr></table></details></div>
     <div class="sec"><h2>宝箱<small>対戦のたびに40%(クエスト10%)</small></h2><div class="chests" id="chests"></div>
       <p class="note protoonly">試作なので何回でも開けられます。武器は4段階(R 70%・SR 25%・UR 4.5%・KMR 0.5%)。防具とアクセはスキンガチャと同じ6段階(N 59.95%・R 30%・SR 8%・UR 1.7%・GR 0.3%・KMR 0.05%)。</p></div>
     <div class="enh" id="enh" hidden></div>
@@ -1373,11 +1373,13 @@ function drawChest(g,k,x,y,s,open){const c=CHESTS[k].c;g.save();g.translate(x,y)
   else{R(3,2,42,8,c[0]);R(4,3,40,6,c[1]);R(3,2,42,2,c[2]);R(3,8,42,2,c[2]);R(6,16,36,3,'#0c0a10')}
   R(21,14,6,8,c[2]);R(23,16,2,3,c[0]);R(22,15,4,1,c[3]);g.restore()}
 let OV=null;
-function pickChest(k){const pool=Object.keys(ITEMS).filter(x=>ITEMS[x].c),kinds=[...new Set(pool.map(x=>ITEMS[x].fam?'fam:'+ITEMS[x].fam:x))],kind=kinds[Math.floor(Math.random()*kinds.length)];let key=kind.startsWith('fam:')?pool.find(x=>ITEMS[x].fam===kind.slice(4)):kind;
+/* chests roll UR and above at about 40% of the gacha's odds; the rest goes to the lower tiers */
+const CHEST_W={R:75,SR:23.1,UR:1.7,KMR:.2},CHEST_A={N:62,R:30.95,SR:6.3,UR:.65,GR:.08,KMR:.02};
+function pickChest(k,src){const pool=Object.keys(ITEMS).filter(x=>ITEMS[x].c),kinds=[...new Set(pool.map(x=>ITEMS[x].fam?'fam:'+ITEMS[x].fam:x))],kind=kinds[Math.floor(Math.random()*kinds.length)];let key=kind.startsWith('fam:')?pool.find(x=>ITEMS[x].fam===kind.slice(4)):kind;
   /* weapons roll the four weapon tiers, armour and accessories the six skin-gacha tiers */
-  const isw=ITEMS[key].s==='w',TB=isw?WRAR:RAR,ord=isw?['KMR','UR','SR','R']:['KMR','GR','UR','SR','R','N'];let r=Math.random()*100,rar=ord[ord.length-1];for(const q of ord){if(r<TB[q].p){rar=q;break}r-=TB[q].p}
+  const isw=ITEMS[key].s==='w',ord=isw?['KMR','UR','SR','R']:['KMR','GR','UR','SR','R','N'],P=q=>src==='chest'?(isw?CHEST_W:CHEST_A)[q]:(isw?WRAR:RAR)[q].p;let r=Math.random()*100,rar=ord[ord.length-1];for(const q of ord){if(r<P(q)){rar=q;break}r-=P(q)}
   if(ITEMS[key].fam)key=famSword(ITEMS[key].fam,rar);return {key,rar}}
-function openChest(k){const {key,rar}=pickChest(k);
+function openChest(k){const {key,rar}=pickChest(k,'chest');
   const it={id:S.nid++,k:key,r:rar};S.inv.push(it);save();OV={k,it,t0:performance.now()};$('ov').hidden=false;$('got').innerHTML='';$('ovok').style.visibility='hidden';ovFrame()}
 const ocv=$('ocv'),OG=ocv.getContext('2d');
 function ovDraw(t){const g=OG,k=OV.k,it=OV.it,col=RCOL[it.r];g.setTransform(1,0,0,1,0,0);g.imageSmoothingEnabled=false;g.clearRect(0,0,160,140);
@@ -1404,17 +1406,23 @@ async function finishHost(won,qo,cp){const el=$('result');let qt='';
 function renderHostBar(){if(!HOST)return;$('hpt').textContent=HOST.points().toLocaleString()+'pt';$('pow').textContent=power(fighterMe().st)}
 /* enhancement: any spare item is material; the same item counts double */
 const MATV={N:1,R:2,SR:4,UR:10,GR:20,KMR:40};
-const enhCost=L=>L<=10?1:L<=30?2:3;
-function eOf(ex){let L=0,need=0;while(L<50){need+=enhCost(L+1);if(ex<need)break;L++}return L}
-function exNext(ex){let L=0,need=0;while(L<50){need+=enhCost(L+1);if(ex<need)return need-ex;L++}return 0}
+const TIX={N:0,R:1,SR:2,UR:3,GR:4,KMR:5};
+/* the higher the tier you grow, the better the material must be and the more it takes:
+   N・R・SR: any material / UR: R or better / GR・KMR: SR or better; the cost of each level x1 (N・R), x1.5 (SR), x2 (UR), x2.5 (GR), x3 (KMR) */
+const MATMIN={N:'N',R:'N',SR:'N',UR:'R',GR:'SR',KMR:'SR'},ENHX={N:1,R:1,SR:1.5,UR:2,GR:2.5,KMR:3};
+const matOk=(it,m)=>m.k===it.k||TIX[m.r]>=TIX[MATMIN[it.r]];
+const enhCost=(L,r)=>Math.ceil((L<=10?1:L<=30?2:3)*(ENHX[r]||1));
+function eOf(ex,r){let L=0,need=0;while(L<50){need+=enhCost(L+1,r);if(ex<need)break;L++}return L}
+function exNext(ex,r){let L=0,need=0;while(L<50){need+=enhCost(L+1,r);if(ex<need)return need-ex;L++}return 0}
+const exTotal=r=>{let n=0;for(let L=1;L<=50;L++)n+=enhCost(L,r);return n};
 let ENHT=null;
 function renderEnh(){const box=$('enh');if(!box)return;box.replaceChildren();const it=itemOf(ENHT);if(!it){box.hidden=true;return}box.hidden=false;
-  const head=mk('div','enhh');head.innerHTML=iconOf(it)+'<div><b class="r'+it.r+'">'+nameOf(it)+' +'+(it.e||0)+'</b><small>'+(it.e>=50?'最大まで強化済み':'次の+1まであと '+exNext(it.ex||0))+'・1段ごとに数字 +'+Math.round(ENH[it.r]*1000)/10+'%</small></div>';
+  const head=mk('div','enhh');head.innerHTML=iconOf(it)+'<div><b class="r'+it.r+'">'+nameOf(it)+' +'+(it.e||0)+'</b><small>'+(it.e>=50?'最大まで強化済み':'次の+1まであと '+exNext(it.ex||0,it.r))+'・1段ごとに数字 +'+Math.round(ENH[it.r]*1000)/10+'%・素材は'+(MATMIN[it.r]==='N'?'なんでも':MATMIN[it.r]+'以上')+'(同じ装備はOK)・+50まで '+exTotal(it.r)+'</small></div>';
   const x=mk('button','btn','閉じる');x.type='button';x.onclick=()=>{ENHT=null;renderEnh()};head.append(x);box.append(head);
   const used=new Set(Object.values(S.eq));const mats=S.inv.filter(m=>m.id!==it.id&&!used.has(m.id));
   if(!mats.length){box.append(mk('p','note','素材にできる装備がありません(装備中のものは使えません)'));return}
   const L=mk('div','inv');mats.sort((a,b)=>MATV[a.r]-MATV[b.r]).forEach(m=>{const v=MATV[m.r]*(m.k===it.k?2:1);const row=mk('div','it');row.innerHTML='<span>'+iconOf(m)+'</span><div><b>'+nameOf(m)+(m.e?' +'+m.e:'')+'</b><small><span class="r r'+m.r+'">'+rarOf(m).l+'</span> 素材 +'+v+(m.k===it.k?'(同じ装備で2倍)':'')+'</small></div>';
-    const b=mk('button','','素材にする');b.type='button';b.disabled=(it.e||0)>=50;b.onclick=()=>{it.ex=(it.ex||0)+v;it.e=eOf(it.ex);S.inv=S.inv.filter(q=>q.id!==m.id);changed();renderEnh()};row.append(b);L.append(row)});box.append(L)}
+    const ok=matOk(it,m),b=mk('button','',ok?'素材にする':MATMIN[it.r]+'以上が必要');b.type='button';b.disabled=(it.e||0)>=50||!ok;b.onclick=()=>{if(!matOk(it,m))return;it.ex=(it.ex||0)+v;it.e=eOf(it.ex,it.r);S.inv=S.inv.filter(q=>q.id!==m.id);changed();renderEnh()};row.append(b);L.append(row)});box.append(L)}
 /* the equipment gacha: 100pt a pull, 900pt for ten (no guaranteed slot) */
 function gachaPull(n){const cost=n===10?900:100;if(HOST.points()<cost){toastB('ポイントが足りません('+cost+'pt 必要)');return}
   const got=[];for(let i=0;i<n;i++){const {key,rar}=pickChest('all');const it={id:S.nid++,k:key,r:rar,e:0};S.inv.push(it);got.push(it)}
@@ -1422,7 +1430,7 @@ function gachaPull(n){const cost=n===10?900:100;if(HOST.points()<cost){toastB('�
   if(n===1){OV={k:'all',it:got[0],t0:performance.now()};$('ov').hidden=false;$('got').innerHTML='';$('ovok').style.visibility='hidden';ovFrame()}
   else{const ord={KMR:0,GR:1,UR:2,SR:3,R:4,N:5};got.sort((a,b)=>ord[a.r]-ord[b.r]);$('g10').innerHTML='<b>10連の結果</b>'+got.map(it=>'<div class="it"><span>'+iconOf(it)+'</span><div><b class="r'+it.r+'">'+nameOf(it)+'</b><small><span class="r r'+it.r+'">'+rarOf(it).l+'</span></small></div></div>').join('');$('g10').hidden=false;changed()}}
 function renderHostGear(){if(!HOST)return;const c=HOST.chests()-S.copen,box=$('chests');box.replaceChildren();const b=mk('button','chest');b.type='button';const cv2=document.createElement('canvas');cv2.width=48;cv2.height=40;drawChest(cv2.getContext('2d'),'all',0,0,1,0);b.append(cv2,mk('span',null,'宝箱 ×'+Math.max(0,c)),mk('em',null,c>0?'開ける':'なし'));b.disabled=c<=0;
-  b.onclick=()=>{if(HOST.chests()-S.copen<=0)return;S.copen++;const {key,rar}=pickChest('all');const it={id:S.nid++,k:key,r:rar,e:0};S.inv.push(it);saveNow();OV={k:'all',it,t0:performance.now()};$('ov').hidden=false;$('got').innerHTML='';$('ovok').style.visibility='hidden';ovFrame()};box.append(b)}
+  b.onclick=()=>{if(HOST.chests()-S.copen<=0)return;S.copen++;const {key,rar}=pickChest('all','chest');const it={id:S.nid++,k:key,r:rar,e:0};S.inv.push(it);saveNow();OV={k:'all',it,t0:performance.now()};$('ov').hidden=false;$('got').innerHTML='';$('ovok').style.visibility='hidden';ovFrame()};box.append(b)}
 function renderDef(){if(!HOST)return;const box=$('defs');if(!box)return;const L=HOST.defenses();box.replaceChildren();if(!L.length){box.append(mk('li',null,'まだ攻められていません'));return}
   L.slice(0,10).forEach(d=>{const li=mk('li',d.w?'':'k',d.name+'が攻めてきた → '+(d.w?'負けた':'守りきった +10pt')+'・'+d.when);if(d.w){const b=mk('button','','仕返し');b.type='button';b.onclick=()=>{const i=OPP.findIndex(o=>o.pid===d.a);if(i>=0){S.opp=i;renderFight();startBattle()}};li.append(b)}box.append(li)})}
 /* fight */
