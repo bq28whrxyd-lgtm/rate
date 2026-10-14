@@ -1507,8 +1507,12 @@ function questOpp(n){const rr=rngOf(n*7919+13),boss=n%10===0,w=QW[(n+(boss?1:0))
   const hc=Object.keys(HAIRC),ec=Object.keys(EYEC),e=Math.min(50,Math.floor(n*.35)+(boss?3:0));
   const eq=[[w[1]+wt,wt,e],[['yga','sma','tca'][n%3],ar,e]];if(n>=8)eq.push([['ygx','smx','tcx'][n%3],ar,e]);
   const name=boss?QB[(n/10-1)%QB.length]+(n>50?' 改':''):QN[w[0]][Math.min(3,Math.floor(n/12))];
-  return {name,lv:Math.round(1+n*.9)+(boss?2:0),look:{g:'m',hs:0,hc:hc[Math.floor(rr()*hc.length)],ec:ec[Math.floor(rr()*ec.length)]},eq,style:w[2],boss,stage:n}}
+  return {name,lv:Math.round(1+n*.9)+(boss?2:0),look:{g:'m',hs:0,hc:hc[Math.floor(rr()*hc.length)],ec:ec[Math.floor(rr()*ec.length)]},eq,style:w[2],boss,stage:n,mul:qMul(n)}}
 const QMAX=100;
+/* stage strength on top of the level and gear curve (raised at the user's request): a single fight is about
+   stage 10: Lv20 SR+5 55% / stage 30: Lv35 UR+10 45% / stage 50: Lv50 KMR+20 35% / stage 60-70: Lv60 KMR+40 50% / stage 90: Lv80 all KMR+50 35% / stage 100: same ~25% */
+const QMK=[[1,.99],[10,1.066],[20,1.047],[30,1.02],[40,1.067],[50,1.03],[60,1.056],[70,1.06],[80,1.05],[90,1.06],[100,1.17]];
+function qMul(n){for(let i=1;i<QMK.length;i++)if(n<=QMK[i][0]){const a=QMK[i-1],b=QMK[i];return a[1]+(b[1]-a[1])*(n-a[0])/(b[0]-a[0])}return 1}
 function renderQuest(){const box=$('quest');if(!box)return;const n=Math.min(QMAX,S.qs+1),o=questOpp(n);box.replaceChildren();
   const bar=mk('div','qbar');bar.innerHTML='<span>クリア '+S.qs+' / '+QMAX+'</span><i style="width:'+(S.qs/QMAX*100).toFixed(1)+'%"></i>';box.append(bar);
   const card=oppCard(o,-1);card.classList.add('on');if(o.boss)card.classList.add('boss');card.querySelector('b').textContent=(o.boss?'BOSS ':'')+'ステージ'+n+' '+o.name;card.onclick=null;box.append(card);
@@ -1517,11 +1521,12 @@ function renderQuest(){const box=$('quest');if(!box)return;const n=Math.min(QMAX
   if(S.qs>=1){const p0=questOpp(Math.min(QMAX,S.qs)),b2=mk('button','btn','ステージ'+p0.stage+'(クリア済み)にもう一度挑戦');b2.type='button';b2.onclick=()=>startBattle(p0);box.append(b2,mk('p','note','クリア済みのステージは報酬なし・宝箱10%。何回でも挑戦できます。クエストのバトルはスキップできません。'))}}
 /* ---------- experience quest: four grades, five opponents in a row. HP carries over with half of the max back; beating all five gives account XP (20/40/70/120, the first 3 clears a day). A grade opens once the one before it is cleared ---------- */
 const XQ=[null,
-  {n:'初級',lv:[1,1,2,3,5],wt:['R','R','R','R','R'],ar:'N',e:[0,0,0,0,1],mul:[.78,.78,.78,.78,.82],boss:'師範代ミナ',xp:20},
-  {n:'中級',lv:[6,7,8,10,13],wt:['R','R','R','SR','SR'],ar:'N',e:[1,2,2,3,4],mul:[.86,.86,.86,.86,.9],boss:'道場主ゴウ',xp:40},
-  {n:'上級',lv:[16,18,20,23,27],wt:['SR','SR','SR','UR','UR'],ar:'R',e:[5,6,7,8,10],mul:[.91,.91,.91,.91,.95],boss:'剣豪シグレ',xp:70},
-  {n:'地獄級',lv:[30,33,36,40,45],wt:['UR','UR','UR','UR','KMR'],ar:'SR',e:[12,14,16,18,22],mul:[.93,.93,.93,.93,.97],boss:'獄門のヴァル',xp:120}];
-/* tuned by simulation (heal 50%): 初級 Lv5 wood sword ~65%, 中級 Lv20 SR+5 ~70%, 上級 Lv35 UR+10 ~50%, 地獄級 Lv50 KMR+20 ~25% */
+  {n:'初級',lv:[16,18,20,23,27],wt:['SR','SR','SR','UR','UR'],ar:'R',e:[5,6,7,8,10],mul:[.93,.93,.93,.93,.97],boss:'師範代ミナ',xp:20},
+  {n:'中級',lv:[30,33,36,40,45],wt:['UR','UR','UR','UR','KMR'],ar:'SR',e:[12,14,16,18,22],mul:[.9,.9,.9,.9,.94],boss:'道場主ゴウ',xp:40},
+  {n:'上級',lv:[48,52,56,60,66],wt:['UR','KMR','KMR','KMR','KMR'],ar:'UR',e:[25,28,32,36,42],mul:[.92,.92,.92,.92,.96],boss:'剣豪シグレ',xp:70},
+  {n:'地獄級',lv:[62,67,72,77,84],wt:['KMR','KMR','KMR','KMR','KMR'],ar:'GR',e:[36,40,44,47,50],mul:[.93,.93,.93,.93,.97],boss:'獄門のヴァル',xp:120}];
+/* tuned by simulation (heal 50%), raised twice at the user's request ("もっと上げて"):
+   初級 Lv35 UR+10 ~50%, 中級 Lv50 KMR+20 ~43%, 上級 Lv60 KMR+40 ~35%, 地獄級 Lv80 all KMR+50 ~20% */
 const XQ_HEAL=.5;let XR=null;/* the run in progress: grade t, opponent index i, HP carried in */
 function xqOpp(t,i){const g=XQ[t],last=i===4,w=QW[(t*2+i)%4],rr=rngOf(t*131+i*17+5),hc=Object.keys(HAIRC),ec=Object.keys(EYEC),wr=g.wt[i],ar=last?QRAR[Math.min(5,QRAR.indexOf(g.ar)+1)]:g.ar,e=g.e[i];
   const eq=[[w[1]+wr,wr,e],[['yga','sma','tca'][(t+i)%3],ar,e]];if(t>1||last)eq.push([['ygx','smx','tcx'][(t+i)%3],ar,e]);
