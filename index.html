@@ -2950,8 +2950,6 @@ body.ui2 .llive .txt .nxt{filter:none!important;font-size:1em}
 .lonl .onc{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);font:600 12.5px/1 var(--body)}
 .lonl .onc i{width:8px;height:8px;border-radius:50%;background:#6b6b73}.lonl .onc.on i{background:#34c759;box-shadow:0 0 0 3px rgba(52,199,89,.2)}
 .lonl .onc small{font-size:10.5px;opacity:.6;font-weight:500}.lonl .onn{font:500 12px/1.4 var(--body);opacity:.6}
-/* iOS 26 drift fix: the bottom bar follows the real screen bottom (see ui2.js) */
-body.ui2 .bnav{translate:0 var(--vvfix,0px)}
 /* smoother: the light passing over the home's main button moves by transform (drawn once, slid by the GPU) instead of
    repainting a background every frame; same path and timing as before */
 body.ui2 .lgo::after{inset:0 auto 0 0!important;width:300%!important;background-size:100% 100%!important;animation-name:lobpassT!important;animation-duration:6s!important;animation-timing-function:cubic-bezier(.65,0,.15,1)!important;animation-iteration-count:infinite!important;will-change:transform}
@@ -8730,7 +8728,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';return M[id]||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=129';
+const TCG_SRC='tcg_play.html?v=130';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -10671,20 +10669,6 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   try{const op=pickGame;pickGame=function(){const home=document.body.classList.contains('lobhome');const r=op.apply(this,arguments);
     if(home){vh.style.opacity='';requestAnimationFrame(()=>{vh.style.opacity='';try{vh.__an&&vh.__an.cancel()}catch(e){}})}return r}}catch(e){}
 })();
-(function(){/* iOS 26 home-screen app bug (WebKit 297779): after the keyboard closes or after some scrolls, the layer that fixed elements sit on drifts
-   away from the screen, so the bottom bar floats in the middle. visualViewport still knows where the screen really is, so the bar is moved back by the drift. */
-  const vv=window.visualViewport;if(!vv)return;let raf=0;const de=document.documentElement;
-  const typing=()=>{const a=document.activeElement;return !!a&&(/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)||a.isContentEditable)};
-  /* only the drift itself is used: visualViewport.offsetTop is 0 in the normal state on every phone (the screen and the fixed layer
-     line up) and becomes the drift when the bug strikes (WebKit 297779). Heights are not compared, because a home-screen app on iPhone
-     reports a page height that differs from the screen by the safe areas, which moved the bar off the bottom in v128. */
-  const fix=()=>{raf=0;let d=Math.round(vv.offsetTop||0);if(typing()||vv.scale>1.05||d<3||d>700)d=0;de.style.setProperty('--vvfix',d+'px');de.classList.toggle('vvdrift',d!==0)};
-  const q=()=>{if(!raf)raf=requestAnimationFrame(fix)};window.__vvfix=fix;
-  vv.addEventListener('resize',q);vv.addEventListener('scroll',q);addEventListener('scroll',q,{passive:true});addEventListener('resize',q);addEventListener('orientationchange',q);
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden){q();setTimeout(q,300)}});
-  /* when the keyboard closes, nudge the page so iOS lays the fixed layer out again */
-  document.addEventListener('focusout',e=>{const t=e.target;if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))setTimeout(()=>{try{scrollTo(scrollX,scrollY)}catch(x){}q()},280)});
-  q()})();
 /*UI2JS-END*/
 /*KIT-START*/
 /* v121 kit: new login bonus, pass daily pt, weekly MVP and update news (the splash is markup + CSS).
