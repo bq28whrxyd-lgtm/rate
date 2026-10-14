@@ -5971,7 +5971,7 @@ function battleView(a,b,gname,h){
 /* ---- gacha: titles, frame patterns, effect skins ---- */
 const RAR=[{k:'N',c:'#a3a9b4',p:59.95,sh:1,cost:20},{k:'R',c:'#4aa3ff',p:30,sh:3,cost:60},{k:'SR',c:'#b678ff',p:8,sh:10,cost:200},{k:'UR',c:'#f5c84c',p:1.7,sh:40,cost:800},{k:'GR',c:'#ff4f8b',p:.3,sh:150,cost:3000},{k:'KMR',c:'#ff6ad5',p:.05,sh:300,cost:6000}];
 const RATE_G=[0,79.95,15.5,4.2,.3,.05],PACK=100,START_PT=300,PITY=100,TPACK=100,TXP=180;
-const KIND={t:'称号',a:'アイコン',f:'フレーム',x:'対戦演出',b:'背景',v:'勝利演出',c:'コイン'};
+const KIND={t:'称号',a:'アイコン',f:'フレーム',x:'対戦演出',b:'背景',v:'勝利演出',c:'コイン',bun:'分身の装備'};
 const TITLES=[
   ['駆け出しデュエリスト','見習い決闘者','デッキ調整中','引きが弱い人','手札事故常連','シャッフル職人','放課後の挑戦者','ルール確認係'],
   ['逆転の使い手','読み合い上手','先攻の申し子','粘りの鬼','冷静沈着','初手の魔術師','深淵を覗く者'],
@@ -6580,6 +6580,8 @@ $('admTkGo').onclick=()=>twoTap($('admTkGo'),'配布',async()=>{
 function admCoinRender(){admTkRender();admLimRender();const st=$('admCoinSt');if(!st)return;st.textContent=coinOn(now())?'開催中(〜'+new Date(coinev.end).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+')':'今は開催していません';$('admCoinStop').disabled=!coinOn(now())}
 
 function cardFace(it){
+  /* 分身の装備 (the equipment gacha): the pixel icon from the avatar page, its slot and name */
+  if(it.k==='bun'){const f=el('div','gcf bunf r'+it.r);f.style.setProperty('--rc',RAR[it.r].c);const pv=el('div','gcp bunp');pv.innerHTML=it.svg||'';f.append(el('div','gcr',it.rl||RAR[it.r].k),el('div','gck',it.slot||'装備'),pv,el('div','gcn',it.n));if(it.r>=3)f.append(el('b','holo'));return f}
   if(it.k==='g'){const f=el('div','gcf tcgf r'+it.r);f.style.setProperty('--rc',RAR[it.r].c);const im=el('img','tcgfi');im.alt=it.n;const src=tcgImg(it.v);if(src)im.src=src;f.append(im,el('div','gcr',it.tl),el('div','gcn',it.n));if(it.r>=3)f.append(el('b','holo'));return f}
   const f=el('div','gcf r'+it.r);f.style.setProperty('--rc',RAR[it.r].c);
   f.append(el('div','gcr',RAR[it.r].k),el('div','gck',KIND[it.k]));
@@ -7604,6 +7606,8 @@ window.BUNSHINHOST={
   chests:()=>bunChests(myPlayer().id),
   defenses:()=>{const me=myPlayer();return bunLogs.filter(l=>l.d===me.id).sort((a,b)=>b.t-a.t).slice(0,20).map(l=>({a:l.a,w:l.w,name:(players.find(p=>p.id===l.a)||{}).name||'だれか',when:bunAgo(l.t)}))},
   onChange:cb=>{bunCb=cb},
+  /* the equipment gacha opens like the normal pack */
+  packFx:(L,ten)=>openPackView(L.map(x=>({c:{k:'bun',r:x.r,rl:x.rl,n:x.n,svg:x.svg,slot:x.slot},isNew:x.isNew,sh:0,note:'×'+x.cnt+' 所持'})),null,'EQUIPMENT',undefined,{ten:!!ten}),
   close:()=>bunClose()};
 function bunOpen(){const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if(!bunReady&&db){toast('分身のデータを読み込み中です。少し待ってからもう一度');bunWatch();return}if($('bunw')||$('tcgw'))return;const o=el('div','tcgw');o.id='bunw';const f=el('iframe');f.src=BUN_SRC;f.title='分身アバターバトル';o.append(f);document.body.append(o);document.body.classList.add('tcgon');try{localStorage.setItem('bunseen_'+me.id,String(now()))}catch(e){}bunBadge()}
 function bunClose(){bunCb=null;const o=$('bunw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');queueRender()}
