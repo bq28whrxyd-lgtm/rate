@@ -1523,8 +1523,10 @@ function questOpp(n){const rr=rngOf(n*7919+13),boss=n%10===0,w=QW[(n+(boss?1:0))
   const hc=Object.keys(HAIRC),ec=Object.keys(EYEC),e=Math.min(50,Math.floor(n*.35)+(boss?3:0));
   const eq=[[w[1]+wt,wt,e],[['yga','sma','tca'][n%3],ar,e]];if(n>=8)eq.push([['ygx','smx','tcx'][n%3],ar,e]);
   const name=boss?QB[(n/10-1)%QB.length]+(n>50?' 改':''):QN[w[0]][Math.min(3,Math.floor(n/12))];
-  return {name,lv:Math.round(1+n*.9)+(boss?2:0),look:{g:'m',hs:0,hc:hc[Math.floor(rr()*hc.length)],ec:ec[Math.floor(rr()*ec.length)]},eq,style:w[2],boss,stage:n,mul:qMul(n)}}
+  return {name,lv:Math.round(1+n*.9)+(boss?2:0),look:{g:'m',hs:0,hc:hc[Math.floor(rr()*hc.length)],ec:ec[Math.floor(rr()*ec.length)]},eq,style:w[2],boss,stage:n,mul:qMul(n)*QHARD}}
 const QMAX=100;
+/* one more step up for the quest and the experience quest (on top of the curves below), set with the clash gauge in mind */
+let QHARD=1.06,XQHARD=1.04;/* with every clash won: quest stage 10 Lv20 SR+5 ~46%, 30 Lv35 UR+10 ~41%, 50 Lv50 KMR+20 ~30%, 90 Lv80 all KMR+50 ~28%, 100 ~22%; experience quest 初級 Lv35 UR+10 ~41%, 中級 Lv50 KMR+20 ~46%, 上級 Lv60 KMR+40 ~29%, 地獄級 Lv80 all KMR+50 ~9% */
 /* stage strength on top of the level and gear curve (raised at the user's request): a single fight is about
    stage 10: Lv20 SR+5 55% / stage 30: Lv35 UR+10 45% / stage 50: Lv50 KMR+20 35% / stage 60-70: Lv60 KMR+40 50% / stage 90: Lv80 all KMR+50 35% / stage 100: same ~25% */
 const QMK=[[1,.99],[10,1.066],[20,1.047],[30,1.02],[40,1.067],[50,1.03],[60,1.056],[70,1.06],[80,1.05],[90,1.06],[100,1.17]];
@@ -1546,7 +1548,7 @@ const XQ=[null,
 const XQ_HEAL=.5;let XR=null;/* the run in progress: grade t, opponent index i, HP carried in */
 function xqOpp(t,i){const g=XQ[t],last=i===4,w=QW[(t*2+i)%4],rr=rngOf(t*131+i*17+5),hc=Object.keys(HAIRC),ec=Object.keys(EYEC),wr=g.wt[i],ar=last?QRAR[Math.min(5,QRAR.indexOf(g.ar)+1)]:g.ar,e=g.e[i];
   const eq=[[w[1]+wr,wr,e],[['yga','sma','tca'][(t+i)%3],ar,e]];if(t>1||last)eq.push([['ygx','smx','tcx'][(t+i)%3],ar,e]);
-  return {name:(i+1)+'/5 '+(last?g.boss:QN[w[0]][t-1]),lv:g.lv[i],mul:g.mul?g.mul[i]:1,look:{g:'m',hs:0,hc:hc[Math.floor(rr()*hc.length)],ec:ec[Math.floor(rr()*ec.length)]},eq,style:w[2],boss:last,xq:t,xi:i}}
+  return {name:(i+1)+'/5 '+(last?g.boss:QN[w[0]][t-1]),lv:g.lv[i],mul:(g.mul?g.mul[i]:1)*XQHARD,look:{g:'m',hs:0,hc:hc[Math.floor(rr()*hc.length)],ec:ec[Math.floor(rr()*ec.length)]},eq,style:w[2],boss:last,xq:t,xi:i}}
 function xqInfo(){if(HOST&&HOST.xq)return HOST.xq();return {c:S.xqc||{},today:0,day:3}}
 function renderXq(){const box=$('xq');if(!box)return;box.replaceChildren();const inf=xqInfo(),left=Math.max(0,inf.day-inf.today);
   $('xqn').textContent=HOST?'今日の経験値 あと'+left+'回':'試作では経験値なし';
