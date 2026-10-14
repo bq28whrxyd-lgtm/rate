@@ -1485,6 +1485,72 @@ X1('gen',[
  {id:'x20',n:'示談金',r:'N',type:'spell',c:1,life:1000,ops:[{op:'selfDmg',n:1000},{op:'draw',n:2},{op:'energy',n:1}]},
  {id:'x21',n:'泥沼',r:'HR',type:'spell',c:4,ops:[{op:'wipeAll'}]},
 ]);
+/* ===== 拡張パック第1弾 追加40枚 (v132, set:1): each tribe gets a cheap body, a mid body and a tribe-only card; the shared cards
+   help tribe decks (mimic, ally-count draw, summon from hand, a counter to spell-heavy control). No new 0-cost draw and no new cheap removal. ===== */
+X1('weak',[
+ {id:'w12',n:'告白の練習台',r:'N',type:'chara',c:1,atk:600,def:900,kw:{guts:1,syn:300},onPlay:[{op:'ifBehind',ops:[{op:'draw',n:1}]}],aw:{k:'atk',n:600}},
+ {id:'w13',n:'勇気を出した男',r:'R',type:'chara',c:3,atk:1300,def:1100,kw:{adv:700},onPlay:[{op:'ifBehind',ops:[{op:'rush'}]}],aw:{k:'twice'}},
+ {id:'w14',n:'一発逆転',r:'HR',type:'spell',c:2,cond:'behind',ops:[{op:'buffAll',atk:800,def:0,temp:1},{op:'draw',n:1}]},
+]);
+X1('girl',[
+ {id:'q12',n:'マウント女子',r:'N',type:'chara',c:2,atk:1200,def:900,kw:{syn:300},onPlay:[{op:'starDownBest',n:1}],aw:{k:'draw',n:1}},
+ {id:'q13',n:'インフルエンサー',r:'R',type:'chara',c:3,atk:1500,def:1300,onPlay:[{op:'gauge',n:1},{op:'drawIfTribe',f:'girl',min:2,n:1}],aw:{k:'buffAll',atk:300,def:0,others:1}},
+ {id:'q14',n:'女子の連帯',r:'HR',type:'spell',c:2,cond:'pure2',ops:[{op:'buffAll',atk:0,def:600},{op:'debuffAll',atk:300,temp:1}]},
+]);
+X1('gay',[
+ {id:'y12',n:'新宿の夜明け',r:'N',type:'chara',c:1,atk:800,def:800,kw:{syn:300,bond:200},aw:{k:'atk',n:500}},
+ {id:'y13',n:'筋肉コーチ',r:'R',type:'chara',c:3,atk:1300,def:1500,onPlay:[{op:'buffAll',atk:200,def:200,others:1}],aw:{k:'buffAll',atk:300,def:300,others:1}},
+ {id:'y14',n:'仲間を呼ぶ声',r:'HR',type:'spell',c:3,ops:[{op:'revive',f:'gay',maxC:3},{op:'draw',n:1}]},
+]);
+X1('gachi',[
+ {id:'g12',n:'現場の最前列',r:'N',type:'chara',c:2,atk:1100,def:1000,kw:{grow:300,syn:300},aw:{k:'atk',n:600}},
+ {id:'g13',n:'積みゲーの山',r:'R',type:'chara',c:3,atk:1000,def:1600,onPlay:[{op:'drawIfTribe',f:'gachi',min:2,n:2}],aw:{k:'draw',n:1}},
+ {id:'g14',n:'推しへの全額',r:'HR',type:'spell',c:2,cond:'pure2',ops:[{op:'ramp',n:1},{op:'draw',n:1}]},
+]);
+X1('idol',[
+ {id:'i12',n:'センター争い',r:'N',type:'chara',c:2,atk:1300,def:1100,kw:{syn:300},onPlay:[{op:'heal',n:400}],aw:{k:'heal',n:1000}},
+ {id:'i13',n:'推しメン',r:'R',type:'chara',c:3,atk:1500,def:1500,onPlay:[{op:'drawIfTribe',f:'idol',min:2,n:1}],onDeath:[{op:'heal',n:500}],aw:{k:'heal',n:1500}},
+ {id:'i14',n:'生誕祭',r:'HR',type:'spell',c:3,cond:'pure2',ops:[{op:'starAll',n:1},{op:'heal',n:500}]},
+]);
+X1('vt',[
+ {id:'v12',n:'同時視聴',r:'N',type:'chara',c:1,atk:900,def:900,kw:{syn:300},onPlay:[{op:'coin',h:[{op:'draw',n:1}],t:[{op:'heal',n:300}]}],aw:{k:'draw',n:1}},
+ {id:'v13',n:'企業勢Vtuber',r:'R',type:'chara',c:3,atk:1600,def:1500,onPlay:[{op:'coin',h:[{op:'burn',n:500}],t:[{op:'draw',n:1}]}],aw:{k:'burn',n:800}},
+ {id:'v14',n:'収益化通知',r:'HR',type:'spell',c:1,ops:[{op:'coinN',n:2,h:[{op:'draw',n:1}]}]},
+]);
+X1('cre',[
+ {id:'c12',n:'締切明けの作家',r:'N',type:'chara',c:2,atk:1100,def:1200,kw:{syn:300},aw:{k:'twice'}},
+ {id:'c13',n:'アシスタント',r:'R',type:'chara',c:2,atk:800,def:1000,kw:{syn:300},onPlay:[{op:'starBest',n:1}],aw:{k:'draw',n:2}},
+ {id:'c14',n:'コミケ新刊',r:'HR',type:'spell',c:3,ops:[{op:'drawIfTribe',f:'cre',min:2,n:2},{op:'starBest',n:1}]},
+]);
+X1('chu',[
+ {id:'d12',n:'眼帯の転校生',r:'N',type:'chara',c:1,atk:1000,def:600,kw:{rush:1,syn:300},onPlay:[{op:'dmgAllEnemy',def:200}],aw:{k:'atk',n:600}},
+ {id:'d13',n:'漆黒の契約者',r:'R',type:'chara',c:3,atk:1700,def:1100,kw:{revenge:1,syn:300},onDeath:[{op:'burn',n:300}],aw:{k:'weakenAll',n:300}},
+ {id:'d14',n:'禁呪・黒炎',r:'HR',type:'spell',c:3,ops:[{op:'weakenAll',n:400}]},
+]);
+X1('neta',[
+ {id:'n12',n:'ひな壇芸人',r:'N',type:'chara',c:2,atk:700,def:1500,kw:{cover:1,syn:300},aw:{k:'draw',n:1}},
+ {id:'n13',n:'ドッキリ仕掛け人',r:'R',type:'chara',c:3,atk:1200,def:1700,kw:{guts:1},onPlay:[{op:'drawIfTribe',f:'neta',min:2,n:1}],aw:{k:'def',n:800}},
+ {id:'n14',n:'スベり返し',r:'R',type:'trap',c:2,when:'attack',ops:[{op:'swapAttacker'},{op:'draw',n:1}]},
+]);
+X1('sei',[
+ {id:'s12',n:'ヒアルロン酸',r:'N',type:'chara',c:1,atk:800,def:800,kw:{star2:1,syn:300},aw:{k:'atk',n:500}},
+ {id:'s13',n:'美容系インフルエンサー',r:'R',type:'chara',c:3,atk:1400,def:1200,onPlay:[{op:'starAll',n:1,others:1}],aw:{k:'buffAll',atk:300,def:0,others:1}},
+ {id:'s14',n:'カウンセリング予約',r:'HR',type:'spell',c:2,cond:'pure2',ops:[{op:'starAll',n:1}]},
+]);
+X1('hage',[
+ {id:'o12',n:'定年間近の係長',r:'N',type:'chara',c:2,atk:900,def:1600,kw:{guts:1,syn:300},aw:{k:'gutsEvery'}},
+ {id:'o13',n:'頭皮マッサージ師',r:'R',type:'chara',c:3,atk:1200,def:1700,onPlay:[{op:'breakTrapRand'},{op:'buffAll',atk:300,def:0,others:1}],aw:{k:'def',n:600}},
+ {id:'o14',n:'定年退職金',r:'HR',type:'spell',c:3,cond:'pure2',ops:[{op:'burn',n:800},{op:'heal',n:800}]},
+]);
+X1('gen',[
+ {id:'x22',n:'推し活仲間',r:'N',type:'chara',c:2,atk:1000,def:1000,kw:{mimic:1},aw:{k:'draw',n:1}},
+ {id:'x23',n:'打ち上げ',r:'N',type:'spell',c:2,ops:[{op:'drawIfAllies',min:2,n:2}]},
+ {id:'x24',n:'多様性の祭典',r:'HR',type:'spell',c:3,cond:'mixed3',ops:[{op:'buffAll',atk:600,def:600},{op:'draw',n:1}]},
+ {id:'x25',n:'オフ会',r:'R',type:'spell',c:3,ops:[{op:'summonFromHand',maxC:3},{op:'draw',n:1}]},
+ {id:'x26',n:'炎上の火消し',r:'N',type:'trap',c:2,when:'spell',ops:[{op:'negate'},{op:'draw',n:1}]},
+ {id:'x27',n:'ガチ恋口上',r:'R',type:'chara',c:2,atk:1300,def:1100,kw:{bond:200},aw:{k:'twice'}},
+ {id:'x28',n:'全員集合',r:'HR',type:'spell',c:4,cond:'pure3',ops:[{op:'buffAll',atk:700,def:700},{op:'draw',n:1}]},
+]);
 const SKILLS={
  weak:{n:'逆転の咆哮',t:'このターン、自分のキャラ全員のATK+1000。自分のライフが相手より少なければ、全員出たばかりでも攻撃できる'},
  girl:{n:'女王の微笑み',t:'相手のキャラ1体を選んで倒す',tgt:'enemy'},
