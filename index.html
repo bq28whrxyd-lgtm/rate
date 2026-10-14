@@ -462,6 +462,8 @@ button.danger{background:transparent;color:var(--dn);border:1px solid color-mix(
 .it1.glitch{animation:itin .55s cubic-bezier(.2,1.5,.4,1) both,glt 1.6s steps(1) .5s infinite}
 @keyframes glt{0%,100%{filter:none;transform:none}20%{filter:drop-shadow(3px 0 #ff3b6b) drop-shadow(-3px 0 #3bd5ff);transform:translateX(2px)}24%{filter:none;transform:none}60%{filter:drop-shadow(-4px 0 #ff3bd5) drop-shadow(4px 0 #3bf0ff);transform:skewX(-6deg)}64%{filter:none;transform:none}}
 .fsk .rotr{animation:spin 18s linear infinite reverse;transform-origin:0 0}
+.fsk>svg.fsa~svg,.fsk>svg~svg.fsa,.fsk.fsks>svg~svg{position:absolute;inset:0}
+.fsk>svg.fa-rot{animation:spin 14s linear infinite}.fsk>svg.fa-rotr{animation:spin 18s linear infinite reverse}.fsk>svg.fa-flk{animation:flk .9s ease-in-out infinite alternate}.fsk>svg.fa-flap{animation:flap 1s ease-in-out infinite}
 .fsk .jit{animation:jit .2s steps(2) infinite}
 /* ===== pack reveal: colour tells, upgrades, cut-ins ===== */
 .pack.gr{background:linear-gradient(115deg,#ff3b6b,#ffd23b 20%,#3bff6a 40%,#3bd5ff 60%,#a64dff 80%,#ff3b6b);background-size:300% 300%}
@@ -1011,7 +1013,8 @@ button:not(:disabled):active{transform:scale(.97);opacity:.88}
 .cgrid .holo,.limgrid .holo,.lfeat .holo{display:none}
 .cgrid svg *,.limgrid svg *{animation:none!important}
 .cgrid .bgl,.limgrid .bgl,.lfeat .bgl{display:none}
-body.ovl main *,body.ovl main *::before,body.ovl main *::after{animation-play-state:paused!important}
+/* while a popup covers the screen, the screen's own motion pauses (the class is put on the screen itself by ui2.js) */
+.kpz,.kpz::before,.kpz::after,.kpz *,.kpz *::before,.kpz *::after,.kpd *,.kpd *::before,.kpd *::after{animation-play-state:paused!important}
 body.ovl main video{visibility:hidden}
 /* ---- timeline, daily missions, predictions, genre week, MVP ---- */
 .gwban{background:linear-gradient(120deg,color-mix(in srgb,var(--gold) 22%,var(--panel)),var(--panel));border:1px solid color-mix(in srgb,var(--gold) 50%,var(--line));border-radius:14px;padding:14px 16px}
@@ -2821,8 +2824,11 @@ body.ui2 .lm3 small{font:600 11px/1.2 var(--body);color:var(--lmut);white-space:
 body.ui2 #lob .lgo{z-index:3}
 /* live pill */
 body.ui2 #lob .llive{position:relative;z-index:3;display:flex;align-items:center;gap:10px;height:42px;padding:0 14px;border-radius:999px;background:rgba(20,20,23,.82);overflow:hidden;width:100%;box-shadow:inset 0 0 0 .5px var(--lline)}
-body.ui2 .llive .dot{width:8px;height:8px;border-radius:50%;background:#ff453a;flex:none;box-shadow:0 0 0 4px rgba(255,69,58,.18);animation:lobpulse 1.6s ease-in-out infinite}
-@keyframes lobpulse{50%{box-shadow:0 0 0 7px rgba(255,69,58,0)}}
+body.ui2 .llive .dot{width:8px;height:8px;border-radius:50%;background:#ff453a;flex:none;position:relative}
+/* the halo: a soft ring around the dot that swells and fades (drawn at its largest size and scaled down, so it stays sharp;
+   it moves by transform and opacity only, which the phone animates without redrawing the page) */
+body.ui2 .llive .dot::before{content:"";position:absolute;inset:-7px;border-radius:50%;background:rgba(255,69,58,.18);transform:scale(.7273);animation:lobpulse 1.6s ease-in-out infinite;pointer-events:none}
+@keyframes lobpulse{50%{transform:scale(1);opacity:0}}
 body.ui2 .llive .tag{flex:none;font:800 11px/1 var(--body);letter-spacing:.06em;color:#fff;padding:4px 8px;border-radius:8px;background:linear-gradient(135deg,#ff5fa2,#a35cff)}
 body.ui2 .llive .txt{flex:1;min-width:0;position:relative;height:20px;font:600 14px/20px var(--body);overflow:hidden}
 body.ui2 .llive .txt>span{position:absolute;inset:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:transform .55s var(--lsp),opacity .25s}
@@ -2888,7 +2894,7 @@ body.ui2 .lre button span{margin-left:5px;font-family:var(--num)}
 body.ui2 .lsec .lmore{width:100%;height:46px;border-radius:999px;background:var(--l2);font:700 14px/46px var(--body);color:var(--ac);text-align:center;margin-top:2px}
 body.ui2 .lempty{padding:18px 16px;font:600 13px/1.6 var(--body);color:var(--lmut);text-align:center}
 @media (max-height:720px){body.ui2 #lob .llive{display:none!important}body.ui2 .lst .emb2{top:calc(50% - 150px)}}
-@media (prefers-reduced-motion:reduce){body.ui2 .lst .emb2,body.ui2 .lgo::after,body.ui2 .llive .dot{animation:none}}
+@media (prefers-reduced-motion:reduce){body.ui2 .lst .emb2,body.ui2 .lgo::after,body.ui2 .llive .dot,body.ui2 .llive .dot::before{animation:none}}
 /* oshi on the stage */
 body.ui2 .lst .losh{position:absolute;left:0;right:0;top:0;height:70%;overflow:hidden;pointer-events:none;z-index:1;transform-origin:50% 30%}
 body.ui2 .lst .losh[hidden]{display:none}
@@ -5042,6 +5048,16 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .kp-c.on.r-SR .tcf{box-shadow:0 0 0 2px #bfeaff,0 0 40px -6px rgba(143,211,255,.9),0 24px 46px -18px rgba(0,0,0,.95)}
 .kp-cap b.r-SR,.kp-zc b.r-SR{color:#06141f;background:linear-gradient(180deg,#eefaff,#8fd3ff)}
 .kbr-s.sr b{color:#9fdcff}
+/* zoomed card with its details: a smaller card so the text fits; the effect text scrolls inside its own box */
+.kp-zoom.info{gap:14px;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
+.kp-zoom.info .tcf{width:auto;height:min(40vh,330px);max-width:min(66vw,250px)}
+.kp-zoom.info .kp-zc{max-width:min(420px,100%);width:100%}
+.kp-zi{flex-basis:100%;display:flex;flex-direction:column;gap:10px;margin-top:2px}
+.kp-zm{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.kp-zm>span{font:700 12px/1 var(--x-f,-apple-system,sans-serif);color:rgba(244,241,234,.8);padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12)}
+.kp-zm .kp-zs{display:inline-flex;gap:10px}.kp-zm .kp-zs i{font-style:normal}.kp-zm .kp-za b{color:#ffb38a}.kp-zm .kp-zd b{color:#8fd3ff}
+.kp-zm b{font:800 13px/1 var(--x-n,"Geist",-apple-system,sans-serif);font-variant-numeric:tabular-nums}
+.kp-zt{max-height:24vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1);font:500 13.5px/1.65 var(--x-f,-apple-system,"Hiragino Sans",sans-serif);color:rgba(244,241,234,.88);white-space:pre-wrap;text-align:left;line-break:strict}
 /* ===== v121 ガチャ画面 (kgu): banner chips + one big banner card, the old sections hidden underneath ===== */
 @property --a1{syntax:'<color>';inherits:true;initial-value:#8b7bff}
 @property --a2{syntax:'<color>';inherits:true;initial-value:#3dd8f0}
@@ -5404,6 +5420,58 @@ body.ui2 :is(.krk-n2,.krk-n3) .krk-gap{white-space:normal;max-width:78%;margin-i
 body .tcghl .tcghr{width:100%;flex:none;min-width:0;gap:12px}
 body .tcghl .tcghr span{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;writing-mode:horizontal-tb}
 body .tcghl .tcghr b{flex:none}
+/*KMSGPOP-START*/
+/* the notice that comes up at every launch: photos first (swipe), then the text, one ivory button */
+.kmp{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px calc(env(safe-area-inset-bottom,0px) + 18px);background:rgba(4,3,8,.72);animation:kmpIn .28s ease both}
+.kmp.out{animation:kmpOut .22s ease both}
+.kmpw{position:relative;width:min(420px,100%);max-height:100%;display:flex;flex-direction:column;border-radius:26px;overflow:hidden;background:linear-gradient(180deg,#17121c,#0e0b12);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14),0 30px 80px -20px rgba(0,0,0,.9);animation:kmpUp .38s cubic-bezier(.2,.9,.25,1) both}
+.kmpw::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,214,150,.6),rgba(150,200,255,.5),transparent);z-index:2}
+.kmpg{position:relative;flex:none;background:#000}
+.kmps{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.kmps::-webkit-scrollbar{display:none}
+.kmps img{flex:0 0 100%;width:100%;aspect-ratio:4/5;max-height:min(52vh,525px);object-fit:cover;scroll-snap-align:center;display:block;cursor:zoom-in}
+.kmpd{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.kmpd i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);transition:width .2s,background .2s}
+.kmpd i.on{width:18px;border-radius:3px;background:#fff}
+.kmpb{padding:16px 20px 6px;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:8px}
+.kmpm{display:flex;align-items:center;gap:8px;font:600 12px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:rgba(244,241,234,.55)}
+.kmpb h3{margin:0;font:800 19px/1.35 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:#f4f1ea;line-break:strict}
+.kmpx{font:500 14px/1.7 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:rgba(244,241,234,.78);white-space:pre-wrap;word-break:break-word;line-break:strict}
+.kmpf{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px 16px;border-top:.5px solid rgba(255,255,255,.08)}
+.kmpf .sub{font-size:11.5px;color:rgba(244,241,234,.45)}
+.kmpf button{flex:none;min-width:120px;height:44px;border:0;border-radius:999px;background:#f4f1ea;color:#0b0a0e;font:800 15px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif}
+.kmpopt{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13.5px;line-height:1.4}
+.kmpopt input[type=checkbox]{flex:none;width:20px!important;height:20px;margin:0;padding:0}
+.kmpopt span{flex:1;min-width:0}
+.kmpopt select{flex:none;width:92px!important;margin:0}
+.kmpon{background:linear-gradient(180deg,#fff0c2,#e2a73c)!important;color:#1b1405!important}
+@keyframes kmpIn{from{opacity:0}to{opacity:1}}
+@keyframes kmpOut{to{opacity:0}}
+@keyframes kmpUp{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.kmp,.kmpw,.kmp.out{animation-duration:.01s}}
+/*KMSGPOP-END*/
+/*KGIFT-START*/
+/* presents: 受け取る on each waiting gift, まとめて受け取る on top, taken ones dimmed */
+body.ui2 .lgf .lgall,body.ui2 .lgall{display:flex!important;align-items:center;justify-content:center;width:100%!important;height:48px!important;margin:0 0 12px!important;padding:0!important;border:0!important;border-radius:999px!important;background:#f4f1ea!important;color:#0b0a0e!important;font:800 15px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif!important;box-shadow:0 8px 24px -10px rgba(244,241,234,.45)!important}
+body.ui2 .lgr .lgtake{flex:none;height:34px;padding:0 14px;border:0;border-radius:999px;background:linear-gradient(180deg,#fff3cf,#e2bf72);color:#1b1405;font:800 13px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif}
+body.ui2 .lgr .lgtake:disabled{opacity:.6}
+body.ui2 .lgr .lgdone{flex:none;font:600 12px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:#86817a}
+body.ui2 .lgr.got .gi{opacity:.45;filter:saturate(.5)}
+body.ui2 .lgr.got .gt b{color:#a9a49c}
+/*KGIFT-END*/
+/*KBATT-START*/
+/* battery: the home's looping motion pauses while idle (20 s without a touch) or while a sheet/popup covers it.
+   ui2.js puts .kpd (pause the inside) / .kpz (pause it and the inside) on just those parts. Before, these rules hung off a
+   class on <body>, and every change of it made the browser re-check every screen, including the hidden ones. */
+/*KBATT-END*/
+
+/* KVIEWKEEP: a screen you leave is skipped instead of thrown away. It keeps its built, laid-out state, so switching back
+   (and, after the quiet preparation on the home, switching the first time) needs much less work. It takes no room and is
+   never drawn while hidden. Phones whose browser lacks this keep the old behaviour (display:none). */
+@supports (content-visibility:hidden){main>.view[hidden]{display:flex!important;content-visibility:hidden;position:absolute!important;left:16px;right:16px;top:0;pointer-events:none}
+  /* the few loops that are not handed to the graphics chip are paused by name while their screen is hidden (named, so only
+     those parts are re-checked when the screen changes) */
+  main>.view[hidden] :is(.nxt,.csh,.kgu-lens,.jit,.flap,.flk,.rot,.rotr,.supnmL),main>.view[hidden] :is(.nx6,.pb-suptopaz)::after{animation-play-state:paused!important}}
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -5539,7 +5607,7 @@ body .tcghl .tcghr b{flex:none}
 <div class="admpg" data-t="news" hidden>
 <div class="admcard"><div class="admct">みんなへのメッセージ</div><div class="admcd">送るとみんなのホームにお知らせとして出ます。</div>
 <div class="msgtag" id="admMsgTag" style="margin-top:12px"><button data-v="" class="on">なし</button><button data-v="imp">重要</button><button data-v="ev">イベント</button><button data-v="up">更新</button></div><input id="admMsgT" maxlength="40" placeholder="タイトル(例: 今週末に大会やります)" style="width:100%;margin-top:8px"><label class="msgpick" id="admMsgPick"><input id="admMsgF" type="file" accept="image/*" multiple hidden><span class="msgpk0">写真を追加（任意・最大4枚）</span><span class="msgpk1">まとめて選べます。横長の写真がきれいに見えます</span></label><div class="msgprev" id="admMsgPrev" hidden></div>
-<textarea id="admMsgX" maxlength="800" rows="3" placeholder="本文" style="width:100%;margin-top:8px;resize:vertical"></textarea>
+<textarea id="admMsgX" maxlength="800" rows="3" placeholder="本文" style="width:100%;margin-top:8px;resize:vertical"></textarea><label class="kmpopt"><input type="checkbox" id="admMsgPop" checked><span>アプリを開くたびにポップアップで出す</span><select id="admMsgPopD" aria-label="出す日数"><option value="3">3日間</option><option value="7" selected>7日間</option><option value="14">14日間</option><option value="30">30日間</option></select></label>
 <button id="admMsgGo" style="width:100%;margin-top:8px">みんなに送る</button><div id="admMsgR" class="sub" style="margin-top:6px;min-height:18px"></div><div id="admMsgList"></div>
 </div>
 <div class="admcard"><div class="admct">届いた要望</div><div id="admReq"></div>
@@ -6200,7 +6268,15 @@ const FSK={
   rift:()=>'<g class="jit">'+ring(47,'#ff3b6b',2,'stroke-dasharray="18 6 4 6" transform="translate(-1.2 0)"')+ring(47,'#3bd5ff',2,'stroke-dasharray="18 6 4 6" transform="translate(1.2 .6)"')+ring(47,'#ffffff',1.2,'stroke-dasharray="18 6 4 6"')+'</g><path d="M30-40 38-30 34-26 42-18M-36 34-28 30-30 40-22 46" fill="none" stroke="#fff" stroke-width="1"/>',
   galaxy:()=>'<defs><linearGradient id="glx" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7b3bff"/><stop offset=".5" stop-color="#3bd5ff"/><stop offset="1" stop-color="#ff3bd5"/></linearGradient></defs><g class="rot">'+around(3,a=>'<path d="M'+P2(46,a)+'A30 30 0 0 1 '+P2(58,a+1.4)+'" fill="none" stroke="url(#glx)" stroke-width="3.2" stroke-linecap="round"/>')+around(14,(a,i)=>'<circle '+XY(i%2?52:56,a+.2)+' r="'+(i%3?.9:1.6)+'" fill="#fff"/>')+'</g>'+ring(46.5,'url(#glx)',2)
 };
-function frameSkin(id){const it=id&&ITEM(id);if(!it||it.k!=='f'||it.K)return null;const s=el('span','fsk fs-'+it.v);s.innerHTML='<svg viewBox="-60 -60 120 120" aria-hidden="true">'+FSK[it.v]()+'</svg>';return s}
+function frameSkin(id){const it=id&&ITEM(id);if(!it||it.k!=='f'||it.K)return null;const s=el('span','fsk fs-'+it.v);s.innerHTML='<svg viewBox="-60 -60 120 120" aria-hidden="true">'+FSK[it.v]()+'</svg>';return fskSplit(s)}
+/* frame skins: every turning, flickering or flapping layer goes into its own <svg> (same view box, same order), and the whole
+   <svg> is animated instead of a part inside it. The phone then moves that layer on the graphics chip without redrawing the
+   frame on every screen refresh. The picture and the motion are the same. */
+function fskSplit(s){const sv=s&&s.firstElementChild;if(!sv||!sv.querySelector(':scope>.rot,:scope>.rotr,:scope>.flk,:scope>.flap'))return s;
+  const NSV='http://www.w3.org/2000/svg',VB=sv.getAttribute('viewBox'),A=/^(rot|rotr|flk|flap)$/,out=[];let cur=null;
+  const box=k=>{const x=document.createElementNS(NSV,'svg');x.setAttribute('viewBox',VB);x.setAttribute('aria-hidden','true');if(k)x.setAttribute('class','fsa fa-'+k);out.push(x);return x};
+  [...sv.childNodes].forEach(n=>{const k=n.nodeType===1&&(n.getAttribute('class')||'').trim();if(k&&A.test(k)){n.removeAttribute('class');box(k).append(n);cur=null}else{(cur||(cur=box(''))).append(n)}});
+  s.replaceChildren(...out);s.classList.add('fsks');return s}
 
 /* effect skin signature layers (placed behind the "対戦開始" text) */
 const DMW=['888888','草','うおおおお','初見です','かわいい','神回確定','強すぎる','GG','てぇてぇ','おつ','ナイス!','www','開幕から熱い','やばい'];
@@ -6751,7 +6827,7 @@ function mkFrame(p,ti){
   const fk=p.eq&&[p.eq.a,p.eq.f].map(x=>x&&ITEM(x)).find(x=>x&&x.k==='a'&&x.K),fsk=frameSkin(p.eq&&p.eq.f);
   if(fsk)f.append(fsk);
   if(fk){f.classList.add('kmrf');f.style.setProperty('--k1',fk.K.c[0]);const old=f.querySelector('.av');if(old)old.replaceWith(kmrFace(fk.K));const bd=el('span','kbadge');bd.append(emblem(ti,16));f.append(bd);
-    const r=el('span','fsk kring');r.innerHTML='<svg viewBox="-60 -60 120 120" aria-hidden="true"><g class="rot">'+ring(49,fk.K.c[0],1.2,'stroke-dasharray="2 4"')+'</g>'+around(6,a=>'<path transform="translate('+P2(51,a)+') scale(.3)" d="M0 6C-10-2-10-12-3-12 0-12 0-9 0-8 0-9 0-12 3-12 10-12 10-2 0 6Z" fill="'+fk.K.c[0]+'" stroke="#fff" stroke-width="1.6"/>')+'</svg>';f.append(r)}
+    const r=el('span','fsk kring');r.innerHTML='<svg viewBox="-60 -60 120 120" aria-hidden="true"><g class="rot">'+ring(49,fk.K.c[0],1.2,'stroke-dasharray="2 4"')+'</g>'+around(6,a=>'<path transform="translate('+P2(51,a)+') scale(.3)" d="M0 6C-10-2-10-12-3-12 0-12 0-9 0-8 0-9 0-12 3-12 10-12 10-2 0 6Z" fill="'+fk.K.c[0]+'" stroke="#fff" stroke-width="1.6"/>')+'</svg>';f.append(fskSplit(r))}
   return f;
 }
 /* one confirm sheet for everything that used to need a second tap: title, a few lines, the action button and キャンセル */
@@ -7379,7 +7455,23 @@ const dayKey=t=>new Date(t+9*3600000).toISOString().slice(0,10);
 /* from RULE3 on: a win opens a treasure chest (10-100pt or a normal pack ticket) */
 const RULE3=Date.UTC(2026,9,3,21,55);
 const ticketsWon=pid=>matches.reduce((a,m)=>a+(m.w===pid&&m.t>=RULE3?chestTix(m):0),0);
-const grantTk=(pid,kind,ev)=>grants.reduce((a,g)=>a+(g.pid===pid&&g.kind===kind&&(ev==null||g.ev===ev)?(+g.n||0):0),0);
+/* ---- presents: a gift (pt, tickets, TCG tickets and secrets from the admin or a reward) counts only after the player taps 受け取る.
+   inv.gotG = the ids taken; inv.gotB = the moment this version first ran for the player (everything before it was already in effect).
+   Other players' gifts are counted as before (their inv is not loaded here). Minus points and ban/unban are not gifts. */
+const giftable=g=>{const k=g.kind||'pt';if(k==='pt'||k==='buy')return(+g.pt||0)>0;return !!((typeof TKNAME!=='undefined'&&TKNAME[k])||(typeof TCG_TK!=='undefined'&&TCG_TK[k])||k==='tscg')};
+const giftGot=g=>{if(typeof invFor==='undefined'||g.pid!==invFor||!giftable(g))return true;const b=inv&&inv.gotB;if(b==null)return true;if((g.t||0)<=b)return true;return Array.isArray(inv.gotG)&&inv.gotG.includes(g.id)};
+const giftsWaiting=pid=>grants.filter(g=>g.pid===pid&&giftable(g)&&!giftGot(g)).sort((a,b)=>b.t-a.t);
+const giftName=g=>{const k=g.kind||'pt';if(typeof TKNAME!=='undefined'&&TKNAME[k])return TKNAME[k]+' ×'+(g.n||1);if(typeof TCG_TK!=='undefined'&&TCG_TK[k])return TCG_TK[k].n+' ×'+(g.n||1);if(k==='tscg')return 'TCGシークレット「'+((typeof TC!=='undefined'&&TC[g.cid]&&TC[g.cid].n)||'カード')+'」';return((+g.pt>0?'+':'')+(+g.pt||0)+'pt'+(k==='buy'?'(購入)':''))};
+let giftBusy=false;
+/* take some gifts (ids) or all of them (null): written to inv.gotG, then the balance and tickets include them */
+async function takeGifts(ids){const me=myPlayer();if(!db||!me||giftBusy||!invLoaded||invFor!==me.id)return false;const G=giftsWaiting(me.id).filter(g=>!ids||ids.includes(g.id));if(!G.length)return false;giftBusy=true;
+  try{const B=inv.gotB||0,keep=(Array.isArray(inv.gotG)?inv.gotG:[]).filter(id=>grants.some(g=>g.id===id&&(g.t||0)>B));G.forEach(g=>{if(!keep.includes(g.id))keep.push(g.id)});
+    const n=Object.assign({},inv,{gotG:keep});if(n.gotB==null)n.gotB=B;await db.doc('inv/'+me.id).set(n);inv=n;
+    const pt=G.reduce((a,g)=>a+(((g.kind||'pt')==='pt'||g.kind==='buy')?(+g.pt||0):0),0),other=G.filter(g=>!((g.kind||'pt')==='pt'||g.kind==='buy'));
+    toast('受け取りました  '+[pt?'+'+pt+'pt':'',...other.slice(0,2).map(giftName)].filter(Boolean).join(' / ')+(other.length>2?' ほか':''));
+    try{render()}catch(e){}try{renderGacha()}catch(e){}try{renderTcg()}catch(e){}if(typeof tcgScrGifts==='function')setTimeout(tcgScrGifts,400);giftBusy=false;return true}
+  catch(e){giftBusy=false;toast('受け取れませんでした。通信を確認してください');return false}}
+const grantTk=(pid,kind,ev)=>grants.reduce((a,g)=>a+(g.pid===pid&&g.kind===kind&&(ev==null||g.ev===ev)&&giftGot(g)?(+g.n||0):0),0);
 /* limited-gacha tickets: handed out by the admin for the running banner only (inv.lte = banner start, inv.ltn = used) */
 /* 限定10連 tickets belong to one event, like the single ones */
 const limTk10=pid=>{if(!banner||!limActive())return 0;const g=grantTk(pid,'ltk10',banner.start),u=inv.lte10===banner.start?(+inv.ltn10||0):0;return Math.max(0,g-u)};
@@ -7482,7 +7574,7 @@ const chestTix=m=>{const c=chestFor(m);return (c.v==='T'?1:c.v==='T3'?3:0)*((m.t
 const gekoOf=m=>m&&m.t>=RULE4&&m.t<RULE6&&m.wr!=null&&m.lr!=null?(tidx(m.lr)>tidx(m.wr)?50:m.lr-m.wr>=100?30:0):0;
 
 /* purchased points (grants with kind 'buy') are for packs only. Packs use them up first (inv.pspent) */
-const buyPts=pid=>grants.reduce((a,g)=>a+(g.pid===pid&&g.kind==='buy'?(+g.pt||0):0),0);
+const buyPts=pid=>grants.reduce((a,g)=>a+(g.pid===pid&&g.kind==='buy'&&giftGot(g)?(+g.pt||0):0),0);
 const paidLeft=pid=>Math.max(0,buyPts(pid)+(pid===invFor?(+inv.ppp||0):0)-(pid===invFor?(+inv.pspent||0):0));
 const freeBal=pid=>balance(pid)-paidLeft(pid);
 
@@ -7787,6 +7879,20 @@ function openMsgBoard(id){if(!devMsgs.length)return;document.querySelectorAll('.
   /* only 確認 closes the board, and only 確認 marks the notices as read (tapping outside does nothing) */
   const close=()=>{try{const top=Math.max(...L.map(m=>m.t||0));if(top>msgSeen())localStorage.setItem('msgSeen',top)}catch(e){}o.classList.add('out');setTimeout(()=>{o.remove();renderDevMsg()},220)};ok.onclick=close;
   const body=el('div','mbb');body.append(list,view);ft.append(ok);w.append(hd,body,ft);o.append(w);document.body.append(o);show(cur)}
+/* ---- a notice the admin marked 「アプリを開くたびに出す」 (m.pop = until when): a popup once per app launch ---- */
+let msgPopDone=false,msgPopTry=0;
+const msgPopNow=()=>devMsgs.find(m=>m.pop&&m.pop>now()&&!m.deleted);
+function maybeMsgPop(){if(msgPopDone)return;if(!myPlayer()){if(msgPopTry++<25)setTimeout(maybeMsgPop,800);return}msgPopDone=true;const m=msgPopNow();if(m)msgPopView(m.id)}
+function msgPopView(id){const m=devMsgs.find(x=>x.id===id)||msgPopNow();if(!m)return;document.querySelectorAll('.kmp').forEach(x=>x.remove());
+  const o=el('div','kmp'),w=el('div','kmpw'),body=el('div','kmpb'),ps=msgPics(m);o.setAttribute('role','dialog');o.setAttribute('aria-label',m.title||'お知らせ');
+  if(ps.length){const g=el('div','kmpg'),strip=el('div','kmps');ps.forEach((u,k)=>{const im=el('img');im.src=u;im.alt='写真 '+(k+1)+'(タップで大きく表示)';im.decoding='async';im.onclick=()=>openPicView(ps,k);strip.append(im)});g.append(strip);
+    if(ps.length>1){const dots=el('div','kmpd');ps.forEach((_,i)=>dots.append(el('i',i?null:'on')));g.append(dots);
+      strip.addEventListener('scroll',()=>{const i=Math.round(strip.scrollLeft/Math.max(1,strip.clientWidth));dots.querySelectorAll('i').forEach((d,k)=>d.classList.toggle('on',k===i))},{passive:true})}
+    w.append(g)}
+  const meta=el('div','kmpm');if(m.tag&&MSGTAG[m.tag])meta.append(msgTagEl(m.tag));meta.append(el('span',null,msgDate(m.t)));
+  body.append(meta,el('h3',null,m.title||'お知らせ'),el('div','kmpx',m.x||''));
+  const ft=el('div','kmpf'),ok=el('button',null,'閉じる');const close=()=>{try{if((m.t||0)>msgSeen())localStorage.setItem('msgSeen',m.t)}catch(e){}o.classList.add('out');setTimeout(()=>{o.remove();try{renderDevMsg()}catch(e){}},240)};
+  ok.onclick=close;ft.append(el('span','sub','アプリを開くたびに表示されます'),ok);w.append(body,ft);o.append(w);o.onclick=e=>{if(e.target===o)close()};document.body.append(o)}
 function renderDevMsg(){
   const card=$('devmsg'),me=myPlayer(),m=devMsgs[0];if(!card)return;
   card.hidden=!me||!m||m.t<=msgSeen();
@@ -7809,7 +7915,7 @@ $('reqgo').onclick=async()=>{
 };
 $('admMsgGo').onclick=()=>twoTap($('admMsgGo'),'みんなに送る',async()=>{
   const t=$('admMsgT').value.trim(),x=$('admMsgX').value.trim();if(!isAdmin()||!x)return;
-  const doc={title:t.slice(0,40),x:x.slice(0,800),t:now()};if(admMsgPics.length)doc.imgs=admMsgPics.slice(0,MSG_MAXPIC);if(admMsgTagV)doc.tag=admMsgTagV;
+  const doc={title:t.slice(0,40),x:x.slice(0,800),t:now()};if($('admMsgPop')&&$('admMsgPop').checked)doc.pop=now()+(+$('admMsgPopD').value||7)*864e5;if(admMsgPics.length)doc.imgs=admMsgPics.slice(0,MSG_MAXPIC);if(admMsgTagV)doc.tag=admMsgTagV;
   try{await db.collection('msgs').add(doc);$('admMsgT').value='';$('admMsgX').value='';admMsgPics=[];admMsgDrawPics();admMsgSetTag('');$('admMsgR').textContent='送りました'}
   catch(e){$('admMsgR').textContent='送れませんでした('+(e.code||e.message)+')'}});
 /* announcement photo: shrunk in the browser to a JPEG (long side 1080px, about 150KB at most) and kept inside the msgs document */
@@ -7830,7 +7936,7 @@ document.querySelectorAll('#admMsgTag button').forEach(b=>b.onclick=()=>admMsgSe
 function admMsgRender(){
   const L=$('admMsgList'),R2=$('admReq');if(!L)return;
   L.replaceChildren();devMsgs.slice(0,5).forEach(m=>{const d=el('div','msgi'),r=el('div','row'),del=el('button','danger','消す');
-    del.onclick=()=>twoTap(del,'消す',()=>db.doc('msgs/'+m.id).delete().catch(()=>{}));r.append(el('span','sub',ago(m.t)),del);{const ps=msgPics(m);if(ps.length){const g=el('div','msgths');ps.forEach(u=>{const im=el('img','msgth');im.src=u;im.alt='';g.append(im)});d.append(g)}}d.append(msgHead(m),el('p',null,m.x||''),r);L.append(d)});
+    del.onclick=()=>twoTap(del,'消す',()=>db.doc('msgs/'+m.id).delete().catch(()=>{}));const live=m.pop&&m.pop>now(),pp=el('button',live?'kmpon':'sec',live?'毎回出す:'+new Date(m.pop).toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'})+'まで':'毎回出す:オフ');pp.onclick=()=>db.doc('msgs/'+m.id).update({pop:live?0:now()+7*864e5}).catch(()=>{});r.append(el('span','sub',ago(m.t)),pp,del);{const ps=msgPics(m);if(ps.length){const g=el('div','msgths');ps.forEach(u=>{const im=el('img','msgth');im.src=u;im.alt='';g.append(im)});d.append(g)}}d.append(msgHead(m),el('p',null,m.x||''),r);L.append(d)});
   if(!reqSub&&isAdmin())reqSub=db.collection('reqs').orderBy('t','desc').limit(100).onSnapshot(s=>{reqs=s.docs.map(d=>({id:d.id,...d.data()}));admMsgRender()},()=>{reqSub=null});
   R2.replaceChildren();if(!reqs.length)R2.append(el('div','sub','まだ要望は届いていません'));
   reqs.forEach(q=>{const d=el('div','msgi'),r=el('div','row'),del=el('button','sec','消す');
@@ -8535,7 +8641,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';return M[id]||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=122';
+const TCG_SRC='tcg_play.html?v=123';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -8695,7 +8801,7 @@ async function tcgRedeemScr(pk,tk,id){const me=myPlayer();if(!db||!me||opening||
 /* a secret of one card sent by the admin (kind 'tscg', cid): added once, remembered in inv.tscgD */
 let tcgGiftBusy=false;
 async function tcgScrGifts(){const me=myPlayer();if(!db||!me||tcgGiftBusy||opening||!invLoaded||invFor!==me.id||typeof grants==='undefined')return;
-  const done=new Set(Array.isArray(inv.tscgD)?inv.tscgD:[]),G=grants.filter(g=>g.pid===me.id&&g.kind==='tscg'&&TC[g.cid]&&!done.has(g.id));if(!G.length)return;
+  const done=new Set(Array.isArray(inv.tscgD)?inv.tscgD:[]),G=grants.filter(g=>g.pid===me.id&&g.kind==='tscg'&&TC[g.cid]&&!done.has(g.id)&&(typeof giftGot!=='function'||giftGot(g)));if(!G.length)return;
   tcgGiftBusy=true;try{const t=Object.assign({},tcgOf(inv)),f=Object.assign({},t.foil||{});G.forEach(g=>{f[g.cid]=(f[g.cid]||0)+1;done.add(g.id)});t.foil=f;
     const n=Object.assign({},inv,{tcg:t,tscgD:[...done]});await db.doc('inv/'+me.id).set(n);inv=n;renderTcg();
     whenFree(()=>tcgBoxCinematic(Object.keys(TCGD.packs)[0],G.map(g=>({c:tcgItem(g.cid),isNew:true,sh:0,foil:true})),()=>{},()=>{},{revealed:true}));toast('シークレットが届きました')}
@@ -9226,7 +9332,7 @@ function watchInv(){
   watchTcgm();
   const me=myPlayer(),id=me&&me.id;if(!db||id===invFor)return;
   if(invUnsub){invUnsub();invUnsub=null}invFor=id;invLoaded=false;inv={own:{},packs:0,since:0,shards:0};
-  if(id)invUnsub=db.doc('inv/'+id).onSnapshot(s=>{inv=s.exists?Object.assign({own:{},packs:0,since:0,shards:0},s.data()):{own:{},packs:0,since:0,shards:0};invLoaded=true;renderGacha();renderTcg();if(typeof tcgScrGifts==='function')setTimeout(tcgScrGifts,0);if(typeof loginBonus==='function')setTimeout(loginBonus,700)},()=>{});
+  if(id)invUnsub=db.doc('inv/'+id).onSnapshot(s=>{inv=s.exists?Object.assign({own:{},packs:0,since:0,shards:0},s.data()):{own:{},packs:0,since:0,shards:0};invLoaded=true;if(s.exists&&inv.gotB==null&&id===invFor){inv.gotB=now();db.doc('inv/'+id).set({gotB:inv.gotB},{merge:true}).catch(()=>{})}renderGacha();renderTcg();if(typeof tcgScrGifts==='function')setTimeout(tcgScrGifts,0);if(typeof loginBonus==='function')setTimeout(loginBonus,700)},()=>{});
 }
 /* ---- limited banner (config/banner: {set,start,end}) ---- */
 let banner=null;
@@ -9374,7 +9480,7 @@ function openCollection(asPlayer){
    Every action is a doc in "grants": {pid,pn,kind:'pt'|'ban'|'unban',pt,note,t} ---- */
 let adminCfg=null,adminLoaded=false,grants=[];
 const isAdmin=()=>!!(adminCfg&&myId&&adminCfg.uid===myId);
-const grantPts=pid=>grants.reduce((a,g)=>a+(g.pid===pid&&((g.kind||'pt')==='pt'||g.kind==='buy')?(+g.pt||0):0),0);
+const grantPts=pid=>grants.reduce((a,g)=>a+(g.pid===pid&&((g.kind||'pt')==='pt'||g.kind==='buy')&&giftGot(g)?(+g.pt||0):0),0);
 function toast(t){const e=el('div','toast',t);document.body.append(e);setTimeout(()=>e.remove(),4200)}
 let admMode=1;const admInvSub={};
 const admAmt=()=>Math.max(0,Math.round(+$('admPt').value||0));
@@ -9590,7 +9696,8 @@ function maybeNews(){let seen='';try{seen=localStorage.getItem('newsSeen')||''}c
 let newsChecked=false;
 function statLine(p){let w=0,l=0;Object.keys(GAMES).forEach(g=>{w+=p[g+'_wins']||0;l+=p[g+'_losses']||0});return '通算 '+w+'勝 '+l+'敗'+(w+l?'  ·  勝率 '+Math.round(w/(w+l)*100)+'%':'')}
 const VTITLE={home:'きもオタレート',rank:'ランキング',battle:'対戦',gacha:'パック',tcg:'きもオタTCG',profile:'プロフィール'};
-let curView='home';try{curView=localStorage.getItem('view')||'home'}catch(e){}
+/* the app always opens on the home (a reload too); only a link with ?go= opens another screen */
+let curView='home';
 const VORDER=['home','rank','battle','gacha','tcg','profile'];
 const VSCR={};
 /* slide a screen in without forcing an extra layout (Web Animations; class fallback) */
@@ -9640,8 +9747,13 @@ document.querySelectorAll('.bnav button').forEach(b=>b.onclick=()=>setView(b.dat
 $('pedit').onclick=()=>openCollection();
 /* pause animations that are off screen (cheaper scrolling on phones) */
 const animIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('ofs',!e.isIntersecting)),{rootMargin:'120px 0px'}):null;
-const animNodes=new Set();let animQ=0;function watchAnim(){animQ=0;if(!animIO)return;for(const n of animNodes)if(!n.isConnected){animIO.unobserve(n);animNodes.delete(n);delete n.__io}document.querySelectorAll('main .rk,main .podium,main .fd,main .myc,main .sto,main #pcard>*,main .top3,main .tile,main .sban,main .gwban').forEach(x=>{if(!x.__io){x.__io=1;animNodes.add(x);animIO.observe(x)}})}
-new MutationObserver(()=>{if(!animQ)animQ=requestAnimationFrame(watchAnim)}).observe(document.querySelector('main'),{childList:true,subtree:true});
+/* only the parts that were just added are searched (it used to search the whole main area after every change) */
+const ANIMSEL='.rk,.podium,.fd,.myc,.sto,#pcard>*,.top3,.tile,.sban,.gwban';const animNodes=new Set(),animAdd=new Set();let animQ=0,animGone=false;
+function watchAnim(){animQ=0;if(!animIO){animAdd.clear();return}if(animGone){animGone=false;for(const n of animNodes)if(!n.isConnected){animIO.unobserve(n);animNodes.delete(n);delete n.__io}}
+  const take=x=>{if(!x.__io&&x.isConnected){x.__io=1;animNodes.add(x);animIO.observe(x)}};
+  for(const r of animAdd){if(!r.isConnected)continue;if(r.matches(ANIMSEL))take(r);r.querySelectorAll(ANIMSEL).forEach(take)}animAdd.clear()}
+new MutationObserver(ms=>{for(const m of ms){if(m.removedNodes.length)animGone=true;for(const n of m.addedNodes)if(n.nodeType===1)animAdd.add(n)}if(animAdd.size||animGone){if(!animQ)animQ=requestAnimationFrame(watchAnim)}}).observe(document.querySelector('main'),{childList:true,subtree:true});
+document.querySelectorAll('main '+ANIMSEL.split(',').join(',main ')).forEach(x=>animAdd.add(x));animQ=requestAnimationFrame(watchAnim);
 {const gt=$('gtabs');const sw=()=>{const sp=document.querySelector('.rkswp');if(sp)sp.hidden=Object.keys(GAMES).length<2};new MutationObserver(sw).observe(gt,{childList:true})}
 function psubSet(k){const v=$('v-profile');v.dataset.pt=k;document.querySelectorAll('#psub button').forEach(b=>b.classList.toggle('on',b.dataset.p===k));try{localStorage.setItem('psub',k)}catch(e){}}
 document.querySelectorAll('#psub button').forEach(b=>b.onclick=()=>{psubSet(b.dataset.p);slideIn($('v-profile'),0)});
@@ -9680,7 +9792,7 @@ render();
   db.doc('config/genres').onSnapshot(s=>{applyGenres(s.exists?s.data():null);queueRender();renderAdmin()},()=>{});
   db.doc('config/gweek').onSnapshot(s=>{gweekLoaded=true;gweek=(s.exists&&s.data().list)||[];queueRender()},()=>{});
   dbSynced('preds','t').onSnapshot(s=>{predsLoaded=true;preds=s.docs.map(d=>({id:d.id,...d.data()}));checkPredHits();queueRender()},()=>{});
-  db.collection('msgs').orderBy('t','desc').limit(20).onSnapshot(s=>{devMsgs=s.docs.map(d=>({id:d.id,...d.data()}));renderDevMsg();if(isAdmin())admMsgRender()},()=>{});
+  db.collection('msgs').orderBy('t','desc').limit(20).onSnapshot(s=>{devMsgs=s.docs.map(d=>({id:d.id,...d.data()}));renderDevMsg();if(!msgPopDone)setTimeout(maybeMsgPop,1200);if(isAdmin())admMsgRender()},()=>{});
   db.collection('feed').orderBy('t','desc').limit(40).onSnapshot(s=>{feed=s.docs.map(d=>({id:d.id,...d.data()}));renderFeed()},()=>{});
   setInterval(()=>{if(curView==='home')tickPreds()},1000);
   setInterval(()=>{if(curView==='gacha')renderLim()},60000);
@@ -9989,7 +10101,7 @@ function makeStage(cv){const x=cv.getContext('2d');const R=rng(29);
   const C=[[92,61,6],[207,157,44],[255,240,184],[245,200,76]];let cache=null,prev=null,mixT=1,colKey='';
   const far=[],mid=[],near=[];for(let i=0;i<40;i++)far.push({x:R(),y:R(),r:.5+R()*.7,p:R()*TAU,v:.2+R()*.5});for(let i=0;i<18;i++)mid.push({x:R(),y:R(),r:1+R()*1.2,p:R()*TAU,v:.5+R()*.8});for(let i=0;i<6;i++)near.push({x:R(),y:R(),r:12+R()*16,p:R()*TAU,v:.3+R()*.4});
   let bursts=[],introAt=-1,lastT=0,par={x:0,y:0},parT={x:0,y:0};
-  const mkc=(w,h)=>{const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w));c.height=Math.max(1,Math.round(h));return c};
+  const mkc=(w,h)=>{w=Math.max(1,Math.round(w));h=Math.max(1,Math.round(h));if(typeof document==='undefined')return new OffscreenCanvas(w,h);const c=document.createElement('canvas');c.width=w;c.height=h;return c};
   function softBlur(src,scale){const a=mkc(src.width*scale,src.height*scale);a.getContext('2d').drawImage(src,0,0,a.width,a.height);const b=mkc(src.width,src.height);const bx=b.getContext('2d');bx.imageSmoothingEnabled=true;bx.drawImage(a,0,0,b.width,b.height);return b}
   function build(){/* caches at a modest resolution: soft light doesn't need full sharpness */
     const k=Math.min(dpr,1.25),c=cache={k};const [C0,C1,C2,C3]=C.map(v=>v.slice());c.col=[C0,C1,C2,C3];
@@ -10003,21 +10115,21 @@ function makeStage(cv){const x=cv.getContext('2d');const R=rng(29);
     c.rays=rays;c.RS=RS;
     const hs=mkc(256,256),h=hs.getContext('2d');g=h.createRadialGradient(128,128,20,128,128,128);g.addColorStop(0,rgba(C3,.5));g.addColorStop(1,rgba(C3,0));h.fillStyle=g;h.fillRect(0,0,256,256);c.halo=hs;
     const bk=mkc(64,64),bkx=bk.getContext('2d');g=bkx.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,rgba(C2,1));g.addColorStop(.7,rgba(C2,.55));g.addColorStop(1,rgba(C2,0));bkx.fillStyle=g;bkx.fillRect(0,0,64,64);c.bokeh=bk;
-    if(oshi&&oshi.img&&oshi.img.complete&&oshi.img.naturalWidth){const im=oshi.img,s=mkc(im.naturalWidth/4,im.naturalHeight/4),sx=s.getContext('2d');sx.drawImage(im,0,0,s.width,s.height);sx.globalCompositeOperation='source-in';sx.fillStyle=rgba(mix(C2,[255,255,255],.3),1);sx.fillRect(0,0,s.width,s.height);
+    if(oshi&&oshi.img&&oshi.img.complete&&oshi.img.naturalWidth&&typeof document!=='undefined'){const im=oshi.img,s=mkc(im.naturalWidth/4,im.naturalHeight/4),sx=s.getContext('2d');sx.drawImage(im,0,0,s.width,s.height);sx.globalCompositeOperation='source-in';sx.fillStyle=rgba(mix(C2,[255,255,255],.3),1);sx.fillRect(0,0,s.width,s.height);
       const pad=mkc(s.width*1.6,s.height*1.3),px=pad.getContext('2d');px.drawImage(s,s.width*.3,s.height*.15);c.glow=softBlur(softBlur(pad,.18),.35);c.glowPad=[.3/1.6,.15/1.3,1.6,1.3]}
   }
   /* the canvas size comes from a ResizeObserver, so a frame never forces the page to lay out just to ask for it */
-  let ow=0,oh=0,ro=false;try{new ResizeObserver(es=>{const r=es[es.length-1].contentRect;ow=Math.round(r.width);oh=Math.round(r.height)}).observe(cv);ro=true}catch(e){}
-  function size(){const w=ro?ow:cv.clientWidth,h=ro?oh:cv.clientHeight;if(!w)return false;const d=Math.min(TIERS[tier].dpr,devicePixelRatio||1);if(w!==W||h!==H||d!==dpr){W=w;H=h;dpr=d;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cache=null}return true}
+  let ow=0,oh=0,ro=false,DPX=1;function resize(w,h,d){ow=Math.round(w);oh=Math.round(h);ro=true;if(d)DPX=d}if(typeof document!=='undefined')try{new ResizeObserver(es=>{const r=es[es.length-1].contentRect;ow=Math.round(r.width);oh=Math.round(r.height)}).observe(cv);ro=true}catch(e){}
+  function size(){const w=ro?ow:cv.clientWidth,h=ro?oh:cv.clientHeight;if(!w)return false;const d=Math.min(TIERS[tier].dpr,(typeof devicePixelRatio!=='undefined'?devicePixelRatio:DPX)||1);if(w!==W||h!==H||d!==dpr){W=w;H=h;dpr=d;cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cache=null}return true}
   function setColors(c){const k=c.join();if(k===colKey)return;colKey=k;c.forEach((v,i)=>{C[i]=hexRgb(v)});if(cache){prev=cache;mixT=0}cache=null}
   function setOshi(o){oshi=o;cache=null}
   function burst(t){const B={t,parts:[]};for(let i=0;i<56;i++){const a=R()*TAU;B.parts.push({a,v:.5+R()*1.2,s:.6+R()*1.8,w:R()})}bursts.push(B)}
-  function intro(t){introAt=t;grace=performance.now()+1600;ft=[];lastN=0}
+  function intro(t,now){introAt=t;grace=(now||performance.now())+1600;ft=[];lastN=0}
   function pointer(nx,ny){parT.x=nx;parT.y=ny}
   /* adaptive quality */
   let ft=[],lastN=0,okRun=0,skip=0;
-  function perf(n){if(n<grace){lastN=n;ft=[];return}if(lastN){const d=n-lastN;if(d<100){ft.push(d);if(ft.length>=45){ft.sort((a,b)=>a-b);const p75=ft[Math.floor(ft.length*.75)];ft=[];
-      if(p75>20.5&&tier<TIERS.length-1){tier++;okRun=0;cache=null}else if(p75<14&&tier>0){if(++okRun>=4){tier--;okRun=0;cache=null}}else okRun=0}}}lastN=n}
+  function perf(n){if(n<grace){lastN=n;ft=[];return}if(lastN){const d=n-lastN;if(d<100){ft.push(d);if(ft.length>=45){ft.sort((a,b)=>a-b);const p75=ft[Math.floor(ft.length*.75)]/((self.__kmStep||16.7)/16.7);ft=[];/* the home draws on purpose 30 times a second: that alone is not slowness */
+      if(p75>20.5&&tier<TIERS.length-1){tier++;okRun=0;cache=null}else if(p75<14&&tier>0){if(++okRun>=4){tier--;okRun=0;cache=null}}else okRun=0;self.__kmTier=tier}}}lastN=n}
   function draw(t,center,nowMs){if(nowMs)perf(nowMs);const T=TIERS[tier];if(T.fps<60&&(skip=(skip+1)%2))return;
     if(!size())return;const dt=clamp(t-lastT,0,.1);lastT=t;
     if(center){const moved=Math.abs(center[0]-bx0)>14||Math.abs(center[1]-by0)>14||Math.abs(center[2]-br0)>10;if(moved||!cache){bx0=cx=center[0];by0=cy=center[1];br0=emR=center[2];if(moved)cache=null}}
@@ -10054,9 +10166,29 @@ function makeStage(cv){const x=cv.getContext('2d');const R=rng(29);
     /* landing flash */
     const fl=pulse(it,.62,.8);if(fl>0){x.globalAlpha=fl*.8;x.drawImage(cache.halo,cx-emR*2.4,cy-emR*2.4,emR*4.8,emR*4.8);x.globalAlpha=1}
     x.globalCompositeOperation='source-over';x.globalAlpha=1}
-  return{draw,setColors,setOshi,burst,intro,pointer,size,tier:()=>tier}}
+  return{draw,setColors,setOshi,burst,intro,pointer,size,resize,tier:()=>tier}}
+/* the same stage drawn in a worker (a second thread): the page only sends the time each frame, so taps and screen changes
+   never wait for the background. Needs OffscreenCanvas 2D (iOS 17+); otherwise the stage is drawn on the page as before. */
+function makeStageW(cv){try{
+  if(typeof Worker==='undefined'||typeof OffscreenCanvas==='undefined'||!cv||!cv.transferControlToOffscreen)return null;
+  {const t=new OffscreenCanvas(1,1);if(!t.getContext('2d'))return null}
+  const fn=f=>f.toString(),E='{'+Object.entries(ease).map(([k,f])=>JSON.stringify(k)+':'+fn(f)).join(',')+'}';
+  const src=['const TAU=Math.PI*2;','const clamp='+fn(clamp)+';','const lerp='+fn(lerp)+';','const ease='+E+';','const seg='+fn(seg)+';','const pulse='+fn(pulse)+';',
+    fn(rng)+';','const rgba='+fn(rgba)+';','const mix='+fn(mix)+';',fn(hexRgb)+';',fn(makeStage)+';',
+    'let S=null;onmessage=e=>{const m=e.data;try{if(m.k==="init"){self.__kmStep=m.step;S=makeStage(m.cv);S.resize(m.w,m.h,m.d);return}if(!S)return;if(m.k==="draw"){S.draw(m.t,m.c,m.n);return}if(m.k==="size"){S.resize(m.w,m.h,m.d);return}if(m.k==="step"){self.__kmStep=m.v;return}S[m.k].apply(null,m.a||[])}catch(err){postMessage({err:String(err&&err.stack||err)})}};'].join('\n');
+  const w=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));
+  const off=cv.transferControlToOffscreen();const r=cv.getBoundingClientRect();
+  w.postMessage({k:'init',cv:off,w:r.width,h:r.height,d:devicePixelRatio||1,step:window.__kmStep||16.7},[off]);
+  w.onmessage=e=>{if(e.data&&e.data.err){console.warn('stage worker',e.data.err);window.__kmWErr=e.data.err}};
+  try{new ResizeObserver(es=>{const b=es[es.length-1].contentRect;w.postMessage({k:'size',w:b.width,h:b.height,d:devicePixelRatio||1})}).observe(cv)}catch(e){}
+  let step=0;const P=(k,a)=>w.postMessage({k,a});
+  return{worker:true,
+    draw:(t,c,n)=>{if(window.__kmStep!==step){step=window.__kmStep;w.postMessage({k:'step',v:step||16.7})}w.postMessage({k:'draw',t,c:c?[c[0],c[1],c[2]]:null,n})},
+    setColors:c=>P('setColors',[c.slice()]),setOshi:o=>{if(!o)P('setOshi',[null])},burst:t=>P('burst',[t]),intro:t=>P('intro',[t,performance.now()]),pointer:(a,b)=>P('pointer',[a,b]),
+    size:()=>true,resize:()=>{},tier:()=>0}}
+  catch(e){console.warn('stage worker off',e);return null}}
 
-window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
+window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,seg};
 })();
 
 /* v121 home (lobby): a fresh screen built from the app's data. The old home parts stay in the DOM (hidden) and keep
@@ -10099,7 +10231,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   const CREST=(c)=>'<svg viewBox="0 0 64 64"><defs><linearGradient id="lobe1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+c[2]+'"/><stop offset=".45" stop-color="'+c[3]+'"/><stop offset="1" stop-color="'+c[0]+'"/></linearGradient>'+
     '<linearGradient id="lobe2" x1="0" y1="0" x2=".6" y2="1"><stop offset="0" stop-color="#2c2933"/><stop offset=".6" stop-color="#121016"/><stop offset="1" stop-color="#060509"/></linearGradient>'+
     '<linearGradient id="lrim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></linearGradient>'+
-    '<linearGradient id="lgl" gradientUnits="userSpaceOnUse" x1="-40" y1="0" x2="-10" y2="64"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".38"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'+
+    '<linearGradient id="lgl" gradientUnits="userSpaceOnUse" x1="-40" y1="0" x2="-10" y2="64"><animate attributeName="x1" values="-30;100;100" keyTimes="0;0.15;1" dur="6s" repeatCount="indefinite"/><animate attributeName="x2" values="-14;116;116" keyTimes="0;0.15;1" dur="6s" repeatCount="indefinite"/><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".38"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'+
     '<radialGradient id="lgem" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="'+c[3]+'" stop-opacity=".9"/><stop offset="1" stop-color="'+c[3]+'" stop-opacity="0"/></radialGradient><clipPath id="lclip"><path d="'+SH+'"/></clipPath></defs>'+
     '<path d="'+SH+'" fill="url(#lobe1)"/><path d="'+SH+'" fill="none" stroke="url(#lrim)" stroke-width=".9"/>'+
     '<path d="'+SI+'" fill="url(#lobe2)"/><path d="'+SI+'" fill="none" stroke="'+c[1]+'" stroke-opacity=".55" stroke-width=".5" transform="translate(32 32) scale(.9) translate(-32 -32)"/>'+
@@ -10248,17 +10380,22 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   function syncLv(){const me=ME();if(!me||typeof lvOf!=='function')return;const v=lvOf(me.id);setT(q('.lvn'),String(v.L));setH(q('.lvx'),'あと <b class="tn">'+Math.max(0,v.need-v.cur)+'</b> XP');
     q('.lvr .pr').style.strokeDashoffset=(97.4*(1-Math.min(1,v.cur/Math.max(1,v.need)))).toFixed(1)}
   /* ---- present box: what was given to you (admin pt, tickets, rewards). Uses the same "seen" mark as the old card ---- */
-  const GK=k=>({ptk:'pk',ptk10:'pk',ctk:'cn',ltk:'pk',ltk10:'pk'})[k]||'pt';
-  function giftList(){const me=ME();if(!me||typeof grants==='undefined')return{all:[],seen:0};let seen=0;try{seen=+localStorage.getItem('gseen_'+me.id)||0}catch(e){}
-    const all=grants.filter(g=>g.pid===me.id&&((g.kind||'pt')==='pt'||g.kind==='buy'||(typeof TKNAME!=='undefined'&&TKNAME[g.kind]))).sort((a,b)=>b.t-a.t).slice(0,40);return{all,seen}}
-  function syncGift(){const {all,seen}=giftList();const unseen=seen?all.filter(g=>g.t>seen):[];setT(q('.lgift b'),unseen.length?String(unseen.length):'');
-    const sig=all.map(g=>g.id||g.t).join(',')+'|'+seen;if(secGf.dataset.k===sig)return;secGf.dataset.k=sig;
+  const GK=k=>({ptk:'pk',ptk10:'pk',ctk:'cn',ltk:'pk',ltk10:'pk',tscg:'pk'})[k]||(/^(tp1_|tpb_|tsc_)/.test(k||'')?'pk':'pt');
+  /* presents: each gift waits with its own 受け取る button (and まとめて受け取る); taken ones stay in the list, dimmed */
+  function giftList(){const me=ME();if(!me||typeof grants==='undefined')return{all:[],wait:[]};
+    const all=grants.filter(g=>g.pid===me.id&&(typeof giftable==='function'?giftable(g):((g.kind||'pt')==='pt'||g.kind==='buy'))).sort((a,b)=>b.t-a.t).slice(0,40);
+    const wait=typeof giftsWaiting==='function'?giftsWaiting(me.id):[];return{all,wait}}
+  function syncGift(){const {all,wait}=giftList();setT(q('.lgift b'),wait.length?String(wait.length):'');
+    const sig=all.map(g=>g.id||g.t).join(',')+'|'+wait.map(g=>g.id).join(',');if(secGf.dataset.k===sig)return;secGf.dataset.k=sig;
     if(!all.length){secGf.innerHTML='<div class="lempty">まだ届いたものはありません。管理者からのptやチケット、MVPなどの報酬がここに届きます。</div>';return}
-    const rows=all.map(g=>{const nw=seen&&g.t>seen;const tk=typeof TKNAME!=='undefined'&&TKNAME[g.kind];const name=tk?tk+' ×'+(g.n||1):((+g.pt>0?'+':'')+(+g.pt||0)+'pt'+(g.kind==='buy'?'(購入)':''));
+    const W=new Set(wait.map(g=>g.id));
+    const rows=all.map(g=>{const nw=W.has(g.id);const name=typeof giftName==='function'?giftName(g):((+g.pt>0?'+':'')+(+g.pt||0)+'pt');
       let when='';try{when=ago(g.t)}catch(e){}
-      return '<div class="lgr'+(nw?' nw':'')+'"><span class="gi g-'+GK(g.kind)+'"></span><span class="gt"><b>'+esc(name)+'</b><small>'+esc(g.note||'管理者から')+' ・ '+esc(when)+'</small></span>'+(nw?'<em>NEW</em>':'')+'</div>'}).join('');
-    secGf.innerHTML='<div class="lgrp">'+rows+'</div>'+(unseen.length?'<button type="button" class="lmore lgok">すべて確認した</button>':'');
-    const ok=secGf.querySelector('.lgok');if(ok)ok.onclick=()=>{const me=ME();try{localStorage.setItem('gseen_'+me.id,Math.max(...all.map(g=>g.t)))}catch(e){}try{renderGrantMsg()}catch(e){}secGf.dataset.k='';syncGift()}}
+      return '<div class="lgr'+(nw?' nw':' got')+'" data-g="'+esc(g.id||'')+'"><span class="gi g-'+GK(g.kind)+'"></span><span class="gt"><b>'+esc(name)+'</b><small>'+esc(g.note||'管理者から')+' ・ '+esc(when)+'</small></span>'+(nw?'<button type="button" class="lgtake">受け取る</button>':'<span class="lgdone">受け取り済み</span>')+'</div>'}).join('');
+    secGf.innerHTML=(wait.length?'<button type="button" class="lgall">まとめて受け取る('+wait.length+')</button>':'')+'<div class="lgrp">'+rows+'</div>';
+    const go=async(ids,btn)=>{if(btn){btn.disabled=true;btn.textContent='受け取り中…'}const ok=typeof takeGifts==='function'&&await takeGifts(ids);if(!ok&&btn){btn.disabled=false;btn.textContent=ids?'受け取る':'まとめて受け取る'}secGf.dataset.k='';syncGift()};
+    secGf.querySelectorAll('.lgtake').forEach(b=>b.onclick=()=>go([b.closest('.lgr').dataset.g],b));
+    const all1=secGf.querySelector('.lgall');if(all1)all1.onclick=()=>go(null,all1)}
   function syncTop(){syncLv();syncGift();
     const pt=document.querySelector('.hbar .pt b');setT(q('.lpt'),pt?Number(pt.textContent.replace(/\D/g,'')||0).toLocaleString():'0');
     const me=ME();let tk=0;try{tk=me&&typeof coinTk==='function'?coinTk(me.id):0}catch(e){}setT(q('.ltk'),String(tk));
@@ -10348,7 +10485,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     const gt=$i('gtabs');if(gt)new MutationObserver(kick).observe(gt,{attributes:true,subtree:true,attributeFilter:['class']});sync();setInterval(()=>{if(!vh.hidden&&!document.hidden)sync()},15000)}
 
   /* ---- the stage (kmotion): drawn every frame from one clock; the recorder can drive the clock with __lobStep(t) ---- */
-  const KM=window.KMotion;const cv=q('.lst canvas');const stage=KM?KM.makeStage(cv):null;
+  const KM=window.KMotion;const cv=q('.lst canvas');const stage=KM?((KM.makeStageW&&KM.makeStageW(cv))||KM.makeStage(cv)):null;
   const clock=()=>window.__kmT!=null?window.__kmT:performance.now()/1000;
   let stCol='';function stageCols(){if(!stage)return;const k=col.join();if(k!==stCol){stCol=k;stage.setColors(col)}}
   /* ---- oshi in the lobby (plan B "推しがいる"): the KMR picture fills the upper screen behind everything,
@@ -10389,16 +10526,38 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     if(oshiOn)return;/* the picture is the stage: nothing to draw on the canvas (also lighter) */
     stage.draw(t,geo.c,window.__kmT!=null?0:now);
     /* gentle life: the emblem floats; the oshi breathes; a gloss band crosses the emblem every 6s */
-    const em=q('.emb2');em.style.translate='0 '+(Math.sin(t*1.25)*4).toFixed(2)+'px';
-    const gl=em.querySelector('#lgl');if(gl){const u=((t%6)/.9);if(u<=1.05){const xx=-30+Math.min(1,u)*130;gl.setAttribute('x1',xx.toFixed(1));gl.setAttribute('x2',(xx+16).toFixed(1))}}}
-  const active=()=>{const c=document.body.classList;if(!c.contains('lobhome')||document.hidden||c.contains('tcgon')||window.__kfFT)return false;return window.__kmRevealed||!document.querySelector('body>.km-splash')};
+    /* the emblem floats by the CSS animation (lobfl) and its gloss is an SVG animation: nothing is written here each frame */}
+  const active=()=>{const c=document.body.classList;if(!c.contains('lobhome')||document.hidden||c.contains('tcgon')||window.__kfFT||c.contains('kidle')||c.contains('ovl')||c.contains('lobsheet'))return false;return window.__kmRevealed||!document.querySelector('body>.km-splash')};
   const ovd=q('.losh video');ovd.addEventListener('playing',()=>ovd.classList.add('on'));
   /* play only while the lobby is on screen; if this phone cannot play it, the still picture simply stays */
   function vidCtl(a){const src=ovd.getAttribute('src');if(!oshiOn||!src||ovd.__bad===src){if(!ovd.paused)ovd.pause();return}
     if(a&&ovd.paused&&!ovd.__pp){ovd.__pp=1;let pr;try{pr=ovd.play()}catch(e){}if(pr&&pr.then)pr.then(()=>{ovd.__pp=0},e=>{ovd.__pp=0;if(e&&e.name!=='AbortError'&&e.name!=='NotAllowedError')ovd.__bad=src});else ovd.__pp=0}
     else if(!a&&!ovd.paused)ovd.pause()}
   ovd.addEventListener('error',()=>{ovd.__bad=ovd.getAttribute('src')});
-  (function f(){requestAnimationFrame(f);const a=active();vidCtl(a);if(window.__kmT!=null||!a)return;frame(clock())})();
+  /* battery: the stage is drawn 30 times a second (it moves slowly, so it looks the same), and stops while idle or covered */
+  /* away from the home the loop sleeps: no screen-refresh callback at all (a light check 4 times a second instead),
+     and it wakes at once when the screen state changes (the body class) or the app comes back */
+  let lastF=0,svgOn=true,slp=0;window.__kmStep=33.3;
+  const tick=n=>{const a=active();vidCtl(a);{const sv=q('.emb2 svg');if(sv&&sv.pauseAnimations&&a!==svgOn){svgOn=a;try{a?sv.unpauseAnimations():sv.pauseAnimations()}catch(e){}}}
+    if(!a&&window.__kmT==null){slp=setTimeout(()=>{slp=0;requestAnimationFrame(tick)},250);return}
+    requestAnimationFrame(tick);if(window.__kmT!=null)return;if(n&&n-lastF<30)return;lastF=n||0;frame(clock())};
+  {const wakeL=()=>{if(slp){clearTimeout(slp);slp=0;requestAnimationFrame(tick)}};new MutationObserver(wakeL).observe(document.body,{attributes:true,attributeFilter:['class']});document.addEventListener('visibilitychange',wakeL);addEventListener('kmo:reveal',wakeL)}
+  requestAnimationFrame(tick);
+  /* idle on the home: after 20 s without a touch the ambient motion pauses (CSS and the stage); any touch brings it back */
+  {let last=Date.now();const wake=()=>{last=Date.now();if(document.body.classList.contains('kidle'))document.body.classList.remove('kidle')};
+    ['pointerdown','touchstart','keydown','wheel'].forEach(k=>addEventListener(k,wake,{capture:true,passive:true}));addEventListener('scroll',wake,{capture:true,passive:true});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)wake()});
+    setInterval(()=>{const c=document.body.classList;if(!c.contains('kidle')&&c.contains('lobhome')&&Date.now()-last>20000&&!window.__kmT)c.add('kidle')},2000)}
+  /* where the pause goes: on the screen showing (popup on top), and on the home, top bar and tab bar (idle on the home, or a
+     sheet over it). Only those parts are re-checked when it changes (a class on <body> re-checked every screen). */
+  {const B=document.body.classList,main=document.querySelector('main');
+    const set=(e,k,on)=>{if(e&&e.classList.contains(k)!==on)e.classList.toggle(k,on)};
+    const sync=()=>{const ovl=B.contains('ovl'),home=B.contains('lobhome'),idle=B.contains('kidle')&&home,sheet=B.contains('lobsheet'),vh=document.getElementById('v-home');
+      if(main)[...main.children].forEach(c=>{set(c,'kpz',ovl&&!(c.classList.contains('view')&&c.hidden));if(c===vh)set(c,'kpd',idle||sheet)});
+      set(document.querySelector('.lbar'),'kpd',idle);set(document.querySelector('.bnav'),'kpd',idle)};
+    new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
+    if(main)new MutationObserver(sync).observe(main,{subtree:false,childList:true,attributes:true,attributeFilter:['hidden']});
+    if(main)[...main.querySelectorAll(':scope>.view')].forEach(v=>new MutationObserver(sync).observe(v,{attributes:true,attributeFilter:['hidden']}));sync()}
   window.__lobStep=t=>{window.__kmT=t;if(window.gsap){if(!window.__kmG){window.__kmG=1;gsap.ticker.remove(gsap.updateRoot)}gsap.updateRoot(t)}frame(t)};
   lob.addEventListener('pointermove',e=>{if(!stage)return;const r=lob.getBoundingClientRect();stage.pointer((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)},{passive:true});
   lob.addEventListener('pointerleave',()=>stage&&stage.pointer(0,0));
@@ -11409,6 +11568,20 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     if(pg){try{window.__kxInk&&__kxInk()}catch(e){}}}
   const later=()=>{if(!rq)rq=requestAnimationFrame(refresh)};
   window.__kxRefresh=()=>{rateSig=histSig=deckSig=tOppSig=tDkSig=rankSig='';refresh()};
+  /* build a screen ahead of time while it is hidden (nothing animates: the entrance still plays when you open it) */
+  window.__kxWarm=v=>{try{if(v==='rank')renderRank();else if(v==='battle'&&(vb.dataset.bp||'rate')==='rate')renderRate()}catch(e){}};
+  /* screens not opened yet are prepared quietly while you are on the home and not touching the phone: built and laid out
+     once (a hidden screen keeps that state), so the first switch is as quick as coming back. One screen per step. */
+  (function(){try{if(!(window.CSS&&CSS.supports('content-visibility','hidden')))return}catch(e){return}
+    let lastIn=Date.now(),started=false;['pointerdown','touchstart','keydown','wheel'].forEach(k=>addEventListener(k,()=>{lastIn=Date.now()},{capture:true,passive:true}));
+    const Q=['gacha','rank','battle','profile'];
+    const step=()=>{if(!Q.length)return;const c=document.body.classList;
+      if(Date.now()-lastIn<900||document.hidden||c.contains('ovl')||document.querySelector('body>.km-splash')){setTimeout(step,700);return}
+      const v=Q.shift(),el=document.getElementById('v-'+v);
+      if(el&&el.hidden&&curView!==v){if(v==='rank'||v==='battle')window.__kxWarm(v);try{for(const c of el.children)if(!c.hidden)c.getBoundingClientRect()}catch(e){}}
+      setTimeout(step,500)};
+    const go=()=>{if(started)return;started=true;setTimeout(step,2500)};
+    if(window.__kmRevealed||!document.querySelector('body>.km-splash'))setTimeout(go,1500);addEventListener('kmo:reveal',go,{once:true});setTimeout(go,9000)})();
   window.__kxEnter=()=>{lastPg=null;lastV=null;introN=0;tIntroN=0;rkIntroN=0;refresh()};
   try{const R0=render;render=function(){const r=R0.apply(this,arguments);later();return r}}catch(e){}
   /* switching to TCG rebuilt the old TCG sections every time: skip that while nothing has changed since the last build */
@@ -12465,7 +12638,11 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   /* one card up close: it leans under the finger and the light moves across it */
   const RL={C:'コモン',R:'レア',SR:'スーパーレア',GR:'ガチレア'};
   function zoomCard(host,x){const z=mk('div','kp-zoom'),w=mk('div','kp-zw'),f=tcgFace(x.c.v,null,x.foil);f.append(mk('i','kp-zl'));w.append(f);
-    z.append(w,mk('div','kp-zc','<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span><small>タップで戻る</small>'));host.append(z);
+    /* the card's details under it (family, type, cost, ATK/DEF, effect), read straight from the card data: no extra loading */
+    const C=(typeof TCGD!=='undefined'&&(zoomCard.M||(zoomCard.M=Object.fromEntries(TCGD.cards.map(c=>[c.id,c]))))[x.c.v])||null,TY={chara:'キャラ',spell:'魔法',trap:'トラップ'};
+    let info='';if(C){const fam=(typeof TCGD!=='undefined'&&TCGD.fname&&TCGD.fname[C.f])||'族なし';
+      info='<div class="kp-zi"><div class="kp-zm"><span>'+esc(fam)+'</span><span>'+(TY[C.ty]||'')+'</span><span>熱量 '+(+C.c||0)+'</span>'+(C.ty==='chara'?'<span class="kp-zs"><i class="kp-za">ATK <b>'+(+C.atk||0)+'</b></i><i class="kp-zd">DEF <b>'+(+C.def||0)+'</b></i></span>':'')+'</div>'+(C.tx?'<div class="kp-zt">'+esc(C.tx)+'</div>':'')+'</div>';z.classList.add('info')}
+    z.append(w,mk('div','kp-zc','<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span>'+info+'<small>タップで戻る</small>'));host.append(z);
     z.addEventListener('pointermove',e=>{const r=f.getBoundingClientRect(),dx=(e.clientX-(r.left+r.width/2))/r.width,dy=(e.clientY-(r.top+r.height/2))/r.height;
       f.style.setProperty('--ry',clamp(dx*30,-18,18).toFixed(1)+'deg');f.style.setProperty('--rx',clamp(-dy*24,-14,14).toFixed(1)+'deg');f.style.setProperty('--mx',(50+dx*100).toFixed(1)+'%');f.style.setProperty('--my',(30+dy*100).toFixed(1)+'%')});
     z.onclick=()=>{if(RM||!G){z.remove();return}G.to(z,{opacity:0,duration:.2,onComplete:()=>z.remove()})};
@@ -13079,7 +13256,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
 (function(){
   let on=true;try{on=localStorage.getItem('ui2')!=='0'}catch(e){}
   if(!on)return;
-  const T0=performance.now(),PRI={mvp:3,news:2,pass:1};let shown=false,pending=[],timer=0;
+  const T0=performance.now(),PRI={mvp:3,news:2,msg:1.5,pass:1};let shown=false,pending=[],timer=0;
   /* opened by a tap: the call comes inside (or right after) a click on a button */
   let lastTap=-1e9;addEventListener('click',()=>{lastTap=performance.now()},true);
   const gest=()=>performance.now()-lastTap<450;
@@ -13093,6 +13270,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   try{if(typeof showNews==='function'){const f=showNews;showNews=gate('news',f)}}catch(e){}
   try{if(typeof showMvpAnn==='function'){const f=showMvpAnn;showMvpAnn=gate('mvp',f)}}catch(e){}
   try{if(typeof passAdView==='function'){const f=passAdView;passAdView=gate('pass',f)}}catch(e){}
+  try{if(typeof msgPopView==='function'){const f=msgPopView;msgPopView=gate('msg',f)}}catch(e){}
   window.__kpop={get shown(){return shown},reset(){shown=false;pending=[]}};
 })();
 /*KPOPJS-END*/</script>
