@@ -1486,10 +1486,12 @@ $('trysp').onclick=()=>startTry('sp');$('tryatk').onclick=()=>startTry('atk');
 $('tryeq').onclick=()=>{const key=tryKey(TRY.wt,TRY.r);if(!key)return;let it=S.inv.find(x=>x.k===key&&x.r===TRY.r);if(!it){it={id:S.nid++,k:key,r:TRY.r};S.inv.push(it)}S.eq.w=it.id;changed()};
 
 /* ---------- glue ---------- */
-function changed(){save();renderLook();renderStat();renderGear();renderFight();renderTry();$('pow').textContent=power(fighterMe().st);if(HOST){renderHostGear();renderHostBar();renderDef();renderEnh()}}
+/* redraw only (no saving): used when new data arrives from the app, so a save never answers a save */
+function refresh(){renderLook();renderStat();renderGear();renderFight();renderTry();$('pow').textContent=power(fighterMe().st);if(HOST){renderHostGear();renderHostBar();renderDef();renderEnh()}}
+function changed(){save();refresh()}
 if(HOST){document.documentElement.classList.add('inapp');/* a new avatar starts with its points already spread (it can be redone in ステータス) */if(usedPts(S.al||{})===0)S.al=autoAlloc(S.lv,'atk');OPP.length=0;try{HOST.friends().forEach(o=>OPP.push(o))}catch(e){}if(S.opp>=OPP.length)S.opp=0;
   $('hclose').onclick=()=>{saveNow();HOST.close()};$('ga1').onclick=()=>gachaPull(1);$('ga10').onclick=()=>gachaPull(10);$('g10').onclick=()=>{$('g10').hidden=true};
-  HOST.onChange&&HOST.onChange(()=>{S.lv=HOST.level();const L=HOST.friends();OPP.length=0;L.forEach(o=>OPP.push(o));if(!playing&&!OV)changed();else renderHostBar()})}
+  HOST.onChange&&HOST.onChange(()=>{S.lv=HOST.level();const L=HOST.friends();OPP.length=0;L.forEach(o=>OPP.push(o));if(!playing&&!OV)refresh();else renderHostBar()})}
 ready.then(()=>{changed();requestAnimationFrame(frame)});
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>

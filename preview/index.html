@@ -7592,6 +7592,7 @@ window.BUNSHINHOST={
     if(sv){/* a copy older than what is saved (opened before the data arrived) must not replace it */if((+sv.nid||0)>o.nid){toast('分身のデータを読み直しています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
       for(const k of ['gp','g10','copen'])o[k]=Math.max(o[k],+sv[k]||0);o.qs=Math.min(Math.max(o.qs,+sv.qs||0),(+sv.qs||0)+1)}
     else{o.gp=0;o.g10=0;o.qs=Math.min(o.qs,1);o.copen=Math.min(o.copen,1)}
+    /* nothing changed: no write */if(sv){const cj=x=>x&&typeof x==='object'?(Array.isArray(x)?'['+x.map(cj).join(',')+']':'{'+Object.keys(x).filter(k=>k!=='u'&&x[k]!==undefined).sort().map(k=>k+':'+cj(x[k])).join(',')+'}'):JSON.stringify(x);if(cj(sv)===cj(o))return Promise.resolve()}
     bunDocs[me.id]=JSON.parse(JSON.stringify(o));
     return db.doc('bunshin/'+me.id).set(o).catch(e=>{toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')');throw e})},
   level:()=>lvOf(myPlayer().id).L,
