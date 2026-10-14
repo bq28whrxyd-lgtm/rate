@@ -10071,7 +10071,7 @@ function makeBonus(root,o){/* o: {amt, cur, label, sub, next, days:[{label,amt,s
    ===================================================================== */
 function hexRgb(h){h=String(h||'#f5c84c').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);return[n>>16&255,n>>8&255,n&255]}
 function makeStage(cv){const x=cv.getContext('2d');const R=rng(29);
-  const TIERS=[{dpr:1.25,floor:1,dust:1,bokeh:1,fps:60},{dpr:1.25,floor:1,dust:.6,bokeh:1,fps:60},{dpr:1.25,floor:.6,dust:.4,bokeh:0,fps:60},{dpr:1,floor:0,dust:.3,bokeh:0,fps:30}];
+  const TIERS=[{dpr:1.5,floor:1,dust:1,bokeh:1,fps:60},{dpr:1.5,floor:1,dust:.6,bokeh:1,fps:60},{dpr:1.25,floor:.6,dust:.4,bokeh:0,fps:60},{dpr:1,floor:0,dust:.3,bokeh:0,fps:30}];
   let tier=0,W=0,H=0,dpr=1,cx=0,cy=0,emR=80,oshi=null,bx0=-99,by0=-99,br0=-99,grace=0;
   const C=[[92,61,6],[207,157,44],[255,240,184],[245,200,76]];let cache=null,prev=null,mixT=1,colKey='';
   const far=[],mid=[],near=[];for(let i=0;i<40;i++)far.push({x:R(),y:R(),r:.5+R()*.7,p:R()*TAU,v:.2+R()*.5});for(let i=0;i<18;i++)mid.push({x:R(),y:R(),r:1+R()*1.2,p:R()*TAU,v:.5+R()*.8});for(let i=0;i<6;i++)near.push({x:R(),y:R(),r:12+R()*16,p:R()*TAU,v:.3+R()*.4});
@@ -10103,8 +10103,8 @@ function makeStage(cv){const x=cv.getContext('2d');const R=rng(29);
   function pointer(nx,ny){parT.x=nx;parT.y=ny}
   /* adaptive quality */
   let ft=[],lastN=0,okRun=0,skip=0;
-  function perf(n){if(n<grace){lastN=n;ft=[];return}if(lastN){const d=n-lastN;if(d<100){ft.push(d);if(ft.length>=45){ft.sort((a,b)=>a-b);const p75=ft[Math.floor(ft.length*.75)];ft=[];
-      if(p75>20.5&&tier<TIERS.length-1){tier++;okRun=0;cache=null}else if(p75<14&&tier>0){if(++okRun>=4){tier--;okRun=0;cache=null}}else okRun=0}}}lastN=n}
+  function perf(n){if(n<grace){lastN=n;ft=[];return}if(lastN){const d=n-lastN;if(d<100){ft.push(d);if(ft.length>=45){ft.sort((a,b)=>a-b);const p75=ft[Math.floor(ft.length*.75)]/((window.__kmStep||16.7)/16.7);ft=[];/* the home draws on purpose 30 times a second: that alone is not slowness */
+      if(p75>20.5&&tier<TIERS.length-1){tier++;okRun=0;cache=null}else if(p75<14&&tier>0){if(++okRun>=4){tier--;okRun=0;cache=null}}else okRun=0;window.__kmTier=tier}}}lastN=n}
   function draw(t,center,nowMs){if(nowMs)perf(nowMs);const T=TIERS[tier];if(T.fps<60&&(skip=(skip+1)%2))return;
     if(!size())return;const dt=clamp(t-lastT,0,.1);lastT=t;
     if(center){const moved=Math.abs(center[0]-bx0)>14||Math.abs(center[1]-by0)>14||Math.abs(center[2]-br0)>10;if(moved||!cache){bx0=cx=center[0];by0=cy=center[1];br0=emR=center[2];if(moved)cache=null}}
@@ -10491,7 +10491,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     else if(!a&&!ovd.paused)ovd.pause()}
   ovd.addEventListener('error',()=>{ovd.__bad=ovd.getAttribute('src')});
   /* battery: the stage is drawn 30 times a second (it moves slowly, so it looks the same), and stops while idle or covered */
-  let lastF=0;(function f(n){requestAnimationFrame(f);const a=active();vidCtl(a);if(window.__kmT!=null||!a)return;if(window.__kmT==null&&n&&n-lastF<30)return;lastF=n||0;frame(clock())})();
+  let lastF=0;window.__kmStep=33.3;(function f(n){requestAnimationFrame(f);const a=active();vidCtl(a);if(window.__kmT!=null||!a)return;if(window.__kmT==null&&n&&n-lastF<30)return;lastF=n||0;frame(clock())})();
   /* idle on the home: after 20 s without a touch the ambient motion pauses (CSS and the stage); any touch brings it back */
   {let last=Date.now();const wake=()=>{last=Date.now();if(document.body.classList.contains('kidle'))document.body.classList.remove('kidle')};
     ['pointerdown','touchstart','keydown','wheel'].forEach(k=>addEventListener(k,wake,{capture:true,passive:true}));addEventListener('scroll',wake,{capture:true,passive:true});
