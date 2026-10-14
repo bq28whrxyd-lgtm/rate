@@ -273,10 +273,11 @@ service cloud.firestore {
       return request.resource.data.keys().hasOnly(['look', 'al', 'inv', 'eq', 'nid', 'qs', 'gp', 'g10', 'copen', 'u'])
         && request.resource.data.get('inv', []).size() <= 600 && newV('qs', 0) <= 100 && newV('qs', 0) >= 0;
     }
+    function bunMine(pid) { return myPid() == pid || get(/databases/$(database)/documents/players/$(pid)).data.get('uid', '') == me(); }
     match /bunshin/{pid} {
       allow read: if signedIn();
-      allow create: if signedIn() && myPid() == pid && bunOk() && newV('qs', 0) <= 1 && newV('gp', 0) == 0 && newV('g10', 0) == 0 && newV('copen', 0) <= 1;
-      allow update: if signedIn() && myPid() == pid && bunOk()
+      allow create: if signedIn() && bunMine(pid) && bunOk() && newV('qs', 0) <= 1 && newV('gp', 0) == 0 && newV('g10', 0) == 0 && newV('copen', 0) <= 1;
+      allow update: if signedIn() && bunMine(pid) && bunOk()
         && newV('qs', 0) >= oldV('qs', 0) && newV('qs', 0) <= oldV('qs', 0) + 1
         && newV('gp', 0) >= oldV('gp', 0) && newV('g10', 0) >= oldV('g10', 0) && newV('copen', 0) >= oldV('copen', 0);
       allow delete: if isAdmin();
@@ -284,9 +285,9 @@ service cloud.firestore {
     // ---- one record per avatar battle, written by the attacker, never changed ----
     match /bunlog/{id} {
       allow read: if signedIn();
-      allow create: if signedIn() && myPid() != '' && request.resource.data.a == myPid()
+      allow create: if signedIn() && bunMine(request.resource.data.a)
         && request.resource.data.keys().hasOnly(['a', 'd', 'w', 's', 't'])
-        && request.resource.data.d is string && request.resource.data.d != myPid()
+        && request.resource.data.d is string && request.resource.data.d != request.resource.data.a
         && request.resource.data.w in [0, 1] && request.resource.data.s is int
         && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 120000;
       allow update, delete: if false;
@@ -384,7 +385,7 @@ service cloud.firestore {
 
     // ---- when each player last had the app open: written by that player, readable by the admin only ----
     match /seen/{pid} {
-      allow read: if isAdmin();
+      allow read: if signedIn();
       allow write: if signedIn() && myPid() == pid
         && request.resource.data.keys().hasOnly(['t', 'v'])
         && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000
