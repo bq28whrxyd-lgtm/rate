@@ -8124,12 +8124,14 @@ function passWelcome(){const me=myPlayer();if(!me||!passesLoaded||!invLoaded||in
    (at most once a day, on this device) ===== */
 const PASS_AD_DAYS=5;
 function passAd(){const me=myPlayer();if(!me||me.ban||!passesLoaded||!invLoaded||invFor!==me.id||curView!=='home'||!passOnSale())return;if(document.querySelector('body>.pad,body>.pwv'))return;
-  const key='passAd_'+me.id;let last=0;try{last=+localStorage.getItem(key)||0}catch(e){}const t=now(),has=passLive(me.id).length>0;
+  /* passAd2: the first key (passAd_) was written even when another launch announcement won (kpop), so many never saw the pass. Everyone gets it once more. */
+  const key='passAd2_'+me.id;let last=0;try{last=+localStorage.getItem(key)||0}catch(e){}const t=now(),has=passLive(me.id).length>0;
   if(last&&(has||dayNo(t)-dayNo(last)<PASS_AD_DAYS))return;
   /* a fresh pass of mine shows its own welcome instead */
   if(passH(me.id).some(x=>(+x.at||0)>t-864e5))return;
-  whenFree(()=>{if(curView!=='home'||document.querySelector('body>.pad,body>.pwv'))return;let l2=0;try{l2=+localStorage.getItem(key)||0}catch(e){}if(l2!==last)return;try{localStorage.setItem(key,String(now()))}catch(e){}passAdView(!last)})}
-function passAdView(first){const o=el('div','pad pg3'),close=()=>{if(!o.isConnected)return;o.classList.add('out');setTimeout(()=>o.remove(),360)};
+  whenFree(()=>{if(curView!=='home'||document.querySelector('body>.pad,body>.pwv'))return;let l2=0;try{l2=+localStorage.getItem(key)||0}catch(e){}if(l2!==last)return;passAdView(!last)})}
+/* marked as seen only when it really shows (the launch gate may hold it back for a later launch) */
+function passAdView(first){try{const me=myPlayer();if(me)localStorage.setItem('passAd2_'+me.id,String(now()))}catch(e){}const o=el('div','pad pg3'),close=()=>{if(!o.isConnected)return;o.classList.add('out');setTimeout(()=>o.remove(),360)};
   o.append(el('i','pwray'),el('i','pwglow'));const s=el('div','padst');o.append(s);
   s.append(el('div','pwk','MONTHLY PASS'),el('div','padt',first?'月額パス\nはじまりました':'月額パス'),el('div','pads','毎月、TCGカードの絵違いがもらえる。毎日のptと経験値もアップ'));
   /* this month's card, 極 (it moves) */
