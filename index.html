@@ -8730,7 +8730,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';return M[id]||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=128';
+const TCG_SRC='tcg_play.html?v=129';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -10675,7 +10675,10 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
    away from the screen, so the bottom bar floats in the middle. visualViewport still knows where the screen really is, so the bar is moved back by the drift. */
   const vv=window.visualViewport;if(!vv)return;let raf=0;const de=document.documentElement;
   const typing=()=>{const a=document.activeElement;return !!a&&(/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)||a.isContentEditable)};
-  const fix=()=>{raf=0;let d=Math.round(vv.offsetTop+vv.height-de.clientHeight);if(typing()||vv.scale>1.05||Math.abs(d)<3||Math.abs(d)>700)d=0;de.style.setProperty('--vvfix',d+'px');de.classList.toggle('vvdrift',d!==0)};
+  /* only the drift itself is used: visualViewport.offsetTop is 0 in the normal state on every phone (the screen and the fixed layer
+     line up) and becomes the drift when the bug strikes (WebKit 297779). Heights are not compared, because a home-screen app on iPhone
+     reports a page height that differs from the screen by the safe areas, which moved the bar off the bottom in v128. */
+  const fix=()=>{raf=0;let d=Math.round(vv.offsetTop||0);if(typing()||vv.scale>1.05||d<3||d>700)d=0;de.style.setProperty('--vvfix',d+'px');de.classList.toggle('vvdrift',d!==0)};
   const q=()=>{if(!raf)raf=requestAnimationFrame(fix)};window.__vvfix=fix;
   vv.addEventListener('resize',q);vv.addEventListener('scroll',q);addEventListener('scroll',q,{passive:true});addEventListener('resize',q);addEventListener('orientationchange',q);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden){q();setTimeout(q,300)}});
