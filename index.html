@@ -2942,6 +2942,14 @@ body.ui2 .mvpr b .nx,body.ui2 .mvpc b .nx{margin:0 .12em}
 /* the one-line live strip clips anything around the text, so it keeps only the coloured letters */
 body.ui2 .llive .txt .nx::before,body.ui2 .llive .txt .nx::after,body.ui2 .llive .txt .nxk{display:none}
 body.ui2 .llive .txt .nxt{filter:none!important;font-size:1em}
+
+/* online now, in the みんな sheet */
+.lonl{display:grid;gap:8px;margin-bottom:6px;padding:12px 14px!important}
+.lonl .onh{font:700 13px/1.3 var(--body);color:var(--fg,#f2efe9)}.lonl .onh b{font-family:var(--num);color:#34c759}.lonl .onh.sub{font-size:12px;opacity:.7;margin-top:4px}
+.lonl .onl{display:flex;flex-wrap:wrap;gap:6px}
+.lonl .onc{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);font:600 12.5px/1 var(--body)}
+.lonl .onc i{width:8px;height:8px;border-radius:50%;background:#6b6b73}.lonl .onc.on i{background:#34c759;box-shadow:0 0 0 3px rgba(52,199,89,.2)}
+.lonl .onc small{font-size:10.5px;opacity:.6;font-weight:500}.lonl .onn{font:500 12px/1.4 var(--body);opacity:.6}
 /* ===== v121 kit: splash, login bonus, pass daily pt, weekly MVP, update news. iPhone-native: system type, rounded
    numerals, deep glass, concentric corners, spring motion. Only active with html.ui2pre / body.ui2. ===== */
 :root{--k-sp:cubic-bezier(.2,.9,.25,1.06);--k-out:cubic-bezier(.16,1,.3,1);--k-in:cubic-bezier(.55,0,.75,.2);
@@ -5963,7 +5971,7 @@ function battleView(a,b,gname,h){
 /* ---- gacha: titles, frame patterns, effect skins ---- */
 const RAR=[{k:'N',c:'#a3a9b4',p:59.95,sh:1,cost:20},{k:'R',c:'#4aa3ff',p:30,sh:3,cost:60},{k:'SR',c:'#b678ff',p:8,sh:10,cost:200},{k:'UR',c:'#f5c84c',p:1.7,sh:40,cost:800},{k:'GR',c:'#ff4f8b',p:.3,sh:150,cost:3000},{k:'KMR',c:'#ff6ad5',p:.05,sh:300,cost:6000}];
 const RATE_G=[0,79.95,15.5,4.2,.3,.05],PACK=100,START_PT=300,PITY=100,TPACK=100,TXP=180;
-const KIND={t:'称号',a:'アイコン',f:'フレーム',x:'対戦演出',b:'背景',v:'勝利演出',c:'コイン'};
+const KIND={t:'称号',a:'アイコン',f:'フレーム',x:'対戦演出',b:'背景',v:'勝利演出',c:'コイン',bun:'分身の装備'};
 const TITLES=[
   ['駆け出しデュエリスト','見習い決闘者','デッキ調整中','引きが弱い人','手札事故常連','シャッフル職人','放課後の挑戦者','ルール確認係'],
   ['逆転の使い手','読み合い上手','先攻の申し子','粘りの鬼','冷静沈着','初手の魔術師','深淵を覗く者'],
@@ -6572,6 +6580,8 @@ $('admTkGo').onclick=()=>twoTap($('admTkGo'),'配布',async()=>{
 function admCoinRender(){admTkRender();admLimRender();const st=$('admCoinSt');if(!st)return;st.textContent=coinOn(now())?'開催中(〜'+new Date(coinev.end).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+')':'今は開催していません';$('admCoinStop').disabled=!coinOn(now())}
 
 function cardFace(it){
+  /* 分身の装備 (the equipment gacha): the pixel icon from the avatar page, its slot and name */
+  if(it.k==='bun'){const f=el('div','gcf bunf r'+it.r);f.style.setProperty('--rc',RAR[it.r].c);const pv=el('div','gcp bunp');pv.innerHTML=it.svg||'';f.append(el('div','gcr',it.rl||RAR[it.r].k),el('div','gck',it.slot||'装備'),pv,el('div','gcn',it.n));if(it.r>=3)f.append(el('b','holo'));return f}
   if(it.k==='g'){const f=el('div','gcf tcgf r'+it.r);f.style.setProperty('--rc',RAR[it.r].c);const im=el('img','tcgfi');im.alt=it.n;const src=tcgImg(it.v);if(src)im.src=src;f.append(im,el('div','gcr',it.tl),el('div','gcn',it.n));if(it.r>=3)f.append(el('b','holo'));return f}
   const f=el('div','gcf r'+it.r);f.style.setProperty('--rc',RAR[it.r].c);
   f.append(el('div','gcr',RAR[it.r].k),el('div','gck',KIND[it.k]));
@@ -7547,8 +7557,65 @@ const spentOf=v=>(v.packs||0)*PACK+Math.max(0,(v.lpacks||0)-(v.lfree||0))*LPACK+
 /* points on the table in an unfinished match can't be spent */
 const betHeld=pid=>(typeof chs!=='undefined'?chs:[]).filter(c=>c.bet&&(c.st==='pending'?c.a===pid:(c.a===pid||c.b===pid)&&['active','reported','abortreq'].includes(c.st))&&live(c)&&!matches.some(m=>m.id===c.id)).reduce((a,c)=>a+c.bet,0);
 const invAdj=v=>spentOf(v)-(+v.mpts||0)-(+v.lbp||0)-(+v.ppp||0);
-const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
+const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
 const admInv={};
+/* ===== 分身アバターバトル (beta): the page runs in an overlay (bunshin.html) and talks to the app through BUNSHINHOST =====
+   bunshin/{pid}: your avatar (look, allocation, items, equipped, quest stage, gacha pulls, chests opened)
+   bunlog/{id}  : one record per avatar battle {a: attacker, d: defender pid or 'q'+stage, w: 1 if the attacker won, s: seed, t}
+   Everything that the battles give is counted from these records (like the rest of the app's points):
+   - friend battles, the first 5 a day: win +50pt / loss +10pt, XP +10 / +5
+   - a defence held (the attacker lost), the first 5 a day: +10pt
+   - quest: the first clear of each stage +30pt (every 10th +100pt)
+   - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
+   - the equipment gacha: 100pt a pull, 900pt for ten */
+const BUN_SRC='bunshin.html?v=1',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
+const bunQ=l=>String(l.d).charAt(0)==='q';
+const bunRoll=(id,p)=>hsh('bun'+id)%1000<Math.round(p*1000);
+function bunAtk(pid,before){const L=bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&(!before||l.t<before)).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
+function bunDef(pid){const L=bunLogs.filter(l=>l.d===pid&&!l.w).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
+const bunQPts=qs=>{let s=0;for(let n=1;n<=Math.min(100,qs||0);n++)s+=n%10===0?100:30;return s};
+function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900:0)}
+const bunXp=(pid,before)=>bunAtk(pid,before).reduce((a,l)=>a+(l.w?10:5),0);
+function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c++;for(const l of bunLogs)if(l.a===pid&&bunQ(l)&&bunRoll(l.id,.1))c++;
+  for(const m of matches)if((m.w===pid||m.l===pid)&&m.t>=BUN0&&bunRoll(m.id+pid,.4))c++;
+  if(typeof tcgms!=='undefined'&&typeof tcgDone==='function')for(const d of tcgms)if((d.a===pid||d.b===pid)&&tcgDone(d)&&d.wa!=='draw'&&(+d.t||0)>=BUN0&&bunRoll(d.id+pid,.4))c++;return c+(window.__bunDemoChests||0)/* the demo panel can add some */}
+const bunLeft=pid=>Math.max(0,BUN_DAY-bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&dayNo(l.t)===dayNo(now())).length);
+const BUN_LOOK={g:'m',hs:0,hc:'茶',ec:'緑'};
+const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0};
+function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),g:'m',hs:0},eq,al:d.al}}
+function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'}
+window.BUNSHINHOST={
+  state:()=>bunState(myPlayer().id),
+  save:S=>{const me=myPlayer();if(!me||!db)return Promise.resolve();
+    /* the page lives in another frame: copy into this frame's plain objects first (Firestore refuses objects from another frame) */
+    const o=JSON.parse(JSON.stringify({look:S.look,al:S.al||null,inv:S.inv||[],eq:S.eq,nid:+S.nid||2,qs:+S.qs||0,gp:+S.gp||0,g10:+S.g10||0,copen:+S.copen||0,u:now()}));
+    const sv=bunDocs[me.id];
+    if(sv){/* a copy older than what is saved (opened before the data arrived) must not replace it */if((+sv.nid||0)>o.nid){toast('分身のデータを読み直しています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
+      for(const k of ['gp','g10','copen'])o[k]=Math.max(o[k],+sv[k]||0);o.qs=Math.min(Math.max(o.qs,+sv.qs||0),(+sv.qs||0)+1)}
+    else{o.gp=0;o.g10=0;o.qs=Math.min(o.qs,1);o.copen=Math.min(o.copen,1)}
+    /* nothing changed: no write */if(sv){const cj=x=>x&&typeof x==='object'?(Array.isArray(x)?'['+x.map(cj).join(',')+']':'{'+Object.keys(x).filter(k=>k!=='u'&&x[k]!==undefined).sort().map(k=>k+':'+cj(x[k])).join(',')+'}'):JSON.stringify(x);if(cj(sv)===cj(o))return Promise.resolve()}
+    bunDocs[me.id]=JSON.parse(JSON.stringify(o));
+    return db.doc('bunshin/'+me.id).set(o).catch(e=>{toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')');throw e})},
+  level:()=>lvOf(myPlayer().id).L,
+  points:()=>balance(myPlayer().id),
+  friends:()=>{const me=myPlayer();return players.filter(p=>p.id!==me.id&&!p.retired&&p.uid).map(bunFighter).sort((a,b)=>b.lv-a.lv)},
+  left:()=>bunLeft(myPlayer().id),
+  log:d=>{const me=myPlayer();const o={a:me.id,d:String(d.d),w:d.w?1:0,s:+d.s||0,t:now()};return db.collection('bunlog').add(o).then(r=>{if(!bunLogs.some(x=>x.id===r.id))bunLogs.push({id:r.id,...o});return r.id})},
+  rollChest:(id,p)=>bunRoll(id,p),
+  chests:()=>bunChests(myPlayer().id),
+  defenses:()=>{const me=myPlayer();return bunLogs.filter(l=>l.d===me.id).sort((a,b)=>b.t-a.t).slice(0,20).map(l=>({a:l.a,w:l.w,name:(players.find(p=>p.id===l.a)||{}).name||'だれか',when:bunAgo(l.t)}))},
+  onChange:cb=>{bunCb=cb},
+  /* the equipment gacha opens like the normal pack */
+  packFx:(L,ten)=>openPackView(L.map(x=>({c:{k:'bun',r:x.r,rl:x.rl,n:x.n,svg:x.svg,slot:x.slot},isNew:x.isNew,sh:0,note:'×'+x.cnt+' 所持'})),null,'EQUIPMENT',undefined,{ten:!!ten}),
+  close:()=>bunClose()};
+function bunOpen(){const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if(!bunReady&&db){toast('分身のデータを読み込み中です。少し待ってからもう一度');bunWatch();return}if($('bunw')||$('tcgw'))return;const o=el('div','tcgw');o.id='bunw';const f=el('iframe');f.src=BUN_SRC;f.title='分身アバターバトル';o.append(f);document.body.append(o);document.body.classList.add('tcgon');try{localStorage.setItem('bunseen_'+me.id,String(now()))}catch(e){}bunBadge()}
+function bunClose(){bunCb=null;const o=$('bunw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');queueRender()}
+/* a dot on the home button when someone attacked you since you last looked */
+function bunBadge(){const me=myPlayer(),b=document.querySelector('.lb-bun');if(!b)return;let seen=0;try{seen=+localStorage.getItem('bunseen_'+(me&&me.id))||0}catch(e){}b.textContent=me&&bunLogs.some(l=>l.d===me.id&&l.t>seen)?'1':''}
+function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadge,20000);setTimeout(bunBadge,2500);
+  db.collection('bunshin').onSnapshot(s=>{bunReady=true;bunDocs={};s.docs.forEach(d=>{bunDocs[d.id]=d.data()});queueRender();bunCb&&bunCb()},()=>{});
+  dbSynced('bunlog','t').onSnapshot(s=>{bunLogs=s.docs.map(d=>({id:d.id,...d.data()}));queueRender();bunBadge();bunCb&&bunCb()},()=>{})}
 /* ===== v50: golden chests, upsets, genre weeks, paid points, predictions, timeline, daily missions, weekly MVP ===== */
 const RULE4=Date.UTC(2026,9,4,10,30);
 const hsh=s=>{let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h};
@@ -7827,9 +7894,12 @@ if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('messag
 let seenMap={},seenSub=null,lastPing=0;
 function ping(force){const me=myPlayer();if(!db||!me||document.visibilityState!=='visible')return;if(now()-lastPing<(force?30000:290000))return;lastPing=now();db.doc('seen/'+me.id).set({t:now(),v:APP_VER}).catch(()=>{})}
 setInterval(()=>ping(),300000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping(true)});
+function seenWatch(){if(seenSub||!db)return;seenSub=db.collection('seen').onSnapshot(s=>{seenMap={};s.docs.forEach(d=>seenMap[d.id]=d.data());if(isAdmin())admSeenRender();window.kOnlineSync&&kOnlineSync()},()=>{})}
+/* online = the app was open in the last 6 minutes (each phone checks in every 5 minutes while the app is on screen) */
+window.kOnline=()=>{const T=now(),L=players.filter(p=>p.uid).map(p=>({id:p.id,name:p.name,t:(seenMap[p.id]||{}).t||0}));const me=myPlayer();if(me){const x=L.find(p=>p.id===me.id);if(x)x.t=Math.max(x.t,T)}return {on:L.filter(p=>T-p.t<6*60000).sort((a,b)=>b.t-a.t),recent:L.filter(p=>T-p.t>=6*60000&&T-p.t<3*3600000).sort((a,b)=>b.t-a.t).map(p=>({...p,ago:Math.max(1,Math.round((T-p.t)/60000))}))}};
 function admSeenRender(){
   const box=$('admSeen');if(!box)return;
-  if(!seenSub&&isAdmin())seenSub=db.collection('seen').onSnapshot(s=>{seenMap={};s.docs.forEach(d=>seenMap[d.id]=d.data());admSeenRender()},()=>{});
+  seenWatch();
   box.replaceChildren();const ON=6*60000;
   const L=players.slice().sort((a,b)=>((seenMap[b.id]||{}).t||0)-((seenMap[a.id]||{}).t||0));
   L.forEach(p=>{const x=seenMap[p.id],on=x&&now()-x.t<ON,r=el('div','sn'+(on?' on':''));
@@ -7991,6 +8061,7 @@ function xpOf(pid,before){let x=0;const P=!!passes[pid];for(const m of matches){
   for(const q of preds){if(q.pid===pid&&(!before||q.t<before))x+=XPP*(P?xpMul(pid,q.t):1)}
   /* きもオタTCG friend battles count at half the XP of the other genres (same matches that move the TCG rank) */
   if(typeof tcgms!=='undefined'&&tcgms.length&&typeof tcgDone==='function'){let t=0;for(const d of tcgms){if((d.a!==pid&&d.b!==pid)||!tcgDone(d)||d.wa==='draw'||Math.min(+d.ta||0,+d.tb||0)<6)continue;if(before&&tcgConfirmT(d)>=before)continue;t+=(d.wa===pid?XPW/2:XPL/2)*(P?xpMul(pid,tcgConfirmT(d)):1)}x+=Math.floor(t)}
+  x+=bunXp(pid,before)*(P?1:1);
   return Math.floor(x)}
 function lvFrom(xp){let L=1;while(L<999&&xp>=lvNeed(L)){xp-=lvNeed(L);L++}return{L,cur:xp,need:lvNeed(L)}}
 const lvOf=pid=>lvFrom(xpOf(pid));
@@ -8641,7 +8712,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';return M[id]||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=123';
+const TCG_SRC='tcg_play.html?v=124';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -9783,6 +9854,8 @@ render();
   /* matches, grants and predictions only grow: db.synced keeps a saved copy on the phone and reads only the new ones */
   dbSynced('matches','t').onSnapshot(onMatches,()=>{});
   watchTcgSpectators();
+  bunWatch();
+  seenWatch();
   db.doc('config/coinev').onSnapshot(s=>{coinev=s.exists?s.data():null;queueRender()},()=>{});
   db.collection('tours').orderBy('t','desc').onSnapshot(s=>{toursLoaded=true;tours=s.docs.map(d=>({id:d.id,...d.data()}));queueRender()},()=>{toursLoaded=true;queueRender()});
   db.collection('tentry').onSnapshot(s=>{tentry=s.docs.map(d=>({id:d.id,...d.data()}));queueRender()},()=>{});
@@ -10253,7 +10326,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
    '<div class="lbar"><button type="button" class="llv lgl" aria-label="レベル"><span class="lvr"><svg viewBox="0 0 36 36"><circle class="tk" cx="18" cy="18" r="15.5"/><circle class="pr" cx="18" cy="18" r="15.5" stroke-dasharray="97.4" stroke-dashoffset="97.4"/></svg><b class="lvn tn">1</b></span><span class="lvt"><small>LEVEL</small><span class="lvx"></span></span></button><span class="lsp"></span><button type="button" class="lwal lgl"><i class="p"><u>P</u><span class="lpt tn">0</span></i><hr><i class="t"><u>T</u><span class="ltk tn">0</span></i></button><button type="button" class="lgift lgl" aria-label="プレゼント">'+IC.gift+'<b></b></button><button type="button" class="lbell lgl" aria-label="通知">'+IC.bell+'<b></b></button></div>'+
    '<div class="lside l"><button type="button" class="lgl" data-a="0">'+IC.dm+'お題<em class="lb-dm"></em></button><button type="button" class="lgl" data-a="2">'+IC.mvp+'MVP</button><button type="button" class="lgl" data-a="3">'+IC.ss+'シーズン<em class="lb-ss"></em></button></div>'+
    '<div class="lside r">'+
-   '<button type="button" class="lgl" data-s="ev">'+IC.ev+'開催中<em class="lb-ev"></em></button><button type="button" class="lgl" data-s="tl">'+IC.tl+'みんな<em class="lb-tl dot"></em></button></div>'+
+   '<button type="button" class="lgl" data-s="ev">'+IC.ev+'開催中<em class="lb-ev"></em></button><button type="button" class="lgl" data-s="tl">'+IC.tl+'みんな<em class="lb-tl dot"></em></button><button type="button" class="lgl" data-bun="1">'+SV+'<path d="M5 19 15.5 8.5M15.5 8.5 19 5l-.5 3.5M15.5 8.5l3 .4"/><path d="M19 19 8.5 8.5M8.5 8.5 5 5l.5 3.5M8.5 8.5l-3 .4"/><path d="M7 15.5 8.5 17M17 15.5 15.5 17"/></svg>分身<em class="lb-bun dot"></em></button></div>'+
    '<button type="button" class="lbub" hidden><span class="lb-nm"></span><span class="lb-tx"></span><i class="lb-nx" aria-hidden="true"></i></button>'+
    '<div class="ltag"></div>'+
    '<button type="button" class="llive" hidden><i class="dot"></i><span class="tag"></span><span class="txt"><span></span></span><time></time></button>'+
@@ -10263,7 +10336,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
    '<button type="button" class="lgo"><span><b>対戦する</b><small><i></i>相手を選んで申し込む ・ 予想もここから</small></span><span class="ar">'+IC.ar+'</span></button>'+
    '';
   /* the two sheets' contents (kept up to date even while closed) */
-  const secGf=mk('div','lsec lgf');const secEv=mk('div','lsec','<div class="levs"></div>'),secTl=mk('div','lsec','<div class="lgrp lrk" hidden></div><div class="lgrp ltl"></div>');
+  const secGf=mk('div','lsec lgf');const secEv=mk('div','lsec','<div class="levs"></div>'),secTl=mk('div','lsec','<div class="lgrp lonl"></div><div class="lgrp lrk" hidden></div><div class="lgrp ltl"></div>');
   try{if(CSS.supports('transition-timing-function','linear(0,1)')){const cur=(f,z,n)=>{const w=2*Math.PI*f,wd=w*Math.sqrt(1-z*z);const p=[];for(let i=0;i<=n;i++){const t=i/n*.9;p.push((1-Math.exp(-z*w*t)*(Math.cos(wd*t)+z*w/wd*Math.sin(wd*t))).toFixed(4))}p[n]='1';return 'linear('+p.join(',')+')'};lob.style.setProperty('--lsp',cur(2.1,.62,40))}}catch(e){}
   /* the top bar (.lbar) can move to the shared frame on other screens (kx.js), so look there too */
   let BAR=null;const q=s=>lob.querySelector(s)||secEv.querySelector(s)||secTl.querySelector(s)||(BAR||(BAR=document.querySelector('.lbar')))&&BAR.querySelector(s),qa=s=>[...lob.querySelectorAll(s)];
@@ -10301,7 +10374,13 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const close=()=>{document.body.classList.remove('lobsheet');try{sheetOut(w)}catch(e){w.remove()}if(openW===w)openW=null};cl.onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()})}
   q('.lgift').onclick=()=>{syncGift();sheet('プレゼント',secGf)};
   q('.llv').onclick=()=>go('profile');
-  qa('[data-s]').forEach(b=>b.onclick=()=>sheet(b.dataset.s==='ev'?'開催中':'みんなの動き',b.dataset.s==='ev'?secEv:secTl));
+  /* who is online now (the app open in the last 6 minutes) and who was here in the last 3 hours */
+  window.kOnlineSync=()=>{const box=secTl.querySelector('.lonl');if(!box||typeof kOnline!=='function')return;const O=kOnline();
+    const chip=(p,on)=>'<span class="onc'+(on?' on':'')+'"><i></i>'+String(p.name).replace(/[<>&]/g,'')+(on?'':'<small>'+(p.ago<60?p.ago+'分前':Math.round(p.ago/60)+'時間前')+'</small>')+'</span>';
+    box.innerHTML='<div class="onh">オンライン <b>'+O.on.length+'</b>人</div><div class="onl">'+(O.on.length?O.on.map(p=>chip(p,1)).join(''):'<span class="onn">今はだれもいません</span>')+'</div>'+(O.recent.length?'<div class="onh sub">さっきまでいた人</div><div class="onl">'+O.recent.map(p=>chip(p,0)).join('')+'</div>':'')};
+  setInterval(()=>{try{kOnlineSync()}catch(e){}},30000);
+  qa('[data-bun]').forEach(b=>b.onclick=()=>{if(typeof bunOpen==='function')bunOpen()});
+  qa('[data-s]').forEach(b=>b.onclick=()=>(b.dataset.s==='tl'&&kOnlineSync(),0)||sheet(b.dataset.s==='ev'?'開催中':'みんなの動き',b.dataset.s==='ev'?secEv:secTl));
 
   /* ---- press feel: quick squeeze on touch-down, spring back on release (like UIKit buttons) ---- */
   function pressable(root){let cur=null;const up=()=>{if(cur){cur.classList.remove('lpress');cur=null}};
