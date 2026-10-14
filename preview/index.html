@@ -5453,6 +5453,14 @@ body.ui2 .lgr .lgdone{flex:none;font:600 12px/1 var(--kjf,-apple-system),"Hiragi
 body.ui2 .lgr.got .gi{opacity:.45;filter:saturate(.5)}
 body.ui2 .lgr.got .gt b{color:#a9a49c}
 /*KGIFT-END*/
+/*KBATT-START*/
+/* battery: the home's looping motion pauses while idle (20 s without a touch) or while a sheet/popup covers it */
+body.kidle.lobhome #v-home *,body.kidle.lobhome #v-home *::before,body.kidle.lobhome #v-home *::after,
+body.kidle.lobhome .lbar *,body.kidle.lobhome .lbar *::before,body.kidle.lobhome .lbar *::after,
+body.kidle.lobhome .bnav *,body.kidle.lobhome .bnav *::before,body.kidle.lobhome .bnav *::after,
+body.ovl #v-home *,body.ovl #v-home *::before,body.ovl #v-home *::after,
+body.lobsheet #v-home *,body.lobsheet #v-home *::before,body.lobsheet #v-home *::after{animation-play-state:paused!important}
+/*KBATT-END*/
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -10063,7 +10071,7 @@ function makeBonus(root,o){/* o: {amt, cur, label, sub, next, days:[{label,amt,s
    ===================================================================== */
 function hexRgb(h){h=String(h||'#f5c84c').replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');const n=parseInt(h,16);return[n>>16&255,n>>8&255,n&255]}
 function makeStage(cv){const x=cv.getContext('2d');const R=rng(29);
-  const TIERS=[{dpr:1.5,floor:1,dust:1,bokeh:1,fps:60},{dpr:1.5,floor:1,dust:.6,bokeh:1,fps:60},{dpr:1.25,floor:.6,dust:.4,bokeh:0,fps:60},{dpr:1,floor:0,dust:.3,bokeh:0,fps:30}];
+  const TIERS=[{dpr:1.25,floor:1,dust:1,bokeh:1,fps:60},{dpr:1.25,floor:1,dust:.6,bokeh:1,fps:60},{dpr:1.25,floor:.6,dust:.4,bokeh:0,fps:60},{dpr:1,floor:0,dust:.3,bokeh:0,fps:30}];
   let tier=0,W=0,H=0,dpr=1,cx=0,cy=0,emR=80,oshi=null,bx0=-99,by0=-99,br0=-99,grace=0;
   const C=[[92,61,6],[207,157,44],[255,240,184],[245,200,76]];let cache=null,prev=null,mixT=1,colKey='';
   const far=[],mid=[],near=[];for(let i=0;i<40;i++)far.push({x:R(),y:R(),r:.5+R()*.7,p:R()*TAU,v:.2+R()*.5});for(let i=0;i<18;i++)mid.push({x:R(),y:R(),r:1+R()*1.2,p:R()*TAU,v:.5+R()*.8});for(let i=0;i<6;i++)near.push({x:R(),y:R(),r:12+R()*16,p:R()*TAU,v:.3+R()*.4});
@@ -10475,14 +10483,20 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
     /* gentle life: the emblem floats; the oshi breathes; a gloss band crosses the emblem every 6s */
     const em=q('.emb2');em.style.translate='0 '+(Math.sin(t*1.25)*4).toFixed(2)+'px';
     const gl=em.querySelector('#lgl');if(gl){const u=((t%6)/.9);if(u<=1.05){const xx=-30+Math.min(1,u)*130;gl.setAttribute('x1',xx.toFixed(1));gl.setAttribute('x2',(xx+16).toFixed(1))}}}
-  const active=()=>{const c=document.body.classList;if(!c.contains('lobhome')||document.hidden||c.contains('tcgon')||window.__kfFT)return false;return window.__kmRevealed||!document.querySelector('body>.km-splash')};
+  const active=()=>{const c=document.body.classList;if(!c.contains('lobhome')||document.hidden||c.contains('tcgon')||window.__kfFT||c.contains('kidle')||c.contains('ovl')||c.contains('lobsheet'))return false;return window.__kmRevealed||!document.querySelector('body>.km-splash')};
   const ovd=q('.losh video');ovd.addEventListener('playing',()=>ovd.classList.add('on'));
   /* play only while the lobby is on screen; if this phone cannot play it, the still picture simply stays */
   function vidCtl(a){const src=ovd.getAttribute('src');if(!oshiOn||!src||ovd.__bad===src){if(!ovd.paused)ovd.pause();return}
     if(a&&ovd.paused&&!ovd.__pp){ovd.__pp=1;let pr;try{pr=ovd.play()}catch(e){}if(pr&&pr.then)pr.then(()=>{ovd.__pp=0},e=>{ovd.__pp=0;if(e&&e.name!=='AbortError'&&e.name!=='NotAllowedError')ovd.__bad=src});else ovd.__pp=0}
     else if(!a&&!ovd.paused)ovd.pause()}
   ovd.addEventListener('error',()=>{ovd.__bad=ovd.getAttribute('src')});
-  (function f(){requestAnimationFrame(f);const a=active();vidCtl(a);if(window.__kmT!=null||!a)return;frame(clock())})();
+  /* battery: the stage is drawn 30 times a second (it moves slowly, so it looks the same), and stops while idle or covered */
+  let lastF=0;(function f(n){requestAnimationFrame(f);const a=active();vidCtl(a);if(window.__kmT!=null||!a)return;if(window.__kmT==null&&n&&n-lastF<30)return;lastF=n||0;frame(clock())})();
+  /* idle on the home: after 20 s without a touch the ambient motion pauses (CSS and the stage); any touch brings it back */
+  {let last=Date.now();const wake=()=>{last=Date.now();if(document.body.classList.contains('kidle'))document.body.classList.remove('kidle')};
+    ['pointerdown','touchstart','keydown','wheel'].forEach(k=>addEventListener(k,wake,{capture:true,passive:true}));addEventListener('scroll',wake,{capture:true,passive:true});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)wake()});
+    setInterval(()=>{const c=document.body.classList;if(!c.contains('kidle')&&c.contains('lobhome')&&Date.now()-last>20000&&!window.__kmT)c.add('kidle')},2000)}
   window.__lobStep=t=>{window.__kmT=t;if(window.gsap){if(!window.__kmG){window.__kmG=1;gsap.ticker.remove(gsap.updateRoot)}gsap.updateRoot(t)}frame(t)};
   lob.addEventListener('pointermove',e=>{if(!stage)return;const r=lob.getBoundingClientRect();stage.pointer((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)},{passive:true});
   lob.addEventListener('pointerleave',()=>stage&&stage.pointer(0,0));
