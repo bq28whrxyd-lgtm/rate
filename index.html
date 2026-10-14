@@ -1853,7 +1853,7 @@ main{position:relative}
 /* coins */
 .coin{--cz:120px;width:var(--cz);height:var(--cz);position:relative;transform-style:preserve-3d;flex:none}
 .coin .cf,.coin .cb{position:absolute;inset:0;border-radius:50%;-webkit-backface-visibility:hidden;backface-visibility:hidden;overflow:hidden}
-.coin .cf svg,.coin .cb svg{display:block;width:100%;height:100%}
+.coin .cf svg,.coin .cb svg,.coin .cf>img,.coin .cb>img{display:block;width:100%;height:100%}.coin .cf>img,.coin .cb>img{-webkit-user-drag:none;user-select:none;pointer-events:none}
 .coin .ce{position:absolute;inset:.5%;border-radius:50%}
 .coin:not(.big) .ce{display:none}
 .coin:not(.big){filter:drop-shadow(0 calc(var(--cz)*.05) calc(var(--cz)*.06) #000a)}
@@ -2950,6 +2950,13 @@ body.ui2 .llive .txt .nxt{filter:none!important;font-size:1em}
 .lonl .onc{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);font:600 12.5px/1 var(--body)}
 .lonl .onc i{width:8px;height:8px;border-radius:50%;background:#6b6b73}.lonl .onc.on i{background:#34c759;box-shadow:0 0 0 3px rgba(52,199,89,.2)}
 .lonl .onc small{font-size:10.5px;opacity:.6;font-weight:500}.lonl .onn{font:500 12px/1.4 var(--body);opacity:.6}
+/* iOS 26 drift fix: the bottom bar follows the real screen bottom (see ui2.js) */
+body.ui2 .bnav{translate:0 var(--vvfix,0px)}
+/* smoother: the light passing over the home's main button moves by transform (drawn once, slid by the GPU) instead of
+   repainting a background every frame; same path and timing as before */
+body.ui2 .lgo::after{inset:0 auto 0 0!important;width:300%!important;background-size:100% 100%!important;animation-name:lobpassT!important;animation-duration:6s!important;animation-timing-function:cubic-bezier(.65,0,.15,1)!important;animation-iteration-count:infinite!important;will-change:transform}
+@keyframes lobpassT{0%,62%{transform:translateX(-86.667%)}100%{transform:translateX(26.667%)}}
+@media (prefers-reduced-motion:reduce){body.ui2 .lgo::after{animation:none!important;opacity:0}}
 /* ===== v121 kit: splash, login bonus, pass daily pt, weekly MVP, update news. iPhone-native: system type, rounded
    numerals, deep glass, concentric corners, spring motion. Only active with html.ui2pre / body.ui2. ===== */
 :root{--k-sp:cubic-bezier(.2,.9,.25,1.06);--k-out:cubic-bezier(.16,1,.3,1);--k-in:cubic-bezier(.55,0,.75,.2);
@@ -6405,9 +6412,14 @@ function coinFace(v,back,big){
   d.push('<circle cx="100" cy="100" r="97" fill="'+u('s')+'"/>');
   if(big)d.push('<clipPath id="'+id+'k"><circle cx="100" cy="100" r="97"/></clipPath><linearGradient id="'+id+'h" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient><g clip-path="'+u('k')+'"><rect class="csh" x="-90" y="-40" width="60" height="280" fill="'+u('h')+'"/></g>');
   return '<svg viewBox="0 0 200 200" aria-hidden="true">'+d.join('')+'</svg>'}
+const COINIMG={};function coinImg(v,back){const k=v+(back?'|b':'|f');if(!COINIMG[k]){const svg=coinFace(v,back,false).replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" ');try{COINIMG[k]=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}))}catch(e){COINIMG[k]='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}}return COINIMG[k]}
 function coinEl(v,size,big){
   v=COINPAL[v]?v:'basic';const P=COINPAL[v],c=el('div','coin cs-'+v+(big?' big':''));const z=size||120;c.style.setProperty('--cz',z+'px');
-  const f=el('div','cf'),b=el('div','cb');f.innerHTML=coinFace(v,false,big);b.innerHTML=coinFace(v,true,big);
+  const f=el('div','cf'),b=el('div','cb');
+  /* small coins (lists, rails, thumbnails): each face is drawn once as an image and reused, instead of a live SVG of 100+ shapes
+     with blur filters per coin; the page lays out and scrolls far lighter. Big coins and illustrated (KMR) coins stay live. */
+  if(!big&&!P.kmr){f.innerHTML='<img alt="" draggable="false" decoding="async" src="'+coinImg(v,false)+'">';b.innerHTML='<img alt="" draggable="false" decoding="async" src="'+coinImg(v,true)+'">'}
+  else{f.innerHTML=coinFace(v,false,big);b.innerHTML=coinFace(v,true,big)}
   if(P.kmr){[[f,P.kmr.a],[b,P.kmr.b]].forEach(([x,src])=>x.prepend(clipCanvas(src,big?360:180)));c.classList.add('ckmr')}
   /* edge: thin discs between the faces, so it has thickness when it turns */
   const th=Math.max(2,Math.round(z*.075)),n=big?Math.min(12,th):Math.min(4,th);c.style.setProperty('--ct',th+'px');
@@ -7569,7 +7581,7 @@ const admInv={};
    - experience quest (5 opponents in a row): a clear gives XP 20/40/70/120 by grade, the first 3 clears a day
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
-const BUN_SRC='bunshin.html?v=4',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=7',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -8718,7 +8730,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';return M[id]||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=127';
+const TCG_SRC='tcg_play.html?v=128';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -9306,7 +9318,14 @@ window.TCGHOST.pvp=()=>{const L=tcgLive;if(!L)return null;const d=tcgms.find(x=>
 /* Firestore can't hold arrays inside arrays, so a move's arguments travel as a JSON string */
 function tcgSendMv(m){const L=tcgLive;if(!L||!db)return;const o=Object.assign({},m);if(Array.isArray(o.a)){o.aj=JSON.stringify(o.a);delete o.a}
   const clean=JSON.parse(JSON.stringify(o,(k,v)=>v===undefined?null:v));clean.k=L.mine.length+L.delivered;L.mine=L.mine.concat([clean]);
-  const u={u:now()};u['m'+L.side]=L.mine;db.doc('tcgm/'+L.id).update(u).catch(()=>toast('通信できませんでした'))}
+  tcgPush()}
+/* write my whole move list; a failed or lost write (offline, the write brake) is sent again until the match document has every move,
+   so an end of turn can no longer get stuck on my phone while the other phone keeps waiting */
+let tcgPushT=null,tcgPushFails=0,tcgPushAt=0;
+function tcgPush(){const L=tcgLive;if(!L||!db)return;clearTimeout(tcgPushT);tcgPushAt=Date.now();const n=L.mine.length,u={u:now()};u['m'+L.side]=L.mine;
+  db.doc('tcgm/'+L.id).update(u).then(()=>{tcgPushFails=0}).catch(()=>{if(tcgLive!==L)return;tcgPushFails++;if(tcgPushFails===2)toast('通信が不安定です。届くまで送り直しています');tcgPushT=setTimeout(tcgPush,Math.min(12000,700*2**Math.min(4,tcgPushFails)))})}
+setInterval(()=>{const L=tcgLive;if(!L||!db||!L.mine.length||Date.now()-tcgPushAt<5000)return;const d=tcgms.find(x=>x.id===L.id);if(!d||d.st==='end')return;
+  if((d['m'+L.side]||[]).length<L.mine.length)tcgPush()},2500);
 function tcgClaim(r){const L=tcgLive;if(!L||!db)return;const d=tcgms.find(x=>x.id===L.id)||{},me=myPlayer();if(!me)return;
   const w=r.win==='draw'?'draw':(r.win==='a'?d.a:d.b),u={st:'end',u:now()};u['w'+L.side]=w;u['t'+L.side]=r.turns;u['c'+L.side]=now();db.doc('tcgm/'+L.id).update(u).catch(()=>{})}
 function tcgmTick(){const me=myPlayer();if(!me)return;const t=now();
@@ -10652,6 +10671,17 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   try{const op=pickGame;pickGame=function(){const home=document.body.classList.contains('lobhome');const r=op.apply(this,arguments);
     if(home){vh.style.opacity='';requestAnimationFrame(()=>{vh.style.opacity='';try{vh.__an&&vh.__an.cancel()}catch(e){}})}return r}}catch(e){}
 })();
+(function(){/* iOS 26 home-screen app bug (WebKit 297779): after the keyboard closes or after some scrolls, the layer that fixed elements sit on drifts
+   away from the screen, so the bottom bar floats in the middle. visualViewport still knows where the screen really is, so the bar is moved back by the drift. */
+  const vv=window.visualViewport;if(!vv)return;let raf=0;const de=document.documentElement;
+  const typing=()=>{const a=document.activeElement;return !!a&&(/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)||a.isContentEditable)};
+  const fix=()=>{raf=0;let d=Math.round(vv.offsetTop+vv.height-de.clientHeight);if(typing()||vv.scale>1.05||Math.abs(d)<3||Math.abs(d)>700)d=0;de.style.setProperty('--vvfix',d+'px');de.classList.toggle('vvdrift',d!==0)};
+  const q=()=>{if(!raf)raf=requestAnimationFrame(fix)};window.__vvfix=fix;
+  vv.addEventListener('resize',q);vv.addEventListener('scroll',q);addEventListener('scroll',q,{passive:true});addEventListener('resize',q);addEventListener('orientationchange',q);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden){q();setTimeout(q,300)}});
+  /* when the keyboard closes, nudge the page so iOS lays the fixed layer out again */
+  document.addEventListener('focusout',e=>{const t=e.target;if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))setTimeout(()=>{try{scrollTo(scrollX,scrollY)}catch(x){}q()},280)});
+  q()})();
 /*UI2JS-END*/
 /*KIT-START*/
 /* v121 kit: new login bonus, pass daily pt, weekly MVP and update news (the splash is markup + CSS).

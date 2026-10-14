@@ -158,6 +158,7 @@ html.inapp .protoonly{display:none!important}html.inapp .tabs{grid-template-colu
 .xqc b{font:400 17px/1.2 var(--px);color:var(--xc)}.xqc span{font:500 12px/1.3 var(--jp);color:var(--fg2)}.xqc em{font-style:normal;font:500 12px/1.3 var(--jp);color:var(--gold2)}.xqc small{font:500 11px/1.3 var(--jp);color:var(--mut);min-height:14px}
 .xqc.t1{--xc:#7fd98a}.xqc.t2{--xc:#6fb6ff}.xqc.t3{--xc:#c08bff}.xqc.t4{--xc:#ff5a4f;background:linear-gradient(160deg,rgba(255,90,79,.14),var(--s1) 60%)}
 .xqc.lock{opacity:.45}.xqc.lock em{color:var(--mut)}.xqc:disabled{cursor:default}
+.tapguide{padding:12px 14px;border-radius:14px;background:linear-gradient(135deg,rgba(127,232,255,.10),rgba(255,224,102,.06));box-shadow:inset 0 0 0 1px var(--line);display:grid;gap:4px}.tapguide b{font:400 15px/1.3 var(--px);color:var(--gold2)}.tapguide span{font:500 12.5px/1.6 var(--jp);color:var(--fg2)}.tapguide em{font-style:normal;font-weight:700}.tapguide em.g{color:#ffe066}.tapguide em.c{color:#7fe8ff}.tapguide em.r{color:#ff8a7a}
 .quest{display:grid;gap:8px}.qbar{position:relative;height:22px;border-radius:11px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);overflow:hidden}.qbar span{position:relative;z-index:1;display:block;text-align:center;font:400 12px/22px var(--px);color:var(--fg,#fff)}.qbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#8a6216,#e2bf72)}.op.boss{box-shadow:inset 0 0 0 2px #d0283c}
 .op em{font:400 12px/1 var(--px);font-style:normal;color:var(--gold2)}
 .log{max-height:180px;overflow:auto;margin:0;padding:10px 12px;border-radius:12px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);font:500 12px/1.75 var(--jp);color:var(--fg2);list-style:none}
@@ -244,6 +245,7 @@ html.inapp .protoonly{display:none!important}html.inapp .tabs{grid-template-colu
   </section>
 
   <section class="pane" id="p-fight" hidden>
+    <div class="tapguide"><b>必殺技はぶつかり合い</b><span>どちらかが必殺技を出すとバトルが止まり、ゲージが左右に動きます。画面をタップして止め、<em class="r">赤い線(相手の数字)</em>より右で止めれば勝ち。自分の必殺技なら <em class="g">1.4倍</em>(いちばん右の白いMAXなら1.8倍)、相手の必殺技なら <em class="c">0.4倍</em>に受け止めます(MAXなら0.2倍)。負けると自分の技は0.6倍、相手の技はそのまま当たります。先のステージほど相手の数字が高く、ゲージも速くなります。パソコンはスペースキー</span></div>
     <div class="sec"><h2>クエスト</h2><div class="quest" id="quest"></div></div>
     <div class="sec"><h2>経験値クエスト<small id="xqn"></small></h2><div class="xq" id="xq"></div></div>
     <div class="sec"><h2>仲間と戦う</h2><div class="opps" id="opps"></div></div>
@@ -560,7 +562,7 @@ let FIELD=null;
 
 /* ---------- pixel digits and letters (3x5) ---------- */
 const GL={'0':'111101101101111','1':'010110010010111','2':'111001111100111','3':'111001111001111','4':'101101111001001','5':'111100111001111','6':'111100111101111','7':'111001010010010','8':'111101111101111','9':'111101111001111','+':'000010111010000',
-  'M':'101111111101101','I':'111010010010111','S':'111100111001111','C':'111100100100111','R':'110101110101101','T':'111010010010010','A':'010101111101101','L':'100100100100111','K':'101101110101101','O':'111101101101111','H':'101101111101101'};
+  'M':'101111111101101','I':'111010010010111','S':'111100111001111','C':'111100100100111','R':'110101110101101','T':'111010010010010','A':'010101111101101','L':'100100100100111','K':'101101110101101','O':'111101101101111','H':'101101111101101','P':'110101110100100','E':'111100111100111','F':'111100111100100','G':'111100101101111','D':'110101101101110','U':'101101101101111','Y':'101101010010010','!':'010010010000010','N':'110101101101101','W':'101101101111101','X':'101101010101101','V':'101101101101010'};
 function ptext(g,txt,x,y,col,s,alpha){g.save();g.globalAlpha=alpha==null?1:alpha;const w=txt.length*4*s-s;let x0=Math.round(x-w/2);
   for(const pass of [0,1]){let cx=x0;for(const ch of txt){const m=GL[ch];if(m){for(let i=0;i<15;i++)if(m[i]==='1'){const px=cx+(i%3)*s,py=y+Math.floor(i/3)*s;if(pass===0){g.fillStyle='#160d14';g.fillRect(px-1,py-1,s+2,s+2)}else{g.fillStyle=col;g.fillRect(px,py,s,s)}}}cx+=4*s}}g.restore()}
 
@@ -582,6 +584,8 @@ function fighterMe(){const {s}=statsOf(S.lv,S.al,myItems());const w=itemOf(S.eq.
 function fighterOpp(o){const items=o.eq.filter(x=>ITEMS[x[0]]).map(([k,r,e],i)=>({id:-1-i,k,r,e:e||0}));const al=o.al&&usedPts(o.al)<=ptsOf(o.lv)?o.al:autoAlloc(o.lv,o.style||'atk');const {s}=statsOf(o.lv,al,items);if(o.mul)for(const k in s)s[k]=Math.max(1,Math.round(s[k]*(k==='spd'?Math.sqrt(o.mul):o.mul)));const w=items.find(i=>ITEMS[i.k].s==='w');return {name:o.name,lv:o.lv,look:o.look,st:s,wt:w?ITEMS[w.k].wt:'fist',k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null}}
 
 /* ---------- the battle: decided first, then played as a timeline ---------- */
+/* the timed taps (v128 trial) are off; the special-move clash gauge replaces them */
+const TAP_ON=false;
 const MELEE={fist:1,sword:1,spear:1,hammer:1,penlight:1};
 const SPDUR={fist:1.7,sword:2.0,staff:2.0,bow:1.9,spear:1.8,hammer:2.0,penlight:2.1};
 const SPHIT={fist:[.8],sword:[.75,.95,1.15],staff:[1.15],bow:[.78,.93,1.08],spear:[.72],hammer:[.85],penlight:[.7,.85,1,1.15]};
@@ -618,6 +622,11 @@ function simulate(A,B,seed,opt){opt=opt||{};const r=rngOf(seed),cond=[0,1].map((
     else{sp[i]=Math.min(100,sp[i]+30);hits=[hit(i,j,wt==='staff'?a.mag*.9:a.atk,{pierce:ab&&wt==='spear'?ab.val:0,critUp:cu})];
       /* sword ability: a second cut */
       if(ab&&wt==='sword'&&!hits[0].miss&&r()<ab.val){const h=hit(i,j,a.atk*.6,{sure:1});h.ab=1;hits.push(h);abn=ab.n}}
+    /* a timed tap (decided by the player while the fight plays; the fight is re-run with it):
+       your attack PERFECT x1.4 + gauge 10 / GOOD x1.2; the opponent's attack PARRY x0.2 + your gauge 20 / GUARD x0.6 */
+    const tp=opt.inp&&opt.inp[ev.length];let tap=null;
+    if(special&&(tp==='cm'||tp==='cw'||tp==='cl')){const f=i===0?{cm:1.8,cw:1.4,cl:.6}[tp]:{cm:.2,cw:.4,cl:1}[tp];for(const h of hits)if(!h.miss)h.dmg=Math.max(i===0?1:0,Math.round(h.dmg*f));tap=tp}
+    else if(TAP_ON&&(tp==='p'||tp==='g')){const f=i===0?(tp==='p'?1.4:1.2):(tp==='p'?.2:.6);for(const h of hits)if(!h.miss)h.dmg=Math.max(i===0?1:0,Math.round(h.dmg*f));tap=tp;if(tp==='p')sp[0]=Math.min(100,sp[0]+(i===0?10:20))}
     const spBefore=[...sp];
     for(let q=0;q<hits.length;q++){const h=hits[q];if(!h.miss){hp[j]=Math.max(0,hp[j]-h.dmg);sp[j]=Math.min(100,sp[j]+8)}h.hp=hp[j];if(hp[j]<=0){hits.length=q+1;break}}
     if(special&&wt==='hammer'&&hits[0]&&!hits[0].miss)dm[j]=Math.max(.5,dm[j]*.8);
@@ -628,18 +637,20 @@ function simulate(A,B,seed,opt){opt=opt||{};const r=rngOf(seed),cond=[0,1].map((
     if(ab&&wt==='hammer'&&dealt>0&&hp[j]>0&&r()<ab.val){g[j]-=60;stun=1;abn=ab.n}
     if(ab&&wt==='bow'&&hits.some(h=>h.crit))abn=ab.n;
     if(heal&&hp[i]>0){hp[i]=Math.min(max[i],hp[i]+heal)}
-    ev.push({who:i,special,wt,wr:F[i].wr,hits,heal,healTo:hp[i],sp:[...sp],spBefore,ab:abn,stun})}
+    ev.push({who:i,special,wt,wr:F[i].wr,hits,heal,healTo:hp[i],sp:[...sp],spBefore,ab:abn,stun,tap})}
   const win=hp[1]<=0?0:hp[0]<=0?1:(hp[0]/max[0]>=hp[1]/max[1]?0:1);return {ev,win,max,hp,hs}}
 function timeline(res){let t=.7;const hitsAt=[];for(const e of res.ev){const two=!e.special&&e.hits.length>1,dur=e.special?spDur(e):two?1.25:1.0;e.t0=t;e.t1=t+dur;
     const rel=e.special?spHit(e):two?[.32,.58]:[MELEE[e.wt]?.32:.45];e.hits.forEach((h,k)=>{h.t=t+(rel[k]!=null?rel[k]:rel[rel.length-1]);hitsAt.push({t:h.t,j:1-e.who,h})});
     if(e.heal)e.healT=t+dur-.45;t=e.t1+.18}res.koT=t;res.end=t+1.8;res.hitsAt=hitsAt;
   /* hit-stop: light 3 frames, crit 6, a special's last hit 8, the KO hit 17; crits, finishers and the KO also get an impact frame */
   res.stops=[];for(const e of res.ev){const hs=e.hits.filter(h=>!h.miss);hs.forEach((h,n)=>{const last=n===hs.length-1,ko=h.hp<=0,fin=e.special&&last;const d=ko?.28:fin?(e.wt==='spear'&&e.wr==='KMR'?.22:.14):e.special?(e.wt==='sword'&&e.wr==='KMR'?.03:.06):h.crit?.1:.05;res.stops.push({t:h.t,d,imp:ko||fin||(h.crit&&!e.special),ko,h})})}
-  res.stops.sort((a,b)=>a.t-b.t);res.total=res.stops.reduce((a,s)=>a+s.d,0);res.endReal=res.end+res.total;return res}
+  res.stops.sort((a,b)=>a.t-b.t);res.total=res.stops.reduce((a,s)=>a+s.d,0);res.endReal=res.end+res.total;
+  const realOf=t=>t+res.stops.filter(s=>s.t<t).reduce((a,s)=>a+s.d,0);
+  for(const e of res.ev){const h=e.hits.find(h=>!h.miss);e.rt=h?realOf(h.t):null;e.rt0=realOf(e.t0)}return res}
 /* real time -> timeline time; during a stop the timeline holds still */
 function mapT(res,Tr){let acc=0;for(const s of res.stops){if(Tr<s.t+acc)return {T:Tr-acc};if(Tr<s.t+acc+s.d)return {T:s.t,stop:s,e:Tr-(s.t+acc)};acc+=s.d}return {T:Tr-acc}}
 let HS=null;/* the stop being held right now: {s, e (seconds into it)} */
-function view(Tr){if(!BT){HS=null;scene(Tr);hud(Tr);return}const m=mapT(BT.res,Tr);HS=m.stop?{s:m.stop,e:m.e}:null;scene(m.T);hud(m.T)}
+let TRL=0;function view(Tr){TRL=Tr;if(!BT){HS=null;scene(Tr);hud(Tr);return}const m=mapT(BT.res,Tr);HS=m.stop?{s:m.stop,e:m.e}:null;scene(m.T);hud(m.T)}
 function hpAt(res,T,j){let v=res.hs?res.hs[j]:res.max[j];for(const e of res.ev){for(const h of e.hits){if(1-e.who===j&&h.t<=T&&!h.miss)v=h.hp}if(e.heal&&e.who===j&&e.healT<=T)v=e.healTo}return v}
 function spAt(res,T,j){let v=0;for(const e of res.ev){if(e.t0<=T)v=(e.special&&e.who===j)?0:e.sp[j]}return v}
 
@@ -1011,6 +1022,8 @@ function scene(T){G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;
     const j=HS.s.h&&R.hitsAt.find(q=>q.h===HS.s.h);if(j){const cx=pos[j.j].x,cy=GY-112;G.save();G.fillStyle='#ffffff';for(let n=0;n<12;n++){const a=n/12*Math.PI*2+.13,L=(n%2?60:110);for(let q=10;q<L;q+=1){const w=Math.max(0,2-q/L*2);G.fillRect(Math.round(cx+Math.cos(a)*q),Math.round(cy+Math.sin(a)*q*.8),w>1?2:1,w>1?2:1)}}G.restore();drawSpark(cx,cy,0,'R')}}
   fxFlush();
   applySlices();
+  tapFx(pos);
+  clashFx();
   /* numbers */
   for(const q of R.hitsAt){const v=T-q.t;if(v<0||v>.95)continue;const x=pos[q.j].x+(q.j?20:-20),y=GY-176-eo(v/.4)*14+(v<.08?-3:0),a=1-clamp((v-.6)/.35,0,1);
     if(q.h.miss)ptext(G,'MISS',x,y,'#c9d4ff',3,a);else{ptext(G,String(q.h.dmg),x,y,q.h.crit?'#ffe066':'#ffffff',q.h.crit?4:3,a);if(q.h.crit)ptext(G,'CRITICAL',x,y+24,'#ffb347',2,a)}}
@@ -1343,7 +1356,7 @@ function hud(T){if(!BT){const me=fighterMe();plate('A',me,me.st.hp,me.st.hp,me.s
 /* ---------- loop ---------- */
 let T=0,last=0,speed=1,playing=false;
 function frame(n){const dt=last?Math.min(.05,(n-last)/1000):0;last=n;
-  if(BT&&playing){T+=dt*speed;if(T>=BT.res.endReal){T=BT.res.endReal;playing=false;finish()}}else if(!BT)T+=dt;
+  if(BT&&playing){if(BT.cl)clashTick();else{const nT=T+dt*speed,k=clashNext(nT);if(k>=0){T=BT.res.ev[k].rt0;clashStart(k)}else{T=nT;if(T>=BT.res.endReal){T=BT.res.endReal;playing=false;finish()}}}}else if(!BT)T+=dt;
   view(T);requestAnimationFrame(frame)}
 
 /* ---------- UI: tabs ---------- */
@@ -1551,10 +1564,54 @@ function oppCard(o,i){const f=fighterOpp(o);const b=mk('button','op'+(S.opp===i?
   ready.then(()=>{const s=sprite(o.look),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle='#22402a';g.fillRect(0,0,30,30);g.drawImage(s.base,Math.round(s.cx-15),Math.max(0,s.d.top-2),30,30,0,0,30,30)});
   const w=f.wt;b.append(c);b.insertAdjacentHTML('beforeend','<div><b>'+o.name+'</b><small>'+WT[w].n+'・必殺技 '+spOf(w,f.wr).sp+'</small></div><em>Lv'+o.lv+'<br>戦闘力 '+power(f.st)+'</em>');b.onclick=()=>{S.opp=i;save();renderFight()};return b}
 function renderFight(){const box=$('opps');box.replaceChildren(...OPP.map(oppCard));renderQuest();renderXq();if(HOST){const n=HOST.left();$('go').textContent=n>0?'選んだ仲間と対戦する(今日あと'+n+'回)':'今日の仲間との対戦は終わり(朝5時に戻る)';$('go').disabled=n<=0}}
-function startBattle(qo,opt){const cpu=!!(qo&&(qo.stage||qo.xq));if(!(qo&&qo.xq))XR=null;if(HOST&&!cpu){if(!OPP[S.opp])return;if(HOST.left()<=0){toastB('今日の仲間との対戦は5回とも終わりました(朝5時に戻ります)');return}}const seed=(Date.now()&0xffffff),A=fighterMe(),B=fighterOpp(cpu?qo:OPP[S.opp]);const res=timeline(simulate(A,B,seed,opt&&opt.hp0!=null?{hp0:opt.hp0}:{}));BT={res,F:[A,B],quest:qo&&qo.stage?qo:null,xq:qo&&qo.xq?qo:null,seed,opp:cpu?null:OPP[S.opp]};$('bskip').hidden=cpu;T=RM?res.endReal:0;playing=true;$('ctl').hidden=false;$('result').className='result';
-  const L=$('log');L.replaceChildren();const nm=[A.name,B.name];for(const e of res.ev){const dm=e.hits.filter(h=>!h.miss).reduce((a,h)=>a+h.dmg,0),cr=e.hits.some(h=>h.crit),ms=e.hits.every(h=>h.miss);
-    const li=mk('li',e.special?'k':'',nm[e.who]+(e.special?'の必殺技「'+spOf(e.wt,e.wr).sp+'」':'の攻撃')+' → '+(ms?'かわされた':dm+'ダメージ'+(cr?'(会心)':''))+(e.heal?'、'+e.heal+'回復':'')+(e.ab?'(能力「'+e.ab+'」)':''));L.append(li)}
-  L.append(mk('li','k',(res.win===0?'あなたの勝ち':'あなたの負け')));$('stage').scrollIntoView({behavior:RM?'auto':'smooth',block:'nearest'})}
+function battleLog(res,A,B){const L=$('log');L.replaceChildren();const nm=[A.name,B.name];for(const e of res.ev){const dm=e.hits.filter(h=>!h.miss).reduce((a,h)=>a+h.dmg,0),cr=e.hits.some(h=>h.crit),ms=e.hits.every(h=>h.miss);
+    const li=mk('li',e.special?'k':'',nm[e.who]+(e.special?'の必殺技「'+spOf(e.wt,e.wr).sp+'」':'の攻撃')+' → '+(ms?'かわされた':dm+'ダメージ'+(cr?'(会心)':''))+(e.heal?'、'+e.heal+'回復':'')+(e.ab?'(能力「'+e.ab+'」)':'')+(e.tap?({cm:['【ぶつかり合い MAX 1.8倍】','【MAXで受け止めた 0.2倍】'],cw:['【ぶつかり合い勝ち 1.4倍】','【受け止めた 0.4倍】'],cl:['【ぶつかり合い負け 0.6倍】','【押し負けた】'],p:['【PERFECT 1.4倍】','【PARRY 0.2倍】'],g:['【GOOD 1.2倍】','【GUARD 0.6倍】']}[e.tap]||['',''])[e.who]:''));L.append(li)}
+  L.append(mk('li','k',(res.win===0?'あなたの勝ち':'あなたの負け')));}
+/* ---------- timed taps: a ring closes on whoever is about to be hit; tap as it closes ----------
+   modelled on the action commands of Paper Mario / Mario & Luigi (a tap at the moment of impact) and the dodge/parry pair of
+   Clair Obscur (a wide window that softens the blow, a tight one that cancels it and pays you back) */
+const TAP_LEAD=.7,TAP_P=[-.08,.05],TAP_G=[-.22,.08];
+function tapNow(){if(!TAP_ON||!BT||!playing||BT.res.demo)return;const R=BT.res,Tr=T;BT.inp=BT.inp||{};BT.tapAt=BT.tapAt||{};
+  let best=-1,bd=9;R.ev.forEach((e,k)=>{if(e.rt==null||BT.inp[k])return;const d=Tr-e.rt;if(d<-TAP_LEAD||d>TAP_G[1])return;if(Math.abs(d)<bd){bd=Math.abs(d);best=k}});if(best<0)return;
+  const e=R.ev[best],d=Tr-e.rt,g=d>=TAP_P[0]&&d<=TAP_P[1]?'p':d>=TAP_G[0]&&d<=TAP_G[1]?'g':'e';BT.inp[best]=g;BT.tapAt[best]={g,t:Tr,who:e.who};
+  if(g==='e')return;const res=timeline(simulate(BT.F[0],BT.F[1],BT.seed,Object.assign({},BT.opt||{},{inp:BT.inp})));BT.res=res;battleLog(res,BT.F[0],BT.F[1])}
+$('stage').addEventListener('pointerdown',e=>{if(BT&&playing&&!BT.res.demo){if(BT.cl){e.preventDefault();clashStop()}else if(TAP_ON){e.preventDefault();tapNow()}}});
+document.addEventListener('keydown',e=>{if((e.code==='Space'||e.key===' ')&&BT&&playing&&!BT.res.demo){if(BT.cl){e.preventDefault();clashStop()}else if(TAP_ON){e.preventDefault();tapNow()}}});
+function tapFx(pos){if(!TAP_ON||!BT||BT.res.demo||RM)return;const R=BT.res,Tr=TRL;
+  const ring=(cx,cy,r,col,a,w)=>{w=w||2;G.save();G.globalAlpha=a;const n=Math.max(24,Math.round(r*5));for(const pass of [0,1]){G.fillStyle=pass?col:'#160d14';const o=pass?0:1;for(let q=0;q<n;q++){const t=q/n*Math.PI*2;G.fillRect(Math.round(cx+Math.cos(t)*r)-1-o,Math.round(cy+Math.sin(t)*r*.86)-1-o,w+o*2,w+o*2)}}G.restore()};
+  R.ev.forEach((e,k)=>{if(e.rt==null)return;const j=1-e.who,cx=pos[j].x,cy=GY-112,col=e.who===0?'#ffe066':'#7fe8ff',got=BT.tapAt&&BT.tapAt[k];
+    const u=(e.rt-Tr)/TAP_LEAD;if(!got&&u>0&&u<=1){const a=Math.min(1,(1-u)/.25);ring(cx,cy,14,'#ffffff',.55*a,1);ring(cx,cy,14+50*u,col,a,u<.25?3:2);if(u<.35)ptext(G,'TAP',cx,cy-58,col,2,a)}
+    if(got){const v=Tr-got.t;if(v<0||v>.8)return;const L={p:e.who===0?'PERFECT':'PARRY',g:e.who===0?'GOOD':'GUARD',e:'EARLY'}[got.g],c=got.g==='e'?'#a9a4b8':got.g==='p'?(e.who===0?'#ffe066':'#7fe8ff'):'#ffffff';
+      const a=1-clamp((v-.55)/.25,0,1);ptext(G,L,cx,GY-40-eo(Math.min(1,v/.25))*10,c,got.g==='p'?3:2,a);if(got.g==='p'&&v<.3)ring(cx,cy,14+v*120,c,1-v/.3)}})}
+/* ---------- the clash gauge (ぶつかり合い): when a special move starts, the fight stops and a gauge sweeps from 0 to 100 and back.
+   Stop it above the opponent's number: your special hits harder (x1.4, MAX zone 95+ x1.8) or theirs is held back (x0.4, MAX x0.2).
+   Below it: your special is pushed back (x0.6) or theirs lands in full. Modelled on the bar gauge of Dragon Ball Heroes,
+   where an attack beats the guard only when the bar is stopped above the enemy's value. The opponent's number and the gauge speed rise with the stage. ---------- */
+const CL_AUTO=3.5,CL_SHOW=1.15;
+function clashDiff(){if(!BT)return .35;if(BT.xq)return Math.min(1,.2+.2*BT.xq.xq);if(BT.quest)return Math.min(1,BT.quest.stage/100);return .4}
+function clashNext(nT){if(!BT||RM||BT.res.demo||BT.noClash)return -1;const R=BT.res;for(let k=0;k<R.ev.length;k++){const e=R.ev[k];if(!e.special||BT.inp[k]!=null||e.rt0==null)continue;if(e.rt0>=T-1e-6&&e.rt0<=nT)return k;if(e.rt0>nT)break}return -1}
+function clashStart(k){const e=BT.res.ev[k],d=clashDiff(),r=rngOf(BT.seed*31+k*977+7);const opp=Math.round(clamp(36+d*44+(r()-.5)*34,8,94));BT.cl={k,who:e.who,opp,spd:.8+d*.9,ph0:r(),t0:performance.now(),ph:'run',v:null,ts:0,g:null}}
+const clashVal=c=>{const u=(performance.now()-c.t0)/1000*c.spd+c.ph0,f=u%1;return Math.round((f<.5?f*2:2-f*2)*100)};
+function clashStop(){const c=BT&&BT.cl;if(!c||c.ph!=='run')return;const v=clashVal(c);c.v=v;c.ph='show';c.ts=performance.now();c.g=v>c.opp?(v>=95?'cm':'cw'):'cl'}
+function clashTick(){const c=BT.cl;if(c.ph==='run'&&(performance.now()-c.t0)/1000>CL_AUTO)clashStop();
+  if(c.ph==='show'&&(performance.now()-c.ts)/1000>CL_SHOW){BT.inp[c.k]=c.g;BT.cl=null;const res=timeline(simulate(BT.F[0],BT.F[1],BT.seed,Object.assign({},BT.opt||{},{inp:BT.inp})));BT.res=res;battleLog(res,BT.F[0],BT.F[1])}}
+function clashFx(){const c=BT&&BT.cl;if(!c)return;const now=performance.now(),u=(now-c.t0)/1000,v=c.ph==='run'?clashVal(c):c.v,mine=c.who===0,acc=mine?'#ffe066':'#7fe8ff';
+  G.save();G.globalAlpha=Math.min(.62,u*3);G.fillStyle='#07060b';G.fillRect(0,0,W,H);G.restore();
+  const x0=50,x1=330,y0=168,h=20,X=q=>x0+(x1-x0)*q/100;
+  ptext(G,mine?'CLASH':'GUARD',190,82,acc,5,Math.min(1,u*4));
+  ptext(G,mine?'TAP  TO  STOP':'TAP  TO  HOLD',190,116,'#ffffff',2,c.ph==='run'?.55+.45*Math.sin(u*9):0);
+  /* the bar: 20 blocks, the MAX zone at the right */
+  G.fillStyle='#160d14';G.fillRect(x0-3,y0-3,x1-x0+6,h+6);
+  for(let b=0;b<20;b++){const a=b*5,lit=v>a,bx=Math.round(X(a))+1,bw=Math.round(X(a+5)-X(a))-2;G.fillStyle=b>=19?(lit?'#ffffff':'#4a4258'):lit?(b<10?'#4f8cff':b<16?acc:'#ffb347'):'#2a2434';G.fillRect(bx,y0,bw,h)}
+  /* the opponent's mark */
+  const ox=Math.round(X(c.opp));G.fillStyle='#ff5a4f';G.fillRect(ox-1,y0-12,3,h+24);ptext(G,String(c.opp),ox,y0+h+16,'#ff8a7a',2,1);
+  /* the needle and your number */
+  const nx=Math.round(X(v));G.fillStyle='#ffffff';G.fillRect(nx-2,y0-8,4,h+16);ptext(G,String(v),nx,y0-30,'#ffffff',3,1);
+  if(c.ph==='show'){const w=(now-c.ts)/1000,L=c.g==='cm'?'MAX':c.g==='cw'?(mine?'WIN':'HOLD'):(mine?'LOSE':'HIT'),col=c.g==='cl'?'#c9c2d8':acc,k=w<.12?1.6-w/.12*.6:1;
+    G.save();G.globalAlpha=Math.min(1,w*6);ptext(G,L,190,204,col,Math.round(5*k),1);G.restore();
+    if(c.g!=='cl'&&w<.35){G.save();G.globalAlpha=1-w/.35;G.fillStyle=acc;G.fillRect(0,y0+h/2-1,W,2);G.restore()}}}
+function startBattle(qo,opt){const cpu=!!(qo&&(qo.stage||qo.xq));if(!(qo&&qo.xq))XR=null;if(HOST&&!cpu){if(!OPP[S.opp])return;if(HOST.left()<=0){toastB('今日の仲間との対戦は5回とも終わりました(朝5時に戻ります)');return}}const seed=(Date.now()&0xffffff),A=fighterMe(),B=fighterOpp(cpu?qo:OPP[S.opp]);const res=timeline(simulate(A,B,seed,opt&&opt.hp0!=null?{hp0:opt.hp0}:{}));BT={res,F:[A,B],quest:qo&&qo.stage?qo:null,xq:qo&&qo.xq?qo:null,seed,opp:cpu?null:OPP[S.opp],opt:opt&&opt.hp0!=null?{hp0:opt.hp0}:{},inp:{},tapAt:{}};$('bskip').hidden=cpu;T=RM?res.endReal:0;playing=true;$('ctl').hidden=false;$('result').className='result';
+  battleLog(res,A,B);$('stage').scrollIntoView({behavior:RM?'auto':'smooth',block:'nearest'})}
 function finish(){const R=BT.res,won=R.win===0;if(R.demo){const el=$('result');el.className='result on';$('resT').textContent='';$('resS').textContent='タップで閉じる';$('ctl').hidden=true;return}const el=$('result');el.className='result on'+(won?'':' lose');$('resT').textContent=won?'WIN':'LOSE';
   if(BT.xq){xqFinish(won);return}
   const qo=BT.quest,cp=qo?QCHEST_P:CHEST_P;if(HOST){finishHost(won,qo,cp);$('ctl').hidden=true;return}const got=Math.random()<cp;let qt='';if(qo){if(won&&qo.stage>S.qs){S.qs=qo.stage;save();renderQuest();qt='ステージ'+qo.stage+' クリア!初回報酬 +'+(qo.boss?100:30)+'pt。'}else if(won)qt='ステージ'+qo.stage+' クリア。';else qt='ステージ'+qo.stage+'、もう一度挑戦できます。'}$('resS').textContent=qt+(got?'宝箱を手に入れた('+Math.round(cp*100)+'%)':'宝箱は出なかった('+Math.round(cp*100)+'%)');$('ctl').hidden=true}
@@ -1563,7 +1620,7 @@ $('go').onclick=()=>{startBattle()};/* the quest button is made in renderQuest *
 $('result').onclick=()=>{const go=XR&&XR.go;endBattle();if(go){XR.go=0;xqNext()}};
 $('b1').onclick=()=>{speed=1;$('b1').classList.add('on');$('b2').classList.remove('on')};
 $('b2').onclick=()=>{speed=2;$('b2').classList.add('on');$('b1').classList.remove('on')};
-$('bskip').onclick=()=>{if(BT&&!BT.quest&&!BT.xq){T=BT.res.endReal-.01}};
+$('bskip').onclick=()=>{if(BT&&!BT.quest&&!BT.xq){BT.noClash=true;BT.cl=null;T=BT.res.endReal-.01}};
 
 /* ---------- try: every weapon at every tier against a practice target ---------- */
 const TRYW=[['sword','ygs'],['staff','ygm'],['spear','tcs'],['bow','smb'],['fist',null]];
