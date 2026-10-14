@@ -7566,17 +7566,21 @@ const admInv={};
    - friend battles, the first 5 a day: win +50pt / loss +10pt, XP +10 / +5
    - a defence held (the attacker lost), the first 5 a day: +10pt
    - quest: the first clear of each stage +30pt (every 10th +100pt)
+   - experience quest (5 opponents in a row): a clear gives XP 20/40/70/120 by grade, the first 3 clears a day
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
-const BUN_SRC='bunshin.html?v=2',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=3',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
-const bunQ=l=>String(l.d).charAt(0)==='q';
+/* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
+const bunQ=l=>/^[qx]/.test(String(l.d));
+const BUN_XQ={x1:20,x2:40,x3:70,x4:120},BUN_XQDAY=3;
+function bunXq(pid,before){const L=bunLogs.filter(l=>l.a===pid&&l.w&&BUN_XQ[l.d]&&(!before||l.t<before)).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_XQDAY)out.push(l)}return out}
 const bunRoll=(id,p)=>hsh('bun'+id)%1000<Math.round(p*1000);
 function bunAtk(pid,before){const L=bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&(!before||l.t<before)).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 function bunDef(pid){const L=bunLogs.filter(l=>l.d===pid&&!l.w).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 const bunQPts=qs=>{let s=0;for(let n=1;n<=Math.min(100,qs||0);n++)s+=n%10===0?100:30;return s};
 function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900:0)}
-const bunXp=(pid,before)=>bunAtk(pid,before).reduce((a,l)=>a+(l.w?10:5),0);
+const bunXp=(pid,before)=>bunAtk(pid,before).reduce((a,l)=>a+(l.w?10:5),0)+bunXq(pid,before).reduce((a,l)=>a+BUN_XQ[l.d],0);
 function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c++;for(const l of bunLogs)if(l.a===pid&&bunQ(l)&&bunRoll(l.id,.1))c++;
   for(const m of matches)if((m.w===pid||m.l===pid)&&m.t>=BUN0&&bunRoll(m.id+pid,.4))c++;
   if(typeof tcgms!=='undefined'&&typeof tcgDone==='function')for(const d of tcgms)if((d.a===pid||d.b===pid)&&tcgDone(d)&&d.wa!=='draw'&&(+d.t||0)>=BUN0&&bunRoll(d.id+pid,.4))c++;return c+(window.__bunDemoChests||0)/* the demo panel can add some */}
@@ -7604,6 +7608,8 @@ window.BUNSHINHOST={
   log:d=>{const me=myPlayer();const o={a:me.id,d:String(d.d),w:d.w?1:0,s:+d.s||0,t:now()};return db.collection('bunlog').add(o).then(r=>{if(!bunLogs.some(x=>x.id===r.id))bunLogs.push({id:r.id,...o});return r.id})},
   rollChest:(id,p)=>bunRoll(id,p),
   chests:()=>bunChests(myPlayer().id),
+  /* experience quest: clears per grade (for unlocking) and today's clears (the first 3 a day give XP) */
+  xq:()=>{const me=myPlayer().id,c={},td=dayNo(now());let today=0;for(const l of bunLogs)if(l.a===me&&l.w&&BUN_XQ[l.d]){const k=l.d.slice(1);c[k]=(c[k]||0)+1;if(dayNo(l.t)===td)today++}return {c,today,day:BUN_XQDAY,xp:BUN_XQ}},
   defenses:()=>{const me=myPlayer();return bunLogs.filter(l=>l.d===me.id).sort((a,b)=>b.t-a.t).slice(0,20).map(l=>({a:l.a,w:l.w,name:(players.find(p=>p.id===l.a)||{}).name||'だれか',when:bunAgo(l.t)}))},
   onChange:cb=>{bunCb=cb},
   /* the equipment gacha opens like the normal pack */
@@ -8712,7 +8718,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';return M[id]||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=125';
+const TCG_SRC='tcg_play.html?v=126';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
