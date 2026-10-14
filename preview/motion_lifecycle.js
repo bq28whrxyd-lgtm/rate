@@ -2,7 +2,9 @@
 (function(){
   'use strict';
   const nodes=new Map();let pending=0,suspended=false;
-  const visible=n=>{if(document.hidden||suspended)return false;const r=n.getClientRects()[0];
+  const visible=n=>{if(document.hidden||suspended)return false;
+    /* a screen you left is kept laid out but skipped: anything on it counts as off screen (and is not measured) */
+    if(n.closest&&n.closest('main>.view[hidden]'))return false;const r=n.getClientRects()[0];
     return !!r&&(io||(r.bottom>-60&&r.top<innerHeight+60&&r.right>-60&&r.left<innerWidth+60))&&
       getComputedStyle(n).visibility!=='hidden'&&
       !(n.closest('main')&&(document.body.classList.contains('ovl')||document.body.classList.contains('tcgon')));};

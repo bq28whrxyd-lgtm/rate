@@ -462,6 +462,8 @@ button.danger{background:transparent;color:var(--dn);border:1px solid color-mix(
 .it1.glitch{animation:itin .55s cubic-bezier(.2,1.5,.4,1) both,glt 1.6s steps(1) .5s infinite}
 @keyframes glt{0%,100%{filter:none;transform:none}20%{filter:drop-shadow(3px 0 #ff3b6b) drop-shadow(-3px 0 #3bd5ff);transform:translateX(2px)}24%{filter:none;transform:none}60%{filter:drop-shadow(-4px 0 #ff3bd5) drop-shadow(4px 0 #3bf0ff);transform:skewX(-6deg)}64%{filter:none;transform:none}}
 .fsk .rotr{animation:spin 18s linear infinite reverse;transform-origin:0 0}
+.fsk>svg.fsa~svg,.fsk>svg~svg.fsa,.fsk.fsks>svg~svg{position:absolute;inset:0}
+.fsk>svg.fa-rot{animation:spin 14s linear infinite}.fsk>svg.fa-rotr{animation:spin 18s linear infinite reverse}.fsk>svg.fa-flk{animation:flk .9s ease-in-out infinite alternate}.fsk>svg.fa-flap{animation:flap 1s ease-in-out infinite}
 .fsk .jit{animation:jit .2s steps(2) infinite}
 /* ===== pack reveal: colour tells, upgrades, cut-ins ===== */
 .pack.gr{background:linear-gradient(115deg,#ff3b6b,#ffd23b 20%,#3bff6a 40%,#3bd5ff 60%,#a64dff 80%,#ff3b6b);background-size:300% 300%}
@@ -1011,7 +1013,8 @@ button:not(:disabled):active{transform:scale(.97);opacity:.88}
 .cgrid .holo,.limgrid .holo,.lfeat .holo{display:none}
 .cgrid svg *,.limgrid svg *{animation:none!important}
 .cgrid .bgl,.limgrid .bgl,.lfeat .bgl{display:none}
-body.ovl main *,body.ovl main *::before,body.ovl main *::after{animation-play-state:paused!important}
+/* while a popup covers the screen, the screen's own motion pauses (the class is put on the screen itself by ui2.js) */
+.kpz,.kpz::before,.kpz::after,.kpz *,.kpz *::before,.kpz *::after,.kpd *,.kpd *::before,.kpd *::after{animation-play-state:paused!important}
 body.ovl main video{visibility:hidden}
 /* ---- timeline, daily missions, predictions, genre week, MVP ---- */
 .gwban{background:linear-gradient(120deg,color-mix(in srgb,var(--gold) 22%,var(--panel)),var(--panel));border:1px solid color-mix(in srgb,var(--gold) 50%,var(--line));border-radius:14px;padding:14px 16px}
@@ -2821,8 +2824,11 @@ body.ui2 .lm3 small{font:600 11px/1.2 var(--body);color:var(--lmut);white-space:
 body.ui2 #lob .lgo{z-index:3}
 /* live pill */
 body.ui2 #lob .llive{position:relative;z-index:3;display:flex;align-items:center;gap:10px;height:42px;padding:0 14px;border-radius:999px;background:rgba(20,20,23,.82);overflow:hidden;width:100%;box-shadow:inset 0 0 0 .5px var(--lline)}
-body.ui2 .llive .dot{width:8px;height:8px;border-radius:50%;background:#ff453a;flex:none;box-shadow:0 0 0 4px rgba(255,69,58,.18);animation:lobpulse 1.6s ease-in-out infinite}
-@keyframes lobpulse{50%{box-shadow:0 0 0 7px rgba(255,69,58,0)}}
+body.ui2 .llive .dot{width:8px;height:8px;border-radius:50%;background:#ff453a;flex:none;position:relative}
+/* the halo: a soft ring around the dot that swells and fades (drawn at its largest size and scaled down, so it stays sharp;
+   it moves by transform and opacity only, which the phone animates without redrawing the page) */
+body.ui2 .llive .dot::before{content:"";position:absolute;inset:-7px;border-radius:50%;background:rgba(255,69,58,.18);transform:scale(.7273);animation:lobpulse 1.6s ease-in-out infinite;pointer-events:none}
+@keyframes lobpulse{50%{transform:scale(1);opacity:0}}
 body.ui2 .llive .tag{flex:none;font:800 11px/1 var(--body);letter-spacing:.06em;color:#fff;padding:4px 8px;border-radius:8px;background:linear-gradient(135deg,#ff5fa2,#a35cff)}
 body.ui2 .llive .txt{flex:1;min-width:0;position:relative;height:20px;font:600 14px/20px var(--body);overflow:hidden}
 body.ui2 .llive .txt>span{position:absolute;inset:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:transform .55s var(--lsp),opacity .25s}
@@ -2888,7 +2894,7 @@ body.ui2 .lre button span{margin-left:5px;font-family:var(--num)}
 body.ui2 .lsec .lmore{width:100%;height:46px;border-radius:999px;background:var(--l2);font:700 14px/46px var(--body);color:var(--ac);text-align:center;margin-top:2px}
 body.ui2 .lempty{padding:18px 16px;font:600 13px/1.6 var(--body);color:var(--lmut);text-align:center}
 @media (max-height:720px){body.ui2 #lob .llive{display:none!important}body.ui2 .lst .emb2{top:calc(50% - 150px)}}
-@media (prefers-reduced-motion:reduce){body.ui2 .lst .emb2,body.ui2 .lgo::after,body.ui2 .llive .dot{animation:none}}
+@media (prefers-reduced-motion:reduce){body.ui2 .lst .emb2,body.ui2 .lgo::after,body.ui2 .llive .dot,body.ui2 .llive .dot::before{animation:none}}
 /* oshi on the stage */
 body.ui2 .lst .losh{position:absolute;left:0;right:0;top:0;height:70%;overflow:hidden;pointer-events:none;z-index:1;transform-origin:50% 30%}
 body.ui2 .lst .losh[hidden]{display:none}
@@ -5454,13 +5460,18 @@ body.ui2 .lgr.got .gi{opacity:.45;filter:saturate(.5)}
 body.ui2 .lgr.got .gt b{color:#a9a49c}
 /*KGIFT-END*/
 /*KBATT-START*/
-/* battery: the home's looping motion pauses while idle (20 s without a touch) or while a sheet/popup covers it */
-body.kidle.lobhome #v-home *,body.kidle.lobhome #v-home *::before,body.kidle.lobhome #v-home *::after,
-body.kidle.lobhome .lbar *,body.kidle.lobhome .lbar *::before,body.kidle.lobhome .lbar *::after,
-body.kidle.lobhome .bnav *,body.kidle.lobhome .bnav *::before,body.kidle.lobhome .bnav *::after,
-body.ovl #v-home *,body.ovl #v-home *::before,body.ovl #v-home *::after,
-body.lobsheet #v-home *,body.lobsheet #v-home *::before,body.lobsheet #v-home *::after{animation-play-state:paused!important}
+/* battery: the home's looping motion pauses while idle (20 s without a touch) or while a sheet/popup covers it.
+   ui2.js puts .kpd (pause the inside) / .kpz (pause it and the inside) on just those parts. Before, these rules hung off a
+   class on <body>, and every change of it made the browser re-check every screen, including the hidden ones. */
 /*KBATT-END*/
+
+/* KVIEWKEEP: a screen you leave is skipped instead of thrown away. It keeps its built, laid-out state, so switching back
+   (and, after the quiet preparation on the home, switching the first time) needs much less work. It takes no room and is
+   never drawn while hidden. Phones whose browser lacks this keep the old behaviour (display:none). */
+@supports (content-visibility:hidden){main>.view[hidden]{display:flex!important;content-visibility:hidden;position:absolute!important;left:16px;right:16px;top:0;pointer-events:none}
+  /* the few loops that are not handed to the graphics chip are paused by name while their screen is hidden (named, so only
+     those parts are re-checked when the screen changes) */
+  main>.view[hidden] :is(.nxt,.csh,.kgu-lens,.jit,.flap,.flk,.rot,.rotr,.supnmL),main>.view[hidden] :is(.nx6,.pb-suptopaz)::after{animation-play-state:paused!important}}
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -6257,7 +6268,15 @@ const FSK={
   rift:()=>'<g class="jit">'+ring(47,'#ff3b6b',2,'stroke-dasharray="18 6 4 6" transform="translate(-1.2 0)"')+ring(47,'#3bd5ff',2,'stroke-dasharray="18 6 4 6" transform="translate(1.2 .6)"')+ring(47,'#ffffff',1.2,'stroke-dasharray="18 6 4 6"')+'</g><path d="M30-40 38-30 34-26 42-18M-36 34-28 30-30 40-22 46" fill="none" stroke="#fff" stroke-width="1"/>',
   galaxy:()=>'<defs><linearGradient id="glx" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7b3bff"/><stop offset=".5" stop-color="#3bd5ff"/><stop offset="1" stop-color="#ff3bd5"/></linearGradient></defs><g class="rot">'+around(3,a=>'<path d="M'+P2(46,a)+'A30 30 0 0 1 '+P2(58,a+1.4)+'" fill="none" stroke="url(#glx)" stroke-width="3.2" stroke-linecap="round"/>')+around(14,(a,i)=>'<circle '+XY(i%2?52:56,a+.2)+' r="'+(i%3?.9:1.6)+'" fill="#fff"/>')+'</g>'+ring(46.5,'url(#glx)',2)
 };
-function frameSkin(id){const it=id&&ITEM(id);if(!it||it.k!=='f'||it.K)return null;const s=el('span','fsk fs-'+it.v);s.innerHTML='<svg viewBox="-60 -60 120 120" aria-hidden="true">'+FSK[it.v]()+'</svg>';return s}
+function frameSkin(id){const it=id&&ITEM(id);if(!it||it.k!=='f'||it.K)return null;const s=el('span','fsk fs-'+it.v);s.innerHTML='<svg viewBox="-60 -60 120 120" aria-hidden="true">'+FSK[it.v]()+'</svg>';return fskSplit(s)}
+/* frame skins: every turning, flickering or flapping layer goes into its own <svg> (same view box, same order), and the whole
+   <svg> is animated instead of a part inside it. The phone then moves that layer on the graphics chip without redrawing the
+   frame on every screen refresh. The picture and the motion are the same. */
+function fskSplit(s){const sv=s&&s.firstElementChild;if(!sv||!sv.querySelector(':scope>.rot,:scope>.rotr,:scope>.flk,:scope>.flap'))return s;
+  const NSV='http://www.w3.org/2000/svg',VB=sv.getAttribute('viewBox'),A=/^(rot|rotr|flk|flap)$/,out=[];let cur=null;
+  const box=k=>{const x=document.createElementNS(NSV,'svg');x.setAttribute('viewBox',VB);x.setAttribute('aria-hidden','true');if(k)x.setAttribute('class','fsa fa-'+k);out.push(x);return x};
+  [...sv.childNodes].forEach(n=>{const k=n.nodeType===1&&(n.getAttribute('class')||'').trim();if(k&&A.test(k)){n.removeAttribute('class');box(k).append(n);cur=null}else{(cur||(cur=box(''))).append(n)}});
+  s.replaceChildren(...out);s.classList.add('fsks');return s}
 
 /* effect skin signature layers (placed behind the "対戦開始" text) */
 const DMW=['888888','草','うおおおお','初見です','かわいい','神回確定','強すぎる','GG','てぇてぇ','おつ','ナイス!','www','開幕から熱い','やばい'];
@@ -6808,7 +6827,7 @@ function mkFrame(p,ti){
   const fk=p.eq&&[p.eq.a,p.eq.f].map(x=>x&&ITEM(x)).find(x=>x&&x.k==='a'&&x.K),fsk=frameSkin(p.eq&&p.eq.f);
   if(fsk)f.append(fsk);
   if(fk){f.classList.add('kmrf');f.style.setProperty('--k1',fk.K.c[0]);const old=f.querySelector('.av');if(old)old.replaceWith(kmrFace(fk.K));const bd=el('span','kbadge');bd.append(emblem(ti,16));f.append(bd);
-    const r=el('span','fsk kring');r.innerHTML='<svg viewBox="-60 -60 120 120" aria-hidden="true"><g class="rot">'+ring(49,fk.K.c[0],1.2,'stroke-dasharray="2 4"')+'</g>'+around(6,a=>'<path transform="translate('+P2(51,a)+') scale(.3)" d="M0 6C-10-2-10-12-3-12 0-12 0-9 0-8 0-9 0-12 3-12 10-12 10-2 0 6Z" fill="'+fk.K.c[0]+'" stroke="#fff" stroke-width="1.6"/>')+'</svg>';f.append(r)}
+    const r=el('span','fsk kring');r.innerHTML='<svg viewBox="-60 -60 120 120" aria-hidden="true"><g class="rot">'+ring(49,fk.K.c[0],1.2,'stroke-dasharray="2 4"')+'</g>'+around(6,a=>'<path transform="translate('+P2(51,a)+') scale(.3)" d="M0 6C-10-2-10-12-3-12 0-12 0-9 0-8 0-9 0-12 3-12 10-12 10-2 0 6Z" fill="'+fk.K.c[0]+'" stroke="#fff" stroke-width="1.6"/>')+'</svg>';f.append(fskSplit(r))}
   return f;
 }
 /* one confirm sheet for everything that used to need a second tap: title, a few lines, the action button and キャンセル */
@@ -9728,8 +9747,13 @@ document.querySelectorAll('.bnav button').forEach(b=>b.onclick=()=>setView(b.dat
 $('pedit').onclick=()=>openCollection();
 /* pause animations that are off screen (cheaper scrolling on phones) */
 const animIO='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('ofs',!e.isIntersecting)),{rootMargin:'120px 0px'}):null;
-const animNodes=new Set();let animQ=0;function watchAnim(){animQ=0;if(!animIO)return;for(const n of animNodes)if(!n.isConnected){animIO.unobserve(n);animNodes.delete(n);delete n.__io}document.querySelectorAll('main .rk,main .podium,main .fd,main .myc,main .sto,main #pcard>*,main .top3,main .tile,main .sban,main .gwban').forEach(x=>{if(!x.__io){x.__io=1;animNodes.add(x);animIO.observe(x)}})}
-new MutationObserver(()=>{if(!animQ)animQ=requestAnimationFrame(watchAnim)}).observe(document.querySelector('main'),{childList:true,subtree:true});
+/* only the parts that were just added are searched (it used to search the whole main area after every change) */
+const ANIMSEL='.rk,.podium,.fd,.myc,.sto,#pcard>*,.top3,.tile,.sban,.gwban';const animNodes=new Set(),animAdd=new Set();let animQ=0,animGone=false;
+function watchAnim(){animQ=0;if(!animIO){animAdd.clear();return}if(animGone){animGone=false;for(const n of animNodes)if(!n.isConnected){animIO.unobserve(n);animNodes.delete(n);delete n.__io}}
+  const take=x=>{if(!x.__io&&x.isConnected){x.__io=1;animNodes.add(x);animIO.observe(x)}};
+  for(const r of animAdd){if(!r.isConnected)continue;if(r.matches(ANIMSEL))take(r);r.querySelectorAll(ANIMSEL).forEach(take)}animAdd.clear()}
+new MutationObserver(ms=>{for(const m of ms){if(m.removedNodes.length)animGone=true;for(const n of m.addedNodes)if(n.nodeType===1)animAdd.add(n)}if(animAdd.size||animGone){if(!animQ)animQ=requestAnimationFrame(watchAnim)}}).observe(document.querySelector('main'),{childList:true,subtree:true});
+document.querySelectorAll('main '+ANIMSEL.split(',').join(',main ')).forEach(x=>animAdd.add(x));animQ=requestAnimationFrame(watchAnim);
 {const gt=$('gtabs');const sw=()=>{const sp=document.querySelector('.rkswp');if(sp)sp.hidden=Object.keys(GAMES).length<2};new MutationObserver(sw).observe(gt,{childList:true})}
 function psubSet(k){const v=$('v-profile');v.dataset.pt=k;document.querySelectorAll('#psub button').forEach(b=>b.classList.toggle('on',b.dataset.p===k));try{localStorage.setItem('psub',k)}catch(e){}}
 document.querySelectorAll('#psub button').forEach(b=>b.onclick=()=>{psubSet(b.dataset.p);slideIn($('v-profile'),0)});
@@ -10511,12 +10535,29 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     else if(!a&&!ovd.paused)ovd.pause()}
   ovd.addEventListener('error',()=>{ovd.__bad=ovd.getAttribute('src')});
   /* battery: the stage is drawn 30 times a second (it moves slowly, so it looks the same), and stops while idle or covered */
-  let lastF=0,svgOn=true;window.__kmStep=33.3;(function f(n){requestAnimationFrame(f);const a=active();vidCtl(a);{const sv=q('.emb2 svg');if(sv&&sv.pauseAnimations&&a!==svgOn){svgOn=a;try{a?sv.unpauseAnimations():sv.pauseAnimations()}catch(e){}}}if(window.__kmT!=null||!a)return;if(window.__kmT==null&&n&&n-lastF<30)return;lastF=n||0;frame(clock())})();
+  /* away from the home the loop sleeps: no screen-refresh callback at all (a light check 4 times a second instead),
+     and it wakes at once when the screen state changes (the body class) or the app comes back */
+  let lastF=0,svgOn=true,slp=0;window.__kmStep=33.3;
+  const tick=n=>{const a=active();vidCtl(a);{const sv=q('.emb2 svg');if(sv&&sv.pauseAnimations&&a!==svgOn){svgOn=a;try{a?sv.unpauseAnimations():sv.pauseAnimations()}catch(e){}}}
+    if(!a&&window.__kmT==null){slp=setTimeout(()=>{slp=0;requestAnimationFrame(tick)},250);return}
+    requestAnimationFrame(tick);if(window.__kmT!=null)return;if(n&&n-lastF<30)return;lastF=n||0;frame(clock())};
+  {const wakeL=()=>{if(slp){clearTimeout(slp);slp=0;requestAnimationFrame(tick)}};new MutationObserver(wakeL).observe(document.body,{attributes:true,attributeFilter:['class']});document.addEventListener('visibilitychange',wakeL);addEventListener('kmo:reveal',wakeL)}
+  requestAnimationFrame(tick);
   /* idle on the home: after 20 s without a touch the ambient motion pauses (CSS and the stage); any touch brings it back */
   {let last=Date.now();const wake=()=>{last=Date.now();if(document.body.classList.contains('kidle'))document.body.classList.remove('kidle')};
     ['pointerdown','touchstart','keydown','wheel'].forEach(k=>addEventListener(k,wake,{capture:true,passive:true}));addEventListener('scroll',wake,{capture:true,passive:true});
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)wake()});
     setInterval(()=>{const c=document.body.classList;if(!c.contains('kidle')&&c.contains('lobhome')&&Date.now()-last>20000&&!window.__kmT)c.add('kidle')},2000)}
+  /* where the pause goes: on the screen showing (popup on top), and on the home, top bar and tab bar (idle on the home, or a
+     sheet over it). Only those parts are re-checked when it changes (a class on <body> re-checked every screen). */
+  {const B=document.body.classList,main=document.querySelector('main');
+    const set=(e,k,on)=>{if(e&&e.classList.contains(k)!==on)e.classList.toggle(k,on)};
+    const sync=()=>{const ovl=B.contains('ovl'),home=B.contains('lobhome'),idle=B.contains('kidle')&&home,sheet=B.contains('lobsheet'),vh=document.getElementById('v-home');
+      if(main)[...main.children].forEach(c=>{set(c,'kpz',ovl&&!(c.classList.contains('view')&&c.hidden));if(c===vh)set(c,'kpd',idle||sheet)});
+      set(document.querySelector('.lbar'),'kpd',idle);set(document.querySelector('.bnav'),'kpd',idle)};
+    new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
+    if(main)new MutationObserver(sync).observe(main,{subtree:false,childList:true,attributes:true,attributeFilter:['hidden']});
+    if(main)[...main.querySelectorAll(':scope>.view')].forEach(v=>new MutationObserver(sync).observe(v,{attributes:true,attributeFilter:['hidden']}));sync()}
   window.__lobStep=t=>{window.__kmT=t;if(window.gsap){if(!window.__kmG){window.__kmG=1;gsap.ticker.remove(gsap.updateRoot)}gsap.updateRoot(t)}frame(t)};
   lob.addEventListener('pointermove',e=>{if(!stage)return;const r=lob.getBoundingClientRect();stage.pointer((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)},{passive:true});
   lob.addEventListener('pointerleave',()=>stage&&stage.pointer(0,0));
@@ -11527,6 +11568,20 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     if(pg){try{window.__kxInk&&__kxInk()}catch(e){}}}
   const later=()=>{if(!rq)rq=requestAnimationFrame(refresh)};
   window.__kxRefresh=()=>{rateSig=histSig=deckSig=tOppSig=tDkSig=rankSig='';refresh()};
+  /* build a screen ahead of time while it is hidden (nothing animates: the entrance still plays when you open it) */
+  window.__kxWarm=v=>{try{if(v==='rank')renderRank();else if(v==='battle'&&(vb.dataset.bp||'rate')==='rate')renderRate()}catch(e){}};
+  /* screens not opened yet are prepared quietly while you are on the home and not touching the phone: built and laid out
+     once (a hidden screen keeps that state), so the first switch is as quick as coming back. One screen per step. */
+  (function(){try{if(!(window.CSS&&CSS.supports('content-visibility','hidden')))return}catch(e){return}
+    let lastIn=Date.now(),started=false;['pointerdown','touchstart','keydown','wheel'].forEach(k=>addEventListener(k,()=>{lastIn=Date.now()},{capture:true,passive:true}));
+    const Q=['gacha','rank','battle','profile'];
+    const step=()=>{if(!Q.length)return;const c=document.body.classList;
+      if(Date.now()-lastIn<900||document.hidden||c.contains('ovl')||document.querySelector('body>.km-splash')){setTimeout(step,700);return}
+      const v=Q.shift(),el=document.getElementById('v-'+v);
+      if(el&&el.hidden&&curView!==v){if(v==='rank'||v==='battle')window.__kxWarm(v);try{for(const c of el.children)if(!c.hidden)c.getBoundingClientRect()}catch(e){}}
+      setTimeout(step,500)};
+    const go=()=>{if(started)return;started=true;setTimeout(step,2500)};
+    if(window.__kmRevealed||!document.querySelector('body>.km-splash'))setTimeout(go,1500);addEventListener('kmo:reveal',go,{once:true});setTimeout(go,9000)})();
   window.__kxEnter=()=>{lastPg=null;lastV=null;introN=0;tIntroN=0;rkIntroN=0;refresh()};
   try{const R0=render;render=function(){const r=R0.apply(this,arguments);later();return r}}catch(e){}
   /* switching to TCG rebuilt the old TCG sections every time: skip that while nothing has changed since the last build */
