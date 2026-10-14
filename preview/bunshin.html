@@ -245,7 +245,7 @@ html.inapp .protoonly{display:none!important}html.inapp .tabs{grid-template-colu
   </section>
 
   <section class="pane" id="p-fight" hidden>
-    <div class="tapguide"><b>必殺技はぶつかり合い</b><span>どちらかが必殺技を出すとバトルが止まり、ゲージが左右に動きます。画面をタップして止め、<em class="r">赤い線(相手の数字)</em>より右で止めれば勝ち。自分の必殺技なら <em class="g">1.4倍</em>(いちばん右の白いMAXなら1.8倍)、相手の必殺技なら <em class="c">0.4倍</em>に受け止めます(MAXなら0.2倍)。負けると自分の技は0.6倍、相手の技はそのまま当たります。先のステージほど相手の数字が高く、ゲージも速くなります。パソコンはスペースキー</span></div>
+    <div class="tapguide"><b>必殺技はぶつかり合い</b><span>どちらかが必殺技を出すとバトルが止まり、ゲージが左右に動きます。画面をタップして止め、<em class="r">赤い線(相手の数字)</em>より右で止めれば勝ち。自分の必殺技なら <em class="g">1.1倍</em>(いちばん右の白いMAXなら1.25倍)、相手の必殺技なら <em class="c">0.85倍</em>に受け止めます(MAXなら0.7倍)。負けると自分の技は0.9倍、相手の技は1.05倍になります。先のステージほど相手の数字が高く、ゲージも速くなります。パソコンはスペースキー</span></div>
     <div class="sec"><h2>クエスト</h2><div class="quest" id="quest"></div></div>
     <div class="sec"><h2>経験値クエスト<small id="xqn"></small></h2><div class="xq" id="xq"></div></div>
     <div class="sec"><h2>仲間と戦う</h2><div class="opps" id="opps"></div></div>
@@ -586,6 +586,9 @@ function fighterOpp(o){const items=o.eq.filter(x=>ITEMS[x[0]]).map(([k,r,e],i)=>
 /* ---------- the battle: decided first, then played as a timeline ---------- */
 /* the timed taps (v128 trial) are off; the special-move clash gauge replaces them */
 const TAP_ON=false;
+/* the clash gauge multipliers: me = my special after the clash (MAX / won / lost), op = the opponent's special on me */
+/* lowered at the user's request ("倍率高すぎてヌルゲー"): winning every clash used to win ~96% of even fights, now ~65-70% (all MAX ~80%) */
+const CLM={me:{cm:1.25,cw:1.1,cl:.9},op:{cm:.7,cw:.85,cl:1.05}};
 const MELEE={fist:1,sword:1,spear:1,hammer:1,penlight:1};
 const SPDUR={fist:1.7,sword:2.0,staff:2.0,bow:1.9,spear:1.8,hammer:2.0,penlight:2.1};
 const SPHIT={fist:[.8],sword:[.75,.95,1.15],staff:[1.15],bow:[.78,.93,1.08],spear:[.72],hammer:[.85],penlight:[.7,.85,1,1.15]};
@@ -625,7 +628,7 @@ function simulate(A,B,seed,opt){opt=opt||{};const r=rngOf(seed),cond=[0,1].map((
     /* a timed tap (decided by the player while the fight plays; the fight is re-run with it):
        your attack PERFECT x1.4 + gauge 10 / GOOD x1.2; the opponent's attack PARRY x0.2 + your gauge 20 / GUARD x0.6 */
     const tp=opt.inp&&opt.inp[ev.length];let tap=null;
-    if(special&&(tp==='cm'||tp==='cw'||tp==='cl')){const f=i===0?{cm:1.8,cw:1.4,cl:.6}[tp]:{cm:.2,cw:.4,cl:1}[tp];for(const h of hits)if(!h.miss)h.dmg=Math.max(i===0?1:0,Math.round(h.dmg*f));tap=tp}
+    if(special&&(tp==='cm'||tp==='cw'||tp==='cl')){const f=(i===0?CLM.me:CLM.op)[tp];for(const h of hits)if(!h.miss)h.dmg=Math.max(i===0?1:0,Math.round(h.dmg*f));tap=tp}
     else if(TAP_ON&&(tp==='p'||tp==='g')){const f=i===0?(tp==='p'?1.4:1.2):(tp==='p'?.2:.6);for(const h of hits)if(!h.miss)h.dmg=Math.max(i===0?1:0,Math.round(h.dmg*f));tap=tp;if(tp==='p')sp[0]=Math.min(100,sp[0]+(i===0?10:20))}
     const spBefore=[...sp];
     for(let q=0;q<hits.length;q++){const h=hits[q];if(!h.miss){hp[j]=Math.max(0,hp[j]-h.dmg);sp[j]=Math.min(100,sp[j]+8)}h.hp=hp[j];if(hp[j]<=0){hits.length=q+1;break}}
@@ -1565,7 +1568,7 @@ function oppCard(o,i){const f=fighterOpp(o);const b=mk('button','op'+(S.opp===i?
   const w=f.wt;b.append(c);b.insertAdjacentHTML('beforeend','<div><b>'+o.name+'</b><small>'+WT[w].n+'・必殺技 '+spOf(w,f.wr).sp+'</small></div><em>Lv'+o.lv+'<br>戦闘力 '+power(f.st)+'</em>');b.onclick=()=>{S.opp=i;save();renderFight()};return b}
 function renderFight(){const box=$('opps');box.replaceChildren(...OPP.map(oppCard));renderQuest();renderXq();if(HOST){const n=HOST.left();$('go').textContent=n>0?'選んだ仲間と対戦する(今日あと'+n+'回)':'今日の仲間との対戦は終わり(朝5時に戻る)';$('go').disabled=n<=0}}
 function battleLog(res,A,B){const L=$('log');L.replaceChildren();const nm=[A.name,B.name];for(const e of res.ev){const dm=e.hits.filter(h=>!h.miss).reduce((a,h)=>a+h.dmg,0),cr=e.hits.some(h=>h.crit),ms=e.hits.every(h=>h.miss);
-    const li=mk('li',e.special?'k':'',nm[e.who]+(e.special?'の必殺技「'+spOf(e.wt,e.wr).sp+'」':'の攻撃')+' → '+(ms?'かわされた':dm+'ダメージ'+(cr?'(会心)':''))+(e.heal?'、'+e.heal+'回復':'')+(e.ab?'(能力「'+e.ab+'」)':'')+(e.tap?({cm:['【ぶつかり合い MAX 1.8倍】','【MAXで受け止めた 0.2倍】'],cw:['【ぶつかり合い勝ち 1.4倍】','【受け止めた 0.4倍】'],cl:['【ぶつかり合い負け 0.6倍】','【押し負けた】'],p:['【PERFECT 1.4倍】','【PARRY 0.2倍】'],g:['【GOOD 1.2倍】','【GUARD 0.6倍】']}[e.tap]||['',''])[e.who]:''));L.append(li)}
+    const li=mk('li',e.special?'k':'',nm[e.who]+(e.special?'の必殺技「'+spOf(e.wt,e.wr).sp+'」':'の攻撃')+' → '+(ms?'かわされた':dm+'ダメージ'+(cr?'(会心)':''))+(e.heal?'、'+e.heal+'回復':'')+(e.ab?'(能力「'+e.ab+'」)':'')+(e.tap?({cm:['【ぶつかり合い MAX 1.25倍】','【MAXで受け止めた 0.7倍】'],cw:['【ぶつかり合い勝ち 1.1倍】','【受け止めた 0.85倍】'],cl:['【ぶつかり合い負け 0.9倍】','【押し負けた 1.05倍】'],p:['【PERFECT 1.4倍】','【PARRY 0.2倍】'],g:['【GOOD 1.2倍】','【GUARD 0.6倍】']}[e.tap]||['',''])[e.who]:''));L.append(li)}
   L.append(mk('li','k',(res.win===0?'あなたの勝ち':'あなたの負け')));}
 /* ---------- timed taps: a ring closes on whoever is about to be hit; tap as it closes ----------
    modelled on the action commands of Paper Mario / Mario & Luigi (a tap at the moment of impact) and the dodge/parry pair of
@@ -1584,8 +1587,8 @@ function tapFx(pos){if(!TAP_ON||!BT||BT.res.demo||RM)return;const R=BT.res,Tr=TR
     if(got){const v=Tr-got.t;if(v<0||v>.8)return;const L={p:e.who===0?'PERFECT':'PARRY',g:e.who===0?'GOOD':'GUARD',e:'EARLY'}[got.g],c=got.g==='e'?'#a9a4b8':got.g==='p'?(e.who===0?'#ffe066':'#7fe8ff'):'#ffffff';
       const a=1-clamp((v-.55)/.25,0,1);ptext(G,L,cx,GY-40-eo(Math.min(1,v/.25))*10,c,got.g==='p'?3:2,a);if(got.g==='p'&&v<.3)ring(cx,cy,14+v*120,c,1-v/.3)}})}
 /* ---------- the clash gauge (ぶつかり合い): when a special move starts, the fight stops and a gauge sweeps from 0 to 100 and back.
-   Stop it above the opponent's number: your special hits harder (x1.4, MAX zone 95+ x1.8) or theirs is held back (x0.4, MAX x0.2).
-   Below it: your special is pushed back (x0.6) or theirs lands in full. Modelled on the bar gauge of Dragon Ball Heroes,
+   Stop it above the opponent's number: your special hits harder (x1.1, MAX zone 95+ x1.25) or theirs is held back (x0.85, MAX x0.7).
+   Below it: your special is pushed back (x0.9) or theirs lands a little harder (x1.05). Modelled on the bar gauge of Dragon Ball Heroes,
    where an attack beats the guard only when the bar is stopped above the enemy's value. The opponent's number and the gauge speed rise with the stage. ---------- */
 const CL_AUTO=3.5,CL_SHOW=1.15;
 function clashDiff(){if(!BT)return .35;if(BT.xq)return Math.min(1,.2+.2*BT.xq.xq);if(BT.quest)return Math.min(1,BT.quest.stage/100);return .4}
