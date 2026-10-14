@@ -17,6 +17,7 @@ html.inapp .protoonly{display:none!important}html:not(.inapp) .hostonly{display:
 .hclose{flex:none;width:40px;height:40px;border-radius:50%;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);font:400 22px/40px var(--px);color:var(--fg,#fff)}
 .btoast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;max-width:88vw;padding:10px 14px;border-radius:12px;background:#000c;color:#fff;font:500 13px/1.5 var(--jp)}
 .enh{padding:10px;border-radius:14px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--gold2,#e2bf72);display:grid;gap:8px}.enhh{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center}.enhh small{display:block;font:500 11.5px/1.4 var(--jp);color:var(--mut)}
+.odds{margin-top:8px;font:500 12px/1.6 var(--jp);color:var(--mut)}.odds summary{cursor:pointer;color:var(--fg,#fff)}.odds table{width:100%;border-collapse:collapse;margin-top:6px}.odds th{text-align:left;white-space:nowrap;padding:4px 8px 4px 0;vertical-align:top;font-weight:600}.odds td{padding:4px 0}
 .g10{display:grid;gap:4px;margin-top:8px}.log li button{margin-left:8px;padding:2px 10px;border-radius:999px;background:var(--s3,#333);font:500 12px/1.6 var(--jp)}
 .hd h1{margin:0;font:400 24px/1.2 var(--px);letter-spacing:.04em;color:var(--gold2)}
 .hd small{display:block;font:500 12px/1.4 var(--jp);color:var(--mut);margin-top:4px}
@@ -198,7 +199,8 @@ html.inapp .protoonly{display:none!important}html:not(.inapp) .hostonly{display:
     <div class="sec"><h2>装備中</h2><div class="slots" id="slots"></div></div>
     <div class="skill" id="skill"></div>
     <div class="sec protoonly"><h2>レア度の見本<small>試作用。剣はそのレア度の剣に持ち替え、ほかの武器はレア度だけ切り替えます</small></h2><div class="seg" id="rarsel"></div></div>
-    <div class="sec hostonly"><h2>装備ガチャ<small>1回100pt・10連900pt</small></h2><div class="row2"><button type="button" class="btn main" id="ga1">1回引く</button><button type="button" class="btn main" id="ga10">10連(900pt)</button></div><div class="g10" id="g10" hidden></div></div>
+    <div class="sec hostonly"><h2>装備ガチャ<small>1回100pt・10連900pt</small></h2><div class="row2"><button type="button" class="btn main" id="ga1">1回引く</button><button type="button" class="btn main" id="ga10">10連(900pt)</button></div><div class="g10" id="g10" hidden></div>
+      <details class="odds"><summary>確率(ガチャと宝箱は同じ)</summary><table><tr><th>種類</th><td>武器 40%(剣・杖・槍・弓 各10%)・防具 30%・アクセ 30%</td></tr><tr><th>武器のレア度</th><td>R 70%・SR 25%・UR 4.5%・KMR 0.5%</td></tr><tr><th>防具・アクセ</th><td>N 59.95%・R 30%・SR 8%・UR 1.7%・GR 0.3%・KMR 0.05%</td></tr><tr><th>例</th><td>KMRの武器 0.2%・KMRの弓 0.05%(1回あたり)</td></tr></table></details></div>
     <div class="sec"><h2>宝箱<small>対戦のたびに40%(クエスト10%)</small></h2><div class="chests" id="chests"></div>
       <p class="note protoonly">試作なので何回でも開けられます。武器は4段階(R 70%・SR 25%・UR 4.5%・KMR 0.5%)。防具とアクセはスキンガチャと同じ6段階(N 59.95%・R 30%・SR 8%・UR 1.7%・GR 0.3%・KMR 0.05%)。</p></div>
     <div class="enh" id="enh" hidden></div>
@@ -1439,12 +1441,13 @@ function renderQuest(){const box=$('quest');if(!box)return;const n=Math.min(QMAX
   const bar=mk('div','qbar');bar.innerHTML='<span>クリア '+S.qs+' / '+QMAX+'</span><i style="width:'+(S.qs/QMAX*100).toFixed(1)+'%"></i>';box.append(bar);
   const card=oppCard(o,-1);card.classList.add('on');if(o.boss)card.classList.add('boss');card.querySelector('b').textContent=(o.boss?'BOSS ':'')+'ステージ'+n+' '+o.name;card.onclick=null;box.append(card);
   const nx=mk('p','note','次のボス:ステージ'+(Math.ceil((n)/10)*10)+'。初めてクリアすると +'+(o.boss?100:30)+'pt。宝箱は勝ち負けに関係なく10%。');box.append(nx);
-  const b=mk('button','btn main','ステージ'+n+'に挑戦する');b.type='button';b.onclick=()=>startBattle(o);box.append(b)}
+  const b=mk('button','btn main','ステージ'+n+'に挑戦する');b.type='button';b.onclick=()=>startBattle(o);box.append(b);
+  if(S.qs>=1){const p0=questOpp(Math.min(QMAX,S.qs)),b2=mk('button','btn','ステージ'+p0.stage+'(クリア済み)にもう一度挑戦');b2.type='button';b2.onclick=()=>startBattle(p0);box.append(b2,mk('p','note','クリア済みのステージは報酬なし・宝箱10%。何回でも挑戦できます。クエストのバトルはスキップできません。'))}}
 function oppCard(o,i){const f=fighterOpp(o);const b=mk('button','op'+(S.opp===i?' on':''));b.type='button';const c=document.createElement('canvas');c.width=30;c.height=30;
   ready.then(()=>{const s=sprite(o.look),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle='#22402a';g.fillRect(0,0,30,30);g.drawImage(s.base,Math.round(s.cx-15),Math.max(0,s.d.top-2),30,30,0,0,30,30)});
   const w=f.wt;b.append(c);b.insertAdjacentHTML('beforeend','<div><b>'+o.name+'</b><small>'+WT[w].n+'・必殺技 '+spOf(w,f.wr).sp+'</small></div><em>Lv'+o.lv+'<br>戦闘力 '+power(f.st)+'</em>');b.onclick=()=>{S.opp=i;save();renderFight()};return b}
 function renderFight(){const box=$('opps');box.replaceChildren(...OPP.map(oppCard));renderQuest();if(HOST){const n=HOST.left();$('go').textContent=n>0?'選んだ仲間と対戦する(今日あと'+n+'回)':'今日の仲間との対戦は終わり(朝5時に戻る)';$('go').disabled=n<=0}}
-function startBattle(qo){if(HOST&&!(qo&&qo.stage)){if(!OPP[S.opp])return;if(HOST.left()<=0){toastB('今日の仲間との対戦は5回とも終わりました(朝5時に戻ります)');return}}const seed=(Date.now()&0xffffff),A=fighterMe(),B=fighterOpp(qo&&qo.stage?qo:OPP[S.opp]);const res=timeline(simulate(A,B,seed));BT={res,F:[A,B],quest:qo&&qo.stage?qo:null,seed,opp:qo&&qo.stage?null:OPP[S.opp]};T=RM?res.endReal:0;playing=true;$('ctl').hidden=false;$('result').className='result';
+function startBattle(qo){if(HOST&&!(qo&&qo.stage)){if(!OPP[S.opp])return;if(HOST.left()<=0){toastB('今日の仲間との対戦は5回とも終わりました(朝5時に戻ります)');return}}const seed=(Date.now()&0xffffff),A=fighterMe(),B=fighterOpp(qo&&qo.stage?qo:OPP[S.opp]);const res=timeline(simulate(A,B,seed));BT={res,F:[A,B],quest:qo&&qo.stage?qo:null,seed,opp:qo&&qo.stage?null:OPP[S.opp]};$('bskip').hidden=!!(qo&&qo.stage);T=RM?res.endReal:0;playing=true;$('ctl').hidden=false;$('result').className='result';
   const L=$('log');L.replaceChildren();const nm=[A.name,B.name];for(const e of res.ev){const dm=e.hits.filter(h=>!h.miss).reduce((a,h)=>a+h.dmg,0),cr=e.hits.some(h=>h.crit),ms=e.hits.every(h=>h.miss);
     const li=mk('li',e.special?'k':'',nm[e.who]+(e.special?'の必殺技「'+spOf(e.wt,e.wr).sp+'」':'の攻撃')+' → '+(ms?'かわされた':dm+'ダメージ'+(cr?'(会心)':''))+(e.heal?'、'+e.heal+'回復':'')+(e.ab?'(能力「'+e.ab+'」)':''));L.append(li)}
   L.append(mk('li','k',(res.win===0?'あなたの勝ち':'あなたの負け')));$('stage').scrollIntoView({behavior:RM?'auto':'smooth',block:'nearest'})}
@@ -1455,7 +1458,7 @@ $('go').onclick=()=>{startBattle()};/* the quest button is made in renderQuest *
 $('result').onclick=()=>{endBattle()};
 $('b1').onclick=()=>{speed=1;$('b1').classList.add('on');$('b2').classList.remove('on')};
 $('b2').onclick=()=>{speed=2;$('b2').classList.add('on');$('b1').classList.remove('on')};
-$('bskip').onclick=()=>{if(BT){T=BT.res.endReal-.01}};
+$('bskip').onclick=()=>{if(BT&&!BT.quest){T=BT.res.endReal-.01}};
 
 /* ---------- try: every weapon at every tier against a practice target ---------- */
 const TRYW=[['sword','ygs'],['staff','ygm'],['spear','tcs'],['bow','smb'],['fist',null]];
