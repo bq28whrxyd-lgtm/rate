@@ -267,6 +267,31 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---- 分身アバターバトル (beta): your avatar, readable by everyone signed in so friends can fight it.
+    //      The quest stage moves up one at a time; gacha pulls and opened chests only go up ----
+    function bunOk() {
+      return request.resource.data.keys().hasOnly(['look', 'al', 'inv', 'eq', 'nid', 'qs', 'gp', 'g10', 'copen', 'u'])
+        && request.resource.data.get('inv', []).size() <= 600 && newV('qs', 0) <= 100 && newV('qs', 0) >= 0;
+    }
+    match /bunshin/{pid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() == pid && bunOk() && newV('qs', 0) <= 1 && newV('gp', 0) == 0 && newV('g10', 0) == 0 && newV('copen', 0) <= 1;
+      allow update: if signedIn() && myPid() == pid && bunOk()
+        && newV('qs', 0) >= oldV('qs', 0) && newV('qs', 0) <= oldV('qs', 0) + 1
+        && newV('gp', 0) >= oldV('gp', 0) && newV('g10', 0) >= oldV('g10', 0) && newV('copen', 0) >= oldV('copen', 0);
+      allow delete: if isAdmin();
+    }
+    // ---- one record per avatar battle, written by the attacker, never changed ----
+    match /bunlog/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.a == myPid()
+        && request.resource.data.keys().hasOnly(['a', 'd', 'w', 's', 't'])
+        && request.resource.data.d is string && request.resource.data.d != myPid()
+        && request.resource.data.w in [0, 1] && request.resource.data.s is int
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 120000;
+      allow update, delete: if false;
+    }
+
     match /inv/{pid} {
       allow read: if isAdmin() || (signedIn() && myPid() == pid);
       allow create: if isAdmin() || (signedIn() && myPid() == pid
