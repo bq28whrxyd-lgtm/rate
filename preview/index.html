@@ -5042,6 +5042,16 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .kp-c.on.r-SR .tcf{box-shadow:0 0 0 2px #bfeaff,0 0 40px -6px rgba(143,211,255,.9),0 24px 46px -18px rgba(0,0,0,.95)}
 .kp-cap b.r-SR,.kp-zc b.r-SR{color:#06141f;background:linear-gradient(180deg,#eefaff,#8fd3ff)}
 .kbr-s.sr b{color:#9fdcff}
+/* zoomed card with its details: a smaller card so the text fits; the effect text scrolls inside its own box */
+.kp-zoom.info{gap:14px;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
+.kp-zoom.info .tcf{width:auto;height:min(40vh,330px);max-width:min(66vw,250px)}
+.kp-zoom.info .kp-zc{max-width:min(420px,100%);width:100%}
+.kp-zi{flex-basis:100%;display:flex;flex-direction:column;gap:10px;margin-top:2px}
+.kp-zm{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.kp-zm>span{font:700 12px/1 var(--x-f,-apple-system,sans-serif);color:rgba(244,241,234,.8);padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12)}
+.kp-zm .kp-zs{display:inline-flex;gap:10px}.kp-zm .kp-zs i{font-style:normal}.kp-zm .kp-za b{color:#ffb38a}.kp-zm .kp-zd b{color:#8fd3ff}
+.kp-zm b{font:800 13px/1 var(--x-n,"Geist",-apple-system,sans-serif);font-variant-numeric:tabular-nums}
+.kp-zt{max-height:24vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1);font:500 13.5px/1.65 var(--x-f,-apple-system,"Hiragino Sans",sans-serif);color:rgba(244,241,234,.88);white-space:pre-wrap;text-align:left;line-break:strict}
 /* ===== v121 ガチャ画面 (kgu): banner chips + one big banner card, the old sections hidden underneath ===== */
 @property --a1{syntax:'<color>';inherits:true;initial-value:#8b7bff}
 @property --a2{syntax:'<color>';inherits:true;initial-value:#3dd8f0}
@@ -12539,7 +12549,11 @@ window.KMotion={makeSplash,makeBonus,makeStage,runner,RM,SFX,Q,ease,seg};
   /* one card up close: it leans under the finger and the light moves across it */
   const RL={C:'コモン',R:'レア',SR:'スーパーレア',GR:'ガチレア'};
   function zoomCard(host,x){const z=mk('div','kp-zoom'),w=mk('div','kp-zw'),f=tcgFace(x.c.v,null,x.foil);f.append(mk('i','kp-zl'));w.append(f);
-    z.append(w,mk('div','kp-zc','<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span><small>タップで戻る</small>'));host.append(z);
+    /* the card's details under it (family, type, cost, ATK/DEF, effect), read straight from the card data: no extra loading */
+    const C=(typeof TCGD!=='undefined'&&(zoomCard.M||(zoomCard.M=Object.fromEntries(TCGD.cards.map(c=>[c.id,c]))))[x.c.v])||null,TY={chara:'キャラ',spell:'魔法',trap:'トラップ'};
+    let info='';if(C){const fam=(typeof TCGD!=='undefined'&&TCGD.fname&&TCGD.fname[C.f])||'族なし';
+      info='<div class="kp-zi"><div class="kp-zm"><span>'+esc(fam)+'</span><span>'+(TY[C.ty]||'')+'</span><span>熱量 '+(+C.c||0)+'</span>'+(C.ty==='chara'?'<span class="kp-zs"><i class="kp-za">ATK <b>'+(+C.atk||0)+'</b></i><i class="kp-zd">DEF <b>'+(+C.def||0)+'</b></i></span>':'')+'</div>'+(C.tx?'<div class="kp-zt">'+esc(C.tx)+'</div>':'')+'</div>';z.classList.add('info')}
+    z.append(w,mk('div','kp-zc','<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span>'+info+'<small>タップで戻る</small>'));host.append(z);
     z.addEventListener('pointermove',e=>{const r=f.getBoundingClientRect(),dx=(e.clientX-(r.left+r.width/2))/r.width,dy=(e.clientY-(r.top+r.height/2))/r.height;
       f.style.setProperty('--ry',clamp(dx*30,-18,18).toFixed(1)+'deg');f.style.setProperty('--rx',clamp(-dy*24,-14,14).toFixed(1)+'deg');f.style.setProperty('--mx',(50+dx*100).toFixed(1)+'%');f.style.setProperty('--my',(30+dy*100).toFixed(1)+'%')});
     z.onclick=()=>{if(RM||!G){z.remove();return}G.to(z,{opacity:0,duration:.2,onComplete:()=>z.remove()})};
