@@ -2522,6 +2522,11 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 .tpcr.r-SR{color:#06141f;background:linear-gradient(90deg,#e6f8ff,#8fd3ff)}
 .grate td.r3,td.r3{color:#9fdcff}
 
+/* (v134) the card page fits the screen: the sheet scrolls inside the safe area and the big card is smaller */
+.tcgsh{grid-template-rows:minmax(0,1fr);padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px))}
+.tcgshb{align-self:center;box-sizing:border-box;max-height:100%;overscroll-behavior:contain}
+.tcgshb .tcf.big{width:min(48%,26vh);flex:none}
+
 /*TCGCSS-END*/
 /* monthly pass */
 .passcur{border-radius:16px;padding:14px 16px;margin-bottom:12px;border:1px solid color-mix(in srgb,var(--pc) 55%,transparent);background:radial-gradient(120% 90% at 0 0,color-mix(in srgb,var(--pc) 22%,transparent),transparent 65%),var(--panel2);display:flex;flex-direction:column;gap:4px}
@@ -6824,7 +6829,7 @@ function openPackView(res,onMore,label,theme,opt){
    one copy at a time: かけらにする (the same amount as before) or 燃やす (points by rarity). The last copy can go too.
    Every player publishes how many copies of each card they hold (own/{pid}: g = gacha items, t = TCG cards incl. SCR), so the app
    can say "仲間の14%が所持 / 全部で3枚" and announce burns on the timeline. Burn points are kept in inv.bpt (counted like mpts/lbp). */
-const BURN_PT=[5,15,50,150,400,800],TBURN_PT={C:5,R:15,SR:50,GR:150};
+const BURN_PT=[5,15,50,150,400,800],TBURN_PT={C:5,R:15,SR:50,GR:150},SCR_X=1.5;/* a secret (SCR) TCG copy gives 1.5 times */
 let ownAll={},ownReady=false;
 const invNow=()=>inv;
 function ownWatch(){if(!db||ownWatch.on)return;ownWatch.on=1;db.collection('own').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});ownAll=o;ownReady=true},()=>{})}
@@ -6839,27 +6844,27 @@ function ownSync(){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)r
   Object.keys(inv.own||{}).forEach(id=>{const n=+inv.own[id]||0;if(n>0)g[id]=n});const T=inv.tcg||{};new Set(Object.keys(T.own||{}).concat(Object.keys(T.foil||{}))).forEach(id=>{const n=tcgCopies(inv,id);if(n>0)t[id]=n});
   const j=JSON.stringify([g,t]);if(ownSync.j===j)return;ownSync.j=j;db.doc('own/'+me.id).set({g,t,u:now()}).catch(()=>{ownSync.j=''})}
 /* one copy out of the collection: mode 'sh' (かけら) or 'burn' (pt). kind 'g' (gacha item) or 't' (TCG card, normal copies only) */
-async function dupAct(kind,id,mode){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');
+async function dupAct(kind,id,mode,opt){opt=opt||{};const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');
   const nv=JSON.parse(JSON.stringify(inv));let name='',rk='',left=0,gain=0;
   if(kind==='g'){const it=ITEM(id),n=+(nv.own||{})[id]||0;if(!it||n<1||it.lim==='sup')throw new Error('none');nv.own[id]=n-1;left=n-1;name=it.n;rk=RAR[it.r].k;gain=mode==='sh'?RAR[it.r].sh:BURN_PT[it.r]}
-  else{const T=nv.tcg=Object.assign({},nv.tcg||{}),own=T.own=Object.assign({},T.own||{}),n=+own[id]||0,c=typeof TC!=='undefined'&&TC[id];if(!c||n<1)throw new Error('none');own[id]=n-1;left=n-1;name=c.n;rk=c.r;gain=mode==='sh'?TCGD.shard[c.r]:TBURN_PT[c.r]}
+  else{const T=nv.tcg=Object.assign({},nv.tcg||{}),bk=opt.foil?'foil':'own',bag=T[bk]=Object.assign({},T[bk]||{}),n=+bag[id]||0,c=typeof TC!=='undefined'&&TC[id];if(!c||n<1)throw new Error('none');bag[id]=n-1;left=n-1;name=c.n;rk=(opt.foil?'シークレット ':'')+c.r;gain=Math.round((mode==='sh'?TCGD.shard[c.r]:TBURN_PT[c.r])*(opt.foil?SCR_X:1))}
   if(mode==='sh')nv.shards=(+nv.shards||0)+gain;else nv.bpt=(+nv.bpt||0)+gain;
   await db.doc('inv/'+me.id).set(nv);inv=nv;
   /* the last copy of something you were wearing comes off */
   if(kind==='g'&&left<1){const e=Object.assign({},me.eq||{}),it=ITEM(id);if(it&&e[it.k]===id){e[it.k]=null;db.doc('players/'+me.id).update({eq:e}).catch(()=>{})}}
   ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg();
-  if(mode==='burn'&&!isAdmin()){const S=ownStat(kind,id,left);post('b_'+me.id+'_'+now(),'burn',me.id,me.name,me.name+'が'+(kind==='t'?'TCG ':'')+rk+'「'+name+'」を燃やした。'+(S.copies?'仲間に残り'+S.copies+'枚':'仲間の中から消えた'))}
+  if(mode==='burn'&&!isAdmin()){const S=ownStat(kind,id,kind==='t'?tcgCopies(inv,id):left);post('b_'+me.id+'_'+now(),'burn',me.id,me.name,me.name+'が'+(kind==='t'?'TCG ':'')+rk+'「'+name+'」を燃やした。'+(S.copies?'仲間に残り'+S.copies+'枚':'仲間の中から消えた'))}
   return {gain,left}}
 /* the box on a card's page: how many friends hold it, and the two buttons for one copy */
-function dupBox(kind,id,rn,done){const it=kind==='g'?ITEM(id):null,c=kind==='t'&&typeof TC!=='undefined'?TC[id]:null;if(!it&&!c)return null;if(it&&it.lim==='sup')return null;
-  const S=ownStat(kind,id,rn),w=el('div','dupw'),nm=it?it.n:c.n,rk=it?RAR[it.r].k:c.r,sh=it?RAR[it.r].sh:TCGD.shard[c.r],pt=it?BURN_PT[it.r]:TBURN_PT[c.r];
+function dupBox(kind,id,rn,done,opt){opt=opt||{};const it=kind==='g'?ITEM(id):null,c=kind==='t'&&typeof TC!=='undefined'?TC[id]:null;if(!it&&!c)return null;if(it&&it.lim==='sup')return null;
+  const S=ownStat(kind,id,kind==='t'?tcgCopies(invNow(),id):rn),w=el('div','dupw'),nm=it?it.n:c.n,X=opt.foil?SCR_X:1,rk=it?RAR[it.r].k:(opt.foil?'シークレット ':'')+c.r,sh=it?RAR[it.r].sh:Math.round(TCGD.shard[c.r]*X),pt=it?BURN_PT[it.r]:Math.round(TBURN_PT[c.r]*X);
   const st=el('div','dups');st.append(el('b',null,!ownReady?'…':S.holders===0?'まだ誰も持っていない':S.holders===1&&rn>0?'仲間で持っているのはあなただけ':'仲間の'+S.pct+'%が所持'),el('span',null,ownReady?'全部で '+S.copies+' 枚':''));w.append(st);
-  if(rn>0){const last=rn===1,row=el('div','dupb'),b1=el('button','sec'),b2=el('button','dupburn');b1.innerHTML='かけらにする<small>+'+sh+' かけら</small>';b2.innerHTML='燃やす<small>+'+pt+'pt</small>';
+  if(rn>0){const last=(kind==='t'?tcgCopies(invNow(),id):rn)===1,row=el('div','dupb'),b1=el('button','sec'),b2=el('button','dupburn');b1.innerHTML='かけらにする<small>+'+sh+' かけら</small>';b2.innerHTML='燃やす<small>+'+pt+'pt</small>';
     const ask=(mode,b)=>askSheet({title:(mode==='sh'?'かけらにする':'燃やす')+(last?'(最後の1枚)':''),danger:mode==='burn'||last,ok:mode==='sh'?'かけらにする':'燃やす',
       lines:[rk+'「'+nm+'」を1枚'+(mode==='sh'?'かけら +'+sh+' にします。':'燃やして +'+pt+'pt。燃やしたことはタイムラインに流れます。'),last?'最後の1枚です。なくなると図鑑から消えます'+(kind==='g'?'(装備中ならはずれます)':'(デッキに入っていると、そのデッキは使えなくなります)')+'。':'残りは '+(rn-1)+' 枚になります。','もとに戻せません。'],
-      run:async()=>{b.disabled=true;try{const r=await dupAct(kind,id,mode);toast(mode==='sh'?'かけら +'+r.gain:'燃やしました  +'+r.gain+'pt');done&&done(r)}catch(e){b.disabled=false;toast('できませんでした')}}});
+      run:async()=>{b.disabled=true;try{const r=await dupAct(kind,id,mode,opt);toast(mode==='sh'?'かけら +'+r.gain:'燃やしました  +'+r.gain+'pt');done&&done(r)}catch(e){b.disabled=false;toast('できませんでした')}}});
     b1.onclick=()=>ask('sh',b1);b2.onclick=()=>ask('burn',b2);row.append(b1,b2);
-    w.append(row,el('div','sub',last?'これが最後の1枚です':'ダブり '+(rn-1)+' 枚。燃やすと仲間全体の枚数が減って、残ったカードが珍しくなります'))}
+    w.append(row,el('div','sub',(opt.foil?'シークレットはかけらもptも1.5倍。':'')+(last?'これが最後の1枚です':'ダブり '+(rn-1)+' 枚。燃やすと仲間全体の枚数が減って、残ったカードが珍しくなります')))}
   return w}
 function collectionView(inv,eq,h,info){
   /* two modes: コレクション (filter + equip) and 図鑑 (completion, numbered list). Tapping any item opens its detail sheet. */
@@ -8983,11 +8988,10 @@ function tcgRoll(pk){const P=TCGD.packs[pk],pool=tcgPool(pk);
   const pick=r=>{const L=pool.filter(c=>c.r===r);return L[Math.random()*L.length|0].id};
   if(P.rt){const out=[];for(let i=0;i<TCGD.size;i++)out.push(pick(tcgRtPick(i===TCGD.size-1?P.rt.z:P.rt.a)));return out}
   const out=[];for(let i=0;i<TCGD.size;i++){const x=Math.random()*100,last=i===TCGD.size-1;out.push(pick(x<TCGD.rates.GR?'GR':(last||x<TCGD.rates.GR+TCGD.rates.R)?'R':'C'))}return out}
-/* add cards to the collection. Since v134 normal copies all stay (choose かけら or 燃やす later from the card's page); SCR copies past what a deck can use still become かけら */
+/* add cards to the collection. Since v134 every copy stays, normal and SCR (choose かけら or 燃やす later from the card's page; SCR gives 1.5 times) */
 function tcgApply(v,ids,foilSlots){const t=Object.assign({},tcgOf(v)),own=Object.assign({},t.own||{}),foil=Object.assign({},t.foil||{});let sh=0;
   if(foilSlots!=null&&(!Array.isArray(foilSlots)||foilSlots.length!==ids.length))throw new Error('SCR抽選結果が不正です');
   const res=ids.map((id,i)=>{const c=TC[id],isF=foilSlots!=null?foilSlots[i]===true:Math.random()<TCG_FOIL,bag=isF?foil:own,had=bag[id]||0;
-    if(isF&&had>=tcgCap(id)){const s=TCGD.shard[c.r];sh+=s;return{c:tcgItem(id),isNew:false,sh:s,foil:isF}}
     bag[id]=had+1;const pc=typeof ownPc==='function'?ownPc('t',id,(+own[id]||0)+(+foil[id]||0)):'';return{c:tcgItem(id),isNew:!had,sh:0,pc,note:had?(had+1)+'枚目':null,foil:isF}});
   t.own=own;t.foil=foil;return{inv:Object.assign({},v,{tcg:t,shards:(v.shards||0)+sh}),res}}
 /* Exactly 1 SCR (95%) or 2 SCR (5%) among 45 cards; the single-pack 1% roll is not added. */
@@ -9339,8 +9343,8 @@ let tcgTab='all';
 /* what you hold of one card, version by version: normal, SCR, and each alternate-art grade */
 function tcgHeld(id){const own=tcgOwn()[id]||0,fo=tcgFoil()[id]||0,al=tcgAltOwned()[id]||[],hasAlt=!!(TCGD.alt&&TCGD.alt[id]);
   const L=[{v:0,n:'通常',k:own},{v:'s',n:'シークレット',k:fo}];if(hasAlt)[1,2,3].forEach(g=>L.push({v:g,n:'絵違い '+['','ノーマル','キラ','極'][g],k:al.includes(g)?1:0}));return L}
-function tcgSheet(id){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o=el('div','tcgsh'),b=el('div','tcgshb');
-  const first=has[0]||H[0];let f=tcgFace(id,'big',first.v==='s',typeof first.v==='number'?first.v:0);if(!has.length)f.classList.add('lock');
+function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o=el('div','tcgsh'),b=el('div','tcgshb');
+  const first=(pick!=null&&has.find(x=>x.v===pick))||has[0]||H[0];let f=tcgFace(id,'big',first.v==='s',typeof first.v==='number'?first.v:0);if(!has.length)f.classList.add('lock');
   const t=el('div','tcgsht');t.append(el('div','eyebrow',TCGD.fname[c.f]+'  ·  '+TRN[c.r]),el('h3',null,c.n),
     el('div','tcgshm',(c.ty==='chara'?'キャラ':c.ty==='spell'?'魔法':'トラップ')+'  ·  熱量 '+c.c+(c.ty==='chara'?'  ·  ATK '+c.atk+' / DEF '+c.def:'')),
     el('p','tcgshx',c.tx||'効果なし'));
@@ -9348,10 +9352,12 @@ function tcgSheet(id){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o=el('
   /* the versions you hold, as a list; tap one to see it */
   const lst=el('div','tcghl');lst.append(el('div','tcghlh',has.length?'持っているもの(タップで見た目を切り替え)':'まだ持っていません'));
   H.forEach(h=>{const r=el('button','tcghr'+(h.k?'':' no')+(h===first&&has.length?' on':''));r.disabled=!h.k;r.append(el('span',null,h.n),el('b',null,h.k?h.k+'枚':'—'));
-    r.onclick=()=>{const nf=tcgFace(id,'big',h.v==='s',typeof h.v==='number'?h.v:0);f.replaceWith(nf);f=nf;lst.querySelectorAll('.tcghr').forEach(y=>y.classList.toggle('on',y===r))};lst.append(r)});
+    r.onclick=()=>{const nf=tcgFace(id,'big',h.v==='s',typeof h.v==='number'?h.v:0);f.replaceWith(nf);f=nf;lst.querySelectorAll('.tcghr').forEach(y=>y.classList.toggle('on',y===r));if(h.v===0||h.v==='s')putBox(h.v)};lst.append(r)});
   b.append(lst);
   /* 仲間の○%が所持, and かけら / 燃やす for normal copies */
-  if(typeof dupBox==='function'){const dw=dupBox('t',id,+((tcgOf(inv).own||{})[id]||0),()=>{o.remove();tcgSheet(id)});if(dw)b.append(dw)}
+  /* the box works on the version picked in the list above: 通常 or シークレット (絵違い cannot be burnt) */
+  let dw=null;const putBox=v=>{if(typeof dupBox!=='function')return;const T=tcgOf(inv),foil=v==='s',n=+((foil?T.foil:T.own)||{})[id]||0,nb=dupBox('t',id,n,()=>{o.remove();tcgSheet(id,v)},{foil});if(dw)dw.remove();dw=nb;if(dw)lst.after(dw)};
+  putBox(first.v==='s'?'s':0);
   /* 極 owned: watch the premiere it gets when played */
   if((tcgAltOwned()[id]||[]).includes(3)&&tcgHasSt()){const gv=el('button','sec tcgshgk','極の演出を見る');gv.onclick=()=>{o.remove();tcgPlay('gokuview='+encodeURIComponent(id))};b.append(gv)}
   b.append(x);o.append(b);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
