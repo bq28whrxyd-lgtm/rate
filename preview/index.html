@@ -7003,7 +7003,7 @@ async function aucList(k,c,f,sp,bn,hours){const me=myPlayer();if(!db||!me||!invL
   const nv=JSON.parse(JSON.stringify(inv));cardAdd(nv,k,c,f,-1);const id='a'+me.id+'_'+now(),t=now(),doc={s:me.id,k,c:String(c),f:!!f,sp,bn,end:t+hours*36e5,t,hb:0,hp:'',n:0};
   await db.doc('auc/'+id).set(doc);await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg();
   if(k==='g'){const it=ITEM(c),e=Object.assign({},me.eq||{});if(it&&cardHave(nv,k,c,f)<1&&e[it.k]===c){e[it.k]=null;db.doc('players/'+me.id).update({eq:e}).catch(()=>{})}}
-  const I=cardInfo(k,c,f);if(!isAdmin()&&I)post('l_'+id,'mkt',me.id,me.name,me.name+'が'+(k==='t'?'TCG ':'')+I.rk+'「'+I.nm+'」を出品(開始 '+sp+'pt'+(bn?' · 即決 '+bn+'pt':'')+')');return id}
+  const I=cardInfo(k,c,f);if(I)post('l_'+id,'mkt',me.id,me.name,me.name+'が'+(k==='t'?'TCG ':'')+I.rk+'「'+I.nm+'」を出品(開始 '+sp+'pt'+(bn?' · 即決 '+bn+'pt':'')+')');return id}
 const aucMin=a=>(+a.n||0)>0?(+a.hb)+Math.max(5,Math.ceil(+a.hb*.05)):+a.sp;
 async function aucBid(a,amt){const me=myPlayer();if(!db||!me)throw new Error('me');amt=Math.round(+amt||0);if(a.s===me.id)throw new Error('own');if(!aucOpen(a))throw new Error('closed');if(a.hp===me.id)throw new Error('top');
   if(amt<aucMin(a))throw new Error('low');if(a.bn>0&&amt>a.bn)amt=a.bn;if(balance(me.id)<amt)throw new Error('pt');
