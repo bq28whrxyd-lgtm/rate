@@ -19,14 +19,14 @@ async function genreName(g) {
 const cut = (s, n) => { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
 
 /* pids: list of player ids, or null for everyone. cat: ch / msg / give, or null to ignore the player's choices (test) */
-async function send(pids, cat, m) {
+async function send(pids, cat, m, onlyPv) {
   const docs = pids ? (await Promise.all([...new Set(pids)].filter(Boolean).map(id => db.doc('push/' + id).get()))).filter(d => d.exists)
                     : (await db.collection('push').get()).docs;
   const toks = [], own = [];
   for (const d of docs) {
     const v = d.data() || {};
     if (!v.tk || (cat && v.p && v.p[cat] === false)) continue;
-    for (const t of Object.keys(v.tk)) { toks.push(t); own.push(d.id); }
+    for (const t of Object.keys(v.tk)) { if (onlyPv && !(v.tk[t] && v.tk[t].pv)) continue; toks.push(t); own.push(d.id); }
   }
   for (let i = 0; i < toks.length; i += 500) {
     const part = toks.slice(i, i + 500);
@@ -96,13 +96,17 @@ exports.pushGweek = onDocumentWritten('config/gweek', async ev => {
   }
 });
 /* テスト通知: the app sets push/{pid}.test */
+/* test = {ap: time}: 抜き打ちガチャ trial (v134), only to this player's お試し版 */
+const apTrial = (pid, a) => send([pid], null, {title: '抜き打ちガチャ', body: 'いまから10分だけ、1回無料で引けます', go: 'home', tag: 'ap' + a.test.ap}, true);
 exports.pushTest = onDocumentUpdated('push/{pid}', async ev => {
   const b = ev.data.before.data() || {}, a = ev.data.after.data() || {};
-  if (!a.test || a.test === b.test) return;
+  if (!a.test || JSON.stringify(a.test) === JSON.stringify(b.test)) return;
+  if (typeof a.test === 'object') { if (a.test.ap) await apTrial(ev.params.pid, a); return; }
   await send([ev.params.pid], null, {title: 'テスト通知', body: '通知はちゃんと届いています', go: 'home', tag: 'test'});
 });
 exports.pushTestNew = onDocumentCreated('push/{pid}', async ev => {
   const a = ev.data && ev.data.data(); if (!a || !a.test) return;
+  if (typeof a.test === 'object') { if (a.test.ap) await apTrial(ev.params.pid, a); return; }
   await send([ev.params.pid], null, {title: 'テスト通知', body: '通知はちゃんと届いています', go: 'home', tag: 'test'});
 });
 /* アップデートのお知らせ: the admin's app writes config/update {v, title, body} when it opens a version not sent yet; after sending, sent:true is set here */
