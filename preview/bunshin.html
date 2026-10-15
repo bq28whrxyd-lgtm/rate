@@ -293,7 +293,7 @@ const HAIRSW={'茶':['#2a1810','#6b4428','#c08850']};
 const EYEC={'緑':null,'青':['#0d1a4a','#2f6ae0','#b0e4ff'],'赤':['#3a0812','#d02a3c','#ffb0a0'],'金':['#3a2408','#d8a02a','#fff0a0'],'紫':['#1e0d3a','#8a4ae0','#e8c8ff']};
 const EYESW={'緑':['#0f3a1a','#2fae4a','#9be8a8']};
 const HSTY=['マッシュ','オールバック','ツンツン','ミディアム','ちょんまげ'];
-const FHSTY=['ロング','ポニーテール','ツインテール','ボブ','ショート'];
+const FHSTY=['ロング','ポニーテール','ツインテール','ボブ','ショート'],FHS_ON=2;/* girls: only the first FHS_ON hairstyles have full art (weapon poses); the rest unlock when theirs is drawn */
 const WT={fist:{n:'素手',sp:'せいけん突き',d:'1発の強い突き(攻撃×1.7)'},sword:{n:'剣',sp:'連続斬り',d:'3回斬る(攻撃×0.7を3回)'},staff:{n:'杖',sp:'ファイアボール',d:'火の玉。相手の防御を半分無視(魔力×1.9)。ふだんの攻撃も魔力'},bow:{n:'弓',sp:'三連射',d:'矢を3本(攻撃×0.66を3回)。1本ずつ会心が出る'},spear:{n:'槍',sp:'突進',d:'突っ込んで貫く。防御を3割無視(攻撃×1.75)'},hammer:{n:'ハンマー',sp:'地割れ',d:'飛び上がって叩きつける(攻撃×2.6)。相手の防御を2割下げる'},penlight:{n:'ペンライト',sp:'ペンライト乱舞',d:'4色の光で4回(攻撃と魔力の平均×0.5)。最後に少し回復'}};
 /* the same six tiers, colours and odds as the skin gacha (N R SR UR GR KMR) */
 const RAR={N:{m:1,l:'N',p:50.2,k:1},R:{m:1.2,l:'R',p:30,k:1},SR:{m:1.45,l:'SR',p:14,k:1},UR:{m:1.75,l:'UR',p:4.5,k:1},GR:{m:2.1,l:'GR',p:1,k:1},KMR:{m:2.5,l:'KMR',p:.3,k:1}};
@@ -528,7 +528,7 @@ else try{const o=JSON.parse(localStorage.getItem('bunshin1')||'null');if(o&&o.lo
 S.qs=S.qs||0;S.gp=S.gp||0;S.g10=S.g10||0;S.copen=S.copen||0;
 /* weapons saved under the old six tiers move to the four weapon tiers */
 for(const it of S.inv){if(it.k==='smb'){const t=WMAP[it.r]||'R';it.k=famSword('smb',t);it.r=t}else if(it.k==='tcs'){const t=WMAP[it.r]||'R';it.k=famSword('tcs',t);it.r=t}else if(it.k==='ygm'){const t=WMAP[it.r]||'R';it.k=famSword('ygm',t);it.r=t}else if(it.k==='ygs'||(it.k==='wood'&&(WMAP[it.r]||'R')!=='R')){const t=WMAP[it.r]||'R';it.k=famSword('ygs',t);it.r=t}else if(ITEMS[it.k]&&ITEMS[it.k].s==='w'&&!WRAR[it.r])it.r=WMAP[it.r]||'R';if(ITEMS[it.k]&&ITEMS[it.k].fr)it.r=ITEMS[it.k].fr}
-S.inv=S.inv.filter(it=>ITEMS[it.k]);if(BETA_MASH&&S.look.g!=='f'){S.look.g='m';S.look.hs=0}if(S.look.g==='f'&&!(S.look.hs>=0&&S.look.hs<FHSTY.length))S.look.hs=0;
+S.inv=S.inv.filter(it=>ITEMS[it.k]);if(BETA_MASH&&S.look.g!=='f'){S.look.g='m';S.look.hs=0}if(S.look.g==='f'&&!(S.look.hs>=0&&S.look.hs<FHS_ON))S.look.hs=0;
 let saveT=0;const save=()=>{if(HOST){clearTimeout(saveT);saveT=setTimeout(()=>{try{HOST.save(S)}catch(e){}},300);return}try{localStorage.setItem('bunshin1',JSON.stringify(S))}catch(e){}};
 const saveNow=()=>{clearTimeout(saveT);if(HOST)return HOST.save(S);save();return Promise.resolve()};
 
@@ -1387,8 +1387,8 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.que
 /* look */
 function swatch(col3){return 'radial-gradient(circle at 35% 30%,'+col3[2]+','+col3[1]+' 55%,'+col3[0]+')'}
 function renderLook(){const L=S.look;const gs=$('gsel');gs.replaceChildren();[['m','男'],['f','女']].forEach(([k,n])=>{const b=mk('button','chip'+(L.g===k?' on':''),n);b.type='button';b.onclick=()=>{L.g=k;L.hs=0;changed()};gs.append(b)});
-  const hs=$('hsel');hs.replaceChildren();(L.g==='f'?FHSTY:HSTY).forEach((n,i)=>{const b=mk('button','chip'+(L.hs===i?' on':''),n);b.type='button';b.disabled=L.g==='m'&&BETA_MASH&&i>0;b.onclick=()=>{L.hs=i;changed()};hs.append(b)});
-  $('hsnote').textContent=L.g==='f'?'':'マッシュ以外は動く絵ができたら選べます';
+  const hs=$('hsel');hs.replaceChildren();(L.g==='f'?FHSTY:HSTY).forEach((n,i)=>{const b=mk('button','chip'+(L.hs===i?' on':''),n);b.type='button';b.disabled=L.g==='m'?BETA_MASH&&i>0:i>=FHS_ON;b.onclick=()=>{L.hs=i;changed()};hs.append(b)});
+  $('hsnote').textContent=L.g==='f'?'ツインテール・ボブ・ショートは動く絵ができたら選べます':'マッシュ以外は動く絵ができたら選べます';
   $('looknote').textContent=L.g==='f'?'女の子の髪の色は今は茶色だけです(色替えはあとで)。見た目は強さに関係しません。':'見た目は強さに関係しません。';
   $('hcsel').closest('.sec').hidden=L.g==='f';
   const hc=$('hcsel');hc.replaceChildren();for(const k in HAIRC){const b=mk('button','sw'+(L.hc===k?' on':''));b.type='button';const i=mk('i');i.style.background=swatch(HAIRC[k]||HAIRSW[k]);b.append(i,k);b.onclick=()=>{L.hc=k;changed()};hc.append(b)}
