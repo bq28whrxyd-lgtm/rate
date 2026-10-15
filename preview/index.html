@@ -2969,7 +2969,7 @@ body.ui2 #lob .lstrip::-webkit-scrollbar{display:none}
 body.ui2 #lob .lstrip>*{flex:0 0 84%;scroll-snap-align:start}
 body.ui2 #lob .lstrip.one>*{flex-basis:100%}
 body.ui2 #lob .lstrip>[hidden]{display:none}
-body.ui2 #lob .lsc{position:relative;display:flex;align-items:center;gap:12px;height:64px;padding:0 14px 0 10px;border-radius:20px;background:rgba(20,20,23,.82);box-shadow:inset 0 0 0 .5px var(--lline);overflow:hidden}
+body.ui2 #lob .lsc{position:relative;display:flex;align-items:center;gap:12px;height:64px;padding:0 14px 0 10px;border-radius:20px;background:linear-gradient(180deg,rgba(60,58,68,.30),rgba(20,20,26,.42));-webkit-backdrop-filter:blur(10px) saturate(1.5);backdrop-filter:blur(10px) saturate(1.5);box-shadow:inset 0 .5px 0 rgba(255,255,255,.22),inset 0 0 0 .5px rgba(255,255,255,.1),0 8px 22px rgba(0,0,0,.25);overflow:hidden}
 body.ui2 #lob .lsc .art{flex:none;width:44px;height:44px;border-radius:14px;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.18)}
 body.ui2 #lob .lsc .art{display:grid;place-items:center}body.ui2 #lob .lsc .art svg{width:22px;height:22px;fill:none;stroke:rgba(255,255,255,.92);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45))}
 body.ui2 #lob .lsc .tx{flex:1;min-width:0;display:grid;gap:4px}
@@ -2979,8 +2979,9 @@ body.ui2 #lob .lsc b{font:800 14.5px/1.15 var(--body);color:#fff;white-space:now
 body.ui2 #lob .lsc .s{font:600 11px/1.2 var(--body);color:rgba(255,255,255,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.ui2 #lob .lsc .go{flex:none;width:8px;height:8px;border-top:2px solid rgba(255,255,255,.55);border-right:2px solid rgba(255,255,255,.55);transform:rotate(45deg);margin-right:2px}
 body.ui2 #lob .lstrip .apbar{width:auto;margin:0;min-height:64px;border-radius:20px}
-body.ui2 #lob .lstrip .apbar:not(.on){background:rgba(20,20,23,.82)}
-body.ui2 #lob .lstrip .apbar.on{background:linear-gradient(100deg,rgba(74,18,52,.94),rgba(34,16,70,.94) 70%)}
+body.ui2 #lob .lstrip .apbar{-webkit-backdrop-filter:blur(10px) saturate(1.5);backdrop-filter:blur(10px) saturate(1.5)}
+body.ui2 #lob .lstrip .apbar:not(.on){background:linear-gradient(180deg,rgba(60,58,68,.30),rgba(20,20,26,.42));box-shadow:inset 0 .5px 0 rgba(255,255,255,.22),inset 0 0 0 .5px rgba(255,255,255,.1)}
+body.ui2 #lob .lstrip .apbar.on{background:linear-gradient(100deg,rgba(110,24,76,.55),rgba(44,20,96,.5) 70%)}
 /* 抜き打ちガチャ in the lobby (v134) */
 body.ui2 #lob .apbar{position:relative;z-index:3;width:100%;margin:0 0 8px;padding:7px 7px 7px 18px;min-height:56px;border-radius:999px;background:rgba(20,20,23,.82);box-shadow:inset 0 0 0 .5px var(--lline)}
 body.ui2 #lob .apbar[hidden]{display:none}
@@ -11184,6 +11185,13 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     e4:'<circle cx="12" cy="13" r="7"/><path d="M12 9v4l2.5 2M10 3h4"/>',
     e5:'<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM18 16l.8 2.2L21 19l-2.2.8L18 22l-.8-2.2L15 19l2.2-.8z"/>',
     e6:'<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>'};
+  /* auto slide: one card every 4.5s, waits 8s after the player touches it, loops back to the first */
+  {let touched=0;const st0=()=>q('.lstrip');const mark=()=>{touched=performance.now()};
+    setTimeout(()=>{const st=st0();if(st){['pointerdown','touchstart','wheel'].forEach(e=>st.addEventListener(e,mark,{passive:true}))}},0);
+    setInterval(()=>{const st=st0();if(!st||st.hidden||document.hidden||!document.body.classList.contains('lobhome')||document.body.classList.contains('lobsheet'))return;
+      if(performance.now()-touched<8000)return;const cs=[...st.children].filter(c=>!c.hidden);if(cs.length<2)return;
+      const x=st.scrollLeft;let i=0,best=1e9;cs.forEach((c,j)=>{const d=Math.abs(c.offsetLeft-16-x);if(d<best){best=d;i=j}});
+      const nx=cs[(i+1)%cs.length],rm=matchMedia('(prefers-reduced-motion: reduce)').matches;st.scrollTo({left:Math.max(0,nx.offsetLeft-16),behavior:rm?'auto':'smooth'})},4500)}
   function syncStrip(items){const st=q('.lstrip');if(!st)return;const ap=$i('apbar'),apOn=ap&&!ap.hidden;
     const key=JSON.stringify(items.map(o=>[o.c,o.k,o.t,o.s,o.chip]))+apOn;
     if(st.dataset.k!==key){st.dataset.k=key;const cards=items.map(o=>{const b=mk('button','lsc kx-ls '+o.c,'<i class="art">'+(SIC[o.c]?'<svg viewBox="0 0 24 24" aria-hidden="true">'+SIC[o.c]+'</svg>':'')+'</i><span class="tx"><span class="k">'+esc(o.k)+(o.chip?'<em>'+esc(o.chip)+'</em>':'')+'</span><b>'+esc(o.t)+'</b><span class="s">'+esc(o.s)+'</span></span><i class="go" aria-hidden="true"></i>');b.type='button';b.onclick=()=>o.go();return b});
