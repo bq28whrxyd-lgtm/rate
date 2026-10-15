@@ -1485,72 +1485,77 @@ X1('gen',[
  {id:'x20',n:'示談金',r:'N',type:'spell',c:1,life:1000,ops:[{op:'selfDmg',n:1000},{op:'draw',n:2},{op:'energy',n:1}]},
  {id:'x21',n:'泥沼',r:'HR',type:'spell',c:4,ops:[{op:'wipeAll'}]},
 ]);
-/* ===== 拡張パック第1弾 追加40枚 (v132, set:1): each tribe gets a cheap body, a mid body and a tribe-only card; the shared cards
-   help tribe decks (mimic, ally-count draw, summon from hand, a counter to spell-heavy control). No new 0-cost draw and no new cheap removal. ===== */
+/* ===== 拡張パック第1弾 追加40枚 (v132, set:1): every card brings one move no older card has
+   (フラれ回数・★の入れ替え・足止め・山札から出す・仲間の数・置く場所・手札の枚数・前借り・回復で育つ・卒業・裏で育つ・
+   続けるコイン・魔法をもう一度・時間で覚醒・覚醒で引く・★を奪う・代償・味方を食べる・最後のターン・天丼・トラップを奪う・
+   便乗・お直し・元に戻す・そろえる・年功序列・長話・推し・同担拒否・地雷・相手の山札・族の種類・2回使える・満員).
+   Each move can grow in later packs. ===== */
 X1('weak',[
- {id:'w12',n:'告白の練習台',r:'N',type:'chara',c:1,atk:600,def:900,kw:{guts:1,syn:300},onPlay:[{op:'ifBehind',ops:[{op:'draw',n:1}]}],aw:{k:'atk',n:600}},
- {id:'w13',n:'勇気を出した男',r:'R',type:'chara',c:3,atk:1300,def:1100,kw:{adv:700},onPlay:[{op:'ifBehind',ops:[{op:'rush'}]}],aw:{k:'twice'}},
- {id:'w14',n:'一発逆転',r:'HR',type:'spell',c:2,cond:'behind',ops:[{op:'buffAll',atk:800,def:0,temp:1},{op:'draw',n:1}]},
+ {id:'w12',n:'告白の練習台',r:'N',type:'chara',c:1,atk:700,def:800,onDeath:[{op:'selfDmg',n:400},{op:'draw',n:2}],aw:{k:'atk',n:500}},
+ {id:'w13',n:'何度でも立ち上がる男',r:'R',type:'chara',c:3,atk:1200,def:1200,onPlay:[{op:'fellBuff',per:500,max:2000}],aw:{k:'atk',n:600}},
+ {id:'w14',n:'人生リセット',r:'HR',type:'spell',c:4,cond:'behind',ops:[{op:'lifeAvg'}]},
 ]);
 X1('girl',[
- {id:'q12',n:'マウント女子',r:'N',type:'chara',c:2,atk:1200,def:900,kw:{syn:300},onPlay:[{op:'starDownBest',n:1}],aw:{k:'draw',n:1}},
- {id:'q13',n:'インフルエンサー',r:'R',type:'chara',c:3,atk:1500,def:1300,onPlay:[{op:'gauge',n:1},{op:'drawIfTribe',f:'girl',min:2,n:1}],aw:{k:'buffAll',atk:300,def:0,others:1}},
- {id:'q14',n:'女子の連帯',r:'HR',type:'spell',c:2,cond:'pure2',ops:[{op:'buffAll',atk:0,def:600},{op:'debuffAll',atk:300,temp:1}]},
+ {id:'q12',n:'マウント女子',r:'N',type:'chara',c:2,atk:1100,def:900,onPlay:[{op:'starSwap'}],aw:{k:'draw',n:1}},
+ {id:'q13',n:'インフルエンサー',r:'R',type:'chara',c:3,atk:1200,def:1300,kw:{buzz:300},aw:{k:'buffAll',atk:300,def:0,others:1}},
+ {id:'q14',n:'陰口',r:'HR',type:'spell',c:2,tgt:'enemy',ops:[{op:'freeze'},{op:'draw',n:1}]},
 ]);
 X1('gay',[
- {id:'y12',n:'新宿の夜明け',r:'N',type:'chara',c:1,atk:800,def:800,kw:{syn:300,bond:200},aw:{k:'atk',n:500}},
- {id:'y13',n:'筋肉コーチ',r:'R',type:'chara',c:3,atk:1300,def:1500,onPlay:[{op:'buffAll',atk:200,def:200,others:1}],aw:{k:'buffAll',atk:300,def:300,others:1}},
- {id:'y14',n:'仲間を呼ぶ声',r:'HR',type:'spell',c:3,ops:[{op:'revive',f:'gay',maxC:3},{op:'draw',n:1}]},
+ {id:'y12',n:'誘い上手',r:'N',type:'chara',c:1,atk:700,def:700,onPlay:[{op:'summonDeck',f:'gay',maxC:2}],aw:{k:'atk',n:500}},
+ {id:'y13',n:'筋肉コーチ',r:'R',type:'chara',c:3,atk:1100,def:1300,kw:{crowd:400},aw:{k:'buffAll',atk:300,def:300,others:1}},
+ {id:'y14',n:'出会いの場',r:'HR',type:'spell',c:2,ops:[{op:'mill3',n:3}]},
 ]);
 X1('gachi',[
- {id:'g12',n:'現場の最前列',r:'N',type:'chara',c:2,atk:1100,def:1000,kw:{grow:300,syn:300},aw:{k:'atk',n:600}},
- {id:'g13',n:'積みゲーの山',r:'R',type:'chara',c:3,atk:1000,def:1600,onPlay:[{op:'drawIfTribe',f:'gachi',min:2,n:2}],aw:{k:'draw',n:1}},
- {id:'g14',n:'推しへの全額',r:'HR',type:'spell',c:2,cond:'pure2',ops:[{op:'ramp',n:1},{op:'draw',n:1}]},
+ {id:'g12',n:'現場の最前列',r:'N',type:'chara',c:2,atk:1100,def:1000,kw:{front:800},aw:{k:'atk',n:500}},
+ {id:'g13',n:'積みゲーの山',r:'R',type:'chara',c:3,atk:800,def:1600,kw:{handAtk:300},aw:{k:'draw',n:2}},
+ {id:'g14',n:'全財産投入',r:'HR',type:'spell',c:0,ops:[{op:'energy',n:2},{op:'debt',n:3}]},
 ]);
 X1('idol',[
- {id:'i12',n:'センター争い',r:'N',type:'chara',c:2,atk:1300,def:1100,kw:{syn:300},onPlay:[{op:'heal',n:400}],aw:{k:'heal',n:1000}},
- {id:'i13',n:'推しメン',r:'R',type:'chara',c:3,atk:1500,def:1500,onPlay:[{op:'drawIfTribe',f:'idol',min:2,n:1}],onDeath:[{op:'heal',n:500}],aw:{k:'heal',n:1500}},
- {id:'i14',n:'生誕祭',r:'HR',type:'spell',c:3,cond:'pure2',ops:[{op:'starAll',n:1},{op:'heal',n:500}]},
+ {id:'i12',n:'ファンサの鬼',r:'N',type:'chara',c:2,atk:1000,def:1100,kw:{fansa:200},aw:{k:'heal',n:800}},
+ {id:'i13',n:'卒業発表したセンター',r:'R',type:'chara',c:3,atk:1700,def:1600,kw:{grad:2,gradHeal:1500,gradDraw:2},aw:{k:'heal',n:1000}},
+ {id:'i14',n:'総選挙',r:'HR',type:'spell',c:3,cond:'ally1',ops:[{op:'election',n:2}]},
 ]);
 X1('vt',[
- {id:'v12',n:'同時視聴',r:'N',type:'chara',c:1,atk:900,def:900,kw:{syn:300},onPlay:[{op:'coin',h:[{op:'draw',n:1}],t:[{op:'heal',n:300}]}],aw:{k:'draw',n:1}},
- {id:'v13',n:'企業勢Vtuber',r:'R',type:'chara',c:3,atk:1600,def:1500,onPlay:[{op:'coin',h:[{op:'burn',n:500}],t:[{op:'draw',n:1}]}],aw:{k:'burn',n:800}},
- {id:'v14',n:'収益化通知',r:'HR',type:'spell',c:1,ops:[{op:'coinN',n:2,h:[{op:'draw',n:1}]}]},
+ {id:'v12',n:'アンチを糧にする配信者',r:'N',type:'chara',c:1,atk:800,def:900,kw:{anti:300},aw:{k:'atk',n:500}},
+ {id:'v13',n:'耐久配信',r:'R',type:'chara',c:3,atk:1300,def:1400,onPlay:[{op:'coinUntil',max:4,h:[{op:'draw',n:1}]}],aw:{k:'burn',n:800}},
+ {id:'v14',n:'総集編',r:'HR',type:'spell',c:1,cond:'replay',noReplay:1,ops:[{op:'replay'}]},
 ]);
 X1('cre',[
- {id:'c12',n:'締切明けの作家',r:'N',type:'chara',c:2,atk:1100,def:1200,kw:{syn:300},aw:{k:'twice'}},
- {id:'c13',n:'アシスタント',r:'R',type:'chara',c:2,atk:800,def:1000,kw:{syn:300},onPlay:[{op:'starBest',n:1}],aw:{k:'draw',n:2}},
- {id:'c14',n:'コミケ新刊',r:'HR',type:'spell',c:3,ops:[{op:'drawIfTribe',f:'cre',min:2,n:2},{op:'starBest',n:1}]},
+ {id:'c12',n:'締切明けの作家',r:'N',type:'chara',c:2,atk:1100,def:1200,kw:{deadline:2},aw:{k:'twice'}},
+ {id:'c13',n:'アシスタント',r:'R',type:'chara',c:2,atk:800,def:1000,kw:{assist:1},aw:{k:'draw',n:1}},
+ {id:'c14',n:'原稿の奪い合い',r:'HR',type:'spell',c:3,ops:[{op:'starRob'}]},
 ]);
 X1('chu',[
- {id:'d12',n:'眼帯の転校生',r:'N',type:'chara',c:1,atk:1000,def:600,kw:{rush:1,syn:300},onPlay:[{op:'dmgAllEnemy',def:200}],aw:{k:'atk',n:600}},
- {id:'d13',n:'漆黒の契約者',r:'R',type:'chara',c:3,atk:1700,def:1100,kw:{revenge:1,syn:300},onDeath:[{op:'burn',n:300}],aw:{k:'weakenAll',n:300}},
- {id:'d14',n:'禁呪・黒炎',r:'HR',type:'spell',c:3,ops:[{op:'weakenAll',n:400}]},
+ {id:'d12',n:'邪気眼の転校生',r:'N',type:'chara',c:1,atk:1800,def:500,kw:{toll:300},aw:{k:'atk',n:500}},
+ {id:'d13',n:'漆黒の契約者',r:'R',type:'chara',c:3,atk:1200,def:1000,onPlay:[{op:'devour'}],aw:{k:'weakenAll',n:300}},
+ {id:'d14',n:'終末の予言',r:'HR',type:'spell',c:3,cond:'final',ops:[{op:'burn',n:2000}]},
 ]);
 X1('neta',[
- {id:'n12',n:'ひな壇芸人',r:'N',type:'chara',c:2,atk:700,def:1500,kw:{cover:1,syn:300},aw:{k:'draw',n:1}},
- {id:'n13',n:'ドッキリ仕掛け人',r:'R',type:'chara',c:3,atk:1200,def:1700,kw:{guts:1},onPlay:[{op:'drawIfTribe',f:'neta',min:2,n:1}],aw:{k:'def',n:800}},
- {id:'n14',n:'スベり返し',r:'R',type:'trap',c:2,when:'attack',ops:[{op:'swapAttacker'},{op:'draw',n:1}]},
+ {id:'n12',n:'天丼芸人',r:'N',type:'chara',c:2,atk:900,def:1300,onPlay:[{op:'tendon',per:300}],aw:{k:'def',n:500}},
+ {id:'n13',n:'ドッキリ仕掛け人',r:'R',type:'chara',c:3,atk:1100,def:1600,onPlay:[{op:'stealTrap'}],aw:{k:'def',n:800}},
+ {id:'n14',n:'便乗ネタ',r:'R',type:'trap',c:1,when:'spell',ops:[{op:'piggy'}]},
 ]);
 X1('sei',[
- {id:'s12',n:'ヒアルロン酸',r:'N',type:'chara',c:1,atk:800,def:800,kw:{star2:1,syn:300},aw:{k:'atk',n:500}},
- {id:'s13',n:'美容系インフルエンサー',r:'R',type:'chara',c:3,atk:1400,def:1200,onPlay:[{op:'starAll',n:1,others:1}],aw:{k:'buffAll',atk:300,def:0,others:1}},
- {id:'s14',n:'カウンセリング予約',r:'HR',type:'spell',c:2,cond:'pure2',ops:[{op:'starAll',n:1}]},
+ {id:'s12',n:'お直し常連',r:'N',type:'chara',c:3,atk:1000,def:1000,kw:{star2:1,touchup:1},aw:{k:'atk',n:500}},
+ {id:'s13',n:'整形前の写真',r:'R',type:'spell',c:2,tgt:'enemy',ops:[{op:'reset'}]},
+ {id:'s14',n:'ビフォーアフター',r:'HR',type:'spell',c:3,cond:'ally2',ops:[{op:'equalize'}]},
 ]);
 X1('hage',[
- {id:'o12',n:'定年間近の係長',r:'N',type:'chara',c:2,atk:900,def:1600,kw:{guts:1,syn:300},aw:{k:'gutsEvery'}},
- {id:'o13',n:'頭皮マッサージ師',r:'R',type:'chara',c:3,atk:1200,def:1700,onPlay:[{op:'breakTrapRand'},{op:'buffAll',atk:300,def:0,others:1}],aw:{k:'def',n:600}},
- {id:'o14',n:'定年退職金',r:'HR',type:'spell',c:3,cond:'pure2',ops:[{op:'burn',n:800},{op:'heal',n:800}]},
+ {id:'o12',n:'勤続30年の係長',r:'N',type:'chara',c:2,atk:900,def:1500,kw:{senior:300},aw:{k:'def',n:500}},
+ {id:'o13',n:'昭和の説教おじさん',r:'R',type:'chara',c:3,atk:1000,def:1800,kw:{lecture:3},aw:{k:'def',n:600}},
+ {id:'o14',n:'昔はフサフサだった',r:'HR',type:'spell',c:2,ops:[{op:'hairDef',f:'hage',per:200,max:1000}]},
 ]);
 X1('gen',[
- {id:'x22',n:'推し活仲間',r:'N',type:'chara',c:2,atk:1000,def:1000,kw:{mimic:1},aw:{k:'draw',n:1}},
- {id:'x23',n:'打ち上げ',r:'N',type:'spell',c:2,ops:[{op:'drawIfAllies',min:2,n:2}]},
- {id:'x24',n:'多様性の祭典',r:'HR',type:'spell',c:3,cond:'mixed3',ops:[{op:'buffAll',atk:600,def:600},{op:'draw',n:1}]},
- {id:'x25',n:'オフ会',r:'R',type:'spell',c:3,ops:[{op:'summonFromHand',maxC:3},{op:'draw',n:1}]},
- {id:'x26',n:'炎上の火消し',r:'N',type:'trap',c:2,when:'spell',ops:[{op:'negate'},{op:'draw',n:1}]},
- {id:'x27',n:'ガチ恋口上',r:'R',type:'chara',c:2,atk:1300,def:1100,kw:{bond:200},aw:{k:'twice'}},
- {id:'x28',n:'全員集合',r:'HR',type:'spell',c:4,cond:'pure3',ops:[{op:'buffAll',atk:700,def:700},{op:'draw',n:1}]},
+ {id:'x22',n:'一途なガチ恋勢',r:'N',type:'chara',c:2,atk:1200,def:1000,onPlay:[{op:'oshi'}],aw:{k:'atk',n:500}},
+ {id:'x23',n:'同担拒否',r:'R',type:'chara',c:2,atk:1900,def:1200,kw:{dotan:1},aw:{k:'atk',n:500}},
+ {id:'x24',n:'踏んだら終わりの女',r:'R',type:'chara',c:2,atk:400,def:400,kw:{mine:1}},
+ {id:'x25',n:'グッズ交換会',r:'N',type:'spell',c:1,ops:[{op:'stealTop'}]},
+ {id:'x26',n:'異種格闘技戦',r:'HR',type:'spell',c:3,ops:[{op:'tribeBurn',per:400}]},
+ {id:'x27',n:'リピート再生',r:'R',type:'spell',c:1,noReplay:1,ops:[{op:'gauge',n:1},{op:'echo',to:'x27r'}]},
+ {id:'x28',n:'満員御礼',r:'HR',type:'spell',c:3,cond:'full',ops:[{op:'weakenAll',n:500}]},
 ]);
+/* the copy リピート再生 hands back: not a collectible card (not in C), never returns again */
+if(EXP1)BY.x27r={id:'x27r',f:'gen',set:1,n:'リピート再生(2回目)',r:'R',type:'spell',c:1,noReplay:1,token:1,img:'x27',ops:[{op:'gauge',n:1}]};
 const SKILLS={
  weak:{n:'逆転の咆哮',t:'このターン、自分のキャラ全員のATK+1000。自分のライフが相手より少なければ、全員出たばかりでも攻撃できる'},
  girl:{n:'女王の微笑み',t:'相手のキャラ1体を選んで倒す',tgt:'enemy'},
@@ -1607,9 +1612,13 @@ function text(c){const t=[],k=c.kw||{};
   if(k.adv)t.push('【逆境】自分のライフが相手より少ないあいだ、ATK+'+k.adv);if(k.grow)t.push('【成長】バトルで生き残るたびにATK+'+k.grow);
   if(k.mimic)t.push('【擬態】リーダーと同じ族として扱う');if(k.pure)t.push('【純血】味方のキャラが2体以上いて全員同じ族なら、ATK・DEF+'+k.pure);if(k.revenge)t.push('【道連れ】バトルで倒されたとき、倒した相手のキャラも一緒に倒れる');if(k.star2)t.push('【映え】★2の状態で場に出る');
   if(k.syn)t.push('【同族】リーダーと同じ族なら、ATK・DEF+'+k.syn);if(k.bond)t.push('【絆】ほかの味方キャラが出るたびにATK+'+k.bond);if(k.cover)t.push('【かばう】相手はまずこのキャラを攻撃しなければならない');
+  if(k.crowd)t.push('【筋肉の輪】ほかの味方キャラ1体につき、ATK・DEF+'+k.crowd);if(k.front)t.push('【最前列】一番左の枠にいるあいだ、ATK+'+k.front);if(k.handAtk)t.push('【積みゲー】自分の手札1枚につき、ATK+'+k.handAtk);if(k.fansa)t.push('【ファンサ】自分のライフが回復するたびに、ATK+'+k.fansa+'(ずっと)');
+  if(k.grad)t.push('【卒業】出てから'+k.grad+'回目の自分のターンの始めに場を離れる(倒れたことにはならない)。そのとき、ライフ+'+(k.gradHeal||1500)+'、'+(k.gradDraw||2)+'枚引く');if(k.anti)t.push('【アンチは養分】自分のコイントスで裏が出るたびに、ATK・DEF+'+k.anti+'(ずっと)');if(k.deadline)t.push('【締切】出てから'+k.deadline+'回目の自分のターンの始めに★3になる');if(k.assist)t.push('【アシスト】味方のキャラが★3(覚醒)になるたびに、1枚引く');
+  if(k.toll)t.push('【代償】攻撃するたびに、自分のライフに'+k.toll+'ダメージ');if(k.touchup)t.push('【お直し】倒れるとき、★が2以上なら、かわりに★-1して場に残る');if(k.senior)t.push('【年功序列】自分のターンが始まるたびに、ATK+'+k.senior+'(ずっと)');if(k.lecture)t.push('【長話】このキャラがいるあいだ、相手は1ターンにカードを'+k.lecture+'枚までしか使えない(キャラを出す・魔法・トラップ・育てるを数える)');
+  if(k.buzz)t.push('【バズ】自分が魔法を使うたびに、ATK+'+k.buzz+'(ずっと)');if(k.dotan)t.push('【同担拒否】味方のキャラが全員ちがう族のときしか攻撃できない');if(k.mine)t.push('【地雷】このキャラを攻撃してきたキャラを倒す。このキャラも一緒に倒れる');
   const O=L=>(L||[]).map(op).filter(Boolean).join('。');
   if(c.onPlay)t.push('出たとき:'+O(c.onPlay));if(c.onDeath)t.push('倒れたとき:'+O(c.onDeath));
-  if(c.type==='spell')t.push((c.quick?'【割り込み】相手のターンの始めに、残った熱量で手札から使える(自分のターンには使えない)。':'')+(c.cond==='behind'?'自分のライフが相手より少ないときだけ使える。':'')+({pure2:'味方のキャラが2体以上いて全員同じ族のときだけ使える。',pure3:'味方のキャラが3体以上いて、全員同じ族のときだけ使える。',mixed3:'味方のキャラが3体以上いて、全員ちがう族のときだけ使える。'}[c.cond]||'')+(c.life?'ライフが'+c.life+'より多いときだけ使える。':'')+(c.tgt==='enemy'?'相手のキャラ1体を選んで':c.tgt==='enemyLow'?'相手のATK'+c.max+'以下のキャラ1体を選んで':c.tgt==='enemyStar'?'相手の★'+c.max+'以下のキャラ1体(リーダー・ボスはのぞく)を選んで':c.tgt==='trap'?'相手の伏せトラップ1枚を選んで':c.tgt==='trapOpt'?'相手の伏せトラップ1枚を選んで壊す(伏せトラップがなくても使える)。':'')+O(c.ops));
+  if(c.type==='spell')t.push((c.quick?'【割り込み】相手のターンの始めに、残った熱量で手札から使える(自分のターンには使えない)。':'')+(c.cond==='behind'?'自分のライフが相手より少ないときだけ使える。':'')+({pure2:'味方のキャラが2体以上いて全員同じ族のときだけ使える。',pure3:'味方のキャラが3体以上いて、全員同じ族のときだけ使える。',mixed3:'味方のキャラが3体以上いて、全員ちがう族のときだけ使える。'}[c.cond]||'')+(c.life?'ライフが'+c.life+'より多いときだけ使える。':'')+({final:'自分の最後のターン(8ターン目)にだけ使える。',full:'味方のキャラが4体(満員)のときだけ使える。',ally1:'自分のキャラがいるときだけ使える。',ally2:'味方のキャラが2体以上いるときだけ使える。',replay:'前に魔法を使っているときだけ使える。'}[c.cond]||'')+(c.tgt==='enemy'?'相手のキャラ1体を選んで':c.tgt==='enemyLow'?'相手のATK'+c.max+'以下のキャラ1体を選んで':c.tgt==='enemyStar'?'相手の★'+c.max+'以下のキャラ1体(リーダー・ボスはのぞく)を選んで':c.tgt==='trap'?'相手の伏せトラップ1枚を選んで':c.tgt==='trapOpt'?'相手の伏せトラップ1枚を選んで壊す(伏せトラップがなくても使える)。':'')+O(c.ops));
   if(c.type==='trap')t.push({attack:'相手のキャラが攻撃してきたとき',direct:'相手のキャラがライフを直接攻撃してきたとき',spell:'相手が魔法を使ったとき',any:'相手が攻撃か魔法をしてきたとき',play:'相手がキャラを出したときか魔法を使ったとき'}[c.when]+'、発動するか選べる:'+O(c.ops));
   if(c.aw)t.push('★3覚醒:'+awText(c.aw));
   if(c.lim)t.unshift('【制限】デッキに1枚しか入れられない');
@@ -1626,7 +1635,19 @@ function op(o){switch(o.op){case'draw':return o.n+'枚引く';case'drawIfAllies'
  case'drainE':return'相手の熱量-'+o.n;case'ramp':return(o.now?'熱量+'+o.now+'。さらに':'')+'熱量の最大値をずっと+'+o.n;case'selfDmg':return'自分のライフに'+o.n+'ダメージ';
  case'bounce':return'攻撃を止めて、そのキャラを持ち主の手札に戻す';case'stealSpell':return'その魔法カードを自分の手札に加える';case'copyAtk':return'このキャラのATKを、相手のATKが一番高いキャラと同じにする';
  case'swapAttacker':return'攻撃してきたキャラのATKとDEFを入れ替える';case'swapAll':return'相手のキャラ全員のATKとDEFを入れ替える';case'breakTrap':return'';case'breakTrapRand':return'相手の伏せトラップ1枚をランダムに壊す';case'breakTraps':return'相手の伏せトラップを全部壊す';
- case'reflect':return'受けたダメージと同じだけ相手にもダメージを与える';case'destroyAttacker':return'攻撃してきたキャラを倒す';case'atkZero':return'このターンだけATKを0にする';case'coinN':return'コイントスを'+o.n+'回。表が出るたびに'+o.h.map(op).join('・');case'wipeAll':return'自分と相手の場のキャラを全部倒す'}return''}
+ case'reflect':return'受けたダメージと同じだけ相手にもダメージを与える';case'destroyAttacker':return'攻撃してきたキャラを倒す';case'atkZero':return'このターンだけATKを0にする';case'coinN':return'コイントスを'+o.n+'回。表が出るたびに'+o.h.map(op).join('・');case'wipeAll':return'自分と相手の場のキャラを全部倒す';
+ case'fellBuff':return'この試合で倒れた味方の数×'+o.per+'、ATK・DEFが上がる(最大+'+o.max+')';case'lifeAvg':return'自分と相手のライフを、2人の合計の半分ずつにする';
+ case'starSwap':return'相手の★が一番高いキャラと、このキャラの★を入れ替える(相手の覚醒は解ける)';case'freeze':return'そのキャラは次の相手のターン、攻撃できない';
+ case'summonDeck':return'山札から熱量'+o.maxC+'以下の'+(o.f?FNAME[o.f]+'の':'')+'キャラ1体を、そのまま場に出す';case'mill3':return'山札の上から'+o.n+'枚めくり、キャラを全部手札に加える。残りは捨て札へ';
+ case'debt':return'次の自分のターンは熱量が'+o.n+'少ない';case'election':return'自分のキャラで★が一番高い1体の★+'+o.n+'。ほかの味方全員は★-1';
+ case'replay':return'自分が前に使った魔法(相手を選ぶ魔法と「総集編」「リピート再生」はのぞく)を、もう一度発動する';case'starRob':return'相手の★が一番高いキャラを★1にする。下がった★の数だけ、自分の★が一番高いキャラの★を上げる';
+ case'devour':return'ほかの味方で一番弱いキャラ1体を捨て札に送り、そのATK・DEFをこのキャラに足す';case'tendon':return'この試合でこのカードを出した回数×'+o.per+'、相手のキャラ全員のATKを下げる(ずっと)';
+ case'stealTrap':return'相手の伏せトラップ1枚(ランダム)を奪って、自分の伏せトラップにする';case'piggy':return'その魔法の効果を自分も同じように受ける(相手を選ぶ魔法なら、かわりに1枚引く)';
+ case'reset':return'出たときの状態に戻す(★1。上がった・下がった数字は全部なくなり、覚醒も解ける)';case'equalize':return'味方キャラ全員のATKを、味方で一番高いATKと同じにする(このターンだけ)';
+ case'hairDef':return'自分の捨て札にある'+FNAME[o.f]+'のキャラ1体につき、味方全員のDEF+'+o.per+'(ずっと。最大+'+o.max+')';
+ case'oshi':return'相手のATKが一番高いキャラを「推し」にする。推しがいるあいだ推しにしか攻撃できないが、推しと戦うときATK+1000';case'stealTop':return'相手の山札の一番上のカードを、自分の手札に加える';
+ case'tribeBurn':return'味方キャラの族の種類1つにつき、相手のライフに'+o.per+'ダメージ';case'echo':return'使ったあと、もう1回だけ使える「'+(BY[o.to]?BY[o.to].n:'')+'」が手札に入る';
+ case'coinUntil':return'裏が出るまでコイントスを続ける。表1回につき'+o.h.map(op).join('・')+'(最大'+o.max+'回)'}return''}
 module.exports={SET1,C,BY,SKILLS,TRAITS,STARTERS,GEN,starterDeck,text,awText,PFX,FNAME,LEADERS,DECK_SIZE,MAX_COPY,isLeader,POOL,validDeck,deckCap};
 
 });
@@ -1641,7 +1662,7 @@ function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^
 let UID=0;const opp=p=>1-p;
 const tr=(g,pi,k)=>R.TRAIT&&g.p[pi].skill===k;
 function newGame(dA,dB,seed,lA,lB){UID=0;const r=rng(seed);const sh=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
-  const P=(d,i,ld)=>({i,deck:sh(d),hand:[],slot:[null,null,null,null],st:[],gy:[],life:R.LIFE,energy:0,maxE:0,turn:0,gauge:0,skill:BY[ld].f,leader:{id:ld,n:0,out:false},skillUsed:false});
+  const P=(d,i,ld)=>({i,deck:sh(d),hand:[],slot:[null,null,null,null],st:[],gy:[],life:R.LIFE,energy:0,maxE:0,turn:0,gauge:0,skill:BY[ld].f,leader:{id:ld,n:0,out:false},skillUsed:false,fellN:0,played:{},lastSpell:null,debt:0,usedN:0});
   const g={r,p:[P(dA,0,lA),P(dB,1,lB)],cur:0,over:false,win:-1,ev:[],turns:0,pending:null};
   for(let i=0;i<R.START;i++){draw(g,0);draw(g,1)}if(R.START2)draw(g,1,R.START2);return g}
 function ev(g,e){g.ev.push(e)}
@@ -1649,15 +1670,15 @@ function draw(g,pi,n=1){const P=g.p[pi];for(let k=0;k<n;k++){if(!P.deck.length){
   const c=P.deck.pop();if(P.hand.length<R.HAND)P.hand.push(c);else P.gy.push(c);ev(g,{t:'draw',who:pi})}}
 function lose(g,pi,why){if(g.over)return;g.over=true;g.win=opp(pi);ev(g,{t:'end',win:opp(pi),why})}
 function damage(g,pi,n,why){if(n<=0||g.over)return;const P=g.p[pi];P.life=Math.max(0,P.life-n);ev(g,{t:'dmg',who:pi,n,left:P.life,why});if(P.life<=0)lose(g,pi,'life')}
-function heal(g,pi,n){const P=g.p[pi];P.life+=n;ev(g,{t:'heal',who:pi,n,left:P.life})}
+function heal(g,pi,n){const P=g.p[pi];P.life+=n;ev(g,{t:'heal',who:pi,n,left:P.life});if(n>0)units(g,pi).forEach(m=>{const f=(BY[m.id].kw||{}).fansa;if(f){m.perm+=f;ev(g,{t:'buff',uid:m.uid,atk:f,def:0,why:'fansa'})}})}
 /* ---- stats ---- */
 function fam(g,m){const d=BY[m.id];return d.kw&&d.kw.mimic?BY[g.p[m.owner].leader.id].f:d.f}
 function pureN(g,pi){const U=units(g,pi);if(!U.length)return 0;const f=fam(g,U[0]);return U.every(m=>fam(g,m)===f)?U.length:0}
 function mixedN(g,pi){const U=units(g,pi);const F=new Set(U.map(m=>fam(g,m)));return F.size===U.length?U.length:0}
 const pureB=(g,m)=>{const k=BY[m.id].kw||{};return k.pure&&pureN(g,m.owner)>=2?k.pure:0};
 const fxOn=(g,k,pi)=>(g.fx||[]).some(f=>f.k===k&&f.on===pi&&f.turn===g.turns);
-function ATK(g,m){const P=g.p[m.owner],k=BY[m.id].kw||{};let a=pureB(g,m)+(k.syn&&BY[P.leader.id].f===fam(g,m)?k.syn:0)+m.atk0+m.perm+m.temp+(m.star-1)*R.STAR+(m.awk&&m.aw&&m.aw.k==='atk'?m.aw.n:0);if(k.adv&&P.life<g.p[opp(m.owner)].life)a+=k.adv;if(tr(g,m.owner,'gay')&&units(g,m.owner).length>=R.GAY_N)a+=R.GAY_B;return Math.max(0,a)}
-function DEF(g,m){const k=BY[m.id].kw||{};let d=pureB(g,m)+(k.syn&&BY[g.p[m.owner].leader.id].f===fam(g,m)?k.syn:0)+m.def0+m.permD+m.tempD+(m.star-1)*R.STAR+(m.awk&&m.aw&&m.aw.k==='def'?m.aw.n:0);if(tr(g,m.owner,'gay')&&units(g,m.owner).length>=R.GAY_N)d+=R.GAY_B;if(tr(g,m.owner,'hage'))d+=R.HAGE_D;return Math.max(0,d)}
+function ATK(g,m){const P=g.p[m.owner],k=BY[m.id].kw||{};let a=pureB(g,m)+(k.syn&&BY[P.leader.id].f===fam(g,m)?k.syn:0)+m.atk0+m.perm+m.temp+(m.star-1)*R.STAR+(m.awk&&m.aw&&m.aw.k==='atk'?m.aw.n:0);if(k.adv&&P.life<g.p[opp(m.owner)].life)a+=k.adv;if(k.crowd)a+=k.crowd*(units(g,m.owner).length-1);if(k.front&&m.slot===0)a+=k.front;if(k.handAtk)a+=k.handAtk*P.hand.length;if(tr(g,m.owner,'gay')&&units(g,m.owner).length>=R.GAY_N)a+=R.GAY_B;return Math.max(0,a)}
+function DEF(g,m){const k=BY[m.id].kw||{};let d=(k.crowd?k.crowd*(units(g,m.owner).length-1):0)+pureB(g,m)+(k.syn&&BY[g.p[m.owner].leader.id].f===fam(g,m)?k.syn:0)+m.def0+m.permD+m.tempD+(m.star-1)*R.STAR+(m.awk&&m.aw&&m.aw.k==='def'?m.aw.n:0);if(tr(g,m.owner,'gay')&&units(g,m.owner).length>=R.GAY_N)d+=R.GAY_B;if(tr(g,m.owner,'hage'))d+=R.HAGE_D;return Math.max(0,d)}
 /* the number a character attacks with (ネタ枠 fights with the larger of ATK and DEF) */
 function POW(g,m){return tr(g,m.owner,'neta')?Math.max(ATK(g,m),DEF(g,m)):ATK(g,m)}
 const hasCover=m=>!!((BY[m.id].kw||{}).cover||(m.awk&&m.aw&&m.aw.k==='cover'));
@@ -1665,7 +1686,7 @@ function mk(id,owner,slot){const d=BY[id];return{uid:++UID,id,owner,slot,atk0:d.
 function units(g,pi){return g.p[pi].slot.filter(Boolean)}
 function find(g,uid){for(const P of g.p)for(const m of P.slot)if(m&&m.uid===uid)return m;return null}
 function gauge(g,pi,n){const P=g.p[pi];const b=P.gauge;P.gauge=Math.min(R.GAUGE,P.gauge+n);if(P.gauge>b)ev(g,{t:'gauge',who:pi,v:P.gauge})}
-function fall(g,m,why){const P=g.p[m.owner];if(P.slot[m.slot]!==m)return;P.slot[m.slot]=null;const G=g.p[m.orig!=null?m.orig:m.owner].gy;if(m.isLeader){G.push(...m.under);P.leader.out=false;P.leader.n++}else G.push(m.id,...m.under);ev(g,{t:'die',who:m.owner,id:m.id,uid:m.uid,why,star:m.star});gauge(g,m.owner,1);run(g,m.owner,BY[m.id].onDeath,{self:m});if(tr(g,m.owner,'chu'))damage(g,opp(m.owner),R.CHU_D,'curse')}
+function fall(g,m,why,force){const P=g.p[m.owner];if(P.slot[m.slot]!==m)return false;if(!force&&(BY[m.id].kw||{}).touchup&&m.star>=2){starDown(g,m,1);ev(g,{t:'note',uid:m.uid,s:'お直し:★-1して場に残った'});return false}P.slot[m.slot]=null;g.p[m.orig!=null?m.orig:m.owner].fellN++;const G=g.p[m.orig!=null?m.orig:m.owner].gy;if(m.isLeader){G.push(...m.under);P.leader.out=false;P.leader.n++}else G.push(m.id,...m.under);ev(g,{t:'die',who:m.owner,id:m.id,uid:m.uid,why,star:m.star});gauge(g,m.owner,1);run(g,m.owner,BY[m.id].onDeath,{self:m});if(tr(g,m.owner,'chu'))damage(g,opp(m.owner),R.CHU_D,'curse');return true}
 /* ---- effects ---- */
 function bestEnemy(g,pi){return units(g,opp(pi)).sort((a,b)=>ATK(g,b)-ATK(g,a))[0]||null}
 function run(g,pi,ops,ctx){if(!ops)return;ctx=ctx||{};for(const o of ops){if(g.over)return;const P=g.p[pi];
@@ -1681,7 +1702,8 @@ function run(g,pi,ops,ctx){if(!ops)return;ctx=ctx||{};for(const o of ops){if(g.o
   case'burn':damage(g,opp(pi),o.n,'burn');break;
   case'negate':ctx.negated=true;break;
   case'summonFromHand':{const L=P.slot.findIndex(x=>!x);if(L<0)break;const i=P.hand.map((id,i)=>[id,i]).filter(([id])=>BY[id].type==='chara'&&!BY[id].trib&&BY[id].c<=o.maxC).sort((a,b)=>BY[b[0]].atk-BY[a[0]].atk)[0];if(!i)break;P.hand.splice(i[1],1);place(g,pi,i[0],L,true);break}
-  case'coin':{const h=g.r()<.5;ev(g,{t:'coin',who:pi,h});if(h&&tr(g,pi,'vt'))gauge(g,pi,1);run(g,pi,h?o.h:o.t,ctx);break}
+  case'coin':{const h=flip(g,pi);run(g,pi,h?o.h:o.t,ctx);break}
+  case'coinUntil':{let n=0;while(n<o.max&&!g.over){if(!flip(g,pi))break;n++;run(g,pi,o.h,ctx)}break}
   case'energy':P.energy+=o.n;ev(g,{t:'energy',who:pi,n:o.n});break;
   case'revive':if((o.n||1)>1){for(let k=0;k<o.n;k++)run(g,pi,[Object.assign({},o,{n:1})],ctx);break}{const L=P.slot.findIndex(x=>!x);if(L<0)break;const c=P.gy.map((id,i)=>[id,i]).filter(([id])=>BY[id].type==='chara'&&!BY[id].trib&&BY[id].c<=(o.maxC||9)&&(!o.f||BY[id].f===o.f)&&id!==o.not).sort((a,b)=>BY[b[0]].atk-BY[a[0]].atk)[0];if(!c)break;P.gy.splice(c[1],1);ev(g,{t:'revive',who:pi,id:c[0]});place(g,pi,c[0],L,true);break}
   case'starBest':{const m=units(g,pi).filter(x=>x.star<3).sort((a,b)=>b.star-a.star||ATK(g,b)-ATK(g,a))[0];if(m)starUp(g,m,o.n,'effect');break}
@@ -1715,16 +1737,40 @@ function run(g,pi,ops,ctx){if(!ops)return;ctx=ctx||{};for(const o of ops){if(g.o
   case'destroyAttacker':{const m=ctx.attacker;if(m&&find(g,m.uid))fall(g,m,'effect');break}
   case'atkZero':{const m=find(g,ctx.target);if(m&&m.owner!==pi){const a=ATK(g,m);m.temp-=a;ev(g,{t:'buff',uid:m.uid,atk:-a,def:0})}break}
   case'wipeAll':[opp(pi),pi].forEach(q=>units(g,q).forEach(m=>fall(g,m,'effect')));break;
+  /* ---- 愛と裏切りの宴 追加40枚 ---- */
+  case'fellBuff':{const s=ctx.self;if(!s)break;const n=Math.min(o.max,P.fellN*o.per);if(n>0){s.perm+=n;s.permD+=n;ev(g,{t:'buff',uid:s.uid,atk:n,def:n,why:'fell'})}break}
+  case'lifeAvg':{const E=g.p[opp(pi)],t=P.life+E.life,a=Math.ceil(t/2),b=t-a;const da=a-P.life,db=b-E.life;P.life=a;E.life=b;ev(g,{t:da>=0?'heal':'dmg',who:pi,n:Math.abs(da),left:a,why:'avg'});ev(g,{t:db>=0?'heal':'dmg',who:opp(pi),n:Math.abs(db),left:b,why:'avg'});if(E.life<=0)lose(g,opp(pi),'life');break}
+  case'starSwap':{const s=ctx.self,t=units(g,opp(pi)).sort((a,b)=>b.star-a.star||ATK(g,b)-ATK(g,a))[0];if(!s||!t||t.star<=s.star)break;const a=s.star,b=t.star;starDown(g,t,b-a);starUp(g,s,b-a,'swap');break}
+  case'freeze':{const m=find(g,ctx.target);if(m&&m.owner!==pi){m.frozen=g.turns+1;ev(g,{t:'note',uid:m.uid,s:'陰口:次のターン攻撃できない'})}break}
+  case'summonDeck':{const L=P.slot.findIndex(x=>!x);if(L<0)break;const c=P.deck.map((id,i)=>[id,i]).filter(([id])=>BY[id].type==='chara'&&!BY[id].trib&&BY[id].c<=o.maxC&&(!o.f||BY[id].f===o.f)).sort((a,b)=>BY[b[0]].atk-BY[a[0]].atk)[0];if(!c)break;P.deck.splice(c[1],1);ev(g,{t:'note',who:pi,s:'山札から「'+BY[c[0]].n+'」を呼んだ'});place(g,pi,c[0],L,true);break}
+  case'mill3':{const top=P.deck.splice(Math.max(0,P.deck.length-o.n),o.n);top.forEach(id=>{if(BY[id].type==='chara'&&P.hand.length<R.HAND){P.hand.push(id);ev(g,{t:'draw',who:pi})}else P.gy.push(id)});ev(g,{t:'note',who:pi,s:'めくった'+top.length+'枚のうち、キャラ'+top.filter(id=>BY[id].type==='chara').length+'枚を手札に'});break}
+  case'debt':P.debt=(P.debt||0)+o.n;break;
+  case'election':{const U=units(g,pi).sort((a,b)=>b.star-a.star||ATK(g,b)-ATK(g,a));if(!U.length)break;U.slice(1).forEach(m=>starDown(g,m,1));starUp(g,U[0],o.n,'effect');break}
+  case'replay':{const id=P.lastSpell;if(!id||!BY[id])break;ev(g,{t:'note',who:pi,s:'総集編:「'+BY[id].n+'」をもう一度'});run(g,pi,BY[id].ops,{id});break}
+  case'starRob':{const t=units(g,opp(pi)).sort((a,b)=>b.star-a.star||ATK(g,b)-ATK(g,a))[0];if(!t||t.star<2)break;const n=t.star-1;starDown(g,t,n);const m=units(g,pi).filter(x=>x.star<3).sort((a,b)=>b.star-a.star||ATK(g,b)-ATK(g,a))[0];if(m)starUp(g,m,n,'effect');break}
+  case'devour':{const s=ctx.self;if(!s)break;const v=units(g,pi).filter(x=>x!==s&&!x.isLeader).sort((a,b)=>(ATK(g,a)+DEF(g,a))-(ATK(g,b)+DEF(g,b)))[0];if(!v)break;const a=ATK(g,v),d=DEF(g,v);ev(g,{t:'note',uid:s.uid,s:'「'+BY[v.id].n+'」を食べた'});fall(g,v,'devour',true);if(find(g,s.uid)){s.perm+=a;s.permD+=d;ev(g,{t:'buff',uid:s.uid,atk:a,def:d,why:'devour'})}break}
+  case'tendon':{const n=(P.played[ctx.self?ctx.self.id:'']||1)*o.per;units(g,opp(pi)).forEach(m=>{m.perm-=n;ev(g,{t:'buff',uid:m.uid,atk:-n,def:0})});ev(g,{t:'note',who:pi,s:'天丼'+(P.played[ctx.self?ctx.self.id:'']||1)+'回目'});break}
+  case'stealTrap':{const E=g.p[opp(pi)];if(!E.st.length||P.st.length>=R.ST)break;const i=Math.floor(g.r()*E.st.length);const t=E.st.splice(i,1)[0];ev(g,{t:'break',who:opp(pi),uid:t.uid,id:t.id,stolen:1});const n={uid:++UID,id:t.id,ready:false};P.st.push(n);ev(g,{t:'set',who:pi,uid:n.uid});ev(g,{t:'note',who:pi,s:'トラップ「'+BY[t.id].n+'」を奪った'});break}
+  case'piggy':ctx.piggy=true;break;
+  case'reset':{const m=find(g,ctx.target);if(!m||m.owner===pi)break;const b=m.star;m.perm=0;m.permD=0;m.temp=0;m.tempD=0;m.awk=false;m.star=1;const H=g.p[m.orig!=null?m.orig:m.owner];H.gy.push(...m.under.splice(0));if(b>1)ev(g,{t:'star',uid:m.uid,from:b,to:1,why:'down'});ev(g,{t:'note',uid:m.uid,s:'整形前の姿に戻った'});break}
+  case'equalize':{const U=units(g,pi);const mx=Math.max(0,...U.map(m=>ATK(g,m)));U.forEach(m=>{const d=mx-ATK(g,m);if(d>0){m.temp+=d;ev(g,{t:'buff',uid:m.uid,atk:d,def:0})}});break}
+  case'hairDef':{const n=Math.min(o.max,P.gy.filter(id=>BY[id].type==='chara'&&BY[id].f===o.f).length*o.per);if(n>0)units(g,pi).forEach(m=>{m.permD+=n;ev(g,{t:'buff',uid:m.uid,atk:0,def:n})});break}
+  case'oshi':{const s=ctx.self,t=bestEnemy(g,pi);if(s&&t){s.oshi=t.uid;ev(g,{t:'note',uid:t.uid,s:'推しに決められた'})}break}
+  case'stealTop':{const E=g.p[opp(pi)];if(!E.deck.length)break;const id=E.deck.pop();if(P.hand.length<R.HAND){P.hand.push(id);ev(g,{t:'draw',who:pi})}else P.gy.push(id);ev(g,{t:'note',who:pi,s:'相手の山札から「'+BY[id].n+'」をもらった'});break}
+  case'tribeBurn':{const n=new Set(units(g,pi).map(m=>fam(g,m))).size;if(n)damage(g,opp(pi),n*o.per,'burn');break}
+  case'echo':{if(!ctx.id||!BY[o.to])break;const i=P.gy.lastIndexOf(ctx.id);if(i<0)break;P.gy.splice(i,1);if(P.hand.length<R.HAND){P.hand.push(o.to);ev(g,{t:'draw',who:pi});ev(g,{t:'note',who:pi,s:'「'+BY[o.to].n+'」が手札に戻った'})}else P.gy.push(o.to);break}
   }}}
+/* a coin flip: 配信者族 trait (heads = gauge), and characters that grow on tails */
+function flip(g,pi){const h=g.r()<.5;ev(g,{t:'coin',who:pi,h});if(h&&tr(g,pi,'vt'))gauge(g,pi,1);if(!h)units(g,pi).forEach(m=>{const k=(BY[m.id].kw||{}).anti;if(k){m.perm+=k;m.permD+=k;ev(g,{t:'buff',uid:m.uid,atk:k,def:k,why:'anti'})}});return h}
 function swap(g,m){const a=ATK(g,m),d=DEF(g,m);m.perm+=d-a;m.permD+=a-d;ev(g,{t:'buff',uid:m.uid,atk:d-a,def:a-d,why:'swap'})}
 function starDown(g,m,n){const b=m.star;m.star=Math.max(1,m.star-n);if(m.star===b)return;if(m.awk&&m.star<3)m.awk=false;ev(g,{t:'star',uid:m.uid,from:b,to:m.star,why:'down'})}
 function capE(g,pi){return R.MAXE+(tr(g,pi,'gachi')?1:0)}
-function place(g,pi,id,L,free){const P=g.p[pi];const m=mk(id,pi,L);P.slot[L]=m;ev(g,{t:'play',who:pi,id,uid:m.uid,slot:L,free:!!free});if(tr(g,pi,'idol'))heal(g,pi,R.IDOL_H);
+function place(g,pi,id,L,free){const P=g.p[pi];const m=mk(id,pi,L);P.slot[L]=m;P.played[id]=(P.played[id]||0)+1;{const k=BY[id].kw||{};if(k.grad)m.gradT=P.turn+k.grad;if(k.deadline)m.dlT=P.turn+k.deadline}ev(g,{t:'play',who:pi,id,uid:m.uid,slot:L,free:!!free});if(tr(g,pi,'idol'))heal(g,pi,R.IDOL_H);
   if((BY[id].kw||{}).star2)starUp(g,m,1,'start');(g.fx||[]).forEach(f=>{if(f.k==='dos'&&f.on===pi&&f.turn===g.turns)draw(g,f.by,1)});
   run(g,pi,BY[id].onPlay,{self:m});
   units(g,pi).forEach(o=>{const k=BY[o.id].kw||{};if(o!==m&&k.bond){o.perm+=k.bond;ev(g,{t:'buff',uid:o.uid,atk:k.bond,def:0,why:'bond'})}});return m}
 /* ---- raising ---- */
-function awaken(g,m){if(m.awk)return;m.awk=true;const a=m.aw;ev(g,{t:'awake',who:m.owner,uid:m.uid,id:m.id});if(!a)return;const pi=m.owner;
+function awaken(g,m){if(m.awk)return;m.awk=true;const a=m.aw;ev(g,{t:'awake',who:m.owner,uid:m.uid,id:m.id});units(g,m.owner).forEach(x=>{if((BY[x.id].kw||{}).assist)draw(g,m.owner,1)});if(!a)return;const pi=m.owner;
   switch(a.k){
   case'draw':draw(g,pi,a.n);break;case'heal':heal(g,pi,a.n);break;
   case'buffAll':run(g,pi,[{op:'buffAll',atk:a.atk,def:a.def,others:a.others}],{self:m});break;
@@ -1737,37 +1783,43 @@ function awaken(g,m){if(m.awk)return;m.awk=true;const a=m.aw;ev(g,{t:'awake',who
   case'ops':run(g,pi,a.ops,{self:m});break;
   }}
 function starUp(g,m,n,why){const b=m.star;m.star=Math.min(3,m.star+n);if(m.star===b)return false;if(tr(g,m.owner,'sei'))m.perm+=R.SEI_A*(m.star-b);ev(g,{t:'star',uid:m.uid,from:b,to:m.star,why});if(m.star===3)awaken(g,m);return true}
-function canEvolve(g,pi,hi,uid){const P=g.p[pi],id=P.hand[hi],m=find(g,uid);if(!id||!m||m.owner!==pi||g.cur!==pi||g.over||g.pending)return false;return m.star<3&&m.evoT!==P.turn&&P.energy>=evoCost(g,pi)}
+function canEvolve(g,pi,hi,uid){const P=g.p[pi],id=P.hand[hi],m=find(g,uid);if(!id||!m||m.owner!==pi||g.cur!==pi||g.over||g.pending)return false;return m.star<3&&m.evoT!==P.turn&&P.energy>=evoCost(g,pi)&&!lectured(g,pi)}
+/* 昭和の説教おじさん: while the opponent has one, you may use only 3 cards a turn */
+function lectured(g,pi){const n=Math.max(0,...units(g,opp(pi)).map(m=>(BY[m.id].kw||{}).lecture||0));return n>0&&(g.p[pi].usedN||0)>=n}
 function evoCost(g,pi){return tr(g,pi,'weak')&&g.p[pi].life<g.p[opp(pi)].life?0:R.EVOC}
-function evolve(g,pi,hi,uid){if(!canEvolve(g,pi,hi,uid))return false;const P=g.p[pi],m=find(g,uid);g.acted=(g.acted||0)+1;const id=P.hand.splice(hi,1)[0];P.energy-=evoCost(g,pi);m.under.push(id);m.evoT=P.turn;
+function evolve(g,pi,hi,uid){if(!canEvolve(g,pi,hi,uid))return false;const P=g.p[pi],m=find(g,uid);g.acted=(g.acted||0)+1;P.usedN=(P.usedN||0)+1;const id=P.hand.splice(hi,1)[0];P.energy-=evoCost(g,pi);m.under.push(id);m.evoT=P.turn;
   ev(g,{t:'stack',who:pi,uid,id,same:id===m.id});if(R.EVO_READY){m.sick=false}starUp(g,m,id===m.id?2:1,'stack');if(tr(g,pi,'cre'))draw(g,pi,1);return true}
 /* ---- trap windows: the non-acting player may answer ---- */
 function window(g,kind){const P=g.p[opp(g.cur)];if((P.seal||0)>=g.turns)return[];return P.st.filter(t=>{const w=BY[t.id].when;return t.ready&&(w===kind||(w==='any'&&kind!=='summon')||(kind==='direct'&&w==='attack')||(w==='play'&&(kind==='summon'||kind==='spell')))}).map(t=>t.uid)}
 function fire(g,pi,uid,ctx){const P=g.p[pi];const i=P.st.findIndex(t=>t.uid===uid);if(i<0)return false;const t=P.st.splice(i,1)[0];P.gy.push(t.id);ev(g,{t:'trap',who:pi,id:t.id,uid:t.uid});run(g,pi,BY[t.id].ops,ctx);return true}
 /* ---- play ---- */
 function cost(g,pi,id){return BY[id].c}
-function canPlay(g,pi,hi,L){const P=g.p[pi],id=P.hand[hi];if(!id||g.cur!==pi||g.over||g.pending)return false;const d=BY[id];if(d.c>P.energy)return false;
+function canPlay(g,pi,hi,L){const P=g.p[pi],id=P.hand[hi];if(!id||g.cur!==pi||g.over||g.pending)return false;const d=BY[id];if(d.c>P.energy)return false;if(lectured(g,pi))return false;
   if(d.type==='chara'){if(d.trib)return tribPool(g,pi,id).length>=d.trib;if(L==null)return P.slot.some(x=>!x);return!P.slot[L]}
   if(d.type==='trap')return P.st.length<R.ST;
   if(d.cond==='behind'&&!(P.life<g.p[opp(pi)].life))return false;if(fxOn(g,'noSpell',pi))return false;if(d.quick)return false;
-  if(d.cond==='pure2'&&pureN(g,pi)<2)return false;if(d.cond==='pure3'&&pureN(g,pi)<3)return false;if(d.cond==='mixed3'&&mixedN(g,pi)<3)return false;if(d.life&&P.life<=d.life)return false;if(d.tgt==='enemyStar'&&!P.slot.some(x=>!x))return false;if(d.tgt&&d.tgt!=='trapOpt'&&!targets(g,pi,id).length)return false;return true}
+  if(d.cond==='pure2'&&pureN(g,pi)<2)return false;if(d.cond==='final'&&P.turn<R.MAXTURN)return false;if(d.cond==='full'&&units(g,pi).length<R.SLOTS)return false;if(d.cond==='ally1'&&!units(g,pi).length)return false;if(d.cond==='ally2'&&units(g,pi).length<2)return false;if(d.cond==='replay'&&!P.lastSpell)return false;if(d.cond==='pure3'&&pureN(g,pi)<3)return false;if(d.cond==='mixed3'&&mixedN(g,pi)<3)return false;if(d.life&&P.life<=d.life)return false;if(d.tgt==='enemyStar'&&!P.slot.some(x=>!x))return false;if(d.tgt&&d.tgt!=='trapOpt'&&!targets(g,pi,id).length)return false;return true}
 function targets(g,pi,id){const d=BY[id];const E=units(g,opp(pi));if(d.tgt==='enemy')return E.map(m=>m.uid);if(d.tgt==='enemyLow')return E.filter(m=>ATK(g,m)<=d.max).map(m=>m.uid);if(d.tgt==='enemyStar')return E.filter(m=>m.star<=d.max&&!BY[m.id].trib&&!m.isLeader).map(m=>m.uid);if(d.tgt==='trap'||d.tgt==='trapOpt')return g.p[opp(pi)].st.map(t=>t.uid);return[]}
 function tribPool(g,pi,id){const d=BY[id];return units(g,pi).filter(m=>!d.same||fam(g,m)===d.f)}
 function summonAnswer(g,pi,id,answer){if(!answer)return false;ev(g,{t:'summoning',who:pi,id});const ctx={summon:id};fire(g,opp(pi),answer,ctx);if(ctx.negated){g.p[pi].gy.push(id);ev(g,{t:'negated',who:pi,id});return true}return false}
 function playChara(g,pi,hi,L,tribs,answer){const P=g.p[pi],id=P.hand[hi];if(!id)return false;const d=BY[id];
   if(d.trib){if(!canPlay(g,pi,hi))return false;const ok=tribPool(g,pi,id);const T=(tribs||[]).map(u=>find(g,u)).filter(m=>m&&m.owner===pi&&ok.includes(m));if(T.length<d.trib)return false;
-    P.energy-=d.c;P.hand.splice(hi,1);let slot=-1;T.slice(0,d.trib).forEach(m=>{P.slot[m.slot]=null;g.p[m.orig!=null?m.orig:pi].gy.push(m.id,...m.under);if(slot<0)slot=m.slot;ev(g,{t:'tribute',who:pi,uid:m.uid,id:m.id})});g.acted=(g.acted||0)+1;if(summonAnswer(g,pi,id,answer))return true;place(g,pi,id,slot);return true}
-  if(L==null)L=P.slot.findIndex(x=>!x);if(!canPlay(g,pi,hi,L))return false;P.energy-=d.c;P.hand.splice(hi,1);g.acted=(g.acted||0)+1;if(summonAnswer(g,pi,id,answer))return true;place(g,pi,id,L);return true}
+    P.energy-=d.c;P.hand.splice(hi,1);P.usedN=(P.usedN||0)+1;let slot=-1;T.slice(0,d.trib).forEach(m=>{P.slot[m.slot]=null;g.p[m.orig!=null?m.orig:pi].gy.push(m.id,...m.under);if(slot<0)slot=m.slot;ev(g,{t:'tribute',who:pi,uid:m.uid,id:m.id})});g.acted=(g.acted||0)+1;if(summonAnswer(g,pi,id,answer))return true;place(g,pi,id,slot);return true}
+  if(L==null)L=P.slot.findIndex(x=>!x);if(!canPlay(g,pi,hi,L))return false;P.energy-=d.c;P.hand.splice(hi,1);P.usedN=(P.usedN||0)+1;g.acted=(g.acted||0)+1;if(summonAnswer(g,pi,id,answer))return true;place(g,pi,id,L);return true}
 /* 割り込み: at the start of the opponent's turn, before they act, using the energy left over from your own turn. Traps can't stop it */
 function canQuick(g,pi,hi){const P=g.p[pi],id=P.hand[hi];if(!id||g.over||g.pending||g.cur===pi||(g.acted||0)>0)return false;const d=BY[id];return!!d.quick&&d.c<=P.energy}
 /* the traps that can answer a quick spell: those of the player whose turn it is (a quick spell can be stopped like any spell) */
 function quickWin(g,pi){const P=g.p[opp(pi)];if((P.seal||0)>=g.turns)return[];return P.st.filter(t=>{const w=BY[t.id].when;return t.ready&&(w==='spell'||w==='any'||w==='play')}).map(t=>t.uid)}
 function castQuick(g,pi,hi,answer){if(!canQuick(g,pi,hi))return false;const P=g.p[pi],id=P.hand[hi];P.energy-=BY[id].c;P.hand.splice(hi,1);P.gy.push(id);ev(g,{t:'spell',who:pi,id,quick:true});const ctx={id};
-  if(answer&&quickWin(g,pi).includes(answer))fire(g,opp(pi),answer,ctx);if(ctx.negated){ev(g,{t:'negated',who:pi,id});return true}run(g,pi,BY[id].ops,ctx);return true}
+  buzz(g,pi);if(answer&&quickWin(g,pi).includes(answer))fire(g,opp(pi),answer,ctx);if(ctx.negated){ev(g,{t:'negated',who:pi,id});return true}run(g,pi,BY[id].ops,ctx);afterSpell(g,pi,id,ctx);return true}
+/* インフルエンサー: grows whenever its owner uses a spell */
+function buzz(g,pi){units(g,pi).forEach(m=>{const k=(BY[m.id].kw||{}).buzz;if(k){m.perm+=k;ev(g,{t:'buff',uid:m.uid,atk:k,def:0,why:'buzz'})}})}
+/* after a spell: 便乗ネタ copies it for the trap's owner; 切り抜き remembers it */
+function afterSpell(g,pi,id,ctx){const d=BY[id];if(ctx.piggy&&!g.over){if(d.tgt)draw(g,opp(pi),1);else{ev(g,{t:'note',who:opp(pi),s:'便乗:「'+d.n+'」の効果を受けた'});run(g,opp(pi),d.ops.filter(o=>o.op!=='echo'),{id})}}if(!d.tgt&&!d.noReplay)g.p[pi].lastSpell=id}
 function castSpell(g,pi,hi,target,answer){if(!canPlay(g,pi,hi))return false;const P=g.p[pi],id=P.hand[hi],d=BY[id];if(d.type!=='spell')return false;if(d.tgt&&!targets(g,pi,id).includes(target)&&!(d.tgt==='trapOpt'&&!targets(g,pi,id).length))return false;
-  P.energy-=d.c;P.hand.splice(hi,1);P.gy.push(id);ev(g,{t:'spell',who:pi,id,target});g.acted=(g.acted||0)+1;const ctx={target,id};if(answer)fire(g,opp(pi),answer,ctx);
-  if(ctx.negated){ev(g,{t:'negated',who:pi,id});return true}run(g,pi,d.ops,ctx);return true}
-function setTrap(g,pi,hi){if(!canPlay(g,pi,hi))return false;const P=g.p[pi],id=P.hand[hi];if(BY[id].type!=='trap')return false;P.energy-=BY[id].c;P.hand.splice(hi,1);g.acted=(g.acted||0)+1;const t={uid:++UID,id,ready:false};P.st.push(t);ev(g,{t:'set',who:pi,uid:t.uid});return true}
+  P.energy-=d.c;P.hand.splice(hi,1);P.gy.push(id);ev(g,{t:'spell',who:pi,id,target});g.acted=(g.acted||0)+1;P.usedN=(P.usedN||0)+1;buzz(g,pi);const ctx={target,id};if(answer)fire(g,opp(pi),answer,ctx);
+  if(ctx.negated){ev(g,{t:'negated',who:pi,id});return true}run(g,pi,d.ops,ctx);afterSpell(g,pi,id,ctx);return true}
+function setTrap(g,pi,hi){if(!canPlay(g,pi,hi))return false;const P=g.p[pi],id=P.hand[hi];if(BY[id].type!=='trap')return false;P.energy-=BY[id].c;P.hand.splice(hi,1);g.acted=(g.acted||0)+1;P.usedN=(P.usedN||0)+1;const t={uid:++UID,id,ready:false};P.st.push(t);ev(g,{t:'set',who:pi,uid:t.uid});return true}
 /* ---- the leader: summoned from its seat with one tribute; every return costs 1 more ---- */
 function leaderCost(g,pi){const L=g.p[pi].leader;return BY[L.id].c+L.n}
 /* leaders are no longer summoned from a seat: the leader card has to be drawn from the deck */
@@ -1775,20 +1827,21 @@ function canLeader(g,pi){return false;const P=g.p[pi];if(g.cur!==pi||g.over||g.p
 function summonLeader(g,pi,tribs){if(!canLeader(g,pi))return false;const P=g.p[pi];const T=(tribs||[]).map(u=>find(g,u)).filter(m=>m&&m.owner===pi&&!m.isLeader);if(!T.length)return false;
   P.energy-=leaderCost(g,pi);const t=T[0];P.slot[t.slot]=null;P.gy.push(t.id,...t.under);ev(g,{t:'tribute',who:pi,uid:t.uid,id:t.id});P.leader.out=true;const m=place(g,pi,P.leader.id,t.slot);m.isLeader=true;return true}
 /* ---- battle ---- */
+const OSHI_B=1000;
 const maxAttacks=m=>m.awk&&m.aw&&m.aw.k==='twice'?2:1;
-function canAttack(g,pi,m){return!!m&&m.owner===pi&&g.cur===pi&&!g.over&&!g.pending&&m.attacks<maxAttacks(m)&&(!m.sick||m.rush)&&!(pi===0&&g.p[0].turn===1)}
+function canAttack(g,pi,m){return!!m&&m.owner===pi&&g.cur===pi&&!g.over&&!g.pending&&m.attacks<maxAttacks(m)&&(!m.sick||m.rush)&&!(pi===0&&g.p[0].turn===1)&&!(m.frozen>=g.turns)&&!((BY[m.id].kw||{}).dotan&&!mixedN(g,pi))}
 /* legal targets: covers first, else any character, else the life */
-function attackTargets(g,pi){const E=units(g,opp(pi));if(!E.length)return['life'];const cov=E.filter(hasCover);return(cov.length?cov:E).map(m=>m.uid)}
-function attack(g,pi,uid,target,answer){const m=find(g,uid);if(!canAttack(g,pi,m))return false;const T=attackTargets(g,pi);if(!T.includes(target))return false;m.attacks++;g.acted=(g.acted||0)+1;
-  const direct=target==='life';ev(g,{t:'atk',who:pi,uid:m.uid,id:m.id,to:direct?null:target,kind:direct?'direct':'battle'});
+function attackTargets(g,pi,m){const E=units(g,opp(pi));if(!E.length)return['life'];if(m&&m.oshi){const o=E.find(x=>x.uid===m.oshi);if(o)return[o.uid]}const cov=E.filter(hasCover);return(cov.length?cov:E).map(m=>m.uid)}
+function attack(g,pi,uid,target,answer){const m=find(g,uid);if(!canAttack(g,pi,m))return false;const T=attackTargets(g,pi,m);if(!T.includes(target))return false;m.attacks++;g.acted=(g.acted||0)+1;
+  const direct=target==='life';ev(g,{t:'atk',who:pi,uid:m.uid,id:m.id,to:direct?null:target,kind:direct?'direct':'battle'});{const k=(BY[m.id].kw||{}).toll;if(k){damage(g,pi,k,'toll');if(g.over)return true}}
   const ctx={attacker:m,target};if(answer)fire(g,opp(pi),answer,ctx);if(ctx.negated){ev(g,{t:'negated',who:pi,id:m.id});return true}
   if(!find(g,m.uid))return true;
   if(direct){ev(g,{t:'direct',who:pi,uid:m.uid});gauge(g,opp(pi),1);const dm=POW(g,m);damage(g,opp(pi),dm,'direct');if(ctx.reflect&&!g.over)damage(g,pi,Math.round(dm*ctx.reflect/100),'reflect');return true}
-  const t=find(g,target);if(!t)return true;const A=POW(g,m),D=DEF(g,t),B=ATK(g,t),AD=DEF(g,m);ev(g,{t:'clash',a:m.uid,b:t.uid,A,D,B,AD});
+  const t=find(g,target);if(!t)return true;if((BY[t.id].kw||{}).mine){ev(g,{t:'note',uid:t.uid,s:'地雷を踏んだ'});fall(g,m,'mine',true);fall(g,t,'mine',true);return true}const A=POW(g,m)+(m.oshi===t.uid?OSHI_B:0),D=DEF(g,t),B=ATK(g,t),AD=DEF(g,m);ev(g,{t:'clash',a:m.uid,b:t.uid,A,D,B,AD});
   const save=x=>{const k=BY[x.id].kw||{};if(k.guts&&!x.gutsUsed){x.gutsUsed=true;ev(g,{t:'guts',uid:x.uid});return true}return false};
   const rev=(x,y)=>{if((BY[x.id].kw||{}).revenge&&find(g,y.uid)){ev(g,{t:'revenge',uid:x.uid,on:y.uid});fall(g,y,'revenge')}};
-  if(A>D){if(!save(t)){fall(g,t,'battle');rev(t,m);if(R.PIERCE)damage(g,opp(pi),A-D,'pierce');if(!g.over&&tr(g,pi,'girl')&&find(g,m.uid))starUp(g,m,1,'trait')}}
-  if(!g.over&&B>AD&&find(g,m.uid)){if(!save(m)){fall(g,m,'battle');rev(m,t);if(R.PIERCE)damage(g,pi,B-AD,'counter')}}
+  if(A>D){if(!save(t)){if(fall(g,t,'battle')){rev(t,m);if(R.PIERCE)damage(g,opp(pi),A-D,'pierce');if(!g.over&&tr(g,pi,'girl')&&find(g,m.uid))starUp(g,m,1,'trait')}}}
+  if(!g.over&&B>AD&&find(g,m.uid)){if(!save(m)){if(fall(g,m,'battle')){rev(m,t);if(R.PIERCE)damage(g,pi,B-AD,'counter')}}}
   [m,t].forEach(x=>{if(find(g,x.uid)){const k=BY[x.id].kw||{};if(k.grow){x.perm+=k.grow;ev(g,{t:'buff',uid:x.uid,atk:k.grow,def:0,why:'grow'})}}});
   return true}
 /* ---- skills ---- */
@@ -1800,7 +1853,7 @@ function skill(g,pi,target){if(!canSkill(g,pi))return false;const P=g.p[pi],E=g.
   if(P.skill==='gay'){units(g,pi).forEach(m=>starUp(g,m,1,'skill'));draw(g,pi,1)}
   if(P.skill==='gachi'){P.energy=Math.max(P.energy,P.maxE);ev(g,{t:'energy',who:pi,n:P.maxE});draw(g,pi,2)}
   if(P.skill==='idol'){run(g,pi,[{op:'revive',maxC:9}]);heal(g,pi,800)}
-  if(P.skill==='vt'){let n=0;for(let i=0;i<3;i++){const h=g.r()<.5;ev(g,{t:'coin',who:pi,h});if(h)n++}if(n)damage(g,opp(pi),700*n,'skill')}
+  if(P.skill==='vt'){let n=0;for(let i=0;i<3;i++){const h=g.r()<.5;ev(g,{t:'coin',who:pi,h});if(h)n++;else units(g,pi).forEach(m=>{const k=(BY[m.id].kw||{}).anti;if(k){m.perm+=k;m.permD+=k;ev(g,{t:'buff',uid:m.uid,atk:k,def:k,why:'anti'})}})}if(n)damage(g,opp(pi),700*n,'skill')}
   if(P.skill==='cre'){const m=units(g,pi).sort((a,b)=>b.star-a.star||ATK(g,b)-ATK(g,a))[0];if(m)starUp(g,m,3,'skill')}
   if(P.skill==='chu'){units(g,opp(pi)).forEach(m=>{m.permD-=800;ev(g,{t:'buff',uid:m.uid,atk:0,def:-800})})}
   if(P.skill==='neta'){units(g,opp(pi)).forEach(m=>{const a=ATK(g,m),d=DEF(g,m);m.perm+=d-a;m.permD+=a-d;ev(g,{t:'buff',uid:m.uid,atk:d-a,def:a-d,why:'swap'})})}
@@ -1808,9 +1861,14 @@ function skill(g,pi,target){if(!canSkill(g,pi))return false;const P=g.p[pi],E=g.
   if(P.skill==='hage')heal(g,pi,2000);
   return true}
 /* ---- turns ---- */
-function startTurn(g){const pi=g.cur,P=g.p[pi];P.turn++;g.turns++;P.maxE=Math.min(capE(g,pi),P.turn+(pi===1&&P.turn===1&&R.BOOST2?1:0)+(tr(g,pi,'gachi')?1:0)+(P.ramp||0));g.acted=0;P.energy=P.maxE;
+function startTurn(g){const pi=g.cur,P=g.p[pi];P.turn++;g.turns++;P.maxE=Math.min(capE(g,pi),P.turn+(pi===1&&P.turn===1&&R.BOOST2?1:0)+(tr(g,pi,'gachi')?1:0)+(P.ramp||0));g.acted=0;P.energy=Math.max(0,P.maxE-(P.debt||0));if(P.debt){ev(g,{t:'energy',who:pi,n:-Math.min(P.maxE,P.debt)});P.debt=0}P.usedN=0;
   units(g,pi).forEach(m=>{m.sick=false;m.attacks=0;if(m.awk&&m.aw&&m.aw.k==='gutsEvery')m.gutsUsed=false});P.st.forEach(t=>t.ready=true);g.p[opp(pi)].st.forEach(t=>t.ready=true);
-  ev(g,{t:'turn',who:pi,n:P.turn});if(!(pi===0&&P.turn===1))draw(g,pi)}
+  ev(g,{t:'turn',who:pi,n:P.turn});if(!(pi===0&&P.turn===1))draw(g,pi);turnStartFx(g,pi)}
+/* things on the field that happen at the start of their owner's turn */
+function turnStartFx(g,pi){const P=g.p[pi];for(const m of units(g,pi)){if(g.over)return;const k=BY[m.id].kw||{};
+  if(k.senior){m.perm+=k.senior;ev(g,{t:'buff',uid:m.uid,atk:k.senior,def:0,why:'senior'})}
+  if(m.dlT!=null&&P.turn>=m.dlT&&m.star<3){m.dlT=null;ev(g,{t:'note',uid:m.uid,s:'締切明け!'});starUp(g,m,3,'deadline')}
+  if(m.gradT!=null&&P.turn>=m.gradT){m.gradT=null;P.slot[m.slot]=null;P.gy.push(m.id,...m.under);ev(g,{t:'die',who:pi,id:m.id,uid:m.uid,why:'grad',star:m.star});ev(g,{t:'note',who:pi,s:'「'+BY[m.id].n+'」が卒業した'});heal(g,pi,k.gradHeal||1500);draw(g,pi,k.gradDraw||2)}}}
 function endTurn(g){if(g.over||g.pending)return false;g.p.forEach(P=>P.slot.forEach(m=>{if(m){m.temp=0;m.tempD=0}}));
   if(g.p[0].turn>=R.MAXTURN&&g.p[1].turn>=R.MAXTURN){g.over=true;const a=g.p[0].life,b=g.p[1].life;g.win=a>b?0:b>a?1:-1;ev(g,{t:'end',win:g.win,why:'time'});return true}
   g.cur=opp(g.cur);return true}
@@ -1826,12 +1884,12 @@ __def('./ai4.js',function(module,exports,require){
 const E=require('./engine4.js'),{BY}=E;
 const val=(g,m)=>E.ATK(g,m)+E.DEF(g,m)*0.6+(E.hasCover(m)?300:0)+(m.star-1)*400;
 function preview(g,pi,m,uid){if(uid==='life')return{kind:'direct',dmg:E.POW(g,m)};const t=E.find(g,uid);
-  const A=E.POW(g,m),D=E.DEF(g,t),B=E.ATK(g,t),AD=E.DEF(g,m);const kt=BY[t.id].kw||{},km=BY[m.id].kw||{};
-  const over=A>D,kill=over&&!(kt.guts&&!t.gutsUsed),die=B>AD&&!(km.guts&&!m.gutsUsed);return{kind:'battle',t,kill,die,over,dmg:kill?A-D:0,back:die?B-AD:0}}
+  const A=E.POW(g,m)+(m.oshi===t.uid?1000:0),D=E.DEF(g,t),B=E.ATK(g,t),AD=E.DEF(g,m);const kt=BY[t.id].kw||{},km=BY[m.id].kw||{};if(kt.mine)return{kind:'battle',t,kill:true,die:true,over:true,dmg:0,back:0,mine:true};
+  const over=A>D,kill=over&&!(kt.guts&&!t.gutsUsed)&&!(kt.touchup&&t.star>=2),die=B>AD&&!(km.guts&&!m.gutsUsed)&&!(km.touchup&&m.star>=2);return{kind:'battle',t,kill,die,over,dmg:kill?A-D:0,back:die?B-AD:0}}
 const cardVal=id=>{const d=BY[id];return d.c*380+(d.type==='chara'?250:0)+(d.r==='SR'?600:d.r==='HR'?350:0)};
 /* a boss (二体生贄 of one tribe) in hand: the tribe its two sacrifices must come from, while that tribe has 2 or fewer on the field */
 function bossTribe(g,pi){const P=g.p[pi];for(const id of P.hand){const d=BY[id];if(d.same&&d.trib){const n=E.units(g,pi).filter(m=>!m.isLeader&&E.fam(g,m)===d.f).length;if(n<=d.trib)return n<d.trib?d.f:d.f+'#'}}return null}
-function bestAttack(g,pi,m){const T=E.attackTargets(g,pi);let best=null;const bt0=bossTribe(g,pi),keep=!!bt0&&bt0.replace('#','')===E.fam(g,m)&&!m.isLeader;
+function bestAttack(g,pi,m){const T=E.attackTargets(g,pi,m);let best=null;const bt0=bossTribe(g,pi),keep=!!bt0&&bt0.replace('#','')===E.fam(g,m)&&!m.isLeader;
   for(const u of T){const p=preview(g,pi,m,u);let s=-1;
     if(p.kind==='direct')s=2000+p.dmg;
     else if(p.kill&&!p.die)s=1500+val(g,p.t)+p.dmg;
@@ -1845,6 +1903,21 @@ function onPlayVal(g,pi,d){const O=g.p[1-pi],T=E.units(g,1-pi);let v=0;(d.onPlay
 /* the new spells: return an action, false (skip this card now) or null (let the old rules decide) */
 function spellPick(g,pi,i,mine,theirs){const P=g.p[pi],O=g.p[1-pi],id=P.hand[i],d=BY[id],ops=d.ops.map(o=>o.op);
   const best=L=>L.map(u=>E.find(g,u)).filter(Boolean).sort((a,b)=>val(g,b)-val(g,a))[0];
+  /* 愛と裏切りの宴 追加40枚 */
+  {const ready=mine.filter(m=>E.canAttack(g,pi,m));
+  if(ops.includes('lifeAvg'))return O.life-P.life>=1600?{type:'spell',hand:i}:false;
+  if(ops.includes('freeze')){const t=theirs.slice().sort((a,b)=>E.ATK(g,b)-E.ATK(g,a))[0];return t&&E.ATK(g,t)>=1200?{type:'spell',hand:i,target:t.uid}:false}
+  if(ops.includes('mill3'))return P.hand.length<=5&&P.deck.length>=3?{type:'spell',hand:i}:false;
+  if(ops.includes('election')){const U=mine.slice().sort((a,b)=>b.star-a.star||E.ATK(g,b)-E.ATK(g,a));return U[0].star<3&&U.slice(1).filter(m=>m.star>1).length<=1?{type:'spell',hand:i}:false}
+  if(ops.includes('replay')){const l=BY[P.lastSpell];if(!l)return false;const lo=l.ops.map(o=>o.op);if(lo.some(o=>['wipeAll','selfDmg','debt','lifeAvg'].includes(o)))return false;if(lo.includes('buffAll')&&!mine.length)return false;return P.hand.length<=5?{type:'spell',hand:i}:false}
+  if(ops.includes('starRob'))return theirs.some(m=>m.star>=2)&&mine.some(m=>m.star<3)?{type:'spell',hand:i}:false;
+  if(ops.includes('reset')){const w=m=>(m.star-1)*400+m.perm+m.permD+(m.awk?900:0);const t=theirs.slice().sort((a,b)=>w(b)-w(a))[0];return t&&w(t)>=700?{type:'spell',hand:i,target:t.uid}:false}
+  if(ops.includes('equalize')){const mx=Math.max(...mine.map(m=>E.ATK(g,m)));const gain=ready.reduce((t,m)=>t+mx-E.ATK(g,m),0);return ready.length>=2&&gain>=1000?{type:'spell',hand:i}:false}
+  if(ops.includes('hairDef'))return mine.length>=2&&P.gy.filter(h=>BY[h].type==='chara'&&BY[h].f==='hage').length>=2?{type:'spell',hand:i}:false;
+  if(ops.includes('stealTop'))return P.hand.length<=6?{type:'spell',hand:i}:false;
+  if(ops.includes('tribeBurn')){const n=new Set(mine.map(m=>E.fam(g,m))).size;return n>=2||O.life<=n*400?{type:'spell',hand:i}:false}
+  if(ops[0]==='gauge'&&!ops.includes('draw'))return P.gauge<3&&!P.skillUsed?{type:'spell',hand:i}:false;
+  if(d.cond==='final'||d.cond==='full')return{type:'spell',hand:i};}
   if(d.tgt==='trap'||d.tgt==='trapOpt'){const T=E.targets(g,pi,id);const ready=mine.filter(m=>E.canAttack(g,pi,m));if(d.tgt==='trapOpt'&&!T.length)return ready.length&&theirs.length?{type:'spell',hand:i}:false;return T.length&&(ready.length||d.c===0)?{type:'spell',hand:i,target:T[Math.floor(g.r()*T.length)]}:false}
   if(d.tgt==='enemyStar'){const t=best(E.targets(g,pi,id));return t&&val(g,t)>=1600?{type:'spell',hand:i,target:t.uid}:false}
   if(ops.includes('starDown')){const t=E.units(g,1-pi).filter(m=>m.star>1).sort((a,b)=>(b.awk?1:0)-(a.awk?1:0)||val(g,b)-val(g,a))[0];return t&&(t.awk||val(g,t)>=2000)?{type:'spell',hand:i,target:t.uid}:false}
@@ -2438,7 +2511,7 @@ function altClean(d){const n={};(d.cards||[]).forEach(id=>n[id]=(n[id]||0)+1);co
 const altN=(d,id)=>((d.alt||{})[id]||[]).length;
 /* a copy's look: 0 normal, 's' SCR, 1..3 alternate art of that grade */
 const isF=v=>v==='s'||v>=2,gaOf=v=>typeof v==='number'?v:0;
-function artEl(id,ga){if(ga>=3&&CARD_ALT[id]){const v=mvEl(id);if(v)return v}if(ga&&CARD_ALT[id]){const i=el('img');i.src=CARD_ALT[id];i.alt='';i.style.objectPosition='50% '+(CARD_ALT_POS[id]||25)+'%';return i}if(noArt(id)){const d=el('div');d.innerHTML=phArt(id);return d.firstChild}if(CARD_IMG[id]){const i=el('img');i.src=CARD_IMG[id];i.alt='';i.style.objectPosition='50% '+(CARD_POS[id]||25)+'%';return i}const d=el('div');d.innerHTML=ART.art(id);return d.firstChild}
+function artEl(id,ga){if(BY[id]&&BY[id].img)id=BY[id].img;if(ga>=3&&CARD_ALT[id]){const v=mvEl(id);if(v)return v}if(ga&&CARD_ALT[id]){const i=el('img');i.src=CARD_ALT[id];i.alt='';i.style.objectPosition='50% '+(CARD_ALT_POS[id]||25)+'%';return i}if(noArt(id)){const d=el('div');d.innerHTML=phArt(id);return d.firstChild}if(CARD_IMG[id]){const i=el('img');i.src=CARD_IMG[id];i.alt='';i.style.objectPosition='50% '+(CARD_POS[id]||25)+'%';return i}const d=el('div');d.innerHTML=ART.art(id);return d.firstChild}
 function stats(a,d){const s=el('div','st2');const A=el('b','a');A.append(el('small',null,'ATK'),document.createTextNode(a));const B=el('b','d');B.append(el('small',null,'DEF'),document.createTextNode(d));s.append(A,B);return s}
 /* SCR glitter texture: random specks of different size and brightness, drawn once and shared by every SCR card */
 let GLITTER=null;function glitterTex(){if(GLITTER)return GLITTER;try{const n=192,cv=document.createElement('canvas');cv.width=cv.height=n;const x=cv.getContext('2d'),C=['255,255,255','255,236,250','236,248,255','255,247,224','244,236,255'];
@@ -2557,7 +2630,7 @@ function queueSpectator(events){if(!g||!NET||!HOST||!HOST.publishSpectator||!win
 function snap(){return{cur:g.cur,over:g.over,win:g.win,turns:g.turns,
   p:g.p.map(P=>({deckN:P.deck.length,hand:P.hand.slice(),life:P.life,gy:P.gy.length,energy:P.energy,maxE:P.maxE,turn:P.turn,gauge:P.gauge,skill:P.skill,lead:{id:P.leader.id,out:P.leader.out,n:P.leader.n},skillUsed:P.skillUsed,seal:(P.seal||0)>=g.turns,
     st:P.st.map(t=>({uid:t.uid,id:t.id,ready:t.ready})),
-    slot:P.slot.map(m=>m?{uid:m.uid,id:m.id,owner:m.owner,slot:m.slot,A:E.ATK(g,m),D:E.DEF(g,m),sick:m.sick,rush:m.rush,gutsUsed:m.gutsUsed,star:m.star,awk:m.awk,under:m.under.length,cover:E.hasCover(m)}:null)}))}}
+    slot:P.slot.map(m=>m?{uid:m.uid,id:m.id,owner:m.owner,slot:m.slot,A:E.ATK(g,m),D:E.DEF(g,m),sick:m.sick,rush:m.rush,gutsUsed:m.gutsUsed,star:m.star,awk:m.awk,under:m.under.length,cover:E.hasCover(m),frz:m.frozen>=g.turns,oshi:E.units(g,1-m.owner).some(x=>x.oshi===m.uid),gradN:m.gradT!=null?Math.max(0,m.gradT-P.turn):null,dlN:m.dlT!=null?Math.max(0,m.dlT-P.turn):null}:null)}))}}
 
 /* ---------- layout ---------- */
 function fit(){const gm=$('s-game');if(gm.hidden)return;const W=gm.clientWidth,Hh=gm.clientHeight;
@@ -2605,7 +2678,7 @@ function unitEl(u,S,side){const c=BY[u.id],d=el('div','u '+FAC(u.id)+' r-'+c.r+(
   const pad=el('div','pad');const pi=el('div','pimg');const uga=unitGa(u,S);pi.append(artEl(u.id,Math.min(2,uga)));pad.append(pi);
   if(u.under){const sh=[];for(let i=1;i<=Math.min(u.under,3);i++)sh.push('0 '+(i*3)+'px 0 -1px #3a2f74','0 '+(i*3)+'px 0 0 #b89a5499');pad.style.setProperty('--under',sh.join(','))}
   const stand=el('div','stand');stand.append(figEl(u.id,uga));if(u.awk)stand.append(el('i','aura'));
-  const k=kwOf(u.id);const kw=el('div','kw');if(u.rush&&u.sick)kw.append(el('i','y','速攻'));if(u.cover)kw.append(el('i','c','かばう'));if(k.guts&&!u.gutsUsed)kw.append(el('i',null,'根性'));if(k.adv)kw.append(el('i',null,'逆境'));if(k.bond)kw.append(el('i',null,'絆'));if(k.grow)kw.append(el('i',null,'成長'));if(u.sick&&!u.rush)kw.append(el('i','w','待機'));
+  const k=kwOf(u.id);const kw=el('div','kw');if(u.rush&&u.sick)kw.append(el('i','y','速攻'));if(u.cover)kw.append(el('i','c','かばう'));if(k.guts&&!u.gutsUsed)kw.append(el('i',null,'根性'));if(k.adv)kw.append(el('i',null,'逆境'));if(k.bond)kw.append(el('i',null,'絆'));if(k.grow)kw.append(el('i',null,'成長'));if(u.sick&&!u.rush)kw.append(el('i','w','待機'));if(u.frz)kw.append(el('i','w','足止め'));if(u.oshi)kw.append(el('i','y','推し'));if(u.gradN!=null)kw.append(el('i',null,'卒業まで'+u.gradN));if(u.dlN!=null)kw.append(el('i',null,'締切まで'+u.dlN));if(k.mine)kw.append(el('i','c','地雷'));if(k.lecture)kw.append(el('i',null,'長話'));if(k.toll)kw.append(el('i',null,'代償'));if(k.touchup&&u.star>=2)kw.append(el('i',null,'お直し'));if(k.dotan)kw.append(el('i',null,'同担拒否'));
   const plate=el('div','plate');plate.append(el('div','nmb',c.n));const st=el('div','ust');
   const A=el('b','a'+(u.A>c.atk?' up':u.A<c.atk?' dn':''));A.append(el('small',null,'ATK'),document.createTextNode(u.A));const Df=el('b','d'+(u.D>c.def?' up':u.D<c.def?' dn':''));Df.append(el('small',null,'DEF'),document.createTextNode(u.D));st.append(A,Df);plate.append(st);
   d.append(pad,el('div','base'),stand,el('div','stars s'+u.star,SN(u.star)),kw,plate);if(u.awk)d.append(el('div','awl','覚醒'));
@@ -2624,7 +2697,7 @@ function traitOn(P,pi){const O=g?g.p[1-pi]:WATCH&&view?view.p[1-pi]:null;switch(
 function traitEl(P,pi){const t=CD.TRAITS[P.skill];const b=el('button','trchip'+(traitOn(P,pi)?' on':''));b.style.setProperty('--dc','var(--'+P.skill+')');b.append(el('i'),el('span',null,t.n));b.onclick=()=>sheet((s,close)=>{s.append(el('div','k','TRAIT'),el('h3',null,(pi===H?'あなた':'相手')+'の特性「'+t.n+'」'),el('div','eff',t.t));const x=el('button','btn sec','閉じる');x.onclick=close;s.append(x)});return b}
 function lifeEl(P,isOpp){const w=el('button','life');w.id=isOpp?'oppLife':'myLife';const b=el('b',null,P.life);const bar=el('i','lbar');const f=el('i');f.style.width=Math.min(100,100*P.life/E.R.LIFE)+'%';if(P.life<=E.R.LIFE*0.3)w.classList.add('low');bar.append(f);
   w.append(el('small',null,'ライフ'),b,bar);w.setAttribute('aria-label',(isOpp?'相手':'あなた')+'のライフ '+P.life);
-  w.onclick=()=>{if(isOpp&&mode&&mode.k==='atk'&&E.attackTargets(g,H).includes('life')){mode.target='life';render(snap());return}caption((isOpp?'相手':'あなた')+'のライフ '+P.life+'。0になったら負け')};return w}
+  w.onclick=()=>{if(isOpp&&mode&&mode.k==='atk'&&E.attackTargets(g,H,mode&&mode.uid?E.find(g,mode.uid):null).includes('life')){mode.target='life';render(snap());return}caption((isOpp?'相手':'あなた')+'のライフ '+P.life+'。0になったら負け')};return w}
 function trapsEl(P,isOpp){const w=el('div','tz2 strow');w.id=isOpp?'oppST':'myST';w.append(el('span','stl',(isOpp?'相手の':'')+'トラップ '+P.st.length+'/'+E.R.ST+(P.seal?' ・ 封印中':'')));if(P.seal)w.classList.add('sealed');for(let i=0;i<E.R.ST;i++){const t=P.st[i];const z=el('button','z'+(isOpp?'':' me'));
   if(t){z.dataset.tuid=t.uid;z.append(backCard());if(!t.ready)z.classList.add('wait');z.onclick=()=>isOpp?caption('相手が伏せたトラップ'):cardSheet(t.id,null,t.ready?'伏せてあるトラップ。相手のターンに条件がそろうと、発動するか聞かれます':'伏せたばかり。次の相手のターンから使えます')}
   else z.onclick=()=>caption('トラップを伏せる場所');w.append(z)}return w}
@@ -2655,7 +2728,7 @@ const canStackAny=i=>E.units(g,H).some(m=>E.canEvolve(g,H,i,m.uid));
 
 /* ---------- input ---------- */
 function handTap(i){if(!g)return;const id=g.p[H].hand[i];if(!id)return;cardSheet(id,i)}
-function bindField(S){const live=liveMine();const T=mode&&mode.k==='atk'?E.attackTargets(g,H):[];
+function bindField(S){const live=liveMine();const T=mode&&mode.k==='atk'?E.attackTargets(g,H,E.find(g,mode.uid)):[];
   document.querySelectorAll('#field .lane').forEach(ln=>{const side=ln.dataset.side;const u=ln.querySelector('.u');
     if(!u){if(side==='m'&&mode&&mode.k==='slot'){ln.classList.add('pick');ln.onclick=()=>{const hi=mode.hi;mode=null;summonMine(hi,+ln.dataset.l)}}else ln.onclick=null;return}
     const m=g&&E.find(g,+u.dataset.uid);
@@ -2674,14 +2747,14 @@ function bindField(S){const live=liveMine();const T=mode&&mode.k==='atk'?E.attac
       ln.onclick=()=>{if(!m)return;if(isT&&mode.k==='atk'){mode.target=m.uid;render(snap());return}if(isT&&mode.k==='tgt'){const hi=mode.hi;mode=null;return castMine(hi,m.uid)}if(isT&&mode.k==='skill'){mode=null;return useSkill(m.uid)}unitSheet(m)}}});
   if(mode&&mode.k==='atk'&&T.includes('life'))$('oppLife').classList.add(mode.target==='life'?'aim':'tgt');
   if(mode&&mode.k==='tgt'&&/^trap/.test(BY[g.p[H].hand[mode.hi]].tgt)){const T2=E.targets(g,H,g.p[H].hand[mode.hi]);document.querySelectorAll('#oppST .z[data-tuid]').forEach(z=>{if(!T2.includes(+z.dataset.tuid))return;z.classList.add('tgt');z.onclick=()=>{const hi=mode.hi;mode=null;castMine(hi,+z.dataset.tuid)}})}}
-function pickAttacker(m){const T=E.attackTargets(g,H);mode={k:'atk',uid:m.uid,target:T.length===1?T[0]:null};render(snap())}
+function pickAttacker(m){const T=E.attackTargets(g,H,m);mode={k:'atk',uid:m.uid,target:T.length===1?T[0]:null};render(snap())}
 function hint(text,buttons){const h=$('hint');h.replaceChildren();if(!text){h.hidden=true;return}h.hidden=false;h.append(el('span','ht',text));(buttons||[]).forEach(b=>h.append(b));
   const v=$('midl');const gm=$('s-game').getBoundingClientRect();if(v){const r=v.getBoundingClientRect();h.style.top=(r.top-gm.top+r.height/2)+'px'}}
 const hbtn=(t,cls,fn)=>{const b=el('button','hb'+(cls?' '+cls:''),t);b.onclick=fn;return b};
 function renderHint(S){if(!g||S.cur!==H||S.over||busy||!mode)return hint('');
   const cancel=hbtn('やめる','sec',()=>{mode=null;render(snap())});
   if(mode.k==='atk'){const a=E.find(g,mode.uid);if(!a)return hint('');
-    if(mode.target==null)return hint(E.attackTargets(g,H).length?'攻撃する相手をタップ':'',[cancel]);
+    if(mode.target==null)return hint(E.attackTargets(g,H,a).length?'攻撃する相手をタップ':'',[cancel]);
     const p=AI.preview(g,H,a,mode.target);
     const t=p.kind==='direct'?'ライフに'+p.dmg+'ダメージ':(p.kill?'倒せる'+(p.dmg?'+'+p.dmg+'ダメージ':''):p.over?'根性で耐えられる':'倒せない')+(p.die?'。反撃で倒れる':'。反撃なし');
     return hint(t,[hbtn('攻撃する','',()=>doAttack(mode.uid,mode.target)),cancel])}
@@ -3102,6 +3175,7 @@ async function playEvents(evs){for(let i=0;i<evs.length;i++){const e=evs[i];LOG.
   case'discard':caption((e.who===H?'あなた':'相手')+'の手札「'+BY[e.id].n+'」が捨てられた');notice(e.id,e.who,'spell');await wait(500);break;
   case'stealSpell':caption((e.who===H?'あなた':'相手')+'が魔法「'+BY[e.id].n+'」を奪った');await wait(500);break;
   case'revenge':{const u=uidEl(e.uid),v=uidEl(e.on);if(u)stamp(u,'道連れ','vio');if(v){const [x,y]=ctr(v);ring(x,y,'#b48cff',50);sparks(x,y,'#b48cff',16,80)}caption('道連れ');await wait(450);break}
+  case'note':caption(e.s||'');await wait(650);break;
   case'fx':caption(e.k==='dos'?(e.who===H?'このターン、相手がキャラを出すたびにあなたが1枚引く':'このターン、あなたがキャラを出すたびに相手が1枚引く'):e.k==='noSpell'?(e.who===H?'このターン、相手は魔法を使えない':'このターン、あなたは魔法を使えない'):'');await wait(600);break;
   case'ramp':caption((e.who===H?'あなた':'相手')+'の熱量の最大値+'+e.n);await wait(400);break;
   case'summoning':notice(e.id,e.who,'sum');await wait(300);break;
@@ -3162,7 +3236,7 @@ function evLine(e){const who=e.who===H?'あなた':'相手',n=e.id&&BY[e.id]?BY[
     case'trap':return who+':トラップ「'+n+'」 ― '+CD.text(BY[e.id]);case'negated':return'「'+n+'」は無効になった';case'atk':return who+':「'+n+'」で'+(e.kind==='direct'?'ライフを':'')+'攻撃';
     case'stack':return who+':「'+n+'」を重ねて育てた';case'awake':return who+':「'+n+'」が覚醒 ― '+CD.awText(BY[e.id].aw);
     case'clash':return'ATK'+e.A+' 対 DEF'+e.D+' ・ 反撃 ATK'+e.B+' 対 DEF'+e.AD;case'die':return'「'+n+'」が倒れた';case'dmg':return(e.who===H?'あなた':'相手')+'に'+e.n+'ダメージ(残り'+e.left+')';case'heal':return(e.who===H?'あなた':'相手')+'のライフ+'+e.n;
-    case'coin':return'コイントス:'+(e.h?'表':'裏');case'steal':return who+':「'+n+'」を寝返らせた';case'bounce':return'「'+n+'」が手札に戻された';case'break':return'伏せトラップ「'+n+'」が壊された';case'seal':return(e.who===H?'あなた':'相手')+'のトラップが封印された';case'discard':return(e.who===H?'あなた':'相手')+'の手札「'+n+'」が捨てられた';case'stealSpell':return who+':魔法「'+n+'」を奪った';case'ramp':return who+':熱量の最大値+'+e.n;case'skill':return who+':必殺技「'+CD.SKILLS[e.k].n+'」';case'turn':return'― '+who+'のターン '+e.n+' ―';default:return null}}
+    case'coin':return'コイントス:'+(e.h?'表':'裏');case'steal':return who+':「'+n+'」を寝返らせた';case'bounce':return'「'+n+'」が手札に戻された';case'break':return'伏せトラップ「'+n+'」が壊された';case'note':return e.s||'';case'seal':return(e.who===H?'あなた':'相手')+'のトラップが封印された';case'discard':return(e.who===H?'あなた':'相手')+'の手札「'+n+'」が捨てられた';case'stealSpell':return who+':魔法「'+n+'」を奪った';case'ramp':return who+':熱量の最大値+'+e.n;case'skill':return who+':必殺技「'+CD.SKILLS[e.k].n+'」';case'turn':return'― '+who+'のターン '+e.n+' ―';default:return null}}
 function logSheet(){sheet((s,close)=>{s.append(el('h3',null,'これまでの流れ'));const L=el('div','log');LOG.slice(-90).reverse().forEach(e=>{const t=evLine(e);if(t)L.append(el('div',e.t==='turn'?'':e.who===H?'me':e.who===1-H?'op':'',t))});if(!L.childNodes.length)L.append(el('div',null,'まだ何も起きていません'));s.append(L);const x=el('button','btn sec','閉じる');x.onclick=close;s.append(x)})}
 const RULES_EXP=CD.SET1.length?[
   ['割り込み','【割り込み】の魔法は自分のターンには使えない。相手のターンが始まったとき、自分のターンで残しておいた熱量で使える。ふつうの魔法と同じように、相手のトラップで止められることがある。'],
