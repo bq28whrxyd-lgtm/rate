@@ -3382,7 +3382,7 @@ async function autoTurn(){let n=0;while(!g.over&&g.cur===H&&n++<40){const a=AI.n
   if(!g.over)endMyTurn()}
 function finish(){if(done)return;queueSpectator(g&&g.ev);done=true;stopTimer();busy=false;closeSheets();render(snap());const w=g.win===-1?'draw':g.win===H?'win':'lose';const e=g.ev.concat(LOG).reverse().find(x=>x.t==='end');
   if(NET){const sideOf=pi=>pi===0?NET.first:(NET.first==='a'?'b':'a');try{NET.claim({win:g.win===-1?'draw':sideOf(g.win),turns:g.turns})}catch(er){}}
-  if(HOST){try{HOST.result({w,me:g.p[H].life,cpu:g.p[1-H].life,deck:myDeck.name,cpuName:NET?NET.names[NET.side==='a'?'b':'a']:BY[cpuDeck.lead].n,pvp:!!NET})}catch(er){}}
+  if(HOST){try{HOST.result({w,me:g.p[H].life,cpu:g.p[1-H].life,deck:myDeck.name,cards:myDeck.name==='極のデモ'?[]:[myDeck.lead].concat(myDeck.cards||[]),cpuName:NET?NET.names[NET.side==='a'?'b':'a']:BY[cpuDeck.lead].n,pvp:!!NET})}catch(er){}}
   const o=el('div','ovl'),b=el('div','box');o.append(b);b.append(el('div',null,myDeck.name+' vs '+cpuDeck.name));
   b.append(el('h2',w==='lose'?'lose':'win',w==='win'?'勝利':w==='lose'?'敗北':'引き分け'),el('div','why',(e&&e.why==='time'?'時間切れ ・ ':'')+'あなたのライフ '+g.p[H].life+' ・ 相手のライフ '+g.p[1-H].life));
   if(NET){const r=el('button','btn','アプリに戻る');r.onclick=()=>HOST.close();const l=el('button','btn sec','流れを見る');l.onclick=logSheet;b.append(r,l)}
