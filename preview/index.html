@@ -7579,7 +7579,7 @@ const admInv={};
    - experience quest (5 opponents in a row): a clear gives XP 20/40/70/120 by grade, the first 3 clears a day
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
-const BUN_SRC='bunshin.html?v=11',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=12',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -7589,9 +7589,27 @@ const bunRoll=(id,p)=>hsh('bun'+id)%1000<Math.round(p*1000);
 function bunAtk(pid,before){const L=bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&(!before||l.t<before)).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 function bunDef(pid){const L=bunLogs.filter(l=>l.d===pid&&!l.w).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 const bunQPts=qs=>{let s=0;for(let n=1;n<=Math.min(100,qs||0);n++)s+=n%10===0?100:30;return s};
-function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900:0)}
+function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900:0)+raidPts(pid)}
+/* ===== 週末レイド (分身): one boss a week, Friday 5:00 to Monday 5:00 JST. Every try is a bunlog line {d:'xr<week>', s:damage}
+   (the 'x' start keeps older app versions counting it as a quest, not as a fight with a friend). The HP is the sum of everyone's
+   damage, at most RAID_DAY tries per person per day count. When it reaches 0, everyone who hit it gets 80 + up to 220 by their
+   share of the damage, and the top hitter +100 more ===== */
+const RAID_DAY=3,RAID_PER=3600,RAID_HITMAX=4000;/* a try deals about 350 (Lv20) to 1150 (Lv80): the HP is about 6 average tries per avatar */
+const bunR=l=>/^xr\d/.test(String(l.d));
+const raidStart=wk=>(7*wk+1)*864e5-4*3600000,raidEnd=wk=>raidStart(wk)+3*864e5;
+function raidMax(){return Math.max(3,players.filter(p=>!p.retired&&p.uid&&bunDocs[p.id]).length)*RAID_PER}
+let raidC={k:'',v:{}};
+function raidInfo(wk){const key=bunLogs.length+'|'+players.length+'|'+Object.keys(bunDocs).length;if(raidC.k!==key)raidC={k:key,v:{}};if(raidC.v[wk])return raidC.v[wk];
+  const id='xr'+wk,max=raidMax(),L=bunLogs.filter(l=>l.d===id&&(window.__raidDemo||l.t>=raidStart(wk)&&l.t<raidEnd(wk))).sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));
+  let sum=0,killer=null,killT=0;const by={},per={},hits=[];
+  for(const l of L){if(sum>=max)break;const k=l.a+'|'+dayNo(l.t);per[k]=(per[k]||0)+1;if(per[k]>RAID_DAY)continue;const d=Math.max(0,Math.min(Math.round(+l.s||0),RAID_HITMAX,max-sum));
+    sum+=d;by[l.a]=(by[l.a]||0)+d;hits.push({a:l.a,d,t:l.t});if(sum>=max){killer=l.a;killT=l.t}}
+  const rank=Object.keys(by).map(a=>({a,dmg:by[a]})).sort((x,y)=>y.dmg-x.dmg),dead=sum>=max,pts={};
+  if(dead)rank.forEach((x,i)=>{pts[x.a]=80+Math.min(220,Math.round(600*x.dmg/max))+(i===0?100:0)});
+  return raidC.v[wk]={id,wk,max,hp:Math.max(0,max-sum),dead,killer,killT,rank,hits,pts}}
+function raidPts(pid){let t=0;const W=new Set();for(const l of bunLogs)if(l.a===pid&&bunR(l))W.add(+String(l.d).slice(2));for(const wk of W)t+=raidInfo(wk).pts[pid]||0;return t}
 const bunXp=(pid,before)=>bunAtk(pid,before).reduce((a,l)=>a+(l.w?10:5),0)+bunXq(pid,before).reduce((a,l)=>a+BUN_XQ[l.d],0);
-function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c++;for(const l of bunLogs)if(l.a===pid&&bunQ(l)&&bunRoll(l.id,.1))c++;
+function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c++;for(const l of bunLogs)if(l.a===pid&&bunQ(l)&&!bunR(l)&&bunRoll(l.id,.1))c++;
   for(const m of matches)if((m.w===pid||m.l===pid)&&m.t>=BUN0&&bunRoll(m.id+pid,.4))c++;
   if(typeof tcgms!=='undefined'&&typeof tcgDone==='function')for(const d of tcgms)if((d.a===pid||d.b===pid)&&tcgDone(d)&&d.wa!=='draw'&&(+d.t||0)>=BUN0&&bunRoll(d.id+pid,.4))c++;return c+(window.__bunDemoChests||0)/* the demo panel can add some */}
 const bunLeft=pid=>Math.max(0,BUN_DAY-bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&dayNo(l.t)===dayNo(now())).length);
@@ -7617,6 +7635,12 @@ window.BUNSHINHOST={
   left:()=>bunLeft(myPlayer().id),
   log:d=>{const me=myPlayer();const o={a:me.id,d:String(d.d),w:d.w?1:0,s:+d.s||0,t:now()};return db.collection('bunlog').add(o).then(r=>{if(!bunLogs.some(x=>x.id===r.id))bunLogs.push({id:r.id,...o});return r.id})},
   rollChest:(id,p)=>bunRoll(id,p),
+  raid:()=>{const me=myPlayer().id,t=now(),wk=weekNo(t),open=!!window.__raidDemo||((dayNo(t)+3)%7)>=4,cw=open?wk:wk-1,r=raidInfo(open?wk:wk),nm=a=>(players.find(p=>p.id===a)||{}).name||'だれか';
+    const used=bunLogs.filter(l=>l.a===me&&l.d===r.id&&dayNo(l.t)===dayNo(t)).length,last=raidInfo(wk-1);
+    return {open,wk,boss:wk,start:open?raidStart(wk):raidStart(wk),end:raidEnd(wk),max:r.max,hp:r.hp,dead:r.dead,killer:r.killer?nm(r.killer):'',me:nm(me),left:Math.max(0,RAID_DAY-used),
+      rank:r.rank.map(x=>({name:nm(x.a),dmg:x.dmg,me:x.a===me})),feed:r.hits.slice(-5).reverse().map(h=>({name:nm(h.a),dmg:h.d,ago:bunAgo(h.t)})),myPts:r.pts[me]||0,
+      last:last.rank.length?{name:'',dead:last.dead,myPts:last.pts[me]||0}:null}},
+  raidLog:dmg=>{const me=myPlayer().id,wk=weekNo(now());return BUNSHINHOST.log({d:'xr'+wk,w:0,s:Math.max(0,Math.round(+dmg||0))}).then(()=>{raidC.k='';const q=BUNSHINHOST.raid();q.killer=q.killer;return q})},
   chests:()=>bunChests(myPlayer().id),
   /* experience quest: clears per grade (for unlocking) and today's clears (the first 3 a day give XP) */
   xq:()=>{const me=myPlayer().id,c={},td=dayNo(now());let today=0;for(const l of bunLogs)if(l.a===me&&l.w&&BUN_XQ[l.d]){const k=l.d.slice(1);c[k]=(c[k]||0)+1;if(dayNo(l.t)===td)today++}return {c,today,day:BUN_XQDAY,xp:BUN_XQ}},
@@ -7628,7 +7652,7 @@ window.BUNSHINHOST={
 function bunOpen(){const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if(!bunReady&&db){toast('分身のデータを読み込み中です。少し待ってからもう一度');bunWatch();return}if($('bunw')||$('tcgw'))return;const o=el('div','tcgw');o.id='bunw';const f=el('iframe');f.src=BUN_SRC;f.title='分身アバターバトル';o.append(f);document.body.append(o);document.body.classList.add('tcgon');try{localStorage.setItem('bunseen_'+me.id,String(now()))}catch(e){}bunBadge()}
 function bunClose(){bunCb=null;const o=$('bunw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');queueRender()}
 /* a dot on the home button when someone attacked you since you last looked */
-function bunBadge(){const me=myPlayer(),b=document.querySelector('.lb-bun');if(!b)return;let seen=0;try{seen=+localStorage.getItem('bunseen_'+(me&&me.id))||0}catch(e){}b.textContent=me&&bunLogs.some(l=>l.d===me.id&&l.t>seen)?'1':''}
+function bunBadge(){const me=myPlayer(),b=document.querySelector('.lb-bun');if(!b)return;let seen=0;try{seen=+localStorage.getItem('bunseen_'+(me&&me.id))||0}catch(e){}let tx=me&&bunLogs.some(l=>l.d===me.id&&l.t>seen)?'1':'';if(!tx&&me){try{const r=BUNSHINHOST.raid();if(r.open&&!r.dead&&r.left>=RAID_DAY)tx='!'}catch(e){}}b.textContent=tx}
 function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadge,20000);setTimeout(bunBadge,2500);
   db.collection('bunshin').onSnapshot(s=>{bunReady=true;bunDocs={};s.docs.forEach(d=>{bunDocs[d.id]=d.data()});queueRender();bunCb&&bunCb()},()=>{});
   dbSynced('bunlog','t').onSnapshot(s=>{bunLogs=s.docs.map(d=>({id:d.id,...d.data()}));queueRender();bunBadge();bunCb&&bunCb()},()=>{})}

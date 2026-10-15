@@ -152,6 +152,23 @@ html.inapp .protoonly{display:none!important}html.inapp .tabs{grid-template-colu
 .op canvas{width:44px;height:44px;image-rendering:pixelated;border-radius:8px;background:#1f3a22}
 .op b{font:400 15px/1.3 var(--px)}
 .op small{display:block;font:500 11.5px/1.4 var(--jp);color:var(--mut)}
+.raid{display:grid;gap:10px}
+.rbox{position:relative;overflow:hidden;border-radius:16px;padding:14px;background:radial-gradient(120% 90% at 85% 0%,var(--rc,#45246a) 0%,transparent 60%),linear-gradient(180deg,#140c1e,#0a0710);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 10px 30px rgba(0,0,0,.35);color:#f4eefc}
+.rbox.dead{--rc:#7a5a12}
+.rtop{display:flex;gap:12px;align-items:center}
+.rtop canvas{width:72px;height:72px;image-rendering:pixelated;border-radius:12px;background:#0b0712;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);flex:none}
+.rtop div{min-width:0}.rtop b{display:block;font-size:17px;font-weight:900;letter-spacing:.02em;line-height:1.3}.rtop small{display:block;font-size:11px;opacity:.75}
+.rhp{position:relative;margin-top:12px;height:20px;border-radius:10px;background:rgba(255,255,255,.08);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.rhp i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#ff3d6e,#ff9a3c);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.rbox.dead .rhp i{background:linear-gradient(90deg,#ffd36b,#fff3c4)}
+.rhp span{position:relative;z-index:1;display:block;text-align:center;font:400 12px/20px var(--px);color:#fff;text-shadow:0 1px 0 #000}
+.rmeta{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:12px;opacity:.85;flex-wrap:wrap}
+.rrank{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:5px}
+.rrank li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:6px;align-items:center;font-size:12px}
+.rrank li.me{color:#ffd36b;font-weight:700}.rrank li em{font-style:normal;font:400 11px var(--px)}
+.rrank li i{grid-column:2/4;height:4px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}.rrank li i u{display:block;height:100%;background:#ff7a8a}
+.rfeed{margin:8px 0 0;padding:0;list-style:none;font-size:11px;opacity:.75;display:grid;gap:2px}
+.rbox .btn{margin-top:12px;width:100%}
 .xqg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .xqc{position:relative;display:flex;flex-direction:column;gap:3px;padding:12px 12px 10px;border-radius:14px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);text-align:left;overflow:hidden;min-width:0}
 .xqc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--xc)}
@@ -246,6 +263,7 @@ html.inapp .protoonly{display:none!important}html.inapp .tabs{grid-template-colu
 
   <section class="pane" id="p-fight" hidden>
     <div class="tapguide"><b>必殺技はぶつかり合い</b><span>どちらかが必殺技を出すとバトルが止まり、ゲージが左右に動きます。画面をタップして止め、<em class="r">赤い線(相手の数字)</em>より右で止めれば勝ち。自分の必殺技なら <em class="g">1.1倍</em>(いちばん右の白いMAXなら1.25倍)、相手の必殺技なら <em class="c">0.85倍</em>に受け止めます(MAXなら0.7倍)。負けると自分の技は0.9倍、相手の技は1.05倍になります。先のステージほど相手の数字が高く、ゲージも速くなります。パソコンはスペースキー</span></div>
+    <div class="sec hostonly" id="raidsec"><h2>週末レイド<small id="raidn"></small></h2><div class="raid" id="raid"></div></div>
     <div class="sec"><h2>クエスト</h2><div class="quest" id="quest"></div></div>
     <div class="sec"><h2>経験値クエスト<small id="xqn"></small></h2><div class="xq" id="xq"></div></div>
     <div class="sec"><h2>仲間と戦う</h2><div class="opps" id="opps"></div></div>
@@ -592,11 +610,11 @@ const CLM={me:{cm:1.25,cw:1.1,cl:.9},op:{cm:.7,cw:.85,cl:1.05}};
 const MELEE={fist:1,sword:1,spear:1,hammer:1,penlight:1};
 const SPDUR={fist:1.7,sword:2.0,staff:2.0,bow:1.9,spear:1.8,hammer:2.0,penlight:2.1};
 const SPHIT={fist:[.8],sword:[.75,.95,1.15],staff:[1.15],bow:[.78,.93,1.08],spear:[.72],hammer:[.85],penlight:[.7,.85,1,1.15]};
-function simulate(A,B,seed,opt){opt=opt||{};const r=rngOf(seed),cond=[0,1].map(()=>1+(r()*2-1)*.15),F=[A,B],max=[A.st.hp,B.st.hp],hp=[opt.hp0!=null?Math.max(1,Math.min(max[0],Math.round(opt.hp0))):max[0],max[1]],hs=[...hp],g=[0,0],sp=[0,0],dm=[1,1],ev=[],AB=[abOf(A),abOf(B)];
+function simulate(A,B,seed,opt){opt=opt||{};const r=rngOf(seed),cond=[0,1].map(()=>1+(r()*2-1)*.15),F=[A,B],max=[A.st.hp,B.st.hp],hp=[opt.hp0!=null?Math.max(1,Math.min(max[0],Math.round(opt.hp0))):max[0],opt.hp1!=null?Math.max(1,Math.min(max[1],Math.round(opt.hp1))):max[1]],hs=[...hp],g=[0,0],sp=[0,0],dm=[1,1],ev=[],AB=[abOf(A),abOf(B)];
   const hit=(i,j,pow,o={})=>{const a=F[i].st,d=F[j].st;if(!o.sure){const ev2=clamp(.07+(d.spd-a.spd)*.003,.03,.25);if(r()<ev2)return {miss:1}}
     const def=d.def*dm[j]*(1-(o.pierce||0));let v=pow*.7*(.6+r()*.8)*60/(60+def)*cond[i];const cr=r()<.07+.12*a.spd/(a.spd+d.spd)+(o.critUp||0);if(cr)v*=1.8;return {dmg:Math.max(1,Math.round(v)),crit:cr}};
   if(opt.demo){g[0]=100;g[1]=0;if(opt.demo==='sp')sp[0]=100}
-  for(let n=0;n<(opt.demo?1:60)&&hp[0]>0&&hp[1]>0;n++){while(g[0]<100&&g[1]<100){g[0]+=F[0].st.spd;g[1]+=F[1].st.spd}
+  for(let n=0;n<(opt.demo?1:opt.turns||60)&&hp[0]>0&&hp[1]>0;n++){while(g[0]<100&&g[1]<100){g[0]+=F[0].st.spd;g[1]+=F[1].st.spd}
     let i=g[0]>g[1]?0:g[1]>g[0]?1:(r()<.5?0:1);g[i]-=100;const j=1-i,a=F[i].st,wt=F[i].wt,special=sp[i]>=100,k=((SPK[wt]||{})[F[i].wr||'R'])||1,ab=AB[i],cu=ab&&wt==='bow'?ab.val:0;let hits=[],heal=0,abn=null,stun=0;
     if(special){sp[i]=0;
       if(wt==='fist')hits=[hit(i,j,a.atk*1.7*k)];
@@ -1013,7 +1031,7 @@ function scene(T){G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;
     if(e){const u=T-e.t0,tx=base[1-k],hx=x,hy=y;for(const h of SPHIT[e.wt]){if(u>=h-.18&&u<h-.06){const p=eo((u-h+.18)/.12);x=lerp(hx,tx,p);y=lerp(hy,GY-200,p)}else if(u>=h-.06&&u<h){x=tx;y=lerp(GY-200,GY-128,ei((u-h+.06)/.06))}else if(u>=h&&u<h+.07){x=tx;y=GY-128}else if(u>=h+.07&&u<h+.3){const p=eio((u-h-.07)/.23);x=lerp(tx,hx,p);y=lerp(GY-128,hy,p)}}}
     return {x,y}};
   const twinA=k=>T>=R.koT&&k!==R.win?1-clamp((T-R.koT)/.4,0,1):1;
-  for(const k of order){const tt=T+k*.5;const ps=fx.pose[k],still=ps==='p1'||ps==='p5';const km=F[k].wr==='KMR'&&F[k].wt!=='spear';if(km){swirl(pos[k].x,T,false,k*1.3,twinA(k),F[k].wt==='staff'?'ECL':F[k].wt==='spear'?'CRIM':F[k].wt==='bow'?'AZ':'KMR');const tp=twinAt(k);drawTwin(F[k],tp.x,tp.y,T,twinA(k),tp.hot,k===1)}drawFighter(F[k],pos[k].x,pos[k].y,{pose:ps,flip:k===0,breath:still?Math.sin(tt*2.8)*.5+.5:0,blink:still&&(tt%3.1)<.12,flash:fx.flash[k],alpha:fx.alpha[k],sink:fx.sink[k],t:T,seed:k*.5,burn:fx.burn[k],hot:fx.hot[k]});if(km)swirl(pos[k].x,T,true,k*1.3,twinA(k))}
+  for(const k of order){const tt=T+k*.5;const ps=fx.pose[k],still=ps==='p1'||ps==='p5';const km=F[k].wr==='KMR'&&F[k].wt!=='spear';if(km){swirl(pos[k].x,T,false,k*1.3,twinA(k),F[k].wt==='staff'?'ECL':F[k].wt==='spear'?'CRIM':F[k].wt==='bow'?'AZ':'KMR');const tp=twinAt(k);drawTwin(F[k],tp.x,tp.y,T,twinA(k),tp.hot,k===1)}drawFighter(F[k],pos[k].x,pos[k].y,{pose:ps,flip:k===0,breath:still?Math.sin(tt*2.8)*.5+.5:0,blink:still&&(tt%3.1)<.12,flash:fx.flash[k],alpha:fx.alpha[k],sink:fx.sink[k],t:T,seed:k*.5,burn:fx.burn[k]||(k===1&&BT.raid?6:0),burnPal:k===1&&BT.raid&&!fx.burn[k]?RAIDB[BT.raid.boss%RAIDB.length].pal:undefined,hot:fx.hot[k]});if(km)swirl(pos[k].x,T,true,k*1.3,twinA(k))}
   for(const f of after)f();
   /* hit sparks: a drawn star burst on every hit (15 frames a second), plus a few bits by the attacker's tier */
   for(const q of R.hitsAt){const v=T-q.t;if(v<0||v>.45||q.h.miss)continue;const j=q.j,wr=F[1-j].wr||'R',rr=rngOf(q.t*1000|0),cx=Math.round(pos[j].x+(rr()-.5)*14),cy=GY-112+Math.round((rr()-.5)*14);
@@ -1537,6 +1555,36 @@ function renderQuest(){const box=$('quest');if(!box)return;const n=Math.min(QMAX
   const nx=mk('p','note','次のボス:ステージ'+(Math.ceil((n)/10)*10)+'。初めてクリアすると +'+(o.boss?100:30)+'pt。宝箱は勝ち負けに関係なく10%。');box.append(nx);
   const b=mk('button','btn main','ステージ'+n+'に挑戦する');b.type='button';b.onclick=()=>startBattle(o);box.append(b);
   if(S.qs>=1){const p0=questOpp(Math.min(QMAX,S.qs)),b2=mk('button','btn','ステージ'+p0.stage+'(クリア済み)にもう一度挑戦');b2.type='button';b2.onclick=()=>startBattle(p0);box.append(b2,mk('p','note','クリア済みのステージは報酬なし・宝箱10%。何回でも挑戦できます。クエストのバトルはスキップできません。'))}}
+/* ---------- 週末レイド: one shared boss a week (Fri 5:00 - Mon 5:00), everyone chips at the same HP, 3 tries a day.
+   Each try is a fight of at most RAID_TURNS actions (or until you fall); the damage you dealt is logged and added up by the app.
+   When the HP reaches 0 everyone who hit it gets points (more for more damage, the top hitter +100). Bosses rotate weekly. ---------- */
+const RAIDB=[{n:'推し活の暴君',w:0,pal:'KMR',hc:'黒',ec:'紫',t:'剣の暴君。全部の推しを独り占めしようとする'},
+  {n:'炎上の魔導王',w:1,pal:'CRIM',hc:'赤',ec:'金',t:'杖の魔導王。燃え広がるほど強くなる'},
+  {n:'限定版を狩る竜騎士',w:2,pal:'ECL',hc:'銀',ec:'赤',t:'槍の竜騎士。限定版を根こそぎ持っていく'},
+  {n:'沼へ誘う射手',w:3,pal:'AZ',hc:'青',ec:'青',t:'弓の射手。撃たれた者は沼から抜け出せない'}];
+const RAID_TURNS=36,RAID_OFF=.5;/* tuned by simulation: Lv20 SR ~350 damage a try (falls early), Lv50 KMR+20 ~750, Lv80 KMR+50 ~1150 (lasts all 36 actions) */
+function raidOpp(r){const b=RAIDB[r.boss%RAIDB.length],w=QW[b.w];
+  return {name:b.n,lv:50,look:{g:'m',hs:0,hc:b.hc,ec:b.ec},eq:[[w[1]+'KMR','KMR',15],[['yga','sma','tca'][b.w%3],'UR',15],[['ygx','smx','tcx'][b.w%3],'UR',15]],style:w[2],raid:r}}
+const fmtLeft=ms=>{const m=Math.max(0,Math.floor(ms/60000)),d=Math.floor(m/1440),h=Math.floor(m%1440/60);return d?d+'日'+h+'時間':h?h+'時間'+(m%60)+'分':(m%60)+'分'};
+function renderRaid(){const box=$('raid');if(!box||!HOST||!HOST.raid)return;const r=HOST.raid();box.replaceChildren();
+  const b=RAIDB[r.boss%RAIDB.length],card=mk('div','rbox'+(r.dead?' dead':''));card.style.setProperty('--rc',FLAME[b.pal][2]);
+  const top=mk('div','rtop'),c=document.createElement('canvas');c.width=36;c.height=36;
+  ready.then(()=>{const f=fighterOpp(raidOpp(r)),s=sprite(f.look,null,f),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle='#0b0712';g.fillRect(0,0,36,36);g.drawImage(s.base,Math.round(s.cx-18),Math.max(0,s.d.top-3),36,36,0,0,36,36)});
+  const tx=mk('div');tx.innerHTML='<small>'+(r.open?'開催中 ・ 残り '+fmtLeft(r.end-Date.now()):'次の出現まで '+fmtLeft(r.start-Date.now()))+'</small><b>'+b.n+'</b><small>'+b.t+'</small>';top.append(c,tx);card.append(top);
+  const hp=mk('div','rhp');hp.innerHTML='<i style="width:'+(r.dead?100:r.hp/r.max*100).toFixed(2)+'%"></i><span>'+(r.dead?'討伐成功!':'HP '+r.hp.toLocaleString()+' / '+r.max.toLocaleString())+'</span>';card.append(hp);
+  const meta=mk('div','rmeta');meta.innerHTML='<span>参加 '+r.rank.length+'人</span><span>'+(r.open&&!r.dead?'今日あと '+r.left+' 回':r.dead?(r.killer?'とどめ:'+r.killer:''):'')+'</span>';card.append(meta);
+  if(r.rank.length){const ol=mk('ol','rrank'),top1=r.rank[0].dmg||1;r.rank.slice(0,6).forEach((x,i)=>{const li=mk('li',x.me?'me':'');li.innerHTML='<em>'+(i+1)+'</em><span>'+x.name+(i===0&&r.dead?' MVP':'')+'</span><em>'+x.dmg.toLocaleString()+'</em><i><u style="width:'+(x.dmg/top1*100).toFixed(1)+'%"></u></i>';ol.append(li)});card.append(ol)}
+  if(r.feed.length){const fd=mk('ul','rfeed');r.feed.slice(0,3).forEach(x=>fd.append(mk('li',null,x.ago+' '+x.name+' が '+x.dmg.toLocaleString()+' ダメージ')));card.append(fd)}
+  if(r.open&&!r.dead){const bt=mk('button','btn main',r.left>0?'挑む(今日あと'+r.left+'回)':'今日の3回は終わりました(朝5時に戻ります)');bt.type='button';bt.disabled=r.left<=0;bt.onclick=()=>{if(playing)return;const q=HOST.raid();if(!q.open||q.dead||q.left<=0){renderRaid();return}startBattle(raidOpp(q))};card.append(bt)}
+  box.append(card);
+  box.append(mk('p','note',r.dead?(r.myPts?'あなたの報酬 +'+r.myPts+'pt(倒した時点で入っています)。次のボスは来週の金曜朝5時に出ます。':'今回は参加していないので報酬はありません。次は来週の金曜朝5時から。')
+    :r.open?'毎週金曜の朝5時から月曜の朝5時まで。1日3回、1回'+RAID_TURNS+'手まで戦って削ったHPがみんなのぶんと合わさります。倒せたら参加者全員にポイント(削った量が多いほど多く、一番削った人は+100pt)。'
+    :'毎週金曜の朝5時から3日間、みんなで1体のボスを削ります。'+(r.last?'先週の'+r.last.name+'は'+(r.last.dead?'討伐成功':'倒しきれませんでした')+(r.last.myPts?'(あなた +'+r.last.myPts+'pt)':'')+'。':'')));
+  $('raidn').textContent=r.open?(r.dead?'討伐済み':'開催中'):'金曜朝5時から'}
+function raidFinish(){const R=BT.res,r=BT.raid,dmg=Math.max(0,R.hs[1]-Math.max(0,R.hp[1]));$('ctl').hidden=true;
+  $('result').className='result on';$('resT').textContent=dmg.toLocaleString();$('resS').textContent='ダメージ。記録中…';
+  HOST.raidLog(dmg).then(q=>{$('resS').textContent='ダメージ。'+(q.dead?(q.killer===q.me?'とどめを刺した!ボスを倒しました。':'ボスを倒しました!')+'報酬 +'+q.myPts+'pt':'ボスの残りHP '+q.hp.toLocaleString()+'('+(q.hp/q.max*100).toFixed(1)+'%)。今日あと'+q.left+'回')})
+    .catch(()=>{$('resS').textContent='記録できませんでした。通信を確かめてからもう一度挑んでください'}).finally(()=>{renderHostBar();renderRaid()})}
 /* ---------- experience quest: four grades, five opponents in a row. HP carries over with half of the max back; beating all five gives account XP (20/40/70/120, the first 3 clears a day). A grade opens once the one before it is cleared ---------- */
 const XQ=[null,
   {n:'初級',lv:[16,18,20,23,27],wt:['SR','SR','SR','UR','UR'],ar:'R',e:[5,6,7,8,10],mul:[.93,.93,.93,.93,.97],boss:'師範代ミナ',xp:20},
@@ -1568,7 +1616,7 @@ function xqFinish(won){const o=BT.xq,R=BT.res,g=XQ[o.xq];$('ctl').hidden=true;
 function oppCard(o,i){const f=fighterOpp(o);const b=mk('button','op'+(S.opp===i?' on':''));b.type='button';const c=document.createElement('canvas');c.width=30;c.height=30;
   ready.then(()=>{const s=sprite(o.look),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle='#22402a';g.fillRect(0,0,30,30);g.drawImage(s.base,Math.round(s.cx-15),Math.max(0,s.d.top-2),30,30,0,0,30,30)});
   const w=f.wt;b.append(c);b.insertAdjacentHTML('beforeend','<div><b>'+o.name+'</b><small>'+WT[w].n+'・必殺技 '+spOf(w,f.wr).sp+'</small></div><em>Lv'+o.lv+'<br>戦闘力 '+power(f.st)+'</em>');b.onclick=()=>{S.opp=i;save();renderFight()};return b}
-function renderFight(){const box=$('opps');box.replaceChildren(...OPP.map(oppCard));renderQuest();renderXq();if(HOST){const n=HOST.left();$('go').textContent=n>0?'選んだ仲間と対戦する(今日あと'+n+'回)':'今日の仲間との対戦は終わり(朝5時に戻る)';$('go').disabled=n<=0}}
+function renderFight(){const box=$('opps');box.replaceChildren(...OPP.map(oppCard));renderRaid();renderQuest();renderXq();if(HOST){const n=HOST.left();$('go').textContent=n>0?'選んだ仲間と対戦する(今日あと'+n+'回)':'今日の仲間との対戦は終わり(朝5時に戻る)';$('go').disabled=n<=0}}
 function battleLog(res,A,B){const L=$('log');L.replaceChildren();const nm=[A.name,B.name];for(const e of res.ev){const dm=e.hits.filter(h=>!h.miss).reduce((a,h)=>a+h.dmg,0),cr=e.hits.some(h=>h.crit),ms=e.hits.every(h=>h.miss);
     const li=mk('li',e.special?'k':'',nm[e.who]+(e.special?'の必殺技「'+spOf(e.wt,e.wr).sp+'」':'の攻撃')+' → '+(ms?'かわされた':dm+'ダメージ'+(cr?'(会心)':''))+(e.heal?'、'+e.heal+'回復':'')+(e.ab?'(能力「'+e.ab+'」)':'')+(e.tap?({cm:['【ぶつかり合い MAX 1.25倍】','【MAXで受け止めた 0.7倍】'],cw:['【ぶつかり合い勝ち 1.1倍】','【受け止めた 0.85倍】'],cl:['【ぶつかり合い負け 0.9倍】','【押し負けた 1.05倍】'],p:['【PERFECT 1.4倍】','【PARRY 0.2倍】'],g:['【GOOD 1.2倍】','【GUARD 0.6倍】']}[e.tap]||['',''])[e.who]:''));L.append(li)}
   L.append(mk('li','k',(res.win===0?'あなたの勝ち':'あなたの負け')));}
@@ -1615,9 +1663,10 @@ function clashFx(){const c=BT&&BT.cl;if(!c)return;const now=performance.now(),u=
   if(c.ph==='show'){const w=(now-c.ts)/1000,L=c.g==='cm'?'MAX':c.g==='cw'?(mine?'WIN':'HOLD'):(mine?'LOSE':'HIT'),col=c.g==='cl'?'#c9c2d8':acc,k=w<.12?1.6-w/.12*.6:1;
     G.save();G.globalAlpha=Math.min(1,w*6);ptext(G,L,190,204,col,Math.round(5*k),1);G.restore();
     if(c.g!=='cl'&&w<.35){G.save();G.globalAlpha=1-w/.35;G.fillStyle=acc;G.fillRect(0,y0+h/2-1,W,2);G.restore()}}}
-function startBattle(qo,opt){const cpu=!!(qo&&(qo.stage||qo.xq));if(!(qo&&qo.xq))XR=null;if(HOST&&!cpu){if(!OPP[S.opp])return;if(HOST.left()<=0){toastB('今日の仲間との対戦は5回とも終わりました(朝5時に戻ります)');return}}const seed=(Date.now()&0xffffff),A=fighterMe(),B=fighterOpp(cpu?qo:OPP[S.opp]);const res=timeline(simulate(A,B,seed,opt&&opt.hp0!=null?{hp0:opt.hp0}:{}));BT={res,F:[A,B],quest:qo&&qo.stage?qo:null,xq:qo&&qo.xq?qo:null,seed,opp:cpu?null:OPP[S.opp],opt:opt&&opt.hp0!=null?{hp0:opt.hp0}:{},inp:{},tapAt:{}};$('bskip').hidden=cpu;T=RM?res.endReal:0;playing=true;$('ctl').hidden=false;$('result').className='result';
+function startBattle(qo,opt){const cpu=!!(qo&&(qo.stage||qo.xq||qo.raid));if(!(qo&&qo.xq))XR=null;if(HOST&&!cpu){if(!OPP[S.opp])return;if(HOST.left()<=0){toastB('今日の仲間との対戦は5回とも終わりました(朝5時に戻ります)');return}}const seed=(Date.now()&0xffffff),A=fighterMe(),B=fighterOpp(cpu?qo:OPP[S.opp]);if(qo&&qo.raid){B.st.hp=qo.raid.max;B.st.atk=Math.round(B.st.atk*RAID_OFF);B.st.mag=Math.round(B.st.mag*RAID_OFF)}const sop=qo&&qo.raid?{hp1:qo.raid.hp,turns:RAID_TURNS}:opt&&opt.hp0!=null?{hp0:opt.hp0}:{};const res=timeline(simulate(A,B,seed,sop));BT={res,F:[A,B],quest:qo&&qo.stage?qo:null,xq:qo&&qo.xq?qo:null,raid:qo&&qo.raid?qo.raid:null,seed,opp:cpu?null:OPP[S.opp],opt:opt&&opt.hp0!=null?{hp0:opt.hp0}:{},inp:{},tapAt:{}};$('bskip').hidden=cpu;T=RM?res.endReal:0;playing=true;$('ctl').hidden=false;$('result').className='result';
   battleLog(res,A,B);$('stage').scrollIntoView({behavior:RM?'auto':'smooth',block:'nearest'})}
 function finish(){const R=BT.res,won=R.win===0;if(R.demo){const el=$('result');el.className='result on';$('resT').textContent='';$('resS').textContent='タップで閉じる';$('ctl').hidden=true;return}const el=$('result');el.className='result on'+(won?'':' lose');$('resT').textContent=won?'WIN':'LOSE';
+  if(BT.raid){raidFinish();return}
   if(BT.xq){xqFinish(won);return}
   const qo=BT.quest,cp=qo?QCHEST_P:CHEST_P;if(HOST){finishHost(won,qo,cp);$('ctl').hidden=true;return}const got=Math.random()<cp;let qt='';if(qo){if(won&&qo.stage>S.qs){S.qs=qo.stage;save();renderQuest();qt='ステージ'+qo.stage+' クリア!初回報酬 +'+(qo.boss?100:30)+'pt。'}else if(won)qt='ステージ'+qo.stage+' クリア。';else qt='ステージ'+qo.stage+'、もう一度挑戦できます。'}$('resS').textContent=qt+(got?'宝箱を手に入れた('+Math.round(cp*100)+'%)':'宝箱は出なかった('+Math.round(cp*100)+'%)');$('ctl').hidden=true}
 function endBattle(){BT=null;playing=false;$('result').className='result';$('ctl').hidden=true;T=0}
