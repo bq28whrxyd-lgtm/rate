@@ -113,4 +113,3 @@ exports.pushUpdate = onDocumentWritten('config/update', async ev => {
   await send(null, 'give', {title: a.title || 'アップデート', body: a.body || '新しいバージョンになりました。アプリを開いて確認してね', go: 'home', tag: 'upd' + a.v});
   await ev.data.after.ref.update({sent: true}).catch(() => {});
 });
-/* deploy trigger 2 */
