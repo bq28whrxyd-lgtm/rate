@@ -1,0 +1,53 @@
+# Puts the notification functions (functions/) into Firebase (project kimoota-15777) whenever they change on main.
+# The key is the repository secret FIREBASE_SA; it is never printed.
+# Safety: the functions are deployed to the region they already run in (read from Firebase first); if that cannot be read, nothing is deployed.
+# The result is written to the branch "functions-status" (status.txt).
+name: Functions
+on:
+  push:
+    branches: [main]
+    paths: ['functions/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: functions
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Deploy functions
+        id: deploy
+        env:
+          SA: ${{ secrets.FIREBASE_SA }}
+        run: |
+          set -o pipefail
+          if [ -z "$SA" ]; then echo "FIREBASE_SA secret is missing" | tee "$RUNNER_TEMP/log.txt"; exit 1; fi
+          printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx -y firebase-tools@14 functions:list --project kimoota-15777 --json > "$RUNNER_TEMP/fl.json" 2>>"$RUNNER_TEMP/log.txt" || true
+          R=$(node -e "try{const j=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));const L=j.result||[];const f=L.find(x=>/pushTest/.test(x.id||x.name||''));console.log(f?f.region:'')}catch(e){console.log('')}" "$RUNNER_TEMP/fl.json")
+          echo "region: ${R:-unknown}" | tee -a "$RUNNER_TEMP/log.txt"
+          if [ -z "$R" ]; then echo "existing functions not found: not deploying (run push/setup.sh in Cloud Shell instead)" | tee -a "$RUNNER_TEMP/log.txt"; rm -f "$RUNNER_TEMP/sa.json"; exit 1; fi
+          echo "$R" > functions/region.txt
+          (cd functions && npm install --no-audit --no-fund --loglevel=error)
+          npx -y firebase-tools@14 deploy --only functions --project kimoota-15777 --non-interactive --force 2>&1 | tee -a "$RUNNER_TEMP/log.txt"
+          rm -f "$RUNNER_TEMP/sa.json"
+      - name: Report result
+        if: always()
+        env:
+          RESULT: ${{ steps.deploy.outcome }}
+          TOKEN: ${{ github.token }}
+        run: |
+          rm -f "$RUNNER_TEMP/sa.json"
+          mkdir -p "$RUNNER_TEMP/rs" && cd "$RUNNER_TEMP/rs"
+          git init -q -b functions-status
+          { echo "result: $RESULT"; echo "commit: $GITHUB_SHA"; echo "time: $(date -u +%Y-%m-%dT%H:%M:%SZ)"; echo; tail -n 40 "$RUNNER_TEMP/log.txt" 2>/dev/null; } > status.txt
+          git add status.txt
+          git -c user.name=functions-bot -c user.email=functions-bot@users.noreply.github.com commit -qm "$RESULT $GITHUB_SHA"
+          git push -fq "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:functions-status
