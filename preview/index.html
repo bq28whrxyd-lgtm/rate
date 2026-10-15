@@ -5310,6 +5310,23 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .chest.kch .kch-ct .coin{flex:none}
 .chest.kch.big .kch-n b{filter:drop-shadow(0 6px 26px rgba(255,196,70,.5))}
 @media (prefers-reduced-motion: reduce){.chest.kch .kch-tk b{animation:none}}
+/* ===== v133 通常パック capsule film (kcap) ===== */
+.kgo.kg-cap{background:#000}
+.kgo.kg-cap .kg-bg{z-index:3;background:none}
+.kgo.kg-cap .kg-au,.kgo.kg-cap .kg-floor{display:none}
+.kgo.kg-cap .kg-tint{background:radial-gradient(60% 46% at 50% 46%,color-mix(in srgb,var(--tc) 32%,transparent),transparent 72%)}
+.kcap-fr{position:absolute;top:0;bottom:0;left:50%;height:100%;aspect-ratio:9/16;transform:translateX(-50%);z-index:1;background:#000;will-change:transform;pointer-events:none}
+.kcap-fr video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:#000}
+.kcap-fr .kcap-vb{opacity:0}
+.kcap-fr video[hidden]{display:none}
+.kcap-cut{position:absolute;left:50%;top:27%;z-index:6;transform:translate(-50%,-50%) rotate(-6deg);will-change:transform;display:flex;flex-direction:column;align-items:center;gap:0;pointer-events:none;opacity:0;
+  font-family:var(--x-n,"Inter Tight","Geist"),var(--x-f,-apple-system,"Hiragino Sans"),sans-serif;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35)) drop-shadow(0 0 18px rgba(255,220,120,.35))}
+.kcap-cut[hidden]{display:none}
+.kcap-cut b{font-size:clamp(64px,22vw,118px);font-weight:900;line-height:.9;letter-spacing:-.03em;background:linear-gradient(180deg,#fff8e0 0%,#f6dc92 45%,#d9a93f 60%,#fff2c4 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kcap-cut i{font-style:normal;font-size:clamp(26px,8vw,40px);font-weight:900;letter-spacing:.22em;margin-top:4px;padding-left:.22em;background:linear-gradient(180deg,#fff8e0,#e8c46a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kcap-cut.t4 b,.kcap-cut.t5 b{background:linear-gradient(120deg,#ff7ab8,#ffd970 30%,#8fffb0 50%,#7fd8ff 70%,#c79bff);-webkit-background-clip:text;background-clip:text}
+.kcap-cut.t4 i,.kcap-cut.t5 i{background:linear-gradient(90deg,#ffd2e8,#fff2c4,#d6ffe6);-webkit-background-clip:text;background-clip:text}
+.kcap-cut.rb{filter:drop-shadow(0 4px 0 rgba(0,0,0,.35)) drop-shadow(0 0 22px rgba(255,160,220,.45))}
 /*KBGMCSS-START*/
 #kbgmsec .kbgm-vol{display:flex;align-items:center;gap:14px;margin-top:10px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08);transition:opacity .25s}
 #kbgmsec.off .kbgm-vol{opacity:.4;pointer-events:none}
@@ -12977,7 +12994,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     if(!res||!res.length||!G)return OPV.apply(this,arguments);
     try{if(theme==='vt')return stream(res,onMore,(typeof LIMS!=='undefined'&&LIMS.vt&&LIMS.vt.name)||'Vtuberガチャ',opt);const L=(!label||label==='PREMIUM PACK')?'通常パック':label==='PREMIUM ×10'?'通常パック 10連':label==='STARTER DECK'?'スターターデッキ':label;return summon(res,onMore,L,opt)}
     catch(e){console.warn('kg',e);document.querySelectorAll('body>.kgo').forEach(x=>x.remove());return OPV.apply(this,arguments)}};
-  window.__kgSummon=summon;window.__kgStream=stream;window.__kgPack=tcgPack;window.__kcShow=coinShow;window.__kcTray=coinTray;window.__kbBox=tcgBox;window.__kbSecret=kgSecret;window.__kbSummary=boxSummary;window.__kgHeroSrc=heroSrc;window.__kgPackLogo=packLogo;window.__kgZoomCard=zoomCard;
+  window.__kgX={engine,stage,TC,RK};window.__kgSummon=summon;window.__kgStream=stream;window.__kgPack=tcgPack;window.__kcShow=coinShow;window.__kcTray=coinTray;window.__kbBox=tcgBox;window.__kbSecret=kgSecret;window.__kbSummary=boxSummary;window.__kgHeroSrc=heroSrc;window.__kgPackLogo=packLogo;window.__kgZoomCard=zoomCard;
   /* TCGボックス: the new box, the new secret scene, the new result. Anything unexpected falls back to the old ones */
   if(typeof tcgBoxCinematic==='function'){const TBC=tcgBoxCinematic;tcgBoxCinematic=function(pk,res,onPacks,onSummary,opt){opt=opt||{};if(!G||typeof TCGD==='undefined'||!TCGD.packs[pk]||!res||!res.length)return TBC.apply(this,arguments);
     try{if(opt.revealed){const xs=res.filter(x=>x.foil);return kgSecret(pk,xs.length?xs:res,onPacks)}return tcgBox(pk,res,{packs:onPacks,all:onSummary})}
@@ -13304,6 +13321,123 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     return o};
 })();
 /*KCHJS-END*/
+/*KCAPJS-START*/
+/* ===== v133 通常パック (kcap): the gacha capsule as a rendered film =====
+   A 3D capsule (three.js, pre-rendered so every phone shows the same picture) replaces the lens opening of kg.js:
+     a. the capsule drops into the spotlight, bounces, lifts and hovers (loops from 1.5s)
+     b. per rarity: the seam lights in the colour, the core fills, then the sure-thing tiers escalate pachinko style
+        (UR: gold rings lock / GR: petal swarm + rainbow rings / KMR: blackout, one rainbow flash, gyroscope, tiles, two bursts),
+        and the glass top pops off in a column of light -> the cards are dealt from there (HTML, as before).
+   Climb (sometimes the light starts one colour lower) uses the "_c" clips. Reduced motion / no video -> the old lens opening. */
+(function(){
+  let on=true;try{on=localStorage.getItem('ui2')!=='0'}catch(e){}
+  const X=window.__kgX;if(!on||!X||typeof openPackView!=='function')return;
+  const G=window.gsap;
+  const RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
+  const mk=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const SFX=k=>{try{window.KMotion&&KMotion.SFX.play(k)}catch(e){}};
+  const VIB=n=>{try{typeof vib==='function'&&vib(n)}catch(e){}};
+  const src=n=>{let s=n;if(window.__fxWebm)s=s.replace(/\.mp4$/,'.webm');try{return fxSrc(s)}catch(e){return s}};
+  const KEY=['n','r','sr','ur','gr','kmr'];
+  /* timeline of each clip b (seconds): rings lock, confirm cut-in, blackout/flash, burst, end. "_c" = climb (+.55 after the jump at 1.25) */
+  const TL={n:{TB:1.3,END:3.1},r:{TB:1.3,END:3.1},sr:{TB:1.3,END:3.1},
+    ur:{R:[.95,1.2,1.45],TB:2.9,END:4.6},gr:{WV:[1.0,1.7],R:[2.0,2.25,2.5],TB:3.7,END:5.5},
+    kmr:{DK:.9,FL:1.55,R:[1.6,1.72,1.84,2.3,2.5],TB:4.7,END:6.8}};
+  const LOOP_AT=1.5,HOLD=.45;/* clip a: the capsule hovers from 1.5s; b starts this long after */
+  function vid(cls){const m=document.createElement('video');m.className=cls;m.muted=true;m.defaultMuted=true;m.playsInline=true;m.setAttribute('playsinline','');m.setAttribute('muted','');m.preload='auto';m.disablePictureInPicture=true;m.setAttribute('disableremoteplayback','');return m}
+  function warm(){try{if(typeof FXB==='undefined')return;['fx_pack_a.mp4'].forEach(n=>{if(FXB[n])return;fetch(n).then(r=>r.ok?r.blob():null).then(b=>{if(b&&b.size)FXB[n]=URL.createObjectURL(b)}).catch(()=>{})})}catch(e){}}
+  try{const once=()=>{window.removeEventListener('pointerdown',once,true);setTimeout(warm,30000)};window.addEventListener('pointerdown',once,true)}catch(e){}
+  window.__kcapWarm=warm;
+
+  function capsule(res,onMore,label,opt,fallback){opt=opt||{};
+    const n=res.length,best=Math.max(...res.map(x=>x.c.r)),ten=n>6,bk=KEY[Math.min(best,5)];
+    const climb=best>=3&&(window.__kgClimb===true||(window.__kgClimb!==false&&Math.random()<.35));
+    const key=bk,T=TL[bk],OFF=climb&&bk!=='kmr'?.55:0,TB=T.TB+OFF,END=T.END+OFF,clip='fx_pack_'+key+(climb?'_c':'')+'.mp4';
+    const o=X.stage('kg-std kg-cap'+(best>=4?' rb':''));o.style.setProperty('--tc',X.TC[best]);
+    const fr=mk('div','kcap-fr'),vA=vid('kcap-va'),vB=vid('kcap-vb');fr.append(vA,vB);
+    const cut=mk('div','kcap-cut');cut.setAttribute('aria-hidden','true');
+    o.querySelector('.kg-cv').before(fr);o.append(cut);
+    let timers=[],dead=false,phase='a',tl=null;const later=(fn,ms)=>timers.push(setTimeout(fn,ms));
+    const E=X.engine(o,res,onMore,{label,sub:opt.sub,jump,end,onFinish:()=>{if(G&&!RM){G.to(o.querySelector('.kg-rays'),{opacity:.15,duration:1.2})}},onClose:()=>{dead=true;timers.forEach(clearTimeout);cancelAnimationFrame(raf);try{vA.pause();vB.pause()}catch(e){}}});
+    const {cards,deck}=E;o.append(deck,E.hd,E.tap,E.ft);document.body.append(o);requestAnimationFrame(E.lay);
+    E.intro={draw:()=>{},time:()=>99,end:0};
+    /* where the capsule is on screen: the clip is 9:16, full height, centred */
+    const origin=()=>{const r=fr.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height*.47]};
+    /* ---- fall back to the lens opening if the film cannot play ---- */
+    let failed=false;function fail(){if(failed||dead)return;failed=true;timers.forEach(clearTimeout);try{vA.pause();vB.pause()}catch(e){}o.remove();fallback()}
+    vA.addEventListener('error',fail);vB.addEventListener('error',fail);
+    vA.src=src('fx_pack_a.mp4');vB.src=src(clip);
+    /* keep both clips for the rest of the session (もう1パック / 10連 use the same files) */
+    try{['fx_pack_a.mp4',clip].forEach(nm=>{if(typeof FXB==='undefined'||FXB[nm])return;const u=window.__fxWebm?nm.replace(/\.mp4$/,'.webm'):nm;fetch(u).then(r=>r.ok?r.blob():null).then(b=>{if(b&&b.size)FXB[nm]=URL.createObjectURL(b)}).catch(()=>{})})}catch(e){}
+    vA.addEventListener('ended',()=>{if(phase!=='a')return;try{vA.currentTime=LOOP_AT;vA.play().catch(()=>{})}catch(e){}});
+    try{vB.load()}catch(e){}
+    const pa=vA.play();if(pa&&pa.catch)pa.catch(fail);
+    if(G)G.fromTo(o,{opacity:0},{opacity:1,duration:.28,ease:'power1.out'});
+    later(()=>SFX('beam'),80);later(()=>{SFX('land');VIB(2)},560);
+    /* ---- b: the colour, the tier, the burst ---- */
+    let bStart=0,started=false;
+    function startB(){if(started||dead||failed)return;started=true;phase='b';
+      let swapped=false;const onPlaying=()=>{if(swapped||dead)return;swapped=true;bStart=performance.now();
+        if(G)G.to(vB,{opacity:1,duration:.12,onComplete:()=>{try{vA.pause()}catch(e){}vA.hidden=true}});else{vB.style.opacity=1;vA.hidden=true}
+        schedule();runEvents()};
+      vB.addEventListener('playing',onPlaying,{once:true});
+      const pr=vB.play();if(pr&&pr.catch)pr.catch(fail);
+      later(()=>{if(!swapped&&!failed)onPlaying()},900)}
+    /* b starts once the capsule has settled into its hover in clip a (its own clock), plus a short hold; backstop if a never gets there */
+    {let r2=0;const chk=()=>{r2=0;if(started||dead||failed)return;let t=0;try{t=vA.currentTime}catch(e){}if(t>=LOOP_AT){later(startB,HOLD*1000);return}r2=requestAnimationFrame(chk)};r2=requestAnimationFrame(chk);later(startB,4500)}
+    /* events fire from the clip's own clock, so a slow decoder or a stall never puts the cards ahead of the picture; a wall-clock backstop (+4s) covers a frozen video */
+    const EV=[];let raf=0;const at=(sec,fn)=>EV.push({t:sec,fn,done:false});
+    const vt=()=>{try{return vB.currentTime}catch(e){return 0}};
+    function tick(){raf=0;if(dead||phase!=='b')return;const now=vt(),wall=(performance.now()-bStart)/1000;let open=false;
+      for(const e of EV){if(e.done)continue;if(now>=e.t||wall>=e.t+4){e.done=true;try{e.fn()}catch(x){}}else open=true}
+      if(open)raf=requestAnimationFrame(tick)}
+    const runEvents=()=>{if(!raf)raf=requestAnimationFrame(tick)};
+    const tint=o.querySelector('.kg-tint'),rays=o.querySelector('.kg-rays'),flash=o.querySelector('.kg-flash');
+    function schedule(){
+      at(.15,()=>{SFX('beam');VIB(best>=3?2:1)});
+      at(.6,()=>{if(G)G.to(tint,{opacity:.35,duration:.6})});
+      if(climb&&bk!=='kmr'){at(1.0,()=>SFX('tick'));at(1.25,()=>{SFX('slam');VIB(4);if(G)G.fromTo(flash,{opacity:.5},{opacity:0,duration:.4})})}
+      if(T.R){T.R.forEach((r,i)=>at(r+OFF+.28,()=>{SFX('slam');VIB(3);if(i===T.R.length-1||(bk==='kmr'&&i===2))confirm()}))}
+      if(bk==='kmr'){at(T.DK,()=>{SFX('tick');if(G)G.to(rays,{opacity:0,duration:.2})});at(T.FL,()=>{SFX('chime');VIB(5);if(G)G.fromTo(flash,{opacity:.7},{opacity:0,duration:.5})});at(T.TB-.5,()=>SFX('beam'))}
+      if(bk==='gr'){T.WV.forEach(w=>at(w+OFF+.3,()=>SFX('whoosh')))}
+      at(TB-.9,()=>SFX('whoosh'));
+      at(TB,burst);
+      if(bk==='kmr')at(TB+.38,()=>{SFX('slam');VIB(4)});
+      at(END-.05,()=>{try{vB.pause()}catch(e){}})}
+    function confirm(){if(best<3||dead)return;const nm=X.RK(best);cut.className='kcap-cut t'+Math.min(best,5)+(best>=4?' rb':'');cut.innerHTML='<b>'+esc(nm)+'</b><i>確定</i>';cut.hidden=false;
+      if(!G){return}G.killTweensOf(cut);G.fromTo(cut,{opacity:0,scale:1.9,rotation:-6,xPercent:-50,yPercent:-50},{opacity:1,scale:1,rotation:-6,xPercent:-50,yPercent:-50,duration:.28,ease:'expo.out'});
+      G.fromTo(cut,{x:0},{keyframes:{x:[0,-6,6,-4,3,0]},duration:.3,ease:'none',delay:.25})}
+    let bursted=false;
+    function burst(){if(bursted||dead)return;bursted=true;SFX('whoosh');VIB(best>=3?5:3);
+      if(G){G.fromTo(flash,{opacity:best>=3?.8:.55},{opacity:0,duration:.5,ease:'power2.out'});G.to(rays,{opacity:best>=3?.55:.25,duration:.5});G.to(cut,{opacity:0,scale:1.3,duration:.3,ease:'power2.in'})}
+      deck.style.visibility='visible';E.lay();const [ox,oy]=origin();
+      if(G){cards.forEach((c,i)=>{const r=c.getBoundingClientRect();G.fromTo(c,{x:ox-(r.left+r.width/2),y:oy-(r.top+r.height/2),scale:.15,opacity:0,rotation:i%2?8:-8},{x:0,y:0,scale:1,opacity:1,rotation:0,duration:ten?.5:.62,ease:'expo.out',delay:.04+(ten?i*.012:i*.065)})});
+        later(()=>{if(!dead)E.start()},ten?700:1000)}
+      else{E.start()}}
+    /* tap: skip ahead to the burst; スキップ: straight to the result */
+    function jump(){if(dead||bursted)return;if(phase==='a'){startB();return}
+      if(!bStart)return;const t=vt();if(t<TB-.15){try{vB.currentTime=TB-.08}catch(e){}EV.forEach(e=>{if(e.t<TB-.08)e.done=true});bStart=performance.now()-(TB-.08)*1000;runEvents()}}
+    function end(){if(dead)return;timers.forEach(clearTimeout);cancelAnimationFrame(raf);EV.forEach(e=>e.done=true);bursted=true;phase='done';cut.hidden=true;
+      const seekEnd=()=>{try{vB.currentTime=END-.06;vB.pause()}catch(e){}};
+      try{vA.pause();vA.hidden=true;vB.style.opacity=1}catch(e){}
+      if(vB.readyState>=1)seekEnd();else vB.addEventListener('loadedmetadata',seekEnd,{once:true});
+      deck.style.visibility='visible';E.lay()}
+    window.__kcapSeek=t=>{/* for checking: show clip b at time t, with the overlays of that moment */
+      try{timers.forEach(clearTimeout);phase='b';vA.pause();vA.hidden=true;vB.style.opacity=1;vB.pause();vB.currentTime=t}catch(e){}
+      if(T.R&&t>T.R[T.R.length-1]+OFF+.28&&t<TB)confirm();if(bk==='kmr'&&t>T.R[2]+.28&&t<TB)confirm();if(t>=TB){bursted=false;burst()}};
+    return o}
+
+  /* ---- hook: in front of kg.js's own hook ---- */
+  const OPV=openPackView;
+  openPackView=function(res,onMore,label,theme,opt){
+    if(!res||!res.length||!G||RM||theme==='vt'||window.__kcap===false)return OPV.apply(this,arguments);
+    const args=arguments,self=this;const fallback=()=>{try{return OPV.apply(self,args)}catch(e){}};
+    try{const L=(!label||label==='PREMIUM PACK')?'通常パック':label==='PREMIUM ×10'?'通常パック 10連':label==='STARTER DECK'?'スターターデッキ':label;return capsule(res,onMore,L,opt,fallback)}
+    catch(e){console.warn('kcap',e);document.querySelectorAll('body>.kgo.kg-cap').forEach(x=>x.remove());return OPV.apply(this,arguments)}};
+  window.__kgCapsule=capsule;
+})();
+/*KCAPJS-END*/
 /*KBGMJS-START*/
 /* ===== v121 BGM (kbgm): one track for the whole app =====
    It loops quietly (30% by default) from the first touch on the screen, on every page. The TCG frame does not play its own copy:
