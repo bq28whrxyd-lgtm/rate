@@ -301,6 +301,14 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ---- how many copies of each card a player holds (g: gacha items, t: TCG cards), published by that player for 持っている人○% (v134) ----
+    match /own/{pid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && myPid() == pid
+        && request.resource.data.keys().hasOnly(['g', 't', 'u'])
+        && request.resource.data.get('g', {}) is map && request.resource.data.get('t', {}) is map;
+    }
+
     match /inv/{pid} {
       allow read: if isAdmin() || (signedIn() && myPid() == pid);
       allow create: if isAdmin() || (signedIn() && myPid() == pid
