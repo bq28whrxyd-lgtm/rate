@@ -7663,7 +7663,7 @@ const admInv={};
    - experience quest (5 opponents in a row): a clear gives XP 20/40/70/120 by grade, the first 3 clears a day
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
-const BUN_SRC='bunshin.html?v=16',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=17',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -7694,7 +7694,7 @@ function raidInfo(wk){const key=bunLogs.length+'|'+players.length+'|'+Object.key
 /* ---------- weekday score attack (スコアアタック): Monday 5:00 to Friday 5:00, 3 tries a day, the best try of the week counts.
    Modelled on Puzzle & Dragons' ranking dungeons (a score made of several parts, ranked, crowns for the top) and Blue Archive's
    total assault (3 tickets a day, rank rewards when the season closes). A try is logged as bunlog d:'xs'+week, s:score. ---------- */
-const SA_DAY=3,SA_MAX=99999,SA_PTS=[1000,600,400],SA_PT0=150,SA_CH=[3,2,1],SA_TK=[5,3,2],SA_TK0=1,SA_XP=[80,60,40],SA_XP0=20;
+const SA_DAY=3,SA_MAX=99999,SA_PTS=[500,300,200],SA_PT0=50,SA_CH=[2,1,0],SA_TK=[3,2,1],SA_TK0=0,SA_XP=[50,40,30],SA_XP0=10;/* toned down once (user: 豪華すぎる). 1位 = one weekly MVP category (500pt) */
 /* rewards reach the rest of the app: points, gacha tickets of your choice (the weekly-top tickets: normal / TCG / limited), account XP, the avatar's chests, and a title for the top 3 */
 const SA_TTL=['','スコアアタック王','スコアの銀星','スコアの銅星'];
 function saTitle(id){const m=/^SA(\d+)_([123])$/.exec(id||'');return m?{id,k:'t',r:[0,4,3,2][+m[2]],n:SA_TTL[+m[2]]}:null}
@@ -7716,7 +7716,7 @@ function saXp(pid,before){let t=0;for(const wk of saWeeks(pid))if(!before||saEnd
 /* once per finished week, the first time you open the app after it closes: a result screen like the season one */
 function saNotice(){const me=myPlayer();if(!me||typeof bunReady!=='undefined'&&!bunReady)return;const cw=weekNo(now()),wk=saInfo(cw).closed?cw:cw-1,r=saInfo(wk);if(!r.closed)return;const i=r.rank.findIndex(x=>x.a===me.id);if(i<0)return;
   let seen=0;try{seen=+localStorage.getItem('saseen_'+me.id)||0}catch(e){return}if(seen>=wk)return;try{localStorage.setItem('saseen_'+me.id,wk)}catch(e){}
-  const ti=[6,5,4][i]||3;whenFree(()=>celebrate(me.name,ti,null,{k:'SCORE ATTACK RESULT',big:(i+1)+'位',jp:'分身スコアアタック  '+r.rank[i].s.toLocaleString()+'点  ·  '+r.rank.length+'人中',sub:'+'+r.pts[me.id]+'pt  ·  好きなガチャのチケット ×'+r.tk[me.id]+'  ·  経験値 +'+r.xp[me.id]+(r.ch[me.id]?'  ·  分身の宝箱 ×'+r.ch[me.id]:'')+(i<3?'  ·  称号「'+SA_TTL[i+1]+'」':'')}))}
+  const ti=[6,5,4][i]||3;whenFree(()=>celebrate(me.name,ti,null,{k:'SCORE ATTACK RESULT',big:(i+1)+'位',jp:'分身スコアアタック  '+r.rank[i].s.toLocaleString()+'点  ·  '+r.rank.length+'人中',sub:'+'+r.pts[me.id]+'pt'+(r.tk[me.id]?'  ·  好きなガチャのチケット ×'+r.tk[me.id]:'')+'  ·  経験値 +'+r.xp[me.id]+(r.ch[me.id]?'  ·  分身の宝箱 ×'+r.ch[me.id]:'')+(i<3?'  ·  称号「'+SA_TTL[i+1]+'」':'')}))}
 function raidPts(pid){let t=0;const W=new Set();for(const l of bunLogs)if(l.a===pid&&bunR(l))W.add(+String(l.d).slice(2));for(const wk of W)t+=raidInfo(wk).pts[pid]||0;return t}
 const bunXp=(pid,before)=>bunAtk(pid,before).reduce((a,l)=>a+(l.w?10:5),0)+bunXq(pid,before).reduce((a,l)=>a+BUN_XQ[l.d],0)+saXp(pid,before);
 function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c++;for(const l of bunLogs)if(l.a===pid&&bunQ(l)&&!bunR(l)&&!bunS(l)&&bunRoll(l.id,.1))c++;c+=saChests(pid);
