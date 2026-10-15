@@ -98,6 +98,14 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     // ---- coin gacha period ({start, end}), set by the admin ----
+    // ---- update notice: the admin's app writes it once per version; a function sends it to every phone ----
+    match /config/update {
+      allow read: if signedIn();
+      allow write: if isAdmin() && request.resource.data.keys().hasOnly(['v', 'title', 'body', 't', 'sent']) && request.resource.data.get('sent', false) == false
+        && request.resource.data.v is string && request.resource.data.v.size() <= 40
+        && request.resource.data.get('title', '') is string && request.resource.data.get('title', '').size() <= 60
+        && request.resource.data.get('body', '') is string && request.resource.data.get('body', '').size() <= 140;
+    }
     match /config/coinev {
       allow read: if signedIn();
       allow write: if isAdmin();
