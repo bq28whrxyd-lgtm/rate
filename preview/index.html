@@ -5077,6 +5077,22 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .kp-zm .kp-zs{display:inline-flex;gap:10px}.kp-zm .kp-zs i{font-style:normal}.kp-zm .kp-za b{color:#ffb38a}.kp-zm .kp-zd b{color:#8fd3ff}
 .kp-zm b{font:800 13px/1 var(--x-n,"Geist",-apple-system,sans-serif);font-variant-numeric:tabular-nums}
 .kp-zt{max-height:24vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1);font:500 13.5px/1.65 var(--x-f,-apple-system,"Hiragino Sans",sans-serif);color:rgba(244,241,234,.88);white-space:pre-wrap;text-align:left;line-break:strict}
+
+/* 持っている人○% chip (v134) */
+.kg-pcx{position:absolute;left:50%;top:-9px;transform:translateX(-50%);z-index:4;white-space:nowrap;padding:3px 8px;border-radius:999px;font:800 10.5px/1.2 var(--x-f,-apple-system,sans-serif);font-style:normal;letter-spacing:.02em;color:#fff;background:rgba(12,10,18,.94);box-shadow:0 0 0 1px rgba(255,255,255,.3),0 4px 12px rgba(0,0,0,.55);pointer-events:none}
+.kg-pcx.solo{color:#1a1204;background:linear-gradient(180deg,#fff6d6,#f5c84c);box-shadow:0 0 0 1px rgba(255,255,255,.6),0 0 16px rgba(245,200,76,.75)}
+.kg-c .kg-pcx{opacity:0;transition:opacity .3s .3s}.kg-c.on .kg-pcx{opacity:1}
+.kp-rf{position:relative}
+.kp-cap .kg-pcx{position:static;transform:none;flex:none;font-size:11.5px;padding:4px 10px}
+/* on pack cards the chip sits on the top-right corner, clear of the rarity mark; in the 10連 wall only "あなただけ" is shown (the rest is on the card's page) */
+.kg-c .kg-pcx{left:auto;right:-7px;top:-9px;transform:none}
+.kg-tiles .kg-pcx:not(.solo){display:none}
+.kg-tiles .kg-pcx.solo{font-size:9px;padding:2px 6px;right:-4px;top:-7px}
+.kp-rf .kg-pcx{left:auto;right:-6px;top:-9px;transform:none}
+.kg-pcx .ps{display:none}
+.kg-tiles .kg-pcx.solo .pl{display:none}.kg-tiles .kg-pcx.solo .ps{display:inline}
+.kg-tiles .kg-pcx.solo{font-size:9.5px;padding:2px 5px;right:-5px;top:-7px}
+.kg-tiles .kg-c.solo.on .kg-ci{box-shadow:0 0 0 1.5px #f5c84c,0 0 16px rgba(245,200,76,.55);border-radius:12px}
 /* ===== v121 ガチャ画面 (kgu): banner chips + one big banner card, the old sections hidden underneath ===== */
 @property --a1{syntax:'<color>';inherits:true;initial-value:#8b7bff}
 @property --a2{syntax:'<color>';inherits:true;initial-value:#3dd8f0}
@@ -6756,7 +6772,7 @@ function openPackView(res,onMore,label,theme,opt){
       const inner=el('div','gci'),back=el('div','gcb'+(vt?' vtback':''));
       if(vt){back.append(el('b','vtlive s','LIVE'),el('div','vtplay'),el('span','vtbk','VIRTUAL STREAMER'))}else back.append(emblem(6,34));
       inner.append(back,cardFace(x.c));card.append(inner);
-      {const d=el('div','gcd'+(x.isNew?' new':''),x.isNew?'NEW':x.note||'かぶり +'+x.sh+'かけら');if(x.pc)d.append(el('small',null,x.pc));card.append(d)}
+      card.append(el('div','gcd'+(x.isNew?' new':''),x.isNew?'NEW':x.note||'かぶり +'+x.sh+'かけら'));if(x.pc&&typeof pcChip==='function')card.append(pcChip(x.pc));
       card.onclick=()=>tap(card,x,promo);
       grid.append(card);
     });
@@ -12346,6 +12362,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     if(txt!=null){const i=c.querySelector('.kfs input');i.value=txt;i.dispatchEvent(new Event('input'))}};
 })();
 /*KFJS-END*/
+/* 持っている人○%: a small chip on a pulled card (gold when you are the only one) */
+function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ';i.className='kg-pcx'+(solo?' solo':'');if(solo){const a=document.createElement('span'),b=document.createElement('span');a.className='pl';a.textContent=t;b.className='ps';b.textContent='唯一';i.append(a,b)}else i.textContent=t;return i}
 /*KGJS-START*/
 /* ===== v121 gacha effects (kg). Presentation only: every pull is decided and saved before any of this runs.
    通常パック: the KIMOOTA lens from the splash fills with light (its colour tells the best rarity, sometimes it climbs a step),
@@ -12401,7 +12419,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   function card(x,tc){const it=x.c,c=mk('button','kg-c t'+tc);c.type='button';c.style.setProperty('--tc',TC[tc]);c.style.setProperty('--rc',(RAR[it.r]||{}).c||TC[it.r]);
     c.setAttribute('aria-label','カードをめくる');
     const ci=mk('div','kg-ci'),cb=mk('div','kg-cb',CROWN),cf=mk('div','kg-cf');cf.append(face(it));ci.append(cb,cf);c.append(ci);
-    const bd=mk('b','kg-bd'+(x.isNew?' new':'')+(x.pc?' pc':''));bd.textContent=x.isNew?'NEW':(x.note||('+'+x.sh+' かけら'));if(x.pc){const sm=document.createElement('small');sm.textContent=x.pc;bd.append(sm)}if(x.tk!=null)bd.textContent='チケット';c.append(bd);return c}
+    const bd=mk('b','kg-bd'+(x.isNew?' new':''),x.isNew?'NEW':esc(x.note||('+'+x.sh+' かけら')));if(x.tk!=null)bd.textContent='チケット';c.append(bd);if(x.pc){c.append(pcChip(x.pc));if(x.pc==='あなただけ')c.classList.add('solo')}return c}
 
   /* ---------- the live stream pieces (Vtuberガチャ) ---------- */
   /* super chat ladder per rarity: R cyan ¥200, SR yellow ¥1,000, UR magenta ¥5,000, GR red ¥10,000.
@@ -12736,7 +12754,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const pos=(i,k)=>{const d=i-k;return {x:0,y:d*9,scale:1-d*.04,rotation:0,opacity:d>2?0:1}};
     const pose=(i,k,dur)=>{const c=els[i];if(!c)return;const p=pos(i,k);if(!RM)G.to(c,Object.assign({duration:dur==null?.45:dur,ease:'expo.out'},p));else G.set(c,p)};
     const setCap=i=>{const x=res[i];if(!x){cap.classList.remove('on');return}
-      cap.innerHTML='<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span>';cap.classList.add('on');
+      cap.innerHTML='<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span>';if(x.pc)cap.append(pcChip(x.pc));cap.classList.add('on');
       [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i))};
     function deal(){if(ended)return;stack.append(...els);
       if(!RM){st.style.zIndex='7';const H=stack.getBoundingClientRect().height;
@@ -12773,7 +12791,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
       if(!RM){G.to([rays,dim],{opacity:0,duration:.3})}
       const row=mk('div','kp-row');
       res.forEach(x=>{const b=mk('button','kp-rc');b.type='button';b.setAttribute('aria-label',x.c.n+'を大きく見る');
-        const fr=mk('div','kp-rf');fr.append(tcgFace(x.c.v,null,x.foil),mk('b',x.isNew?'new':'',x.isNew?(x.foil?'SCR NEW':'NEW')+(x.pc?' · '+x.pc:''):esc(x.note||('+'+x.sh+' かけら'))));b.append(fr,mk('span',null,esc(x.c.n)));b.onclick=()=>zoom(x);row.append(b)});
+        const fr=mk('div','kp-rf');fr.append(tcgFace(x.c.v,null,x.foil),mk('b',x.isNew?'new':'',x.isNew?(x.foil?'SCR NEW':'NEW'):esc(x.note||('+'+x.sh+' かけら'))));if(x.pc)fr.append(pcChip(x.pc));b.append(fr,mk('span',null,esc(x.c.n)));b.onclick=()=>zoom(x);row.append(b)});
       o.append(row);if(!RM)G.fromTo(row.children,{y:50,opacity:0,scale:.82},{y:0,opacity:1,scale:1,duration:.6,stagger:.08,ease:'back.out(1.5)',clearProps:'transform,opacity'});
       const nw=res.filter(z=>z.isNew).length,sh=res.reduce((a,z)=>a+(z.sh||0),0),sum=mk('div','kg-sum');{const s=mk('span');s.innerHTML='NEW <b>'+nw+'</b>';sum.append(s)}if(sh){const s=mk('span');s.innerHTML='かけら <b>+'+sh+'</b>';sum.append(s)}
       const btns=mk('div','kg-btns'),cl=mk('button','kg-b1',opt.onClose?'ボックスの結果を見る':'閉じる');cl.type='button';cl.onclick=()=>{if(opt.onClose){handOff(opt.onClose)}else close()};btns.append(cl);
