@@ -15,7 +15,7 @@ echo "$R" > functions/region.txt
 echo "== Firestoreの場所: ${LOC:-不明}  → 通知の仕組みの場所: $R"
 echo "== 先に、次から自動で入るように鍵に権限を渡しています(1分ほど)"
 SA=firebase-adminsdk-fbsvc@$P.iam.gserviceaccount.com
-for ROLE in roles/cloudfunctions.admin roles/run.admin roles/iam.serviceAccountUser roles/artifactregistry.admin roles/cloudbuild.builds.editor roles/eventarc.admin roles/serviceusage.serviceUsageConsumer; do
+for ROLE in roles/cloudfunctions.admin roles/run.admin roles/iam.serviceAccountUser roles/artifactregistry.admin roles/cloudbuild.builds.editor roles/eventarc.admin roles/serviceusage.serviceUsageConsumer roles/firebaseextensions.viewer; do
   gcloud projects add-iam-policy-binding $P --member="serviceAccount:$SA" --role="$ROLE" --condition=None --quiet >/dev/null && echo "   OK $ROLE" || echo "   (渡せませんでした: $ROLE)"
 done
 echo "== 準備中(1〜2分)"
