@@ -9830,6 +9830,14 @@ function showNews(){
   box.append(ok);o.append(box);o.onclick=e=>{if(e.target===o)sheetOut(o)};document.body.append(o);
   try{localStorage.setItem('newsSeen',NEWS_ID)}catch(e){}
 }
+/* v132: when the admin first opens a new version, config/update is written and a function sends the notice to every phone (push) */
+const NEWS_PUSH={title:'アップデートのお知らせ',body:'週末レイド・新カード40枚・カードの絵の高画質化など。アプリを開いて確認してね'};
+let updPushed=false;
+function maybeUpdatePush(){if(updPushed||!NEWS_EXP||!db||/\/preview\//.test(location.pathname)||typeof isAdmin!=='function'||!isAdmin())return;updPushed=true;
+  let un=null;const done=()=>{try{un&&un()}catch(e){}};
+  un=db.doc('config/update').onSnapshot(d=>{done();const x=d.exists?(d.data()||{}):{};if(x.v===NEWS_ID&&(x.sent||now()-(+x.t||0)<10*60000))return;
+    Promise.resolve(db.doc('config/update').set({v:NEWS_ID,title:NEWS_PUSH.title,body:NEWS_PUSH.body,t:now()})).then(()=>toast('みんなにアップデートの通知を送ります')).catch(e=>{updPushed=false;console.warn('update push',e)})},()=>{updPushed=false})}
+setInterval(()=>{try{if(myPlayer())maybeUpdatePush()}catch(e){}},5000);
 function maybeNews(){let seen='';try{seen=localStorage.getItem('newsSeen')||''}catch(e){}if(seen!==NEWS_ID&&myPlayer()&&!document.getElementById('ob'))setTimeout(showNews,800)}
 let newsChecked=false;
 function statLine(p){let w=0,l=0;Object.keys(GAMES).forEach(g=>{w+=p[g+'_wins']||0;l+=p[g+'_losses']||0});return '通算 '+w+'勝 '+l+'敗'+(w+l?'  ·  勝率 '+Math.round(w/(w+l)*100)+'%':'')}
