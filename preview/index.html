@@ -6592,7 +6592,7 @@ function admCoinRender(){admTkRender();admLimRender();const st=$('admCoinSt');if
 function cardFace(it){
   /* 分身の装備 (the equipment gacha): the pixel icon from the avatar page, its slot and name */
   if(it.k==='bun'){const f=el('div','gcf bunf r'+it.r);f.style.setProperty('--rc',RAR[it.r].c);const pv=el('div','gcp bunp');pv.innerHTML=it.svg||'';f.append(el('div','gcr',it.rl||RAR[it.r].k),el('div','gck',it.slot||'装備'),pv,el('div','gcn',it.n));if(it.r>=3)f.append(el('b','holo'));return f}
-  if(it.k==='g'){const f=el('div','gcf tcgf r'+it.r);f.style.setProperty('--rc',RAR[it.r].c);const im=el('img','tcgfi');im.alt=it.n;const src=tcgImg(it.v);if(src)im.src=src;f.append(im,el('div','gcr',it.tl),el('div','gcn',it.n));if(it.r>=3)f.append(el('b','holo'));return f}
+  if(it.k==='g'){const f=el('div','gcf tcgf r'+it.r);f.style.setProperty('--rc',RAR[it.r].c);const im=el('img','tcgfi');im.alt=it.n;const src=tcgImg(it.v);if(src)im.src=src;if(window.KHD)KHD.watch(im,it.v);f.append(im,el('div','gcr',it.tl),el('div','gcn',it.n));if(it.r>=3)f.append(el('b','holo'));return f}
   const f=el('div','gcf r'+it.r);f.style.setProperty('--rc',RAR[it.r].c);
   f.append(el('div','gcr',RAR[it.r].k),el('div','gck',KIND[it.k]));
   const pv=el('div','gcp');
@@ -6615,7 +6615,7 @@ function cutIn(it,done){
   o.append(el('i','cb'),el('i','cb'),el('i','cb'));
   const c=el('div','cutc');c.append(el('div','cutr',RAR[it.r].k),el('div','cutk',KIND[it.k]+' GET'),el('div','cutn',it.n));o.append(c);
   if(it.k==='i'){const im=el('img','cutimg');im.src=it.img;im.alt='';o.insertBefore(im,c);c.querySelector('.cutk').textContent='キモオタレア GET'}
-  if(it.k==='g'){const im=el('img','cutimg');im.src=tcgImg(it.v);im.alt='';o.insertBefore(im,c);c.querySelector('.cutk').textContent='ガチレア GET'}
+  if(it.k==='g'){const im=el('img','cutimg');im.src=tcgImg(it.v);im.alt='';if(window.KHD)KHD.watch(im,it.v);o.insertBefore(im,c);c.querySelector('.cutk').textContent='ガチレア GET'}
   document.body.append(o);FX(o,it.r>=4?6:5,100,it.r===5?XS.magical:it.r===4?XS.rainbow:XS.gold);vib(it.r>=4?6:5);
   let closed=false;const close=()=>{if(closed)return;closed=true;o.classList.add('out');setTimeout(()=>{o.remove();done&&done()},350)};
   o.onclick=close;setTimeout(close,it.r===5?4200:it.r===4?3000:2000);
@@ -8743,7 +8743,7 @@ function tcgAltMvOn(f,id,im){try{if(matchMedia('(prefers-reduced-motion: reduce)
     const drop=()=>{if(!ok)v.remove()};v.addEventListener('error',drop,{once:true});
     v.addEventListener('loadeddata',()=>{try{if(v.duration>0)v.currentTime=(performance.now()/1000)%v.duration}catch(e){}const r=v.play();if(r&&r.catch)r.catch(()=>setTimeout(drop,300))},{once:true});
     setTimeout(()=>{if(!ok&&v.paused)drop()},3000);im.after(v)})}
-function tcgFace(id,cls,foil,ga){const c=TC[id];ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;f.append(im);if(foil)f.append(el('i','foilsheen'),el('i','foilspark'));if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));return f}
+function tcgFace(id,cls,foil,ga){const c=TC[id];ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;if(!ga&&window.KHD)KHD.watch(im,id);f.append(im);if(foil)f.append(el('i','foilsheen'),el('i','foilspark'));if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));return f}
 
 /* one pack: 3 cards, each ガチレア 4% / レア 26% / コモン 70%; the 3rd is レア or better.
    A pack with its own odds (P.rt: a = the 1st and 2nd cards, z = the 3rd) uses those instead (the expansion: コモン, コモン, then レア 70% / ガチレア 30%) */
@@ -8782,7 +8782,7 @@ async function tcgStarter(k){const me=myPlayer();if(!db||!me||me.ban||!invLoaded
   catch(e){toast('受け取れませんでした')}}
 
 /* ---- opening a TCG pack: drag across the tear line (or tap) to rip it, then tap through the cards one by one ---- */
-function tcgPackView(pk,res,onMore,opt={}){
+function tcgPackView(pk,res,onMore,opt={}){try{window.KHD&&KHD.preload((res||[]).map(x=>x&&x.c&&x.c.v))}catch(e){}
   const P=TCGD.packs[pk],best=Math.max(...res.map(x=>x.c.r)),RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const o=el('div','tpk'+(best>=4?' gr':best>=2?' rr':''));o.style.setProperty('--p1',P.c1);o.style.setProperty('--p2',P.c2);
   const stage=el('div','tpks'),hintT=el('div','tpkh','上の線を指でなぞって開けよう');
@@ -8912,7 +8912,7 @@ async function tcgOpenBox(pk,tk){const me=myPlayer();if(!TCGD.packs[pk]||!db||!m
   }catch(e){toast('ボックスを購入できませんでした');return}
   finally{opening=false;renderTcg();renderGacha()}
   feedPull(res.map(x=>x.c),TCGD.packs[pk].n+' BOX');tcgBoxView(pk,res)}
-function tcgBoxView(pk,res){let i=0;const seen=[],summary=()=>tcgBoxSummary(pk,res),secret=(x,resume)=>{seen.push(x);tcgBoxCinematic(pk,seen,resume,resume,{revealed:true})},next=()=>{
+function tcgBoxView(pk,res){try{window.KHD&&KHD.preload((res||[]).map(x=>x&&x.c&&x.c.v))}catch(e){}let i=0;const seen=[],summary=()=>tcgBoxSummary(pk,res),secret=(x,resume)=>{seen.push(x);tcgBoxCinematic(pk,seen,resume,resume,{revealed:true})},next=()=>{
   const n=i++;tcgPackView(pk,res.slice(n*TCGD.size,(n+1)*TCGD.size),i<TCG_BOX_PACKS?next:null,{boxIndex:i,moreLabel:'次のパック（'+(i+1)+' / '+TCG_BOX_PACKS+'）',onClose:summary,onSecret:secret})};return tcgBoxCinematic(pk,res,next,summary)}
 /* ===== BOX BREAK: opening a 15-pack box, and the secret-rare moment inside it =====
    Built for phones: everything moves with transform / opacity / clip-path, one short-lived canvas draws the sparks
@@ -12439,7 +12439,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     let FC=[];try{FC=tcgFaces(pk)}catch(e){}
     /* the picture printed on the pack: the leader that fits the pack best (推し活 = the idol, 闇深 = the 厨二 girl), else the first one */
     const HERO={a:'i8',b:'d8'},hid=(P.hero||HERO[pk]||FC[0]);
-    const art=mk('div','kp-art');if(hid){const im=mk('img');im.alt='';im.decoding='async';try{im.src=tcgImg(hid)}catch(e){}art.append(im)}
+    const art=mk('div','kp-art');if(hid){const im=mk('img');im.alt='';im.decoding='async';try{im.src=tcgImg(hid);if(window.KHD)KHD.watch(im,hid)}catch(e){}art.append(im)}
     const nm=mk('div','kp-name'),lg=mk('b','kp-lg');lg.append(mk('span','o',esc(P.n)),mk('span','f',esc(P.n)));
     nm.append(mk('small',null,'KIMOOTA TCG'),lg,mk('em',null,esc(P.en||'')));
     body.append(art,nm,mk('div','kp-foot',n+' CARDS'),mk('i','kp-holo'),mk('i','kp-shine'),mk('i','kp-edge'));
@@ -12938,7 +12938,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   if(typeof tcgBoxCinematic==='function'){const TBC=tcgBoxCinematic;tcgBoxCinematic=function(pk,res,onPacks,onSummary,opt){opt=opt||{};if(!G||typeof TCGD==='undefined'||!TCGD.packs[pk]||!res||!res.length)return TBC.apply(this,arguments);
     try{if(opt.revealed){const xs=res.filter(x=>x.foil);return kgSecret(pk,xs.length?xs:res,onPacks)}return tcgBox(pk,res,{packs:onPacks,all:onSummary})}
     catch(e){console.warn('kg box',e);document.querySelectorAll('body>.kgo.kbx,body>.ksx').forEach(x=>x.remove());return TBC.apply(this,arguments)}}}
-  if(typeof tcgBoxView==='function'){const TBV=tcgBoxView;tcgBoxView=function(pk,res){if(!G||typeof TCGD==='undefined'||!TCGD.packs[pk]||!res||!res.length)return TBV.apply(this,arguments);
+  if(typeof tcgBoxView==='function'){const TBV=tcgBoxView;tcgBoxView=function(pk,res){try{window.KHD&&KHD.preload((res||[]).map(x=>x&&x.c&&x.c.v))}catch(e){}if(!G||typeof TCGD==='undefined'||!TCGD.packs[pk]||!res||!res.length)return TBV.apply(this,arguments);
     try{return boxBreak(pk,res)}catch(e){console.warn('kg box',e);document.querySelectorAll('body>.kgo.kbx').forEach(x=>x.remove());return TBV.apply(this,arguments)}}}
   if(typeof tcgBoxSummary==='function'){const TBS=tcgBoxSummary;tcgBoxSummary=function(pk,res){if(!G||typeof TCGD==='undefined'||!TCGD.packs[pk]||!res||!res.length)return TBS.apply(this,arguments);
     try{return boxSummary(pk,res)}catch(e){console.warn('kg box',e);document.querySelectorAll('body>.kbr').forEach(x=>x.remove());return TBS.apply(this,arguments)}}}
@@ -12952,7 +12952,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     try{document.querySelectorAll('.cmw').forEach(x=>x.remove());let more=null;try{const me=myPlayer();if(me&&coinTk(me.id)>=10)more=()=>coinPull(10)}catch(e){}
       return coinTray(res,{more,moreLabel:'もう10連'})}
     catch(e){console.warn('kg coin',e);document.querySelectorAll('body>.kgo.kg-coin').forEach(x=>x.remove());return CM.apply(this,arguments)}}}
-  if(typeof tcgPackView==='function'){const TPV=tcgPackView;tcgPackView=function(pk,res,onMore,opt){if(!G||!res||!res.length||typeof TCGD==='undefined'||!TCGD.packs[pk])return TPV.apply(this,arguments);
+  if(typeof tcgPackView==='function'){const TPV=tcgPackView;tcgPackView=function(pk,res,onMore,opt){try{window.KHD&&KHD.preload((res||[]).map(x=>x&&x.c&&x.c.v))}catch(e){}if(!G||!res||!res.length||typeof TCGD==='undefined'||!TCGD.packs[pk])return TPV.apply(this,arguments);
     try{return tcgPack(pk,res,onMore,opt)}catch(e){console.warn('kg tcg',e);document.querySelectorAll('body>.kgo.kg-tcg').forEach(x=>x.remove());return TPV.apply(this,arguments)}}}
 })();
 /*KGJS-END*/
