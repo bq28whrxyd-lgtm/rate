@@ -32,6 +32,7 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
           npx -y firebase-tools@14 functions:list --project kimoota-15777 --json > "$RUNNER_TEMP/fl.json" 2>>"$RUNNER_TEMP/log.txt" || true
           R=$(node -e "try{const j=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));const L=j.result||[];const f=L.find(x=>/pushTest/.test(x.id||x.name||''));console.log(f?f.region:'')}catch(e){console.log('')}" "$RUNNER_TEMP/fl.json")
+          node -e "try{const j=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));console.log('list status:',j.status,j.error||'','functions:',(j.result||[]).map(x=>(x.id||x.name)+'@'+x.region).join(' '))}catch(e){console.log('list unreadable')}" "$RUNNER_TEMP/fl.json" | tee -a "$RUNNER_TEMP/log.txt"
           echo "region: ${R:-unknown}" | tee -a "$RUNNER_TEMP/log.txt"
           if [ -z "$R" ]; then echo "existing functions not found: not deploying (run push/setup.sh in Cloud Shell instead)" | tee -a "$RUNNER_TEMP/log.txt"; rm -f "$RUNNER_TEMP/sa.json"; exit 1; fi
           echo "$R" > functions/region.txt
