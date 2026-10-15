@@ -309,6 +309,43 @@ service cloud.firestore {
         && request.resource.data.get('g', {}) is map && request.resource.data.get('t', {}) is map;
     }
 
+    // ---- 取引所 (v134): auction listings. The seller creates one; others bid (higher each time, before the end); a listing with no bids can be withdrawn ----
+    match /auc/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.s == myPid()
+        && request.resource.data.keys().hasOnly(['s', 'k', 'c', 'f', 'sp', 'bn', 'end', 't', 'hb', 'hp', 'n'])
+        && request.resource.data.k in ['g', 't'] && request.resource.data.c is string && request.resource.data.f is bool
+        && request.resource.data.sp is int && request.resource.data.sp >= 1
+        && request.resource.data.bn is int && (request.resource.data.bn == 0 || request.resource.data.bn > request.resource.data.sp)
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000
+        && request.resource.data.end is int && request.resource.data.end > request.time.toMillis() + 3000000
+        && request.resource.data.end < request.time.toMillis() + 260000000
+        && request.resource.data.hb == 0 && request.resource.data.hp == '' && request.resource.data.n == 0;
+      allow update: if signedIn() && myPid() != '' && myPid() != resource.data.s
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hb', 'hp', 'n', 'end'])
+        && request.resource.data.hp == myPid() && request.time.toMillis() < resource.data.end
+        && !(resource.data.bn > 0 && resource.data.hb >= resource.data.bn)
+        && request.resource.data.hb is int && request.resource.data.hb > resource.data.hb && request.resource.data.hb >= resource.data.sp
+        && request.resource.data.n == resource.data.n + 1
+        && (request.resource.data.end == resource.data.end
+            || (resource.data.bn > 0 && request.resource.data.hb >= resource.data.bn && request.resource.data.end <= resource.data.end));
+      allow delete: if isAdmin() || (signedIn() && resource.data.s == myPid() && resource.data.n == 0);
+    }
+    // ---- 闇鍋パック (v134): one donated card each. Only the first taker gets it; never changed afterwards ----
+    match /yami/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.d == myPid()
+        && request.resource.data.keys().hasOnly(['d', 'k', 'c', 'f', 't', 'tb', 'tt'])
+        && request.resource.data.k in ['g', 't'] && request.resource.data.c is string && request.resource.data.f is bool
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000
+        && request.resource.data.tb == '' && request.resource.data.tt == 0;
+      allow update: if signedIn() && myPid() != '' && resource.data.tb == ''
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tb', 'tt'])
+        && request.resource.data.tb == myPid() && request.resource.data.tt is int
+        && math.abs(request.resource.data.tt - request.time.toMillis()) < 300000;
+      allow delete: if isAdmin();
+    }
+
     match /inv/{pid} {
       allow read: if isAdmin() || (signedIn() && myPid() == pid);
       allow create: if isAdmin() || (signedIn() && myPid() == pid
