@@ -7663,7 +7663,7 @@ const admInv={};
    - experience quest (5 opponents in a row): a clear gives XP 20/40/70/120 by grade, the first 3 clears a day
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
-const BUN_SRC='bunshin.html?v=14',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=15',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -7673,7 +7673,7 @@ const bunRoll=(id,p)=>hsh('bun'+id)%1000<Math.round(p*1000);
 function bunAtk(pid,before){const L=bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&(!before||l.t<before)).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 function bunDef(pid){const L=bunLogs.filter(l=>l.d===pid&&!l.w).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 const bunQPts=qs=>{let s=0;for(let n=1;n<=Math.min(100,qs||0);n++)s+=n%10===0?100:30;return s};
-function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900:0)+raidPts(pid)}
+function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900:0)+raidPts(pid)+saPts(pid)}
 /* ===== 週末レイド (分身): one boss a week, Friday 5:00 to Monday 5:00 JST. Every try is a bunlog line {d:'xr<week>', s:damage}
    (the 'x' start keeps older app versions counting it as a quest, not as a fight with a friend). The HP is the sum of everyone's
    damage, at most RAID_DAY tries per person per day count. When it reaches 0, everyone who hit it gets 80 + up to 220 by their
@@ -7691,15 +7691,32 @@ function raidInfo(wk){const key=bunLogs.length+'|'+players.length+'|'+Object.key
   const rank=Object.keys(by).map(a=>({a,dmg:by[a]})).sort((x,y)=>y.dmg-x.dmg),dead=sum>=max,pts={};
   if(dead)rank.forEach((x,i)=>{pts[x.a]=80+Math.min(220,Math.round(600*x.dmg/max))+(i===0?100:0)});
   return raidC.v[wk]={id,wk,max,hp:Math.max(0,max-sum),dead,killer,killT,rank,hits,pts}}
+/* ---------- weekday score attack (スコアアタック): Monday 5:00 to Friday 5:00, 3 tries a day, the best try of the week counts.
+   Modelled on Puzzle & Dragons' ranking dungeons (a score made of several parts, ranked, crowns for the top) and Blue Archive's
+   total assault (3 tickets a day, rank rewards when the season closes). A try is logged as bunlog d:'xs'+week, s:score. ---------- */
+const SA_DAY=3,SA_MAX=99999,SA_PTS=[300,200,120],SA_PT0=50,SA_CH=[3,2,1];
+const saStart=wk=>(7*wk-3)*864e5-4*3600000,saEnd=wk=>raidStart(wk);
+const bunS=l=>/^xs\d/.test(String(l.d));
+let saC={k:'',v:{}};
+function saOpen(wk){const D=window.__saDemo,t=now(),cur=wk===weekNo(t);if(D==='open'&&cur)return true;if(D==='done')return false;return t>=saStart(wk)&&t<saEnd(wk)}
+function saInfo(wk){const key=bunLogs.length+'|'+players.length+'|'+(window.__saDemo||'');if(saC.k!==key)saC={k:key,v:{}};if(saC.v[wk])return saC.v[wk];
+  const id='xs'+wk,L=bunLogs.filter(l=>l.d===id&&(window.__saDemo||l.t>=saStart(wk)&&l.t<saEnd(wk))).sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));
+  const per={},best={},at={};for(const l of L){const k=l.a+'|'+dayNo(l.t);per[k]=(per[k]||0)+1;if(per[k]>SA_DAY)continue;const v=Math.max(0,Math.min(SA_MAX,Math.round(+l.s||0)));if(best[l.a]==null||v>best[l.a]){best[l.a]=v;at[l.a]=l.t}}
+  const rank=Object.keys(best).map(a=>({a,s:best[a],t:at[a]})).sort((x,y)=>y.s-x.s||x.t-y.t),closed=!saOpen(wk)&&(window.__saDemo==='done'||now()>=saEnd(wk)),pts={},ch={};
+  if(closed)rank.forEach((x,i)=>{pts[x.a]=SA_PTS[i]!=null?SA_PTS[i]:SA_PT0;ch[x.a]=SA_CH[i]||0});
+  return saC.v[wk]={id,wk,rank,closed,pts,ch}}
+function saWeeks(pid){const W=new Set();for(const l of bunLogs)if(l.a===pid&&bunS(l))W.add(+String(l.d).slice(2));return [...W]}
+function saPts(pid){let t=0;for(const wk of saWeeks(pid))t+=saInfo(wk).pts[pid]||0;return t}
+function saChests(pid){let t=0;for(const wk of saWeeks(pid))t+=saInfo(wk).ch[pid]||0;return t}
 function raidPts(pid){let t=0;const W=new Set();for(const l of bunLogs)if(l.a===pid&&bunR(l))W.add(+String(l.d).slice(2));for(const wk of W)t+=raidInfo(wk).pts[pid]||0;return t}
 const bunXp=(pid,before)=>bunAtk(pid,before).reduce((a,l)=>a+(l.w?10:5),0)+bunXq(pid,before).reduce((a,l)=>a+BUN_XQ[l.d],0);
-function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c++;for(const l of bunLogs)if(l.a===pid&&bunQ(l)&&!bunR(l)&&bunRoll(l.id,.1))c++;
+function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c++;for(const l of bunLogs)if(l.a===pid&&bunQ(l)&&!bunR(l)&&!bunS(l)&&bunRoll(l.id,.1))c++;c+=saChests(pid);
   for(const m of matches)if((m.w===pid||m.l===pid)&&m.t>=BUN0&&bunRoll(m.id+pid,.4))c++;
   if(typeof tcgms!=='undefined'&&typeof tcgDone==='function')for(const d of tcgms)if((d.a===pid||d.b===pid)&&tcgDone(d)&&d.wa!=='draw'&&(+d.t||0)>=BUN0&&bunRoll(d.id+pid,.4))c++;return c+(window.__bunDemoChests||0)/* the demo panel can add some */}
 const bunLeft=pid=>Math.max(0,BUN_DAY-bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&dayNo(l.t)===dayNo(now())).length);
 const BUN_LOOK={g:'m',hs:0,hc:'茶',ec:'緑'};
 const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0};
-function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),g:'m',hs:0},eq,al:d.al}}
+function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0})},eq,al:d.al}}
 function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'}
 window.BUNSHINHOST={
   thumb:o=>{try{localStorage.setItem('bunThumb',JSON.stringify(o))}catch(e){}},
@@ -7726,6 +7743,14 @@ window.BUNSHINHOST={
       rank:r.rank.map(x=>({name:nm(x.a),dmg:x.dmg,me:x.a===me})),feed:r.hits.slice(-5).reverse().map(h=>({name:nm(h.a),dmg:h.d,ago:bunAgo(h.t)})),myPts:r.pts[me]||0,
       last:last.rank.length?{name:'',dead:last.dead,myPts:last.pts[me]||0}:null}},
   raidLog:dmg=>{const me=myPlayer().id,wk=weekNo(now());return BUNSHINHOST.log({d:'xr'+wk,w:0,s:Math.max(0,Math.round(+dmg||0))}).then(()=>{raidC.k='';const q=BUNSHINHOST.raid();q.killer=q.killer;return q})},
+  /* score attack: this week's board (open Mon-Thu, final from Friday), the champion of the last finished week, today's tries left */
+  sa:()=>{const me=myPlayer().id,t=now(),wk=weekNo(t),r=saInfo(wk),open=saOpen(wk),nm=a=>(players.find(p=>p.id===a)||{}).name||'だれか';
+    const used=bunLogs.filter(l=>l.a===me&&l.d===r.id&&dayNo(l.t)===dayNo(t)).length,i=r.rank.findIndex(x=>x.a===me),prev=saInfo(wk-1),champ=r.closed&&r.rank[0]?r.rank[0]:prev.closed&&prev.rank[0]?prev.rank[0]:null;
+    return {open,closed:r.closed,wk,rule:((wk%4)+4)%4,start:saStart(wk),end:saEnd(wk),next:saStart(wk+1),left:open?Math.max(0,SA_DAY-used):0,day:SA_DAY,
+      rank:r.rank.map((x,k)=>({name:nm(x.a),s:x.s,me:x.a===me,crown:!!champ&&x.a===champ.a&&!r.closed})),my:i>=0?{rank:i+1,s:r.rank[i].s,up:i>0?r.rank[i-1].s-r.rank[i].s+1:0}:null,
+      myPts:r.pts[me]||0,myCh:r.ch[me]||0,champ:champ?nm(champ.a):'',champMe:!!champ&&champ.a===me,
+      last:prev.closed&&prev.rank.length?{rank:prev.rank.findIndex(x=>x.a===me)+1,pts:prev.pts[me]||0}:null,pts:SA_PTS,pt0:SA_PT0,chs:SA_CH}},
+  saLog:sc=>{const wk=weekNo(now());return BUNSHINHOST.log({d:'xs'+wk,w:0,s:Math.max(0,Math.min(SA_MAX,Math.round(+sc||0)))}).then(()=>{saC.k='';return BUNSHINHOST.sa()})},
   chests:()=>bunChests(myPlayer().id),
   /* experience quest: clears per grade (for unlocking) and today's clears (the first 3 a day give XP) */
   xq:()=>{const me=myPlayer().id,c={},td=dayNo(now());let today=0;for(const l of bunLogs)if(l.a===me&&l.w&&BUN_XQ[l.d]){const k=l.d.slice(1);c[k]=(c[k]||0)+1;if(dayNo(l.t)===td)today++}return {c,today,day:BUN_XQDAY,xp:BUN_XQ}},
