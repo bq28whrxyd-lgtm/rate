@@ -7025,12 +7025,14 @@ function bountyFeed(){const me=myPlayer();if(!me||!db||!matchesFresh)return;cons
 const AP_MIN=10;
 function apDay(d){const h=hsh('ap'+d),st=(d*864e5-4*3600000)+5*3600000+(h%(14*3600-AP_MIN*60))*1000;return {d,start:st,end:st+AP_MIN*60000}}
 function apKinds(t){const L=[['ptk','通常パック']];try{const pk=Object.keys(TCGD.packs).slice(-1)[0];if(pk)L.push(['tp1_'+pk,'TCG '+TCGD.packs[pk].n])}catch(e){}if(typeof limActive==='function'&&limActive())L.push(['ltk',LIMS[banner.set].name]);if(typeof coinOn==='function'&&coinOn(t))L.push(['ctk','コインガチャ']);return L}
-function apToday(){const t=now(),d=dayNo(t),A=apDay(d);if(window.__apAt){A.start=window.__apAt;A.end=A.start+AP_MIN*60000}const K=apKinds(A.start),k=(window.__apK&&K.find(x=>x[0].startsWith(window.__apK)))||K[hsh('apk'+d)%K.length];return Object.assign(A,{k:k[0],kn:k[1],on:t>=A.start&&t<A.end,late:t>=A.end,got:inv&&inv.ap===d})}
+function apToday(){const t=now(),d=dayNo(t),A=apDay(d);A.id=d;if(window.__apAt){A.start=window.__apAt;A.end=A.start+AP_MIN*60000}
+  {const T=pushDoc&&pushDoc.test&&+pushDoc.test.ap;if(T&&t-T<3*3600000&&!(t>=A.start&&t<A.end+3*3600000&&A.start>T)){A.start=T;A.end=T+AP_MIN*60000;A.id='t'+T}}const K=apKinds(A.start),k=(window.__apK&&K.find(x=>x[0].startsWith(window.__apK)))||K[hsh('apk'+d)%K.length];return Object.assign(A,{k:k[0],kn:k[1],on:t>=A.start&&t<A.end,late:t>=A.end,got:!!inv&&inv.ap===A.id})}
 async function apClaim(){const me=myPlayer(),A=apToday();if(!db||!me||!invLoaded||invFor!==me.id)return;if(!A.on){toast('いまは抜き打ちガチャの時間ではありません');return}if(A.got){toast('今日の分はもう引きました');return}
-  const nv=Object.assign({},inv,{ap:A.d,wkc:wkConvL().concat([{k:A.k,n:1,t:now(),ap:A.d,...(A.k==='ltk'?{ev:banner.start}:A.k==='ctk'?{ev:coinev.start}:{})}])});
+  const nv=Object.assign({},inv,{ap:A.id,wkc:wkConvL().concat([{k:A.k,n:1,t:now(),ap:A.id,...(A.k==='ltk'?{ev:banner.start}:A.k==='ctk'?{ev:coinev.start}:{})}])});
   try{await db.doc('inv/'+me.id).set(nv);inv=nv}catch(e){toast('受け取れませんでした');return}
   renderSurprise();renderGacha();
   if(A.k==='ptk')openPack(true);else if(A.k==='ltk')openLimPack(true);else if(A.k==='ctk')coinPull(1);else if(/^tp1_/.test(A.k)){setView('gacha');try{gpageSet('tcg')}catch(e){}tcgOpenPack(A.k.slice(4),A.k)}}
+async function apTrial(){const me=myPlayer();if(!db||!me)return;try{await db.doc('push/'+me.id).set({test:{ap:now()}},{merge:true});toast('抜き打ちガチャを始めました。通知が数秒で届きます');setView('home');setTimeout(renderSurprise,300)}catch(e){toast('始められませんでした')}}
 function renderSurprise(){const box=$('apbar');if(!box)return;{const lob=$('lob'),lt=lob&&lob.querySelector('.ltag');if(lt&&box.nextElementSibling!==lt)lob.insertBefore(box,lt)}const me=myPlayer();if(!me||!invLoaded){box.hidden=true;return}const A=apToday();
   if(!A.on&&!(A.late&&!A.got&&now()-A.end<3*3600000)){box.hidden=true;clearInterval(renderSurprise.iv);renderSurprise.iv=0;return}
   box.hidden=false;box.replaceChildren();box.className='apbar'+(A.on&&!A.got?' on':'');
@@ -8395,14 +8397,15 @@ function dbRecent(c,f,ms){const q=db.collection(c);return q.where?q.where(f,'>',
 const PUSH_CATS=[['ch','対戦の申し込み','自分への対戦申し込み(TCGも)'],['msg','お知らせ','開発者からのお知らせ'],['give','配布・ガチャ・イベント','ポイントやチケット、新しいガチャ、大会、ジャンル週間']];
 let pushDoc=null,pushSub=null,pushOk=null,pushTok=null,pushBusy=false,pushFor=null;try{pushTok=localStorage.getItem('pushTok')}catch(e){}
 function pushStart(){const me=myPlayer();if(!me||!db||!window.FBPUSH)return;if(pushSub&&pushFor===me.id)return;if(pushSub){pushSub();pushSub=null}pushFor=me.id;
-  pushSub=db.doc('push/'+me.id).onSnapshot(s=>{pushDoc=s.exists?s.data():null;renderPush()},()=>{});
+  pushSub=db.doc('push/'+me.id).onSnapshot(s=>{pushDoc=s.exists?s.data():null;renderPush();try{renderSurprise()}catch(e){}},()=>{});
   FBPUSH.ok().then(v=>{pushOk=v;renderPush();if(!v)return;
     /* already allowed (this phone or a reinstall): make sure this phone is registered; not asked yet: invite once */
     if(FBPUSH.perm()==='granted')setTimeout(()=>pushRefresh().catch(()=>{}),2500);else setTimeout(pushAskMaybe,2500)})}
 /* keep this phone's current token registered (Firebase can change it) */
+const IS_PV=/\/preview\//.test(location.pathname);
 async function pushRefresh(){const me=myPlayer();if(!me||!window.FBPUSH)return false;
   const t=await FBPUSH.token();if(!t)return false;
-  if(t!==pushTok||!(pushDoc&&pushDoc.tk&&pushDoc.tk[t])){await db.doc('push/'+me.id).set({tk:{[t]:{t:now(),ua:String(navigator.userAgent||'').slice(0,80)}}},{merge:true});
+  if(t!==pushTok||!(pushDoc&&pushDoc.tk&&pushDoc.tk[t])||(IS_PV&&!pushDoc.tk[t].pv)){await db.doc('push/'+me.id).set({tk:{[t]:Object.assign({t:now(),ua:String(navigator.userAgent||'').slice(0,80)},IS_PV?{pv:1}:{})}},{merge:true});
     if(pushTok&&pushTok!==t)await pushForget(pushTok);pushTok=t;try{localStorage.setItem('pushTok',t)}catch(e){}}
   return true}
 async function pushForget(t){const me=myPlayer();if(!me||!pushDoc||!pushDoc.tk||!pushDoc.tk[t])return;const tk=Object.assign({},pushDoc.tk);delete tk[t];
@@ -8438,7 +8441,8 @@ function renderPush(){const sec=$('pushsec'),box=$('pushbox'),me=myPlayer();if(!
     const sw=el('input');sw.type='checkbox';sw.className='tgl';sw.checked=on;sw.onchange=()=>db.doc('push/'+me.id).set({p:Object.assign({},P,{[k]:sw.checked})},{merge:true}).catch(()=>{sw.checked=!sw.checked;toast('保存できませんでした')});
     r.append(tx,sw);box.append(r)});
   const row=el('div','row'),tb=el('button','sec','テスト通知を送る'),ob=el('button','sec','この端末の通知をオフ');tb.style.flex=ob.style.flex='1';
-  tb.onclick=()=>{db.doc('push/'+me.id).set({test:now()},{merge:true}).then(()=>toast('テスト通知を送りました。数秒で届きます')).catch(()=>toast('送れませんでした'))};ob.onclick=pushOff;row.append(tb,ob);row.style.marginTop='10px';box.append(row)}
+  tb.onclick=()=>{db.doc('push/'+me.id).set({test:now()},{merge:true}).then(()=>toast('テスト通知を送りました。数秒で届きます')).catch(()=>toast('送れませんでした'))};ob.onclick=pushOff;row.append(tb,ob);row.style.marginTop='10px';box.append(row);
+  if(IS_PV||isAdmin()){const ab=el('button','sec','抜き打ちガチャを試す(自分だけ)');ab.style.cssText='width:100%;margin-top:8px';ab.onclick=apTrial;box.append(ab,el('div','sub','押すと、本物と同じようにスマホに通知が来て、ホームに10分だけ抜き打ちガチャが出ます(お試し版だけ・ほかの人には出ません)'))}}
 /* opened from a notification: go to the right screen */
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{const g=e.data&&e.data.kgo;if(g&&['home','battle','gacha','tcg','rank','profile'].includes(g))setView(g)});
 {const g=new URLSearchParams(location.search).get('go');if(g&&['home','battle','gacha','tcg','rank','profile'].includes(g)){setTimeout(()=>{try{setView(g)}catch(e){}},1500);try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}}
