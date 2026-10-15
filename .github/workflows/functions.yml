@@ -3,9 +3,12 @@
 # Safety: the functions are deployed to the region they already run in (read from Firebase first); if that cannot be read, nothing is deployed.
 # The result is written to the branch "functions-status" (status.txt).
 name: Functions
-# The repository key cannot list or deploy functions yet ("Failed to list functions"), so this runs only by hand;
-# use functions/setup.sh in Cloud Shell instead.
+# Runs when functions/ changes. Until the key has the rights (functions/setup.sh grants them, run once in Cloud Shell) it stops
+# at "Failed to list functions" without deploying anything.
 on:
+  push:
+    branches: [main]
+    paths: ['functions/**']
   workflow_dispatch:
 permissions:
   contents: write
@@ -29,6 +32,7 @@ jobs:
           if [ -z "$SA" ]; then echo "FIREBASE_SA secret is missing" | tee "$RUNNER_TEMP/log.txt"; exit 1; fi
           printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          node -e "console.log('key account:',JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')).client_email)" "$RUNNER_TEMP/sa.json" | tee -a "$RUNNER_TEMP/log.txt"
           npx -y firebase-tools@14 functions:list --project kimoota-15777 --json > "$RUNNER_TEMP/fl.json" 2>>"$RUNNER_TEMP/log.txt" || true
           R=$(node -e "try{const j=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));const L=j.result||[];const f=L.find(x=>/pushTest/.test(x.id||x.name||''));console.log(f?f.region:'')}catch(e){console.log('')}" "$RUNNER_TEMP/fl.json")
           node -e "try{const j=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));console.log('list status:',j.status,j.error||'','functions:',(j.result||[]).map(x=>(x.id||x.name)+'@'+x.region).join(' '))}catch(e){console.log('list unreadable')}" "$RUNNER_TEMP/fl.json" | tee -a "$RUNNER_TEMP/log.txt"
