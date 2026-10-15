@@ -3536,6 +3536,7 @@ body.knav #lob .lgo{display:none!important}
 .kgone{display:none!important}
 .kcol h2{margin:0 0 12px}
 .kcolg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kcolg .kcolw{grid-column:1/-1;display:grid!important;grid-template-columns:44px 1fr;column-gap:14px;row-gap:2px;align-items:center;min-height:0!important;height:auto!important;aspect-ratio:auto!important}.kcolg .kcolw .kci{grid-row:1/3;margin:0!important}.kcolg .kcolw b{align-self:end}.kcolg .kcolw small{align-self:start}.kcolg .kcn.rd{color:#f2d58a}
 .kcolc{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:150px;padding:16px!important;border-radius:22px!important;text-align:left;
   background:linear-gradient(180deg,#232129,#16151a)!important;color:#f4f1ea!important;box-shadow:inset 0 .5px 0 rgba(255,255,255,.16),inset 0 0 0 .5px rgba(255,255,255,.07),0 14px 30px -18px #000!important;font:inherit!important}
 .kcolc .kci{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;margin-bottom:auto;color:#e9c46a;background:radial-gradient(circle at 30% 25%,rgba(233,196,106,.22),rgba(233,196,106,.06));box-shadow:inset 0 0 0 .5px rgba(233,196,106,.35)}
@@ -7141,7 +7142,7 @@ const NEWF=[
   {k:'mkt134',at:()=>[...document.querySelectorAll('.bnav [data-v=gacha],#gseg [data-g=mkt]')]},
   {k:'burn134',at:()=>[...document.querySelectorAll('.bnav [data-v=profile]'),...[...document.querySelectorAll('#v-profile button,#psub button')].filter(b=>/コレクション/.test(b.textContent)&&!b.closest('.bnav'))]},
   {k:'bun134',at:()=>[...document.querySelectorAll('#lob [data-bun]')]},
-  {k:'grade134',at:()=>[...document.querySelectorAll('.grcb,#gseg [data-g=tcg],.bnav [data-v=gacha]')]}];
+  {k:'grade134',at:()=>[...document.querySelectorAll('.grcb,.kcolc[data-c=grade],.bnav [data-v=profile]')].concat([...document.querySelectorAll('#psub button')].filter(b=>/コレクション/.test(b.textContent)))}];
 let newSeenL=null;
 function newSeenGet(){if(newSeenL)return newSeenL;try{newSeenL=JSON.parse(localStorage.getItem('nwSeen')||'[]')}catch(e){newSeenL=[]}if(!Array.isArray(newSeenL))newSeenL=[];return newSeenL}
 function newSeen(k){const L=newSeenGet();if(L.includes(k))return;L.push(k);try{localStorage.setItem('nwSeen',JSON.stringify(L))}catch(e){}paintNew()}
@@ -11804,11 +11805,16 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
       '<b>スキン・アイコン</b><small>集めたアイコン・<wbr>フレーム・<wbr>背景・<wbr>称号</small><em class="kcn" data-n="skin"></em></button>'+
     '<button type="button" class="kcolc" data-c="dex"><span class="kci">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6" width="10" height="14" rx="1.6" transform="rotate(-10 8.5 13)"/><rect x="10.5" y="4" width="10" height="14" rx="1.6" transform="rotate(8 15.5 11)"/></svg></span>'+
-      '<b>きもオタTCG 図鑑</b><small>持っているカードと、<wbr>まだのカード</small><em class="kcn" data-n="dex"></em></button></div>';
+      '<b>きもオタTCG 図鑑</b><small>持っているカードと、<wbr>まだのカード</small><em class="kcn" data-n="dex"></em></button>'+
+    '<button type="button" class="kcolc kcolw" data-c="grade"><span class="kci">'+
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 8h12M9 5.5h3"/><path d="M10 14l1.5 1.5L15 12"/></svg></span>'+
+      '<b>鑑定ケース</b><small>鑑定したTCGカード。<wbr>点数と相場</small><em class="kcn" data-n="grade"></em></button></div>';
   col.querySelector('[data-c=skin]').onclick=()=>{try{openCollection()}catch(e){}};
   col.querySelector('[data-c=dex]').onclick=()=>window.tcgDeckView('dex');
+  col.querySelector('[data-c=grade]').onclick=()=>{try{grSheet()}catch(e){}};
   const pcard=$i('pcard');if(pcard&&pcard.parentNode)pcard.parentNode.insertBefore(col,$i('msgsec')||null);
   function counts(){try{const n=col.querySelector('[data-n=dex]');const T=tcgOf(inv);const own=Object.keys(T.own||{}).filter(k=>(T.own[k]||0)>0).length;const all=window.TCGD&&TCGD.cards?TCGD.cards.length:0;n.textContent=all?own+' / '+all:(own?own+'枚':'')}catch(e){}
+    try{const g=col.querySelector('[data-n=grade]'),L=typeof slabsOf==='function'?slabsOf(inv):[],rd=L.filter(slabReady).length;g.textContent=rd?'結果 '+rd+'枚':L.length?L.length+'枚':'';g.classList.toggle('rd',!!rd)}catch(e){}
     try{const n=col.querySelector('[data-n=skin]');const o=inv&&inv.own?Object.keys(inv.own).length:0;n.textContent=o?o+'個':''}catch(e){}}
   /* settings: the gear sits on the title row (kx.js); the settings page gets a back bar */
   const back=mk('div','ksethd');back.dataset.pg='set';back.innerHTML='<button type="button" class="kback"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>プロフィール</button><h2>設定・要望</h2>';
