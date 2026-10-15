@@ -2670,6 +2670,24 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 .dupb{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dupb button{min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.15;white-space:nowrap}.dupb button small{font-size:11px;font-weight:600;opacity:.85}
 .dupburn{background:linear-gradient(180deg,#ff8a3d,#d9381e)!important;color:#fff!important;border:0!important;box-shadow:0 6px 18px -8px rgba(255,90,40,.8)}
 .dupw .sub{font-size:11.5px;line-height:1.5}
+/* ---------- 抜き打ちガチャ and 賞金首 (v134) ---------- */
+.apbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.apbar.on{background:linear-gradient(110deg,#3a0e2a,#1d0f3a 60%,#0d1a3a);box-shadow:inset 0 0 0 1px rgba(255,120,200,.5),0 0 28px -8px rgba(255,90,180,.8);animation:apglow 1.6s ease-in-out infinite alternate}
+@keyframes apglow{to{box-shadow:inset 0 0 0 1px rgba(255,160,220,.8),0 0 36px -6px rgba(255,90,180,1)}}
+@media (prefers-reduced-motion:reduce){.apbar.on{animation:none}}
+.apl{min-width:0;display:grid;gap:2px}.apl b{font-size:15px}.apl span{font-size:12px;opacity:.8;font-variant-numeric:tabular-nums}
+.apgo{flex:none;height:42px;padding:0 16px;border:0;border-radius:999px;font-weight:800;font-size:14px;color:#2a0718;background:linear-gradient(180deg,#ffe3f1,#ff7cc0);box-shadow:0 8px 20px -8px rgba(255,100,180,.9)}
+.wanted{margin:0 0 12px;padding:14px;border-radius:18px;background:linear-gradient(180deg,#2a1f12,#17120c);box-shadow:inset 0 0 0 1px rgba(232,194,94,.35)}
+.wnh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px}.wnh b{font-size:16px;color:#f2d58a;letter-spacing:.04em}.wnh span{font-size:11.5px;opacity:.7}
+.wnr{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.wnc{position:relative;display:grid;justify-items:center;gap:3px;padding:12px 8px 10px;border:0;border-radius:6px;color:#2a1d0c;background:linear-gradient(180deg,#f3e3bf,#d9c08a);box-shadow:0 6px 16px -6px rgba(0,0,0,.7),inset 0 0 0 2px rgba(90,60,20,.35);font-family:inherit}
+.wnc.me{box-shadow:0 0 0 2px #ff6a4d,0 6px 16px -6px rgba(0,0,0,.7)}
+.wnk{font-style:normal;font:900 13px/1 Georgia,"Times New Roman",serif;letter-spacing:.16em;color:#5a3a12}
+.wnp{width:52px;height:52px;border-radius:4px;overflow:hidden;filter:sepia(.55) contrast(1.05);box-shadow:inset 0 0 0 2px rgba(90,60,20,.5)}.wnp>*{width:100%!important;height:100%!important}
+.wnn{font-size:13.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wns{font-size:11px;opacity:.75}
+.wnv{font-style:normal;font:900 17px/1.1 Georgia,serif;color:#7a1d10;font-variant-numeric:tabular-nums}
+.wnme{margin-top:8px;color:#ffb3a3}
+
 /* ---------- 取引所 (v134) ---------- */
 #gp-mkt{display:grid;gap:16px;padding-bottom:24px}
 .mkhd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;padding:4px 2px}.mkbal{font-weight:800;font-size:15px}
@@ -2937,6 +2955,24 @@ body.ui2 .lev.e2 .art{background:radial-gradient(90% 120% at 90% 10%,#8c96ff,tra
 body.ui2 .lev.e3 .art{background:radial-gradient(90% 120% at 90% 10%,#53e0b4,transparent 55%),linear-gradient(140deg,#0d4a3c,#04170f)}
 body.ui2 .lev.e4 .art{background:radial-gradient(90% 120% at 90% 10%,#ff8f6b,transparent 55%),linear-gradient(140deg,#5a2412,#170804)}
 body.ui2 .lev.e5 .art{background:radial-gradient(90% 120% at 90% 10%,#ff8fc0,transparent 55%),linear-gradient(140deg,#5a1d3c,#1d0912)}
+body.ui2 .lev.e6 .art{background:radial-gradient(90% 120% at 90% 10%,#e8c25e,transparent 55%),repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 2px,transparent 2px 5px),linear-gradient(140deg,#4a3518,#160f06)}
+/* 抜き打ちガチャ in the lobby (v134) */
+body.ui2 #lob .apbar{position:relative;z-index:3;width:100%;margin:0 0 8px;padding:7px 7px 7px 18px;min-height:56px;border-radius:999px;background:rgba(20,20,23,.82);box-shadow:inset 0 0 0 .5px var(--lline)}
+body.ui2 #lob .apbar[hidden]{display:none}
+body.ui2 #lob .apbar.on{background:linear-gradient(100deg,rgba(74,18,52,.92),rgba(34,16,70,.92) 70%);box-shadow:inset 0 0 0 1px rgba(255,140,205,.55),0 0 30px -6px rgba(255,90,180,.75)}
+body.ui2 #lob .apl b{font:800 14px/1.1 var(--body);color:#fff}
+body.ui2 #lob .apl span{font:600 11.5px/1.3 var(--body);color:rgba(255,255,255,.75)}
+body.ui2 #lob .apbar:not(.on) .apl{display:flex;gap:10px;align-items:baseline}
+body.ui2 #lob .apbar:not(.on) .apl b{color:#ff9d8a;font-size:12.5px}
+body.ui2 #lob .apgo{height:42px;padding:0 18px;border-radius:999px;font:800 13.5px/42px var(--body);color:#2a0718;background:linear-gradient(180deg,#ffe6f2,#ff86c4);box-shadow:0 6px 18px -6px rgba(255,100,180,.9);text-align:center}
+/* 賞金首 sheet (v134) */
+body.ui2 .lwan.wanted{display:block;margin:0;background:none;box-shadow:none;padding:0}
+body.ui2 .lwan .wnh b{display:none}
+body.ui2 .lwan .wnh span{color:var(--l2t)}
+body.ui2 .lwan .wnr{grid-template-columns:repeat(2,1fr);gap:10px}
+body.ui2 .lsec.lwan button.wnc{display:grid;justify-items:center;gap:4px;padding:14px 8px 12px;border-radius:6px;color:#2a1d0c;text-align:center;background:linear-gradient(180deg,#f3e3bf,#d9c08a);box-shadow:0 6px 16px -6px rgba(0,0,0,.7),inset 0 0 0 2px rgba(90,60,20,.35)}
+body.ui2 .lsec.lwan button.wnc.me{box-shadow:0 0 0 2px #ff6a4d,0 6px 16px -6px rgba(0,0,0,.7)}
+body.ui2 .lwan .wnp{width:64px;height:64px}
 body.ui2 .lpg{display:flex;justify-content:center;gap:6px;margin-top:-4px}
 body.ui2 .lpg i{width:7px;height:7px;border-radius:999px;background:var(--l3);transition:width .45s var(--lsp),background .3s}
 body.ui2 .lpg i.on{width:22px;background:#f2efe9}
@@ -5693,7 +5729,7 @@ body.ui2 .lgr.got .gt b{color:#a9a49c}
 <header class="hd"><div class="hdl"><div class="eyebrow">KIMOOTA LADDER</div><h1 id="vtitle">きもオタレート</h1></div><div id="hbar" class="hbar" hidden></div></header>
 <div class="tabs" id="gtabs"></div>
 <section id="offline" hidden><div class="empty">サーバーに接続できません。電波のいい場所でアプリを開き直してください。</div></section>
-<div class="view" id="v-home"><section id="grantmsg" class="devmsg" hidden></section><section id="devmsg" class="devmsg" hidden></section>
+<div class="view" id="v-home"><section id="grantmsg" class="devmsg" hidden></section><section id="devmsg" class="devmsg" hidden></section><section id="apbar" class="apbar" hidden></section><section id="wanted" class="wanted" hidden></section>
 <button id="ftick" class="ftick" hidden></button>
 <section id="myrank" class="myc compact" hidden></section>
 <div id="tiles" class="tiles"></div>
@@ -6962,6 +6998,48 @@ function dupSheet(kind,res,onChange){document.querySelectorAll('.dps').forEach(x
       r.append(rk,tx,s1,s2);ls.append(r)});b.append(ls,el('div','sub','右の2つのボタンは1枚ずつ。左がかけら、右が燃やす。ダブりではないカードも減らせます(確認が出ます)。'+(ex.length?'上の「全部」はダブりの分だけです':'')));
     const cl=el('button','sec dpsx','閉じる');cl.onclick=()=>o.remove();b.append(cl)};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
+/* ---------- 賞金首 (v134): 3 rate wins in a row (any genre) puts a price on you: 300pt, +100 for every further win.
+   Whoever ends the run gets it, paid by the app. Worked out from the match records only (counted from BOUNTY0), so nothing new is stored. ---------- */
+const BOUNTY0=Date.UTC(2026,9,15,19,40),BOUNTY_MIN=3,bountyOf=s=>s>=BOUNTY_MIN?300+(s-BOUNTY_MIN)*100:0;
+let bountyC={k:'',v:null};
+function bountyInfo(){const key=matches.length+'|'+(matches[0]&&matches[0].id);if(bountyC.k===key)return bountyC.v;
+  const B0=window.__bt0||BOUNTY0,L=matches.filter(m=>m.t>=B0&&m.w&&m.l).sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1)),st={},since={},got={},kills=[];
+  for(const m of L){const s=st[m.l]||0;if(s>=BOUNTY_MIN){const v=bountyOf(s);got[m.w]=(got[m.w]||0)+v;kills.push({id:m.id,w:m.w,l:m.l,s,v,t:m.t,g:m.g})}
+    st[m.l]=0;st[m.w]=(st[m.w]||0)+1;if(st[m.w]===1)since[m.w]=m.t}
+  const wanted=Object.keys(st).filter(p=>st[p]>=BOUNTY_MIN).map(p=>({p,s:st[p],v:bountyOf(st[p]),t:since[p]})).sort((a,b)=>b.v-a.v);
+  return bountyC={k:key,v:{st,got,kills,wanted}}.v}
+const bountyPts=pid=>(bountyInfo().got[pid]||0);
+function renderWanted(into){const box=into||$('wanted');if(!box)return;if(into)into.classList.add('wanted');const me=myPlayer(),B=bountyInfo(),W=B.wanted;box.hidden=!W.length;if(!W.length)return;box.replaceChildren();
+  const hd=el('div','wnh');hd.append(el('b',null,'賞金首'),el('span',null,'レートの対戦で倒すと、賞金はアプリから'));box.append(hd);const row=el('div','wnr');
+  W.slice(0,4).forEach(x=>{const p=players.find(y=>y.id===x.p);if(!p)return;const c=el('button','wnc'+(me&&x.p===me.id?' me':''));c.type='button';
+    const ph=el('div','wnp');try{ph.append(avatar(p))}catch(e){}c.append(el('i','wnk','WANTED'),ph,el('b','wnn',p.name),el('span','wns',x.s+'連勝中'),el('em','wnv',x.v.toLocaleString()+'pt'));
+    c.onclick=()=>{document.querySelectorAll('.shw').forEach(w=>w.remove());document.body.classList.remove('lobsheet');setView('battle')};row.append(c)});box.append(row);
+  if(me&&W.some(x=>x.p===me.id))box.append(el('div','sub wnme','あなたにも賞金がかかっています。負けると相手に '+bountyOf(B.st[me.id]).toLocaleString()+'pt'))}
+/* posts to the timeline: a new price (by the one on the run) and a collected one (by the winner) */
+function bountyFeed(){const me=myPlayer();if(!me||!db||!matchesFresh)return;const B=bountyInfo(),seen=bountyFeed.s||(bountyFeed.s=new Set());
+  B.kills.filter(k=>k.w===me.id&&now()-k.t<10*60000&&!seen.has('k'+k.id)).forEach(k=>{seen.add('k'+k.id);post('bh_'+k.id,'bounty',me.id,me.name,me.name+'が賞金首の'+pname(k.l)+'('+k.s+'連勝)を倒した。賞金 '+k.v.toLocaleString()+'pt',k.g)});
+  const s=B.st[me.id]||0;if(s>=BOUNTY_MIN){const m=matches.filter(x=>x.w===me.id&&x.t>=(window.__bt0||BOUNTY0)).sort((a,b)=>b.t-a.t)[0];if(m&&now()-m.t<10*60000&&!seen.has('w'+m.id)){seen.add('w'+m.id);post('bw_'+m.id,'bounty',me.id,me.name,me.name+'が'+s+'連勝で賞金首に。懸賞金 '+bountyOf(s).toLocaleString()+'pt',m.g)}}}
+/* ---------- 抜き打ちガチャ (v134): once a day, at a random time between 10:00 and 24:00 JST, ten minutes of one free pull.
+   The time and the gacha (normal / TCG / limited / coin, whatever is on) come from the day number, so every phone agrees without a server.
+   Claiming adds one ticket of that gacha to inv.wkc ({k, n:1, ap:day}, not counted against 週間1位 tickets) and opens the pull. ---------- */
+const AP_MIN=10;
+function apDay(d){const h=hsh('ap'+d),st=(d*864e5-4*3600000)+5*3600000+(h%(14*3600-AP_MIN*60))*1000;return {d,start:st,end:st+AP_MIN*60000}}
+function apKinds(t){const L=[['ptk','通常パック']];try{const pk=Object.keys(TCGD.packs).slice(-1)[0];if(pk)L.push(['tp1_'+pk,'TCG '+TCGD.packs[pk].n])}catch(e){}if(typeof limActive==='function'&&limActive())L.push(['ltk',LIMS[banner.set].name]);if(typeof coinOn==='function'&&coinOn(t))L.push(['ctk','コインガチャ']);return L}
+function apToday(){const t=now(),d=dayNo(t),A=apDay(d);if(window.__apAt){A.start=window.__apAt;A.end=A.start+AP_MIN*60000}const K=apKinds(A.start),k=(window.__apK&&K.find(x=>x[0].startsWith(window.__apK)))||K[hsh('apk'+d)%K.length];return Object.assign(A,{k:k[0],kn:k[1],on:t>=A.start&&t<A.end,late:t>=A.end,got:inv&&inv.ap===d})}
+async function apClaim(){const me=myPlayer(),A=apToday();if(!db||!me||!invLoaded||invFor!==me.id)return;if(!A.on){toast('いまは抜き打ちガチャの時間ではありません');return}if(A.got){toast('今日の分はもう引きました');return}
+  const nv=Object.assign({},inv,{ap:A.d,wkc:wkConvL().concat([{k:A.k,n:1,t:now(),ap:A.d,...(A.k==='ltk'?{ev:banner.start}:A.k==='ctk'?{ev:coinev.start}:{})}])});
+  try{await db.doc('inv/'+me.id).set(nv);inv=nv}catch(e){toast('受け取れませんでした');return}
+  renderSurprise();renderGacha();
+  if(A.k==='ptk')openPack(true);else if(A.k==='ltk')openLimPack(true);else if(A.k==='ctk')coinPull(1);else if(/^tp1_/.test(A.k)){setView('gacha');try{gpageSet('tcg')}catch(e){}tcgOpenPack(A.k.slice(4),A.k)}}
+function renderSurprise(){const box=$('apbar');if(!box)return;{const lob=$('lob'),lt=lob&&lob.querySelector('.ltag');if(lt&&box.nextElementSibling!==lt)lob.insertBefore(box,lt)}const me=myPlayer();if(!me||!invLoaded){box.hidden=true;return}const A=apToday();
+  if(!A.on&&!(A.late&&!A.got&&now()-A.end<3*3600000)){box.hidden=true;clearInterval(renderSurprise.iv);renderSurprise.iv=0;return}
+  box.hidden=false;box.replaceChildren();box.className='apbar'+(A.on&&!A.got?' on':'');
+  const L=el('div','apl'),sec=Math.max(0,Math.ceil((A.end-now())/1000));
+  if(A.on&&!A.got){L.append(el('b',null,'抜き打ちガチャ'),el('span',null,'今日は '+A.kn+'を1回無料  ·  残り '+Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0')));const b=el('button','apgo kx-ap','無料で引く');b.onclick=apClaim;box.append(L,b)}
+  else if(A.on&&A.got){L.append(el('b',null,'抜き打ちガチャ'),el('span',null,'間に合いました。また明日'));box.append(L)}
+  else{const f=t=>{const x=new Date(t+9*3600000);return x.getUTCHours()+':'+String(x.getUTCMinutes()).padStart(2,'0')};L.append(el('b',null,'遅刻'),el('span',null,'今日の抜き打ちガチャは '+f(A.start)+'〜'+f(A.end)+' でした'));box.append(L)}
+  if(A.on&&!renderSurprise.iv)renderSurprise.iv=setInterval(renderSurprise,1000)}
+setInterval(()=>{try{if($('apbar')&&invLoaded&&apToday().on&&$('apbar').hidden)renderSurprise()}catch(e){}},20000);
 /* ---------- 取引所 (v134): オークション and 闇鍋パック ----------
    Everything is derived from two public collections, so nobody writes into another player's data:
    auc/{id}  one listing  {s seller, k 'g'|'t', c card id, f SCR, sp start, bn buy-now (0 = none), end, t, hb high bid, hp high bidder, n bids}
@@ -7787,7 +7865,7 @@ function render(){
   if(sorted.length>=4){const mb=el('button','more',HM.rank?'1〜3位の詳細をとじる':'1〜3位の詳細も見る');mb.onclick=()=>{HM.rank=!HM.rank;render()};rk.append(mb)}
   rk.querySelectorAll('[data-pid]').forEach(e=>{e.style.cursor='pointer';e.onclick=()=>{const q=players.find(x=>x.id===e.dataset.pid);if(q)showProfile(q,statLine(q))}});
   {const h=sigOf(rk.innerHTML);if(rkLive.__h!==h){rkLive.__h=h;rkLive.replaceChildren(...rk.childNodes)}}
-  renderMine();renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews()}$('acct').hidden=!myPlayer();
+  renderMine();try{renderSurprise();renderWanted();bountyFeed()}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews()}$('acct').hidden=!myPlayer();
   {const me=myPlayer(),pc=$('pcard'),nc=me?profileCard(me,statLine(me)):el('div','empty','アカウントを設定すると、ここにプロフィールが出ます'),h=sigOf(nc.outerHTML);if(pc.__h!==h){pc.__h=h;pc.replaceChildren(nc)}$('pedit').hidden=!me}
   if(typeof watchInv==='function'){watchInv();renderGacha()}
   {const s=$('opp'),v=s.value,me=myPlayer();s.replaceChildren();
@@ -7910,7 +7988,7 @@ function wkTop(w){const key=matches.length+'|'+(typeof tcgms!=='undefined'?tcgms
 function wkEarned(pid){const cw=weekNo(now());let n=0;for(let w=WK1_0;w<cw;w++){const T=wkTop(w);Object.entries(T).forEach(([g,x])=>{if(x.ids.includes(pid))n+=WK1_N(g)})}return n+(typeof saTk==='function'?saTk(pid):0)}
 const wkConvL=()=>Array.isArray(inv.wkc)?inv.wkc:[];
 const wkConv=(k,ev)=>wkConvL().reduce((a,e)=>a+(e.k===k&&(ev==null||e.ev===ev)?(+e.n||0):0),0);
-const wkLeft=pid=>pid===invFor?Math.max(0,wkEarned(pid)-wkConvL().reduce((a,e)=>a+(+e.n||0),0)):0;
+const wkLeft=pid=>pid===invFor?Math.max(0,wkEarned(pid)-wkConvL().filter(e=>!e.ap).reduce((a,e)=>a+(+e.n||0),0)):0;/* ap = 抜き打ちガチャ, not paid with 週間1位 tickets */
 /* turn choice tickets into real ones */
 function openWkPick(){const me=myPlayer();if(!me)return;const left=wkLeft(me.id);if(left<1){toast('好きなガチャのチケットがありません');return}
   const opts=[['ptk','通常パックチケット',null]];
@@ -7962,7 +8040,7 @@ const spentOf=v=>(v.packs||0)*PACK+Math.max(0,(v.lpacks||0)-(v.lfree||0))*LPACK+
 /* points on the table in an unfinished match can't be spent */
 const betHeld=pid=>(typeof chs!=='undefined'?chs:[]).filter(c=>c.bet&&(c.st==='pending'?c.a===pid:(c.a===pid||c.b===pid)&&['active','reported','abortreq'].includes(c.st))&&live(c)&&!matches.some(m=>m.id===c.id)).reduce((a,c)=>a+c.bet,0);
 const invAdj=v=>spentOf(v)-(+v.mpts||0)-(+v.lbp||0)-(+v.ppp||0)-(+v.bpt||0);
-const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)+(typeof mktNet==='function'?mktNet(pid):0)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
+const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)+(typeof mktNet==='function'?mktNet(pid):0)+(typeof bountyPts==='function'?bountyPts(pid):0)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
 const admInv={};
 /* ===== 分身アバターバトル (beta): the page runs in an overlay (bunshin.html) and talks to the app through BUNSHINHOST =====
    bunshin/{pid}: your avatar (look, allocation, items, equipped, quest stage, gacha pulls, chests opened)
@@ -8189,7 +8267,7 @@ function checkPredHits(){
 /* ---- timeline (feed) and reactions ---- */
 let feed=[];
 const RX=[['w','草'],['o','おめ'],['k','神'],['d','ドンマイ'],['z','ずるい']];
-const FK={mkt:'取引所',yami:'闇鍋',burn:'焼却',kmr:'KMR',gr:'GR',up:'昇格',streak:'連勝',geko:'下剋上',gold:'豪華宝箱',pred:'予想的中',lv:'レベル',ten:'10連',tour:'大会'};
+const FK={bounty:'賞金首',mkt:'取引所',yami:'闇鍋',burn:'焼却',kmr:'KMR',gr:'GR',up:'昇格',streak:'連勝',geko:'下剋上',gold:'豪華宝箱',pred:'予想的中',lv:'レベル',ten:'10連',tour:'大会'};
 function post(id,k,p,n,x,g){const me=myPlayer();if(!db||!me)return;db.doc('feed/'+id).set({t:now(),k,by:me.id,p,n,x:String(x).slice(0,140),r:{},...(g?{g}:{})}).catch(()=>{})}
 function feedPull(cards,label){
   const me=myPlayer();if(!me||isAdmin())return;   /* the developer's own pulls are not announced */const top=cards.filter(c=>c.r>=4).sort((a,b)=>b.r-a.r)[0];if(!top)return;
@@ -11053,6 +11131,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
       else if(id==='evgw'){const g=s.querySelector('.gwban');if(g){const su=txt(g.querySelector('.sub'));const m=su.match(/残り\s*\d+日(?:\s*\d+時間)?/);o={c:'e3',k:txt(g.querySelector('.gwk')),t:txt(g.querySelector('.gwt')),s:su.replace(/\s*·\s*残り.*$/,''),chip:m?m[0].replace(/\s+/g,' '):'',go:()=>go('gacha')}}}
       else{const b=s.querySelector('.sban');if(b){const t=txt(b.querySelector('.sbt'));const sk=txt(b.querySelector('.sbk'));o={c:'e4',k:sk,t:'シーズン '+(sk.match(/\d+/)||[''])[0],s:txt(b.querySelector('.sbs')),chip:t,go:()=>tile(3)}}}
       if(o)items.push(o)});
+    try{const W=typeof bountyInfo==='function'?bountyInfo().wanted:[];if(W.length){const t=W[0],nm=(players.find(p=>p.id===t.p)||{}).name||'?';items.unshift({c:'e6',k:'WANTED',t:'賞金首 '+W.length+'人',s:nm+' '+t.s+'連勝中 · 倒すと'+t.v.toLocaleString()+'pt',chip:'レートの対戦で',w:true,go:()=>setTimeout(()=>{const s=mk('div','lsec lwan');renderWanted(s);sheet('賞金首',s)},380)})}}catch(e){}
     const key=JSON.stringify(items.map(o=>[o.c,o.k,o.t,o.s,o.chip]));
     if(ev.dataset.k!==key){ev.dataset.k=key;ev.replaceChildren(...items.map(o=>{const b=mk('button','lev '+o.c,'<i class="art"></i>'+(o.chip?'<span class="chip'+(o.w?' w':'')+'">'+esc(o.chip)+'</span>':'')+'<span class="k">'+esc(o.k)+'</span><b>'+esc(o.t)+'</b><span class="s">'+esc(o.s)+'</span>');b.type='button';b.onclick=()=>{o.go();document.body.classList.remove('lobsheet');if(openW){try{sheetOut(openW)}catch(e){openW.remove()}openW=null}};return b}))}
     setT(q('.lb-ev'),items.length?String(items.length):'')}
