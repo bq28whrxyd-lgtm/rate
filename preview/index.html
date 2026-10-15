@@ -5122,6 +5122,9 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .kg-tiles .kg-pcx{display:none!important}
 .kg-bd .bs{display:none}
 .kg-tiles .kg-bd .bs{display:inline-block;margin-left:4px;padding:0 4px;border-radius:5px;font-style:normal;color:#1a1204;background:linear-gradient(180deg,#fff6d6,#f5c84c)}
+.kbr-ft{flex-wrap:wrap}.kbr-ft .kg-b4{flex:1 1 100%;margin-bottom:0}
+.kbr .kbr-ft .kg-b4{height:44px;margin-bottom:10px;color:#ffb37a;background:rgba(255,110,40,.1);box-shadow:inset 0 0 0 1px rgba(255,140,70,.6);font-size:14px}
+.kbr:has(.kg-b4) .kbr-sc{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 166px)}
 /* ===== v121 ガチャ画面 (kgu): banner chips + one big banner card, the old sections hidden underneath ===== */
 @property --a1{syntax:'<color>';inherits:true;initial-value:#8b7bff}
 @property --a2{syntax:'<color>';inherits:true;initial-value:#3dd8f0}
@@ -6888,7 +6891,7 @@ async function dupBulk(kind,L,mode){const me=myPlayer();if(!db||!me||!invLoaded|
   return {gain,cnt}}
 function dupSheet(kind,res,onChange){document.querySelectorAll('.dps').forEach(x=>x.remove());const o=el('div','dps'),b=el('div','dpsb');o.append(b);
   const draw=()=>{const L=dupList(kind,res),ex=L.filter(x=>x.extra>0);b.replaceChildren();
-    const hd=el('div','dpsh');hd.append(el('b',null,'かけら・燃やす'),el('span',null,'この'+(kind==='t'?'パック':'ガチャ')+'で引いたカード'));b.append(hd);
+    const hd=el('div','dpsh');hd.append(el('b',null,'かけら・燃やす'),el('span',null,'この'+(kind==='t'?((res||[]).length>((typeof TCGD!=='undefined'&&TCGD.size)||3)?'10連・ボックス':'パック'):'ガチャ')+'で引いたカード'));b.append(hd);
     if(ex.length){b.append(el('div','dpsk','ダブりの分だけまとめて'));const tsh=ex.reduce((a,x)=>a+x.extra*x.sh,0),tpt=ex.reduce((a,x)=>a+x.extra*x.pt,0),cnt=ex.reduce((a,x)=>a+x.extra,0),all=el('div','dupb'),a1=el('button','sec'),a2=el('button','dupburn');
       a1.innerHTML='全部かけらにする<small>'+cnt+'枚 → +'+tsh+' かけら</small>';a2.innerHTML='全部燃やす<small>'+cnt+'枚 → +'+tpt+'pt</small>';
       const bulk=(mode,btn)=>askSheet({title:mode==='sh'?'ダブりを全部かけらにする':'ダブりを全部燃やす',danger:mode==='burn',ok:mode==='sh'?'かけらにする':'燃やす',
@@ -13255,7 +13258,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     if(hits.length){const h=mk('div','kbr-hit');h.append(mk('h3',null,'今回の当たり'));const row=mk('div','kbr-hr');hits.forEach(z=>row.append(card(z.x,true)));h.append(row);secs.push(h)}
     {const a=mk('div','kbr-all');a.append(mk('h3',null,'すべてのカード'));const g=mk('div','kbr-g');sorted.forEach(z=>g.append(card(z.x,false)));a.append(g);secs.push(a)}
     sc.append(...secs);
-    const ft=mk('div','kbr-ft'),cl=mk('button','kg-b2','閉じる');cl.type='button';ft.append(cl);
+    const ft=mk('div','kbr-ft'),cl=mk('button','kg-b2','閉じる');cl.type='button';{const db4=dupBtn('t',res);if(db4)ft.append(db4)}ft.append(cl);
     o.append(mk('i','kbr-au'),sc,ft);document.body.append(o);
     const close=()=>{if(RM||!G){o.remove();return}G.to(o,{opacity:0,duration:.22,onComplete:()=>o.remove()})};cl.onclick=close;
     if(!RM&&G){G.fromTo(o,{opacity:0},{opacity:1,duration:.25});G.fromTo([hd,stats],{opacity:0,y:16},{opacity:1,y:0,duration:.55,stagger:.07,ease:'power3.out',clearProps:'transform,opacity'});
