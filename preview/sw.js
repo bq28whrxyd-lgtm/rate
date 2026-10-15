@@ -1,5 +1,5 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-const VERSION = 'v133-preview-2026-10-15b';
+const VERSION = 'v133-preview-2026-10-15c';
 const CACHE = 'ladder-preview-' + VERSION;
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'tcg_spectator.js', 'motion_lifecycle.js',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg',
@@ -20,6 +20,9 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   /* live data, login and video streaming always go straight to the network */
   if (/(^|\.)(googleapis|firebaseapp|google|firebaseio)\.com$/.test(url.hostname) || url.pathname.startsWith('/__/')) return;
+  /* effect films (fx_*.mp4): the first play streams from the network while the whole file is saved once; after that every
+     play (and every seek) is answered from the saved file, so the capsule never waits for the network again */
+  if (/\/fx_[\w]+\.mp4$/.test(url.pathname) && url.origin === location.origin) { e.respondWith(filmResp(req, url)); return; }
   if (url.pathname.endsWith('.mp4') || req.headers.has('range')) return;
   /* the app page: newest from the network, cached copy when offline */
   const isApp = url.origin === location.origin && (url.pathname.endsWith('/') || url.pathname.endsWith('/index.html'));
@@ -35,6 +38,34 @@ self.addEventListener('fetch', e => {
     return hit || net;
   }));
 });
+
+const FILMS = 'kvideo-v1';           /* kept across app versions: the films only change when their file names do */
+const filling = new Set();
+async function filmResp(req, url) {
+  const key = url.origin + url.pathname;
+  let cache = null, full = null;
+  try { cache = await caches.open(FILMS); full = await cache.match(key); } catch (e) {}
+  const range = req.headers.get('range');
+  if (!full) {
+    if (!range) {                                /* a plain fetch (the app warming its films): fetch once, save, hand it over */
+      const r = await fetch(key);
+      if (cache && r.ok && r.status === 200) { try { await cache.put(key, r.clone()); } catch (e) {} }
+      return r;
+    }
+    if (cache && !filling.has(key)) {           /* a video element streaming: save the whole file in the background, once */
+      filling.add(key);
+      fetch(key).then(r => (r.ok && r.status === 200) ? cache.put(key, r) : null).catch(() => {}).then(() => filling.delete(key));
+    }
+    return fetch(req);
+  }
+  const buf = await full.arrayBuffer(), size = buf.byteLength, type = full.headers.get('content-type') || 'video/mp4';
+  if (!range) return new Response(buf, { status: 200, headers: { 'Content-Type': type, 'Content-Length': String(size), 'Accept-Ranges': 'bytes' } });
+  const m = /bytes=(\d*)-(\d*)/.exec(range);
+  let a = m && m[1] ? +m[1] : (m && m[2] ? Math.max(0, size - +m[2]) : 0), b = m && m[1] && m[2] ? +m[2] : size - 1;
+  b = Math.min(b, size - 1);
+  if (!m || a > b || a >= size) return new Response(null, { status: 416, headers: { 'Content-Range': 'bytes */' + size } });
+  return new Response(buf.slice(a, b + 1), { status: 206, headers: { 'Content-Type': type, 'Content-Length': String(b - a + 1), 'Content-Range': 'bytes ' + a + '-' + b + '/' + size, 'Accept-Ranges': 'bytes' } });
+}
 
 /* ---- push notifications (sent by the Firebase functions as data messages) ---- */
 self.addEventListener('push', e => {

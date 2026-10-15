@@ -13347,7 +13347,12 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     kmr:{DK:.9,FL:1.55,R:[1.6,1.72,1.84,2.3,2.5],TB:4.7,END:6.8}};
   const LOOP_AT=1.5,HOLD=.45;/* clip a: the capsule hovers from 1.5s; b starts this long after */
   function vid(cls){const m=document.createElement('video');m.className=cls;m.muted=true;m.defaultMuted=true;m.playsInline=true;m.setAttribute('playsinline','');m.setAttribute('muted','');m.preload='auto';m.disablePictureInPicture=true;m.setAttribute('disableremoteplayback','');return m}
-  function warm(){try{if(typeof FXB==='undefined')return;['fx_pack_a.mp4'].forEach(n=>{if(FXB[n])return;fetch(n).then(r=>r.ok?r.blob():null).then(b=>{if(b&&b.size)FXB[n]=URL.createObjectURL(b)}).catch(()=>{})})}catch(e){}}
+  /* warm: the common clip is kept in memory for this session; then every rarity clip is fetched once, 12s apart, so the
+     service worker saves them (after that a pull never waits for the network). Skipped when the phone asks to save data. */
+  const CLIPS=['fx_pack_a.mp4','fx_pack_n.mp4','fx_pack_r.mp4','fx_pack_sr.mp4','fx_pack_ur.mp4','fx_pack_gr.mp4','fx_pack_kmr.mp4','fx_pack_ur_c.mp4','fx_pack_gr_c.mp4','fx_pack_kmr_c.mp4'];
+  function warm(){try{if(typeof FXB==='undefined')return;let save=false;try{save=!!(navigator.connection&&navigator.connection.saveData)}catch(e){}
+    const n='fx_pack_a.mp4';if(!FXB[n])fetch(n).then(r=>r.ok?r.blob():null).then(b=>{if(b&&b.size)FXB[n]=URL.createObjectURL(b)}).catch(()=>{});
+    if(save||!('serviceWorker' in navigator))return;CLIPS.slice(1).forEach((c,i)=>setTimeout(()=>{fetch(c).then(r=>{try{return r.ok?r.arrayBuffer():null}catch(e){}}).catch(()=>{})},12000*(i+1)))}catch(e){}}
   try{const once=()=>{window.removeEventListener('pointerdown',once,true);setTimeout(warm,8000)};window.addEventListener('pointerdown',once,true)}catch(e){}
   window.__kcapWarm=warm;
 
@@ -13360,7 +13365,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const cut=mk('div','kcap-cut');cut.setAttribute('aria-hidden','true');
     o.querySelector('.kg-cv').before(fr);o.append(cut);
     let timers=[],dead=false,phase='a',tl=null;const later=(fn,ms)=>timers.push(setTimeout(fn,ms));
-    const E=X.engine(o,res,onMore,{label,sub:opt.sub,jump,end,onFinish:()=>{},onClose:()=>{dead=true;timers.forEach(clearTimeout);cancelAnimationFrame(raf);try{window.removeEventListener('pointerdown',onTouch,{capture:true});vA.pause();vB.pause();vA.removeAttribute('src');vB.removeAttribute('src');vA.load();vB.load()}catch(e){}}});
+    const E=X.engine(o,res,onMore,{label,sub:opt.sub,jump,end,onFinish:()=>{},onClose:()=>{dead=true;timers.forEach(clearTimeout);cancelAnimationFrame(raf);try{window.removeEventListener('pointerdown',onTouch,{capture:true});vA.pause();vB.pause();vA.removeAttribute('src');vB.removeAttribute('src');vA.load();vB.load();if(blobURL)URL.revokeObjectURL(blobURL)}catch(e){}}});
     const {cards,deck}=E;o.append(deck,E.hd,E.tap,E.ft);document.body.append(o);requestAnimationFrame(E.lay);
     E.intro={draw:()=>{},time:()=>99,end:0};
     /* where the capsule is on screen: the clip is 9:16, full height, centred */
@@ -13373,9 +13378,11 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const playA=hard=>{const pa=vA.play();if(pa&&pa.catch)pa.catch(e=>playErr(e,()=>playA(true),hard))};
     vA.addEventListener('error',fail);vB.addEventListener('error',fail);
     vA.src=src('fx_pack_a.mp4');
-    /* the rarity clip loads only once a is playing, so a starts as early as possible */
-    vA.addEventListener('playing',()=>{if(!vB.src){vB.src=src(clip);try{vB.load()}catch(e){}}},{once:true});
-    later(()=>{if(!vB.src){vB.src=src(clip);try{vB.load()}catch(e){}}},1500);
+    /* the rarity clip: fetched whole (instant when the service worker has saved it), then played from memory, so seeking
+       and looping never touch the network; if the fetch fails it streams from the URL instead. Starts once a is playing. */
+    let blobURL=null;const loadB=()=>{if(vB.src||dead)return;const u=src(clip);if(u.startsWith('blob:')){vB.src=u;try{vB.load()}catch(e){}return}
+      fetch(u).then(r=>r.ok?r.blob():null).then(b=>{if(dead)return;if(b&&b.size){blobURL=URL.createObjectURL(b);vB.src=blobURL}else vB.src=u;try{vB.load()}catch(e){}}).catch(()=>{if(!dead&&!vB.src){vB.src=u;try{vB.load()}catch(e){}}})};
+    vA.addEventListener('playing',loadB,{once:true});later(loadB,1200);
     vA.addEventListener('ended',()=>{if(phase!=='a')return;try{vA.currentTime=LOOP_AT;vA.play().catch(()=>{})}catch(e){}});
     playA(false);
     if(G)G.fromTo(o,{opacity:0},{opacity:1,duration:.28,ease:'power1.out'});
