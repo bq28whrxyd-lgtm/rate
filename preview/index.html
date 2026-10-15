@@ -12599,7 +12599,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     function auto(){if(torn||ended)return;dir=1;guide.style.opacity='0';if(RM||film){cut();return}const r=line.getBoundingClientRect(),ob={v:0};
       G.to(ob,{v:1,duration:.4,ease:'power2.inOut',onUpdate:()=>{setP(ob.v);if(Math.random()<.7)spark(r.left+r.width*ob.v,r.top,3,['#ffffff',AU],.6)},onComplete:cut})}
     function cut(){if(torn||ended)return;
-      if(film){torn=true;SFX('whoosh');VIB(tell?5:3);if(fhint)G.to(fhint,{opacity:0,duration:.2});film.tear(()=>{if(ended)return;SFX('pop');const r=st.getBoundingClientRect();spark(r.left+r.width/2,r.top+r.height*.47,36,scr?RAINBOW:['#ffffff',AU,'#cfe0ff'],1.0);deal()});return}
+      if(film){torn=true;SFX('whoosh');VIB(tell?5:3);if(fhint)G.to(fhint,{opacity:0,duration:.2});film.tear(()=>{if(ended)return;SFX('pop');const r=st.getBoundingClientRect();spark(r.left+r.width/2,r.top+r.height*.47,36,scr?RAINBOW:['#ffffff',AU,'#cfe0ff'],1.0);deal();/* the stage must drop back under the cards, or taps and swipes never reach them (v133 15h fix) */st.style.zIndex='';pack.remove()});return}
       torn=true;setP(1);untilt();if(idle)idle.kill();if(float)float.kill();SFX('whoosh');VIB(tell?5:3);
       const r=line.getBoundingClientRect();spark(r.left+(dir>0?r.width:0),r.top,44,scr?RAINBOW:['#ffffff',AU,'#cfe0ff'],1.2);
       flashT.style.top=r.top+'px';
