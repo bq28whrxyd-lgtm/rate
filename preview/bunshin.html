@@ -85,6 +85,9 @@ html.inapp .protoonly{display:none!important}html.inapp .tabs{grid-template-colu
 .sark0 li em:last-child{color:var(--gold2);text-align:right}
 .sark0 svg{width:15px;height:12px;vertical-align:-1px;margin-left:5px}
 .sarew{display:flex;flex-wrap:wrap;gap:6px}.sarew span{font:500 11px/1 var(--jp);color:var(--fg2);padding:6px 8px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--line2)}.sarew span b{font:400 12px/1 var(--px);color:var(--gold2);margin-right:4px}
+.sarw2{overflow-x:auto}.sarw2 table{width:100%;border-collapse:collapse;font:500 11.5px/1.35 var(--jp);color:var(--fg2)}.sarw2 th{font:600 10.5px/1.2 var(--jp);color:var(--mut);text-align:left;padding:0 6px 5px 0}
+.sarw2 td{padding:5px 6px 5px 0;border-top:1px solid var(--line2);vertical-align:top}.sarw2 td:nth-child(2),.sarw2 td:nth-child(3),.sarw2 td:nth-child(4){font:400 13px/1.2 var(--px);color:var(--gold2);white-space:nowrap;font-variant-numeric:tabular-nums}.sarw2 td:first-child{white-space:nowrap;color:var(--fg)}
+.sarw2 small{display:block;margin-top:6px;font:500 11px/1.5 var(--jp);color:var(--mut)}
 .sadone{margin:0;padding:10px 12px;border-radius:10px;background:rgba(226,191,114,.12);font:500 13px/1.6 var(--jp);color:var(--fg)}.sadone b{color:var(--gold2)}
 /* the result sheet: every part counts up in turn, then the total lands */
 .sar{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(6,5,9,.8)}
@@ -1645,13 +1648,14 @@ function saOpp(r){const o=SA_OPP[((r.wk%4)+4)%4],rr=rngOf(r.wk*7907+5),hc=Object
 function renderSa(){const box=$('sa');if(!box||!HOST||!HOST.sa)return;const r=HOST.sa();box.replaceChildren();const rule=SA_RULE[r.rule],op=SA_OPP[((r.wk%4)+4)%4];
   const card=mk('div','sabox'),top=mk('div','satop');top.innerHTML='<b>今週の挑戦者 '+op[2]+'</b><small>'+(r.open?'締め切りまで '+fmtLeft(r.end-Date.now()):r.closed?'結果発表 ・ 次は月曜朝5時から':'月曜朝5時から')+'</small>';card.append(top);
   const ru=mk('div','sarule');ru.innerHTML='<i>×2</i><span>今週のルール <b>'+rule.n+'</b><br>'+rule.d+'</span>';card.append(ru);
-  if(r.closed&&r.my)card.append(Object.assign(mk('p','sadone'),{innerHTML:'結果 <b>'+r.my.rank+'位</b>('+saFmt(r.my.s)+'点)。報酬 <b>+'+r.myPts+'pt</b>'+(r.myCh?'・宝箱 <b>'+r.myCh+'つ</b>':'')+'(もう届いています)'+(r.my.rank===1?'。次の週は名前の横に王冠が付きます':'')}));
+  if(r.closed&&r.my){card.append(Object.assign(mk('p','sadone'),{innerHTML:'結果 <b>'+r.my.rank+'位</b>('+saFmt(r.my.s)+'点)。届いた報酬:<b>+'+saFmt(r.myPts)+'pt</b> ・ 好きなガチャのチケット <b>×'+r.myTk+'</b> ・ 経験値 <b>+'+r.myXp+'</b>'+(r.myCh?' ・ 分身の宝箱 <b>×'+r.myCh+'</b>':'')+(r.ttl?' ・ 称号「<b>'+r.ttl.n+'</b>」':'')+'。チケットはガチャ画面で通常・TCG・限定のどれかに変えられます'+(r.my.rank===1?'。次の週は名前の横に王冠':'')}));
+    if(r.ttl){const tb=mk('button','btn'+(r.ttl.on?'':' main'),r.ttl.on?'称号「'+r.ttl.n+'」を外す':'称号「'+r.ttl.n+'」を付ける(名前の下に出ます)');tb.type='button';tb.onclick=()=>{tb.disabled=true;HOST.saWear(r.ttl.id).then(()=>setTimeout(renderSa,300)).catch(()=>{tb.disabled=false;toastB('付けられませんでした')})};card.append(tb)}}
   else{const me=mk('div','same');me.innerHTML=r.my?'<span>あなた <em>'+r.my.rank+'位</em>'+(r.my.up?' ・ '+(r.my.rank-1)+'位まであと '+saFmt(r.my.up)+'点':' ・ いま1位')+'</span><b>'+saFmt(r.my.s)+'</b>':'<span>'+(r.open?'まだ挑戦していません。3回のうちいちばん良い点で順位が決まります':'今週は参加しませんでした')+'</span>';card.append(me)}
   if(r.rank.length){const ol=mk('ol','sark0');r.rank.slice(0,8).forEach((x,i)=>{const li=mk('li',x.me?'me':'');li.innerHTML='<em>'+(i+1)+'</em><span>'+x.name+(x.crown?CROWN:'')+'</span><em>'+saFmt(x.s)+'</em>';ol.append(li)});card.append(ol)}
-  if(!r.closed){const rw=mk('div','sarew');rw.innerHTML=r.pts.map((p,i)=>'<span><b>'+(i+1)+'位</b>'+p+'pt・宝箱'+r.chs[i]+'</span>').join('')+'<span><b>参加</b>'+r.pt0+'pt</span>';card.append(rw)}
+  if(!r.closed){const rw=mk('div','sarw2');rw.innerHTML='<table><tr><th></th><th>pt</th><th>ガチャ券</th><th>経験値</th><th>ほか</th></tr>'+r.pts.map((p,i)=>'<tr><td>'+(i+1)+'位</td><td>'+saFmt(p)+'</td><td>×'+r.tks[i]+'</td><td>+'+r.xps[i]+'</td><td>称号「'+r.ttls[i+1]+'」・宝箱'+r.chs[i]+(i===0?'・王冠':'')+'</td></tr>').join('')+'<tr><td>参加</td><td>'+r.pt0+'</td><td>×'+r.tk0+'</td><td>+'+r.xp0+'</td><td></td></tr></table><small>ガチャ券は「好きなガチャのチケット」。通常パック・TCGパック・限定ガチャの1回分に変えられます</small>';card.append(rw)}
   if(r.open){const bt=mk('button','btn main',r.left>0?'挑戦する(今日あと'+r.left+'回)':'今日の3回は終わりました(朝5時に戻ります)');bt.type='button';bt.disabled=r.left<=0;bt.onclick=()=>{if(playing)return;const q=HOST.sa();if(!q.open||q.left<=0){renderSa();return}startBattle(saOpp(q))};card.append(bt)}
   box.append(card);
-  box.append(mk('p','note','平日(月曜朝5時〜金曜朝5時)に開催。相手はあなたと同じ強さの挑戦者で、'+SA_TURNS+'手まで戦います。点数は ダメージ(相手のHPを削った割合)+撃破ボーナス(倒すと2,000点、残りの手数1つにつき+100)+残りHP+ぶつかり合い(勝ち800・MAX1,500)。金曜朝5時に締め切って、順位に応じてポイントと宝箱が届きます。'+(r.champ&&!r.closed?'前回の1位は '+r.champ+'。':'')));
+  box.append(mk('p','note','平日(月曜朝5時〜金曜朝5時)に開催。相手はあなたと同じ強さの挑戦者で、'+SA_TURNS+'手まで戦います。点数は ダメージ(相手のHPを削った割合)+撃破ボーナス(倒すと2,000点、残りの手数1つにつき+100)+残りHP+ぶつかり合い(勝ち800・MAX1,500)。金曜朝5時に締め切って、順位に応じてポイント・好きなガチャのチケット・経験値・分身の宝箱・称号が届きます。'+(r.champ&&!r.closed?'前回の1位は '+r.champ+'。':'')));
   $('san').textContent=r.open?'開催中':r.closed?'結果発表':'月曜朝5時から'}
 /* the score of a finished try, part by part */
 function saScore(R,A,B,rule){const dealt=Math.max(0,R.hs[1]-Math.max(0,R.hp[1])),ko=R.hp[1]<=0,left=Math.max(0,SA_TURNS-R.ev.length);

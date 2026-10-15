@@ -6254,7 +6254,7 @@ function kmrCut(item,done){
   o.onclick=close;setTimeout(close,6200);
 }
 
-const ITEM=id=>ITEMS.find(x=>x.id===id)||sTitle(id);
+const ITEM=id=>ITEMS.find(x=>x.id===id)||sTitle(id)||(typeof saTitle==='function'?saTitle(id):null);
 /* season titles are not gacha items: id S<season>_<tier index>, earned from the season record */
 function sTitle(id){const m=/^S(\d+)_(\d)$/.exec(id||'');if(!m)return null;const ti=+m[2];return TN(ti)?{id,k:'t',r:[0,0,1,2,3,3,4][ti],n:'S'+m[1]+' '+TN(ti)[1]}:null}
 function rollRar(t){let x=Math.random()*100;for(let j=0;j<t.length;j++){if(x<t[j])return j;x-=t[j]}return 0}
@@ -7476,7 +7476,7 @@ function render(){
   if(sorted.length>=4){const mb=el('button','more',HM.rank?'1〜3位の詳細をとじる':'1〜3位の詳細も見る');mb.onclick=()=>{HM.rank=!HM.rank;render()};rk.append(mb)}
   rk.querySelectorAll('[data-pid]').forEach(e=>{e.style.cursor='pointer';e.onclick=()=>{const q=players.find(x=>x.id===e.dataset.pid);if(q)showProfile(q,statLine(q))}});
   {const h=sigOf(rk.innerHTML);if(rkLive.__h!==h){rkLive.__h=h;rkLive.replaceChildren(...rk.childNodes)}}
-  renderMine();renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews()}$('acct').hidden=!myPlayer();
+  renderMine();renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews()}$('acct').hidden=!myPlayer();
   {const me=myPlayer(),pc=$('pcard'),nc=me?profileCard(me,statLine(me)):el('div','empty','アカウントを設定すると、ここにプロフィールが出ます'),h=sigOf(nc.outerHTML);if(pc.__h!==h){pc.__h=h;pc.replaceChildren(nc)}$('pedit').hidden=!me}
   if(typeof watchInv==='function'){watchInv();renderGacha()}
   {const s=$('opp'),v=s.value,me=myPlayer();s.replaceChildren();
@@ -7596,17 +7596,17 @@ function wkTop(w){const key=matches.length+'|'+(typeof tcgms!=='undefined'?tcgms
     let best=-1e9,top=[];[...ids].filter(ok).forEach(id=>{const r=rateAt(rateSeries(id,g),t1-1);if(r==null)return;if(r>best){best=r;top=[id]}else if(r===best)top.push(id)});
     if(top.length)out[g]={ids:top,r:best}});
   wkMemo[w]={k:key,v:out};return out}
-function wkEarned(pid){const cw=weekNo(now());let n=0;for(let w=WK1_0;w<cw;w++){const T=wkTop(w);Object.entries(T).forEach(([g,x])=>{if(x.ids.includes(pid))n+=WK1_N(g)})}return n}
+function wkEarned(pid){const cw=weekNo(now());let n=0;for(let w=WK1_0;w<cw;w++){const T=wkTop(w);Object.entries(T).forEach(([g,x])=>{if(x.ids.includes(pid))n+=WK1_N(g)})}return n+(typeof saTk==='function'?saTk(pid):0)}
 const wkConvL=()=>Array.isArray(inv.wkc)?inv.wkc:[];
 const wkConv=(k,ev)=>wkConvL().reduce((a,e)=>a+(e.k===k&&(ev==null||e.ev===ev)?(+e.n||0):0),0);
 const wkLeft=pid=>pid===invFor?Math.max(0,wkEarned(pid)-wkConvL().reduce((a,e)=>a+(+e.n||0),0)):0;
 /* turn choice tickets into real ones */
-function openWkPick(){const me=myPlayer();if(!me)return;const left=wkLeft(me.id);if(left<1){toast('週間1位チケットがありません');return}
+function openWkPick(){const me=myPlayer();if(!me)return;const left=wkLeft(me.id);if(left<1){toast('好きなガチャのチケットがありません');return}
   const opts=[['ptk','通常パックチケット',null]];
   if(typeof TCG_TK!=='undefined')Object.keys(TCG_TK).filter(k=>TCG_TK[k].k===1).forEach(k=>opts.push([k,'TCG '+TCG_TK[k].n,null]));
   if(limActive())opts.push(['ltk','限定ガチャチケット('+LIMS[banner.set].name+')',banner.start]);
   document.querySelectorAll('.wkp').forEach(x=>x.remove());const o=el('div','md ask wkp'),c=el('div','mdc');o.append(c);
-  c.append(el('div','mdt','好きなガチャのチケットにする'),el('p','sub','週間1位チケット 残り '+left+'枚。1枚ずつ、好きなガチャの1回分のチケットに変えられます(10連・ボックスは選べません)。'));
+  c.append(el('div','mdt','好きなガチャのチケットにする'),el('p','sub','好きなガチャのチケット(週間1位・スコアアタック) 残り '+left+'枚。1枚ずつ、好きなガチャの1回分のチケットに変えられます(10連・ボックスは選べません)。'));
   let sel=0,n=left;const L=el('div','wkol');opts.forEach(([k,lab],i)=>{const b=el('button','wko'+(i===0?' on':''),lab);b.onclick=()=>{sel=i;L.querySelectorAll('.wko').forEach((x,j)=>x.classList.toggle('on',j===i))};L.append(b)});
   const q=el('div','wkq'),mi=el('button','sec','−'),pl=el('button','sec','＋'),v=el('b',null,String(n));const upd=()=>{v.textContent=n+'枚';mi.disabled=n<=1;pl.disabled=n>=left};mi.onclick=()=>{n=Math.max(1,n-1);upd()};pl.onclick=()=>{n=Math.min(left,n+1);upd()};q.append(mi,v,pl);upd();
   const ok=el('button','askok','このチケットにする'),cn=el('button','sec askno','キャンセル'),close=()=>o.remove();cn.onclick=close;o.onclick=e=>{if(e.target===o)close()};
@@ -7663,7 +7663,7 @@ const admInv={};
    - experience quest (5 opponents in a row): a clear gives XP 20/40/70/120 by grade, the first 3 clears a day
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
-const BUN_SRC='bunshin.html?v=15',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=16',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -7694,7 +7694,10 @@ function raidInfo(wk){const key=bunLogs.length+'|'+players.length+'|'+Object.key
 /* ---------- weekday score attack (スコアアタック): Monday 5:00 to Friday 5:00, 3 tries a day, the best try of the week counts.
    Modelled on Puzzle & Dragons' ranking dungeons (a score made of several parts, ranked, crowns for the top) and Blue Archive's
    total assault (3 tickets a day, rank rewards when the season closes). A try is logged as bunlog d:'xs'+week, s:score. ---------- */
-const SA_DAY=3,SA_MAX=99999,SA_PTS=[300,200,120],SA_PT0=50,SA_CH=[3,2,1];
+const SA_DAY=3,SA_MAX=99999,SA_PTS=[1000,600,400],SA_PT0=150,SA_CH=[3,2,1],SA_TK=[5,3,2],SA_TK0=1,SA_XP=[80,60,40],SA_XP0=20;
+/* rewards reach the rest of the app: points, gacha tickets of your choice (the weekly-top tickets: normal / TCG / limited), account XP, the avatar's chests, and a title for the top 3 */
+const SA_TTL=['','スコアアタック王','スコアの銀星','スコアの銅星'];
+function saTitle(id){const m=/^SA(\d+)_([123])$/.exec(id||'');return m?{id,k:'t',r:[0,4,3,2][+m[2]],n:SA_TTL[+m[2]]}:null}
 const saStart=wk=>(7*wk-3)*864e5-4*3600000,saEnd=wk=>raidStart(wk);
 const bunS=l=>/^xs\d/.test(String(l.d));
 let saC={k:'',v:{}};
@@ -7703,13 +7706,19 @@ function saInfo(wk){const key=bunLogs.length+'|'+players.length+'|'+(window.__sa
   const id='xs'+wk,L=bunLogs.filter(l=>l.d===id&&(window.__saDemo||l.t>=saStart(wk)&&l.t<saEnd(wk))).sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));
   const per={},best={},at={};for(const l of L){const k=l.a+'|'+dayNo(l.t);per[k]=(per[k]||0)+1;if(per[k]>SA_DAY)continue;const v=Math.max(0,Math.min(SA_MAX,Math.round(+l.s||0)));if(best[l.a]==null||v>best[l.a]){best[l.a]=v;at[l.a]=l.t}}
   const rank=Object.keys(best).map(a=>({a,s:best[a],t:at[a]})).sort((x,y)=>y.s-x.s||x.t-y.t),closed=!saOpen(wk)&&(window.__saDemo==='done'||now()>=saEnd(wk)),pts={},ch={};
-  if(closed)rank.forEach((x,i)=>{pts[x.a]=SA_PTS[i]!=null?SA_PTS[i]:SA_PT0;ch[x.a]=SA_CH[i]||0});
-  return saC.v[wk]={id,wk,rank,closed,pts,ch}}
+  const tk={},xp={};if(closed)rank.forEach((x,i)=>{pts[x.a]=SA_PTS[i]!=null?SA_PTS[i]:SA_PT0;ch[x.a]=SA_CH[i]||0;tk[x.a]=SA_TK[i]!=null?SA_TK[i]:SA_TK0;xp[x.a]=SA_XP[i]!=null?SA_XP[i]:SA_XP0});
+  return saC.v[wk]={id,wk,rank,closed,pts,ch,tk,xp}}
 function saWeeks(pid){const W=new Set();for(const l of bunLogs)if(l.a===pid&&bunS(l))W.add(+String(l.d).slice(2));return [...W]}
 function saPts(pid){let t=0;for(const wk of saWeeks(pid))t+=saInfo(wk).pts[pid]||0;return t}
 function saChests(pid){let t=0;for(const wk of saWeeks(pid))t+=saInfo(wk).ch[pid]||0;return t}
+function saTk(pid){let t=0;for(const wk of saWeeks(pid))t+=saInfo(wk).tk[pid]||0;return t}
+function saXp(pid,before){let t=0;for(const wk of saWeeks(pid))if(!before||saEnd(wk)<before)t+=saInfo(wk).xp[pid]||0;return t}
+/* once per finished week, the first time you open the app after it closes: a result screen like the season one */
+function saNotice(){const me=myPlayer();if(!me||typeof bunReady!=='undefined'&&!bunReady)return;const cw=weekNo(now()),wk=saInfo(cw).closed?cw:cw-1,r=saInfo(wk);if(!r.closed)return;const i=r.rank.findIndex(x=>x.a===me.id);if(i<0)return;
+  let seen=0;try{seen=+localStorage.getItem('saseen_'+me.id)||0}catch(e){return}if(seen>=wk)return;try{localStorage.setItem('saseen_'+me.id,wk)}catch(e){}
+  const ti=[6,5,4][i]||3;whenFree(()=>celebrate(me.name,ti,null,{k:'SCORE ATTACK RESULT',big:(i+1)+'位',jp:'分身スコアアタック  '+r.rank[i].s.toLocaleString()+'点  ·  '+r.rank.length+'人中',sub:'+'+r.pts[me.id]+'pt  ·  好きなガチャのチケット ×'+r.tk[me.id]+'  ·  経験値 +'+r.xp[me.id]+(r.ch[me.id]?'  ·  分身の宝箱 ×'+r.ch[me.id]:'')+(i<3?'  ·  称号「'+SA_TTL[i+1]+'」':'')}))}
 function raidPts(pid){let t=0;const W=new Set();for(const l of bunLogs)if(l.a===pid&&bunR(l))W.add(+String(l.d).slice(2));for(const wk of W)t+=raidInfo(wk).pts[pid]||0;return t}
-const bunXp=(pid,before)=>bunAtk(pid,before).reduce((a,l)=>a+(l.w?10:5),0)+bunXq(pid,before).reduce((a,l)=>a+BUN_XQ[l.d],0);
+const bunXp=(pid,before)=>bunAtk(pid,before).reduce((a,l)=>a+(l.w?10:5),0)+bunXq(pid,before).reduce((a,l)=>a+BUN_XQ[l.d],0)+saXp(pid,before);
 function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c++;for(const l of bunLogs)if(l.a===pid&&bunQ(l)&&!bunR(l)&&!bunS(l)&&bunRoll(l.id,.1))c++;c+=saChests(pid);
   for(const m of matches)if((m.w===pid||m.l===pid)&&m.t>=BUN0&&bunRoll(m.id+pid,.4))c++;
   if(typeof tcgms!=='undefined'&&typeof tcgDone==='function')for(const d of tcgms)if((d.a===pid||d.b===pid)&&tcgDone(d)&&d.wa!=='draw'&&(+d.t||0)>=BUN0&&bunRoll(d.id+pid,.4))c++;return c+(window.__bunDemoChests||0)/* the demo panel can add some */}
@@ -7749,7 +7758,10 @@ window.BUNSHINHOST={
     return {open,closed:r.closed,wk,rule:((wk%4)+4)%4,start:saStart(wk),end:saEnd(wk),next:saStart(wk+1),left:open?Math.max(0,SA_DAY-used):0,day:SA_DAY,
       rank:r.rank.map((x,k)=>({name:nm(x.a),s:x.s,me:x.a===me,crown:!!champ&&x.a===champ.a&&!r.closed})),my:i>=0?{rank:i+1,s:r.rank[i].s,up:i>0?r.rank[i-1].s-r.rank[i].s+1:0}:null,
       myPts:r.pts[me]||0,myCh:r.ch[me]||0,champ:champ?nm(champ.a):'',champMe:!!champ&&champ.a===me,
-      last:prev.closed&&prev.rank.length?{rank:prev.rank.findIndex(x=>x.a===me)+1,pts:prev.pts[me]||0}:null,pts:SA_PTS,pt0:SA_PT0,chs:SA_CH}},
+      last:prev.closed&&prev.rank.length?{rank:prev.rank.findIndex(x=>x.a===me)+1,pts:prev.pts[me]||0}:null,pts:SA_PTS,pt0:SA_PT0,chs:SA_CH,tks:SA_TK,tk0:SA_TK0,xps:SA_XP,xp0:SA_XP0,
+      myTk:r.tk[me]||0,myXp:r.xp[me]||0,ttl:r.closed&&i>=0&&i<3?{id:'SA'+wk+'_'+(i+1),n:SA_TTL[i+1],on:((myPlayer().eq||{}).t)==='SA'+wk+'_'+(i+1)}:null,ttls:SA_TTL}},
+  /* wear (or take off) a score attack title: the same place as the season titles */
+  saWear:id=>{const p=myPlayer();if(!p||!db)return Promise.reject(new Error('offline'));const cur=Object.assign({},p.eq||{});cur.t=cur.t===id?null:id;return db.doc('players/'+p.id).update({eq:cur})},
   saLog:sc=>{const wk=weekNo(now());return BUNSHINHOST.log({d:'xs'+wk,w:0,s:Math.max(0,Math.min(SA_MAX,Math.round(+sc||0)))}).then(()=>{saC.k='';return BUNSHINHOST.sa()})},
   chests:()=>bunChests(myPlayer().id),
   /* experience quest: clears per grade (for unlocking) and today's clears (the first 3 a day give XP) */
@@ -9656,7 +9668,7 @@ function renderGacha(){if(window.__tcgReady&&gPage==='tcg')renderTcgPacks();
     gc.append(el('p','limph','UR以上のアイテム(タップでプレビュー)'));const g=el('div','limgrid');
     ITEMS.filter(x=>x.r>=3&&!x.lim&&!x.retired).sort((a,b)=>b.r-a.r).forEach(it=>{const c=el('button','limcell');c.append(cardFace(it),el('span','limk',KIND[it.k]));c.onclick=e=>{e.preventDefault();previewAny(it)};g.append(c)});gc.append(g);
     gc.append(cheerBox(KMRS.map((K,i)=>K.lim?-1:i).filter(i=>i>=0),'通常KMRの応援は、「がんばれ!」などの文字が大きく出ます。'))}}
-  {const g=$('gtix');g.replaceChildren();$('tixsec').hidden=false;{const k=wkLeft(me.id);if(k>0){const r=el('div','tkrow wkrow');r.append(el('span','tkn','週間1位チケット(好きなガチャ) ×'+k));const b=el('button','tkbtn','使う');b.onclick=openWkPick;r.append(b);g.append(r)}}{const w=wildLeft();if(w>0){const r=el('div','tkrow');r.append(el('span','tkn','好きな限定KMR 選択チケット ×'+w));const b=el('button','tkbtn','使う');b.onclick=kmrPicker;r.append(b);g.append(r)}}Object.entries(inv.tix||{}).forEach(([ki,n])=>{if(!(n>0)||!KMRS[ki])return;const r=el('div','tkrow');r.append(el('span','tkn',KMRS[ki].n+' 選択チケット ×'+n));const b=el('button','tkbtn','使う');b.onclick=()=>useTicket(+ki);r.append(b);g.append(r)});$('gtix0').hidden=!!g.childNodes.length}
+  {const g=$('gtix');g.replaceChildren();$('tixsec').hidden=false;{const k=wkLeft(me.id);if(k>0){const r=el('div','tkrow wkrow');r.append(el('span','tkn','好きなガチャのチケット ×'+k));const b=el('button','tkbtn','使う');b.onclick=openWkPick;r.append(b);g.append(r)}}{const w=wildLeft();if(w>0){const r=el('div','tkrow');r.append(el('span','tkn','好きな限定KMR 選択チケット ×'+w));const b=el('button','tkbtn','使う');b.onclick=kmrPicker;r.append(b);g.append(r)}}Object.entries(inv.tix||{}).forEach(([ki,n])=>{if(!(n>0)||!KMRS[ki])return;const r=el('div','tkrow');r.append(el('span','tkn',KMRS[ki].n+' 選択チケット ×'+n));const b=el('button','tkbtn','使う');b.onclick=()=>useTicket(+ki);r.append(b);g.append(r)});$('gtix0').hidden=!!g.childNodes.length}
   $('gpity').textContent='通常パックのGR確定まであと '+(PITY-(inv.since||0))+' パック  ·  開けたパック '+(inv.packs||0);
 }
 /* 10連: ten packs in one go (same price as ten), with at least one SR or better guaranteed */
