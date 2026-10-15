@@ -113,3 +113,19 @@ exports.pushUpdate = onDocumentWritten('config/update', async ev => {
   await send(null, 'give', {title: a.title || 'アップデート', body: a.body || '新しいバージョンになりました。アプリを開いて確認してね', go: 'home', tag: 'upd' + a.v});
   await ev.data.after.ref.update({sent: true}).catch(() => {});
 });
+/* 取引所 (v134): a new listing goes to everyone but the seller. The app posts the listing to the timeline as feed/l_<auction id>
+   (with the card's name), so the text is taken from there */
+exports.pushAucList = onDocumentCreated('feed/{id}', async ev => {
+  const f = ev.data && ev.data.data(); if (!f || !/^l_/.test(ev.params.id) || f.k !== 'mkt') return;
+  const ps = (await db.collection('players').get()).docs.map(d => d.id).filter(id => id !== f.by);
+  await send(ps, 'give', {title: '取引所に出品', body: f.x || '新しい出品があります', go: 'gacha', tag: 'auc' + ev.params.id});
+});
+/* someone bid higher: tell the one who was on top. A buy-now: tell the seller */
+exports.pushAucBid = onDocumentUpdated('auc/{id}', async ev => {
+  const b = ev.data.before.data() || {}, a = ev.data.after.data() || {};
+  if (!a.hp || b.hp === a.hp && b.hb === a.hb) return;
+  let nm = 'カード';
+  try { const f = (await db.doc('feed/l_' + ev.params.id).get()).data(); const m = f && /「(.+?)」/.exec(f.x || ''); if (m) nm = '「' + m[1] + '」'; } catch (e) {}
+  if (b.hp && b.hp !== a.hp) await send([b.hp], 'give', {title: '入札が抜かれました', body: nm + ' がいま ' + a.hb + 'pt。取り返すなら取引所へ', go: 'gacha', tag: 'ob' + ev.params.id});
+  if (a.bn > 0 && a.hb >= a.bn && !(b.hb >= a.bn)) await send([a.s], 'give', {title: '即決で売れました', body: nm + ' が ' + a.hb + 'pt で売れました', go: 'gacha', tag: 'bn' + ev.params.id});
+});
