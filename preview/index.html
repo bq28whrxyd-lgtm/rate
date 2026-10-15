@@ -6979,7 +6979,7 @@ const aucGet=a=>Math.floor((+a.hb||0)*(1-AUC_FEE));
 function mktNet(pid){let t=0;for(const a of aucs){if(a.hp===pid&&(+a.n||0)>0)t-=+a.hb||0;if(a.s===pid&&aucSold(a))t+=aucGet(a)}
   for(const y of yamis){if(y.tb===pid)t-=YAMI_PT;if(y.tb&&y.d===pid)t+=YAMI_BACK}return t}
 function mktWatch(){if(!db||mktWatch.on)return;mktWatch.on=1;
-  db.collection('auc').onSnapshot(s=>{aucs=s.docs.map(d=>({id:d.id,...d.data()}));aucLoaded=true;queueRender();mktClaim();mktPaint()},()=>{aucLoaded=true});
+  db.collection('auc').onSnapshot(s=>{aucs=s.docs.map(d=>({id:d.id,...d.data()}));aucLoaded=true;queueRender();mktClaim();mktPaint();try{renderHbar()}catch(e){}},()=>{aucLoaded=true});
   db.collection('yami').onSnapshot(s=>{yamis=s.docs.map(d=>({id:d.id,...d.data()}));yamiLoaded=true;queueRender();mktClaim();mktPaint()},()=>{yamiLoaded=true});
   setInterval(()=>{mktClaim();mktPaint(true)},30000)}
 /* one copy into / out of an inventory copy */
@@ -7007,7 +7007,7 @@ async function aucList(k,c,f,sp,bn,hours){const me=myPlayer();if(!db||!me||!invL
 const aucMin=a=>(+a.n||0)>0?(+a.hb)+Math.max(5,Math.ceil(+a.hb*.05)):+a.sp;
 async function aucBid(a,amt){const me=myPlayer();if(!db||!me)throw new Error('me');amt=Math.round(+amt||0);if(a.s===me.id)throw new Error('own');if(!aucOpen(a))throw new Error('closed');if(a.hp===me.id)throw new Error('top');
   if(amt<aucMin(a))throw new Error('low');if(a.bn>0&&amt>a.bn)amt=a.bn;if(balance(me.id)<amt)throw new Error('pt');
-  const up={hb:amt,hp:me.id,n:(+a.n||0)+1};if(a.bn>0&&amt>=a.bn)up.end=Math.min(a.end,now());await db.doc('auc/'+a.id).update(up);return amt}
+  const up={hb:amt,hp:me.id,n:(+a.n||0)+1};if(a.bn>0&&amt>=a.bn)up.end=Math.min(a.end,now());await db.doc('auc/'+a.id).update(up);try{const L=JSON.parse(localStorage.getItem('aucBids')||'[]');if(!L.includes(a.id))L.unshift(a.id);localStorage.setItem('aucBids',JSON.stringify(L.slice(0,60)))}catch(e){}return amt}
 async function aucCancel(a){const me=myPlayer();if(!db||!me||a.s!==me.id||(+a.n||0)>0)throw new Error('no');await db.doc('auc/'+a.id).delete();
   const nv=JSON.parse(JSON.stringify(inv));cardAdd(nv,a.k,a.c,a.f,1);nv.mb=(nv.mb||[]).concat([a.id]);await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha()}
 /* 闇鍋: give one copy / take a random one */
@@ -8731,6 +8731,12 @@ function notes(){
   const T=curTour();if(T){if(T.st==='entry')L.push({key:'te'+T.id,t:T.t,k:'大会',x:'「'+T.n+'」のエントリー受付中',go:'battle'});
     if(T.st==='live'){const nx=tourNext(T,me.id);if(nx)L.push({key:'tn'+T.id+nx.key,t:T.ts||T.t,k:'大会',x:'「'+T.n+'」'+roundName(nx.r,bracket(T).length)+'  vs '+pname(nx.opp),go:'battle'})}
     const ch=tourChamp(T);if(ch)L.push({key:'tc'+T.id,t:T.te||now(),k:'大会',x:'「'+T.n+'」優勝は '+pname(ch),go:'battle'})}
+  /* 取引所 (v134): new listings by others, your bid overtaken, your listing sold */
+  if(typeof aucs!=='undefined'){let mb=[];try{mb=JSON.parse(localStorage.getItem('aucBids')||'[]')}catch(e){}
+    aucs.forEach(a=>{const I=cardInfo(a.k,a.c,a.f);if(!I)return;const nm=(a.k==='t'?'TCG ':'')+I.rk+'「'+I.nm+'」';
+      if(a.s!==me.id&&aucOpen(a)&&now()-a.t<3*864e5)L.push({key:'au'+a.id,t:a.t,k:'出品',x:pname(a.s)+'が'+nm+'を出品(開始 '+a.sp+'pt'+(a.bn?' · 即決 '+a.bn+'pt':'')+' · '+mktLeft(a.end)+')',go:'mkt'});
+      if(mb.includes(a.id)&&a.hp&&a.hp!==me.id&&a.s!==me.id)L.push({key:'ob'+a.id+'_'+a.n,t:aucOpen(a)?now()-1:a.end,k:'オークション',x:aucOpen(a)?nm+'の入札が抜かれました(いま '+a.hb+'pt · '+mktLeft(a.end)+')':nm+'は '+pname(a.hp)+' が '+a.hb+'pt で落札しました',go:'mkt'});
+      if(a.s===me.id&&aucSold(a))L.push({key:'as'+a.id,t:a.end,k:'オークション',x:nm+'が '+a.hb+'pt で売れました(+'+aucGet(a)+'pt)',go:'mkt'})})}
   return L.filter(x=>x.t).sort((a,b)=>b.t-a.t).slice(0,30)}
 const ntSeen=()=>{try{return JSON.parse(localStorage.getItem('ntSeen')||'null')}catch(e){return null}};
 function ntUnread(){const me=myPlayer();if(!me||!playersLoaded||!grantsLoaded||!predsLoaded||!chsLoaded)return 0;let S=ntSeen();const L=notes();
@@ -8741,7 +8747,7 @@ function openNotes(){
   document.querySelectorAll('.ntw').forEach(x=>x.remove());const S=ntSeen()||[],L=notes();
   const w=el('div','shw ntw'),st=el('div','sht'),hh=el('div','shh'),cl=el('button','sec','閉じる');hh.append(el('b',null,'通知'),cl);
   const list=el('div','ntl');if(!L.length)list.append(el('div','empty','まだ通知はありません'));
-  L.forEach(n=>{const r=el('button','ntr'+(S.includes(n.key)?'':' new'));r.append(el('span','ntk',n.k),el('span','ntx',n.x),el('span','nta',ago(n.t)));r.onclick=()=>{w.remove();setView(n.go)};list.append(r)});
+  L.forEach(n=>{const r=el('button','ntr'+(S.includes(n.key)?'':' new'));r.append(el('span','ntk',n.k),el('span','ntx',n.x),el('span','nta',ago(n.t)));r.onclick=()=>{w.remove();if(n.go==='mkt'){setView('gacha');setTimeout(()=>{try{gpageSet('mkt')}catch(e){}},250)}else setView(n.go)};list.append(r)});
   st.append(el('div','grab'),hh,list,el('div','sub ntnote','アプリを閉じているときのスマホへの通知(ロック画面)は、まだありません。開いたときにここにまとまります。'));w.append(st);document.body.append(w);
   ntMarkAll();renderHbar();const close=()=>sheetOut(w);cl.onclick=close;w.onclick=e=>{if(e.target===w)close()}}
 
