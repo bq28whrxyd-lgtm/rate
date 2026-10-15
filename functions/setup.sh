@@ -18,5 +18,10 @@ echo "== 準備中(1〜2分)"
 (cd functions && npm install --no-audit --no-fund --loglevel=error)
 echo "== Firebaseに入れています(3〜5分)"
 npx -y firebase-tools@latest deploy --only functions --project $P --force
+echo "== 次から自動で入るように、リポジトリの鍵に通知の仕組みを入れる権限を渡しています(1分ほど)"
+SA=firebase-adminsdk-fbsvc@$P.iam.gserviceaccount.com
+for ROLE in roles/cloudfunctions.admin roles/run.admin roles/iam.serviceAccountUser roles/artifactregistry.admin roles/cloudbuild.builds.editor roles/eventarc.admin roles/serviceusage.serviceUsageConsumer; do
+  gcloud projects add-iam-policy-binding $P --member="serviceAccount:$SA" --role="$ROLE" --condition=None --quiet >/dev/null && echo "   OK $ROLE" || echo "   (渡せませんでした: $ROLE)"
+done
 echo ""
 echo "== 完了しました。このあとアプリを開くと、みんなにアップデートの通知が届きます"
