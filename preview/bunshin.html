@@ -1713,7 +1713,7 @@ $('tryeq').onclick=()=>{/* the try tab is prototype only: in the app it must not
 /* ---------- glue ---------- */
 /* redraw only (no saving): used when new data arrives from the app, so a save never answers a save */
 function refresh(){renderLook();renderStat();renderGear();renderFight();renderTry();$('pow').textContent=power(fighterMe().st);if(HOST){renderHostGear();renderHostBar();renderDef();renderEnh()}}
-function changed(){save();refresh()}
+function changed(){save();refresh();clearTimeout(changed._t);changed._t=setTimeout(exportThumb,500)}
 /* 10/15: take back gear that came from the prototype-only buttons (試す・レア度の見本・試作の宝箱). Those never set the
    enhancement field e; every real gacha pull and chest has given e:0 since the first release (v124). The starting wooden sword
    (id 1) is real. Runs on every open in the app; once the gear is gone nothing matches, so it does nothing more. */
@@ -1726,6 +1726,11 @@ function takeBackProto(){const bad=S.inv.filter(it=>it.e===undefined&&!(it.id===
 if(HOST){document.documentElement.classList.add('inapp');{const n=takeBackProto();if(n){save();setTimeout(()=>toastB('試作用のボタンで手に入った装備'+n+'個を回収しました'),800)}}/* a new avatar starts with its points already spread (it can be redone in ステータス) */if(usedPts(S.al||{})===0)S.al=autoAlloc(S.lv,'atk');OPP.length=0;try{HOST.friends().forEach(o=>OPP.push(o))}catch(e){}if(S.opp>=OPP.length)S.opp=0;
   $('hclose').onclick=()=>{saveNow();HOST.close()};$('ga1').onclick=()=>gachaPull(1);$('ga10').onclick=()=>gachaPull(10);$('g10').onclick=()=>{$('g10').hidden=true};
   HOST.onChange&&HOST.onChange(()=>{S.lv=HOST.level();const L=HOST.friends();OPP.length=0;L.forEach(o=>OPP.push(o));if(!playing&&!OV)refresh();else renderHostBar()})}
-ready.then(()=>{changed();requestAnimationFrame(frame)});
+/* a picture of your avatar for the app (the skin gacha launches it): drawn once on the main canvas, cropped, handed to the host */
+function exportThumb(){if(!HOST||!HOST.thumb)return;try{const me=fighterMe();const out=[];for(const pose of ['p1','p6']){G.save();G.setTransform(SC,0,0,SC,0,0);G.clearRect(0,0,W,H);drawFighter(me,190,GY,{pose,flip:false});G.restore();
+    const x0=190-70,y0=GY-150,w=140,h=160;const c=document.createElement('canvas');c.width=w*SC;c.height=h*SC;c.getContext('2d').drawImage(cv,x0*SC,y0*SC,w*SC,h*SC,0,0,w*SC,h*SC);out.push(c.toDataURL('image/png'))}
+    HOST.thumb({idle:out[0],attack:out[1],w:140,h:160,foot:150})}catch(e){}}
+ready.then(()=>{changed();requestAnimationFrame(frame);setTimeout(exportThumb,400)});
+
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
