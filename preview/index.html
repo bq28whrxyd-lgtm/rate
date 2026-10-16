@@ -2783,6 +2783,9 @@ button.tcgkeep{width:100%;margin-top:8px}
 .mtgp{position:relative;display:flex;gap:28px;justify-content:center}.mtgc{display:grid;justify-items:center;gap:4px}.mtgc>:first-child{width:64px;height:64px}.mtgc small{font-size:11px;opacity:.7;color:#f5e6c4}.mtgc b{font-size:14px;color:#fff}
 .mtgt{position:relative;font-size:14px;line-height:1.55;color:#fff4dc}.mtgv{position:relative;font:900 28px/1 system-ui,sans-serif;color:#ffe08a;text-shadow:0 2px 12px rgba(0,0,0,.6);font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){.mtgr,.mtgseal{animation:none}}
+/* 分身 loading card (10/16) */
+.bunld{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:0 32px;text-align:center;background:#07080c;color:#e8e6f0;transition:opacity .3s}.bunld.out{opacity:0}.bunld b{font-size:15px}.bunld small{font-size:12px;color:#9a98a8;line-height:1.6}.bunld button{min-width:200px}.bunld.fail .bunsp{display:none}
+.bunsp{width:34px;height:34px;border-radius:50%;border:3px solid #ffffff22;border-top-color:#f2d58a;animation:spin .9s linear infinite}
 /* ハロウィン (v135): a plum night, pumpkin orange as the one strong colour, candy wrappers */
 .hlw{position:fixed;inset:0;z-index:120;background:radial-gradient(120% 60% at 50% -10%,#4a1d5c 0%,#1c0d26 45%,#0c0710 100%);color:#f6ece2;overflow:auto;-webkit-overflow-scrolling:touch;animation:fade .25s both}
 .hlw::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(2px 2px at 12% 18%,#fff8 50%,transparent 51%),radial-gradient(1.5px 1.5px at 78% 12%,#fff6 50%,transparent 51%),radial-gradient(1.5px 1.5px at 62% 30%,#fff5 50%,transparent 51%),radial-gradient(2px 2px at 30% 40%,#ffd9a855 50%,transparent 51%);opacity:.8}
@@ -9065,7 +9068,7 @@ const admInv={};
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
 const BUN_GIRL=false;/* 分身の女の子(一旦お休み)。bunshin の GIRL_ON と合わせる */
-const BUN_SRC='bunshin.html?v=25',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=26',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -9132,6 +9135,7 @@ const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0
 function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0})},eq,al:d.al}}
 function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'}
 window.BUNSHINHOST={
+  ready:()=>{try{bunLoaded()}catch(e){}},
   mentor:()=>mtSheet(),mentorDot:()=>mtDot(),
   thumb:o=>{try{localStorage.setItem('bunThumb',JSON.stringify(o))}catch(e){}},
   state:()=>bunState(myPlayer().id),
@@ -9176,8 +9180,14 @@ window.BUNSHINHOST={
   /* the equipment gacha opens like the normal pack */
   packFx:(L,ten)=>openPackView(L.map(x=>({c:{k:'bun',r:x.r,rl:x.rl,n:x.n,svg:x.svg,slot:x.slot},isNew:x.isNew,sh:0,note:'×'+x.cnt+' 所持'})),null,'EQUIPMENT',undefined,{ten:!!ten}),
   close:()=>bunClose()};
-function bunOpen(){try{newSeen('bun134')}catch(e){}const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if(!bunReady&&db){toast('分身のデータを読み込み中です。少し待ってからもう一度');bunWatch();return}if($('bunw')||$('tcgw'))return;const o=el('div','tcgw');o.id='bunw';const f=el('iframe');f.src=BUN_SRC;f.title='分身アバターバトル';o.append(f);document.body.append(o);document.body.classList.add('tcgon');try{localStorage.setItem('bunseen_'+me.id,String(now()))}catch(e){}bunBadge()}
-function bunClose(){bunCb=null;const o=$('bunw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');queueRender()}
+function bunOpen(){try{newSeen('bun134')}catch(e){}const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if(!bunReady&&db){toast('分身のデータを読み込み中です。少し待ってからもう一度');bunWatch();return}if($('bunw')||$('tcgw'))return;const o=el('div','tcgw');o.id='bunw';const f=el('iframe');f.src=BUN_SRC;f.title='分身アバターバトル';o.append(f,bunLoading(f));document.body.append(o);document.body.classList.add('tcgon');try{localStorage.setItem('bunseen_'+me.id,String(now()))}catch(e){}bunBadge()}
+/* (10/16) while 分身 loads: a quiet loading card over it; if it is not ready in 15 seconds, a way to load it again (it could stay white) */
+let bunLT=0;
+function bunLoading(f){const w=el('div','bunld');w.innerHTML='<i class="bunsp"></i>';const t=el('b',null,'分身を読み込み中…'),s2=el('small',null,'');w.append(t,s2);
+  clearTimeout(bunLT);bunLT=setTimeout(()=>{if(!w.isConnected)return;w.classList.add('fail');t.textContent='分身を読み込めませんでした';s2.textContent='電波の弱いところや、ほかのアプリをたくさん開いているときに起きることがあります';
+    const rb=el('button','mkgo','もう一度読み込む'),cb=el('button','sec','閉じる');rb.onclick=()=>{w.remove();const nw=bunLoading(f);f.parentElement.append(nw);f.src=BUN_SRC+'&r='+Date.now()};cb.onclick=()=>bunClose();w.append(rb,cb)},15000);return w}
+function bunLoaded(){clearTimeout(bunLT);document.querySelectorAll('#bunw .bunld').forEach(x=>{x.classList.add('out');setTimeout(()=>x.remove(),300)})}
+function bunClose(){bunCb=null;clearTimeout(bunLT);const o=$('bunw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');queueRender()}
 /* a dot on the home button when someone attacked you since you last looked */
 function bunBadge(){const me=myPlayer(),b=document.querySelector('.lb-bun');if(!b)return;let seen=0;try{seen=+localStorage.getItem('bunseen_'+(me&&me.id))||0}catch(e){}let tx=me&&bunLogs.some(l=>l.d===me.id&&l.t>seen)?'1':'';if(!tx&&me){try{const r=BUNSHINHOST.raid();if(r.open&&!r.dead&&r.left>=RAID_DAY)tx='!'}catch(e){}}b.textContent=tx}
 function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadge,20000);setTimeout(bunBadge,2500);

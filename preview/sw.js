@@ -1,5 +1,5 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-const VERSION = 'v135-preview-2026-10-16i';
+const VERSION = 'v135-preview-2026-10-16j';
 const CACHE = 'ladder-preview-' + VERSION;
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'tcg_spectator.js', 'motion_lifecycle.js',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg',
@@ -26,6 +26,15 @@ self.addEventListener('fetch', e => {
   if (url.pathname.endsWith('.mp4') || req.headers.has('range')) return;
   /* the app page: newest from the network, cached copy when offline */
   const isApp = url.origin === location.origin && (url.pathname.endsWith('/') || url.pathname.endsWith('/index.html'));
+  /* (10/16) 分身 and the TCG screen (big pages opened in a frame): kept per version (?v=), so opening them again does not
+     download 2MB every time; the saved copy is used at once and refreshed in the background */
+  if (url.origin === location.origin && /\/(bunshin|tcg_play)\.html$/.test(url.pathname)) {
+    e.respondWith(caches.open(CACHE).then(c => c.match(req).then(hit => {
+      const net = fetch(req).then(r => { if (r.ok) c.put(req, r.clone()); return r; });
+      return hit || net;
+    })));
+    return;
+  }
   if (req.mode === 'navigate' && !isApp) return;   /* other pages (guide.html) go straight to the network */
   if (isApp) {
     e.respondWith(fetch(req).then(r => { const c = r.clone(); caches.open(CACHE).then(x => x.put('index.html', c)); return r; })

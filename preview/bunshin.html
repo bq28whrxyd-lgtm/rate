@@ -632,7 +632,9 @@ const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- sprites: load once, recolor per look, cache ---------- */
 const RAW={};
-const ready=Promise.all(Object.keys(SP).map(k=>new Promise(res=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);RAW[k]=g.getImageData(0,0,im.width,im.height);res()};im.src=SP[k].png})));
+/* (10/16) every picture is waited for, but a picture that fails (or takes too long on a busy iPhone) no longer keeps the whole screen white.
+   The girls' pictures are not loaded while they rest (GIRL_ON false): less memory */
+const ready=Promise.all(Object.keys(SP).filter(k=>GIRL_ON||!/^f\d/.test(k)).map(k=>new Promise(res=>{const im=new Image();let done=false;const fin=()=>{if(!done){done=true;res()}};im.onload=()=>{try{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);RAW[k]=g.getImageData(0,0,im.width,im.height)}catch(e){}fin()};im.onerror=fin;setTimeout(fin,8000);im.src=SP[k].png})));
 function recolor(px,idx,ramp,lo,span){if(!ramp)return;const R=ramp.map(hex);
   for(const i of idx){const o=i*4,l=(px[o]+px[o+1]+px[o+2])/3/255;const t=clamp((l-lo)/span,0,1);const [a,b]=t<.5?[R[0],R[1]]:[R[1],R[2]];const u=t<.5?t/.5:(t-.5)/.5;for(let k=0;k<3;k++)px[o+k]=Math.round(a[k]+(b[k]-a[k])*u)}}
 const sprKey=(l,p)=>{const b=GIRL_ON&&l.g==='f'?'f'+(l.hs||0):'m'+l.hs;return p&&SP[b+p]?b+p:b};
@@ -644,7 +646,7 @@ const bladeRamp=f=>!f?null:f.wt==='sword'?(f.wk==='wood'?WOOD:(BLADE[f.wr]||BLAD
 function recolorBlade(px,idx,ramp){if(!ramp||!idx)return;const R=ramp.map(hex);
   for(const i of idx){const o=i*4,l=(px[o]+px[o+1]+px[o+2])/3/255;if(l<.27)continue;const t=clamp((l-.3)/.62,0,1);const [a,b]=t<.5?[R[0],R[1]]:[R[1],R[2]];const u=t<.5?t/.5:(t-.5)/.5;for(let k=0;k<3;k++)px[o+k]=Math.round(a[k]+(b[k]-a[k])*u)}}
 const CACHE={};
-function sprite(l,p,f){const sk=sprKey(l,p),br=SP[sk]&&SP[sk].blade?bladeRamp(f):null,key=sk+'|'+l.hc+'|'+l.ec+'|'+(br?br.join():'')+'|'+(f?f.wt+f.wr:'');if(CACHE[key])return CACHE[key];const d=SP[sk],B=RAW[sk];if(!B)return null;
+function sprite(l,p,f){let sk=sprKey(l,p);if(!RAW[sk]){const b0=String(sk).replace(/p\w*$/,'');sk=RAW[b0]?b0:'m0'}/* (10/16) a picture that did not load falls back to the plain one */const br=SP[sk]&&SP[sk].blade?bladeRamp(f):null,key=sk+'|'+l.hc+'|'+l.ec+'|'+(br?br.join():'')+'|'+(f?f.wt+f.wr:'');if(CACHE[key])return CACHE[key];const d=SP[sk],B=RAW[sk];if(!B)return null;
   const mkc=img=>{const c=document.createElement('canvas');c.width=d.w;c.height=d.h;c.getContext('2d').putImageData(img,0,0);return c};
   const img=new ImageData(new Uint8ClampedArray(B.data),d.w,d.h);recolor(img.data,d.hair,HAIRC[l.hc],.06,.6);recolor(img.data,d.eye,EYEC[l.ec],.1,.7);recolorBlade(img.data,d.blade,br);if(f&&d.bow&&f.wt==='bow'){for(const i of d.blade)img.data[i*4+3]=0}else if(f&&d.hilt){if(SPD(f)){recolorBlade(img.data,d.hilt,SPEARSH[f.wr]);for(const i of d.blade)img.data[i*4+3]=0}else if(SWD(f)){recolorBlade(img.data,d.hilt,GRIPC[f.wr]);for(const i of d.blade)img.data[i*4+3]=0}else if(f.wt==='staff'&&SHAFT[f.wr]){recolorBlade(img.data,d.hilt,SHAFT[f.wr]);for(const i of d.blade)img.data[i*4+3]=0}else if(f.wr==='KMR')recolorBlade(img.data,d.hilt,['#000000','#0d0c11','#2a2731'])}if(br===BLADE.KMR&&d.blade&&!SWD(f)){const set=new Set(d.blade);for(const i of d.blade){const up=i-d.w,o=i*4;if(!set.has(up)&&B.data[up*4+3]===0&&B.data[o]+B.data[o+1]+B.data[o+2]>330){img.data[o]=44;img.data[o+1]=41;img.data[o+2]=51}}}
   const base=mkc(img);
@@ -1906,7 +1908,7 @@ if(HOST){document.documentElement.classList.add('inapp');{const n=takeBackProto(
 function exportThumb(){if(!HOST||!HOST.thumb)return;try{const me=fighterMe();const out=[];for(const pose of ['p1','p6']){G.save();G.setTransform(SC,0,0,SC,0,0);G.clearRect(0,0,W,H);drawFighter(me,190,GY,{pose,flip:false});G.restore();
     const x0=190-70,y0=GY-150,w=140,h=160;const c=document.createElement('canvas');c.width=w*SC;c.height=h*SC;c.getContext('2d').drawImage(cv,x0*SC,y0*SC,w*SC,h*SC,0,0,w*SC,h*SC);out.push(c.toDataURL('image/png'))}
     HOST.thumb({idle:out[0],attack:out[1],w:140,h:160,foot:150})}catch(e){}}
-ready.then(()=>{changed();requestAnimationFrame(frame);setTimeout(exportThumb,400)});
+ready.then(()=>{changed();requestAnimationFrame(frame);setTimeout(exportThumb,400);try{HOST&&HOST.ready&&HOST.ready()}catch(e){}});
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
