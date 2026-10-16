@@ -2374,6 +2374,16 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 .tpcd.foil .tpcf{box-shadow:0 0 24px rgba(130,200,255,.75),0 0 56px rgba(255,120,200,.55)}
 .tcgn.foil{color:#9ad8ff;font-weight:700}
 @media(prefers-reduced-motion:reduce){.tcf.foil,.tcf.foil .foilsheen,.tcf.foil .foilspark{animation:none}}
+/* (10/17) secret Halloween versions: a pattern holo of small pumpkins that lights up only where the foil's light band passes
+   (same angle, size and timing as .foilsheen), plus a very faint pattern all the time */
+.tcf.foil .hwholo{position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:inherit;opacity:.78;mix-blend-mode:hard-light;
+  background:repeating-linear-gradient(118deg,#ff9a2e 0 6%,#ffd34a 6% 12%,#ff4fb0 12% 18%,#9b5cff 18% 24%,#3fd0ff 24% 30%) 0 0/200% 200%;
+  -webkit-mask:url("hwpk/holo.png") 0 0/24cqw auto repeat,linear-gradient(60deg,transparent 30%,#000 43%,#000 57%,transparent 70%) 0 0/250% 250% no-repeat;
+  -webkit-mask-composite:source-in;mask:url("hwpk/holo.png") 0 0/24cqw auto repeat,linear-gradient(60deg,transparent 30%,#000 43%,#000 57%,transparent 70%) 0 0/250% 250% no-repeat;mask-composite:intersect;
+  animation:hwHolo 2.6s linear infinite}
+.tcf.foil .hwholo b{position:absolute;inset:0;background:rgba(255,236,200,.16);-webkit-mask:url("hwpk/holo.png") 0 0/24cqw auto repeat;mask:url("hwpk/holo.png") 0 0/24cqw auto repeat}
+@keyframes hwHolo{0%{-webkit-mask-position:0 0,-60% 0;mask-position:0 0,-60% 0;background-position:0% 50%}100%{-webkit-mask-position:0 0,160% 0;mask-position:0 0,160% 0;background-position:100% 50%}}
+@media(prefers-reduced-motion:reduce){.tcf.foil .hwholo{animation:none;-webkit-mask:url("hwpk/holo.png") 0 0/24cqw auto repeat;mask:url("hwpk/holo.png") 0 0/24cqw auto repeat;opacity:.35}}
 
 /* ===== BOX BREAK (box opening + secret rare). Moving parts use transform / opacity / clip-path only ===== */
 .bxc{position:fixed;inset:0;z-index:106;overflow:hidden;color:#fff;isolation:isolate;touch-action:none;-webkit-user-select:none;user-select:none;transition:opacity .26s}
@@ -10577,7 +10587,7 @@ function tcgAltMvOn(f,id,im){try{if(matchMedia('(prefers-reduced-motion: reduce)
     const drop=()=>{if(!ok)v.remove()};v.addEventListener('error',drop,{once:true});
     v.addEventListener('loadeddata',()=>{try{if(v.duration>0)v.currentTime=(performance.now()/1000)%v.duration}catch(e){}const r=v.play();if(r&&r.catch)r.catch(()=>setTimeout(drop,300))},{once:true});
     setTimeout(()=>{if(!ok&&v.paused)drop()},3000);im.after(v)})}
-function tcgFace(id,cls,foil,ga){const c=TC[id];ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;if(!ga&&window.KHD)KHD.watch(im,id);f.append(im);if(foil)f.append(el('i','foilsheen'),el('i','foilspark'));if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));else if(c.hwOf)f.append(tcgHwPk(id));return f}
+function tcgFace(id,cls,foil,ga){const c=TC[id];ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;if(!ga&&window.KHD)KHD.watch(im,id);f.append(im);if(foil)f.append(el('i','foilsheen'),el('i','foilspark'));if(foil&&c.hwOf){const h=el('i','hwholo');h.append(el('b'));f.append(h)}if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));else if(c.hwOf)f.append(tcgHwPk(id));return f}
 /* (10/17) the Halloween versions wear a small shiny pumpkin instead of a label; each of the 20 has its own face */
 let tcgHwIx=null;function tcgHwPk(id){if(!tcgHwIx){tcgHwIx={};TCGD.cards.filter(x=>x.hwOf).forEach((x,i)=>tcgHwIx[x.id]=i%20)}const n=String((tcgHwIx[id]||0)+1).padStart(2,'0'),u='url("hwpk/pk'+n+'.webp")';
   const i=el('i','tcfpk');i.setAttribute('aria-label','ハロウィン版');i.style.setProperty('--pk',u);i.style.setProperty('--pd',(-((tcgHwIx[id]||0)*0.37)%3.6).toFixed(2)+'s');i.append(el('b'),el('u'));return i}
