@@ -2526,6 +2526,10 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 .tcgsh{grid-template-rows:minmax(0,1fr);padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px))}
 .tcgshb{align-self:center;box-sizing:border-box;max-height:100%;overscroll-behavior:contain}
 .tcgshb .tcf.big{width:min(48%,26vh);flex:none}
+/* (10/16) 図鑑: シークレット・絵違いは通常の隣の別のマス。持っていないシークレットは、虹のふちだけ残して暗く */
+.tcgc.scr.lock .tcf{filter:grayscale(.55) brightness(.5)}
+.tcgc.scr.lock .tcf::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1.5px #ffd6ee66;pointer-events:none}
+.tcgc.tcgsp{visibility:hidden;pointer-events:none}
 
 /*TCGCSS-END*/
 /* monthly pass */
@@ -7254,6 +7258,7 @@ const NEWF=[
   {k:'mkt134',at:()=>[...document.querySelectorAll('.bnav [data-v=gacha],#gseg [data-g=mkt]')]},
   {k:'burn134',at:()=>[...document.querySelectorAll('.bnav [data-v=profile]'),...[...document.querySelectorAll('#v-profile button,#psub button')].filter(b=>/コレクション/.test(b.textContent)&&!b.closest('.bnav'))]},
   {k:'bun134',at:()=>[...document.querySelectorAll('#lob [data-bun]')]},
+  {k:'farm134',at:()=>[...document.querySelectorAll('#lob [data-farm]')]},
   {k:'grade134',at:()=>[...document.querySelectorAll('.grcb,.kcolc[data-c=grade],.kcolc[data-c=case],.kcolc[data-c=box],.bnav [data-v=profile]')].concat([...document.querySelectorAll('#psub button')].filter(b=>/コレクション/.test(b.textContent)))}];
 let newSeenL=null;
 function newSeenGet(){if(newSeenL)return newSeenL;try{newSeenL=JSON.parse(localStorage.getItem('nwSeen')||'[]')}catch(e){newSeenL=[]}if(!Array.isArray(newSeenL))newSeenL=[];return newSeenL}
@@ -7637,7 +7642,7 @@ async function farmSteal(o,slot){const me=myPlayer();if(!db||!me)throw new Error
   await db.doc('steal/'+o+'_'+x.i+'_'+me.id).set(doc);steals=steals.concat([Object.assign({id:o+'_'+x.i+'_'+me.id},doc)]);return doc}
 /* ---- 畑: the screen ---- */
 let farmView=null;
-function farmOpen(pid){const me=myPlayer();if(!me)return;farmWatch();document.querySelectorAll('.fmv').forEach(x=>x.remove());farmView={pid:pid||me.id};
+function farmOpen(pid){try{newSeen('farm134')}catch(e){}const me=myPlayer();if(!me)return;farmWatch();document.querySelectorAll('.fmv').forEach(x=>x.remove());farmView={pid:pid||me.id};
   const o=el('div','fmv');o.innerHTML='<div class="fmsky"><svg class="fmhill" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 80C60 40 120 60 170 50S280 20 400 60V120H0Z" fill="#6f8f6a" opacity=".55"/><path d="M0 100C80 70 160 92 240 78S340 70 400 86V120H0Z" fill="#4f7350"/></svg></div>';
   const body=el('div','fmb');o.append(body);document.body.append(o);farmView.o=o;farmView.body=body;farmDraw()}
 function farmDraw(){if(!farmView||!farmView.o||!farmView.o.isConnected)return;const me=myPlayer();if(!me)return;const pid=farmView.pid,mine=pid===me.id,p=players.find(x=>x.id===pid)||{},b=farmView.body;b.replaceChildren();
@@ -7723,7 +7728,7 @@ function mtGradShow(){const me=myPlayer();if(!me)return;const d=mentors.find(x=>
   const ok=el('button','grgo kx-grd','おめでとう');ok.onclick=e=>{e.stopPropagation();o.remove()};sc.append(ok);o.append(sc);o.onclick=()=>o.remove();document.body.append(o)}
 const mtSeen=id=>{try{return !!localStorage.getItem('mtg_'+id)}catch(e){return true}};
 /* the sheet (from the 分身 screen's 師弟 button) */
-function mtSheet(){document.querySelectorAll('.mts').forEach(x=>x.remove());const me=myPlayer();if(!me)return;mentorWatch();const o=el('div','grs mts'),b=el('div','grsb mtsb');o.append(b);
+function mtSheet(){try{newSeen('mt134')}catch(e){}document.querySelectorAll('.mts').forEach(x=>x.remove());const me=myPlayer();if(!me)return;mentorWatch();const o=el('div','grs mts'),b=el('div','grsb mtsb');o.append(b);
   const who=(pid,sub,act)=>{const p=players.find(x=>x.id===pid)||{name:'?'},r=el('div','mtr'),av=el('div','mtav');try{av.append(avatar(p))}catch(e){}const tx=el('div','mtx');tx.append(el('b',null,p.name+'  ·  Lv'+mtLv(pid)),el('span',null,sub));r.append(av,tx);if(act)r.append(act);return r};
   const btn=(t,cls,fn)=>{const x=el('button',cls||'sec',t);x.onclick=async()=>{x.disabled=true;try{await fn()}catch(e){x.disabled=false;toast({gap:'師匠はあなたよりレベルが'+MT_GAP+'以上高い人だけです',full:'その人の弟子はもう'+MT_MAX+'人います',has:'もう師匠がいるか、申し込み中です',once:'この人とはもう師弟になれません',taken:'その人にはもう師匠がいます'}[e.message]||'できませんでした')}};return x};
   const draw=()=>{b.replaceChildren();const hd=el('div','grsh');hd.append(el('h3',null,'師匠と弟子'));const cl=el('button','sec','閉じる');cl.onclick=()=>o.remove();hd.append(cl);b.append(hd);
@@ -7745,7 +7750,8 @@ function mtSheet(){document.querySelectorAll('.mts').forEach(x=>x.remove());cons
     /* graduates */
     const gr=mentors.filter(d=>d.g&&(d.a===me.id||d.m===me.id));if(gr.length){const s3=el('section','mtsec');s3.append(el('div','scpkh','卒業'));gr.forEach(d=>s3.append(who(d.a===me.id?d.m:d.a,d.a===me.id?'あなたの師匠でした':'あなたの弟子が卒業')));b.append(s3)}};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o);mtSheet.redraw=()=>{if(o.isConnected)draw()}}
-const mtDot=()=>{const me=myPlayer();return !!(me&&mtReqsTo(me.id).length)};
+/* the 師弟 button in 分身 shows its red dot until the screen is opened once (NEW, mt134), then only for requests */
+const mtDot=()=>{const me=myPlayer();return !!(me&&(mtReqsTo(me.id).length||!newSeenGet().includes('mt134')))};
 /* 取引所: this week's risers and fallers */
 function mkOpenCard(k,c){if(k==='b'){try{bxSheet()}catch(e){}return}if(k==='t'){try{tcgSheet(c)}catch(e){}return}try{openCollection(true);setTimeout(()=>{try{window.__cvDetail(ITEM(c))}catch(e){}},450)}catch(e){}}
 function mkMoversEl(){const M=mkMovers(),sec=el('section','mkmv');const hd=el('div','mkmvh');hd.append(el('b',null,'今週の相場'),el('span',null,'取引所で売れた値段から'));sec.append(hd);
@@ -10345,7 +10351,7 @@ let tcgTab='all';
 function tcgHeld(id){const own=tcgOwn()[id]||0,fo=tcgFoil()[id]||0,al=tcgAltOwned()[id]||[],hasAlt=!!(TCGD.alt&&TCGD.alt[id]);
   const L=[{v:0,n:'通常',k:own},{v:'s',n:'シークレット',k:fo}];if(hasAlt)[1,2,3].forEach(g=>L.push({v:g,n:'絵違い '+['','ノーマル','キラ','極'][g],k:al.includes(g)?1:0}));return L}
 function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o=el('div','tcgsh'),b=el('div','tcgshb');
-  const first=(pick!=null&&has.find(x=>x.v===pick))||has[0]||H[0];let f=tcgFace(id,'big',first.v==='s',typeof first.v==='number'?first.v:0);if(!has.length)f.classList.add('lock');
+  const first=(pick!=null&&H.find(x=>x.v===pick))||has[0]||H[0];let f=tcgFace(id,'big',first.v==='s',typeof first.v==='number'?first.v:0);if(!first.k)f.classList.add('lock');
   const t=el('div','tcgsht');t.append(el('div','eyebrow',TCGD.fname[c.f]+'  ·  '+TRN[c.r]),el('h3',null,c.n),
     el('div','tcgshm',(c.ty==='chara'?'キャラ':c.ty==='spell'?'魔法':'トラップ')+'  ·  熱量 '+c.c+(c.ty==='chara'?'  ·  ATK '+c.atk+' / DEF '+c.def:'')),
     el('p','tcgshx',c.tx||'効果なし'));
@@ -10366,7 +10372,7 @@ function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o
 let tcgQ='',tcgSort='no',tcgDexMine=false;
 const TCG_RORD={GR:0,SR:1,R:2,C:3};
 function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),AO=tcgAltOwned(),all=TCGD.cards.length,held=c=>(own[c.id]||0)+(foil[c.id]||0)+((AO[c.id]||[]).length),have=TCGD.cards.filter(c=>held(c)>0).length,gr=TCGD.cards.filter(c=>c.r==='GR'),grh=gr.filter(c=>held(c)>0).length;
-  cs.append(el('div','sub',have+' / '+all+' 種類  ·  ガチレア '+grh+' / '+gr.length));
+  const scrH=TCGD.cards.filter(c=>(foil[c.id]||0)>0).length;cs.append(el('div','sub',have+' / '+all+' 種類  ·  ガチレア '+grh+' / '+gr.length+'  ·  シークレット '+scrH+' / '+all));
   const bar=el('div','tcgbar');const fill=el('i');fill.style.width=(have/all*100).toFixed(1)+'%';bar.append(fill);cs.append(bar);
   const tools=el('div','tcgtools'),q=el('input','tcgq');q.type='search';q.placeholder='カード名・効果で検索';q.value=tcgQ;q.setAttribute('aria-label','図鑑を検索');
   const so=el('select','tcgso');so.setAttribute('aria-label','並び順');[['no','番号順'],['rar','レア度が高い順'],['rarlo','レア度が低い順'],['cost','熱量が少ない順'],['costhi','熱量が多い順'],['name','名前順'],['own','持っている数が多い順']].forEach(([v,n])=>{const op=el('option',null,n);op.value=v;so.append(op)});so.value=tcgSort;
@@ -10381,11 +10387,13 @@ function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),AO=tcgAltOwne
     L=L.slice().sort((a,b)=>by(a,b)||idx.get(a.id)-idx.get(b.id));
     info.textContent=(s||tcgDexMine||tcgTab!=='all')?L.length+'種類':'';g.replaceChildren();
     if(!L.length){g.append(el('div','sub tcgnone','条件に合うカードがありません'));return}
-    L.forEach(c=>{const fo=foil[c.id]||0,al=AO[c.id]||[],n=own[c.id]||0,w=el('button','tcgc'+(held(c)?'':' lock'));
-      w.append(tcgFace(c.id,null,fo>0&&!n,!n&&!fo&&al.length?al[0]:0));
-      /* what you hold, under the card: 通常 / SCR / 絵違い */
-      const ch=el('div','tcgchips');if(n)ch.append(el('i','cn',['通常',n].join(' ')));if(fo)ch.append(el('i','cs','SCR '+fo));if(al.length)ch.append(el('i','ca','絵違い '+al.length));if(!held(c))ch.append(el('i','cx','未所持'));
-      w.append(ch);w.setAttribute('aria-label',c.n+(held(c)?'(通常'+n+'・SCR'+fo+'・絵違い'+al.length+')':'(未所持)'));w.onclick=()=>tcgSheet(c.id);g.append(w)})};
+    /* (10/16) each version has its own square, right after the normal one: 通常 → シークレット → 絵違い (only cards that have them) */
+    L.forEach(c=>{tcgHeld(c.id).forEach(h=>{if(tcgDexMine&&!h.k)return;const v=h.v,scr=v==='s',alt=typeof v==='number'&&v>0,w=el('button','tcgc'+(h.k?'':' lock')+(scr?' scr':alt?' alt':''));
+      w.append(tcgFace(c.id,null,scr,alt?v:0));
+      const ch=el('div','tcgchips');ch.append(el('i',h.k?(scr?'cs':alt?'ca':'cn'):'cx',(scr?'SCR':alt?h.n.replace('絵違い ','絵違い・'):'通常')+(h.k?(alt?'':' '+h.k):' 未所持')));
+      w.append(ch);w.setAttribute('aria-label',c.n+' '+h.n+(h.k?'('+h.k+'枚)':'(未所持)'));w.onclick=()=>tcgSheet(c.id,v);g.append(w)});
+      /* keep 通常 / シークレット as a left-right pair in the 4 columns: a card with 絵違い (5 squares) gets one empty square */
+      if(!tcgDexMine&&g.children.length%2)g.append(el('i','tcgc tcgsp'))})};
   q.oninput=()=>{tcgQ=q.value;draw()};so.onchange=()=>{tcgSort=so.value;draw()};mi.onclick=()=>{tcgDexMine=!tcgDexMine;mi.classList.toggle('on',tcgDexMine);mi.setAttribute('aria-pressed',tcgDexMine?'true':'false');draw()};
   draw()}
 /* デッキ・図鑑: next to コレクション・図鑑 (パック and プロフィール) */
