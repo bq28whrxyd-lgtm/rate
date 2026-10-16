@@ -2561,6 +2561,11 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 .tcgc.scr.lock .tcf::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1.5px #ffd6ee66;pointer-events:none}
 .tcgc.tcgsp{visibility:hidden;pointer-events:none}
 
+/* (10/17) on secret Halloween versions the white light band is softer, so the pumpkins in it stay readable */
+.tcf.foil.hwfoil .foilsheen{opacity:.3}
+.tcf.foil.hwfoil .hwholo{opacity:1}
+.tcf.foil.hwfoil .hwholo b{background:rgba(255,236,200,.22)}
+
 /*TCGCSS-END*/
 /* monthly pass */
 .passcur{border-radius:16px;padding:14px 16px;margin-bottom:12px;border:1px solid color-mix(in srgb,var(--pc) 55%,transparent);background:radial-gradient(120% 90% at 0 0,color-mix(in srgb,var(--pc) 22%,transparent),transparent 65%),var(--panel2);display:flex;flex-direction:column;gap:4px}
@@ -10595,7 +10600,7 @@ function tcgAltMvOn(f,id,im){try{if(matchMedia('(prefers-reduced-motion: reduce)
     const drop=()=>{if(!ok)v.remove()};v.addEventListener('error',drop,{once:true});
     v.addEventListener('loadeddata',()=>{try{if(v.duration>0)v.currentTime=(performance.now()/1000)%v.duration}catch(e){}const r=v.play();if(r&&r.catch)r.catch(()=>setTimeout(drop,300))},{once:true});
     setTimeout(()=>{if(!ok&&v.paused)drop()},3000);im.after(v)})}
-function tcgFace(id,cls,foil,ga){const c=TC[id];ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;if(!ga&&window.KHD)KHD.watch(im,id);f.append(im);if(foil)f.append(el('i','foilsheen'),el('i','foilspark'));if(foil&&c.hwOf){const h=el('i','hwholo');h.append(el('b'));f.append(h)}if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));else if(c.hwOf)f.append(tcgHwPk(id));return f}
+function tcgFace(id,cls,foil,ga){const c=TC[id];ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;if(!ga&&window.KHD)KHD.watch(im,id);f.append(im);if(foil)f.append(el('i','foilsheen'),el('i','foilspark'));if(foil&&c.hwOf){f.classList.add('hwfoil');const h=el('i','hwholo');h.append(el('b'));f.append(h)}if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));else if(c.hwOf)f.append(tcgHwPk(id));return f}
 /* (10/17) the Halloween versions wear a small shiny pumpkin instead of a label; each of the 20 has its own face */
 let tcgHwIx=null;function tcgHwPk(id){if(!tcgHwIx){tcgHwIx={};TCGD.cards.filter(x=>x.hwOf).forEach((x,i)=>tcgHwIx[x.id]=i%20)}const n=String((tcgHwIx[id]||0)+1).padStart(2,'0'),u='url("hwpk/pk'+n+'.webp?v=2")';
   const i=el('i','tcfpk');i.setAttribute('aria-label','ハロウィン版');i.style.setProperty('--pk',u);i.style.setProperty('--pd',(-((tcgHwIx[id]||0)*0.37)%3.6).toFixed(2)+'s');const im=el('img');im.alt='';im.decoding='async';im.src='hwpk/pk'+n+'.webp?v=2';i.append(im,el('b'),el('u'));return i}
