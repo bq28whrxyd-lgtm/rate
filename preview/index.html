@@ -8726,7 +8726,8 @@ const admInv={};
    - experience quest (5 opponents in a row): a clear gives XP 20/40/70/120 by grade, the first 3 clears a day
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
-const BUN_SRC='bunshin.html?v=23',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_GIRL=false;/* 分身の女の子(一旦お休み)。bunshin の GIRL_ON と合わせる */
+const BUN_SRC='bunshin.html?v=24',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -8790,7 +8791,7 @@ function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c
 const bunLeft=pid=>Math.max(0,BUN_DAY-bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&dayNo(l.t)===dayNo(now())).length);
 const BUN_LOOK={g:'m',hs:0,hc:'茶',ec:'緑'};
 const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0};
-function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0})},eq,al:d.al}}
+function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0})},eq,al:d.al}}
 function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'}
 window.BUNSHINHOST={
   mentor:()=>mtSheet(),mentorDot:()=>mtDot(),

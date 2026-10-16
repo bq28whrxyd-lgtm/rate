@@ -340,7 +340,7 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
     <button type="button" class="btn main" id="go" style="flex:none">選んだ仲間と対戦する</button>
       <details class="howto"><summary>遊び方・必殺技のぶつかり合い</summary>
     <div class="tapguide"><b>必殺技はぶつかり合い</b><span>どちらかが必殺技を出すとバトルが止まり、ゲージが左右に動きます。画面をタップして止め、<em class="r">赤い線(相手の数字)</em>より右で止めれば勝ち。自分の必殺技なら <em class="g">1.1倍</em>(いちばん右の白いMAXなら1.25倍)、相手の必殺技なら <em class="c">0.85倍</em>に受け止めます(MAXなら0.7倍)。負けると自分の技は0.9倍、相手の技は1.05倍になります。先のステージほど相手の数字が高く、ゲージも速くなります。パソコンはスペースキー</span></div>
-    <p class="note">男はマッシュ、女は5つの髪型すべてに動く絵があります。女の子の武器ポーズはロング(剣・杖・槍・弓)とポニーテール(剣・杖)。ほかは素手のポーズで武器を持ちます。</p>
+    <p class="note">髪型は今はマッシュだけです。ほかの髪型は動く絵ができたら選べます。</p>
     <p class="note">相手は自分より良い装備を持っています。勝てないときは、宝箱で装備を集めるか、ステータスのレベルを上げて試してください。</p>
       </details>
     </div>
@@ -607,6 +607,7 @@ const OPP=[
 
 /* ---------- state (kept on this device only) ---------- */
 const BETA_MASH=true;
+const GIRL_ON=false;/* 女の子は一旦お休み(10/16)。true に戻すと選べるようになり、前に選んだ人の髪型(look.fhs)も戻る */
 const HOST=(()=>{try{return window.parent!==window&&window.parent.BUNSHINHOST||null}catch(e){return null}})();
 let S={look:{g:'m',hs:0,hc:'茶',ec:'緑'},lv:10,al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R'}],eq:{w:1,a:0,x:0},nid:2,opp:0,qs:0};
 if(HOST){try{const o=HOST.state();if(o&&o.look)S=Object.assign(S,JSON.parse(JSON.stringify(o)));S.lv=HOST.level()}catch(e){}}
@@ -614,7 +615,7 @@ else try{const o=JSON.parse(localStorage.getItem('bunshin1')||'null');if(o&&o.lo
 S.qs=S.qs||0;S.gp=S.gp||0;S.g10=S.g10||0;S.copen=S.copen||0;
 /* weapons saved under the old six tiers move to the four weapon tiers */
 for(const it of S.inv){if(it.k==='smb'){const t=WMAP[it.r]||'R';it.k=famSword('smb',t);it.r=t}else if(it.k==='tcs'){const t=WMAP[it.r]||'R';it.k=famSword('tcs',t);it.r=t}else if(it.k==='ygm'){const t=WMAP[it.r]||'R';it.k=famSword('ygm',t);it.r=t}else if(it.k==='ygs'||(it.k==='wood'&&(WMAP[it.r]||'R')!=='R')){const t=WMAP[it.r]||'R';it.k=famSword('ygs',t);it.r=t}else if(ITEMS[it.k]&&ITEMS[it.k].s==='w'&&!WRAR[it.r])it.r=WMAP[it.r]||'R';if(ITEMS[it.k]&&ITEMS[it.k].fr)it.r=ITEMS[it.k].fr}
-S.inv=S.inv.filter(it=>ITEMS[it.k]);if(BETA_MASH&&S.look.g!=='f'){S.look.g='m';S.look.hs=0}if(S.look.g==='f'&&!(S.look.hs>=0&&S.look.hs<FHS_ON))S.look.hs=0;
+S.inv=S.inv.filter(it=>ITEMS[it.k]);if(!GIRL_ON&&S.look.g==='f'){S.look.fhs=S.look.hs;S.look.g='m';S.look.hs=0;S.look.wasf=1}if(GIRL_ON&&S.look.wasf){S.look.g='f';S.look.hs=+S.look.fhs||0;delete S.look.wasf}if(BETA_MASH&&S.look.g!=='f'){S.look.g='m';S.look.hs=0}if(S.look.g==='f'&&!(S.look.hs>=0&&S.look.hs<FHS_ON))S.look.hs=0;
 let saveT=0;const save=()=>{if(HOST){clearTimeout(saveT);saveT=setTimeout(()=>{try{HOST.save(S)}catch(e){}},300);return}try{localStorage.setItem('bunshin1',JSON.stringify(S))}catch(e){}};
 const saveNow=()=>{clearTimeout(saveT);if(HOST)return HOST.save(S);save();return Promise.resolve()};
 
@@ -633,7 +634,7 @@ const RAW={};
 const ready=Promise.all(Object.keys(SP).map(k=>new Promise(res=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);RAW[k]=g.getImageData(0,0,im.width,im.height);res()};im.src=SP[k].png})));
 function recolor(px,idx,ramp,lo,span){if(!ramp)return;const R=ramp.map(hex);
   for(const i of idx){const o=i*4,l=(px[o]+px[o+1]+px[o+2])/3/255;const t=clamp((l-lo)/span,0,1);const [a,b]=t<.5?[R[0],R[1]]:[R[1],R[2]];const u=t<.5?t/.5:(t-.5)/.5;for(let k=0;k<3;k++)px[o+k]=Math.round(a[k]+(b[k]-a[k])*u)}}
-const sprKey=(l,p)=>{const b=l.g==='f'?'f'+(l.hs||0):'m'+l.hs;return p&&SP[b+p]?b+p:b};
+const sprKey=(l,p)=>{const b=GIRL_ON&&l.g==='f'?'f'+(l.hs||0):'m'+l.hs;return p&&SP[b+p]?b+p:b};
 /* weapons with their own drawings (holding the weapon): stance, dash, hurt, victory, and the staff's cast */
 const WPOSE={sword:{p1:'s1',p2:'s2',p3:'s3',p5:'s4'},staff:{p1:'t1',p2:'t2',p3:'t3',p5:'t4',p6:'t5'},spear:{p1:'q5',p2:'q2',p3:'q3',p5:'q4',p6:'q1'},bow:{p1:'b1',p2:'b2',p3:'b4',p5:'b5',p6:'b3'}};
 const poseOf=(f,p)=>{const m=f&&WPOSE[f.wt],q=m&&m[p];return q&&sprKey(f.look,q)!==sprKey(f.look)?q:p};
@@ -1476,7 +1477,7 @@ function renderLook(){const L=S.look;const gs=$('gsel');gs.replaceChildren();[['
   const hs=$('hsel');hs.replaceChildren();(L.g==='f'?FHSTY:HSTY).forEach((n,i)=>{const b=mk('button','chip'+(L.hs===i?' on':''),n);b.type='button';b.disabled=L.g==='m'?BETA_MASH&&i>0:i>=FHS_ON;b.onclick=()=>{L.hs=i;changed()};hs.append(b)});
   $('hsnote').textContent=L.g==='f'?'ツインテール・ボブ・ショートは動く絵ができたら選べます':'マッシュ以外は動く絵ができたら選べます';
   $('looknote').textContent=L.g==='f'?'女の子の髪の色は今は茶色だけです(色替えはあとで)。見た目は強さに関係しません。':'見た目は強さに関係しません。';
-  $('hcsel').closest('.sec').hidden=L.g==='f';
+  $('hcsel').closest('.sec').hidden=L.g==='f';$('gsel').closest('.sec').hidden=!GIRL_ON;
   const hc=$('hcsel');hc.replaceChildren();for(const k in HAIRC){const b=mk('button','sw'+(L.hc===k?' on':''));b.type='button';const i=mk('i');i.style.background=swatch(HAIRC[k]||HAIRSW[k]);b.append(i,k);b.onclick=()=>{L.hc=k;changed()};hc.append(b)}
   const ec=$('ecsel');ec.replaceChildren();for(const k in EYEC){const b=mk('button','sw'+(L.ec===k?' on':''));b.type='button';const i=mk('i');i.style.background=swatch(EYEC[k]||EYESW[k]);b.append(i,k);b.onclick=()=>{L.ec=k;changed()};ec.append(b)}}
 
