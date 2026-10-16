@@ -7506,7 +7506,7 @@ function dupSheet(kind,res,onChange){document.querySelectorAll('.dps').forEach(x
    carries over to the real event; pt and tickets from the お試し版 are not given (shown only) */
 const HW_PV=/\/preview\//.test(location.pathname),HW_PV0=Date.UTC(2026,9,16,9,0);
 const HWK=HW_PV?{x:'pvhx',b:'pvhb',c:'pvhmc',q:'pvhmq',p:'pvhmp',h:'pvhwh',g:'pvhwg0',s:'pvhs',xp:'pvhxp',d:'pvhbo',k:'pvhsd',gt:'pvhgt',gu:'pvhgu'}:{x:'hx',b:'hb',c:'hmc',q:'hmq',p:'hmp',h:'hwh',g:'hwg0',s:'hs',xp:'hxp',d:'hbo',k:'hsd',gt:'hgt',gu:'hgu'};
-/* ---------- ハロウィンイベント (v135): 10/20 5:00 - 11/3 5:00 JST. 前編 10/20-26, 後編 10/27-11/2.
+/* ---------- ハロウィンイベント (v135): 10/19 5:00 - 11/8 5:00 JST (20 days; 前編 10 days, 後編 10 days). 前編 10/19-28, 後編 10/29-11/2.
    お菓子 (candy) is counted from what already exists, like the rest of the app's points:
      rate matches (win 10 / loss 3), TCG friend battles (10 / 3), TCG wins against the つよい CPU (8, kept in inv.tcg.hs = times),
      分身 fights with friends (win 5 / loss 1, the 5 a day that count), quest wins (3), the weekend boss (10 a try; when it falls
@@ -7514,12 +7514,12 @@ const HWK=HW_PV?{x:'pvhx',b:'pvhb',c:'pvhmc',q:'pvhmq',p:'pvhmp',h:'pvhwh',g:'pv
    ハロウィンナイト (10/31 17:00-24:00 JST): everything that happens then counts double.
    Spent in the 交換所: inv[HWK.x] (total), inv[HWK.b] {item id: count}. Tickets go into inv.wkc with hw:1 (not paid with 週間1位 tickets).
    The demo moves the start with window.__hw0 (and window.__hwNight makes the last 2 hours count as the night). ---------- */
-const HW0=Date.UTC(2026,9,19,20,0),HW_LEN=14*864e5,HWN0=Date.UTC(2026,9,31,8,0),HWN1=Date.UTC(2026,9,31,15,0);
+const HW0=Date.UTC(2026,9,18,20,0),HW_LEN=20*864e5,/* (10/17) 10/19 5:00 から20日間 (11/8 5:00 まで) */HWN0=Date.UTC(2026,9,31,8,0),HWN1=Date.UTC(2026,9,31,15,0);
 const HW_C={rw:10,rl:3,tw:10,tl:3,cpu:8,bw:5,bl:1,q:3,rt:10,rk:100,rtop:50,rlast:30,mis:30};
 const hwT0=()=>window.__hw0||(HW_PV?HW_PV0:HW0),hwT1=()=>(window.__hw0||HW0)+HW_LEN;
 const hwIn=t=>(HW_HERE()||!!window.__hw0)&&t>=hwT0()&&t<hwT1();
 const hwOn=()=>hwIn(now());
-const hwPart=t=>((t==null?now():t)>=(window.__hw0||HW0)+7*864e5)?2:1;
+const hwPart=t=>((t==null?now():t)>=(window.__hw0||HW0)+10*864e5)?2:1;
 const hwNightAt=t=>window.__hwNight?(t>=now()-2*36e5&&t<=now()+36e5):(t>=HWN0&&t<HWN1);
 const hwNightNow=()=>hwOn()&&hwNightAt(now());
 const hwMul=t=>hwNightAt(t)?2:1;
@@ -7639,7 +7639,7 @@ function hwPub(){const me=myPlayer();if(!me||!db||!invLoaded||invFor!==me.id||!h
 function hwRankSec(me){const L=hwRank(),done=hwRankDone(),i=L.findIndex(x=>x.p.id===me.id),sec=el('div','hlw-sec hlw-rk');const hd=el('h3',null,'お菓子ランキング');hd.append(el('small',null,done?'結果':'集めた数で競う  ·  使っても減らない'));sec.append(hd);
   const ol=el('div','hlw-rkl'),row=(x,n)=>{const r=el('div','hlw-rkr'+(x.p.id===me.id?' me':'')+(n<3?' t'+(n+1):''));r.append(el('em',null,String(n+1)),el('b',null,x.p.name),el('span',null,x.c.toLocaleString()));if(n<3)r.append(el('small',null,HW_RK_PTS[n]+'pt  ·  「'+HW_RTTL['HW_R'+(n+1)].n+'」'));return r};
   L.slice(0,5).forEach((x,n)=>ol.append(row(x,n)));if(i>=5)ol.append(row(L[i],i));if(!L.length)ol.append(el('div','sub','まだ誰も集めていません'));sec.append(ol);
-  if(!done)sec.append(el('div','sub hlw-note','1位 '+HW_RK_PTS[0]+'pt+称号「'+HW_RTTL.HW_R1.n+'」  ·  2位 '+HW_RK_PTS[1]+'pt+「'+HW_RTTL.HW_R2.n+'」  ·  3位 '+HW_RK_PTS[2]+'pt+「'+HW_RTTL.HW_R3.n+'」。11/3 朝5時の時点の数で決まります(数字は1分ごとに更新)。'+(HW_PV?' お試し版ではptは入りません。':'')));
+  if(!done)sec.append(el('div','sub hlw-note','1位 '+HW_RK_PTS[0]+'pt+称号「'+HW_RTTL.HW_R1.n+'」  ·  2位 '+HW_RK_PTS[1]+'pt+「'+HW_RTTL.HW_R2.n+'」  ·  3位 '+HW_RK_PTS[2]+'pt+「'+HW_RTTL.HW_R3.n+'」。11/8 朝5時の時点の数で決まります(数字は1分ごとに更新)。'+(HW_PV?' お試し版ではptは入りません。':'')));
   else if(i>=0&&i<3){const id='HW_R'+(i+1),on2=(me.eq||{}).t===id,eb=el('button','hlw-eq',on2?'装備中':'称号「'+HW_RTTL[id].n+'」にする');eb.onclick=async()=>{eb.disabled=true;try{const cur=Object.assign({},me.eq||{});cur.t=on2?null:id;await db.doc('players/'+me.id).update({eq:cur});me.eq=cur;try{hwOpen.redraw&&hwOpen.redraw()}catch(e){}}catch(e){eb.disabled=false}};
     sec.append(el('div','sub hlw-note',(i+1)+'位おめでとう! '+HW_RK_PTS[i]+'ptはもう入っています'+(HW_PV?'(お試し版では入りません)':'')+'。'),eb)}
   return sec}
@@ -7751,12 +7751,12 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
     /* the painting is made once per opening and kept across redraws, so the film never restarts or reloads */
     let kv=o.__kv;if(!kv){kv=o.__kv=el('div','hlw-kv');try{bgFilm(kv,{src:'fx_hwbg_gr2',fy:'50%'})}catch(e){}}else kv.querySelectorAll('.hlw-x,.hlw-tt').forEach(x=>x.remove());
     const cl=el('button','hlw-x');cl.type='button';cl.setAttribute('aria-label','閉じる');cl.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';cl.onclick=()=>o.remove();
-    const tt=el('div','hlw-tt');tt.append(el('small',null,on?(pt===1?'前編':'後編')+'  ·  '+(pt===1?'かぼちゃ頭の騎士の週':'夜宴の魔女の週'):now()<hwT0()?'10/20 から':'終了しました'),el('h2',null,'ハロウィン'),el('i',null,'Halloween Night 2026'));
+    const tt=el('div','hlw-tt');tt.append(el('small',null,on?(pt===1?'前編':'後編')+'  ·  '+(pt===1?'かぼちゃ頭の騎士の週':'夜宴の魔女の週'):now()<hwT0()?'10/19 から':'終了しました'),el('h2',null,'ハロウィン'),el('i',null,'Halloween Night 2026'));
     kv.append(cl,tt);b.append(kv);
     /* the candy you hold, on a dark glass bar */
     {const cb=el('div','hlw-cbar'),ic=el('i','hlw-cic');ic.innerHTML=hwCandySvg(30);const mid=el('div','hlw-cn');mid.append(el('span',null,'持っているお菓子'),el('b',null,bal.toLocaleString()));
       const rt=el('div','hlw-cr');rt.append(el('span',null,'これまでに '+earn.toLocaleString()),el('span',null,on?'のこり '+hwLeft(hwT1()):now()<hwT0()?'始まるまで '+hwLeft(hwT0()):'交換は終了'));cb.append(ic,mid,rt);b.append(cb)}
-    if(HW_PV)b.append(el('div','hlw-pv','お試し版: 今日から始まっているように見せています。ここでのお菓子・交換・ミッションは本番(10/20〜)には持ち越されず、ptとチケットは入りません。'));
+    if(HW_PV)b.append(el('div','hlw-pv','お試し版: 今日から始まっているように見せています。ここでのお菓子・交換・ミッションは本番(10/19〜)には持ち越されず、ptとチケットは入りません。'));
     /* ハロウィンナイト: a strip of the painted moon */
     {const nn=hwNightNow(),n=el('div','hlw-night'+(nn?' on':''));const tx=el('div');tx.append(el('b',null,'ハロウィンナイト'),el('span',null,nn?'いまお菓子が2倍':'10/31 17:00〜24:00  お菓子が2倍'));
       n.append(tx);const lf=nn?'あと '+hwLeft(window.__hwNight?now()+36e5:HWN1):now()<HWN0?'あと '+hwLeft(HWN0):'';if(lf)n.append(el('em',null,lf));b.append(n)}
@@ -8501,7 +8501,7 @@ function collectionView(inv,eq,h,info){
     tx.append(el('div','cdn',it.n),rc,el('div','cds',src(it)),el('div','cdo',n?'所持 '+n+'枚'+(on?'  ·  装備中':''):'まだ持っていません'));top.append(f,tx);
     const act=el('div','cda'),pv=el('button','sec','試しに見る');pv.onclick=()=>previewAny(it);
     if(n){const b=el('button',on?'sec':'',on?'はずす':'装備する');b.onclick=()=>{const prev=eq[it.k];eq[it.k]=on?null:it.id;draw();detail(it);toast(on?'はずしました':it.n+' を装備しました');/* show it right away, save in the background */h.equip(it.k,eq[it.k]).catch(()=>{eq[it.k]=prev;draw();toast('変更できませんでした')})};act.append(b,pv)}
-    else if(it.lim){act.append(pv,el('div','sub cdnote',it.lim==='sup'?'サポーターランクの特典です':it.lim==='coin'?'コインガチャが開催されているときだけ手に入ります。かけらでは交換できません':it.lim==='hwshop'?'ハロウィン(10/20〜11/2)のお菓子の交換所だけで手に入ります。かけらでは交換できません':it.lim==='hw'?'ハロウィン(10/20〜11/2)のハロウィンガチャだけで手に入ります。かけらでは交換できません':'期間限定パックが開催されているときだけ手に入ります'))}
+    else if(it.lim){act.append(pv,el('div','sub cdnote',it.lim==='sup'?'サポーターランクの特典です':it.lim==='coin'?'コインガチャが開催されているときだけ手に入ります。かけらでは交換できません':it.lim==='hwshop'?'ハロウィン(10/19〜11/7)のお菓子の交換所だけで手に入ります。かけらでは交換できません':it.lim==='hw'?'ハロウィン(10/19〜11/7)のハロウィンガチャだけで手に入ります。かけらでは交換できません':'期間限定パックが開催されているときだけ手に入ります'))}
     else{const ex=el('div','cdx'),line=el('div','cdxl');
       line.append(el('span',null,'交換に必要'),el('b',null,cost+' かけら'));
       const line2=el('div','cdxl');line2.append(el('span',null,'持っているかけら'),el('b',sh<cost?'dn':null,sh+' かけら'));
@@ -15117,7 +15117,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
   function mLim(){const m=me(),b=m?balance(m.id):0,ok=ready()&&!opening,L=LIMS[banner.set],set=lPool(),own=set.filter(x=>(inv.own||{})[x.id]).length,ls=inv.lsince||0,lp=(typeof limCeilN==='function'?limCeilN():(inv.lpacks||0))%WILD;
     const tks=[];if(m){const n=limTk(m.id);if(n>0)tks.push({l:'限定チケットで1パック',n,on:ready()&&!opening,go:()=>PULLS.lt1()});const t=limTk10(m.id);if(t>0)tks.push({l:'限定10連チケットで開ける',n:t,on:ready()&&!opening,go:()=>PULLS.lt10()})}
     const K=limKmr();
-    return{id:'lim',ak:'lim-'+banner.set,chip:L.name,ac:banner.set==='hw'?['#ff8a2a','#b45cff']:['#ff3b6b','#ff7ac6'],thumb:()=>{const t=mk('span','kgu-tn l');if(K[0])t.append(tnImg(K[0].img,(K[0].fx||50)+'% '+(K[0].fy||25)+'%'));t.append(banner.set==='hw'?mk('em','kgu-bd hw','10/20〜11/2'):mk('em','kgu-bd lv','<i></i>LIVE'));return t},
+    return{id:'lim',ak:'lim-'+banner.set,chip:L.name,ac:banner.set==='hw'?['#ff8a2a','#b45cff']:['#ff3b6b','#ff7ac6'],thumb:()=>{const t=mk('span','kgu-tn l');if(K[0])t.append(tnImg(K[0].img,(K[0].fx||50)+'% '+(K[0].fy||25)+'%'));t.append(banner.set==='hw'?mk('em','kgu-bd hw','10/19〜11/7'):mk('em','kgu-bd lv','<i></i>LIVE'));return t},
       title:L.name,sub:K.length?'限定KMR「'+K.map(k=>k.n).join('」「')+'」':'限定アイテム',subH:K.length?'限定KMR'+K.map(k=>'<span class="kgu-nw">「'+esc(k.n)+'」</span>').join(''):null,tags:[['期間限定','hot'],[left(banner.end),'time'],['限定 '+own+'/'+set.length+' 所持']],art:artLim,
       line:{items:lineup('l'+banner.set,set)},
       prog:[{k:'GR確定まで',v:ls,max:PITY,tx:'あと '+(PITY-ls)+' パック',c:'gr'},{k:banner.set==='hw'?'ハロウィンのKMRまで':'好きな限定KMRまで',v:lp,max:WILD,tx:'あと '+(WILD-lp)+' パック',c:'kmr'}],
