@@ -251,6 +251,23 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .howto{border-radius:12px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);padding:0 12px}
 .howto summary{cursor:pointer;padding:12px 0;font:400 13px/1.3 var(--px);color:var(--gold2)}
 .howto[open]{padding-bottom:12px}.howto .tapguide{margin-bottom:8px}
+
+/* 対戦 menu (v134): four big tiles */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}.modes[hidden]{display:none}
+.mode{position:relative;display:grid;align-content:start;min-height:150px;padding:14px;border-radius:18px;text-align:left;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 10px 22px rgba(0,0,0,.4)}
+.mode:active{transform:scale(.97)}
+.mode .mtx{position:relative;z-index:2;display:grid;gap:4px}.mode b{font:400 18px/1.15 var(--px);white-space:nowrap;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35)}.mode small{font:500 11px/1.35 var(--jp);color:rgba(255,255,255,.82)}
+.mart{position:absolute;right:8px;bottom:8px;display:flex;align-items:flex-end;gap:2px;z-index:1}.mart canvas{image-rendering:pixelated;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+.mart canvas[width="72"]{width:84px;height:84px}.mart canvas[width="44"]{width:46px;height:46px;border-radius:10px}
+.mboss{background:radial-gradient(90% 80% at 85% 85%,rgba(255,80,80,.35),transparent 60%),linear-gradient(150deg,#4a1020,#1c0710)}
+.mquest{background:radial-gradient(90% 80% at 85% 85%,rgba(120,230,140,.3),transparent 60%),linear-gradient(150deg,#1d4a26,#0b1d10)}
+.msa{background:radial-gradient(90% 80% at 85% 85%,rgba(140,190,255,.35),transparent 60%),linear-gradient(150deg,#1d2f5a,#0a1124)}
+.mpvp{background:radial-gradient(90% 80% at 85% 85%,rgba(255,214,110,.32),transparent 60%),linear-gradient(150deg,#4a3812,#1a1306)}
+.mhp{position:relative;z-index:2;margin-top:8px;width:62%;height:6px;border-radius:3px;background:rgba(0,0,0,.45);overflow:hidden}.mhp i{display:block;height:100%;background:linear-gradient(90deg,#ff5a5a,#ffb36b);transform-origin:0 50%}
+.mdot{position:absolute;top:10px;right:10px;width:10px;height:10px;border-radius:50%;background:#ff453a;box-shadow:0 0 0 2px rgba(0,0,0,.4);display:none;z-index:3}.dot>.mdot{display:block}
+.mrec{position:relative;grid-column:1/-1;display:flex;align-items:baseline;gap:10px;padding:12px 14px;border-radius:14px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);text-align:left}
+.mrec span{font:400 15px/1.2 var(--px);color:var(--gold2)}.mrec small{font:500 11.5px/1.3 var(--jp);color:var(--mut)}.mrec .mdot{top:50%;margin-top:-5px;right:14px}
+.spback{align-self:flex-start;height:36px;padding:0 14px;border-radius:999px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);font:400 13px/36px var(--px);color:var(--gold2)}.spback[hidden]{display:none}
 </style>
 
 <div class="wrap">
@@ -316,8 +333,9 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
   </section>
 
   <section class="pane" id="p-fight" hidden>
-    <div class="subt" id="subt" role="tablist"><button type="button" class="on" data-s="pvp">仲間<i></i></button><button type="button" data-s="quest">クエスト<i></i></button><button type="button" class="hostonly" data-s="ev">イベント<i></i></button><button type="button" data-s="rec">記録<i></i></button></div>
-    <div class="sp" data-s="pvp">
+    <div class="modes" id="modes"></div>
+    <button type="button" class="spback" id="spback" hidden>‹ 対戦メニュー</button>
+    <div class="sp" data-s="pvp" hidden>
     <div class="sec"><h2>仲間と戦う</h2><div class="opps" id="opps"></div></div>
     <button type="button" class="btn main" id="go" style="flex:none">選んだ仲間と対戦する</button>
       <details class="howto"><summary>遊び方・必殺技のぶつかり合い</summary>
@@ -330,9 +348,11 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
     <div class="sec"><h2>クエスト</h2><div class="quest" id="quest"></div></div>
     <div class="sec"><h2>経験値クエスト<small id="xqn"></small></h2><div class="xq" id="xq"></div></div>
     </div>
-    <div class="sp hostonly" data-s="ev" hidden>
-    <div class="sec hostonly" id="sasec"><h2>スコアアタック<small id="san"></small></h2><div class="raid" id="sa"></div></div>
+    <div class="sp hostonly" data-s="boss" hidden>
     <div class="sec hostonly" id="raidsec"><h2>週末レイド<small id="raidn"></small></h2><div class="raid" id="raid"></div></div>
+    </div>
+    <div class="sp hostonly" data-s="sa" hidden>
+    <div class="sec hostonly" id="sasec"><h2>スコアアタック<small id="san"></small></h2><div class="raid" id="sa"></div></div>
     </div>
     <div class="sp" data-s="rec" hidden>
     <div class="sec hostonly"><h2>攻められた記録<small>守りきると+10pt(1日50ptまで)</small></h2><ol class="log" id="defs"></ol></div>
@@ -1448,7 +1468,7 @@ function frame(n){const dt=last?Math.min(.05,(n-last)/1000):0;last=n;
   view(T);requestAnimationFrame(frame)}
 
 /* ---------- UI: tabs ---------- */
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach(p=>p.hidden=p.id!=='p-'+b.dataset.p);if(BT&&!playing)endBattle()});
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach(p=>p.hidden=p.id!=='p-'+b.dataset.p);if(b.dataset.p==='fight'&&!playing)subSet(null);if(BT&&!playing)endBattle()});
 
 /* look */
 function swatch(col3){return 'radial-gradient(circle at 35% 30%,'+col3[2]+','+col3[1]+' 55%,'+col3[0]+')'}
@@ -1765,16 +1785,23 @@ function xqFinish(won){const o=BT.xq,R=BT.res,g=XQ[o.xq];$('ctl').hidden=true;
   HOST.log({d:'x'+o.xq,w:1,s:BT.seed}).then(id=>{const got=HOST.rollChest(id,QCHEST_P);$('resS').textContent=head+(got?'宝箱を手に入れた!':'')}).catch(()=>{$('resS').textContent=head.replace(/経験値.*$/,'')+'記録できませんでした'}).finally(()=>{renderHostBar();renderGear();renderFight()})}
 function oppCard(o,i){const f=fighterOpp(o);const b=mk('button','op'+(S.opp===i?' on':''));b.type='button';const c=document.createElement('canvas');c.width=30;c.height=30;
   ready.then(()=>{const s=sprite(o.look),g=c.getContext('2d');g.imageSmoothingEnabled=false;g.fillStyle='#22402a';g.fillRect(0,0,30,30);g.drawImage(s.base,Math.round(s.cx-15),Math.max(0,s.d.top-2),30,30,0,0,30,30)});
-  const w=f.wt;b.append(c);b.insertAdjacentHTML('beforeend','<div><b>'+o.name+'</b><small>'+WT[w].n+'・必殺技 '+spOf(w,f.wr).sp+'</small></div><em>Lv'+o.lv+'<br>戦闘力 '+power(f.st)+'</em>');b.onclick=()=>{S.opp=i;save();renderFight()};return b}
-/* the 対戦 tab in four: 仲間 / クエスト / イベント / 記録 (the last one opened is remembered) */
-function subSet(k){document.querySelectorAll('#subt button').forEach(b=>b.classList.toggle('on',b.dataset.s===k));document.querySelectorAll('#p-fight .sp').forEach(p=>p.hidden=p.dataset.s!==k);try{localStorage.setItem('bunSub',k)}catch(e){}}
-document.querySelectorAll('#subt button').forEach(b=>b.onclick=()=>subSet(b.dataset.s));
-{let k='pvp';try{k=localStorage.getItem('bunSub')||'pvp'}catch(e){}if(!HOST&&k==='ev')k='pvp';subSet(k)}
-function subDots(){if(!HOST)return;const d=(k,on)=>{const b=document.querySelector('#subt [data-s='+k+']');if(b)b.classList.toggle('dot',!!on)};
-  try{const r=HOST.raid();const sa=HOST.sa&&HOST.sa();d('ev',(r&&r.open&&!r.dead&&r.left>0)||(sa&&sa.open&&sa.left>0))}catch(e){}
-  try{const L=HOST.defenses();let seen=0;try{seen=+localStorage.getItem('bunRecSeen')||0}catch(e){}d('rec',L.some(x=>(x.t||0)>seen))}catch(e){}}
-document.querySelector('#subt [data-s=rec]').addEventListener('click',()=>{try{localStorage.setItem('bunRecSeen',String(Date.now()))}catch(e){}subDots()});
-function renderFight(){const box=$('opps');box.replaceChildren(...OPP.map(oppCard));renderSa();renderRaid();renderQuest();renderXq();subDots();if(HOST){const n=HOST.left();$('go').textContent=n>0?'選んだ仲間と対戦する(今日あと'+n+'回)':'今日の仲間との対戦は終わり(朝5時に戻る)';$('go').disabled=n<=0}}
+  const w=f.wt;b.append(c);b.insertAdjacentHTML('beforeend','<div><b>'+o.name+'</b><small>'+WT[w].n+'・必殺技 '+spOf(w,f.wr).sp+'</small></div><em>Lv'+o.lv+(i>=0?'  ・  ':'<br>')+'戦闘力 '+power(f.st)+'</em>');b.onclick=()=>{S.opp=i;save();renderFight()};return b}
+/* the 対戦 tab opens on a menu of four big tiles (ボス / クエスト / スコアアタック / 仲間) plus 記録; a tile opens its part, ‹ goes back */
+let SUB=null;
+function subSet(k){SUB=k;$('modes').hidden=!!k;$('spback').hidden=!k;document.querySelectorAll('#p-fight .sp').forEach(p=>p.hidden=p.dataset.s!==k);if(k==='rec'){try{localStorage.setItem('bunRecSeen',String(Date.now()))}catch(e){}}if(!k)renderModes();if(k)window.scrollTo(0,$('p-fight').offsetTop-70)}
+$('spback').onclick=()=>subSet(null);
+function headCv(draw,sz){const c=document.createElement('canvas');c.width=sz;c.height=sz;ready.then(()=>{const g=c.getContext('2d');g.imageSmoothingEnabled=false;try{draw(g,sz)}catch(e){}});return c}
+const lookHead=(look,tone)=>(g,z)=>{const s=sprite(look);g.drawImage(s.base,Math.round(s.cx-15),Math.max(0,s.d.top-2),30,30,0,0,z,z);if(tone){g.globalCompositeOperation='source-atop';g.fillStyle=tone;g.fillRect(0,0,z,z);g.globalCompositeOperation='source-over'}};
+function renderModes(){const box=$('modes');if(!box)return;box.replaceChildren();const T=(k,cls,title,sub,art,dot,extra)=>{const b=mk('button','mode '+cls+(dot?' dot':''));b.type='button';const tx=mk('div','mtx');tx.innerHTML='<b>'+title+'</b><small>'+sub+'</small>';b.append(tx);if(extra)b.append(extra);const a=mk('div','mart');art.forEach(c=>a.append(c));b.append(a,mk('i','mdot'));b.onclick=()=>subSet(k);return b};
+  if(HOST&&HOST.raid){const r=HOST.raid(),rb=RAIDB[r.boss%RAIDB.length];const c=document.createElement('canvas');c.width=72;c.height=72;const pic=()=>{const V=rkVariant(rb.tint);if(!V)return false;const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(V.c,48,0,36,36,0,0,72,72);return true};if(!pic())RKI.addEventListener('load',pic,{once:true});
+    const hp=mk('div','mhp');hp.innerHTML='<i style="transform:scaleX('+(r.max?Math.max(0,r.hp/r.max):0).toFixed(3)+')"></i>';
+    box.append(T('boss','mboss','ボス',r.open?(r.dead?'討伐済み':rb.n+' ・ 今日あと'+r.left+'回'):'次は '+fmtLeft(r.start-Date.now())+'後',[c],r.open&&!r.dead&&r.left>0,r.open?hp:null))}
+  {const n=Math.min(QMAX,S.qs+1),o=questOpp(n);box.append(T('quest','mquest','クエスト','ステージ'+n+(o.boss?' ・ BOSS':'')+' ・ クリア '+S.qs+'/'+QMAX,[headCv(lookHead(o.look),72)],false))}
+  if(HOST&&HOST.sa){const r=HOST.sa(),op=SA_OPP[((r.wk%4)+4)%4];box.append(T('sa','msa','スコアアタック',r.open?op[2]+' ・ 今日あと'+r.left+'回':r.closed?'結果発表':'月曜から',[headCv(lookHead(S.look,'rgba(150,200,255,.45)'),72)],r.open&&r.left>0))}
+  {const L=OPP.slice(0,3);box.append(T('pvp','mpvp','仲間と戦う',HOST?'今日あと'+HOST.left()+'回':'練習',L.map(o=>headCv(lookHead(o.look),44)),false))}
+  const rec=mk('button','mrec');rec.type='button';rec.innerHTML='<span>記録</span><small>攻められた記録・バトルの記録</small><i class="mdot"></i>';let seen=0;try{seen=+localStorage.getItem('bunRecSeen')||0}catch(e){}
+  try{if(HOST&&HOST.defenses().some(x=>(x.t||0)>seen))rec.classList.add('dot')}catch(e){}rec.onclick=()=>subSet('rec');box.append(rec)}
+function renderFight(){const box=$('opps');box.replaceChildren(...OPP.map(oppCard));renderSa();renderRaid();renderQuest();renderXq();if(!SUB)renderModes();if(HOST){const n=HOST.left();$('go').textContent=n>0?'選んだ仲間と対戦する(今日あと'+n+'回)':'今日の仲間との対戦は終わり(朝5時に戻る)';$('go').disabled=n<=0}}
 function battleLog(res,A,B){const L=$('log');L.replaceChildren();const nm=[A.name,B.name];for(const e of res.ev){const dm=e.hits.filter(h=>!h.miss).reduce((a,h)=>a+h.dmg,0),cr=e.hits.some(h=>h.crit),ms=e.hits.every(h=>h.miss);
     const li=mk('li',e.special?'k':'',nm[e.who]+(e.special?'の必殺技「'+spOf(e.wt,e.wr).sp+'」':'の攻撃')+' → '+(ms?'かわされた':dm+'ダメージ'+(cr?'(会心)':''))+(e.heal?'、'+e.heal+'回復':'')+(e.ab?'(能力「'+e.ab+'」)':'')+(e.tap?({cm:['【ぶつかり合い MAX 1.25倍】','【MAXで受け止めた 0.7倍】'],cw:['【ぶつかり合い勝ち 1.1倍】','【受け止めた 0.85倍】'],cl:['【ぶつかり合い負け 0.9倍】','【押し負けた 1.05倍】'],p:['【PERFECT 1.4倍】','【PARRY 0.2倍】'],g:['【GOOD 1.2倍】','【GUARD 0.6倍】']}[e.tap]||['',''])[e.who]:''));L.append(li)}
   L.append(mk('li','k',(res.win===0?'あなたの勝ち':'あなたの負け')));}
