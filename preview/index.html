@@ -2713,6 +2713,7 @@ button.grgo small{font-size:10.5px;font-weight:600;opacity:.75}
 .pcolh{display:flex;align-items:baseline;gap:6px}.pcolh span{font-size:11.5px;opacity:.7;margin-right:auto}.pcolh b{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:#f2d58a}.pcolh small{font-size:11px;opacity:.7;font-variant-numeric:tabular-nums}
 .pcols{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;justify-items:center}.pcols .slab{width:100%;max-width:120px}
 .pcolb{width:100%;font-size:12.5px}
+.pcolsc{display:flex;justify-content:space-between;align-items:center;width:100%;font-size:12.5px}.pcolsc em{font-style:normal;color:#ff9fbf;font-variant-numeric:tabular-nums}
 .mkth.grd{box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55)}.mkth>i.mkg{position:absolute;inset:auto;right:3px;top:3px;transform:none;width:auto!important;height:15px!important;z-index:2;min-width:15px;height:15px;padding:0 3px;border-radius:4px;display:grid;place-items:center;font:900 9px/1 Georgia,serif;font-style:normal;color:#1b1406;background:#f2d58a}
 /* ショーケース (v134): black aluminium frame, glass shelves, a warm LED strip on top, smoked mirror at the back */
 .scab{position:relative;padding:12px 10px 14px;border-radius:8px;background:linear-gradient(180deg,#26272d,#121317);box-shadow:inset 0 0 0 1px #3a3c44,inset 0 0 0 4px #0c0d10,inset 0 1px 0 5px rgba(255,255,255,.04),0 24px 50px rgba(0,0,0,.65);isolation:isolate}
@@ -7180,6 +7181,13 @@ function dupSheet(kind,res,onChange){document.querySelectorAll('.dps').forEach(x
       r.append(rk,tx,s1,s2);ls.append(r)});b.append(ls,el('div','sub','右の2つのボタンは1枚ずつ。左がかけら、右が燃やす。ダブりではないカードも減らせます(確認が出ます)。'+(ex.length?'上の「全部」はダブりの分だけです':'')));
     const cl=el('button','sec dpsx','閉じる');cl.onclick=()=>o.remove();b.append(cl)};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
+/* iOS home-screen app: after the keyboard closes (a bid, a listing price…), the page can stay shifted and shrunk, and the bottom
+   bar ends up floating in the middle with black below it. Once no field has focus any more, put the viewport back. */
+(function(){if(!/iP(hone|ad|od)/.test(navigator.userAgent)&&!(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))return;
+  const typing=()=>{const a=document.activeElement;return !!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))};
+  const fix=()=>{if(typing())return;const y=window.scrollY;window.scrollTo(window.scrollX,y+1);window.scrollTo(window.scrollX,y)};
+  document.addEventListener('focusout',()=>{setTimeout(fix,60);setTimeout(fix,350)});
+  if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(!typing()&&visualViewport.height>=window.innerHeight-2)setTimeout(fix,30)})})();
 /* ---------- 賞金首 (v134): 3 rate wins in a row (any genre) puts a price on you: 300pt, +100 for every further win.
    Whoever ends the run gets it, paid by the app. Worked out from the match records only (counted from BOUNTY0), so nothing new is stored. ---------- */
 const BOUNTY0=Date.UTC(2026,9,15,19,40),BOUNTY_MIN=3,bountyOf=s=>s>=BOUNTY_MIN?300+(s-BOUNTY_MIN)*100:0;
@@ -7408,7 +7416,8 @@ function grSheet(focus){try{newSeen('grade134')}catch(e){}document.querySelector
     const g=el('div','grgrid');L.forEach(s=>{const c=el('div','grc'+(focus===s.i?' on':''));c.append(slabEl(s));const act=el('div','gra');
       if(slabReady(s)){const ob=el('button','grgo kx-grd','開ける');ob.onclick=async()=>{ob.disabled=true;try{const r=await grOpen(s.i);o.remove();grReveal(r)}catch(e){ob.disabled=false;toast('開けられませんでした')}};act.append(ob)}
       else if(!s.s)act.append(el('div','sub',slabLeft(s)));
-      else{act.append(el('div','grp',slabPrice(s).toLocaleString()+'pt'));const at=scHasSlab(s.i),on=at!=null,sb=el('button','sec'+(on?' on':''),on?'ショーケースから外す':'ショーケースに飾る');
+      else{act.append(el('div','grp',slabPrice(s).toLocaleString()+'pt'));const pin=shw.includes(s.i),pb=el('button','sec'+(pin?' on':''),pin?'プロフィールに飾っています':'プロフィールに飾る');pb.onclick=async()=>{const v=JSON.parse(JSON.stringify(inv)),Tv=v.tcg=v.tcg||{};let a=Array.isArray(Tv.shw)?Tv.shw.filter(x=>slabsOf(v).some(y=>y.i===x)):[];if(a.includes(s.i))a=a.filter(x=>x!==s.i);else{if(a.length>=3){toast('プロフィールに飾れるのは3枚までです');return}a.push(s.i)}Tv.shw=a;try{await db.doc('inv/'+me.id).set(v);inv=v;ownSync();draw()}catch(e){toast('保存できませんでした')}};act.append(pb);
+        const at=scHasSlab(s.i),on=at!=null,sb=el('button','sec'+(on?' on':''),on?'ショーケースから外す':'ショーケースに飾る');
         sb.onclick=async()=>{try{if(on){await scDel(+at);toast('ショーケースから外しました')}else{const fp=scFirstFree();if(fp<0){toast('ショーケースに空きがありません');return}await scPut(fp,{k:'s',i:s.i});toast('ショーケースに飾りました')}draw()}catch(e){toast('保存できませんでした')}};
         const lb=el('button','sec','出品する');lb.onclick=()=>listSheet('t',s.id,!!s.f,()=>draw(),s);
         const xb=el('button','sec grx','ケースから出す');xb.onclick=()=>askSheet({title:'ケースから出す',danger:true,ok:'ケースから出す',lines:['「'+TC[s.id].n+'」(鑑定 '+s.s+')をケースから出します。','対戦で使えるようになりますが、点数は消えて、このカードは二度と鑑定できません。','もとに戻せません。'],run:async()=>{try{await grCrack(s.i);toast('ケースから出しました');draw()}catch(e){toast('できませんでした')}}});
@@ -7845,9 +7854,11 @@ function colTotal(pid){const C=colOf(pid);if(!C)return null;let v=0,n=0;
     C.sl.forEach(x=>{if(TC[x.c]){v+=mkPrice('t',x.c,!!x.f,x.s);n++}});(C.bx||[]).forEach(b=>{if(TCGD.packs[b.pk]){v+=bxPrice(b.pk,+b.t||now());n++}})}return {v,n,sl:C.sl}}
 function colBlock(p){const T=colTotal(p.id),me=myPlayer(),mine=me&&me.id===p.id;if(!T||(!T.n&&!mine))return null;const w=el('div','pcol');
   const hd=el('div','pcolh');hd.append(el('span',null,'コレクション総額'),el('b',null,T.v.toLocaleString()),el('small',null,'pt  ·  '+T.n+'枚'));w.append(hd);
+  const sh=T.sl.filter(x=>x.w).sort((a,b)=>a.w-b.w).slice(0,3);
+  if(sh.length){const row=el('div','pcols');sh.forEach(x=>row.append(slabEl({i:'x',id:x.c,f:!!x.f,s:x.s,t:0})));if(mine)row.onclick=()=>grSheet();w.append(row)}
+  else if(mine){const b=el('button','sec pcolb','鑑定ケースから3枚えらんで飾れます');b.onclick=()=>grSheet();w.append(b)}
   try{likesWatch()}catch(e){}const V=scView(p.id),has=Object.keys(V.m).length;
-  if(has||mine){const box=el('div','pcolc'),hd2=el('div','pcolch');hd2.append(el('span',null,'ショーケース'),el('em',null,'♥ '+likeN(p.id)+(V.n>1?'  ·  ケース '+V.n+'つ':'')));box.append(hd2,scCabinet(p.id,0,{mini:true}));
-    if(mine&&!has)box.append(el('div','sub pcolhint','押すと、鑑定済みのカードや好きなカードを飾れます'));box.onclick=()=>scOpen(p.id,0);w.append(box)}
+  if(has||mine){const sb=el('button','sec pcolsc');sb.append(el('span',null,(mine?'自分':p.name)+'のショーケースを見る'),el('em',null,'♥ '+likeN(p.id)+(has?'  ·  '+has+'点':'')));sb.onclick=()=>scOpen(p.id,0);w.append(sb)}
   return w}
 function profileCard(p,stat){
   const eq=p.eq||{},b=eq.b&&ITEM(eq.b),c=el('div','pcard'+(b?' pb-'+b.v:''));if(b)bgLayer(c,b.v);
