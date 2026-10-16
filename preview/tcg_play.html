@@ -1554,15 +1554,6 @@ X1('gen',[
  {id:'x27',n:'リピート再生',r:'R',type:'spell',c:1,noReplay:1,ops:[{op:'gauge',n:1},{op:'echo',to:'x27r'}]},
  {id:'x28',n:'満員御礼',r:'HR',type:'spell',c:3,cond:'full',ops:[{op:'weakenAll',n:500}]},
 ]);
-/* ハロウィン限定パック (v135): 6 shared cards (族なし), only from the ハロウィン pack. set:'hw' keeps them out of every other pack */
-add('gen',[
- {id:'h1',n:'かぼちゃ頭の新入り',r:'N',type:'chara',c:2,atk:1100,def:1100,onPlay:[{op:'coin',h:[{op:'draw',n:1}],t:[]}],aw:{k:'atk',n:500}},
- {id:'h2',n:'シーツのおばけ',r:'R',type:'chara',c:2,atk:600,def:1900,kw:{cover:1},aw:{k:'def',n:600}},
- {id:'h3',n:'トリック・オア・トリート',r:'R',type:'spell',c:1,ops:[{op:'coin',h:[{op:'stealTop'}],t:[{op:'discard',n:1}]}]},
- {id:'h4',n:'いたずら成功',r:'HR',type:'trap',c:2,when:'attack',ops:[{op:'swapAttacker'},{op:'draw',n:1}]},
- {id:'h5',n:'かぼちゃ頭の騎士',r:'SR',type:'chara',c:5,atk:2400,def:2000,onPlay:[{op:'weakenAll',n:300}],aw:{k:'atk',n:800}},
- {id:'h6',n:'夜宴の魔女',r:'SR',type:'chara',c:4,atk:2100,def:1700,onPlay:[{op:'coinN',n:3,h:[{op:'burn',n:400}]}],aw:{k:'burn',n:800}},
-].map(c=>Object.assign({set:'hw'},c)));
 /* the copy リピート再生 hands back: not a collectible card (not in C), never returns again */
 if(EXP1)BY.x27r={id:'x27r',f:'gen',set:1,n:'リピート再生(2回目)',r:'R',type:'spell',c:1,noReplay:1,token:1,img:'x27',ops:[{op:'gauge',n:1}]};
 const SKILLS={
@@ -1602,6 +1593,15 @@ const FNAME={weak:'よわい男族',girl:'女族',gay:'ゲイ族',gachi:'ガチ�
 const LEADERS={};Object.keys(PFX).forEach(f=>{LEADERS[f]=PFX[f]+'8'});
 /* same-tribe cards: stronger when the leader is the same tribe */
 Object.keys(PFX).forEach(f=>[1,2].forEach(n=>{const c=BY[PFX[f]+n];c.kw=Object.assign({},c.kw||{},{syn:300})}));
+/* ハロウィン版 (v135): an existing card with a Halloween name and picture, the same effect. Only from the ハロウィン pack (set 'hw').
+   In a deck it counts as the same card as the original (fk), so the two together are at most 2.
+   img: the original's picture until the Halloween picture arrives (then drop img) */
+const HWV=[['q2','hq2','魔女コスのギャル'],['n3','hn3','かぼちゃの着ぐるみの中の人'],['x1','hx1','フランケンの用心棒'],
+  ['q4','hq4','ゾンビメイクの地雷系女子'],['d4','hd4','悪魔コスの自称・堕天使'],['x6','hx6','トリック・オア・トリート'],
+  ['y9','hy9','仮装した二丁目の常連'],['x17','hx17','吸血鬼の一族の長老'],
+  ['q8','hq8','夜宴の魔女王'],['d8','hd8','かぼちゃ頭の邪神']];
+HWV.forEach(([b,id,n])=>{const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,n,set:'hw',hwOf:b,img:b});C.push(c);BY[id]=c});
+const fk=id=>(BY[id]&&BY[id].hwOf)||id;
 const DECK_SIZE=20,MAX_COPY=2;
 const isLeader=id=>!!BY[id].trib&&!BY[id].same;
 const POOL=C.map(c=>c.id);
@@ -1609,8 +1609,8 @@ const SET1=C.filter(c=>c.set===1).map(c=>c.id);
 /* preset: 7 tribe cards x2 + the 4 shared cards, shared 2 and 4 doubled */
 function starterDeck(k){const d=[];STARTERS[k].ids.filter(id=>!isLeader(id)).forEach(id=>d.push(id,id));d.push(LEADERS[k],LEADERS[k]);GEN.forEach(id=>d.push(id));return d}
 /* gold cards: only the leader you picked, up to 2 copies; it comes out only after you draw it */
-const deckCap=(id,lead)=>isLeader(id)?(id===lead?MAX_COPY:0):(BY[id].lim?BY[id].lim:MAX_COPY);
-function validDeck(d,lead){if(d.length!==DECK_SIZE)return false;const n={};for(const id of d){if(!BY[id])return false;n[id]=(n[id]||0)+1;if(n[id]>(BY[id].lim||MAX_COPY))return false;if(lead&&isLeader(id)&&id!==lead)return false}return true}
+const deckCap=(id,lead)=>isLeader(id)?(fk(id)===fk(lead)?MAX_COPY:0):(BY[id].lim?BY[id].lim:MAX_COPY);
+function validDeck(d,lead){if(d.length!==DECK_SIZE)return false;const n={};for(const id of d){if(!BY[id])return false;const k=fk(id);n[k]=(n[k]||0)+1;if(n[k]>(BY[id].lim||MAX_COPY))return false;if(lead&&isLeader(id)&&k!==fk(lead))return false}return true}
 function awText(a){if(!a)return'';switch(a.k){
  case'cover':return'【かばう】がつく';case'draw':return a.n+'枚引く';case'atk':return'さらにATK+'+a.n;case'def':return'さらにDEF+'+a.n;
  case'gutsEvery':return'【根性】が毎ターン復活する';case'twice':return'1ターンに2回攻撃できる';case'wipeLow':return'相手のATK'+a.max+'以下のキャラを全部倒す';
@@ -1631,6 +1631,7 @@ function text(c){const t=[],k=c.kw||{};
   if(c.type==='trap')t.push({attack:'相手のキャラが攻撃してきたとき',direct:'相手のキャラがライフを直接攻撃してきたとき',spell:'相手が魔法を使ったとき',any:'相手が攻撃か魔法をしてきたとき',play:'相手がキャラを出したときか魔法を使ったとき'}[c.when]+'、発動するか選べる:'+O(c.ops));
   if(c.aw)t.push('★3覚醒:'+awText(c.aw));
   if(c.lim)t.unshift('【制限】デッキに1枚しか入れられない');
+  if(c.hwOf&&BY[c.hwOf])t.unshift('【ハロウィン版】「'+BY[c.hwOf].n+'」と同じカード。デッキには合わせて'+(c.lim||MAX_COPY)+'枚まで');
   if(c.same)t.unshift('【二体生贄】自分の'+FNAME[c.f]+'のキャラ2体を生贄にして出す');else if(c.trib)t.unshift('【リーダー】リーダーにできる。リーダーにしたときだけ、同じカードをデッキに2枚まで入れられる。引いて手札に来たら、自分のキャラ1体を生贄にして出す');
   return t.join('\n')}
 function op(o){switch(o.op){case'draw':return o.n+'枚引く';case'drawIfAllies':return'味方のキャラが'+o.min+'体以上なら'+o.n+'枚引く';case'destroy':return'倒す';case'destroyBest':return'相手のATKが一番高いキャラ1体を倒す';
@@ -1657,7 +1658,7 @@ function op(o){switch(o.op){case'draw':return o.n+'枚引く';case'drawIfAllies'
  case'oshi':return'相手のATKが一番高いキャラを「推し」にする。推しがいるあいだ推しにしか攻撃できないが、推しと戦うときATK+1000';case'stealTop':return'相手の山札の一番上のカードを、自分の手札に加える';
  case'tribeBurn':return'味方キャラの族の種類1つにつき、相手のライフに'+o.per+'ダメージ';case'echo':return'使ったあと、もう1回だけ使える「'+(BY[o.to]?BY[o.to].n:'')+'」が手札に入る';
  case'coinUntil':return'裏が出るまでコイントスを続ける。表1回につき'+o.h.map(op).join('・')+'(最大'+o.max+'回)'}return''}
-module.exports={SET1,C,BY,SKILLS,TRAITS,STARTERS,GEN,starterDeck,text,awText,PFX,FNAME,LEADERS,DECK_SIZE,MAX_COPY,isLeader,POOL,validDeck,deckCap};
+module.exports={fk,HWV,SET1,C,BY,SKILLS,TRAITS,STARTERS,GEN,starterDeck,text,awText,PFX,FNAME,LEADERS,DECK_SIZE,MAX_COPY,isLeader,POOL,validDeck,deckCap};
 
 });
 __def('./engine4.js',function(module,exports,require){
@@ -2027,7 +2028,7 @@ function makeDeck(r,o){o=o||{};const pick=a=>a[Math.floor(r()*a.length)];const t
   const famOf=c=>(c.kw&&c.kw.mimic)?f:c.f;
   const W=c=>{let w=c.f===f?2.2:c.f===partner?1.5:.8;w*=c.type==='chara'?1:c.type==='spell'?.8:.6;w*={N:1,R:1.15,HR:1.22,SR:1.3}[c.r]||1;if(c.kw&&c.kw.syn&&c.f===f)w*=1.3;if(theme)w*=THEMES[theme].w(c);return w*(.6+r()*.8)};
   const d=[lead,lead];const cnt=id=>d.filter(x=>x===id).length;
-  const cand=CD.C.filter(c=>ok(c.id)).map(c=>({c,w:W(c)}));
+  const cand=CD.C.filter(c=>ok(c.id)&&!c.hwOf).map(c=>({c,w:W(c)}));
   const N=t=>d.filter(id=>CD.BY[id].type===t).length;const heavy=()=>d.filter(id=>!CD.isLeader(id)&&CD.BY[id].c>=4).length;
   let guard=0;while(d.length<CD.DECK_SIZE&&guard++<400){
     const need=CD.DECK_SIZE-d.length,charaShort=Math.max(0,12-N('chara'));
@@ -2590,7 +2591,7 @@ function drawBuilderCards(box){const lf=BY[B.lead].f;box.querySelectorAll('.bgri
     if(OWN(id)<1)w.append(el('i','lockt','未所持'));else if(CD.isLeader(id)&&id!==B.lead)w.append(el('i','lockt','リーダーにすると1枚'));else if(BY[id].lim&&!HOST)w.append(el('i','lockt','制限 1枚まで'));else if(HOST)w.append(el('i','ownt'+(sv===true?' ownscr':'')+(isA?' ownalt':''),tag+'所持'+mine));
     if(n)w.append(el('i','cnt','×'+n));if((BY[id].kw||{}).syn&&BY[id].f===lf)w.append(el('i','synon','同族ボーナス'));
     const pm=el('div','pm');const mi=el('button',null,'−');mi.setAttribute('aria-label',BY[id].n+(tag?'('+tag.trim()+')':'')+'を1枚減らす');mi.disabled=!n;mi.onclick=e=>{e.stopPropagation();const i=B.cards.lastIndexOf(id);if(i>=0){B.cards.splice(i,1);if(isA){B.alt[id]=AL.filter(x=>x!==ak);if(!B.alt[id].length)delete B.alt[id]}else if(sv)B.scr[id]=sc-1;else B.scr[id]=Math.min(B.scr[id]||0,tot-1-na)}drawBuilder()};
-    const pl=el('button',null,'+');pl.setAttribute('aria-label',BY[id].n+(tag?'('+tag.trim()+')':'')+'を1枚追加');pl.disabled=tot>=cap||(HOST&&n>=mine)||(!HOST&&!isA&&tot>=capOf(id,B.lead))||B.cards.length>=CD.DECK_SIZE;pl.onclick=e=>{e.stopPropagation();B.cards.push(id);if(isA)B.alt[id]=AL.concat([ak]).sort((a,b)=>b-a);else if(sv)B.scr[id]=sc+1;else B.scr[id]=sc;drawBuilder()};pm.append(mi,pl);w.append(pm);
+    const pl=el('button',null,'+');pl.setAttribute('aria-label',BY[id].n+(tag?'('+tag.trim()+')':'')+'を1枚追加');pl.disabled=tot>=cap||(CD.fk&&B.cards.filter(x=>CD.fk(x)===CD.fk(id)).length>=cap)||(HOST&&n>=mine)||(!HOST&&!isA&&tot>=capOf(id,B.lead))||B.cards.length>=CD.DECK_SIZE;pl.onclick=e=>{e.stopPropagation();B.cards.push(id);if(isA)B.alt[id]=AL.concat([ak]).sort((a,b)=>b-a);else if(sv)B.scr[id]=sc+1;else B.scr[id]=sc;drawBuilder()};pm.append(mi,pl);w.append(pm);
     c.onclick=()=>cardSheet(id,null,null,isA?ak:sv?'s':0);grid.append(w)})});box.append(grid);
   if(!grid.childElementCount)box.append(el('div','bempty',B.tab==='deck'&&!B.cards.length?'まだカードが入っていません。持っているカードから追加してください。':'条件に合うカードがありません。検索や族を変更してください。'));
   if(B.query.trim()){const results=el('div','bresults','検索結果：'+grid.childElementCount+'種類');results.setAttribute('role','status');box.insertBefore(results,grid)}}
