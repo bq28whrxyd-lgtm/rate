@@ -1684,7 +1684,7 @@ function renderRaid(){const box=$('raid');if(!box||!HOST||!HOST.raid)return;cons
   if(r.open&&!r.dead){const bt=mk('button','btn main',r.left>0?'挑む(今日あと'+r.left+'回)':'今日の3回は終わりました(朝5時に戻ります)');bt.type='button';bt.disabled=r.left<=0;bt.onclick=()=>{if(playing)return;const q=HOST.raid();if(!q.open||q.dead||q.left<=0){renderRaid();return}startBattle(raidOpp(q))};card.append(bt)}
   box.append(card);
   box.append(mk('p','note',r.dead?(r.myPts?'あなたの報酬 +'+r.myPts+'pt(参加報酬と討伐報酬。もう入っています)。次のボスは来週の金曜朝5時に出ます。':'今回は参加していないので報酬はありません。次は来週の金曜朝5時から。')
-    :r.open?'毎週金曜の朝5時から月曜の朝5時まで。1日3回、1回'+RAID_TURNS+'手まで戦って削ったHPがみんなのぶんと合わさります。挑むたびに参加報酬+20pt(倒せなくても入ります)。倒せたら全員に討伐報酬:300pt+削った量で最大500pt、一番削った人は+200pt、とどめを刺した人は+150pt。'+(r.myPts?' いまのあなたの報酬 +'+r.myPts+'pt。':'')
+    :r.open?'毎週金曜の朝5時から月曜の朝5時まで。1日3回、1回'+RAID_TURNS+'手まで戦って削ったHPがみんなのぶんと合わさります。挑むたびに参加報酬+15pt(倒せなくても入ります)。倒せたら全員に討伐報酬:200pt+削った量で最大350pt、一番削った人は+120pt、とどめを刺した人は+80pt。'+(r.myPts?' いまのあなたの報酬 +'+r.myPts+'pt。':'')
     :'毎週金曜の朝5時から3日間、みんなで1体のボスを削ります。'+(r.last?'先週の'+r.last.name+'は'+(r.last.dead?'討伐成功':'倒しきれませんでした')+(r.last.myPts?'(あなた +'+r.last.myPts+'pt)':'')+'。':'')));
   $('raidn').textContent=r.open?(r.dead?'討伐済み':'開催中'):'金曜朝5時から'}
 /* ---------- スコアアタック (weekday score attack, Mon 5:00 - Fri 5:00): everyone fights the same weekly challenger, a mirror with
