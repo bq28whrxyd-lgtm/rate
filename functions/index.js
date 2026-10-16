@@ -136,7 +136,7 @@ exports.pushAucBid = onDocumentUpdated('auc/{id}', async ev => {
 });
 
 /* 畑と泥棒 (v134): until it is in the main app, these go to the お試し版 phones only (pv tokens). Set FARM_PV = false at release. */
-const FARM_PV = true, CROP = {ichigo: ['いちご', 6], tomato: ['トマト', 24], melon: ['メロン', 72]};
+const FARM_PV = true, CROP = {ichigo: ['いちご', 3], tomato: ['トマト', 3], melon: ['メロン', 3]};  // every crop can be picked from 3 hours on
 exports.pushFarmSteal = onDocumentCreated('steal/{id}', async ev => {
   const d = ev.data && ev.data.data(); if (!d || !d.o || !d.p) return;
   let nm = 'だれか'; try { const p = (await db.doc('players/' + d.p).get()).data(); if (p && p.name) nm = p.name; } catch (e) {}
