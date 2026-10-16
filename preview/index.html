@@ -7254,6 +7254,7 @@ const NEWF=[
   {k:'mkt134',at:()=>[...document.querySelectorAll('.bnav [data-v=gacha],#gseg [data-g=mkt]')]},
   {k:'burn134',at:()=>[...document.querySelectorAll('.bnav [data-v=profile]'),...[...document.querySelectorAll('#v-profile button,#psub button')].filter(b=>/コレクション/.test(b.textContent)&&!b.closest('.bnav'))]},
   {k:'bun134',at:()=>[...document.querySelectorAll('#lob [data-bun]')]},
+  {k:'farm134',at:()=>[...document.querySelectorAll('#lob [data-farm]')]},
   {k:'grade134',at:()=>[...document.querySelectorAll('.grcb,.kcolc[data-c=grade],.kcolc[data-c=case],.kcolc[data-c=box],.bnav [data-v=profile]')].concat([...document.querySelectorAll('#psub button')].filter(b=>/コレクション/.test(b.textContent)))}];
 let newSeenL=null;
 function newSeenGet(){if(newSeenL)return newSeenL;try{newSeenL=JSON.parse(localStorage.getItem('nwSeen')||'[]')}catch(e){newSeenL=[]}if(!Array.isArray(newSeenL))newSeenL=[];return newSeenL}
@@ -7637,7 +7638,7 @@ async function farmSteal(o,slot){const me=myPlayer();if(!db||!me)throw new Error
   await db.doc('steal/'+o+'_'+x.i+'_'+me.id).set(doc);steals=steals.concat([Object.assign({id:o+'_'+x.i+'_'+me.id},doc)]);return doc}
 /* ---- 畑: the screen ---- */
 let farmView=null;
-function farmOpen(pid){const me=myPlayer();if(!me)return;farmWatch();document.querySelectorAll('.fmv').forEach(x=>x.remove());farmView={pid:pid||me.id};
+function farmOpen(pid){try{newSeen('farm134')}catch(e){}const me=myPlayer();if(!me)return;farmWatch();document.querySelectorAll('.fmv').forEach(x=>x.remove());farmView={pid:pid||me.id};
   const o=el('div','fmv');o.innerHTML='<div class="fmsky"><svg class="fmhill" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 80C60 40 120 60 170 50S280 20 400 60V120H0Z" fill="#6f8f6a" opacity=".55"/><path d="M0 100C80 70 160 92 240 78S340 70 400 86V120H0Z" fill="#4f7350"/></svg></div>';
   const body=el('div','fmb');o.append(body);document.body.append(o);farmView.o=o;farmView.body=body;farmDraw()}
 function farmDraw(){if(!farmView||!farmView.o||!farmView.o.isConnected)return;const me=myPlayer();if(!me)return;const pid=farmView.pid,mine=pid===me.id,p=players.find(x=>x.id===pid)||{},b=farmView.body;b.replaceChildren();
@@ -7723,7 +7724,7 @@ function mtGradShow(){const me=myPlayer();if(!me)return;const d=mentors.find(x=>
   const ok=el('button','grgo kx-grd','おめでとう');ok.onclick=e=>{e.stopPropagation();o.remove()};sc.append(ok);o.append(sc);o.onclick=()=>o.remove();document.body.append(o)}
 const mtSeen=id=>{try{return !!localStorage.getItem('mtg_'+id)}catch(e){return true}};
 /* the sheet (from the 分身 screen's 師弟 button) */
-function mtSheet(){document.querySelectorAll('.mts').forEach(x=>x.remove());const me=myPlayer();if(!me)return;mentorWatch();const o=el('div','grs mts'),b=el('div','grsb mtsb');o.append(b);
+function mtSheet(){try{newSeen('mt134')}catch(e){}document.querySelectorAll('.mts').forEach(x=>x.remove());const me=myPlayer();if(!me)return;mentorWatch();const o=el('div','grs mts'),b=el('div','grsb mtsb');o.append(b);
   const who=(pid,sub,act)=>{const p=players.find(x=>x.id===pid)||{name:'?'},r=el('div','mtr'),av=el('div','mtav');try{av.append(avatar(p))}catch(e){}const tx=el('div','mtx');tx.append(el('b',null,p.name+'  ·  Lv'+mtLv(pid)),el('span',null,sub));r.append(av,tx);if(act)r.append(act);return r};
   const btn=(t,cls,fn)=>{const x=el('button',cls||'sec',t);x.onclick=async()=>{x.disabled=true;try{await fn()}catch(e){x.disabled=false;toast({gap:'師匠はあなたよりレベルが'+MT_GAP+'以上高い人だけです',full:'その人の弟子はもう'+MT_MAX+'人います',has:'もう師匠がいるか、申し込み中です',once:'この人とはもう師弟になれません',taken:'その人にはもう師匠がいます'}[e.message]||'できませんでした')}};return x};
   const draw=()=>{b.replaceChildren();const hd=el('div','grsh');hd.append(el('h3',null,'師匠と弟子'));const cl=el('button','sec','閉じる');cl.onclick=()=>o.remove();hd.append(cl);b.append(hd);
@@ -7745,7 +7746,8 @@ function mtSheet(){document.querySelectorAll('.mts').forEach(x=>x.remove());cons
     /* graduates */
     const gr=mentors.filter(d=>d.g&&(d.a===me.id||d.m===me.id));if(gr.length){const s3=el('section','mtsec');s3.append(el('div','scpkh','卒業'));gr.forEach(d=>s3.append(who(d.a===me.id?d.m:d.a,d.a===me.id?'あなたの師匠でした':'あなたの弟子が卒業')));b.append(s3)}};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o);mtSheet.redraw=()=>{if(o.isConnected)draw()}}
-const mtDot=()=>{const me=myPlayer();return !!(me&&mtReqsTo(me.id).length)};
+/* the 師弟 button in 分身 shows its red dot until the screen is opened once (NEW, mt134), then only for requests */
+const mtDot=()=>{const me=myPlayer();return !!(me&&(mtReqsTo(me.id).length||!newSeenGet().includes('mt134')))};
 /* 取引所: this week's risers and fallers */
 function mkOpenCard(k,c){if(k==='b'){try{bxSheet()}catch(e){}return}if(k==='t'){try{tcgSheet(c)}catch(e){}return}try{openCollection(true);setTimeout(()=>{try{window.__cvDetail(ITEM(c))}catch(e){}},450)}catch(e){}}
 function mkMoversEl(){const M=mkMovers(),sec=el('section','mkmv');const hd=el('div','mkmvh');hd.append(el('b',null,'今週の相場'),el('span',null,'取引所で売れた値段から'));sec.append(hd);
