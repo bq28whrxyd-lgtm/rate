@@ -15,7 +15,8 @@ echo "$R" > functions/region.txt
 echo "== Firestoreの場所: ${LOC:-不明}  → 通知の仕組みの場所: $R"
 echo "== 先に、次から自動で入るように鍵に権限を渡しています(1分ほど)"
 SA=firebase-adminsdk-fbsvc@$P.iam.gserviceaccount.com
-for ROLE in roles/cloudfunctions.admin roles/run.admin roles/iam.serviceAccountUser roles/artifactregistry.admin roles/cloudbuild.builds.editor roles/eventarc.admin roles/serviceusage.serviceUsageConsumer roles/firebaseextensions.viewer; do
+gcloud services enable cloudscheduler.googleapis.com --project $P --quiet >/dev/null 2>&1 && echo "   OK 時間で動く仕組み(Cloud Scheduler)" || echo "   (Cloud Scheduler を有効にできませんでした)"
+for ROLE in roles/cloudfunctions.admin roles/run.admin roles/iam.serviceAccountUser roles/artifactregistry.admin roles/cloudbuild.builds.editor roles/eventarc.admin roles/serviceusage.serviceUsageConsumer roles/firebaseextensions.viewer roles/cloudscheduler.admin; do
   gcloud projects add-iam-policy-binding $P --member="serviceAccount:$SA" --role="$ROLE" --condition=None --quiet >/dev/null && echo "   OK $ROLE" || echo "   (渡せませんでした: $ROLE)"
 done
 echo "== 準備中(1〜2分)"

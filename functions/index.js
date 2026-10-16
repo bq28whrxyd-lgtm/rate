@@ -146,7 +146,8 @@ exports.pushFarmSteal = onDocumentCreated('steal/{id}', async ev => {
 });
 /* every 10 minutes: crops that became ripe since the last run */
 /* needs the Cloud Scheduler API (enable it and give the key roles/cloudscheduler.admin first), then set FARM_RIPE = true */
-const FARM_RIPE = false;
+const FARM_RIPE = false;  // also sends 鑑定結果が届きました (same 10-minute run)
+const GR_H = 24, GR_PV = true;  // GR_H = the app's GR_H. GR_PV: お試し版 phones only until release
 if (FARM_RIPE) exports.pushFarmRipe = onSchedule({schedule: 'every 10 minutes', timeZone: 'Asia/Tokyo'}, async () => {
   const ref = db.doc('config/farmpush'), last = ((await ref.get()).data() || {}).t || Date.now() - 6e5, nowt = Date.now();
   const docs = (await db.collection('farm').get()).docs;
@@ -154,6 +155,11 @@ if (FARM_RIPE) exports.pushFarmRipe = onSchedule({schedule: 'every 10 minutes', 
     const P = (d.data() || {}).p || {}, ripe = [];
     for (const k of Object.keys(P)) { const x = P[k]; if (!x || !CROP[x.c]) continue; const at = (+x.t || 0) + CROP[x.c][1] * 36e5; if (at > last && at <= nowt) ripe.push(CROP[x.c][0]); }
     if (ripe.length) await send([d.id], 'give', {title: ripe.join('・') + 'が実りました', body: '仲間に盗まれる前に収穫しよう', go: 'home', tag: 'fr' + d.id + nowt}, FARM_PV);
+  }
+  /* 鑑定 (v134): a card sent for grading (inv/{pid}.tcg.sl {t: sent, s: score once opened}) has its result GR_H hours later */
+  for (const d of (await db.collection('inv').get()).docs) {
+    const sl = (((d.data() || {}).tcg) || {}).sl || [], n = sl.filter(x => x && !x.s && (+x.t || 0) + GR_H * 36e5 > last && (+x.t || 0) + GR_H * 36e5 <= nowt).length;
+    if (n) await send([d.id], 'give', {title: '鑑定結果が届きました', body: (n > 1 ? n + '枚の' : '') + '鑑定結果が届いています。開けて点数を見てみよう', go: 'home', tag: 'gr' + d.id + nowt}, GR_PV);
   }
   await ref.set({t: nowt});
 });
