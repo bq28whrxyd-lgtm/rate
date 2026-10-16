@@ -2900,6 +2900,19 @@ button.tcgkeep{width:100%;margin-top:8px}
 .hlw-tile em{position:static;flex:none;min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:linear-gradient(180deg,#ffb15c,#ff7a1a);color:#2a1206;font:800 12px/22px var(--k-num,inherit);font-style:normal;text-align:center;box-shadow:0 0 14px rgba(255,140,50,.55)}
 .hlw-chev{flex:none;width:9px;height:9px;border-right:2px solid rgba(255,236,210,.75);border-top:2px solid rgba(255,236,210,.75);transform:rotate(45deg);margin-right:4px}
 .hlw-tile:active{transform:scale(.985)}
+.hlw.sub .hlw-b{padding-top:0}
+.hlw-hb{position:sticky;top:0;z-index:5;margin:0 -16px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 10px;display:flex;align-items:center;gap:10px;background:rgba(13,8,18,.88);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 1px 0 rgba(255,214,160,.12)}
+.hlw-hbk{display:flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 12px;border:0;border-radius:999px;background:rgba(255,236,210,.07);color:#f6ece2;font:600 15px/1 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.06em}
+.hlw-hbk i{width:9px;height:9px;border-left:2px solid #f2c47a;border-bottom:2px solid #f2c47a;transform:rotate(45deg);margin-left:3px}
+.hlw-hcp{margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:999px;background:rgba(255,236,210,.07);box-shadow:inset 0 0 0 1px rgba(255,214,160,.16)}
+.hlw-hcp b{font:800 15px/1 "Inter Tight",var(--k-num,inherit);font-variant-numeric:tabular-nums;color:#fff4e2}
+.hlw-hb .hlw-x{flex:none;width:38px;height:38px;padding:0;display:grid;place-items:center;border-radius:50%;border:0;color:#f6ece2;background:rgba(255,236,210,.07)}
+.hlw.sub .hlw-sec h3{margin:8px 2px 10px;font:600 22px/1.3 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.05em;color:#fff1d6}
+.hlw.sub .hlw-sec h3 small{display:block;margin:6px 0 0;font:600 12px/1.4 var(--k-body,inherit);letter-spacing:0;color:#bfa9c9}
+.hlw.sub .hlw-it{background:linear-gradient(180deg,rgba(40,24,52,.6),rgba(20,12,28,.75));box-shadow:inset 0 0 0 1px rgba(255,214,160,.14)}
+.hlw.sub .hlw-mr,.hlw.sub .hlw-how,.hlw.sub .hlw-rkl{background:rgba(255,236,210,.035);box-shadow:inset 0 0 0 1px rgba(255,214,160,.12)}
+.hlw.sub .hlw-mr.ok{background:linear-gradient(120deg,rgba(120,50,20,.5),rgba(50,22,60,.55));box-shadow:inset 0 0 0 1px rgba(255,170,90,.5)}
+.hlw-hr>span{flex:none;white-space:nowrap}.hlw-hr>b{flex:1;min-width:0}
 @media (prefers-reduced-motion:reduce){.hlw-kv video{display:none}}
 .hlw-back{align-self:flex-start;height:36px;padding:0 14px;border-radius:999px;border:0;background:#ffffff12;color:#ffd3a3;font-weight:700;box-shadow:inset 0 0 0 1px #ffffff1a}
 .hlw-tsub{color:#cdb8da!important;margin:-2px 2px 10px;line-height:1.6}
@@ -7671,6 +7684,14 @@ function hwListSheet(done){const me=myPlayer();if(!me)return;document.querySelec
 function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e){}document.querySelectorAll('.hlw').forEach(x=>x.remove());const o=el('div','hlw'),b=el('div','hlw-b');o.append(b);document.body.append(o);
   let sub=hwOpen.sub0||null;hwOpen.sub0=null;hwOpen.go=k=>{sub=k;draw();o.scrollTo(0,0)};
   const draw=()=>{b.replaceChildren();const on=hwOn(),pt=hwPart(),bal=hwBal(me.id),earn=hwEarn(me.id);
+    /* (10/17) a page (ミッション・交換所…) gets a slim bar instead of the painting, so its content starts at the top and reads on a calm dark ground */
+    o.classList.toggle('sub',!!sub);
+    if(sub){const hb=el('div','hlw-hb'),bk=el('button','hlw-hbk');bk.type='button';bk.setAttribute('aria-label','ハロウィンのメニューに戻る');bk.innerHTML='<i></i><span>ハロウィン</span>';bk.onclick=()=>hwOpen.go(null);
+      const cp=el('span','hlw-hcp');cp.innerHTML=hwCandySvg(16);cp.append(el('b',null,bal.toLocaleString()));
+      const cl=el('button','hlw-x');cl.type='button';cl.setAttribute('aria-label','閉じる');cl.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';cl.onclick=()=>o.remove();
+      hb.append(bk,cp,cl);b.append(hb);
+      if(on&&sub==='shop'){const mb=el('button','hlw-sell');mb.innerHTML=hwCandySvg(18);mb.append(document.createTextNode('お菓子を取引所に出品する'));mb.onclick=()=>hwListSheet(()=>draw());b.append(mb)}}
+    else{
     /* (10/17) the key visual: the moving painting of かぼちゃ畑の夜 across the top, the title set in mincho over it */
     /* the painting is made once per opening and kept across redraws, so the film never restarts or reloads */
     let kv=o.__kv;if(!kv){kv=o.__kv=el('div','hlw-kv');try{bgFilm(kv,{src:'fx_hwbg_gr2',fy:'50%'})}catch(e){}}else kv.querySelectorAll('.hlw-x,.hlw-tt').forEach(x=>x.remove());
@@ -7681,10 +7702,10 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
     {const cb=el('div','hlw-cbar'),ic=el('i','hlw-cic');ic.innerHTML=hwCandySvg(30);const mid=el('div','hlw-cn');mid.append(el('span',null,'持っているお菓子'),el('b',null,bal.toLocaleString()));
       const rt=el('div','hlw-cr');rt.append(el('span',null,'これまでに '+earn.toLocaleString()),el('span',null,on?'のこり '+hwLeft(hwT1()):now()<hwT0()?'始まるまで '+hwLeft(hwT0()):'交換は終了'));cb.append(ic,mid,rt);b.append(cb)}
     if(HW_PV)b.append(el('div','hlw-pv','お試し版: 今日から始まっているように見せています。ここでのお菓子・交換・ミッションは本番(10/20〜)には持ち越されず、ptとチケットは入りません。'));
-    if(on&&sub==='shop'){const mb=el('button','hlw-sell');mb.innerHTML=hwCandySvg(18);mb.append(document.createTextNode('お菓子を取引所に出品する'));mb.onclick=()=>hwListSheet(()=>draw());b.append(mb)}
     /* ハロウィンナイト: a strip of the painted moon */
     {const nn=hwNightNow(),n=el('div','hlw-night'+(nn?' on':''));const tx=el('div');tx.append(el('b',null,'ハロウィンナイト'),el('span',null,nn?'いまお菓子が2倍':'10/31 17:00〜24:00  お菓子が2倍'));
       n.append(tx);const lf=nn?'あと '+hwLeft(window.__hwNight?now()+36e5:HWN1):now()<HWN0?'あと '+hwLeft(HWN0):'';if(lf)n.append(el('em',null,lf));b.append(n)}
+    }
     /* the menu: four painted strips, one per page */
     if(!sub){totWatch();const L=hwMisList(),ready=L.filter(m=>m.ok&&!m.got).length,inc=totIn(me.id).length,g=el('div','hlw-tiles');
       const tile=(k,cls,title,line,badge)=>{const t=el('button','hlw-tile '+cls);t.type='button';const tx=el('div','hlw-ttx');tx.append(el('b',null,title),el('small',null,line));t.append(tx);
@@ -7694,7 +7715,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
       tile('shop','sp','お菓子の交換所','お菓子 '+bal.toLocaleString()+' で交換',0);
       tile('how','hw','お菓子のもらい方','対戦・分身・ボス・お題','');
       b.append(g);try{hwpWatch();b.append(hwRankSec(me))}catch(e){}}
-    else{const bk=el('button','hlw-back','‹ ハロウィンのメニュー');bk.type='button';bk.onclick=()=>hwOpen.go(null);b.append(bk)}
+
     /* トリック・オア・トリート */
     if(sub==='tot'){totWatch();const ts=el('div','hlw-sec');const hd=el('h3',null,'トリック・オア・トリート');hd.append(el('small',null,'今日あと '+totLeft(me.id)+' 回  ·  仲良しの印 '+totGives(me.id)));ts.append(hd);
       ts.append(el('div','sub hlw-tsub','仲間にお菓子をねだれます(1日'+TOT_DAY+'回)。仲間があげてくれたら +'+TOT_GIVE+'。「あげない」か1日答えなかったら、いたずらで '+TOT_TRICK+' もらえます。'));
