@@ -3,6 +3,7 @@
    Every trigger below only reads a few documents and sends one message per phone. */
 const {onDocumentCreated, onDocumentWritten, onDocumentUpdated} = require('firebase-functions/v2/firestore');
 const {setGlobalOptions} = require('firebase-functions/v2');
+const {onSchedule} = require('firebase-functions/v2/scheduler');
 const admin = require('firebase-admin');
 const fs = require('fs');
 admin.initializeApp();
@@ -132,4 +133,25 @@ exports.pushAucBid = onDocumentUpdated('auc/{id}', async ev => {
   try { const f = (await db.doc('feed/l_' + ev.params.id).get()).data(); const m = f && /「(.+?)」/.exec(f.x || ''); if (m) nm = '「' + m[1] + '」'; } catch (e) {}
   if (b.hp && b.hp !== a.hp) await send([b.hp], 'give', {title: '入札が抜かれました', body: nm + ' がいま ' + a.hb + 'pt。取り返すなら取引所へ', go: 'gacha', tag: 'ob' + ev.params.id});
   if (a.bn > 0 && a.hb >= a.bn && !(b.hb >= a.bn)) await send([a.s], 'give', {title: '即決で売れました', body: nm + ' が ' + a.hb + 'pt で売れました', go: 'gacha', tag: 'bn' + ev.params.id});
+});
+
+/* 畑と泥棒 (v134): until it is in the main app, these go to the お試し版 phones only (pv tokens). Set FARM_PV = false at release. */
+const FARM_PV = true, CROP = {ichigo: ['いちご', 6], tomato: ['トマト', 24], melon: ['メロン', 72]};
+exports.pushFarmSteal = onDocumentCreated('steal/{id}', async ev => {
+  const d = ev.data && ev.data.data(); if (!d || !d.o || !d.p) return;
+  let nm = 'だれか'; try { const p = (await db.doc('players/' + d.p).get()).data(); if (p && p.name) nm = p.name; } catch (e) {}
+  const c = (CROP[d.c] || ['作物'])[0];
+  await send([d.o], 'give', d.bit ? {title: '番犬が撃退!', body: nm + 'が' + c + 'を盗もうとして噛まれました。罰金 +' + d.f + 'pt', go: 'home', tag: 'fs' + ev.params.id}
+                                   : {title: c + 'を盗まれた', body: nm + 'に' + c + 'を盗まれました(-' + d.n + 'pt)。早めに収穫しよう', go: 'home', tag: 'fs' + ev.params.id}, FARM_PV);
+});
+/* every 10 minutes: crops that became ripe since the last run */
+exports.pushFarmRipe = onSchedule({schedule: 'every 10 minutes', timeZone: 'Asia/Tokyo'}, async () => {
+  const ref = db.doc('config/farmpush'), last = ((await ref.get()).data() || {}).t || Date.now() - 6e5, nowt = Date.now();
+  const docs = (await db.collection('farm').get()).docs;
+  for (const d of docs) {
+    const P = (d.data() || {}).p || {}, ripe = [];
+    for (const k of Object.keys(P)) { const x = P[k]; if (!x || !CROP[x.c]) continue; const at = (+x.t || 0) + CROP[x.c][1] * 36e5; if (at > last && at <= nowt) ripe.push(CROP[x.c][0]); }
+    if (ripe.length) await send([d.id], 'give', {title: ripe.join('・') + 'が実りました', body: '仲間に盗まれる前に収穫しよう', go: 'home', tag: 'fr' + d.id + nowt}, FARM_PV);
+  }
+  await ref.set({t: nowt});
 });
