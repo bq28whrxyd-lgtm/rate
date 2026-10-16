@@ -7394,8 +7394,9 @@ function mkChart(k,c,f){const S=mkSeries(k,c,f),now_=now(),pts=S.concat([{t:now_
    inv.tcg.ng {id|id*: n}  copies taken out of their case: they can never be graded again.
    inv.gfee              points paid for grading (counted in invAdj).
    Score: unused 7-10, used 1-8, decided by a hash of the player and the case, so opening again gives the same number. ---------- */
-const GR_H=24,GR_FEE={C:30,R:50,SR:100,GR:200};
-const grFee=(id,f)=>Math.round((GR_FEE[((typeof TC!=='undefined'&&TC[id])||{}).r]||30)*(f?1.5:1));
+/* (10/16) the fee is the same for every card: 100pt (before: C30 R50 SR100 GR200, SCR x1.5) */
+const GR_H=24,GR_FEE=100;
+const grFee=(id,f)=>GR_FEE;
 const grKey=(id,f)=>id+(f?'*':'');
 function tcgDeckMax(T){const M={};(T.decks||[]).forEach(d=>{const c={};[d.lead].concat(d.cards||[]).forEach(id=>{if(id)c[id]=(c[id]||0)+1});for(const id in c)M[id]=Math.max(M[id]||0,c[id])});return M}
 const tcgUsedMap=T=>T.us||tcgDeckMax(T);
@@ -10995,7 +10996,7 @@ const NEWS_EXP=typeof TCGD!=='undefined'&&!!TCGD.packs.c;
 const NEWS_ID=NEWS_EXP?'2026-v134':'2026-v121';
 const NEWS=NEWS_EXP?[
  ['取引所',['ガチャ画面の3つ目のタブ。カードをオークションに出品して、ptで入札できる(即決の値段も付けられる)','闇鍋パック: '+YAMI_PT+'ptで、みんなが入れたカードから1枚ランダムに引ける。自分のカードが引かれると'+YAMI_BACK+'pt','出品があったとき・入札で抜かれたとき・即決で売れたときにスマホに通知','取引所の上に、相場の高騰・暴落ランキング']],
- ['カードの鑑定と相場',['TCGカードを鑑定に出せる(ptを払って1日後に結果)。一度も使っていないカードは7〜10点、使ったカードは1〜8点','鑑定済みのカードは専用のケースに入る。ケースに入っている間は対戦で使えない。ケースから出すと使えるけど、点数は消えてもう鑑定できない','カードのページに相場のグラフ。鑑定済みのカードは点数で値段が変わり、出品もできる']],
+ ['カードの鑑定と相場',['TCGカードを鑑定に出せる(1枚100pt、1日後に結果)。一度も使っていないカードは7〜10点、使ったカードは1〜8点','鑑定済みのカードは専用のケースに入る。ケースに入っている間は対戦で使えない。ケースから出すと使えるけど、点数は消えてもう鑑定できない','カードのページに相場のグラフ。鑑定済みのカードは点数で値段が変わり、出品もできる']],
  ['畑と泥棒',['ホーム左の「畑」から。ptを種にして、いちご・トマト・メロンを植える。3時間から収穫できて、置いておくほど増える','実ってから収穫するまでの間は、仲間が10%ずつ盗める(みんなで50%まで)。盗めるのは1人1日1回','番犬(1日100pt)を雇うと、盗もうとした人が噛まれて罰金を払う','畑で増やせるのは1日600ptまで']],
  ['ガラスのショーケース',['コレクションに縦型のショーケース。鑑定済みのカード・普通のTCGカード・未開封ボックスを9個まで飾れる','ptでショーケースを増やせる(最大5台)','仲間のショーケースを見て、いいねできる','プロフィールには、自分で選んだ鑑定済みカード3枚とコレクションの総額']],
  ['未開封ボックス',['TCGボックスを買うときに「開けずに取っておく」を選べる','寝かせた時間と相場で値段が上がる。コレクションからいつでも開けられて、取引所にも出せる']],
