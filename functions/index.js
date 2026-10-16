@@ -145,7 +145,9 @@ exports.pushFarmSteal = onDocumentCreated('steal/{id}', async ev => {
                                    : {title: c + 'を盗まれた', body: nm + 'に' + c + 'を盗まれました(-' + d.n + 'pt)。早めに収穫しよう', go: 'home', tag: 'fs' + ev.params.id}, FARM_PV);
 });
 /* every 10 minutes: crops that became ripe since the last run */
-exports.pushFarmRipe = onSchedule({schedule: 'every 10 minutes', timeZone: 'Asia/Tokyo'}, async () => {
+/* needs the Cloud Scheduler API (enable it and give the key roles/cloudscheduler.admin first), then set FARM_RIPE = true */
+const FARM_RIPE = false;
+if (FARM_RIPE) exports.pushFarmRipe = onSchedule({schedule: 'every 10 minutes', timeZone: 'Asia/Tokyo'}, async () => {
   const ref = db.doc('config/farmpush'), last = ((await ref.get()).data() || {}).t || Date.now() - 6e5, nowt = Date.now();
   const docs = (await db.collection('farm').get()).docs;
   for (const d of docs) {
