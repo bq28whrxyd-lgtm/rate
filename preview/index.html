@@ -599,7 +599,7 @@ main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 [hidden]{display:none!important}
 
 .pb-hwur{background:#1a0a24 url("fx_hwbg_ur.jpg") center/cover!important}
-.pb-hwgr{background:#12061e url("fx_hwbg_gr.jpg") center/cover!important}
+.pb-hwgr{background:#12061e url("fx_hwbg_gr2.jpg") center/cover!important}
 .pb-eclipse{background:radial-gradient(circle at 70% 26%,#000 0 22px,#ff3b3b 23px 25px,#ff3b3b55 27px,transparent 60px),linear-gradient(180deg,#2a0610,#08020a)!important}
 .pb-makai{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100'%3E%3Cpath fill='%2306020a' d='M0 100V80h20V60l6-8 6 8v20h14V50l4-14 4 14v30h20V40l8-20 8 20v40h18V56l5-10 5 10v24h20V64l6-8 6 8v16h20V70l5-6 5 6v30z'/%3E%3C/svg%3E") left bottom/100% auto no-repeat,radial-gradient(circle at 80% 20%,#ff3b3b 0 14px,#ff3b3b00 34px),linear-gradient(180deg,#3a0a5a,#7a1a5a 55%,#1a0420)!important}
 .sl-blackflame i{position:absolute;left:-10%;right:-10%;bottom:-10%;height:75%;border-radius:50% 50% 0 0;background:radial-gradient(60% 80% at 50% 100%,#d8a0ff,#7a2ab8 35%,#1a0026 62%,transparent 75%);filter:blur(10px);opacity:.85;animation:flame 1s ease-in-out infinite alternate,rise2 1s ease-out both}
@@ -941,7 +941,7 @@ button.tkbtn{background:linear-gradient(90deg,#ff6ad5,#b88aff);color:#fff;border
 .pb-chatflow{background:radial-gradient(70% 60% at 80% 10%,#ff5ab455,transparent),radial-gradient(70% 60% at 10% 90%,#5ad8ff4d,transparent),linear-gradient(160deg,#2a1442,#120a24)!important}
 .bgl{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;border-radius:inherit}
 .gcx .bgl{z-index:0}
-.bglv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.bglv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:opacity .35s}
 .bgl-chat b{position:absolute;left:100%;white-space:nowrap;font:700 15px/1 var(--body);color:#fff;opacity:.45;text-shadow:0 0 6px #ff5ab4;animation:bgdm linear infinite}
 @keyframes bgdm{to{transform:translateX(calc(-100% - 600px))}}
 .gcx .bgl-chat b{font-size:8px}
@@ -4619,6 +4619,14 @@ body.ui2 .krk-r{content-visibility:auto;contain-intrinsic-size:auto 68px}
 body.ui2 .kpc-ban.pb-hwur,body.ui2 .kpc-ban.pb-hwgr{height:170px;background-size:cover!important;background-position:center var(--fy,30%)!important}
 body.ui2 .kpc-ban.pb-hwgr{--fy:52%}
 body.ui2 .kpc-ban.pb-hwur{--fy:24%}
+/* picture / moving backgrounds fill the whole profile card; the text sits on top over a soft dark wash */
+body.ui2 .pcard.kpc.kpc.kpc-full{padding-top:170px!important}
+body.ui2 .kpc-full>.kpc-ban.kpc-ban{position:absolute;inset:0;height:auto;z-index:0}
+body.ui2 .kpc-full>.kpc-ban::after{background:linear-gradient(180deg,rgba(14,10,22,0) 0%,rgba(14,10,22,0) 26%,rgba(14,10,22,.38) 46%,rgba(14,10,22,.6) 72%,rgba(14,10,22,.72))}
+body.ui2 .kpc-full>*:not(.kpc-ban):not(.kpc-hd){position:relative;z-index:1}
+body.ui2 .kpc-full .kpc-it{background:rgba(14,12,20,.78)}
+body.ui2 .kpc-full .kpc-rt{background:linear-gradient(180deg,rgba(20,16,28,.7),rgba(14,12,20,.6))}
+body.ui2 .kpc-full .kpc-av::before{background:rgba(14,10,22,.9)}
 /* ===== v121 rating trend (kt). Dark SaaS look: one gradient line (violet to cyan), a soft area under it,
    rank borders as dotted lines, the number on top. Only transform/opacity move. ===== */
 
@@ -6376,10 +6384,10 @@ function cheerBox(list,note){
 /* animated backgrounds: extra layer for backgrounds that move */
 /* moving backgrounds: a looping film behind the card (muted, inline). It plays only while it is on screen.
    A new film needs a new file name (the app keeps films by name). */
-const BG_FILM={hwgr:{src:'fx_hwbg_gr',fy:'52%'}};
+const BG_FILM={hwgr:{src:"fx_hwbg_gr2",fy:"52%"}},BG_FULL={hwgr:1,hwur:1};
 let bgFilmIO=null;
 function bgFilm(host,F){const L=el('div','bgl bglv'),vd=document.createElement('video');vd.muted=true;vd.loop=true;vd.playsInline=true;vd.setAttribute('playsinline','');vd.setAttribute('muted','');vd.preload='metadata';vd.poster=F.src+'.jpg';vd.disablePictureInPicture=true;
-  [['mp4','video/mp4'],['webm','video/webm']].forEach(([x,t])=>{const so=document.createElement('source');so.src=F.src+'.'+x;so.type=t;vd.append(so)});vd.style.objectPosition='center '+F.fy;L.append(vd);host.prepend(L);
+  [['mp4','video/mp4'],['webm','video/webm']].forEach(([x,t])=>{const so=document.createElement('source');so.src=F.src+'.'+x;so.type=t;vd.append(so)});vd.style.objectPosition='center '+F.fy;L.style.background='#12061e url("'+F.src+'.jpg") center '+F.fy+'/cover';vd.style.opacity='0';vd.addEventListener('playing',()=>{vd.style.opacity='1'},{once:true});L.append(vd);host.prepend(L);
   try{if(!bgFilmIO)bgFilmIO=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(e.isIntersecting&&!document.hidden){const p=v.play();if(p&&p.catch)p.catch(()=>{})}else v.pause()}),{threshold:.05});bgFilmIO.observe(vd)}catch(e){const p=vd.play();if(p&&p.catch)p.catch(()=>{})}}
 document.addEventListener('visibilitychange',()=>{document.querySelectorAll('.bglv video').forEach(v=>{if(document.hidden)v.pause()})});
 function bgLayer(host,v){
@@ -13307,7 +13315,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const pl=g=>(p[g+'_wins']||0)+(p[g+'_losses']||0)>0,PL=Object.keys(G).filter(pl);
     const best=PL.length?Math.max(...PL.map(rG)):1500,ti=TI(best);
     const c=mk('div','pcard kpc');try{mvars(c,ti)}catch(e){}
-    const ban=mk('div','kpc-ban'+(b&&b.v?' pb-'+b.v:' kpc-ban0'));if(b&&b.v){try{bgLayer(ban,b.v)}catch(e){}}c.append(ban);
+    const ban=mk('div','kpc-ban'+(b&&b.v?' pb-'+b.v:' kpc-ban0'));if(b&&b.v){try{bgLayer(ban,b.v)}catch(e){}try{if(typeof BG_FULL!=='undefined'&&BG_FULL[b.v])c.classList.add('kpc-full')}catch(e){}}c.append(ban);
     const hd=mk('div','kpc-hd'),av=mk('div','kpc-av');av.append(avatarFull(Object.assign({},p,{rating:best})));
     const id=mk('div','kpc-id');let nm;try{nm=supName(nameBox('div','pcn',p.name,ti),p.id)}catch(e){nm=mk('div','pcn',esc(p.name))}id.append(nm);hd.append(av,id);c.append(hd);
     const chips=mk('div','kpc-chips');try{chips.append(rankChip(ti))}catch(e){}
