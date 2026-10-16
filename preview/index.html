@@ -5860,6 +5860,13 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .kgu-hwt em{font-style:normal;font-size:14px;color:#c99bff}
 .kgu-bd.hw{background:linear-gradient(180deg,#ffd27a,#ff8a2a);color:#1a0a24}
 @media (prefers-reduced-motion:reduce){.kgu-hwbat{animation:none}}
+
+/* (10/17) ハロウィンナイト banner: one secret Halloween version (pumpkin holo) tilted over the box */
+.kgu-hwsc{position:absolute;left:46%;top:3%;width:28%;aspect-ratio:3/4;z-index:4;transform:rotate(7deg);filter:drop-shadow(0 18px 22px rgba(0,0,0,.7));animation:kguHwSc 5.6s ease-in-out infinite}
+.kgu-hwsc .tcf{position:absolute;inset:0;width:100%;height:100%;border-radius:9px}
+.kgu-hwsct{position:absolute;left:50%;bottom:-9%;transform:translateX(-50%);z-index:8;font:900 9px/1 "Inter Tight",var(--x-f);font-style:normal;letter-spacing:.22em;padding:4px 8px 4px 10px;border-radius:999px;color:#2a1240;background:linear-gradient(90deg,#ffd6ee,#fff6dc 35%,#d7f1ff 65%,#e6d6ff);box-shadow:0 2px 8px rgba(0,0,0,.5)}
+@keyframes kguHwSc{0%,100%{transform:rotate(7deg) translateY(0)}50%{transform:rotate(5deg) translateY(-6px)}}
+@media (prefers-reduced-motion:reduce){.kgu-hwsc{animation:none}}
 /* ===== v121 宝箱 (kch): the victory chest, a rendered film with HTML on top ===== */
 .chest.kch{background:#000;display:block;gap:0;overflow:hidden;animation:none}
 /* the clip's frame: 9:16, full height, centered (cropped at the sides on a narrow phone, black at the sides on a wide screen) */
@@ -15050,7 +15057,14 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     /* the box behind (its front), the pack in front */
     const bx=mk('div','kgu-bx'),bim=mk('img');bim.alt='';bim.decoding='async';try{bim.src=window.__kgHeroSrc?__kgHeroSrc(pk):''}catch(e){}
     const bn=mk('div','kgu-bxn');bn.append(mk('small',null,'BOOSTER BOX'),window.__kgPackLogo?__kgPackLogo(P):mk('b',null,esc(P.n)));bx.append(bim,bn,mk('i','kgu-bxs'));
-    a.append(bx,packEl(pk),mk('i','kgu-spk'));return a}
+    a.append(bx,packEl(pk),mk('i','kgu-spk'));
+    /* (10/17) ハロウィンナイト: a secret Halloween version (with its pumpkin holo) leans over the box; the 20 take turns every few seconds */
+    if(P.hw&&window.CARD_IMG){try{const ord={GR:0,SR:1,R:2,C:3},L=tcgPool(pk).filter(c=>c.hwOf).sort((x,y)=>ord[x.r]-ord[y.r]).map(c=>c.id);
+      if(L.length){const sc=mk('div','kgu-hwsc');let i=0;const face=id=>{const f=tcgFace(id,'',true);return f};sc.append(face(L[0]),mk('em','kgu-hwsct','SECRET'));a.append(sc);
+        const iv=setInterval(()=>{if(!document.contains(sc)){if(!ARTC||!Object.values(ARTC).includes(a))clearInterval(iv);return}if(document.hidden||curView!=='gacha')return;
+          i=(i+1)%L.length;const old=sc.querySelector('.tcf'),nf=face(L[i]);nf.style.opacity='0';sc.insertBefore(nf,sc.lastChild);
+          try{nf.animate([{opacity:0,transform:'scale(1.04)'},{opacity:1,transform:'none'}],{duration:520,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'}).onfinish=()=>{nf.style.opacity='';old&&old.remove()}}catch(e){nf.style.opacity='';old&&old.remove()}},3600)}}catch(e){console.warn('kgu hwsc',e)}}
+    return a}
 
   /* ---------- the banners ---------- */
   /* the small key art on each banner chip */
