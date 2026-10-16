@@ -6550,8 +6550,10 @@ VICS.forEach((L,r)=>L.forEach((a,i)=>ITEMS.push({id:'v'+r+i,k:'v',r,n:a[0],v:a[1
 /* coin skins for the coin toss (never reorder: ids are positions) */
 const COINS=[[['銅貨','copper'],['銀貨','silver']],[['金貨','gold'],['桜','sakura'],['夜空','night']],[['王冠','crown'],['ネオン','neon'],['翡翠','jade']],[['星屑クリスタル','crystal'],['紅蓮','flame']],[['黄金郷','eldorado']],[['空の約束','kmr1']]];
 COINS.forEach((L,r)=>L.forEach((a,i)=>ITEMS.push({id:'c'+r+i,k:'c',r,n:a[0]+'コイン',v:a[1],lim:'coin'})));
-/* ハロウィン (v135): only from the お菓子の交換所 (3,000) */
-ITEMS.push({id:'chw0',k:'c',r:4,n:'ジャック・オ・ランタンコイン',v:'hw',lim:'hw'});
+/* ハロウィン (v135): only from the お菓子の交換所 (3,000).
+   HW_ON_REL: the event is switched on in the main app only when it is released (true at the v135 release); the お試し版 and the demo always have it */
+var HW_ON_REL=false;const HW_HERE=()=>HW_ON_REL||/\/preview\//.test(location.pathname)||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+if(HW_HERE())ITEMS.push({id:'chw0',k:'c',r:4,n:'ジャック・オ・ランタンコイン',v:'hw',lim:'hw'});
 /* limited sets: these only drop from their own banner pack. Never reorder a set's list (ids are positions). */
 const LIMS={vt:{name:'Vtuberガチャ',en:'VIRTUAL STREAMER',theme:'vt'}};
 const LIM_SETS={vt:[
@@ -7334,7 +7336,7 @@ const HWK=HW_PV?{x:'pvhx',b:'pvhb',c:'pvhmc',q:'pvhmq',p:'pvhmp',h:'pvhwh',g:'pv
 const HW0=Date.UTC(2026,9,19,20,0),HW_LEN=14*864e5,HWN0=Date.UTC(2026,9,31,8,0),HWN1=Date.UTC(2026,9,31,15,0);
 const HW_C={rw:10,rl:3,tw:10,tl:3,cpu:8,bw:5,bl:1,q:3,rt:10,rk:100,rtop:50,rlast:30,mis:30};
 const hwT0=()=>window.__hw0||(HW_PV?HW_PV0:HW0),hwT1=()=>(window.__hw0||HW0)+HW_LEN;
-const hwIn=t=>t>=hwT0()&&t<hwT1();
+const hwIn=t=>(HW_HERE()||!!window.__hw0)&&t>=hwT0()&&t<hwT1();
 const hwOn=()=>hwIn(now());
 const hwPart=t=>((t==null?now():t)>=(window.__hw0||HW0)+7*864e5)?2:1;
 const hwNightAt=t=>window.__hwNight?(t>=now()-2*36e5&&t<=now()+36e5):(t>=HWN0&&t<HWN1);
