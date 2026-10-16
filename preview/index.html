@@ -7533,6 +7533,7 @@ function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms
   for(let w=weekNo(hwT0());w<=weekNo(hwT1()-1);w++){let R;try{R=raidInfo(w)}catch(e){continue}
     (R.hits||[]).forEach(h=>{if(h.a===pid&&hwIn(h.t))add(HW_C.rt,h.t)});
     if(R.dead&&hwIn(R.killT)&&R.rank.some(x=>x.a===pid)){add(HW_C.rk,R.killT);if(R.rank[0]&&R.rank[0].a===pid)add(HW_C.rtop,R.killT);if(R.killer===pid)add(HW_C.rlast,R.killT)}}
+  try{hbCandyEv(pid).forEach(([n,t])=>add(n,t))}catch(e){}
   try{const N=nightInfo();N.hits.forEach(h=>{if(h.a===pid&&hwIn(h.t))add(HW_C.nbt,h.t)});if(N.dead&&hwIn(N.killT)&&N.rank.some(x=>x.a===pid))add(HW_C.nbk,N.killT)}catch(e){}
   if(pid===invFor){((inv.tcg||{})[HWK.s]||[]).forEach(t=>{if(hwIn(+t))add(HW_C.cpu,+t)});c+=+inv[HWK.q]||0}
   return hwMemo.v[pid]=c}
@@ -7547,6 +7548,29 @@ function nightInfo(){const key=bunLogs.length+'|'+players.length+'|'+Object.keys
   const rank=Object.keys(by).map(a=>({a,dmg:by[a]})).sort((x,y)=>y.dmg-x.dmg);
   return (nbC={k:key,v:{max,hp:Math.max(0,max-sum),dead:sum>=max,killer,killT,rank,hits}}).v}
 const hwNbCandy=pid=>{try{const N=nightInfo();return N.hits.filter(h=>h.a===pid).reduce((a,h)=>a+HW_C.nbt*hwMul(h.t),0)+(N.dead&&N.rank.some(x=>x.a===pid)?HW_C.nbk*hwMul(N.killT):0)}catch(e){return 0}};
+/* ---- (10/17) ハロウィンの個人ボス戦 (in 分身): each player climbs their own chain. Knights 5 times, then a witch, again and again; each
+   one is 1.2x the one before (a witch 2x more). Stamina 5, one back every 3 hours; a try (bunlog d:HB_D, s:damage) costs 1. お助け:
+   a friend's avatar fights once with you (d:HB_D+'~'+their id) for 200pt; they get 50pt. Every try gives candy; a kill gives candy and
+   pt (later ones more, a witch 3x). Beating the 2nd witch (12th) gives the かぼちゃ skin for the avatar. Preview keeps its own logs (xhp)
+   and pays no pt. ---- */
+const HB_D=HW_PV?'xhp':'xh',HB_BASE=1000,HB_G=1.2,HB_WM=2,HB_ST=5,HB_REG=3*36e5,HB_HELP=200,HB_BACK=50,HB_SKIN=12,HB_CT=20;
+const hbWitch=n=>n%6===0,hbHP=n=>Math.round(HB_BASE*Math.pow(HB_G,n-1)*(hbWitch(n)?HB_WM:1));
+const hbKillC=n=>(50+10*n)*(hbWitch(n)?3:1),hbKillP=n=>(100+20*n)*(hbWitch(n)?3:1);
+const hbIs=l=>{const d=String(l.d);return d===HB_D||d.startsWith(HB_D+'~')},hbHelper=l=>{const d=String(l.d),i=d.indexOf('~');return i>0?d.slice(i+1):''};
+let hbC={k:'',v:{}};
+function hbInfo(pid,at){const key=bunLogs.length+'|'+hwT0()+'|'+(window.__hbDemo||'');if(hbC.k!==key)hbC={k:key,v:{}};if(at==null&&hbC.v[pid])return hbC.v[pid];
+  const T=at==null?now():at,t0=hwT0(),L=bunLogs.filter(l=>l.a===pid&&hbIs(l)&&hwIn(l.t)&&l.t<=T).sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));
+  let st=HB_ST,anc=t0,n=1,hp=hbHP(1),kills=[],tries=[],helps=0;
+  const regen=t=>{if(st>=HB_ST){anc=t;return}const k=Math.floor((t-anc)/HB_REG);if(k>0){st=Math.min(HB_ST,st+k);anc=st>=HB_ST?t:anc+k*HB_REG}};
+  for(const l of L){regen(l.t);if(st<=0)continue;if(st>=HB_ST)anc=l.t;st--;const d=Math.max(0,Math.min(Math.round(+l.s||0),hp));hp-=d;tries.push({t:l.t,d,n,h:hbHelper(l)});if(hbHelper(l))helps++;
+    if(hp<=0){kills.push({n,t:l.t});n++;hp=hbHP(n)}}
+  regen(T);const next=st>=HB_ST?0:anc+HB_REG-T;
+  const v={pid,n,hp,max:hbHP(n),witch:hbWitch(n),st,next,kills,tries,helps,skin:kills.length>=HB_SKIN};if(at==null)hbC.v[pid]=v;return v}
+const hbAll=()=>players.filter(p=>p.uid&&!p.retired&&!p.ban).map(p=>({p,I:hbInfo(p.id)}));
+function hbCandyEv(pid){const I=hbInfo(pid),ev=[];I.tries.forEach(x=>ev.push([HB_CT,x.t]));I.kills.forEach(k=>ev.push([hbKillC(k.n),k.t]));return ev}
+function hbPts(pid){if(HW_PV)return 0;let t=0;const I=hbInfo(pid);I.kills.forEach(k=>t+=hbKillP(k.n));t-=I.helps*HB_HELP;
+  for(const l of bunLogs)if(l.a!==pid&&hbIs(l)&&hbHelper(l)===pid&&hwIn(l.t))t+=HB_BACK;return t}
+const hbSkin=pid=>{try{return hbInfo(pid).skin}catch(e){return false}};
 const hwSpent=()=>+inv[HWK.x]||0;
 /* candy sold / bought in the 取引所 (k:'h', c = how many): the seller's are held while it is listed, the buyer gets them when it sells */
 function hwMkt(pid){let c=0;for(const a of aucs){if(a.k!=='h')continue;const n=+a.c||0;if(a.s===pid&&(aucOpen(a)||aucSold(a)))c-=n;if(a.hp===pid&&aucSold(a))c+=n}return c}
@@ -7770,7 +7794,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
         r.append(tx,right);ml.append(r)});ms.append(ml);b.append(ms)}
     /* how to get candy */
     if(sub==='how'){const how=el('div','hlw-sec');how.append(el('h3',null,'お菓子のもらい方'));const hl=el('div','hlw-how');
-    [['レートの対戦','勝ち '+HW_C.rw+'  ·  負け '+HW_C.rl],['TCGの友達戦','勝ち '+HW_C.tw+'  ·  負け '+HW_C.tl],['TCG CPU「つよい」','勝つたびに '+HW_C.cpu],['分身 仲間と戦う','勝ち '+HW_C.bw+'  ·  負け '+HW_C.bl+'(1日5回)'],['分身 クエスト','勝つたびに '+HW_C.q],['週末のボス','挑むたびに '+HW_C.rt+'  ·  倒したら '+HW_C.rk+'(一番 +'+HW_C.rtop+'、とどめ +'+HW_C.rlast+')'],['夜のボス(10/31の夜だけ)','挑むたびに '+HW_C.nbt*2+'  ·  倒したら '+HW_C.nbk*2+'(夜の2倍こみ)'],['今日のお題','3つクリアで '+HW_C.mis]].forEach(([a,c])=>{const r=el('div','hlw-hr');r.append(el('span',null,a),el('b',null,c));hl.append(r)});
+    [['レートの対戦','勝ち '+HW_C.rw+'  ·  負け '+HW_C.rl],['TCGの友達戦','勝ち '+HW_C.tw+'  ·  負け '+HW_C.tl],['TCG CPU「つよい」','勝つたびに '+HW_C.cpu],['分身 仲間と戦う','勝ち '+HW_C.bw+'  ·  負け '+HW_C.bl+'(1日5回)'],['分身 クエスト','勝つたびに '+HW_C.q],['ハロウィンのボス(分身)','挑むたびに '+HB_CT+'  ·  倒したら '+hbKillC(1)+'〜(後ろほど多い、魔女は3倍)'],['夜のボス(10/31の夜だけ)','挑むたびに '+HW_C.nbt*2+'  ·  倒したら '+HW_C.nbk*2+'(夜の2倍こみ)'],['今日のお題','3つクリアで '+HW_C.mis]].forEach(([a,c])=>{const r=el('div','hlw-hr');r.append(el('span',null,a),el('b',null,c));hl.append(r)});
     how.append(hl);b.append(how)}
     /* 交換所 */
     if(sub==='shop'){const sh=el('div','hlw-sec');sh.append(el('h3',null,'お菓子の交換所'));const g=el('div','hlw-shop');
@@ -9335,7 +9359,7 @@ const admInv={};
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
 const BUN_GIRL=false;/* 分身の女の子(一旦お休み)。bunshin の GIRL_ON と合わせる */
-const BUN_SRC='bunshin.html?v=28',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=29',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -9345,7 +9369,7 @@ const bunRoll=(id,p)=>hsh('bun'+id)%1000<Math.round(p*1000);
 function bunAtk(pid,before){const L=bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&(!before||l.t<before)).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 function bunDef(pid){const L=bunLogs.filter(l=>l.d===pid&&!l.w).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 const bunQPts=qs=>{let s=0;for(let n=1;n<=Math.min(100,qs||0);n++)s+=n%10===0?100:30;return s};
-function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900:0)+raidPts(pid)+saPts(pid)}
+function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900:0)+raidPts(pid)+saPts(pid)+(typeof hbPts==='function'?hbPts(pid):0)}
 /* ===== 週末レイド (分身): one boss a week, Friday 5:00 to Monday 5:00 JST. Every try is a bunlog line {d:'xr<week>', s:damage}
    (the 'x' start keeps older app versions counting it as a quest, not as a fight with a friend). The HP is the sum of everyone's
    damage, at most RAID_DAY tries per person per day count. When it reaches 0, everyone who hit it gets 80 + up to 220 by their
@@ -9399,7 +9423,7 @@ function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c
 const bunLeft=pid=>Math.max(0,BUN_DAY-bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&dayNo(l.t)===dayNo(now())).length);
 const BUN_LOOK={g:'m',hs:0,hc:'茶',ec:'緑'};
 const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0};
-function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0})},eq,al:d.al}}
+function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0}),pk:d.look&&d.look.pk&&typeof hbSkin==='function'&&hbSkin(p.id)?1:0},eq,al:d.al}}
 function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'}
 window.BUNSHINHOST={
   ready:()=>{try{bunLoaded()}catch(e){}},
@@ -9439,6 +9463,15 @@ window.BUNSHINHOST={
     const used=bunLogs.filter(l=>l.a===me&&l.d===HW_NB&&hwNightAt(l.t)).length;
     return {night:1,boss:0,open,soon:!open&&t<HWN0,start:HWN0,end:window.__hwNight?t+36e5:HWN1,max:N.max,hp:N.hp,dead:N.dead,killer:N.killer?nm(N.killer):'',me:nm(me),left:Math.max(0,HW_NB_DAY-used),tries:HW_NB_DAY,
       rank:N.rank.map(x=>({name:nm(x.a),dmg:x.dmg,me:x.a===me})),feed:N.hits.slice(-5).reverse().map(h=>({name:nm(h.a),dmg:h.d,ago:bunAgo(h.t)})),myCandy:hwNbCandy(me),cTry:HW_C.nbt*2,cKill:HW_C.nbk*2}},
+  /* ハロウィンの個人ボス戦 (null outside the event) */
+  hboss:()=>{if(typeof hwOn!=='function'||!hwOn())return null;const me=myPlayer().id,I=hbInfo(me),nm=a=>(players.find(p=>p.id===a)||{}).name||'だれか';
+    const all=hbAll().filter(x=>x.I.tries.length||x.p.id===me).map(x=>({name:x.p.name,me:x.p.id===me,n:x.I.n,kills:x.I.kills.length,dmg:x.I.max-x.I.hp,max:x.I.max,skin:x.I.skin})).sort((a,b)=>b.kills-a.kills||b.dmg/b.max-a.dmg/a.max);
+    const candy=I.tries.length*HB_CT+I.kills.reduce((a,k)=>a+hbKillC(k.n),0),pts=HW_PV?0:I.kills.reduce((a,k)=>a+hbKillP(k.n),0);
+    return {hb:1,on:true,end:hwT1(),n:I.n,hp:I.hp,max:I.max,witch:I.witch,st:I.st,stMax:HB_ST,next:I.next,kills:I.kills.length,skin:I.skin,skinAt:HB_SKIN,all,candy,pts,pv:HW_PV,
+      killC:hbKillC(I.n),killP:hbKillP(I.n),help:HB_HELP,back:HB_BACK,tryC:HB_CT,bal:balance(me),nextHP:hbHP(I.n+1),nextWitch:hbWitch(I.n+1)}},
+  hbLog:(dmg,helper)=>{const me=myPlayer().id,I=hbInfo(me);if(I.st<=0)return Promise.reject(new Error('st'));const before=I.kills.length;
+    return BUNSHINHOST.log({d:HB_D+(helper?'~'+helper:''),w:0,s:Math.max(0,Math.round(+dmg||0))}).then(()=>{hbC.k='';hwMemo.k='';const q=BUNSHINHOST.hboss();q.killed=q.kills>before;q.killN=I.n;q.gotC=HB_CT+hbKillC(I.n);q.gotP=HW_PV?0:hbKillP(I.n);return q})},
+  hbSkin:()=>hbSkin(myPlayer().id),
   nightLog:dmg=>BUNSHINHOST.log({d:HW_NB,w:0,s:Math.max(0,Math.round(+dmg||0))}).then(()=>{nbC.k='';hwMemo.k='';return BUNSHINHOST.night()}),
   /* score attack: this week's board (open Mon-Thu, final from Friday), the champion of the last finished week, today's tries left */
   sa:()=>{const me=myPlayer().id,t=now(),wk=weekNo(t),r=saInfo(wk),open=saOpen(wk),nm=a=>(players.find(p=>p.id===a)||{}).name||'だれか';
