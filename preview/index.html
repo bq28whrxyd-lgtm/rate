@@ -2526,6 +2526,10 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 .tcgsh{grid-template-rows:minmax(0,1fr);padding:max(16px,env(safe-area-inset-top,0px)) 16px max(16px,env(safe-area-inset-bottom,0px))}
 .tcgshb{align-self:center;box-sizing:border-box;max-height:100%;overscroll-behavior:contain}
 .tcgshb .tcf.big{width:min(48%,26vh);flex:none}
+/* (10/16) 図鑑: シークレット・絵違いは通常の隣の別のマス。持っていないシークレットは、虹のふちだけ残して暗く */
+.tcgc.scr.lock .tcf{filter:grayscale(.55) brightness(.5)}
+.tcgc.scr.lock .tcf::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1.5px #ffd6ee66;pointer-events:none}
+.tcgc.tcgsp{visibility:hidden;pointer-events:none}
 
 /*TCGCSS-END*/
 /* monthly pass */
@@ -10347,7 +10351,7 @@ let tcgTab='all';
 function tcgHeld(id){const own=tcgOwn()[id]||0,fo=tcgFoil()[id]||0,al=tcgAltOwned()[id]||[],hasAlt=!!(TCGD.alt&&TCGD.alt[id]);
   const L=[{v:0,n:'通常',k:own},{v:'s',n:'シークレット',k:fo}];if(hasAlt)[1,2,3].forEach(g=>L.push({v:g,n:'絵違い '+['','ノーマル','キラ','極'][g],k:al.includes(g)?1:0}));return L}
 function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o=el('div','tcgsh'),b=el('div','tcgshb');
-  const first=(pick!=null&&has.find(x=>x.v===pick))||has[0]||H[0];let f=tcgFace(id,'big',first.v==='s',typeof first.v==='number'?first.v:0);if(!has.length)f.classList.add('lock');
+  const first=(pick!=null&&H.find(x=>x.v===pick))||has[0]||H[0];let f=tcgFace(id,'big',first.v==='s',typeof first.v==='number'?first.v:0);if(!first.k)f.classList.add('lock');
   const t=el('div','tcgsht');t.append(el('div','eyebrow',TCGD.fname[c.f]+'  ·  '+TRN[c.r]),el('h3',null,c.n),
     el('div','tcgshm',(c.ty==='chara'?'キャラ':c.ty==='spell'?'魔法':'トラップ')+'  ·  熱量 '+c.c+(c.ty==='chara'?'  ·  ATK '+c.atk+' / DEF '+c.def:'')),
     el('p','tcgshx',c.tx||'効果なし'));
@@ -10368,7 +10372,7 @@ function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o
 let tcgQ='',tcgSort='no',tcgDexMine=false;
 const TCG_RORD={GR:0,SR:1,R:2,C:3};
 function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),AO=tcgAltOwned(),all=TCGD.cards.length,held=c=>(own[c.id]||0)+(foil[c.id]||0)+((AO[c.id]||[]).length),have=TCGD.cards.filter(c=>held(c)>0).length,gr=TCGD.cards.filter(c=>c.r==='GR'),grh=gr.filter(c=>held(c)>0).length;
-  cs.append(el('div','sub',have+' / '+all+' 種類  ·  ガチレア '+grh+' / '+gr.length));
+  const scrH=TCGD.cards.filter(c=>(foil[c.id]||0)>0).length;cs.append(el('div','sub',have+' / '+all+' 種類  ·  ガチレア '+grh+' / '+gr.length+'  ·  シークレット '+scrH+' / '+all));
   const bar=el('div','tcgbar');const fill=el('i');fill.style.width=(have/all*100).toFixed(1)+'%';bar.append(fill);cs.append(bar);
   const tools=el('div','tcgtools'),q=el('input','tcgq');q.type='search';q.placeholder='カード名・効果で検索';q.value=tcgQ;q.setAttribute('aria-label','図鑑を検索');
   const so=el('select','tcgso');so.setAttribute('aria-label','並び順');[['no','番号順'],['rar','レア度が高い順'],['rarlo','レア度が低い順'],['cost','熱量が少ない順'],['costhi','熱量が多い順'],['name','名前順'],['own','持っている数が多い順']].forEach(([v,n])=>{const op=el('option',null,n);op.value=v;so.append(op)});so.value=tcgSort;
@@ -10383,11 +10387,13 @@ function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),AO=tcgAltOwne
     L=L.slice().sort((a,b)=>by(a,b)||idx.get(a.id)-idx.get(b.id));
     info.textContent=(s||tcgDexMine||tcgTab!=='all')?L.length+'種類':'';g.replaceChildren();
     if(!L.length){g.append(el('div','sub tcgnone','条件に合うカードがありません'));return}
-    L.forEach(c=>{const fo=foil[c.id]||0,al=AO[c.id]||[],n=own[c.id]||0,w=el('button','tcgc'+(held(c)?'':' lock'));
-      w.append(tcgFace(c.id,null,fo>0&&!n,!n&&!fo&&al.length?al[0]:0));
-      /* what you hold, under the card: 通常 / SCR / 絵違い */
-      const ch=el('div','tcgchips');if(n)ch.append(el('i','cn',['通常',n].join(' ')));if(fo)ch.append(el('i','cs','SCR '+fo));if(al.length)ch.append(el('i','ca','絵違い '+al.length));if(!held(c))ch.append(el('i','cx','未所持'));
-      w.append(ch);w.setAttribute('aria-label',c.n+(held(c)?'(通常'+n+'・SCR'+fo+'・絵違い'+al.length+')':'(未所持)'));w.onclick=()=>tcgSheet(c.id);g.append(w)})};
+    /* (10/16) each version has its own square, right after the normal one: 通常 → シークレット → 絵違い (only cards that have them) */
+    L.forEach(c=>{tcgHeld(c.id).forEach(h=>{if(tcgDexMine&&!h.k)return;const v=h.v,scr=v==='s',alt=typeof v==='number'&&v>0,w=el('button','tcgc'+(h.k?'':' lock')+(scr?' scr':alt?' alt':''));
+      w.append(tcgFace(c.id,null,scr,alt?v:0));
+      const ch=el('div','tcgchips');ch.append(el('i',h.k?(scr?'cs':alt?'ca':'cn'):'cx',(scr?'SCR':alt?h.n.replace('絵違い ','絵違い・'):'通常')+(h.k?(alt?'':' '+h.k):' 未所持')));
+      w.append(ch);w.setAttribute('aria-label',c.n+' '+h.n+(h.k?'('+h.k+'枚)':'(未所持)'));w.onclick=()=>tcgSheet(c.id,v);g.append(w)});
+      /* keep 通常 / シークレット as a left-right pair in the 4 columns: a card with 絵違い (5 squares) gets one empty square */
+      if(!tcgDexMine&&g.children.length%2)g.append(el('i','tcgc tcgsp'))})};
   q.oninput=()=>{tcgQ=q.value;draw()};so.onchange=()=>{tcgSort=so.value;draw()};mi.onclick=()=>{tcgDexMine=!tcgDexMine;mi.classList.toggle('on',tcgDexMine);mi.setAttribute('aria-pressed',tcgDexMine?'true':'false');draw()};
   draw()}
 /* デッキ・図鑑: next to コレクション・図鑑 (パック and プロフィール) */
