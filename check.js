@@ -1,12 +1,14 @@
 const admin=require('firebase-admin');admin.initializeApp({credential:admin.credential.applicationDefault(),projectId:'kimoota-15777'});
-const db=admin.firestore();const ADMIN='3kcrm26nwc6hhos2mgxd';
+const db=admin.firestore();const A='3kcrm26nwc6hhos2mgxd';
 const sum=o=>Object.values(o||{}).reduce((a,n)=>a+(+n>0?+n:0),0),kinds=o=>Object.keys(o||{}).filter(k=>+o[k]>0).length;
-(async()=>{const P=await db.collection('players').get(),inv=await db.collection('inv').get();const ps={};P.docs.forEach(d=>ps[d.id]=d.data());
- console.log('time',new Date().toISOString(),'players',P.size,'inv docs',inv.size);
- console.log('who | tcg? st | own kinds/total | foil kinds/total | slabs sl | boxes bx | decks | tpacks pspent | inv updated (JST)');
- const rows=inv.docs.map(d=>{const v=d.data(),T=v.tcg||{};const p=ps[d.id]||{};
-  return {who:(d.id===ADMIN?'ADMIN ':'')+d.id.slice(0,4)+(p.retired?' (retired)':''),has:!!v.tcg,st:T.st||'-',own:kinds(T.own)+'/'+sum(T.own),foil:kinds(T.foil)+'/'+sum(T.foil),sl:Array.isArray(T.sl)?T.sl.length:(T.sl?Object.keys(T.sl).length:0),bx:Array.isArray(T.bx)?T.bx.length:0,dk:Array.isArray(T.decks)?T.decks.length:0,tp:(v.tpacks||0)+' '+(v.pspent||0),u:new Date(d.updateTime.toMillis()+9*36e5).toISOString().slice(5,16).replace('T',' '),keys:Object.keys(T).sort().join(',')}});
- rows.sort((a,b)=>a.u<b.u?1:-1);
- rows.forEach(r=>console.log([r.who,r.has?'tcg':'NO-TCG',r.st,r.own,r.foil,r.sl,r.bx,r.dk,r.tp,r.u].join(' | ')));
- console.log('\ntcg field names per user:');rows.forEach(r=>console.log(r.who,':',r.keys));
+const J=t=>new Date(t+9*36e5).toISOString().slice(5,16).replace('T',' ');
+(async()=>{const d=await db.doc('inv/'+A).get(),v=d.data()||{};
+ console.log('admin inv updated',J(d.updateTime.toMillis()));
+ const simple={};Object.keys(v).sort().forEach(k=>{const x=v[k];simple[k]=(typeof x==='number'||typeof x==='boolean')?x:Array.isArray(x)?'['+x.length+']':(x&&typeof x==='object')?'{'+Object.keys(x).length+'}':String(x).slice(0,12)});
+ console.log('top-level:',JSON.stringify(simple));
+ const day=Math.floor((Date.now()+144e5)/864e5);console.log('today dayNo',day,'lbd',v.lbd,'lbs',v.lbs);
+ const o=await db.doc('own/'+A).get();if(o.exists){const w=o.data();console.log('own/{admin} updated',J(o.updateTime.toMillis()));const s={};Object.keys(w).forEach(k=>{const x=w[k];s[k]=Array.isArray(x)?'['+x.length+']':(x&&typeof x==='object')?'{'+Object.keys(x).length+' keys, sum '+sum(x)+'}':x});console.log('own doc:',JSON.stringify(s))}else console.log('no own doc');
+ // admin's slabs / boxes can also show in the market
+ const au=await db.collection('auc').get();let n=0;au.docs.forEach(x=>{const a=x.data();if(a.s===A||a.hp===A)n++});console.log('auc rows by/for admin',n);
+ const g=await db.collection('grants').get().catch(()=>null);if(g){let k=0,kinds={};g.docs.forEach(x=>{const a=x.data();if(a.to===A||a.p===A||a.pid===A){k++;kinds[a.k||a.kind||'?']=(kinds[a.k||a.kind||'?']||0)+1}});console.log('grants to admin',k,JSON.stringify(kinds))}
 })().catch(e=>console.log('ERR',e.message));
