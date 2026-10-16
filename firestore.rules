@@ -305,16 +305,64 @@ service cloud.firestore {
     match /own/{pid} {
       allow read: if signedIn();
       allow write: if signedIn() && myPid() == pid
-        && request.resource.data.keys().hasOnly(['g', 't', 'u'])
-        && request.resource.data.get('g', {}) is map && request.resource.data.get('t', {}) is map;
+        && request.resource.data.keys().hasOnly(['g', 't', 'u', 'sl', 'sc', 'bx'])
+        && request.resource.data.get('g', {}) is map && request.resource.data.get('t', {}) is map
+        && request.resource.data.get('sl', []) is list && request.resource.data.get('sl', []).size() <= 300
+        && request.resource.data.get('sc', []) is list && request.resource.data.get('sc', []).size() <= 45
+        && request.resource.data.get('bx', []) is list && request.resource.data.get('bx', []).size() <= 100;
+    }
+
+    // 師匠と弟子 (v134): mentor/{apprentice}_{master}. The apprentice asks (and may take it back), the master answers,
+    // either one may end it or mark the graduation (once). A pair that has ended or graduated cannot start again.
+    match /mentor/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.a == myPid() && request.resource.data.m != myPid()
+        && id == myPid() + '_' + request.resource.data.m && request.resource.data.st == 'req'
+        && request.resource.data.keys().hasOnly(['a', 'm', 'st', 't']) && request.resource.data.t is int;
+      allow delete: if signedIn() && resource.data.a == myPid() && resource.data.st == 'req';
+      allow update: if signedIn() && request.resource.data.a == resource.data.a && request.resource.data.m == resource.data.m && (
+           (myPid() == resource.data.m && resource.data.st == 'req' && request.resource.data.st in ['ok', 'no']
+             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['st', 'ok']))
+        || (myPid() in [resource.data.a, resource.data.m] && resource.data.st == 'ok' && !('g' in resource.data) && request.resource.data.st == 'end'
+             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['st', 'e']))
+        || (myPid() in [resource.data.a, resource.data.m] && resource.data.st == 'ok' && !('g' in resource.data) && !('e' in resource.data)
+             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['g']) && request.resource.data.g is int));
+    }
+
+    // 畑と泥棒 (v134): each player's field, written by that player only (3 plots at most)
+    match /farm/{pid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['p', 'dog', 'u'])
+        && request.resource.data.p is map && request.resource.data.p.size() <= 3;
+    }
+    // one try per friend per plot: steal/{owner}_{plot}_{thief}; never changed afterwards
+    match /steal/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.p == myPid() && request.resource.data.o != myPid()
+        && id == request.resource.data.o + '_' + request.resource.data.pl + '_' + myPid()
+        && request.resource.data.keys().hasOnly(['o', 'p', 'pl', 'c', 't', 'n', 'bit', 'f'])
+        && request.resource.data.n is int && request.resource.data.n >= 0 && request.resource.data.n <= 220
+        && request.resource.data.f is int && request.resource.data.f >= 0 && request.resource.data.f <= 440
+        && exists(/databases/$(database)/documents/farm/$(request.resource.data.o));
+    }
+
+    // ショーケースのいいね: likes/{owner}__{liker}, one per friend; only the liker makes or removes it
+    match /likes/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.p == myPid() && request.resource.data.o != myPid()
+        && id == request.resource.data.o + '__' + myPid()
+        && request.resource.data.keys().hasOnly(['o', 'p', 't']) && request.resource.data.o is string && request.resource.data.t is int;
+      allow delete: if signedIn() && resource.data.p == myPid();
     }
 
     // ---- 取引所 (v134): auction listings. The seller creates one; others bid (higher each time, before the end); a listing with no bids can be withdrawn ----
     match /auc/{id} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.s == myPid()
-        && request.resource.data.keys().hasOnly(['s', 'k', 'c', 'f', 'sp', 'bn', 'end', 't', 'hb', 'hp', 'n'])
-        && request.resource.data.k in ['g', 't'] && request.resource.data.c is string && request.resource.data.f is bool
+        && request.resource.data.keys().hasOnly(['s', 'k', 'c', 'f', 'sp', 'bn', 'end', 't', 'hb', 'hp', 'n', 'g', 'bt'])
+        && (!('bt' in request.resource.data) || (request.resource.data.k == 'b' && request.resource.data.bt is int))
+        && (!('g' in request.resource.data) || (request.resource.data.k == 't' && request.resource.data.g is int && request.resource.data.g >= 1 && request.resource.data.g <= 10))
+        && request.resource.data.k in ['g', 't', 'b'] && request.resource.data.c is string && request.resource.data.f is bool
         && request.resource.data.sp is int && request.resource.data.sp >= 1
         && request.resource.data.bn is int && (request.resource.data.bn == 0 || request.resource.data.bn > request.resource.data.sp)
         && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000
