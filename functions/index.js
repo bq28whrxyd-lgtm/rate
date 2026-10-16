@@ -115,6 +115,12 @@ exports.pushUpdate = onDocumentWritten('config/update', async ev => {
   const b = ev.data.before.exists ? ev.data.before.data() : null, a = ev.data.after.exists ? ev.data.after.data() : null;
   if (!a || !a.v || a.sent) return;
   if (b && b.v === a.v && b.sent) return;
+  /* (10/16) send each version once, newer only: a phone still on an old version must not send its old notice again.
+     config/updsent {v} keeps the newest version sent (v133 had already gone out) */
+  const no = v => +((String(v || '').match(/v(\d+)/) || [])[1] || 0), sref = db.doc('config/updsent');
+  const top = Math.max(133, no(((await sref.get()).data() || {}).v));
+  if (no(a.v) <= top) { await ev.data.after.ref.update({sent: true}).catch(() => {}); return; }
+  await sref.set({v: a.v, t: Date.now()});
   await send(null, 'give', {title: a.title || 'アップデート', body: a.body || '新しいバージョンになりました。アプリを開いて確認してね', go: 'home', tag: 'upd' + a.v});
   await ev.data.after.ref.update({sent: true}).catch(() => {});
 });
