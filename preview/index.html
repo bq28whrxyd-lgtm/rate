@@ -8717,7 +8717,7 @@ const admInv={};
    - experience quest (5 opponents in a row): a clear gives XP 20/40/70/120 by grade, the first 3 clears a day
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
-const BUN_SRC='bunshin.html?v=18',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=19',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -8821,7 +8821,7 @@ window.BUNSHINHOST={
   chests:()=>bunChests(myPlayer().id),
   /* experience quest: clears per grade (for unlocking) and today's clears (the first 3 a day give XP) */
   xq:()=>{const me=myPlayer().id,c={},td=dayNo(now());let today=0;for(const l of bunLogs)if(l.a===me&&l.w&&BUN_XQ[l.d]){const k=l.d.slice(1);c[k]=(c[k]||0)+1;if(dayNo(l.t)===td)today++}return {c,today,day:BUN_XQDAY,xp:BUN_XQ}},
-  defenses:()=>{const me=myPlayer();return bunLogs.filter(l=>l.d===me.id).sort((a,b)=>b.t-a.t).slice(0,20).map(l=>({a:l.a,w:l.w,name:(players.find(p=>p.id===l.a)||{}).name||'だれか',when:bunAgo(l.t)}))},
+  defenses:()=>{const me=myPlayer();return bunLogs.filter(l=>l.d===me.id).sort((a,b)=>b.t-a.t).slice(0,20).map(l=>({a:l.a,w:l.w,t:l.t,name:(players.find(p=>p.id===l.a)||{}).name||'だれか',when:bunAgo(l.t)}))},
   onChange:cb=>{bunCb=cb},
   /* the equipment gacha opens like the normal pack */
   packFx:(L,ten)=>openPackView(L.map(x=>({c:{k:'bun',r:x.r,rl:x.rl,n:x.n,svg:x.svg,slot:x.slot},isNew:x.isNew,sh:0,note:'×'+x.cnt+' 所持'})),null,'EQUIPMENT',undefined,{ten:!!ten}),
