@@ -1,5 +1,5 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-const VERSION = 'v135-preview-2026-10-16l';
+const VERSION = 'v135-preview-2026-10-16m';
 const CACHE = 'ladder-preview-' + VERSION;
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'tcg_spectator.js', 'motion_lifecycle.js',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg',
@@ -36,9 +36,15 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (req.mode === 'navigate' && !isApp) return;   /* other pages (guide.html) go straight to the network */
+  /* (10/16) the app page opens from this phone's saved copy at once (it is about 2MB; fetching it on every open made the
+     start wait for the network). The copy belongs to this version only: a new version comes with a new sw.js, whose new cache
+     starts empty, so the page reloads into the new version as before. The saved copy is still refreshed in the background */
   if (isApp) {
-    e.respondWith(fetch(req).then(r => { const c = r.clone(); caches.open(CACHE).then(x => x.put('index.html', c)); return r; })
-      .catch(() => caches.match('index.html')));
+    e.respondWith(caches.open(CACHE).then(c => c.match('index.html').then(hit => {
+      const net = fetch(req).then(r => { if (r.ok) c.put('index.html', r.clone()); return r; });
+      if (hit) { net.catch(() => {}); return hit; }
+      return net.catch(() => caches.match('index.html'));
+    })));
     return;
   }
   /* everything else (icons, images, fonts, Firebase SDK): cache first, refresh in the background */
