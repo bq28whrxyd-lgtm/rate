@@ -938,6 +938,12 @@ button.tkbtn{background:linear-gradient(90deg,#ff6ad5,#b88aff);color:#fff;border
 .vtpk .gc.rg4::after,.vtpk .gc.rg5::after{box-shadow:0 0 0 2px #f5c84c,0 0 28px 6px #f5c84ccc;animation:pulseB 1s ease-in-out infinite}
 .gc.rg2 .gcb.vtback::after,.gc.rg3 .gcb.vtback::after,.gc.rg4 .gcb.vtback::after,.gc.rg5 .gcb.vtback::after{display:block}
 .cheer .chpop{position:absolute;inset:0}
+/* (10/17) K.whole: the whole picture (head to toe, the pumpkins too) instead of a close crop: no camera zoom, soft edges only */
+.ksc.whole .kcam,.ksc.whole.kcut .kst{animation:none!important;transform:none!important}
+.ksc.whole .live{transform:scale(.86) translateY(-5%);-webkit-mask:linear-gradient(transparent 0%,#000 7%,#000 93%,transparent 100%),linear-gradient(90deg,transparent 0%,#000 6%,#000 94%,transparent 100%)!important;-webkit-mask-composite:source-in!important;mask:linear-gradient(transparent 0%,#000 7%,#000 93%,transparent 100%),linear-gradient(90deg,transparent 0%,#000 6%,#000 94%,transparent 100%)!important;mask-composite:intersect!important}
+.ksc.whole .kshade{height:30%}
+.cheer.chwhole .chf{bottom:15%;height:85%}
+.cheer.chwhole .chf video,.cheer.chwhole .chf img{-webkit-mask:linear-gradient(transparent 0%,#000 8%,#000 92%,transparent 100%),linear-gradient(90deg,transparent 0%,#000 10%,#000 90%,transparent 100%);-webkit-mask-composite:source-in;mask:linear-gradient(transparent 0%,#000 8%,#000 92%,transparent 100%),linear-gradient(90deg,transparent 0%,#000 10%,#000 90%,transparent 100%);mask-composite:intersect}
 .cheer .chpop b{position:absolute;white-space:nowrap;font:900 clamp(34px,11vw,56px)/1 var(--impact);color:#fff;-webkit-text-stroke:2px var(--k1);text-shadow:0 0 18px var(--k1),0 4px 0 #0008;opacity:0;animation:chpop linear infinite both}
 @keyframes chpop{0%{opacity:0;transform:scale(.3)}3%{opacity:1;transform:scale(1.25)}6%{transform:scale(1)}18%{opacity:1;transform:scale(1.04)}24%{opacity:0;transform:scale(1.1) translateY(-14px)}100%{opacity:0}}
 .pb-chatflow{background:radial-gradient(70% 60% at 80% 10%,#ff5ab455,transparent),radial-gradient(70% 60% at 10% 90%,#5ad8ff4d,transparent),linear-gradient(160deg,#2a1442,#120a24)!important}
@@ -3483,6 +3489,11 @@ body.ui2 #lob .lhwd .hfield b{position:absolute;left:8%;right:8%;top:28%;height:
 body.ui2 #lob.hwn .lhwd .hfield{opacity:1}
 body.ui2 #lob.hwn .lhwd .hfield b{background:radial-gradient(closest-side,rgba(255,150,60,.5),rgba(255,110,30,0))}
 @media (max-height:720px){body.ui2 #lob .lhwd .hfield{top:calc(50% - 150px + clamp(130px,26vh,190px) - 84px)}}
+
+/* (10/17) an oshi shown whole (head to toe): the film fits the art box, a blurred copy of the still fills the sides */
+body.ui2 .lst .losh.whole img{filter:blur(18px) brightness(.55) saturate(1.2);transform:scale(1.12)}
+body.ui2 .lst .losh.whole video{object-fit:contain;object-position:50% 0;opacity:1;--ow:60%;-webkit-mask:linear-gradient(90deg,transparent calc(50% - var(--ow)/2),#000 calc(50% - var(--ow)/2 + 28px),#000 calc(50% + var(--ow)/2 - 28px),transparent calc(50% + var(--ow)/2));mask:linear-gradient(90deg,transparent calc(50% - var(--ow)/2),#000 calc(50% - var(--ow)/2 + 28px),#000 calc(50% + var(--ow)/2 - 28px),transparent calc(50% + var(--ow)/2))}
+body.ui2 .lst .losh.whole .lsf{background:linear-gradient(180deg,rgba(8,8,10,.3) 0%,transparent 14%,transparent 72%,rgba(8,8,10,.7) 90%,var(--lbg,#09090b) 100%)}
 /* ===== v121 kit: splash, login bonus, pass daily pt, weekly MVP, update news. iPhone-native: system type, rounded
    numerals, deep glass, concentric corners, spring motion. Only active with html.ui2pre / body.ui2. ===== */
 :root{--k-sp:cubic-bezier(.2,.9,.25,1.06);--k-out:cubic-bezier(.16,1,.3,1);--k-in:cubic-bezier(.55,0,.75,.2);
@@ -6574,7 +6585,7 @@ function cheerK(p){const e=p&&p.eq||{},x=e.x&&ITEM(e.x),v=e.v&&ITEM(e.v);return 
 const CHEERS=['がんばれ!','ファイト!','いけるよ!','応援してる!','負けないで!','信じてる!','がんばれー!!','ここからだよ!'];
 function cheerLayer(p,side){
   const K=cheerK(p);if(!K)return null;
-  const L=el('div','cheer cheer-'+side+(K.dark?' chdark':''));if(K.chH){L.style.height=K.chH;L.classList.add('chlow')}L.style.setProperty('--k1',K.c[0]);L.style.setProperty('--k2',K.c[1]);
+  const L=el('div','cheer cheer-'+side+(K.dark?' chdark':'')+(K.whole?' chwhole':''));if(K.chH&&!K.whole){L.style.height=K.chH;L.classList.add('chlow')}L.style.setProperty('--k1',K.c[0]);L.style.setProperty('--k2',K.c[1]);
   const ch=el('div','chf');let m;
   if(K.vid){m=el('video');m.src=K.vid;m.poster=K.img;m.muted=true;m.defaultMuted=true;m.loop=true;m.autoplay=true;m.playsInline=true;m.setAttribute('playsinline','');m.setAttribute('muted','');MotionLifecycle.video(m)}
   else{m=liveImg(K);m.classList.add('chlive')}/* still-picture KMR: the same moving rig as its battle intro */
@@ -6776,7 +6787,7 @@ KMRS.push({n:'ひだまりニット',chH:'56%',img:'kmr_vt1.jpg',vid:'kmr_vt1.mp
 KMRS.push({n:'はなかんむり',chH:'58%',img:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',w:480,h:800,fx:50,fy:24,z:1.8,c:['#8fbf6a','#f3ead2','#2f3a1e'],bg:['#f8faef','#e6efd6'],en:'FLOWER CROWN',lay:'full',ex:[['petal',40],['leaf',24]],pal:['#ffffff','#f3ead2','#8fbf6a'],lim:'vt',scene:'flower'});
 KMRS.push({n:'堕ちた天使',img:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',w:480,h:620,fx:56,fy:27,z:1.5,c:['#ff3b4a','#b8b8d8','#1a0a0e'],bg:['#f43d43','#c8242c'],en:'FALLEN HALO',lay:'full',noblend:1,dark:1,ex:[['dfeather',46]],pal:['#120610','#2a0a1a','#3a0a2a'],lim:'vt',scene:'alley'});
 /* ハロウィンの限定KMR: the user draws it. Put its entry here when the picture arrives, e.g. {n:'…',img:'kmr_hw1.jpg',w:480,h:800,fx:50,fy:28,z:1.4,c:[…],bg:[…],en:'…',lay:'full',ex:[['bat',16]],pal:[…],lim:'hw'} */
-const HW_KMR=[{n:'夜宴の小悪魔',chH:'56%',img:'kmr_hw3.jpg',vid:'kmr_hw3.mp4',w:480,h:800,fx:43,fy:24,z:1.15,c:['#9b5cff','#ff8a2a','#1a0a24'],bg:['#f6f2fb','#e4dbf1'],en:'TRICK OR TREAT',lay:'full',ex:[['bat',18],['stars',26]],pal:['#ffffff','#c9a8ff','#ff8a2a'],lim:'hw',scene:'night',cheers:['トリック・オア・トリート!','がんばれ!','お菓子あげるから勝って!','いたずらしちゃうぞ!','ファイト!','応援してる!','ハッピーハロウィン!','ここからだよ!']}];/* (10/17) the user's Halloween KMR (video) */
+const HW_KMR=[{n:'夜宴の小悪魔',whole:1,img:'kmr_hw3.jpg',vid:'kmr_hw3.mp4',w:480,h:800,fx:43,fy:24,z:1.15,c:['#9b5cff','#ff8a2a','#1a0a24'],bg:['#f6f2fb','#e4dbf1'],en:'TRICK OR TREAT',lay:'full',ex:[['bat',18],['stars',26]],pal:['#ffffff','#c9a8ff','#ff8a2a'],lim:'hw',scene:'night',cheers:['トリック・オア・トリート!','がんばれ!','お菓子あげるから勝って!','いたずらしちゃうぞ!','ファイト!','応援してる!','ハッピーハロウィン!','ここからだよ!']}];/* (10/17) the user's Halloween KMR (video) */
 if(HW_HERE())HW_KMR.forEach(K=>KMRS.push(K));
 KMRS.forEach((K,i)=>{K.ar=K.w/K.h;const v='kmr'+i,L=K.lim?{lim:K.lim}:{};
   ITEMS.push({id:'kx'+i,k:'x',r:5,n:K.n,v,K,...L},{id:'kv'+i,k:'v',r:5,n:K.n,v,K,...L},{id:'kf'+i,k:'a',r:5,n:K.n,v,K,...L});
@@ -6853,7 +6864,7 @@ function kmrFace(K){
 }
 /* a frameless scene: blurred copy of the picture as the backdrop, the moving character feathered into it */
 function kmrScene(K,cls){
-  const sc=el('div','ksc '+(cls||'')+' lay-'+K.lay+(K.noblend?' nob':''));sc.style.setProperty('--k1',K.c[0]);sc.style.setProperty('--k2',K.c[1]);sc.style.setProperty('--b1',K.bg[0]);sc.style.setProperty('--b2',K.bg[1]);
+  const sc=el('div','ksc '+(cls||'')+' lay-'+K.lay+(K.noblend?' nob':'')+(K.whole?' whole':''));sc.style.setProperty('--k1',K.c[0]);sc.style.setProperty('--k2',K.c[1]);sc.style.setProperty('--b1',K.bg[0]);sc.style.setProperty('--b2',K.bg[1]);
   const bg=el('i','kbg');bg.style.backgroundImage='url('+K.img+')';
   const st=el('div','kst');{const W=innerWidth,H=innerHeight,t=Math.max(0,(1-W/K.ar/H)/2*100);st.style.setProperty('--t0',t.toFixed(1)+'%');st.style.setProperty('--t1',(t+16).toFixed(1)+'%');st.style.setProperty('--t2',(100-t-24).toFixed(1)+'%');st.style.setProperty('--t3',(100-t-4).toFixed(1)+'%')}st.style.setProperty('--fx',K.fx+'%');st.style.setProperty('--fy',K.fy+'%');
   const cam=el('div','kcam');cam.append(liveImg(K));st.append(cam);
@@ -12637,7 +12648,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   /* ---- oshi in the lobby (plan B "推しがいる"): the KMR picture fills the upper screen behind everything,
      shaded at the top, left and bottom, sways slowly, and talks in a bubble. Only the admin can set one for now (test). ---- */
   const OSHI=[{id:'chibi',n:'ふくれっつら',kmr:'ふくれっつら',src:'kmr_chibi.jpg',vid:'kmr_chibi.mp4',fx:50,fy:16},{id:'hood',n:'オーバーサイズ',kmr:'オーバーサイズ',src:'kmr_hood.jpg',vid:'kmr_hood.mp4',fx:54,fy:18},{id:'hoodie2',n:'ためいき',kmr:'ためいき',src:'kmr_hoodie2.jpg',fx:53,fy:18},
-    {id:'vt1',n:'ひだまりニット',kmr:'ひだまりニット',src:'kmr_vt1.jpg',vid:'kmr_vt1.mp4',fx:50,fy:18},{id:'vt2',n:'はなかんむり',kmr:'はなかんむり',src:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',fx:50,fy:16},{id:'hw2',n:'夜宴の小悪魔',src:'kmr_hw3.jpg',vid:'kmr_hw3.mp4',fx:50,fy:20,kmr:'夜宴の小悪魔'},{id:'vt3',n:'堕ちた天使',kmr:'堕ちた天使',src:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',fx:56,fy:18}];
+    {id:'vt1',n:'ひだまりニット',kmr:'ひだまりニット',src:'kmr_vt1.jpg',vid:'kmr_vt1.mp4',fx:50,fy:18},{id:'vt2',n:'はなかんむり',kmr:'はなかんむり',src:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',fx:50,fy:16},{id:'hw2',n:'夜宴の小悪魔',src:'kmr_hw3.jpg',vid:'kmr_hw3.mp4',fx:50,fy:20,kmr:'夜宴の小悪魔',whole:1},{id:'vt3',n:'堕ちた天使',kmr:'堕ちた天使',src:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',fx:56,fy:18}];
   function oshiGet(){try{let v=localStorage.getItem('oshiPick');if(v===null&&localStorage.getItem('oshiDemo'))v='vt1';return OSHI.some(o=>o.id===v)?v:''}catch(e){return ''}}
   function oshiSet(id){try{localStorage.setItem('oshiPick',id||'');localStorage.removeItem('oshiDemo')}catch(e){}window.__lobOshi&&__lobOshi()}
   window.__oshiList=OSHI;window.__oshiGet=oshiGet;window.__oshiSet=oshiSet;
@@ -12649,7 +12660,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     if(o&&im.getAttribute('src')!==o.src){if(oshiOn&&window.gsap){gsap.fromTo(os,{opacity:.2},{opacity:1,duration:.5,ease:'power2.out',clearProps:'opacity'})}im.src=o.src;im.style.objectPosition=o.fx+'% '+o.fy+'%';
       /* the KMR's own movement: its movie plays over the still picture once it is really playing */
       const vd=os.querySelector('video');vd.classList.remove('on');vd.style.objectPosition=im.style.objectPosition;if(o.vid){vd.src=o.vid;vd.load()}else{vd.removeAttribute('src');vd.load()}}
-    if(o)q('.lbub .lb-nm').textContent=o.n;
+    if(o){q('.lbub .lb-nm').textContent=o.n;os.classList.toggle('whole',!!o.whole);const v2=os.querySelector('video');if(o.whole)v2.poster=o.src;else v2.removeAttribute('poster')}
     if(want!==oshiOn){oshiOn=want;os.hidden=!want;bb.hidden=!want;lob.classList.toggle('hasoshi',want);geo=null;if(stage)stage.setOshi(null);if(want){bi=0;talk(false)}}
     try{syncPanel()}catch(e){}geo=null}
   /* what the oshi says: built from what is on the home right now; tap for the next line */
@@ -12670,7 +12681,9 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
       const os=q('.losh'),pr=q('.lpan').getBoundingClientRect(),h=Math.max(260,pr.top-r.top+pr.height*.6);if(os.style.height!==h+'px')os.style.height=h+'px';
       /* (10/17) the bubble sits above whichever comes first: the live line, the event strip (開催中), or my panel */
       const lv=q('.llive'),ls=q('.lstrip');let top=pr.top;[lv,ls].forEach(e=>{if(e&&!e.hidden&&e.offsetHeight){const t=e.getBoundingClientRect().top;if(t<top)top=t}});
-      const bb=q('.lbub'),bo=Math.round(r.bottom-top+10)+'px';if(bb.style.bottom!==bo)bb.style.bottom=bo}
+      const bb=q('.lbub'),bo=Math.round(r.bottom-top+10)+'px';if(bb.style.bottom!==bo)bb.style.bottom=bo;
+      /* a whole-body oshi fits between the top and the strip, so her feet (and the pumpkins) stay in view */
+      const ov=os.querySelector('video'),vh=os.classList.contains('whole')?Math.round(top-r.top+6)+'px':'';if(ov.style.height!==vh){ov.style.height=vh;if(vh)ov.style.setProperty('--ow',Math.round(Math.min(r.width,(top-r.top+6)*.6))+'px')}}
     return g}
   function frame(t){if(!stage)return;stageCols();const now=performance.now();if(!geo||now-geoAt>700){geo=measure();geoAt=now}
     if(oshiOn)return;/* the picture is the stage: nothing to draw on the canvas (also lighter) */
