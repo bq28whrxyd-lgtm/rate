@@ -2924,6 +2924,17 @@ button.tcgkeep{width:100%;margin-top:8px}
 .hlw-tile em{position:static;flex:none;min-width:22px;height:22px;padding:0 7px;border-radius:999px;background:linear-gradient(180deg,#ffb15c,#ff7a1a);color:#2a1206;font:800 12px/22px var(--k-num,inherit);font-style:normal;text-align:center;box-shadow:0 0 14px rgba(255,140,50,.55)}
 .hlw-chev{flex:none;width:9px;height:9px;border-right:2px solid rgba(255,236,210,.75);border-top:2px solid rgba(255,236,210,.75);transform:rotate(45deg);margin-right:4px}
 .hlw-tile:active{transform:scale(.985)}
+.osh-n{margin:6px 2px 12px;line-height:1.6}
+.osh-g{display:flex;flex-direction:column;gap:10px}
+.osh-c{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.osh-c.on{box-shadow:inset 0 0 0 1.5px #f3d58a,0 0 18px -6px rgba(243,213,138,.6)}
+.osh-ph{position:relative;width:64px;height:64px;border-radius:14px;overflow:hidden;background:#15131c}.osh-ph img{width:100%;height:100%;object-fit:cover}
+.osh-c:not(.ok) .osh-ph img{filter:grayscale(.85) brightness(.55)}
+.osh-lk{position:absolute;inset:0;margin:auto;width:18px;height:14px;border-radius:3px;background:#fff;opacity:.85}.osh-lk::before{content:"";position:absolute;left:3px;right:3px;top:-9px;height:11px;border:2.5px solid #fff;border-bottom:0;border-radius:8px 8px 0 0}
+.osh-t{display:flex;flex-direction:column;gap:5px;min-width:0}.osh-t b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.osh-t small{font-size:11px;color:var(--x-mut,#9a9aa6)}
+.osh-bar{height:5px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}.osh-bar i{display:block;height:100%;background:linear-gradient(90deg,#ff7ab8,#ffd970)}
+.osh-c button:disabled{opacity:.5;filter:grayscale(1)}
+.osh-c button{flex:none;height:34px;padding:0 12px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap}
 .hlw.sub .hlw-b{padding-top:0}
 .hlw-hb{position:sticky;top:0;z-index:5;margin:0 -16px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 10px;display:flex;align-items:center;gap:10px;background:rgba(13,8,18,.88);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 1px 0 rgba(255,214,160,.12)}
 .hlw-hbk{display:flex;align-items:center;gap:8px;height:38px;padding:0 14px 0 12px;border:0;border-radius:999px;background:rgba(255,236,210,.07);color:#f6ece2;font:600 15px/1 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.06em}
@@ -6552,6 +6563,13 @@ function chestView(v,done){
   o.onclick=open;
   return o;
 }
+/* (10/17) cheer count: when a real match opens with your KMR cheer, inv.chp[challenge id] = that KMR's index. It counts once the
+   match is finished (the challenge id shows up in matches). 300 cheers with a KMR lets you put her on the home screen as your oshi. */
+const OSHI_NEED=300;let chpC={k:'',v:{}};
+function cheerN(ki){if(window.__cheerFake&&window.__cheerFake[ki]!=null)return window.__cheerFake[ki];const P=(invFor&&inv&&inv.chp)||{},key=matches.length+'|'+Object.keys(P).length;if(chpC.k!==key){const M=new Set(matches.map(m=>m.id)),v={};for(const id in P)if(M.has(id))v[P[id]]=(v[P[id]]||0)+1;chpC={k:key,v}}return chpC.v[ki]||0}
+function cheerMark(cid,p){try{const K=cheerK(p);if(!K||!cid||!db||!invLoaded)return;const me=myPlayer();if(!me||invFor!==me.id)return;const ki=KMRS.indexOf(K);if(ki<0||(inv.chp||{})[cid]!=null)return;
+  inv=Object.assign({},inv,{chp:Object.assign({},inv.chp||{},{[cid]:ki})});db.doc('inv/'+me.id).set({chp:{[cid]:ki}},{merge:true}).catch(()=>{})}catch(e){}}
+window.__cheerN=n=>{const ki=KMRS.findIndex(K=>K.n===n);return ki<0?0:cheerN(ki)};window.__oshiNeed=OSHI_NEED;
 function cheerK(p){const e=p&&p.eq||{},x=e.x&&ITEM(e.x),v=e.v&&ITEM(e.v);return x&&v&&x.K&&x.K===v.K?x.K:null}
 const CHEERS=['がんばれ!','ファイト!','いけるよ!','応援してる!','負けないで!','信じてる!','がんばれー!!','ここからだよ!'];
 function cheerLayer(p,side){
@@ -8451,6 +8469,20 @@ function dupBox(kind,id,rn,done,opt){opt=opt||{};try{newSeen('burn134')}catch(e)
     row2.append(b3,b4);
     w.append(row,row2,el('div','sub',(opt.foil?'シークレットはかけらもptも1.5倍。':'')+(last?'これが最後の1枚です':'ダブり '+(rn-1)+' 枚。燃やすと仲間全体の枚数が減って、残ったカードが珍しくなります')))}
   return w}
+  /* (10/17) 推しキャラ: every KMR you can put on the home screen. 300 cheers (応援演出) with her unlock it */
+function oshiList(body){body.replaceChildren();const L=window.__oshiList||[],cur=window.__oshiGet?__oshiGet():'',adm=typeof isAdmin==='function'&&isAdmin()&&!window.__oshiAsUser;
+    body.append(el('p','sub osh-n','KMRの「対戦演出」と「勝利演出」を両方つけて対戦すると、そのキャラが応援してくれます(応援演出)。応援してもらった対戦が'+OSHI_NEED+'回終わると、そのキャラをホームの推しにできます。'));
+    const g=el('div','osh-g');L.forEach(o=>{const ki=KMRS.findIndex(K=>K.n===o.kmr),K=KMRS[ki];if(!K)return;const n=cheerN(ki),ok=adm||n>=OSHI_NEED,on=cur===o.id&&ok,owned=ITEMS.some(it=>it.K===K&&((inv.own||{})[it.id]||0)>0);
+      const c=el('div','osh-c'+(ok?' ok':'')+(on?' on':'')),ph=el('div','osh-ph'),im=el('img');im.src=o.src;im.alt='';im.loading='lazy';im.style.objectPosition=o.fx+'% '+o.fy+'%';ph.append(im);if(!ok)ph.append(el('i','osh-lk'));
+      const tx=el('div','osh-t');tx.append(el('b',null,o.n));const bar=el('div','osh-bar'),bi=el('i');bi.style.width=Math.min(100,n/OSHI_NEED*100).toFixed(1)+'%';bar.append(bi);
+      tx.append(el('small',null,ok?(adm&&n<OSHI_NEED?'管理者は選べます(応援 '+n+'/'+OSHI_NEED+')':'応援 '+Math.min(n,OSHI_NEED)+'/'+OSHI_NEED+' 達成'):(owned?'応援 '+n+'/'+OSHI_NEED+' ・ あと'+(OSHI_NEED-n)+'回':'このKMRを持っていません')),bar);
+      const bt=el('button',on?'sec':'',on?'ホームに出しています':ok?'ホームに出す':'まだ出せません');bt.disabled=!ok;bt.onclick=()=>{try{__oshiSet(on?'':o.id)}catch(e){}toast(on?'ホームの推しをはずしました':o.n+'をホームの推しにしました');oshiList(body)};if(on){bt.textContent='ホームからはずす';bt.disabled=false}
+      c.append(ph,tx,bt);g.append(c)});body.append(g)}
+/* コレクション > 推しキャラ (a sheet like 未開封ボックス) */
+function oshiSheet(){document.querySelectorAll('.grs').forEach(x=>x.remove());if(!myPlayer())return;const o=el('div','grs'),b=el('div','grsb');o.append(b);
+  const hd=el('div','grsh');hd.append(el('h3',null,'推しキャラ'));const cl=el('button','sec','閉じる');cl.onclick=()=>o.remove();hd.append(cl);const body=el('div');b.append(hd,body);oshiList(body);
+  o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
+function oshiCount(){const L=window.__oshiList||[];let n=0;L.forEach(o=>{const ki=KMRS.findIndex(K=>K.n===o.kmr);if(ki>=0&&cheerN(ki)>=OSHI_NEED)n++});return n+' / '+L.length}
 function collectionView(inv,eq,h,info){
   /* two modes: コレクション (filter + equip) and 図鑑 (completion, numbered list). Tapping any item opens its detail sheet. */
   const o=el('div','ae col'),box=el('div','aebox'),msg=el('div','sub');
@@ -9075,6 +9107,7 @@ function onChallenges(){
     if(!btCtl||btCtl.id!==act.id){
       if(btCtl)btCtl.close();
       const mineSide=pView(me.id,act.g),oppId=act.a===me.id?act.b:act.a,opp=pView(oppId,act.g)||{id:oppId,name:act.a===me.id?act.bn:act.an,rating:START};
+      try{cheerMark(act.id,mineSide)}catch(e){}
       const ctl=battleView(mineSide,opp,gname(act.g)+(act.tid?'  ·  大会':'')+(act.bet?'  ·  賭け '+act.bet+'pt':''),{
         report:win=>{const c=chs.find(x=>x.id===act.id);if(c&&now()-(c.as||c.u||c.t)<minMatch(c.g))throw new Error('early');return chDoc(act.id).update({st:'reported',rep:{by:me.id,win:win?me.id:oppId},msg:'',u:now()})},
         cancelReport:()=>chDoc(act.id).update({st:'active',rep:null,u:now()}),
@@ -12603,13 +12636,13 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const k=c.join();if(k!==stCol){stCol=k;stage.setColors(c)}}
   /* ---- oshi in the lobby (plan B "推しがいる"): the KMR picture fills the upper screen behind everything,
      shaded at the top, left and bottom, sways slowly, and talks in a bubble. Only the admin can set one for now (test). ---- */
-  const OSHI=[{id:'chibi',n:'ふくれっつら',src:'kmr_chibi.jpg',vid:'kmr_chibi.mp4',fx:50,fy:16},{id:'hood',n:'オーバーサイズ',src:'kmr_hood.jpg',vid:'kmr_hood.mp4',fx:54,fy:18},{id:'hoodie2',n:'ためいき',src:'kmr_hoodie2.jpg',fx:53,fy:18},
-    {id:'vt1',n:'ひだまりニット',src:'kmr_vt1.jpg',vid:'kmr_vt1.mp4',fx:50,fy:18},{id:'vt2',n:'はなかんむり',src:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',fx:50,fy:16},{id:'hw2',n:'夜宴の小悪魔',src:'kmr_hw3.jpg',vid:'kmr_hw3.mp4',fx:50,fy:20,kmr:'夜宴の小悪魔'},{id:'vt3',n:'堕ちた天使',src:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',fx:56,fy:18}];
+  const OSHI=[{id:'chibi',n:'ふくれっつら',kmr:'ふくれっつら',src:'kmr_chibi.jpg',vid:'kmr_chibi.mp4',fx:50,fy:16},{id:'hood',n:'オーバーサイズ',kmr:'オーバーサイズ',src:'kmr_hood.jpg',vid:'kmr_hood.mp4',fx:54,fy:18},{id:'hoodie2',n:'ためいき',kmr:'ためいき',src:'kmr_hoodie2.jpg',fx:53,fy:18},
+    {id:'vt1',n:'ひだまりニット',kmr:'ひだまりニット',src:'kmr_vt1.jpg',vid:'kmr_vt1.mp4',fx:50,fy:18},{id:'vt2',n:'はなかんむり',kmr:'はなかんむり',src:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',fx:50,fy:16},{id:'hw2',n:'夜宴の小悪魔',src:'kmr_hw3.jpg',vid:'kmr_hw3.mp4',fx:50,fy:20,kmr:'夜宴の小悪魔'},{id:'vt3',n:'堕ちた天使',kmr:'堕ちた天使',src:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',fx:56,fy:18}];
   function oshiGet(){try{let v=localStorage.getItem('oshiPick');if(v===null&&localStorage.getItem('oshiDemo'))v='vt1';return OSHI.some(o=>o.id===v)?v:''}catch(e){return ''}}
   function oshiSet(id){try{localStorage.setItem('oshiPick',id||'');localStorage.removeItem('oshiDemo')}catch(e){}window.__lobOshi&&__lobOshi()}
   window.__oshiList=OSHI;window.__oshiGet=oshiGet;window.__oshiSet=oshiSet;
   /* (10/17) an oshi made from a KMR (kmr:name) can be set by anyone who owns that KMR; the others stay an admin-only test */
-  function oshiOwn(o){if(typeof isAdmin==='function'&&isAdmin())return true;if(!o||!o.kmr)return false;try{return ITEMS.some(it=>it.K&&it.K.n===o.kmr&&((inv.own||{})[it.id]||0)>0)}catch(e){return false}}
+  function oshiOwn(o){if(typeof isAdmin==='function'&&isAdmin()&&!window.__oshiAsUser)return true;if(!o||!o.kmr)return false;try{return (window.__cheerN?__cheerN(o.kmr):0)>=(window.__oshiNeed||300)}catch(e){return false}}
   window.__oshiOwn=oshiOwn;
   function oshiCur(){const id=oshiGet(),o=OSHI.find(x=>x.id===id)||null;return o&&oshiOwn(o)?o:null}
   function syncOshi(){const o=oshiCur(),os=q('.losh'),im=os.querySelector('img'),bb=q('.lbub');const want=!!o;
@@ -12847,7 +12880,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
   function oshiPicker(){const own=window.__oshiOwn||(()=>true),L=(window.__oshiList||[]).filter(own);if(!L.length)return;const adm=typeof isAdmin==='function'&&isAdmin();document.querySelectorAll('.shw').forEach(x=>{try{sheetOut(x)}catch(e){x.remove()}});
     const w=document.createElement('div');w.className='shw';const sh=document.createElement('div');sh.className='sht kosp';
-    sh.innerHTML='<div class="grab"></div><div class="shh"><b>ホームに出す推し</b><button class="sec" type="button">閉じる</button></div><p class="kosn">ホームの上いっぱいに、選んだ推しの絵が入ります。吹き出しをタップすると話しかけてくれます。'+(adm?'管理者のあなたは全部選べます(持っていない人には出ません)':'持っているKMRから選べます')+'</p><div class="kosg"></div>';
+    sh.innerHTML='<div class="grab"></div><div class="shh"><b>ホームに出す推し</b><button class="sec" type="button">閉じる</button></div><p class="kosn">ホームの上いっぱいに、選んだ推しの絵が入ります。吹き出しをタップすると話しかけてくれます。'+(adm?'管理者のあなたは全部選べます(持っていない人には出ません)':'応援演出を300回使ったKMRから選べます')+'</p><div class="kosg"></div>';
     const g=sh.querySelector('.kosg');const cur=window.__oshiGet?__oshiGet():'';
     const pickIt=(b,id)=>{sh.querySelectorAll('.kost,.kosx').forEach(x=>x.classList.toggle('on',x===b));window.__oshiSet&&__oshiSet(id);oshiRow();try{K.SFX.play('pop')}catch(e){}};
     const tile=o=>{const b=document.createElement('button');b.type='button';b.className='kost'+(o.id===cur?' on':'');b.dataset.id=o.id;
@@ -12863,7 +12896,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   function oshiRow(){const after=document.getElementById('ksfxsec')||document.getElementById('pushsec');if(!after)return;
     let s=document.getElementById('koshisec');const adm=(typeof isAdmin==='function'&&isAdmin())||(window.__oshiList||[]).some(o=>window.__oshiOwn&&__oshiOwn(o));
     if(!s){s=document.createElement('section');s.id='koshisec';s.dataset.pg='set';
-      s.innerHTML='<h2>推しキャラ</h2><button type="button" class="kosr"><span class="kos-t"><b>ホームに出す推し</b><small>持っているKMRを<wbr>ホームの上に出せます</small></span><span class="kos-c"><img alt="" hidden><em></em><i aria-hidden="true"></i></span></button>';
+      s.innerHTML='<h2>推しキャラ</h2><button type="button" class="kosr"><span class="kos-t"><b>ホームに出す推し</b><small>応援300回のKMRを<wbr>ホームの上に出せます</small></span><span class="kos-c"><img alt="" hidden><em></em><i aria-hidden="true"></i></span></button>';
       s.querySelector('.kosr').onclick=oshiPicker;after.after(s)}
     if(s.hidden!==!adm)s.hidden=!adm;
     const id=window.__oshiGet?__oshiGet():'',o=(window.__oshiList||[]).find(x=>x.id===id);const em=s.querySelector('.kos-c em'),im=s.querySelector('.kos-c img');
@@ -12955,19 +12988,24 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     '<button type="button" class="kcolc" data-c="case"><span class="kci">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="1.5"/><path d="M5 9h14M5 15h14M8 5h8"/></svg></span>'+
       '<b>ショーケース</b><small>ガラスのケースに<wbr>カードを飾る</small><em class="kcn" data-n="case"></em></button>'+
-    '<button type="button" class="kcolc kcolw" data-c="box"><span class="kci">'+
+    '<button type="button" class="kcolc" data-c="box"><span class="kci">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8 12 4l8.5 4v8.5L12 20.5 3.5 16.5z"/><path d="M3.5 8 12 12l8.5-4M12 12v8.5"/></svg></span>'+
-      '<b>未開封ボックス</b><small>開けずに取っておいたTCGボックス。<wbr>寝かせるほど相場が上がる</small><em class="kcn" data-n="box"></em></button></div>';
+      '<b>未開封ボックス</b><small>開けずに取っておいた<wbr>TCGボックス</small><em class="kcn" data-n="box"></em></button>'+
+    '<button type="button" class="kcolc" data-c="oshi"><span class="kci">'+
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z"/></svg></span>'+
+      '<b>推しキャラ</b><small>応援300回で<wbr>ホームに出せる</small><em class="kcn" data-n="oshi"></em></button></div>';
   col.querySelector('[data-c=skin]').onclick=()=>{try{openCollection()}catch(e){}};
   col.querySelector('[data-c=dex]').onclick=()=>window.tcgDeckView('dex');
   col.querySelector('[data-c=grade]').onclick=()=>{try{grSheet()}catch(e){}};
   col.querySelector('[data-c=case]').onclick=()=>{try{scOpen(myPlayer().id,0)}catch(e){}};
   col.querySelector('[data-c=box]').onclick=()=>{try{bxSheet()}catch(e){}};
+  col.querySelector('[data-c=oshi]').onclick=()=>{try{oshiSheet()}catch(e){}};
   const pcard=$i('pcard');if(pcard&&pcard.parentNode)pcard.parentNode.insertBefore(col,$i('msgsec')||null);
   function counts(){try{const n=col.querySelector('[data-n=dex]');const T=tcgOf(inv);const own=Object.keys(T.own||{}).filter(k=>(T.own[k]||0)>0).length;const all=window.TCGD&&TCGD.cards?TCGD.cards.length:0;n.textContent=all?own+' / '+all:(own?own+'枚':'')}catch(e){}
     try{const g=col.querySelector('[data-n=grade]'),L=typeof slabsOf==='function'?slabsOf(inv):[],rd=L.filter(slabReady).length;g.textContent=rd?'結果 '+rd+'枚':L.length?L.length+'枚':'';g.classList.toggle('rd',!!rd)}catch(e){}
     try{const c=col.querySelector('[data-n=case]'),me=myPlayer();if(me&&typeof scMine==='function'){const n=Object.keys(scMine(inv).m).length;c.textContent=n?'♥ '+likeN(me.id):''}}catch(e){}
     try{const x=col.querySelector('[data-n=box]'),n=typeof bxOf==='function'?bxOf(inv).length:0;x.textContent=n?n+'箱':''}catch(e){}
+    try{const x=col.querySelector('[data-n=oshi]');x.textContent=typeof oshiCount==='function'?oshiCount():''}catch(e){}
     try{const n=col.querySelector('[data-n=skin]');const o=inv&&inv.own?Object.keys(inv.own).length:0;n.textContent=o?o+'個':''}catch(e){}}
   /* settings: the gear sits on the title row (kx.js); the settings page gets a back bar */
   const back=mk('div','ksethd');back.dataset.pg='set';back.innerHTML='<button type="button" class="kback"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>プロフィール</button><h2>設定・要望</h2>';
