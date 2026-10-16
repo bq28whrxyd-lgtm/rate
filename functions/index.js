@@ -200,6 +200,15 @@ if (FARM_RIPE) exports.pushFarmRipe = onSchedule({schedule: 'every 10 minutes', 
 
 /* 師匠と弟子 (v134): the request, the answer and the graduation. お試し版 phones only until release (MT_PV) */
 const MT_PV = false;
+/* ハロウィン (v135): トリック・オア・トリート. Asked → the friend; answered → the one who asked. お試し版 phones only until release (TOT_PV) */
+const TOT_PV = true;
+const totNm = async pid => { try { const p = (await db.doc('players/' + pid).get()).data(); return (p && p.name) || 'だれか'; } catch (e) { return 'だれか'; } };
+exports.pushTot = onDocumentWritten('tot/{id}', async ev => {
+  const b = ev.data.before.exists ? ev.data.before.data() : null, a = ev.data.after.exists ? ev.data.after.data() : null;
+  if (!a || !a.f || !a.o) return;
+  if (!b && a.st === 'ask') await send([a.o], 'give', {title: 'トリック・オア・トリート!', body: (await totNm(a.f)) + 'がお菓子をねだっています。1日以内にあげないと、いたずらで20個とられる', go: 'home', tag: 'tot' + ev.params.id}, TOT_PV);
+  else if (b && b.st === 'ask' && a.st !== 'ask') await send([a.f], 'give', a.st === 'give' ? {title: 'お菓子をもらった', body: (await totNm(a.o)) + 'がお菓子を10個くれました', go: 'home', tag: 'tota' + ev.params.id} : {title: 'いたずら成功', body: (await totNm(a.o)) + 'はお菓子をくれなかったので、いたずらで20個もらいました', go: 'home', tag: 'tota' + ev.params.id}, TOT_PV);
+});
 exports.pushMentor = onDocumentWritten('mentor/{id}', async ev => {
   const b = ev.data.before.exists ? ev.data.before.data() : null, a = ev.data.after.exists ? ev.data.after.data() : null;
   if (!a) return;
