@@ -941,6 +941,7 @@ button.tkbtn{background:linear-gradient(90deg,#ff6ad5,#b88aff);color:#fff;border
 .pb-chatflow{background:radial-gradient(70% 60% at 80% 10%,#ff5ab455,transparent),radial-gradient(70% 60% at 10% 90%,#5ad8ff4d,transparent),linear-gradient(160deg,#2a1442,#120a24)!important}
 .bgl{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden;border-radius:inherit}
 .gcx .bgl{z-index:0}
+.bglv video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .bgl-chat b{position:absolute;left:100%;white-space:nowrap;font:700 15px/1 var(--body);color:#fff;opacity:.45;text-shadow:0 0 6px #ff5ab4;animation:bgdm linear infinite}
 @keyframes bgdm{to{transform:translateX(calc(-100% - 600px))}}
 .gcx .bgl-chat b{font-size:8px}
@@ -4616,8 +4617,8 @@ body.ui2 .krk-r{content-visibility:auto;contain-intrinsic-size:auto 68px}
 /* (10/16) picture backgrounds (ハロウィン UR / GR): a taller banner, and the picture's main part kept in it (--fy = how far down
    the picture's focus is) instead of the middle of the square */
 body.ui2 .kpc-ban.pb-hwur,body.ui2 .kpc-ban.pb-hwgr{height:170px;background-size:cover!important;background-position:center var(--fy,30%)!important}
-body.ui2 .kpc-ban.pb-hwgr{--fy:24%}
-body.ui2 .kpc-ban.pb-hwur{--fy:14%}
+body.ui2 .kpc-ban.pb-hwgr{--fy:52%}
+body.ui2 .kpc-ban.pb-hwur{--fy:24%}
 /* ===== v121 rating trend (kt). Dark SaaS look: one gradient line (violet to cyan), a soft area under it,
    rank borders as dotted lines, the number on top. Only transform/opacity move. ===== */
 
@@ -6373,8 +6374,17 @@ function cheerBox(list,note){
   const g=el('div','chbtns');list.forEach(ki=>{const b=el('button','sec',KMRS[ki].n+' の応援を見る');b.onclick=e=>{e.preventDefault();cheerPreview(ki)};g.append(b)});d.append(g);return d;
 }
 /* animated backgrounds: extra layer for backgrounds that move */
+/* moving backgrounds: a looping film behind the card (muted, inline). It plays only while it is on screen.
+   A new film needs a new file name (the app keeps films by name). */
+const BG_FILM={hwgr:{src:'fx_hwbg_gr',fy:'52%'}};
+let bgFilmIO=null;
+function bgFilm(host,F){const L=el('div','bgl bglv'),vd=document.createElement('video');vd.muted=true;vd.loop=true;vd.playsInline=true;vd.setAttribute('playsinline','');vd.setAttribute('muted','');vd.preload='metadata';vd.poster=F.src+'.jpg';vd.disablePictureInPicture=true;
+  [['mp4','video/mp4'],['webm','video/webm']].forEach(([x,t])=>{const so=document.createElement('source');so.src=F.src+'.'+x;so.type=t;vd.append(so)});vd.style.objectPosition='center '+F.fy;L.append(vd);host.prepend(L);
+  try{if(!bgFilmIO)bgFilmIO=new IntersectionObserver(es=>es.forEach(e=>{const v=e.target;if(e.isIntersecting&&!document.hidden){const p=v.play();if(p&&p.catch)p.catch(()=>{})}else v.pause()}),{threshold:.05});bgFilmIO.observe(vd)}catch(e){const p=vd.play();if(p&&p.catch)p.catch(()=>{})}}
+document.addEventListener('visibilitychange',()=>{document.querySelectorAll('.bglv video').forEach(v=>{if(document.hidden)v.pause()})});
 function bgLayer(host,v){
   host.querySelectorAll(':scope>.bgl').forEach(x=>x.remove());
+  if(BG_FILM[v]){try{bgFilm(host,BG_FILM[v])}catch(e){}return}
   if(v!=='chatflow')return;
   const L=el('div','bgl bgl-chat'),W=['888888','かわいい','神回','てぇてぇ','草','!?','うおおお','GG','つよい','おつ','最高','好き'];
   for(let i=0;i<12;i++){const t=el('b',null,W[i]);t.style.top=(4+i*8)+'%';t.style.animationDuration=(6+(i%4)*1.6)+'s';t.style.animationDelay=(-i*1.3)+'s';if(i%3===1)t.style.color='#ffd0ec';if(i%4===2)t.style.color='#bfeaff';L.append(t)}
@@ -6623,7 +6633,7 @@ const LIM_SETS={vt:[
   ['b',4,'コメントの海','chatflow']]};
 /* ハロウィンガチャ (v135): N〜SR are drawn here, UR / GR are picture backgrounds, the KMR is an illustration (pictures: placeholders until the real art arrives) */
 if(HW_HERE()){LIMS.hw={name:'ハロウィンガチャ',en:'HALLOWEEN NIGHT',theme:'hw'};
-  LIM_SETS.hw=[['t',0,'かぼちゃ見習い'],['f',1,'こうもりの夜','hwbat'],['x',2,'ハロウィンナイト','hwnight'],['v',2,'トリック・オア・トリート','hwtot'],['b',3,'かぼちゃ畑の夜','hwur'],['b',4,'魔女の宴','hwgr']]}
+  LIM_SETS.hw=[['t',0,'かぼちゃ見習い'],['f',1,'こうもりの夜','hwbat'],['x',2,'ハロウィンナイト','hwnight'],['v',2,'トリック・オア・トリート','hwtot'],['b',3,'魔女の宴','hwur'],['b',4,'かぼちゃ畑の夜','hwgr']]}
 Object.entries(LIM_SETS).forEach(([set,L])=>L.forEach((a,i)=>ITEMS.push({id:'l'+set+i,k:a[0],r:a[1],n:a[2],v:a[3],lim:set})));
 /* supporter perks: owned automatically while the supporter rank is high enough; never in a pack, never for shards */
 XS.supsaph={bg:'radial-gradient(circle,#1d3a9a,#03050f 72%)',tx:['#eef3ff','#5a7dff'],pal:['#cfdcff','#5a7dff','#ffffff','#9fb4ff'],ex:[['stars',46]],en:'SAPPHIRE DUEL',sig:'sweep'};
