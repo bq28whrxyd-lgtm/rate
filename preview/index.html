@@ -10946,7 +10946,9 @@ function tcgmTick(){const me=myPlayer();if(!me)return;const t=now();
   const L=tcgLive;if(L){const d=tcgms.find(x=>x.id===L.id),other=L.side==='a'?'b':'a',mv=d&&d['m'+other]||[];if(mv.length>L.delivered&&L.cb){for(let i=L.delivered;i<mv.length;i++)L.cb(tcgUnpack(mv[i]));L.delivered=mv.length}}
   /* a confirmed win opens a chest once */
   const ok=tcgWins(),ls=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lset=k=>{try{localStorage.setItem(k,'1')}catch(e){}};
-  const first=!ls('tcgch_init_'+me.id);tcgms.forEach(d=>{if(!ok[d.id]||d.wa!==me.id||ls('tcgch_'+d.id))return;lset('tcgch_'+d.id);if(!first)tcgChestQ.push(d.id)});lset('tcgch_init_'+me.id);tcgChestNext();
+  /* (10/16) only wins confirmed in the last 30 minutes open a chest here: another phone (or one not opened for a while) used to
+     play every older win's chest again, one after another. The points were never given twice (they come from the records) */
+  const first=!ls('tcgch_init_'+me.id);tcgms.forEach(d=>{if(!ok[d.id]||d.wa!==me.id||ls('tcgch_'+d.id))return;lset('tcgch_'+d.id);const ct=typeof tcgConfirmT==='function'?tcgConfirmT(d):(+d.u||+d.t||0);if(!first&&now()-ct<30*60000)tcgChestQ.push(d.id)});lset('tcgch_init_'+me.id);tcgChestNext();
   /* redraw the TCG screen only when something about my matches changed (other people's moves don't matter here) */
   const sig=tcgms.filter(d=>d.a===me.id||d.b===me.id).map(d=>d.id+d.st+d.wa+d.wb).join()+'|'+tcgms.filter(tcgDone).length;
   if(sig!==tcgSig){tcgSig=sig;if(typeof queueRender==='function')queueRender();if(curView==='tcg'&&!$('tcgw')&&!document.querySelector('.tcgmd'))renderTcg()}}
