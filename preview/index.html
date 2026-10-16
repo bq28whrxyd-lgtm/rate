@@ -7698,7 +7698,8 @@ function mtXpBonus(pid,before){let x=0;for(const d of mentors){if(d.a!==pid||!d.
   for(const l of bunAtk(pid,before))if(inP(l.t))x+=(l.w?10:5)*MT_BONUS;for(const l of bunXq(pid,before))if(inP(l.t))x+=(BUN_XQ[l.d]||0)*MT_BONUS}return Math.floor(x)}
 /* points: the apprentice's extra half, the master's share (100 a day), and the graduation gifts */
 function mtPts(pid){let t=0;const by={};for(const d of mentors){if(!d.ok)continue;const [s,e]=mtSpan(d);
-    if(d.a===pid){for(const l of bunAtk(pid))if(l.t>=s&&l.t<e)t+=Math.round((l.w?50:10)*MT_BONUS);if(d.g)t+=MT_GRAD_A}
+    /* 弟子のあいだ増えるのは経験値だけ(ptの1.5倍は10/16になくした) */
+    if(d.a===pid){if(d.g)t+=MT_GRAD_A}
     if(d.m===pid){for(const l of bunAtk(d.a))if(l.w&&l.t>=s&&l.t<e){const k=dayNo(l.t);by[k]=Math.min(MT_DAY,(by[k]||0)+MT_WIN)}if(d.g)t+=MT_GRAD_M}}
   for(const k in by)t+=by[k];return t}
 function mtEarned(d){let t=0;const by={},[s,e]=mtSpan(d);for(const l of bunAtk(d.a))if(l.w&&l.t>=s&&l.t<e){const k=dayNo(l.t);const add=Math.min(MT_WIN,MT_DAY-(by[k]||0));by[k]=(by[k]||0)+Math.max(0,add)}
@@ -7726,11 +7727,11 @@ function mtSheet(){document.querySelectorAll('.mts').forEach(x=>x.remove());cons
   const who=(pid,sub,act)=>{const p=players.find(x=>x.id===pid)||{name:'?'},r=el('div','mtr'),av=el('div','mtav');try{av.append(avatar(p))}catch(e){}const tx=el('div','mtx');tx.append(el('b',null,p.name+'  ·  Lv'+mtLv(pid)),el('span',null,sub));r.append(av,tx);if(act)r.append(act);return r};
   const btn=(t,cls,fn)=>{const x=el('button',cls||'sec',t);x.onclick=async()=>{x.disabled=true;try{await fn()}catch(e){x.disabled=false;toast({gap:'師匠はあなたよりレベルが'+MT_GAP+'以上高い人だけです',full:'その人の弟子はもう'+MT_MAX+'人います',has:'もう師匠がいるか、申し込み中です',once:'この人とはもう師弟になれません',taken:'その人にはもう師匠がいます'}[e.message]||'できませんでした')}};return x};
   const draw=()=>{b.replaceChildren();const hd=el('div','grsh');hd.append(el('h3',null,'師匠と弟子'));const cl=el('button','sec','閉じる');cl.onclick=()=>o.remove();hd.append(cl);b.append(hd);
-    b.append(el('div','sub','レベルが'+MT_GAP+'以上高い仲間に弟子入りできます。弟子のあいだは分身の経験値と報酬が1.5倍。弟子が分身バトルで勝つたびに師匠に'+MT_WIN+'pt(1日'+MT_DAY+'ptまで)。レベルが師匠に追いついたら卒業で、弟子に'+MT_GRAD_A+'pt・師匠に'+MT_GRAD_M+'pt。'));
+    b.append(el('div','sub','レベルが'+MT_GAP+'以上高い仲間に弟子入りできます。弟子のあいだは分身の経験値が1.5倍。弟子が分身バトルで勝つたびに師匠に'+MT_WIN+'pt(1日'+MT_DAY+'ptまで)。レベルが師匠に追いついたら卒業で、弟子に'+MT_GRAD_A+'pt・師匠に'+MT_GRAD_M+'pt。'));
     /* my master */
     const mm=mtMasterOf(me.id),rq=mtMyReq(me.id),s1=el('section','mtsec');s1.append(el('div','scpkh','あなたの師匠'));
-    if(mm){const gap=Math.max(0,mtLv(mm.m)-mtLv(me.id)),r=who(mm.m,'卒業まであと '+gap+' レベル  ·  経験値と報酬 1.5倍');s1.append(r);const bar=el('div','fmpg gold'),i=el('i');i.style.transform='scaleX('+Math.min(1,mtLv(me.id)/Math.max(1,mtLv(mm.m))).toFixed(3)+')';bar.append(i);s1.append(bar);
-      s1.append(btn('師匠のもとを離れる','sec mtq',()=>new Promise((res,rej)=>askSheet({title:'師匠のもとを離れる',danger:true,ok:'離れる',lines:['1.5倍はなくなり、この人にはもう弟子入りできません。'],run:async()=>{try{await mtEnd(mm);toast('離れました');res()}catch(e){rej(e)}}}))))}
+    if(mm){const gap=Math.max(0,mtLv(mm.m)-mtLv(me.id)),r=who(mm.m,'卒業まであと '+gap+' レベル  ·  経験値 1.5倍');s1.append(r);const bar=el('div','fmpg gold'),i=el('i');i.style.transform='scaleX('+Math.min(1,mtLv(me.id)/Math.max(1,mtLv(mm.m))).toFixed(3)+')';bar.append(i);s1.append(bar);
+      s1.append(btn('師匠のもとを離れる','sec mtq',()=>new Promise((res,rej)=>askSheet({title:'師匠のもとを離れる',danger:true,ok:'離れる',lines:['経験値の1.5倍はなくなり、この人にはもう弟子入りできません。'],run:async()=>{try{await mtEnd(mm);toast('離れました');res()}catch(e){rej(e)}}}))))}
     else if(rq){s1.append(who(rq.m,'弟子入りを申し込み中',btn('取り消す','sec',async()=>{await mtCancel(rq);toast('取り消しました')})))}
     else{const L=players.filter(p=>p.id!==me.id&&p.uid&&!p.retired&&!p.ban).map(p=>({p,lv:mtLv(p.id),n:mtAppsOf(p.id).length})).sort((x,y)=>y.lv-x.lv);let any=false;
       L.forEach(x=>{const ok=x.lv-mtLv(me.id)>=MT_GAP&&x.n<MT_MAX&&!mentors.some(d=>d.id===me.id+'_'+x.p.id&&d.st!=='req');if(!ok)return;any=true;s1.append(who(x.p.id,'弟子 '+x.n+' / '+MT_MAX+' 人',btn('弟子入りする','grgo kx-grd mtgo',async()=>{await mtAsk(x.p.id);toast('申し込みました。師匠が認めると始まります')})))});
@@ -9483,7 +9484,7 @@ function notes(){
   grants.filter(g=>g.pid===me.id&&TKNAME[g.kind]).slice(0,10).forEach(g=>L.push({key:'g'+g.id,t:g.t,k:'チケット',x:'管理者から'+TKNAME[g.kind]+' ×'+g.n,go:'gacha'}));
   grants.filter(g=>g.pid===me.id&&((g.kind||'pt')==='pt'||g.kind==='buy')).slice(0,10).forEach(g=>L.push({key:'g'+g.id,t:g.t,k:'ポイント',x:(g.kind==='buy'?'購入ptが届きました  +':'開発者からポイント  +')+g.pt+'pt'+(g.note?'  ·  '+g.note:''),go:'gacha'}));
   try{slabsOf(inv).filter(x=>invFor===me.id&&(slabReady(x)||x.s)).forEach(x=>{const c=TC[x.id];if(c)L.push({key:'gr'+x.i,t:x.t+GR_H*36e5,k:'鑑定',x:x.s?'「'+c.n+'」の鑑定 '+x.s+'('+GR_NM[x.s]+')':'「'+c.n+'」の鑑定結果が届きました。開けてみよう',go:'grade'})})}catch(e){}
-  try{mtReqsTo(me.id).forEach(d=>L.push({key:'mr'+d.id,t:+d.t||0,k:'師弟',x:pname(d.a)+'から弟子入りの申し込み',go:'mentor'}));mentors.filter(d=>d.a===me.id&&d.ok).forEach(d=>L.push({key:'mo'+d.id,t:+d.ok,k:'師弟',x:pname(d.m)+'があなたを弟子にしました。分身の経験値と報酬が1.5倍',go:'mentor'}));mentors.filter(d=>d.g&&(d.a===me.id||d.m===me.id)).forEach(d=>L.push({key:'mg'+d.id,t:+d.g,k:'師弟',x:d.a===me.id?pname(d.m)+'師匠のもとを卒業しました  +'+MT_GRAD_A+'pt':'弟子の'+pname(d.a)+'が卒業しました  +'+MT_GRAD_M+'pt',go:'mentor'}))}catch(e){}
+  try{mtReqsTo(me.id).forEach(d=>L.push({key:'mr'+d.id,t:+d.t||0,k:'師弟',x:pname(d.a)+'から弟子入りの申し込み',go:'mentor'}));mentors.filter(d=>d.a===me.id&&d.ok).forEach(d=>L.push({key:'mo'+d.id,t:+d.ok,k:'師弟',x:pname(d.m)+'があなたを弟子にしました。分身の経験値が1.5倍',go:'mentor'}));mentors.filter(d=>d.g&&(d.a===me.id||d.m===me.id)).forEach(d=>L.push({key:'mg'+d.id,t:+d.g,k:'師弟',x:d.a===me.id?pname(d.m)+'師匠のもとを卒業しました  +'+MT_GRAD_A+'pt':'弟子の'+pname(d.a)+'が卒業しました  +'+MT_GRAD_M+'pt',go:'mentor'}))}catch(e){}
   try{farmPlots(me.id).forEach(x=>{if(x&&plotRipe(x))L.push({key:'fr'+x.i,t:plotRipeAt(x),k:'畑',x:FARM_CROPS[x.c].n+'が収穫できます。置くほど増えるけど、そのぶん盗まれやすい',go:'farm'})});steals.filter(z=>z.o===me.id).forEach(z=>L.push({key:'fs'+z.id,t:+z.t||0,k:'畑',x:z.bit?'番犬が'+pname(z.p)+'を撃退!  罰金 +'+z.f+'pt':pname(z.p)+'に'+((FARM_CROPS[z.c]||{}).n||'作物')+'を盗まれた(-'+z.n+'pt)',go:'farm'}))}catch(e){}
   try{likes.filter(l=>l.o===me.id&&l.p!==me.id).forEach(l=>L.push({key:'lk'+l.id,t:+l.t||0,k:'いいね',x:pname(l.p)+'があなたのショーケースにいいね',go:'case'}))}catch(e){}
   devMsgs.slice(0,5).forEach(m=>L.push({key:'m'+m.id,t:m.t,k:'お知らせ',x:m.title||'開発者からのお知らせ',go:'home'}));
