@@ -27,7 +27,13 @@ async function send(pids, cat, m, onlyPv) {
   for (const d of docs) {
     const v = d.data() || {};
     if (!v.tk || (cat && v.p && v.p[cat] === false)) continue;
-    for (const t of Object.keys(v.tk)) { if (onlyPv && !(v.tk[t] && v.tk[t].pv)) continue; toks.push(t); own.push(d.id); }
+    /* (10/16) one notice per phone: someone with both the main app and お試し版 got everything twice.
+       Normal notices go to the main app's tokens (お試し版 only if that is all they have); お試し版-only notices to お試し版.
+       The same phone registered twice (same browser string) keeps only its newest token */
+    const ks = Object.keys(v.tk), pv = t => !!(v.tk[t] && v.tk[t].pv), main = ks.filter(t => !pv(t));
+    const use = onlyPv ? ks.filter(pv) : (main.length ? main : ks), best = {};
+    for (const t of use) { const u = (v.tk[t] && v.tk[t].ua) || t; if (!best[u] || (+v.tk[t].t || 0) > (+v.tk[best[u]].t || 0)) best[u] = t; }
+    for (const t of Object.values(best)) { toks.push(t); own.push(d.id); }
   }
   for (let i = 0; i < toks.length; i += 500) {
     const part = toks.slice(i, i + 500);
