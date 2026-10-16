@@ -9148,7 +9148,13 @@ window.BUNSHINHOST={
     else{o.gp=0;o.g10=0;o.qs=Math.min(o.qs,1);o.copen=Math.min(o.copen,1)}
     /* nothing changed: no write */if(sv){const cj=x=>x&&typeof x==='object'?(Array.isArray(x)?'['+x.map(cj).join(',')+']':'{'+Object.keys(x).filter(k=>k!=='u'&&x[k]!==undefined).sort().map(k=>k+':'+cj(x[k])).join(',')+'}'):JSON.stringify(x);if(cj(sv)===cj(o))return Promise.resolve()}
     bunDocs[me.id]=JSON.parse(JSON.stringify(o));
-    return db.doc('bunshin/'+me.id).set(o).catch(e=>{toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')');throw e})},
+    /* (10/16) checked against the server's copy inside a transaction: an older copy from another phone never overwrites a newer one,
+       and the chests opened can only go up */
+    const ref=db.doc('bunshin/'+me.id);
+    return db.runTransaction(async tx=>{const d=await tx.get(ref),cur=d.exists?d.data():null;
+        if(cur&&(+cur.nid||0)>o.nid){const e=new Error('stale');e.code='stale';throw e}
+        if(cur){for(const k of ['gp','g10','copen'])o[k]=Math.max(o[k],+cur[k]||0)}tx.set(ref,o)})
+      .catch(e=>{if(e&&e.code==='stale'){if(bunDocs[me.id]&&bunDocs[me.id].u===o.u)delete bunDocs[me.id];toast('別の端末で分身が更新されています。いったん閉じて開き直してください')}else toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')');throw e})},
   level:()=>lvOf(myPlayer().id).L,
   points:()=>balance(myPlayer().id),
   friends:()=>{const me=myPlayer();return players.filter(p=>p.id!==me.id&&!p.retired&&p.uid).map(bunFighter).sort((a,b)=>b.lv-a.lv)},
@@ -9173,6 +9179,7 @@ window.BUNSHINHOST={
   saWear:id=>{const p=myPlayer();if(!p||!db)return Promise.reject(new Error('offline'));const cur=Object.assign({},p.eq||{});cur.t=cur.t===id?null:id;return db.doc('players/'+p.id).update({eq:cur})},
   saLog:sc=>{const wk=weekNo(now());return BUNSHINHOST.log({d:'xs'+wk,w:0,s:Math.max(0,Math.min(SA_MAX,Math.round(+sc||0)))}).then(()=>{saC.k='';return BUNSHINHOST.sa()})},
   chests:()=>bunChests(myPlayer().id),
+  copen:()=>+((bunDocs[myPlayer().id]||{}).copen)||0,
   /* experience quest: clears per grade (for unlocking) and today's clears (the first 3 a day give XP) */
   xq:()=>{const me=myPlayer().id,c={},td=dayNo(now());let today=0;for(const l of bunLogs)if(l.a===me&&l.w&&BUN_XQ[l.d]){const k=l.d.slice(1);c[k]=(c[k]||0)+1;if(dayNo(l.t)===td)today++}return {c,today,day:BUN_XQDAY,xp:BUN_XQ}},
   defenses:()=>{const me=myPlayer();return bunLogs.filter(l=>l.d===me.id).sort((a,b)=>b.t-a.t).slice(0,20).map(l=>({a:l.a,w:l.w,t:l.t,name:(players.find(p=>p.id===l.a)||{}).name||'だれか',when:bunAgo(l.t)}))},
@@ -9191,7 +9198,8 @@ function bunClose(){bunCb=null;clearTimeout(bunLT);const o=$('bunw');if(o){o.cla
 /* a dot on the home button when someone attacked you since you last looked */
 function bunBadge(){const me=myPlayer(),b=document.querySelector('.lb-bun');if(!b)return;let seen=0;try{seen=+localStorage.getItem('bunseen_'+(me&&me.id))||0}catch(e){}let tx=me&&bunLogs.some(l=>l.d===me.id&&l.t>seen)?'1':'';if(!tx&&me){try{const r=BUNSHINHOST.raid();if(r.open&&!r.dead&&r.left>=RAID_DAY)tx='!'}catch(e){}}b.textContent=tx}
 function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadge,20000);setTimeout(bunBadge,2500);
-  db.collection('bunshin').onSnapshot(s=>{bunReady=true;bunDocs={};s.docs.forEach(d=>{bunDocs[d.id]=d.data()});queueRender();bunCb&&bunCb()},()=>{});
+  /* (10/16) only the server's copy counts as ready: a phone's old saved copy (fewer chests opened) let chests be opened again on another phone */
+  db.collection('bunshin').onSnapshot(s=>{if(s.metadata&&s.metadata.fromCache&&!bunReady)return;bunReady=true;bunDocs={};s.docs.forEach(d=>{bunDocs[d.id]=d.data()});queueRender();bunCb&&bunCb()},()=>{},{meta:true});
   dbSynced('bunlog','t').onSnapshot(s=>{bunLogs=s.docs.map(d=>({id:d.id,...d.data()}));queueRender();bunBadge();bunCb&&bunCb()},()=>{})}
 /* ===== v50: golden chests, upsets, genre weeks, paid points, predictions, timeline, daily missions, weekly MVP ===== */
 const RULE4=Date.UTC(2026,9,4,10,30);
@@ -15580,7 +15588,7 @@ if('serviceWorker' in navigator){
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,setDoc,updateDoc,deleteDoc,addDoc,onSnapshot,query,orderBy,limit,where} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,doc,collection,setDoc,updateDoc,deleteDoc,addDoc,onSnapshot,query,orderBy,limit,where,runTransaction} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import {getMessaging,getToken,deleteToken,isSupported} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js';
 const app=initializeApp({apiKey:"AIzaSyDv_SJ6OgLHYXiZx6iKS1rcNk1RqqsKkwk",authDomain:"kimoota-15777.firebaseapp.com",projectId:"kimoota-15777",storageBucket:"kimoota-15777.firebasestorage.app",messagingSenderId:"86788820983",appId:"1:86788820983:web:c129695a288eb9ce05e8f2"});
 const auth=getAuth(app);
@@ -15628,9 +15636,11 @@ const synced=(c,o)=>({onSnapshot:(cb,er)=>{const f=o.f,sf=o.sort||f;let map=new 
   syncVStart();syncSubs.add(onV);start(false);
   return()=>{dead=true;syncSubs.delete(onV);clearTimeout(saveT);if(un)un()}}});
 const db={
-  doc:p=>{const r=doc(FS,p);return{set:(d,o)=>W(p,()=>o?setDoc(r,d,o):setDoc(r,d)),update:d=>W(p,()=>updateDoc(r,d)),delete:()=>W(p,()=>deleteDoc(r)),onSnapshot:(cb,er)=>LS(p,()=>onSnapshot(r,s=>cb(snap(s)),er||(()=>{})),er)}},
+  doc:p=>{const r=doc(FS,p);return{__r:r,set:(d,o)=>W(p,()=>o?setDoc(r,d,o):setDoc(r,d)),update:d=>W(p,()=>updateDoc(r,d)),delete:()=>W(p,()=>deleteDoc(r)),onSnapshot:(cb,er)=>LS(p,()=>onSnapshot(r,s=>cb(snap(s)),er||(()=>{})),er)}},
   collection:c=>{const mk=cs=>({orderBy:(f,d)=>mk([...cs,orderBy(f,d||'asc')]),limit:n=>mk([...cs,limit(n)]),where:(f,op,v)=>mk([...cs,where(f,op,v)]),add:d=>W(c+'/+',()=>addDoc(collection(FS,c),d)),
-    onSnapshot:(cb,er)=>LS(c,()=>onSnapshot(query(collection(FS,c),...cs),s=>cb({docs:s.docs.map(snap)}),er||(()=>{})),er)});return mk([])},
+    onSnapshot:(cb,er,o)=>LS(c,()=>o&&o.meta?onSnapshot(query(collection(FS,c),...cs),{includeMetadataChanges:true},s=>cb({docs:s.docs.map(snap),metadata:{fromCache:s.metadata.fromCache}}),er||(()=>{})):onSnapshot(query(collection(FS,c),...cs),s=>cb({docs:s.docs.map(snap),metadata:{fromCache:s.metadata.fromCache}}),er||(()=>{})),er)});return mk([])},
+  /* (10/16) read and write against the server's copy in one step (分身's chests) */
+  runTransaction:fn=>W('tx',()=>runTransaction(FS,t=>fn({get:async d=>snap(await t.get(d.__r)),set:(d,v)=>{t.set(d.__r,v)}}))),
   synced,
   resetSaved:async()=>{for(const c of ['matches','grants','preds','tcgm'])await IDB.del(EPOCH+'|'+((auth.currentUser&&auth.currentUser.uid)||'-')+'|'+c)}
 };
