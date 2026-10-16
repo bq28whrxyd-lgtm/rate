@@ -162,7 +162,7 @@ const AP_FIX = {20742: Date.UTC(2026, 9, 16, 8, 0)};  // same as the app
 const apStart = d => AP_FIX[d] || (d * 864e5 - 4 * 3600000) + 5 * 3600000 + (hsh('ap' + d) % (14 * 3600 - AP_MIN * 60)) * 1000;
 const dayNo = t => Math.floor((t + 4 * 3600000) / 864e5);
 /* 畑と泥棒 (v134): until it is in the main app, these go to the お試し版 phones only (pv tokens). Set FARM_PV = false at release. */
-const FARM_PV = false, CROP = {ichigo: ['いちご', 3], tomato: ['トマト', 3], melon: ['メロン', 3]};  // every crop can be picked from 3 hours on
+const FARM_PV = false, CROP = {ichigo: ['いちご', 3], tomato: ['トマト', 3], melon: ['メロン', 3], pumpkin: ['かぼちゃ', 3]};  // every crop can be picked from 3 hours on
 exports.pushFarmSteal = onDocumentCreated('steal/{id}', async ev => {
   const d = ev.data && ev.data.data(); if (!d || !d.o || !d.p) return;
   let nm = 'だれか'; try { const p = (await db.doc('players/' + d.p).get()).data(); if (p && p.name) nm = p.name; } catch (e) {}
