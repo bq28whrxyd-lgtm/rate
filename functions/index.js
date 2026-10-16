@@ -142,7 +142,7 @@ exports.pushAucBid = onDocumentUpdated('auc/{id}', async ev => {
 });
 
 /* 賞金首 (v134): someone reached 3+ wins in a row (the app posts feed/bw_<match>) → everyone else. BOUNTY_PV: お試し版 phones only until release */
-const BOUNTY_PV = true;
+const BOUNTY_PV = false;
 exports.pushBounty = onDocumentCreated('feed/{id}', async ev => {
   const f = ev.data && ev.data.data(); if (!f || !/^bw_/.test(ev.params.id) || f.k !== 'bounty') return;
   const ps = (await db.collection('players').get()).docs.map(d => d.id).filter(id => id !== f.by);
@@ -150,12 +150,12 @@ exports.pushBounty = onDocumentCreated('feed/{id}', async ev => {
 });
 /* 抜き打ちガチャ (v134): the same start time as the app (apDay: from the day number, 10:00-24:00 JST, 10 minutes). Checked every minute.
    Needs Cloud Scheduler like the farm (SCHED). AP_PV: お試し版 phones only until release */
-const AP_PV = true, AP_MIN = 10;
+const AP_PV = false, AP_MIN = 10;
 const hsh = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
 const apStart = d => (d * 864e5 - 4 * 3600000) + 5 * 3600000 + (hsh('ap' + d) % (14 * 3600 - AP_MIN * 60)) * 1000;
 const dayNo = t => Math.floor((t + 4 * 3600000) / 864e5);
 /* 畑と泥棒 (v134): until it is in the main app, these go to the お試し版 phones only (pv tokens). Set FARM_PV = false at release. */
-const FARM_PV = true, CROP = {ichigo: ['いちご', 3], tomato: ['トマト', 3], melon: ['メロン', 3]};  // every crop can be picked from 3 hours on
+const FARM_PV = false, CROP = {ichigo: ['いちご', 3], tomato: ['トマト', 3], melon: ['メロン', 3]};  // every crop can be picked from 3 hours on
 exports.pushFarmSteal = onDocumentCreated('steal/{id}', async ev => {
   const d = ev.data && ev.data.data(); if (!d || !d.o || !d.p) return;
   let nm = 'だれか'; try { const p = (await db.doc('players/' + d.p).get()).data(); if (p && p.name) nm = p.name; } catch (e) {}
@@ -174,7 +174,7 @@ if (FARM_RIPE) exports.pushAp = onSchedule({schedule: 'every 1 minutes', timeZon
   await ref.set({d, t: nowt});
   await send(null, 'give', {title: '抜き打ちガチャ', body: 'いまから10分だけ、1回無料で引けます。急いで', go: 'home', tag: 'ap' + d}, AP_PV);
 });  // also sends 鑑定結果が届きました (same 10-minute run)
-const GR_H = 24, GR_PV = true;  // GR_H = the app's GR_H. GR_PV: お試し版 phones only until release
+const GR_H = 24, GR_PV = false;  // GR_H = the app's GR_H. GR_PV: お試し版 phones only until release
 if (FARM_RIPE) exports.pushFarmRipe = onSchedule({schedule: 'every 10 minutes', timeZone: 'Asia/Tokyo'}, async () => {
   const ref = db.doc('config/farmpush'), last = ((await ref.get()).data() || {}).t || Date.now() - 6e5, nowt = Date.now();
   const docs = (await db.collection('farm').get()).docs;
@@ -192,7 +192,7 @@ if (FARM_RIPE) exports.pushFarmRipe = onSchedule({schedule: 'every 10 minutes', 
 });
 
 /* 師匠と弟子 (v134): the request, the answer and the graduation. お試し版 phones only until release (MT_PV) */
-const MT_PV = true;
+const MT_PV = false;
 exports.pushMentor = onDocumentWritten('mentor/{id}', async ev => {
   const b = ev.data.before.exists ? ev.data.before.data() : null, a = ev.data.after.exists ? ev.data.after.data() : null;
   if (!a) return;
