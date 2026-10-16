@@ -2813,6 +2813,14 @@ button.tcgkeep{width:100%;margin-top:8px}
 .hlw-sec h3{margin:6px 2px 8px;font-size:15px;color:#ffd3a3}
 .hlw-how{display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:#ffffff0a;box-shadow:inset 0 0 0 1px #ffffff12}
 .hlw-hr{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;font-size:13px}.hlw-hr+.hlw-hr{border-top:1px solid #ffffff0f}
+.hlw-rkl{display:flex;flex-direction:column;border-radius:16px;overflow:hidden;background:#ffffff0a;box-shadow:inset 0 0 0 1px #ffffff12}
+.hlw-rkr{display:grid;grid-template-columns:28px 1fr auto;align-items:center;column-gap:10px;padding:10px 14px;font-size:14px}.hlw-rkr+.hlw-rkr{border-top:1px solid #ffffff0f}
+.hlw-rkr em{font-style:normal;font-weight:900;color:#c9b3dc;text-align:center;font-variant-numeric:tabular-nums}
+.hlw-rkr b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hlw-rkr span{font-weight:800;font-variant-numeric:tabular-nums;color:#ffd29a}
+.hlw-rkr small{grid-column:2/4;font-size:11px;color:#c9b3dc}
+.hlw-rkr.t1 em{color:#ffd27a}.hlw-rkr.t2 em{color:#e6e6ee}.hlw-rkr.t3 em{color:#e0a070}
+.hlw-rkr.me{background:linear-gradient(90deg,rgba(255,138,42,.16),transparent)}
 .hlw-hr span{color:#e9dcf0}.hlw-hr b{color:#ffb36b;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 .hlw-shop{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .hlw-it{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px 12px;border-radius:18px;background:linear-gradient(170deg,#2c1538,#170b1f);box-shadow:inset 0 0 0 1px #ffffff14;text-align:center}
@@ -7381,15 +7389,29 @@ function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms
   for(let w=weekNo(hwT0());w<=weekNo(hwT1()-1);w++){let R;try{R=raidInfo(w)}catch(e){continue}
     (R.hits||[]).forEach(h=>{if(h.a===pid&&hwIn(h.t))add(HW_C.rt,h.t)});
     if(R.dead&&hwIn(R.killT)&&R.rank.some(x=>x.a===pid)){add(HW_C.rk,R.killT);if(R.rank[0]&&R.rank[0].a===pid)add(HW_C.rtop,R.killT);if(R.killer===pid)add(HW_C.rlast,R.killT)}}
+  try{const N=nightInfo();N.hits.forEach(h=>{if(h.a===pid&&hwIn(h.t))add(HW_C.nbt,h.t)});if(N.dead&&hwIn(N.killT)&&N.rank.some(x=>x.a===pid))add(HW_C.nbk,N.killT)}catch(e){}
   if(pid===invFor){((inv.tcg||{})[HWK.s]||[]).forEach(t=>{if(hwIn(+t))add(HW_C.cpu,+t)});c+=+inv[HWK.q]||0}
   return hwMemo.v[pid]=c}
+/* ---- 夜のボス (ハロウィンナイト 10/31 17:00〜24:00): everyone hits one boss in 分身 (bunlog d:HW_NB, s:damage), HW_NB_DAY tries each.
+   Candy only: every try HW_C.nbt, a kill HW_C.nbk to everyone who hit it (the night doubles both: 40 and 600) ---- */
+const HW_NB='xn2026',HW_NB_DAY=5,HW_NB_HP=.8;Object.assign(HW_C,{nbt:20,nbk:300});
+let nbC={k:'',v:null};
+function nightInfo(){const key=bunLogs.length+'|'+players.length+'|'+Object.keys(bunDocs).length+'|'+!!window.__hwNight;if(nbC.k===key&&nbC.v)return nbC.v;
+  const max=Math.max(1000,Math.round(raidMax()*HW_NB_HP)),L=bunLogs.filter(l=>l.d===HW_NB&&hwNightAt(l.t)).sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));
+  let sum=0,killer=null,killT=0;const by={},n={},hits=[];
+  for(const l of L){if(sum>=max)break;n[l.a]=(n[l.a]||0)+1;if(n[l.a]>HW_NB_DAY)continue;const d=Math.max(0,Math.min(Math.round(+l.s||0),RAID_HITMAX,max-sum));sum+=d;by[l.a]=(by[l.a]||0)+d;hits.push({a:l.a,d,t:l.t});if(sum>=max){killer=l.a;killT=l.t}}
+  const rank=Object.keys(by).map(a=>({a,dmg:by[a]})).sort((x,y)=>y.dmg-x.dmg);
+  return (nbC={k:key,v:{max,hp:Math.max(0,max-sum),dead:sum>=max,killer,killT,rank,hits}}).v}
+const hwNbCandy=pid=>{try{const N=nightInfo();return N.hits.filter(h=>h.a===pid).reduce((a,h)=>a+HW_C.nbt*hwMul(h.t),0)+(N.dead&&N.rank.some(x=>x.a===pid)?HW_C.nbk*hwMul(N.killT):0)}catch(e){return 0}};
 const hwSpent=()=>+inv[HWK.x]||0;
 /* candy sold / bought in the 取引所 (k:'h', c = how many): the seller's are held while it is listed, the buyer gets them when it sells */
 function hwMkt(pid){let c=0;for(const a of aucs){if(a.k!=='h')continue;const n=+a.c||0;if(a.s===pid&&(aucOpen(a)||aucSold(a)))c-=n;if(a.hp===pid&&aucSold(a))c+=n}return c}
 const hwBal=pid=>Math.max(0,hwEarn(pid)-(pid===invFor?hwSpent():0)+(typeof totNet==='function'?totNet(pid):0)+hwMkt(pid));
 /* the 交換所. Limited skins / cards are added to HW_SHOP when their pictures arrive (k:'g' gacha item, k:'c' TCG card) */
 const HW_TTL={HW_1:{n:'お菓子コレクター',r:2},HW_2:{n:'トリックスター',r:3},HW_3:{n:'かぼちゃの王',r:4}};
-function hwTitle(id){const T=HW_TTL[id];return T?{id,k:'t',r:T.r,n:T.n}:null}
+/* the お菓子ランキング titles (top 3 when the event ends; not in the 交換所) */
+const HW_RTTL={HW_R1:{n:'ハロウィンの覇者',r:5},HW_R2:{n:'お菓子の大魔王',r:4},HW_R3:{n:'夜宴の主',r:3}};
+function hwTitle(id){const T=HW_TTL[id]||HW_RTTL[id];return T?{id,k:'t',r:T.r,n:T.n}:null}
 function hwShop(){const L=[{id:'ptk',k:'tk',tk:'ptk',n:'通常パックチケット',c:60,max:10}];
   try{const tp=Object.keys(TCG_TK).filter(k=>TCG_TK[k].k===1).slice(-1)[0];if(tp)L.push({id:'tcg1',k:'tk',tk:tp,n:'TCG '+TCG_TK[tp].n,c:90,max:10})}catch(e){}
   Object.keys(HW_TTL).forEach((id,i)=>L.push({id,k:'t',n:HW_TTL[id].n,c:[150,400,1000][i],max:1}));
@@ -7421,14 +7443,34 @@ async function hwBuy(it){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==m
   if(it.k==='pt')nv[HWK.xp]=(+inv[HWK.xp]||0)+it.p;
   if(it.k==='seed')nv[HWK.k]=(+inv[HWK.k]||0)+1;
   if(it.k==='boost'){const L=Array.isArray(inv[HWK.d])?inv[HWK.d]:[],st=Math.max(now(),...L.map(x=>+x+HW_BOOST));nv[HWK.d]=L.concat([st])}
-  if(it.k==='guard'){const L=hwGuards(me.id),st=Math.max(now(),...L.map(x=>+x+864e5));await db.doc('hwp/'+me.id).set({L:L.concat([st]).slice(-20),u:now()});hwps[me.id]={L:L.concat([st])}}
+  if(it.k==='guard'){const L=hwGuards(me.id),st=Math.max(now(),...L.map(x=>+x+864e5));await db.doc('hwp/'+me.id).set({L:L.concat([st]).slice(-20),u:now()},{merge:true});hwps[me.id]=Object.assign({},hwps[me.id]||{},{L:L.concat([st])})}
   await db.doc('inv/'+me.id).set(nv);inv=nv;try{ownSync()}catch(e){};return it}
 /* a TCG win against the つよい CPU (called from tcgResult) */
 function hwCpuWin(r){if(!hwOn()||!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!invFor)return;const T=Object.assign({},tcgOf(inv)),hs=(Array.isArray(T[HWK.s])?T[HWK.s]:[]).concat([now()]).slice(-400);T[HWK.s]=hs;inv=Object.assign({},inv,{tcg:T});
   db.doc('inv/'+invFor).set({tcg:{[HWK.s]:hs}},{merge:true}).catch(()=>{});setTimeout(()=>toast('お菓子 +'+HW_C.cpu*hwMul(now())+'(CPU つよい に勝利)'),2200)}
 /* candy you just got, shown once (the victory screen goes first) */
 let hwSeen=null;
-function hwTick(){const me=myPlayer();if(!me||!hwOn())return;try{totWatch()}catch(e){}if(!invLoaded||invFor!==me.id)return;const e=hwEarn(me.id);if(hwSeen==null){hwSeen=e;return}if(e>hwSeen){const d=e-hwSeen;hwSeen=e;setTimeout(()=>{try{hwToast(d)}catch(x){}},2600)}else hwSeen=e}
+/* ---- お菓子ランキング: what you collected in the event (spending does not lower it) = hwEarn + candy won by trick-or-treat.
+   Each app publishes its own total in hwp/{pid}.c (お試し版: .pc) at most once a minute. When the event ends the top 3 get
+   HW_RK_PTS and a title (worked out here from those numbers, nothing else is stored) ---- */
+const HW_RK_PTS=[1000,600,300],HW_RK_KEY=HW_PV?'pc':'c',HW_RK_SHOW=7*864e5;
+const hwTotGot=pid=>{let c=0;for(const x of tots){if(x.f!==pid||!hwIn(+x.t||0))continue;const r=totRes(x);if(r==='give')c+=TOT_GIVE;else if(r==='trick')c+=TOT_TRICK}return c};
+const hwGot=pid=>hwEarn(pid)+hwTotGot(pid);
+function hwRank(){const me=myPlayer(),live=hwOn();return players.filter(p=>p.uid&&!p.retired&&!p.ban).map(p=>{let c=+((hwps[p.id]||{})[HW_RK_KEY])||0;if(live&&me&&p.id===me.id&&invLoaded&&invFor===me.id)c=Math.max(c,hwGot(p.id));return{p,c}}).filter(x=>x.c>0).sort((a,b)=>b.c-a.c||(a.p.id<b.p.id?-1:1))}
+const hwRankDone=()=>(HW_HERE()||!!window.__hw0)&&now()>=hwT1();
+const hwRankShow=()=>hwRankDone()&&now()<hwT1()+HW_RK_SHOW;
+function hwRankPts(pid){if(HW_PV||!hwRankDone())return 0;const i=hwRank().findIndex(x=>x.p.id===pid);return i>=0&&i<3?HW_RK_PTS[i]:0}
+let hwPubT=0;
+function hwPub(){const me=myPlayer();if(!me||!db||!invLoaded||invFor!==me.id||!hwOn()||now()-hwPubT<60000)return;const c=hwGot(me.id),cur=+((hwps[me.id]||{})[HW_RK_KEY])||0;if(c<=cur)return;hwPubT=now();
+  db.doc('hwp/'+me.id).set({[HW_RK_KEY]:c,u:now()},{merge:true}).then(()=>{hwps[me.id]=Object.assign({},hwps[me.id]||{},{[HW_RK_KEY]:c})}).catch(()=>{})}
+function hwRankSec(me){const L=hwRank(),done=hwRankDone(),i=L.findIndex(x=>x.p.id===me.id),sec=el('div','hlw-sec hlw-rk');const hd=el('h3',null,'お菓子ランキング');hd.append(el('small',null,done?'結果':'集めた数で競う  ·  使っても減らない'));sec.append(hd);
+  const ol=el('div','hlw-rkl'),row=(x,n)=>{const r=el('div','hlw-rkr'+(x.p.id===me.id?' me':'')+(n<3?' t'+(n+1):''));r.append(el('em',null,String(n+1)),el('b',null,x.p.name),el('span',null,x.c.toLocaleString()));if(n<3)r.append(el('small',null,HW_RK_PTS[n]+'pt  ·  「'+HW_RTTL['HW_R'+(n+1)].n+'」'));return r};
+  L.slice(0,5).forEach((x,n)=>ol.append(row(x,n)));if(i>=5)ol.append(row(L[i],i));if(!L.length)ol.append(el('div','sub','まだ誰も集めていません'));sec.append(ol);
+  if(!done)sec.append(el('div','sub hlw-note','1位 '+HW_RK_PTS[0]+'pt+称号「'+HW_RTTL.HW_R1.n+'」  ·  2位 '+HW_RK_PTS[1]+'pt+「'+HW_RTTL.HW_R2.n+'」  ·  3位 '+HW_RK_PTS[2]+'pt+「'+HW_RTTL.HW_R3.n+'」。11/3 朝5時の時点の数で決まります(数字は1分ごとに更新)。'+(HW_PV?' お試し版ではptは入りません。':'')));
+  else if(i>=0&&i<3){const id='HW_R'+(i+1),on2=(me.eq||{}).t===id,eb=el('button','hlw-eq',on2?'装備中':'称号「'+HW_RTTL[id].n+'」にする');eb.onclick=async()=>{eb.disabled=true;try{const cur=Object.assign({},me.eq||{});cur.t=on2?null:id;await db.doc('players/'+me.id).update({eq:cur});me.eq=cur;try{hwOpen.redraw&&hwOpen.redraw()}catch(e){}}catch(e){eb.disabled=false}};
+    sec.append(el('div','sub hlw-note',(i+1)+'位おめでとう! '+HW_RK_PTS[i]+'ptはもう入っています'+(HW_PV?'(お試し版では入りません)':'')+'。'),eb)}
+  return sec}
+function hwTick(){const me=myPlayer();if(!me||!hwOn())return;try{totWatch()}catch(e){}try{hwPub()}catch(e){}if(!invLoaded||invFor!==me.id)return;const e=hwEarn(me.id);if(hwSeen==null){hwSeen=e;return}if(e>hwSeen){const d=e-hwSeen;hwSeen=e;setTimeout(()=>{try{hwToast(d)}catch(x){}},2600)}else hwSeen=e}
 setInterval(()=>{try{hwPackSync()}catch(e){}try{hwTick()}catch(e){}},4000);
 /* ハロウィン限定パック (TCG): TCGD.hwpack becomes packs.h only while the event is on. Every 100 packs: one ハロウィン版 card as a シークレット, your pick */
 function hwPackSync(boot){try{if(typeof TCGD==='undefined'||!TCGD.hwpack)return;const on=hwOn();
@@ -7539,7 +7581,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
       tile('mis','ms','イベント\nミッション',L.filter(m=>m.got).length+' / '+L.length+' クリア',ready,'<svg viewBox="0 0 48 48" width="58" aria-hidden="true"><rect x="11" y="8" width="26" height="32" rx="4" fill="#3a1846" stroke="#ffb15c" stroke-width="2"/><path d="M17 18l3 3 6-6M17 30l3 3 6-6" stroke="#ffb15c" stroke-width="2.4" fill="none"/></svg>');
       tile('shop','sp','お菓子の\n交換所','お菓子 '+bal.toLocaleString()+' で交換',0,'<svg viewBox="0 0 48 48" width="58" aria-hidden="true"><path d="M8 20h32l-3 20H11z" fill="#5b2370"/><path d="M6 14h36l-2 6H8z" fill="#ff8a2a"/><circle cx="24" cy="30" r="5" fill="#ffd29a"/></svg>');
       tile('how','hw','お菓子の\nもらい方','対戦・分身・ボス・お題','', hwCandySvg(56));
-      b.append(g)}
+      b.append(g);try{hwpWatch();b.append(hwRankSec(me))}catch(e){}}
     else{const bk=el('button','hlw-back','‹ ハロウィンのメニュー');bk.type='button';bk.onclick=()=>hwOpen.go(null);b.append(bk)}
     /* トリック・オア・トリート */
     if(sub==='tot'){totWatch();const ts=el('div','hlw-sec');const hd=el('h3',null,'トリック・オア・トリート');hd.append(el('small',null,'今日あと '+totLeft(me.id)+' 回  ·  仲良しの印 '+totGives(me.id)));ts.append(hd);
@@ -7550,7 +7592,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
         const bt=el('div','hlw-ib');bt.append(g,n2);r.append(bt);box.append(r)});ts.append(box)}
       const fr=players.filter(q=>q.id!==me.id&&q.uid&&!q.retired&&!q.ban),row=el('div','hlw-fr');fr.forEach(q=>{const asked=totAsked(me.id,q.id),bt=el('button','hlw-fb'+(asked?' done':''));bt.type='button';
         const ph=el('div','hlw-fa');try{ph.append(avatar(q))}catch(e){}bt.append(ph,el('b',null,q.name),el('small',null,asked?'今日はもう':'仲良し '+totGives(q.id)));bt.disabled=asked||!on||totLeft(me.id)<1;
-        bt.onclick=async()=>{bt.disabled=true;try{await totAsk(q.id);toast(q.name+'にトリック・オア・トリート!  1日以内に答えが来ます');draw()}catch(e){bt.disabled=false;toast(e.message==='left'?'今日の3回は終わりました':'できませんでした')}};row.append(bt)});ts.append(row);
+        bt.onclick=async()=>{bt.disabled=true;try{await totAsk(q.id);toast(q.name+'にトリック・オア・トリート!  1日以内に答えが来ます');draw()}catch(e){bt.disabled=false;toast(e.message==='left'?'今日の分は終わりました':'できませんでした')}};row.append(bt)});ts.append(row);
       const hist=tots.filter(x=>(x.f===me.id||x.o===me.id)&&totRes(x)!=='wait'&&hwIn(+x.t||0)).sort((a,b)=>(b.at||b.t)-(a.at||a.t)).slice(0,5);
       if(hist.length){const ul=el('div','hlw-th');hist.forEach(x=>{const r=totRes(x),mine=x.f===me.id,other=(players.find(q=>q.id===(mine?x.o:x.f))||{}).name||'だれか';ul.append(el('div',null,r==='safe'?(mine?other+'はいたずらよけのお守りを持っていた':'いたずらよけのお守りで'+other+'のいたずらを防いだ'):mine?(r==='give'?other+'がお菓子をくれた  +'+TOT_GIVE:other+'にいたずら!  +'+TOT_TRICK):(r==='give'?other+'にお菓子をあげた  −'+TOT_GIVE:other+'にいたずらされた  −'+TOT_TRICK)))});ts.append(ul)}
       b.append(ts)}
@@ -7564,7 +7606,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
         r.append(tx,right);ml.append(r)});ms.append(ml);b.append(ms)}
     /* how to get candy */
     if(sub==='how'){const how=el('div','hlw-sec');how.append(el('h3',null,'お菓子のもらい方'));const hl=el('div','hlw-how');
-    [['レートの対戦','勝ち '+HW_C.rw+'  ·  負け '+HW_C.rl],['TCGの友達戦','勝ち '+HW_C.tw+'  ·  負け '+HW_C.tl],['TCG CPU「つよい」','勝つたびに '+HW_C.cpu],['分身 仲間と戦う','勝ち '+HW_C.bw+'  ·  負け '+HW_C.bl+'(1日5回)'],['分身 クエスト','勝つたびに '+HW_C.q],['週末のボス','挑むたびに '+HW_C.rt+'  ·  倒したら '+HW_C.rk+'(一番 +'+HW_C.rtop+'、とどめ +'+HW_C.rlast+')'],['今日のお題','3つクリアで '+HW_C.mis]].forEach(([a,c])=>{const r=el('div','hlw-hr');r.append(el('span',null,a),el('b',null,c));hl.append(r)});
+    [['レートの対戦','勝ち '+HW_C.rw+'  ·  負け '+HW_C.rl],['TCGの友達戦','勝ち '+HW_C.tw+'  ·  負け '+HW_C.tl],['TCG CPU「つよい」','勝つたびに '+HW_C.cpu],['分身 仲間と戦う','勝ち '+HW_C.bw+'  ·  負け '+HW_C.bl+'(1日5回)'],['分身 クエスト','勝つたびに '+HW_C.q],['週末のボス','挑むたびに '+HW_C.rt+'  ·  倒したら '+HW_C.rk+'(一番 +'+HW_C.rtop+'、とどめ +'+HW_C.rlast+')'],['夜のボス(10/31の夜だけ)','挑むたびに '+HW_C.nbt*2+'  ·  倒したら '+HW_C.nbk*2+'(夜の2倍こみ)'],['今日のお題','3つクリアで '+HW_C.mis]].forEach(([a,c])=>{const r=el('div','hlw-hr');r.append(el('span',null,a),el('b',null,c));hl.append(r)});
     how.append(hl);b.append(how)}
     /* 交換所 */
     if(sub==='shop'){const sh=el('div','hlw-sec');sh.append(el('h3',null,'お菓子の交換所'));const g=el('div','hlw-shop');
@@ -9112,7 +9154,7 @@ const spentOf=v=>(v.packs||0)*PACK+Math.max(0,(v.lpacks||0)-(v.lfree||0))*LPACK+
 /* points on the table in an unfinished match can't be spent */
 const betHeld=pid=>(typeof chs!=='undefined'?chs:[]).filter(c=>c.bet&&(c.st==='pending'?c.a===pid:(c.a===pid||c.b===pid)&&['active','reported','abortreq'].includes(c.st))&&live(c)&&!matches.some(m=>m.id===c.id)).reduce((a,c)=>a+c.bet,0);
 const invAdj=v=>spentOf(v)-(+v.mpts||0)-(+v.lbp||0)-(+v.ppp||0)-(+v.bpt||0)-(+v.hmp||0)-(+v.hxp||0)+(+v.gfee||0)+(+v.scfee||0)+(+v.fsd||0)+(+v.fdog||0)-(+v.fhv||0);
-const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)+(typeof mktNet==='function'?mktNet(pid):0)+(typeof bountyPts==='function'?bountyPts(pid):0)+(typeof farmNet==='function'?farmNet(pid):0)+(typeof mtPts==='function'?mtPts(pid):0)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
+const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)+(typeof mktNet==='function'?mktNet(pid):0)+(typeof bountyPts==='function'?bountyPts(pid):0)+(typeof farmNet==='function'?farmNet(pid):0)+(typeof mtPts==='function'?mtPts(pid):0)+(typeof hwRankPts==='function'?hwRankPts(pid):0)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
 const admInv={};
 /* ===== 分身アバターバトル (beta): the page runs in an overlay (bunshin.html) and talks to the app through BUNSHINHOST =====
    bunshin/{pid}: your avatar (look, allocation, items, equipped, quest stage, gacha pulls, chests opened)
@@ -9125,7 +9167,7 @@ const admInv={};
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
 const BUN_GIRL=false;/* 分身の女の子(一旦お休み)。bunshin の GIRL_ON と合わせる */
-const BUN_SRC='bunshin.html?v=26',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=27',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -9224,6 +9266,12 @@ window.BUNSHINHOST={
       rank:r.rank.map(x=>({name:nm(x.a),dmg:x.dmg,me:x.a===me})),feed:r.hits.slice(-5).reverse().map(h=>({name:nm(h.a),dmg:h.d,ago:bunAgo(h.t)})),myPts:r.pts[me]||0,
       last:last.rank.length?{name:'',dead:last.dead,myPts:last.pts[me]||0}:null}},
   raidLog:dmg=>{const me=myPlayer().id,wk=weekNo(now());return BUNSHINHOST.log({d:'xr'+wk,w:0,s:Math.max(0,Math.round(+dmg||0))}).then(()=>{raidC.k='';const q=BUNSHINHOST.raid();q.killer=q.killer;return q})},
+  /* ハロウィンナイトの夜のボス: null outside the event */
+  night:()=>{if(typeof hwOn!=='function'||!hwOn())return null;const me=myPlayer().id,t=now(),N=nightInfo(),open=hwNightAt(t),nm=a=>(players.find(p=>p.id===a)||{}).name||'だれか';
+    const used=bunLogs.filter(l=>l.a===me&&l.d===HW_NB&&hwNightAt(l.t)).length;
+    return {night:1,boss:0,open,soon:!open&&t<HWN0,start:HWN0,end:window.__hwNight?t+36e5:HWN1,max:N.max,hp:N.hp,dead:N.dead,killer:N.killer?nm(N.killer):'',me:nm(me),left:Math.max(0,HW_NB_DAY-used),tries:HW_NB_DAY,
+      rank:N.rank.map(x=>({name:nm(x.a),dmg:x.dmg,me:x.a===me})),feed:N.hits.slice(-5).reverse().map(h=>({name:nm(h.a),dmg:h.d,ago:bunAgo(h.t)})),myCandy:hwNbCandy(me),cTry:HW_C.nbt*2,cKill:HW_C.nbk*2}},
+  nightLog:dmg=>BUNSHINHOST.log({d:HW_NB,w:0,s:Math.max(0,Math.round(+dmg||0))}).then(()=>{nbC.k='';hwMemo.k='';return BUNSHINHOST.night()}),
   /* score attack: this week's board (open Mon-Thu, final from Friday), the champion of the last finished week, today's tries left */
   sa:()=>{const me=myPlayer().id,t=now(),wk=weekNo(t),r=saInfo(wk),open=saOpen(wk),nm=a=>(players.find(p=>p.id===a)||{}).name||'だれか';
     const used=bunLogs.filter(l=>l.a===me&&l.d===r.id&&dayNo(l.t)===dayNo(t)).length,i=r.rank.findIndex(x=>x.a===me),prev=saInfo(wk-1),champ=r.closed&&r.rank[0]?r.rank[0]:prev.closed&&prev.rank[0]?prev.rank[0]:null;
@@ -12273,7 +12321,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     try{const R=typeof slabsOf==='function'&&invFor&&ME()&&invFor===ME().id?slabsOf(inv).filter(slabReady):[];if(R.length)items.unshift({c:'e7',k:'GRADING',t:'鑑定結果が届いています',s:R.length+'枚のケースを開けられます',chip:'開ける',w:true,go:()=>setTimeout(()=>grSheet(),300)})}catch(e){}
     try{if(typeof farmPlots==='function'&&ME()){const me=ME(),mr=farmPlots(me.id).filter(x=>x&&plotRipe(x));if(mr.length)items.unshift({c:'e8',k:'FARM',t:'収穫できます',s:mr.map(x=>FARM_CROPS[x.c].n).join('・')+'が実っています。盗まれる前に',chip:'自分の畑',w:true,go:()=>farmOpen()});
       players.filter(p=>p.id!==me.id).map(p=>({p,n:farmPlots(p.id).filter(x=>x&&canSteal(p.id,x))})).filter(z=>z.n.length).slice(0,2).forEach(z=>items.push({c:'e8',k:'FARM',t:z.p.name+'の畑が実ってる',s:z.n.map(x=>FARM_CROPS[x.c].n).join('・')+(dogOn(z.p.id)?'  ·  番犬あり':'  ·  番犬なし'),chip:'盗める',go:()=>{farmOpen();farmView.pid=z.p.id;farmDraw()}}));
-      {const hb=q('[data-hw]'),sh=!(typeof hwOn==='function'&&hwOn());if(hb&&hb.hidden!==sh){hb.hidden=sh;try{paintNew()}catch(e){}}const hd=q('.lb-hw');if(hd){const n=sh?0:hwMisReady();hd.textContent=n?String(n):''}}
+      {const hb=q('[data-hw]'),sh=!(typeof hwOn==='function'&&(hwOn()||(typeof hwRankShow==='function'&&hwRankShow())));if(hb&&hb.hidden!==sh){hb.hidden=sh;try{paintNew()}catch(e){}}const hd=q('.lb-hw');if(hd){const n=sh?0:hwMisReady();hd.textContent=n?String(n):''}}
       const dot=q('.lb-farm');if(dot)dot.textContent=(mr.length||players.some(p=>p.id!==me.id&&farmPlots(p.id).some(x=>x&&canSteal(p.id,x))))?' ':''}}catch(e){}
     try{if(typeof hwOn==='function'&&hwOn()&&ME()){const me=ME(),n=hwNightNow();items.unshift({c:'e9',k:'HALLOWEEN',t:n?'ハロウィンナイト':'ハロウィン'+(hwPart()===1?' 前編':' 後編'),s:(n?'いまお菓子が2倍  ·  ':'')+'お菓子 '+hwBal(me.id).toLocaleString()+'  ·  '+(hwPart()===1?'かぼちゃ頭の騎士':'夜宴の魔女'),chip:'あと '+hwLeft(hwT1()),w:true,go:()=>hwOpen()})}}catch(e){}
     try{if(typeof hwOn==='function'&&hwOn()&&ME()){const me=ME(),ti=totIn(me.id);if(ti.length)items.unshift({c:'e9',k:'TRICK OR TREAT',t:pname(ti[0].f)+'からトリック・オア・トリート',s:'1日以内にお菓子をあげないと、いたずらで'+TOT_TRICK+'個とられる',chip:'答える',w:true,go:()=>hwOpen()})}}catch(e){}
