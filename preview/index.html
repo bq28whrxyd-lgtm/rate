@@ -2506,7 +2506,8 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 .tcf .tcfalt{position:absolute;left:5%;bottom:4%;z-index:7;font-style:normal;font:800 clamp(7px,7cqw,11px)/1 var(--disp,system-ui);letter-spacing:.06em;padding:3px 6px;border-radius:999px;color:#2b1b3d;background:linear-gradient(90deg,#f3eaff,#fff 50%,#e6d9ff);box-shadow:0 1px 3px #0007;white-space:nowrap;pointer-events:none}
 .tcf{container-type:inline-size}
 .tcf .tcfhw{color:#2a1240;background:linear-gradient(90deg,#ffd27a,#ff9a3a 60%,#ffb86a)}
-.tcf .tcfpk{position:absolute;left:5%;bottom:3.5%;z-index:7;width:clamp(15px,19cqw,30px);aspect-ratio:1;background:var(--pk) center/contain no-repeat;filter:drop-shadow(0 0 1px rgba(28,8,40,.95)) drop-shadow(0 1px 3px rgba(0,0,0,.75)) drop-shadow(0 0 5px rgba(255,200,90,.6));pointer-events:none}
+.tcf .tcfpk{position:absolute;left:5%;bottom:3.5%;z-index:7;width:clamp(15px,19cqw,30px);aspect-ratio:1;filter:drop-shadow(0 0 1px rgba(28,8,40,.95)) drop-shadow(0 1px 3px rgba(0,0,0,.75)) drop-shadow(0 0 5px rgba(255,200,90,.6));pointer-events:none}
+.tcf .tcfpk img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:contain}
 .tcf .tcfpk b,.tcf .tcfpk u{position:absolute;inset:0;-webkit-mask:var(--pk) center/contain no-repeat;mask:var(--pk) center/contain no-repeat}
 .tcf .tcfpk b{background:linear-gradient(135deg,rgba(255,120,220,.16),rgba(255,240,150,0) 35%,rgba(120,230,255,.16) 65%,rgba(200,140,255,.16))}
 .tcf .tcfpk u{background:linear-gradient(115deg,transparent 44%,rgba(255,255,255,.62) 49%,rgba(255,246,200,.45) 51%,transparent 56%) 0 0/300% 100% no-repeat;animation:tcfPk 3.6s ease-in-out var(--pd,0s) infinite}
@@ -10589,8 +10590,8 @@ function tcgAltMvOn(f,id,im){try{if(matchMedia('(prefers-reduced-motion: reduce)
     setTimeout(()=>{if(!ok&&v.paused)drop()},3000);im.after(v)})}
 function tcgFace(id,cls,foil,ga){const c=TC[id];ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;if(!ga&&window.KHD)KHD.watch(im,id);f.append(im);if(foil)f.append(el('i','foilsheen'),el('i','foilspark'));if(foil&&c.hwOf){const h=el('i','hwholo');h.append(el('b'));f.append(h)}if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));else if(c.hwOf)f.append(tcgHwPk(id));return f}
 /* (10/17) the Halloween versions wear a small shiny pumpkin instead of a label; each of the 20 has its own face */
-let tcgHwIx=null;function tcgHwPk(id){if(!tcgHwIx){tcgHwIx={};TCGD.cards.filter(x=>x.hwOf).forEach((x,i)=>tcgHwIx[x.id]=i%20)}const n=String((tcgHwIx[id]||0)+1).padStart(2,'0'),u='url("hwpk/pk'+n+'.webp")';
-  const i=el('i','tcfpk');i.setAttribute('aria-label','ハロウィン版');i.style.setProperty('--pk',u);i.style.setProperty('--pd',(-((tcgHwIx[id]||0)*0.37)%3.6).toFixed(2)+'s');i.append(el('b'),el('u'));return i}
+let tcgHwIx=null;function tcgHwPk(id){if(!tcgHwIx){tcgHwIx={};TCGD.cards.filter(x=>x.hwOf).forEach((x,i)=>tcgHwIx[x.id]=i%20)}const n=String((tcgHwIx[id]||0)+1).padStart(2,'0'),u='url("hwpk/pk'+n+'.webp?v=2")';
+  const i=el('i','tcfpk');i.setAttribute('aria-label','ハロウィン版');i.style.setProperty('--pk',u);i.style.setProperty('--pd',(-((tcgHwIx[id]||0)*0.37)%3.6).toFixed(2)+'s');const im=el('img');im.alt='';im.decoding='async';im.src='hwpk/pk'+n+'.webp?v=2';i.append(im,el('b'),el('u'));return i}
 
 /* one pack: 3 cards, each ガチレア 4% / レア 26% / コモン 70%; the 3rd is レア or better.
    A pack with its own odds (P.rt: a = the 1st and 2nd cards, z = the 3rd) uses those instead (the expansion: コモン, コモン, then レア 70% / ガチレア 30%) */
