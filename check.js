@@ -1,0 +1,12 @@
+const admin=require('firebase-admin');admin.initializeApp({credential:admin.credential.applicationDefault(),projectId:'kimoota-15777'});
+const db=admin.firestore();const ADMIN='3kcrm26nwc6hhos2mgxd';
+const sum=o=>Object.values(o||{}).reduce((a,n)=>a+(+n>0?+n:0),0),kinds=o=>Object.keys(o||{}).filter(k=>+o[k]>0).length;
+(async()=>{const P=await db.collection('players').get(),inv=await db.collection('inv').get();const ps={};P.docs.forEach(d=>ps[d.id]=d.data());
+ console.log('time',new Date().toISOString(),'players',P.size,'inv docs',inv.size);
+ console.log('who | tcg? st | own kinds/total | foil kinds/total | slabs sl | boxes bx | decks | tpacks pspent | inv updated (JST)');
+ const rows=inv.docs.map(d=>{const v=d.data(),T=v.tcg||{};const p=ps[d.id]||{};
+  return {who:(d.id===ADMIN?'ADMIN ':'')+d.id.slice(0,4)+(p.retired?' (retired)':''),has:!!v.tcg,st:T.st||'-',own:kinds(T.own)+'/'+sum(T.own),foil:kinds(T.foil)+'/'+sum(T.foil),sl:Array.isArray(T.sl)?T.sl.length:(T.sl?Object.keys(T.sl).length:0),bx:Array.isArray(T.bx)?T.bx.length:0,dk:Array.isArray(T.decks)?T.decks.length:0,tp:(v.tpacks||0)+' '+(v.pspent||0),u:new Date(d.updateTime.toMillis()+9*36e5).toISOString().slice(5,16).replace('T',' '),keys:Object.keys(T).sort().join(',')}});
+ rows.sort((a,b)=>a.u<b.u?1:-1);
+ rows.forEach(r=>console.log([r.who,r.has?'tcg':'NO-TCG',r.st,r.own,r.foil,r.sl,r.bx,r.dk,r.tp,r.u].join(' | ')));
+ console.log('\ntcg field names per user:');rows.forEach(r=>console.log(r.who,':',r.keys));
+})().catch(e=>console.log('ERR',e.message));

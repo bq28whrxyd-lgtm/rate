@@ -1,0 +1,36 @@
+# Read-only check of the TCG part of every inventory (no writes to Firestore). Counts only: no names, no card lists.
+name: InvCheck
+on:
+  push:
+    branches: [inv-check]
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read
+        env:
+          SA: ${{ secrets.FIREBASE_SA }}
+        run: |
+          printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npm install --no-audit --no-fund --loglevel=error firebase-admin@12 >/dev/null 2>&1
+          node check.js > "$RUNNER_TEMP/out.txt" 2>&1 || true
+          rm -f "$RUNNER_TEMP/sa.json"
+      - name: Report
+        if: always()
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          rm -f "$RUNNER_TEMP/sa.json"
+          mkdir -p "$RUNNER_TEMP/rs" && cd "$RUNNER_TEMP/rs"
+          git init -q -b inv-check-status
+          cp "$RUNNER_TEMP/out.txt" status.txt 2>/dev/null || echo "no output" > status.txt
+          git add status.txt
+          git -c user.name=check-bot -c user.email=check-bot@users.noreply.github.com commit -qm "check $GITHUB_SHA"
+          git push -fq "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:inv-check-status
