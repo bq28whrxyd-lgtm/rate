@@ -6540,6 +6540,8 @@ VICS.forEach((L,r)=>L.forEach((a,i)=>ITEMS.push({id:'v'+r+i,k:'v',r,n:a[0],v:a[1
 /* coin skins for the coin toss (never reorder: ids are positions) */
 const COINS=[[['銅貨','copper'],['銀貨','silver']],[['金貨','gold'],['桜','sakura'],['夜空','night']],[['王冠','crown'],['ネオン','neon'],['翡翠','jade']],[['星屑クリスタル','crystal'],['紅蓮','flame']],[['黄金郷','eldorado']],[['空の約束','kmr1']]];
 COINS.forEach((L,r)=>L.forEach((a,i)=>ITEMS.push({id:'c'+r+i,k:'c',r,n:a[0]+'コイン',v:a[1],lim:'coin'})));
+/* ハロウィン (v135): only from the お菓子の交換所 (3,000) */
+ITEMS.push({id:'chw0',k:'c',r:4,n:'ジャック・オ・ランタンコイン',v:'hw',lim:'hw'});
 /* limited sets: these only drop from their own banner pack. Never reorder a set's list (ids are positions). */
 const LIMS={vt:{name:'Vtuberガチャ',en:'VIRTUAL STREAMER',theme:'vt'}};
 const LIM_SETS={vt:[
@@ -6847,7 +6849,9 @@ const COINPAL={
   crystal:{m:['#ffffff','#dfe9ff','#9aa9d6','#4a5684'],e:['#ffffff','#e6efff','#8c9ccf'],facets:1},
   flame:{m:['#fff1c2','#f08a2a','#a2210f','#3e0905'],e:['#fff3c0','#ffb02e','#8a1a08'],flames:1,halo:'#ff7a1a'},
   kmr1:{m:['#ffffff','#ffd6ee','#d777b3','#5a1e48'],e:['#ffffff','#ffe3f4','#c25a98'],halo:'#ff8fd0',kmr:{a:'fx_kmrcoin_a',b:'fx_kmrcoin_b'}},
-  eldorado:{m:['#fffbe2','#f6cf5c','#a06a12','#4a2e05'],e:['#ffffff','#ffe9a8','#b07a12'],rainbow:1,halo:'#ff9ad5',gems:1}};
+  eldorado:{m:['#fffbe2','#f6cf5c','#a06a12','#4a2e05'],e:['#ffffff','#ffe9a8','#b07a12'],rainbow:1,halo:'#ff9ad5',gems:1},
+  /* ハロウィン (v135): plum night field, antique gold, a jack-o'-lantern / a crescent and bats */
+  hw:{m:['#ffe7b8','#e0973a','#7a3c0c','#2a1005'],e:['#fff0cf','#ffab4a','#8a3c08'],field:['#5a2370','#2a0f36','#0e0612'],stars:1,hw:1,halo:'#ff7a1a'}};
 let coinN=0;
 function coinFace(v,back,big){
   const P=COINPAL[v]||COINPAL.basic,m=P.m,e=P.e,id='cn'+(++coinN),u=k=>'url(#'+id+k+')';
@@ -6883,7 +6887,7 @@ function coinFace(v,back,big){
   if(P.flames)d.push('<g clip-path="'+u('c')+'" opacity=".55">'+[0,1,2,3,4,5,6,7].map(k=>'<path transform="rotate('+(k*45)+' 100 100)" d="M100 40 C108 52 104 60 112 66 C106 66 104 62 100 70 C96 62 94 66 88 66 C96 60 92 52 100 40 Z" fill="#ffcf5a"/>').join('')+'</g>');
   /* beaded ring and engraved lettering */
   d.push('<circle cx="100" cy="100" r="76" fill="none" stroke="'+e[0]+'" stroke-opacity=".9" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="0 6.2"/>',
-    '<text font-family="Cinzel,serif" font-weight="700" font-size="9.5" letter-spacing="3" fill="'+m[3]+'" fill-opacity=".55" dy=".6" dx=".6"><textPath href="#'+id+'t" startOffset="2%">KIMOOTA LADDER · '+(back?'TAILS':'HEADS')+' · KIMOOTA LADDER ·</textPath></text>');
+    '<text font-family="Cinzel,serif" font-weight="700" font-size="9.5" letter-spacing="3" fill="'+m[3]+'" fill-opacity=".55" dy=".6" dx=".6"><textPath href="#'+id+'t" startOffset="2%">'+(P.hw?'HALLOWEEN 2026 · '+(back?'TAILS':'HEADS')+' · TRICK OR TREAT ·':'KIMOOTA LADDER · '+(back?'TAILS':'HEADS')+' · KIMOOTA LADDER ·')+'</textPath></text>');
   /* emblem: drawn three times (shadow, highlight, metal) so it reads as raised */
   let emb;
   if(!back){
@@ -6893,8 +6897,10 @@ function coinFace(v,back,big){
       '<circle cx="73" cy="72" r="4.5"/><circle cx="100" cy="63" r="5.5"/><circle cx="127" cy="72" r="4.5"/>'+
       '<path d="M88 136 h24 v3 h-24z M92 128 h16 v3 h-16z"/>';
     if(P.gems)emb+='';
+    if(P.hw)emb='<path d="M100 72C86 66 64 72 61 97C59 121 80 133 100 130C120 133 141 121 139 97C136 72 114 66 100 72Z"/><path d="M97 72C96 63 101 56 109 54L111 59C106 61 104 65 104 72Z"/><path d="M88 75C80 92 80 112 88 128M112 75C120 92 120 112 112 128" fill="none" stroke-width="2" class="es"/>';
   }else{
     let leaves='';for(const s of [-1,1])for(let k=0;k<7;k++){const a=(s<0?Math.PI:0)+s*(-.95+k*.3),x=100+Math.cos(a)*52,y=100+Math.sin(a)*52;leaves+='<ellipse cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" rx="3" ry="7" transform="rotate('+((a*180/Math.PI)+(s<0?-25:25)).toFixed(0)+' '+x.toFixed(1)+' '+y.toFixed(1)+')"/>'}
+    if(P.hw){emb='<path d="M118 60 A38 38 0 1 0 118 136 A30 30 0 1 1 118 60 Z"/><path d="M112 78q5-5 10 0q2-4 4 0q2-4 4 0q5-5 10 0q-7 2-9 7q-2-2-5 0q-3-2-5 0q-2-5-9-7Z"/><path d="M62 118q4-4 8 0q1.6-3 3.2 0q1.6-3 3.2 0q4-4 8 0q-5.6 1.6-7.2 5.6q-1.6-1.6-4 0q-2.4-1.6-4 0q-1.6-4-7.2-5.6Z"/><path d="M134 106l1.6 4.4 4.4 1.6-4.4 1.6-1.6 4.4-1.6-4.4-4.4-1.6 4.4-1.6z"/>'}else
     emb=leaves+'<path d="M112 66 A32 32 0 1 0 112 130 A25 25 0 1 1 112 66 Z"/>'+
       '<path d="M118 82 l2.2 6 6 2.2 -6 2.2 -2.2 6 -2.2 -6 -6 -2.2 6 -2.2z"/><path d="M128 104 l1.5 4 4 1.5 -4 1.5 -1.5 4 -1.5 -4 -4 -1.5 4 -1.5z"/>';
   }
@@ -6904,6 +6910,8 @@ function coinFace(v,back,big){
   else d.push('<g fill="'+m[3]+'" fill-opacity=".55" stroke="'+m[3]+'" stroke-opacity=".55" transform="translate(1.6 1.9)">'+emb.replace(/class="es"/,'')+'</g>',
     '<g fill="'+e[0]+'" stroke="'+e[0]+'" transform="translate(-1 -1.1)">'+emb.replace(/class="es"/,'')+'</g>',
     '<g fill="'+u('e')+'" stroke="'+u('e')+'">'+emb.replace(/class="es"/,'')+'</g>');
+  /* the jack-o'-lantern's face, lit from inside */
+  if(P.hw&&!back)d.push('<path d="M78 94L90 83L93 98Z M122 94L110 83L107 98Z M75 107Q100 127 125 107L119 113L112 106L105 116L95 106L88 116L81 106Z" fill="#2a0c04"/>','<path d="M80 94L90 86L92 97Z M120 94L110 86L108 97Z M78 108Q100 124 122 108L118 112L112 108L105 114L95 108L88 114L82 108Z" fill="#ffcf5a" opacity=".85"/>');
   d.push('<text x="100" y="'+(back?158:160)+'" text-anchor="middle" font-family="Zen Kaku Gothic New,sans-serif" font-weight="700" font-size="13" fill="'+(P.glow?e[1]:m[3])+'" fill-opacity=".8">'+lab+'</text>');
   if(P.gems&&!back)d.push('<circle cx="73" cy="72" r="3.4" fill="#ff5c93"/><circle cx="100" cy="63" r="4.2" fill="#5ad8ff"/><circle cx="127" cy="72" r="3.4" fill="#8fffb0"/><rect x="94" y="108" width="12" height="6" rx="1.5" fill="#b678ff"/>');
   if(P.rainbow)d.push('<circle cx="100" cy="100" r="97" fill="'+u('w')+'" opacity=".28" style="mix-blend-mode:overlay"/>');
@@ -7343,6 +7351,7 @@ function hwTitle(id){const T=HW_TTL[id];return T?{id,k:'t',r:T.r,n:T.n}:null}
 function hwShop(){const L=[{id:'ptk',k:'tk',tk:'ptk',n:'通常パックチケット',c:60,max:10}];
   try{const tp=Object.keys(TCG_TK).filter(k=>TCG_TK[k].k===1).slice(-1)[0];if(tp)L.push({id:'tcg1',k:'tk',tk:tp,n:'TCG '+TCG_TK[tp].n,c:90,max:10})}catch(e){}
   Object.keys(HW_TTL).forEach((id,i)=>L.push({id,k:'t',n:HW_TTL[id].n,c:[150,400,1000][i],max:1}));
+  L.unshift({id:'coin',k:'g',ref:'chw0',n:'ジャック・オ・ランタンコイン(限定)',c:3000,max:1});
   return L.concat(window.HW_SHOP_X||[])}
 const hwHave=id=>+((inv[HWK.b]||{})[id])||0;
 async function hwBuy(it){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');if(!hwOn())throw new Error('off');
@@ -8173,7 +8182,7 @@ function collectionView(inv,eq,h,info){
     tx.append(el('div','cdn',it.n),rc,el('div','cds',src(it)),el('div','cdo',n?'所持 '+n+'枚'+(on?'  ·  装備中':''):'まだ持っていません'));top.append(f,tx);
     const act=el('div','cda'),pv=el('button','sec','試しに見る');pv.onclick=()=>previewAny(it);
     if(n){const b=el('button',on?'sec':'',on?'はずす':'装備する');b.onclick=()=>{const prev=eq[it.k];eq[it.k]=on?null:it.id;draw();detail(it);toast(on?'はずしました':it.n+' を装備しました');/* show it right away, save in the background */h.equip(it.k,eq[it.k]).catch(()=>{eq[it.k]=prev;draw();toast('変更できませんでした')})};act.append(b,pv)}
-    else if(it.lim){act.append(pv,el('div','sub cdnote',it.lim==='sup'?'サポーターランクの特典です':it.lim==='coin'?'コインガチャが開催されているときだけ手に入ります。かけらでは交換できません':'期間限定パックが開催されているときだけ手に入ります'))}
+    else if(it.lim){act.append(pv,el('div','sub cdnote',it.lim==='sup'?'サポーターランクの特典です':it.lim==='coin'?'コインガチャが開催されているときだけ手に入ります。かけらでは交換できません':it.lim==='hw'?'ハロウィン(10/20〜11/2)のお菓子の交換所だけで手に入ります。かけらでは交換できません':'期間限定パックが開催されているときだけ手に入ります'))}
     else{const ex=el('div','cdx'),line=el('div','cdxl');
       line.append(el('span',null,'交換に必要'),el('b',null,cost+' かけら'));
       const line2=el('div','cdxl');line2.append(el('span',null,'持っているかけら'),el('b',sh<cost?'dn':null,sh+' かけら'));
