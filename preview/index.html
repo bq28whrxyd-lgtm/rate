@@ -3215,7 +3215,7 @@ body.ui2 #lob .lstrip::-webkit-scrollbar{display:none}
 body.ui2 #lob .lstrip>*{flex:0 0 84%;scroll-snap-align:start}
 body.ui2 #lob .lstrip.one>*{flex-basis:100%}
 body.ui2 #lob .lstrip>[hidden]{display:none}
-body.ui2 #lob .lsc{position:relative;display:flex;align-items:center;gap:12px;height:64px;padding:0 14px 0 10px;border-radius:20px;background:linear-gradient(180deg,rgba(60,58,68,.30),rgba(20,20,26,.42));-webkit-backdrop-filter:blur(10px) saturate(1.5);backdrop-filter:blur(10px) saturate(1.5);box-shadow:inset 0 .5px 0 rgba(255,255,255,.22),inset 0 0 0 .5px rgba(255,255,255,.1),0 8px 22px rgba(0,0,0,.25);overflow:hidden}
+body.ui2 #lob .lsc{position:relative;display:flex;align-items:center;gap:12px;height:64px;padding:0 14px 0 10px;border-radius:20px;background:linear-gradient(180deg,rgba(52,50,60,.48),rgba(16,16,22,.62));/* (10/16) no backdrop blur: it was redrawn every frame over the moving home background */box-shadow:inset 0 .5px 0 rgba(255,255,255,.22),inset 0 0 0 .5px rgba(255,255,255,.1),0 8px 22px rgba(0,0,0,.25);overflow:hidden}
 body.ui2 #lob .lsc .art{flex:none;width:44px;height:44px;border-radius:14px;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.18)}
 body.ui2 #lob .lsc .art{display:grid;place-items:center}body.ui2 #lob .lsc .art svg{width:22px;height:22px;fill:none;stroke:rgba(255,255,255,.92);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45))}
 body.ui2 #lob .lsc .tx{flex:1;min-width:0;display:grid;gap:4px}
@@ -3225,7 +3225,7 @@ body.ui2 #lob .lsc b{font:800 14.5px/1.15 var(--body);color:#fff;white-space:now
 body.ui2 #lob .lsc .s{font:600 11px/1.2 var(--body);color:rgba(255,255,255,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.ui2 #lob .lsc .go{flex:none;width:8px;height:8px;border-top:2px solid rgba(255,255,255,.55);border-right:2px solid rgba(255,255,255,.55);transform:rotate(45deg);margin-right:2px}
 body.ui2 #lob .lstrip .apbar{width:auto;margin:0;min-height:64px;border-radius:20px}
-body.ui2 #lob .lstrip .apbar{-webkit-backdrop-filter:blur(10px) saturate(1.5);backdrop-filter:blur(10px) saturate(1.5)}
+body.ui2 #lob .lstrip .apbar{-webkit-backdrop-filter:none;backdrop-filter:none}
 body.ui2 #lob .lstrip .apbar:not(.on){background:linear-gradient(180deg,rgba(60,58,68,.30),rgba(20,20,26,.42));box-shadow:inset 0 .5px 0 rgba(255,255,255,.22),inset 0 0 0 .5px rgba(255,255,255,.1)}
 body.ui2 #lob .lstrip .apbar.on{background:linear-gradient(100deg,rgba(110,24,76,.55),rgba(44,20,96,.5) 70%)}
 /* 抜き打ちガチャ in the lobby (v134) */
@@ -4565,6 +4565,9 @@ body.ui2 .kx-gr.kx-grt{background:linear-gradient(135deg,rgba(139,123,255,.16),r
 body.ui2.kxon #tcgbox .tcgrkw{display:none!important}
 body.ui2 .kx-trow{flex-wrap:wrap;row-gap:8px}
 body.ui2 .kx-trow .kx-trec{flex:1 1 100%;text-align:left;padding:0 4px}
+
+/* (10/16) rows out of sight are not drawn (their sparkles and sheens stop too) */
+body.ui2 .krk-r{content-visibility:auto;contain-intrinsic-size:auto 68px}
 /* ===== v121 rating trend (kt). Dark SaaS look: one gradient line (violet to cyan), a soft area under it,
    rank borders as dotted lines, the number on top. Only transform/opacity move. ===== */
 
@@ -7301,17 +7304,18 @@ function dupSheet(kind,res,onChange){document.querySelectorAll('.dps').forEach(x
   const flipKeep=el=>{const S=[],y=scrollY,x=scrollX;document.querySelectorAll('*').forEach(e=>{if(e.scrollTop||e.scrollLeft)S.push([e,e.scrollTop,e.scrollLeft])});
     flip(el);scrollTo(x,y);S.forEach(([e,t,l])=>{e.scrollTop=t;e.scrollLeft=l})};
   let busy=false,lastBig=0,bigN=0;
-  const heal=()=>{if(busy||typing()||!document.body)return;if(!stuck()){bigN=0;return}busy=true;
+  let tries=0;const heal=()=>{if(busy||typing()||!document.body)return;if(!stuck()){bigN=0;tries=0;return}if(++tries>6)return;busy=true;
     try{flip(helper())}catch(e){}
     /* still stuck: the whole page, at most once in 8 seconds and 3 times in a row */
     setTimeout(()=>{try{if(!typing()&&stuck()&&Date.now()-lastBig>8000&&bigN<3){lastBig=Date.now();bigN++;flipKeep(document.body)}}catch(e){}note();busy=false},120)};
   window.__vvHeal=heal;
   addEventListener('resize',()=>{note();if(!typing())setTimeout(heal,60)});
-  document.addEventListener('focusout',()=>{setTimeout(heal,140);setTimeout(heal,450)});
+  document.addEventListener('focusout',()=>{tries=0;setTimeout(heal,140);setTimeout(heal,450)});
   if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(!typing())setTimeout(heal,80)});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(heal,300)});
   addEventListener('pageshow',()=>setTimeout(heal,300));addEventListener('orientationchange',()=>{mx={p:0,l:0};setTimeout(note,500)});
-  setInterval(()=>{if(!document.hidden)heal()},2500)})();
+  /* (10/16) no timer any more: only after the keyboard closes or the app comes back (a 2.5s check could cost a relayout each time) */
+  })();
 /* お試し版: the event runs from 10/16 18:00 so it can be tried, and everything it keeps goes under other names (pv…), so nothing
    carries over to the real event; pt and tickets from the お試し版 are not given (shown only) */
 const HW_PV=/\/preview\//.test(location.pathname),HW_PV0=Date.UTC(2026,9,16,9,0);
@@ -8841,9 +8845,12 @@ function renderTiers(){
 }
 const HM={rank:false,feed:false,mvp:false};
 /* snapshot bursts (several collections changing at once) draw once per frame instead of once per listener */
-let rq=0;function queueRender(){if(rq)return;rq=requestAnimationFrame(()=>{rq=0;render()})}
+/* (10/16) many listeners answer one after another while the app opens: draw once for a burst of them, not once per frame.
+   First 10 seconds: at most every 250ms; after that every 80ms. render() itself still cancels a pending one */
+let rq=0,rqT=0,rqLast=0;const RQ_T0=Date.now();
+function queueRender(){if(rq||rqT)return;const gap=Date.now()-RQ_T0<10000?250:80,wait=Math.max(0,rqLast+gap-Date.now());const go=()=>{rqT=0;rq=requestAnimationFrame(()=>{rq=0;rqLast=Date.now();render()})};if(wait>0)rqT=setTimeout(go,wait);else go()}
 function render(){
-  if(rq){cancelAnimationFrame(rq);rq=0}
+  if(rq){cancelAnimationFrame(rq);rq=0}if(rqT){clearTimeout(rqT);rqT=0}rqLast=Date.now();
   const sorted=view().filter(p=>!p.ban&&(p.wins+p.losses)>0).sort((a,b)=>b.rating-a.rating);
   renderGTabs();ping();
   {const me=myPlayer(),t=$('tiers');if(me&&t&&t.dataset.me!==me.name){renderTiers();t.dataset.me=me.name}}
@@ -13341,11 +13348,13 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     let lastIn=Date.now(),started=false;['pointerdown','touchstart','keydown','wheel'].forEach(k=>addEventListener(k,()=>{lastIn=Date.now()},{capture:true,passive:true}));
     const Q=['gacha','rank','battle','profile'];
     const step=()=>{if(!Q.length)return;const c=document.body.classList;
-      if(Date.now()-lastIn<900||document.hidden||c.contains('ovl')||document.querySelector('body>.km-splash')){setTimeout(step,700);return}
+      if(Date.now()-lastIn<2500||document.hidden||c.contains('ovl')||document.querySelector('body>.km-splash')){setTimeout(step,700);return}
       const v=Q.shift(),el=document.getElementById('v-'+v);
       if(el&&el.hidden&&curView!==v){if(v==='rank'||v==='battle')window.__kxWarm(v);try{for(const c of el.children)if(!c.hidden)c.getBoundingClientRect()}catch(e){}}
-      setTimeout(step,500)};
-    const go=()=>{if(started)return;started=true;setTimeout(step,2500)};
+      setTimeout(()=>idle(step),1200)};
+    /* (10/16) only in the phone's idle time, and well after opening, so it never lands on the first data or a tap */
+    const idle=f=>{try{if(window.requestIdleCallback){requestIdleCallback(()=>f(),{timeout:4000});return}}catch(e){}setTimeout(f,0)};
+    const go=()=>{if(started)return;started=true;setTimeout(()=>idle(step),7000)};
     if(window.__kmRevealed||!document.querySelector('body>.km-splash'))setTimeout(go,1500);addEventListener('kmo:reveal',go,{once:true});setTimeout(go,9000)})();
   window.__kxEnter=()=>{lastPg=null;lastV=null;introN=0;tIntroN=0;rkIntroN=0;refresh()};
   try{const R0=render;render=function(){const r=R0.apply(this,arguments);later();return r}}catch(e){}
