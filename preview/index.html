@@ -8022,7 +8022,7 @@ const FARM_MIN=3,FARM_CROPS={ichigo:{n:'いちご',r:.025,cap:1.25},tomato:{n:'�
   /* ハロウィン (v135): needs a seed from the お菓子の交換所 (inv hsd). Grows faster than the others */
   pumpkin:{n:'かぼちゃ',r:.03,cap:1.45,hw:1}};
 const FARM_DAY=600;/* 1日(朝5時から)に畑で増やせるのは600ptまで: 自分の収穫で増えた分 + 盗んだ分 (inv.fpd day, inv.fpg profit that day) */
-const FARM_SLOTS=3,FARM_SEED=[50,100,300,500,1000],FARM_TAKE=.15,FARM_MAXT=3,DOG_COST=100,DOG_DAYS=1,DOG_BITE=30,DOG_FINE=.2;
+const FARM_SLOTS=3,FARM_SEED=[50,100,300,500,1000],FARM_TAKE=.15,FARM_MAXT=5,DOG_COST=100,DOG_DAYS=1,DOG_BITE=30,DOG_FINE=.2;
 let farms={},steals=[],farmsOn=false;
 function farmWatch(){if(farmsOn||!db)return;farmsOn=true;
   db.collection('farm').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});farms=o;queueRender();try{farmDraw()}catch(e){}},()=>{});
@@ -8056,7 +8056,7 @@ async function farmHarvest(slot){const me=myPlayer();if(!db||!me||!invLoaded||in
   const F=Object.assign({},farmOf(me.id)),P=Object.assign({},F.p||{});delete P[slot];await db.doc('farm/'+me.id).set({p:P,dog:+F.dog||0,u:now()});farms[me.id]={p:P,dog:+F.dog||0};return {gain,lost:plotYield(x)-raw,cut:raw-gain,x}}
 async function farmDog(){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');if(balance(me.id)<DOG_COST)throw new Error('pt');const F=Object.assign({},farmOf(me.id)),until=Math.max(now(),+F.dog||0)+DOG_DAYS*864e5;
   await db.doc('farm/'+me.id).set({p:F.p||{},dog:until,u:now()});farms[me.id]=Object.assign({},F,{dog:until});const v=Object.assign({},inv,{fdog:(+inv.fdog||0)+DOG_COST});await db.doc('inv/'+me.id).set(v);inv=v}
-/* (10/16) 盗めるのは1人1日3回(1つの畑からは1回。噛まれても1回)。1回15%、1つの畑から盗めるのは3人まで(合計45%) */
+/* (10/16) 盗めるのは1人1日3回(1つの畑からは1回。噛まれても1回)。1回15%、1つの畑から盗めるのは5人まで(合計75%) */
 const FARM_STEAL_DAY=3;
 const stoleToday=pid=>{const dn=dayNo(now());return steals.filter(s=>s.p===pid&&dayNo(+s.t||0)===dn).length>=FARM_STEAL_DAY};
 const canSteal=(o,x)=>{const me=myPlayer();return !!(me&&o!==me.id&&x&&plotRipe(x)&&farmRoom(me.id)>0&&!stoleToday(me.id)&&plotSteals(x).filter(s=>!s.bit).length<FARM_MAXT&&!plotSteals(x).some(s=>s.p===me.id))};
@@ -8081,7 +8081,7 @@ function farmDraw(){if(!farmView||!farmView.o||!farmView.o.isConnected)return;co
   dt.append(el('b',null,dog?'番犬がいます':'番犬はいません'),el('span',null,dog?'あと '+farmLeft(+farmOf(pid).dog)+'。盗もうとした人は'+DOG_BITE+'%で噛まれて、罰金(実りの'+Math.round(DOG_FINE*100)+'%)を払う':mine?'雇うと、盗もうとした人が'+DOG_BITE+'%で噛まれて罰金を払います':'今なら噛まれずに盗めます'));dg.append(dt);
   if(mine){const db_=el('button','sec','雇う '+DOG_COST+'pt / '+DOG_DAYS+'日');if(dog)db_.textContent='延長 '+DOG_COST+'pt / +'+DOG_DAYS+'日';db_.onclick=()=>askSheet({title:'番犬を雇う',ok:'雇う('+DOG_COST+'pt)',lines:[DOG_DAYS+'日間、畑を守ります。','盗もうとした人は'+DOG_BITE+'%で噛まれ、実りの'+Math.round(DOG_FINE*100)+'%を罰金としてあなたに払います。'],run:async()=>{try{await farmDog();toast('番犬を雇いました');farmDraw()}catch(e){toast(e.message==='pt'?'ptが足りません':'雇えませんでした')}}});dg.append(db_)}
   b.append(dg);
-  b.append(el('div','sub fmnote','植えて3時間から収穫できて、置いておくほど増えます。いちご 1時間+2.5%(最大1.25倍) · トマト +1.5%(最大1.5倍) · メロン +1%(最大1.7倍)。実ってから収穫するまでの間は、仲間が1回15%ずつ、1つの畑から3人まで(合計45%)盗めます。盗めるのは1人1日3回(1つの畑からは1回)。早めに収穫しよう。増やせるのは1日'+FARM_DAY+'ptまで。上限をこえた分は増えず、種のptはそのまま返ってきます。'));
+  b.append(el('div','sub fmnote','植えて3時間から収穫できて、置いておくほど増えます。いちご 1時間+2.5%(最大1.25倍) · トマト +1.5%(最大1.5倍) · メロン +1%(最大1.7倍)。実ってから収穫するまでの間は、仲間が1回15%ずつ、1つの畑から5人まで(合計75%)盗めます。盗めるのは1人1日3回(1つの畑からは1回)。早めに収穫しよう。増やせるのは1日'+FARM_DAY+'ptまで。上限をこえた分は増えず、種のptはそのまま返ってきます。'));
   clearTimeout(farmDraw.t);farmDraw.t=setTimeout(farmDraw,30000)}
 function farmBed(pid,slot,x){const me=myPlayer(),mine=pid===me.id,w=el('div','fmbed'+(x&&plotRipe(x)?' ripe':'')),soil=el('div','fmsoil'),art=el('div','fmart'),info=el('div','fmi');
   if(x){art.innerHTML=cropSvg(x.c,plotStage(x));const C=FARM_CROPS[x.c],Y=plotYield(x),S=plotSteals(x),taken=plotTaken(x);
