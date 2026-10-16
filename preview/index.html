@@ -6758,7 +6758,7 @@ KMRS.push({n:'ひだまりニット',chH:'56%',img:'kmr_vt1.jpg',vid:'kmr_vt1.mp
 KMRS.push({n:'はなかんむり',chH:'58%',img:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',w:480,h:800,fx:50,fy:24,z:1.8,c:['#8fbf6a','#f3ead2','#2f3a1e'],bg:['#f8faef','#e6efd6'],en:'FLOWER CROWN',lay:'full',ex:[['petal',40],['leaf',24]],pal:['#ffffff','#f3ead2','#8fbf6a'],lim:'vt',scene:'flower'});
 KMRS.push({n:'堕ちた天使',img:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',w:480,h:620,fx:56,fy:27,z:1.5,c:['#ff3b4a','#b8b8d8','#1a0a0e'],bg:['#f43d43','#c8242c'],en:'FALLEN HALO',lay:'full',noblend:1,dark:1,ex:[['dfeather',46]],pal:['#120610','#2a0a1a','#3a0a2a'],lim:'vt',scene:'alley'});
 /* ハロウィンの限定KMR: the user draws it. Put its entry here when the picture arrives, e.g. {n:'…',img:'kmr_hw1.jpg',w:480,h:800,fx:50,fy:28,z:1.4,c:[…],bg:[…],en:'…',lay:'full',ex:[['bat',16]],pal:[…],lim:'hw'} */
-const HW_KMR=[];
+const HW_KMR=[{n:'夜宴の小悪魔',chH:'56%',img:'kmr_hw2.jpg',vid:'kmr_hw2.mp4',w:480,h:800,fx:50,fy:24,z:1.3,c:['#9b5cff','#ff8a2a','#1a0a24'],bg:['#f6f2fb','#e4dbf1'],en:'TRICK OR TREAT',lay:'full',ex:[['bat',18],['stars',26]],pal:['#ffffff','#c9a8ff','#ff8a2a'],lim:'hw',scene:'night'}];/* (10/17) the user's Halloween KMR (video) */
 if(HW_HERE())HW_KMR.forEach(K=>KMRS.push(K));
 KMRS.forEach((K,i)=>{K.ar=K.w/K.h;const v='kmr'+i,L=K.lim?{lim:K.lim}:{};
   ITEMS.push({id:'kx'+i,k:'x',r:5,n:K.n,v,K,...L},{id:'kv'+i,k:'v',r:5,n:K.n,v,K,...L},{id:'kf'+i,k:'a',r:5,n:K.n,v,K,...L});
@@ -12604,11 +12604,14 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   /* ---- oshi in the lobby (plan B "推しがいる"): the KMR picture fills the upper screen behind everything,
      shaded at the top, left and bottom, sways slowly, and talks in a bubble. Only the admin can set one for now (test). ---- */
   const OSHI=[{id:'chibi',n:'ふくれっつら',src:'kmr_chibi.jpg',vid:'kmr_chibi.mp4',fx:50,fy:16},{id:'hood',n:'オーバーサイズ',src:'kmr_hood.jpg',vid:'kmr_hood.mp4',fx:54,fy:18},{id:'hoodie2',n:'ためいき',src:'kmr_hoodie2.jpg',fx:53,fy:18},
-    {id:'vt1',n:'ひだまりニット',src:'kmr_vt1.jpg',vid:'kmr_vt1.mp4',fx:50,fy:18},{id:'vt2',n:'はなかんむり',src:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',fx:50,fy:16},{id:'vt3',n:'堕ちた天使',src:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',fx:56,fy:18}];
+    {id:'vt1',n:'ひだまりニット',src:'kmr_vt1.jpg',vid:'kmr_vt1.mp4',fx:50,fy:18},{id:'vt2',n:'はなかんむり',src:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',fx:50,fy:16},{id:'hw2',n:'夜宴の小悪魔',src:'kmr_hw2.jpg',vid:'kmr_hw2.mp4',fx:50,fy:20,kmr:'夜宴の小悪魔'},{id:'vt3',n:'堕ちた天使',src:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',fx:56,fy:18}];
   function oshiGet(){try{let v=localStorage.getItem('oshiPick');if(v===null&&localStorage.getItem('oshiDemo'))v='vt1';return OSHI.some(o=>o.id===v)?v:''}catch(e){return ''}}
   function oshiSet(id){try{localStorage.setItem('oshiPick',id||'');localStorage.removeItem('oshiDemo')}catch(e){}window.__lobOshi&&__lobOshi()}
   window.__oshiList=OSHI;window.__oshiGet=oshiGet;window.__oshiSet=oshiSet;
-  function oshiCur(){if(typeof isAdmin!=='function'||!isAdmin())return null;const id=oshiGet();return OSHI.find(x=>x.id===id)||null}
+  /* (10/17) an oshi made from a KMR (kmr:name) can be set by anyone who owns that KMR; the others stay an admin-only test */
+  function oshiOwn(o){if(typeof isAdmin==='function'&&isAdmin())return true;if(!o||!o.kmr)return false;try{return ITEMS.some(it=>it.K&&it.K.n===o.kmr&&((inv.own||{})[it.id]||0)>0)}catch(e){return false}}
+  window.__oshiOwn=oshiOwn;
+  function oshiCur(){const id=oshiGet(),o=OSHI.find(x=>x.id===id)||null;return o&&oshiOwn(o)?o:null}
   function syncOshi(){const o=oshiCur(),os=q('.losh'),im=os.querySelector('img'),bb=q('.lbub');const want=!!o;
     if(o&&im.getAttribute('src')!==o.src){if(oshiOn&&window.gsap){gsap.fromTo(os,{opacity:.2},{opacity:1,duration:.5,ease:'power2.out',clearProps:'opacity'})}im.src=o.src;im.style.objectPosition=o.fx+'% '+o.fy+'%';
       /* the KMR's own movement: its movie plays over the still picture once it is really playing */
@@ -12841,9 +12844,9 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   sfxRow();if(document.readyState!=='complete')addEventListener('load',sfxRow);
   /* ---------- 設定・要望 > 推しキャラ(管理者だけ・テスト) ---------- */
   const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
-  function oshiPicker(){const L=window.__oshiList||[];if(!L.length)return;document.querySelectorAll('.shw').forEach(x=>{try{sheetOut(x)}catch(e){x.remove()}});
+  function oshiPicker(){const own=window.__oshiOwn||(()=>true),L=(window.__oshiList||[]).filter(own);if(!L.length)return;const adm=typeof isAdmin==='function'&&isAdmin();document.querySelectorAll('.shw').forEach(x=>{try{sheetOut(x)}catch(e){x.remove()}});
     const w=document.createElement('div');w.className='shw';const sh=document.createElement('div');sh.className='sht kosp';
-    sh.innerHTML='<div class="grab"></div><div class="shh"><b>ホームに出す推し</b><button class="sec" type="button">閉じる</button></div><p class="kosn">ホームの上いっぱいに、選んだ推しの絵が入ります。吹き出しをタップすると話しかけてくれます。管理者のあなたにだけ表示されます</p><div class="kosg"></div>';
+    sh.innerHTML='<div class="grab"></div><div class="shh"><b>ホームに出す推し</b><button class="sec" type="button">閉じる</button></div><p class="kosn">ホームの上いっぱいに、選んだ推しの絵が入ります。吹き出しをタップすると話しかけてくれます。'+(adm?'管理者のあなたは全部選べます(持っていない人には出ません)':'持っているKMRから選べます')+'</p><div class="kosg"></div>';
     const g=sh.querySelector('.kosg');const cur=window.__oshiGet?__oshiGet():'';
     const pickIt=(b,id)=>{sh.querySelectorAll('.kost,.kosx').forEach(x=>x.classList.toggle('on',x===b));window.__oshiSet&&__oshiSet(id);oshiRow();try{K.SFX.play('pop')}catch(e){}};
     const tile=o=>{const b=document.createElement('button');b.type='button';b.className='kost'+(o.id===cur?' on':'');b.dataset.id=o.id;
@@ -12857,9 +12860,9 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const close=()=>{try{sheetOut(w)}catch(e){w.remove()}};sh.querySelector('.shh .sec').onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()})}
   window.__oshiPicker=oshiPicker;
   function oshiRow(){const after=document.getElementById('ksfxsec')||document.getElementById('pushsec');if(!after)return;
-    let s=document.getElementById('koshisec');const adm=typeof isAdmin==='function'&&isAdmin();
+    let s=document.getElementById('koshisec');const adm=(typeof isAdmin==='function'&&isAdmin())||(window.__oshiList||[]).some(o=>window.__oshiOwn&&__oshiOwn(o));
     if(!s){s=document.createElement('section');s.id='koshisec';s.dataset.pg='set';
-      s.innerHTML='<h2>推しキャラ</h2><button type="button" class="kosr"><span class="kos-t"><b>ホームに出す推し</b><small>管理者だけの設定です。<wbr>ほかの人には出ません</small></span><span class="kos-c"><img alt="" hidden><em></em><i aria-hidden="true"></i></span></button>';
+      s.innerHTML='<h2>推しキャラ</h2><button type="button" class="kosr"><span class="kos-t"><b>ホームに出す推し</b><small>持っているKMRを<wbr>ホームの上に出せます</small></span><span class="kos-c"><img alt="" hidden><em></em><i aria-hidden="true"></i></span></button>';
       s.querySelector('.kosr').onclick=oshiPicker;after.after(s)}
     if(s.hidden!==!adm)s.hidden=!adm;
     const id=window.__oshiGet?__oshiGet():'',o=(window.__oshiList||[]).find(x=>x.id===id);const em=s.querySelector('.kos-c em'),im=s.querySelector('.kos-c img');
