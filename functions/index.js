@@ -152,7 +152,8 @@ exports.pushBounty = onDocumentCreated('feed/{id}', async ev => {
    Needs Cloud Scheduler like the farm (SCHED). AP_PV: お試し版 phones only until release */
 const AP_PV = false, AP_MIN = 10;
 const hsh = s => { let h = 2166136261; for (const c of String(s)) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
-const apStart = d => (d * 864e5 - 4 * 3600000) + 5 * 3600000 + (hsh('ap' + d) % (14 * 3600 - AP_MIN * 60)) * 1000;
+const AP_FIX = {20742: Date.UTC(2026, 9, 16, 8, 0)};  // same as the app
+const apStart = d => AP_FIX[d] || (d * 864e5 - 4 * 3600000) + 5 * 3600000 + (hsh('ap' + d) % (14 * 3600 - AP_MIN * 60)) * 1000;
 const dayNo = t => Math.floor((t + 4 * 3600000) / 864e5);
 /* 畑と泥棒 (v134): until it is in the main app, these go to the お試し版 phones only (pv tokens). Set FARM_PV = false at release. */
 const FARM_PV = false, CROP = {ichigo: ['いちご', 3], tomato: ['トマト', 3], melon: ['メロン', 3]};  // every crop can be picked from 3 hours on

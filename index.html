@@ -7232,7 +7232,9 @@ function bountyFeed(){const me=myPlayer();if(!me||!db||!matchesFresh)return;cons
    The time and the gacha (normal / TCG / limited / coin, whatever is on) come from the day number, so every phone agrees without a server.
    Claiming adds one ticket of that gacha to inv.wkc ({k, n:1, ap:day}, not counted against 週間1位 tickets) and opens the pull. ---------- */
 const AP_MIN=10;
-function apDay(d){const h=hsh('ap'+d),st=(d*864e5-4*3600000)+5*3600000+(h%(14*3600-AP_MIN*60))*1000;return {d,start:st,end:st+AP_MIN*60000}}
+/* a day whose time was set by hand (day number → start). 10/16: 17:00 JST, the day v134 came out after the drawn time */
+const AP_FIX={20742:Date.UTC(2026,9,16,8,0)};
+function apDay(d){const h=hsh('ap'+d),st=AP_FIX[d]||(d*864e5-4*3600000)+5*3600000+(h%(14*3600-AP_MIN*60))*1000;return {d,start:st,end:st+AP_MIN*60000}}
 function apKinds(t){const L=[['ptk','通常パック']];try{const pk=Object.keys(TCGD.packs).slice(-1)[0];if(pk)L.push(['tp1_'+pk,'TCG '+TCGD.packs[pk].n])}catch(e){}if(typeof limActive==='function'&&limActive())L.push(['ltk',LIMS[banner.set].name]);if(typeof coinOn==='function'&&coinOn(t))L.push(['ctk','コインガチャ']);return L}
 function apToday(){const t=now(),d=dayNo(t),A=apDay(d);A.id=d;if(window.__apAt){A.start=window.__apAt;A.end=A.start+AP_MIN*60000}
   {const T=pushDoc&&pushDoc.test&&+pushDoc.test.ap;if(T&&t-T<3*3600000&&!(t>=A.start&&t<A.end+3*3600000&&A.start>T)){A.start=T;A.end=T+AP_MIN*60000;A.id='t'+T}}const K=apKinds(A.start),k=(window.__apK&&K.find(x=>x[0].startsWith(window.__apK)))||K[hsh('apk'+d)%K.length];return Object.assign(A,{k:k[0],kn:k[1],on:t>=A.start&&t<A.end,late:t>=A.end,got:!!inv&&inv.ap===A.id})}
