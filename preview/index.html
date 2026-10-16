@@ -8717,7 +8717,7 @@ const admInv={};
    - experience quest (5 opponents in a row): a clear gives XP 20/40/70/120 by grade, the first 3 clears a day
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
-const BUN_SRC='bunshin.html?v=21',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=22',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -8732,19 +8732,21 @@ function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.
    (the 'x' start keeps older app versions counting it as a quest, not as a fight with a friend). The HP is the sum of everyone's
    damage, at most RAID_DAY tries per person per day count. When it reaches 0, everyone who hit it gets 80 + up to 220 by their
    share of the damage, and the top hitter +100 more ===== */
-const RAID_DAY=3,RAID_PER=3600,RAID_HITMAX=4000;/* a try deals about 350 (Lv20) to 1150 (Lv80): the HP is about 6 average tries per avatar */
+const RAID_DAY=3,RAID_PER=3600,RAID_HITMAX=4000,RAID_TRY=20,RAID_KILL=300,RAID_SHARE=500,RAID_TOP=200,RAID_LAST=150;/* a try deals about 350 (Lv20) to 1150 (Lv80): the HP is about 6 average tries per avatar */
 const bunR=l=>/^xr\d/.test(String(l.d));
 const raidStart=wk=>(7*wk+1)*864e5-4*3600000,raidEnd=wk=>raidStart(wk)+3*864e5;
 function raidMax(){return Math.max(3,players.filter(p=>!p.retired&&p.uid&&bunDocs[p.id]).length)*RAID_PER}
 let raidC={k:'',v:{}};
 function raidInfo(wk){const key=bunLogs.length+'|'+players.length+'|'+Object.keys(bunDocs).length;if(raidC.k!==key)raidC={k:key,v:{}};if(raidC.v[wk])return raidC.v[wk];
   const id='xr'+wk,max=raidMax(),L=bunLogs.filter(l=>l.d===id&&(window.__raidDemo||l.t>=raidStart(wk)&&l.t<raidEnd(wk))).sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));
-  let sum=0,killer=null,killT=0;const by={},per={},hits=[];
+  let sum=0,killer=null,killT=0;const by={},per={},hits=[],tries={};
   for(const l of L){if(sum>=max)break;const k=l.a+'|'+dayNo(l.t);per[k]=(per[k]||0)+1;if(per[k]>RAID_DAY)continue;const d=Math.max(0,Math.min(Math.round(+l.s||0),RAID_HITMAX,max-sum));
-    sum+=d;by[l.a]=(by[l.a]||0)+d;hits.push({a:l.a,d,t:l.t});if(sum>=max){killer=l.a;killT=l.t}}
+    sum+=d;by[l.a]=(by[l.a]||0)+d;tries[l.a]=(tries[l.a]||0)+1;hits.push({a:l.a,d,t:l.t});if(sum>=max){killer=l.a;killT=l.t}}
   const rank=Object.keys(by).map(a=>({a,dmg:by[a]})).sort((x,y)=>y.dmg-x.dmg),dead=sum>=max,pts={};
-  if(dead)rank.forEach((x,i)=>{pts[x.a]=80+Math.min(220,Math.round(600*x.dmg/max))+(i===0?100:0)});
-  return raidC.v[wk]={id,wk,max,hp:Math.max(0,max-sum),dead,killer,killT,rank,hits,pts}}
+  /* v134: every try pays (参加報酬, even if the boss survives); a kill pays much more: 300 + up to 500 by your share, +200 for the most damage, +150 for the last blow */
+  const part={};for(const a in tries)part[a]=tries[a]*RAID_TRY;
+  rank.forEach((x,i)=>{pts[x.a]=(part[x.a]||0)+(dead?RAID_KILL+Math.min(RAID_SHARE,Math.round(RAID_SHARE*2.4*x.dmg/max))+(i===0?RAID_TOP:0)+(x.a===killer?RAID_LAST:0):0)});
+  return raidC.v[wk]={id,wk,max,hp:Math.max(0,max-sum),dead,killer,killT,rank,hits,pts,part}}
 /* ---------- weekday score attack (スコアアタック): Monday 5:00 to Friday 5:00, 3 tries a day, the best try of the week counts.
    Modelled on Puzzle & Dragons' ranking dungeons (a score made of several parts, ranked, crowns for the top) and Blue Archive's
    total assault (3 tickets a day, rank rewards when the season closes). A try is logged as bunlog d:'xs'+week, s:score. ---------- */
@@ -10965,7 +10967,7 @@ const NEWS=NEWS_EXP?[
  ['月額パス',['ライトパス(1,000 応援値)・プレミアムパス(3,000)・ロイヤルパス(5,000)の3つ。30日間','すぐもらえるpt+開いた日ごとのpt(パック専用)、経験値が1.1 / 1.25 / 1.5倍','販売は出てから20日間。そのあとまた売るかどうかは管理者が決める(買ったパスは30日そのまま続く)','3つのパスは全部同時に持てる(毎日のptは合計、経験値は一番高い倍率)','毎月の特典はTCGカードの絵違い1枚。今月は「大喜利」。ライトはノーマル、プレミアムはキラ(シークレットと同じ輝き)、ロイヤルは極(キラ+絵が動く)','絵違いは通常のカードとは別の1枚。TCGデッキの編成で通常・シークレットと分かれて並び、入れたその1枚だけが対戦で相手の画面にもこの絵で出る','申し込みは管理者に直接。くわしくはプロフィール →「設定・要望」の「月額パス」']],
 ];
 const NEWS_PREV=[
- ['分身バトル:週末レイド',['毎週金曜の朝5時から月曜の朝5時まで、みんなで1体のボスを倒すレイドが「対戦」タブの一番上に出る','ボスのHPは全員で共有。1日3回まで、好きな時間に挑める(1回36手まで、削った分がみんなの合計に足される)','倒せたら参加した全員にポイント(削った量で80〜300pt、一番削った人はさらに+100pt)。倒しきれなかった週は報酬なし','ボスは黒い鎧の騎士。赤・金・紫・青の4体が週替わり','開催中でまだ挑んでいない日は、分身ボタンに「!」']],
+ ['分身バトル:週末レイド',['毎週金曜の朝5時から月曜の朝5時まで、みんなで1体のボスを倒すレイドが「対戦」タブの一番上に出る','ボスのHPは全員で共有。1日3回まで、好きな時間に挑める(1回36手まで、削った分がみんなの合計に足される)','挑むたびに参加報酬+20pt(倒せなくてももらえる)。倒せたら参加した全員に討伐報酬(300pt+削った量で最大500pt、一番削った人は+200pt、とどめを刺した人は+150pt)','ボスは黒い鎧の騎士。赤・金・紫・青の4体が週替わり','開催中でまだ挑んでいない日は、分身ボタンに「!」']],
  ['拡張パックに新カード40枚',['「愛と裏切りの宴」に40枚追加(各族3枚+どの族にも入る7枚)','どのカードも今までにない動きを持つ:フラれた回数で強くなる、★を入れ替える、卒業して場を離れる、天丼で効果が増える、相手のトラップを奪う、地雷、推し、長話(相手は1ターン3枚まで)など','効果はカードをタップすると読める。対戦中はキャラの上に「足止め」「卒業まで2」などの札が出る','強さは何千試合も試して調整。今いちばん強いデッキは強くなっていない']],
  ['カードの絵がきれいに',['カードを大きく見る画面・パック開封・ガチャのカードで、高画質の絵に切り替わる(元の絵が大きいカード)','手札や場は今までどおり。動きが重くならないようにしてある']],
  ['TCGの友達戦',['「6ターン以上続いた試合だけ数える」決まりをなくした。短い試合もランク・シーズン・宝箱・経験値・MVP・履歴に入る','今までの短い試合も数え直されるので、順位が少し動くことがある']],
