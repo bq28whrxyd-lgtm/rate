@@ -5670,6 +5670,30 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .kbr-ft{flex-wrap:wrap}.kbr-ft .kg-b4{flex:1 1 100%;margin-bottom:0}
 .kbr .kbr-ft .kg-b4{height:44px;margin-bottom:10px;color:#ffb37a;background:rgba(255,110,40,.1);box-shadow:inset 0 0 0 1px rgba(255,140,70,.6);font-size:14px}
 .kbr:has(.kg-b4) .kbr-sc{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 166px)}
+
+/* (10/17) ハロウィンガチャ */
+.kgo.kg-hw{background:#0a0612}
+.khw{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.khw-sky{position:absolute;inset:0;background:radial-gradient(90% 60% at 50% 30%,rgba(120,60,190,.42),transparent 70%),linear-gradient(180deg,#14092a,#0a0612 60%,#05030a)}
+.khw-moon{position:absolute;left:50%;top:14%;width:min(58vw,300px);aspect-ratio:1;margin-left:calc(min(58vw,300px)/-2);background:url("hw_moon.webp") center/contain no-repeat;opacity:0;filter:drop-shadow(0 0 40px rgba(230,220,255,.45))}
+.khw-film{position:absolute;inset:0;opacity:0}
+.khw-film video{width:100%;height:100%;object-fit:cover;object-position:50% 52%}
+.khw-film::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,6,18,.15),rgba(10,6,18,.0) 30%,rgba(10,6,18,.55) 75%,#0a0612)}
+.khw-film.kmr video{object-position:50% 24%}
+.khw-bats{position:absolute;left:50%;top:40%}
+.khw-bats i{position:absolute;left:-18px;top:-8px;width:36px;height:16px;background:#120820;filter:drop-shadow(0 0 3px rgba(255,150,80,.6));opacity:0;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-30 -8 60 24'%3E%3Cpath d='M0 4C-3 -2-8-6-14-4-12 0-16 2-22 1-18 4-20 8-26 8-18 11-10 9-6 6-4 9-2 10 0 8 2 10 4 9 6 6 10 9 18 11 26 8 20 8 18 4 22 1 16 2 12 0 14-4 8-6 3-2 0 4Z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-30 -8 60 24'%3E%3Cpath d='M0 4C-3 -2-8-6-14-4-12 0-16 2-22 1-18 4-20 8-26 8-18 11-10 9-6 6-4 9-2 10 0 8 2 10 4 9 6 6 10 9 18 11 26 8 20 8 18 4 22 1 16 2 12 0 14-4 8-6 3-2 0 4Z'/%3E%3C/svg%3E") center/contain no-repeat}
+.khw-bats.go i{animation:khwBat 1.5s cubic-bezier(.15,.7,.3,1) var(--dl) both,khwFlap .16s ease-in-out infinite alternate}
+@keyframes khwBat{0%{opacity:0;transform:translate(0,0) scale(.2)}12%{opacity:1}80%{opacity:.9}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(var(--s))}}
+@keyframes khwFlap{to{scale:1 .45}}
+.ksx-hw{position:absolute;inset:0;z-index:1;pointer-events:none;display:grid;place-items:center}
+.ksx-hw b{position:absolute;width:160vmax;height:160vmax;border-radius:50%;opacity:0;mix-blend-mode:screen;
+  background:repeating-linear-gradient(118deg,#ff9a2e 0 5%,#ffd34a 5% 10%,#ff4fb0 10% 15%,#9b5cff 15% 20%,#3fd0ff 20% 25%);
+  -webkit-mask:url("hwpk/holo.png") 0 0/9vmax auto repeat,radial-gradient(closest-side,#000 25%,rgba(0,0,0,.5) 60%,transparent 100%);-webkit-mask-composite:source-in;
+  mask:url("hwpk/holo.png") 0 0/9vmax auto repeat,radial-gradient(closest-side,#000 25%,rgba(0,0,0,.5) 60%,transparent 100%);mask-composite:intersect}
+.ksx-hw b+b{-webkit-mask:url("hwpk/holo.png") 0 0/5vmax auto repeat,radial-gradient(closest-side,transparent 55%,#000 70%,transparent 90%);-webkit-mask-composite:source-in;mask:url("hwpk/holo.png") 0 0/5vmax auto repeat,radial-gradient(closest-side,transparent 55%,#000 70%,transparent 90%);mask-composite:intersect}
+@media (prefers-reduced-motion:reduce){.khw-bats{display:none}}
+.kgo.kg-hw .kg-floor{opacity:.18}.kgo.kg-hw .kg-au{opacity:.5}
 /* ===== v121 ガチャ画面 (kgu): banner chips + one big banner card, the old sections hidden underneath ===== */
 @property --a1{syntax:'<color>';inherits:true;initial-value:#8b7bff}
 @property --a2{syntax:'<color>';inherits:true;initial-value:#3dd8f0}
@@ -14435,7 +14459,24 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     window.__kgSeek=t=>{if(!tl)return;o.__seek=true;tl.pause();tl.seek(t,false);draw(t)};
     if(tl){tl.eventCallback('onComplete',()=>{if(!o.__seek)setTimeout(E.start,ten?120:260)});tl.play(0);E.kick()}
     else{deck.style.visibility='visible';emb.style.opacity=0;E.lay();E.start()}
-    o.__tl=tl;return o}
+    o.__tl=tl;o.__TB=TB;return o}
+
+  /* ---------- (10/17) ハロウィンガチャ: the usual summon on a purple night. Every pull: bats scatter at the burst.
+     UR and up: a full moon rises behind the emblem while the light gathers. GR: the night opens onto the moving かぼちゃ畑の夜.
+     KMR: 夜宴の小悪魔 herself (her film) appears behind the cards. All on the summon's own timeline (seekable, skippable). ---------- */
+  function hwSummon(res,onMore,label,opt){const o=summon(res,onMore,label,opt),tl=o.__tl,best=Math.max(...res.map(x=>x.c.r));o.classList.add('kg-hw');
+    const L=mk('div','khw'),moon=mk('i','khw-moon'),film=mk('div','khw-film'),bats=mk('div','khw-bats');L.append(mk('i','khw-sky'),moon,film,bats);
+    for(let i=0;i<14;i++){const b=mk('i');const a=(i/14)*Math.PI*2+Math.random()*.4,d=38+Math.random()*30;b.style.setProperty('--dx',(Math.cos(a)*d).toFixed(1)+'vmax');b.style.setProperty('--dy',(Math.sin(a)*d*.7-6).toFixed(1)+'vmax');b.style.setProperty('--s',(.6+Math.random()*.8).toFixed(2));b.style.setProperty('--dl',(Math.random()*.18).toFixed(2)+'s');bats.append(b)}
+    const kmr=best>=5,gr=best>=4;
+    if(gr){const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';
+      v.src=kmr?'kmr_hw3.mp4':'fx_hwbg_gr2.mp4';v.poster=kmr?'kmr_hw3.jpg':'fx_hwbg_gr2.jpg';if(kmr)film.classList.add('kmr');film.append(v);try{const p=v.play();p&&p.catch&&p.catch(()=>{})}catch(e){}}
+    const bg=o.querySelector('.kg-bg');bg.insertBefore(L,bg.firstChild.nextSibling);
+    if(!tl||RM){if(best>=3)moon.style.opacity='1';if(gr)film.style.opacity='1';return o}
+    const burst=o.__TB||1.62;/* the summon's burst time (it is later when the light climbs) */
+    if(best>=3)tl.fromTo(moon,{yPercent:60,opacity:0,scale:.9},{yPercent:0,opacity:1,scale:1,duration:1.25,ease:'power2.out',immediateRender:false},.15);
+    tl.call(()=>{bats.classList.remove('go');void bats.offsetWidth;bats.classList.add('go')},null,burst);
+    if(gr){tl.fromTo(film,{opacity:0,scale:1.12},{opacity:1,scale:1,duration:.9,ease:'power2.out',immediateRender:false},burst-.1);if(best>=3)tl.to(moon,{opacity:.35,duration:.6},burst)}
+    return o}
 
   /* ---------- Vtuberガチャ: a live stream ---------- */
   function stream(res,onMore,label,opt){opt=opt||{};
@@ -14992,7 +15033,8 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     nm.textContent=S.map(x=>x.c.n).join('  ·  ');tx.append(word,jp,nm);ft.append(btn);
     const L=S.map((x,k)=>{const lane=mk('div','ksx-lane'+(two?(k?' r':' l'):'')),slit=mk('i','ksx-slit','<i></i><i></i><i></i>'),door=mk('i','ksx-door'),ring=mk('i','ksx-ring'),card=mk('div','ksx-card'),fc=tcgFace(x.c.v,null,true);
       const sw=mk('i','ksx-sweep','<i></i>');card.append(fc,sw);lane.append(door,slit,ring,card);stg.append(lane);return{lane,slit,door,ring,card,band:sw.firstChild}});
-    o.append(mk('i','ksx-bg'),mk('i','ksx-prism'),cv,stg,tx,ft);document.body.append(o);
+    const hwS=S.some(x=>{try{return !!(TCGD.cards.find(c=>c.id===x.c.v)||{}).hwOf}catch(e){return false}}),hwL=hwS?mk('i','ksx-hw','<b></b><b></b>'):null;if(hwS)o.classList.add('ksx-hwon');
+    o.append(mk('i','ksx-bg'),mk('i','ksx-prism'),...(hwL?[hwL]:[]),cv,stg,tx,ft);document.body.append(o);
     const SPK=sparker(o,cv);
     const close=()=>{if(fin)return;finish();if(RM||!G){o.remove();return}G.to(o,{opacity:0,duration:.25,delay:.28,onComplete:()=>o.remove()})};
     btn.onclick=e=>{e.stopPropagation();close()};
@@ -15011,6 +15053,8 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     L.forEach(l=>G.set(l.band,{xPercent:-160}));
     T.fromTo(o,{opacity:0},{opacity:1,duration:.2},0).fromTo(o.querySelector('.ksx-prism'),{opacity:0},{opacity:1,duration:1.4},.6);
     reveal(L[0],.2);
+    if(hwL){const [w1,w2]=hwL.children;T.fromTo(w1,{scale:.12,opacity:0},{scale:1,opacity:1,duration:1.1,ease:'expo.out'},.76).to(w1,{opacity:.55,duration:1.2},1.9)
+      .fromTo(w2,{scale:.2,opacity:.9},{scale:1.9,opacity:0,duration:1.4,ease:'power2.out'},.8).call(()=>{try{const r=L[0].card.getBoundingClientRect();SPK.burst(r.left+r.width/2,r.top+r.height/2,70,['#ff9a2e','#ffd34a','#b45cff','#ff4fb0'],1.4,{life:1.4,size:1.2,drag:2,g:60})}catch(e){}},null,.9)}
     const words=t=>{T.fromTo(word.querySelectorAll('i'),{yPercent:110},{yPercent:0,duration:.6,stagger:.035,ease:'expo.out'},t).call(()=>word.classList.add('on'),null,t)
       .fromTo([jp,nm],{opacity:0,y:12},{opacity:1,y:0,duration:.5,stagger:.08,ease:'power3.out'},t+.4).call(()=>ft.classList.add('on'),null,t+1.1)};
     if(!two)words(1.25);
@@ -15057,7 +15101,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
   const OPV=openPackView;
   openPackView=function(res,onMore,label,theme,opt){
     if(!res||!res.length||!G)return OPV.apply(this,arguments);
-    try{if(theme==='vt')return stream(res,onMore,(typeof LIMS!=='undefined'&&LIMS.vt&&LIMS.vt.name)||'Vtuberガチャ',opt);const L=(!label||label==='PREMIUM PACK')?'通常パック':label==='PREMIUM ×10'?'通常パック 10連':label==='STARTER DECK'?'スターターデッキ':label;return summon(res,onMore,L,opt)}
+    try{if(theme==='hw')return hwSummon(res,onMore,(typeof LIMS!=='undefined'&&LIMS.hw&&LIMS.hw.name)||'ハロウィンガチャ',opt);if(theme==='vt')return stream(res,onMore,(typeof LIMS!=='undefined'&&LIMS.vt&&LIMS.vt.name)||'Vtuberガチャ',opt);const L=(!label||label==='PREMIUM PACK')?'通常パック':label==='PREMIUM ×10'?'通常パック 10連':label==='STARTER DECK'?'スターターデッキ':label;return summon(res,onMore,L,opt)}
     catch(e){console.warn('kg',e);document.querySelectorAll('body>.kgo').forEach(x=>x.remove());return OPV.apply(this,arguments)}};
   window.__kgX={engine,stage,TC,RK,face,RAR};window.__kgSummon=summon;window.__kgStream=stream;window.__kgPack=tcgPack;window.__kcShow=coinShow;window.__kcTray=coinTray;window.__kbBox=tcgBox;window.__kbSecret=kgSecret;window.__kbSummary=boxSummary;window.__kgHeroSrc=heroSrc;window.__kgPackLogo=packLogo;window.__kgZoomCard=zoomCard;
   /* TCGボックス: the new box, the new secret scene, the new result. Anything unexpected falls back to the old ones */
