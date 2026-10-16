@@ -157,3 +157,16 @@ if (FARM_RIPE) exports.pushFarmRipe = onSchedule({schedule: 'every 10 minutes', 
   }
   await ref.set({t: nowt});
 });
+
+/* 師匠と弟子 (v134): the request, the answer and the graduation. お試し版 phones only until release (MT_PV) */
+const MT_PV = true;
+exports.pushMentor = onDocumentWritten('mentor/{id}', async ev => {
+  const b = ev.data.before.exists ? ev.data.before.data() : null, a = ev.data.after.exists ? ev.data.after.data() : null;
+  if (!a) return;
+  const nm = async pid => { try { const p = (await db.doc('players/' + pid).get()).data(); return (p && p.name) || 'だれか'; } catch (e) { return 'だれか'; } };
+  if (!b && a.st === 'req') await send([a.m], 'give', {title: '弟子入りの申し込み', body: (await nm(a.a)) + 'があなたに弟子入りしたいそうです', go: 'home', tag: 'mt' + ev.params.id}, MT_PV);
+  else if (b && b.st === 'req' && a.st === 'ok') await send([a.a], 'give', {title: '弟子入りが決まりました', body: (await nm(a.m)) + 'があなたを弟子にしました。分身の経験値と報酬が1.5倍', go: 'home', tag: 'mt' + ev.params.id}, MT_PV);
+  else if (b && !b.g && a.g) { const A = await nm(a.a), M = await nm(a.m);
+    await send([a.a], 'give', {title: '卒業おめでとう', body: M + '師匠に追いつきました。+300pt', go: 'home', tag: 'mg' + ev.params.id}, MT_PV);
+    await send([a.m], 'give', {title: '弟子が卒業しました', body: A + 'があなたに追いつきました。+500pt', go: 'home', tag: 'mg' + ev.params.id}, MT_PV); }
+});
