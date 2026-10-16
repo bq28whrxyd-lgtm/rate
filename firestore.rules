@@ -336,12 +336,32 @@ service cloud.firestore {
         && request.resource.data.p is map && request.resource.data.p.size() <= 3;
     }
     // one try per friend per plot: steal/{owner}_{plot}_{thief}; never changed afterwards
+    /* ハロウィン (v135): トリック・オア・トリート. The one who asks creates it (3 a day is kept by the app); only the one asked answers, within a day */
+    /* ハロウィン (v135): いたずらよけのお守り, public so the one who asks sees it. Only the owner writes */
+    match /hwp/{pid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['L', 'u', 'c', 'pc'])
+        && (!('L' in request.resource.data) || (request.resource.data.L is list && request.resource.data.L.size() <= 20))
+        && (!('c' in request.resource.data) || (request.resource.data.c is int && request.resource.data.c >= 0 && request.resource.data.c <= 200000))
+        && (!('pc' in request.resource.data) || (request.resource.data.pc is int && request.resource.data.pc >= 0 && request.resource.data.pc <= 200000));
+    }
+    match /tot/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.f == myPid() && request.resource.data.o is string && request.resource.data.o != myPid()
+        && request.resource.data.keys().hasOnly(['f', 'o', 'd', 't', 'st']) && request.resource.data.st == 'ask'
+        && request.resource.data.d == int((request.time.toMillis() + 14400000) / 86400000)
+        && id == request.resource.data.f + '_' + request.resource.data.o + '_' + string(request.resource.data.d)
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000;
+      allow update: if signedIn() && myPid() != '' && resource.data.o == myPid() && resource.data.st == 'ask'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['st', 'at']) && request.resource.data.st in ['give', 'no']
+        && request.time.toMillis() < resource.data.t + 86400000;
+    }
     match /steal/{id} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.p == myPid() && request.resource.data.o != myPid()
         && id == request.resource.data.o + '_' + request.resource.data.pl + '_' + myPid()
         && request.resource.data.keys().hasOnly(['o', 'p', 'pl', 'c', 't', 'n', 'bit', 'f'])
-        && request.resource.data.n is int && request.resource.data.n >= 0 && request.resource.data.n <= 220
+        && request.resource.data.n is int && request.resource.data.n >= 0 && request.resource.data.n <= 300
         && request.resource.data.f is int && request.resource.data.f >= 0 && request.resource.data.f <= 440
         && exists(/databases/$(database)/documents/farm/$(request.resource.data.o));
     }
@@ -362,7 +382,8 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['s', 'k', 'c', 'f', 'sp', 'bn', 'end', 't', 'hb', 'hp', 'n', 'g', 'bt'])
         && (!('bt' in request.resource.data) || (request.resource.data.k == 'b' && request.resource.data.bt is int))
         && (!('g' in request.resource.data) || (request.resource.data.k == 't' && request.resource.data.g is int && request.resource.data.g >= 1 && request.resource.data.g <= 10))
-        && request.resource.data.k in ['g', 't', 'b'] && request.resource.data.c is string && request.resource.data.f is bool
+        && request.resource.data.k in ['g', 't', 'b', 'h'] && request.resource.data.c is string && request.resource.data.f is bool
+        && (request.resource.data.k != 'h' || (request.resource.data.c.matches('[1-9][0-9]{0,4}') && request.resource.data.f == false))
         && request.resource.data.sp is int && request.resource.data.sp >= 1
         && request.resource.data.bn is int && (request.resource.data.bn == 0 || request.resource.data.bn > request.resource.data.sp)
         && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000
@@ -399,9 +420,11 @@ service cloud.firestore {
       allow create: if isAdmin() || (signedIn() && myPid() == pid
         && newV('packs', 0) >= 0 && newV('lpacks', 0) >= 0 && newV('tused', 0) >= 0
         && newV('tpacks', 0) >= 0 && newV('xpacks', 0) >= 0 && newV('xpacks', 0) <= newV('tpacks', 0)
-        && newV('pspent', 0) >= 0 && newV('pspent', 0) <= newV('packs', 0) * 100 + newV('lpacks', 0) * 200 + newV('tpacks', 0) * 100 + newV('xpacks', 0) * 80
+        && newV('pspent', 0) >= 0 && newV('pspent', 0) <= newV('packs', 0) * 100 + newV('lpacks', 0) * 200 + newV('tpacks', 0) * 100 + newV('xpacks', 0) * 80 + newV('hpacks', 0) * 110
+        && newV('hpacks', 0) >= 0 && newV('hpacks', 0) <= newV('tpacks', 0)
         && newV('lfree', 0) >= 0 && newV('lfree', 0) <= newV('lpacks', 0)
         && newV('wused', 0) * 350 <= newV('lpacks', 0)
+        && newV('hwwu', 0) * 350 <= newV('hwlp', 0) && newV('hwlp', 0) <= newV('lpacks', 0)
         && (newV('mpts', 0) == 0 || (newV('mpts', 0) == 100 && newV('md', -1) == today()))
         && (newV('lbp', 0) == 0 || (newV('lbp', 0) >= 30 && newV('lbp', 0) <= 50 && newV('lbd', -1) == today()))
         && newV('ppp', 0) == 0);
@@ -410,10 +433,14 @@ service cloud.firestore {
         && newV('tused', 0) >= oldV('tused', 0) && (!('tix' in resource.data) || 'tix' in request.resource.data)
         && newV('tpacks', 0) >= oldV('tpacks', 0) && tcgStOk()
         && newV('xpacks', 0) >= oldV('xpacks', 0) && newV('xpacks', 0) - oldV('xpacks', 0) <= newV('tpacks', 0) - oldV('tpacks', 0)
+        && newV('hpacks', 0) >= oldV('hpacks', 0) && newV('hpacks', 0) - oldV('hpacks', 0) <= newV('tpacks', 0) - oldV('tpacks', 0)
         && pspentOk() && missionOk() && loginOk() && passOk(pid)
+        && newV('hmp', 0) >= oldV('hmp', 0) && newV('hmp', 0) <= 1500   // ハロウィンのイベントミッションのpt(全部で1,290pt)
         && newV('lfree', 0) >= oldV('lfree', 0) && newV('lfree', 0) - oldV('lfree', 0) <= newV('lpacks', 0) - oldV('lpacks', 0)
         && newV('wused', 0) >= oldV('wused', 0)
-        && (newV('wused', 0) == oldV('wused', 0) || newV('wused', 0) * 350 <= newV('lpacks', 0)));
+        && (newV('wused', 0) == oldV('wused', 0) || newV('wused', 0) * 350 <= newV('lpacks', 0))
+        && newV('hwlp', 0) >= oldV('hwlp', 0) && newV('hwwu', 0) >= oldV('hwwu', 0)
+        && (newV('hwwu', 0) == oldV('hwwu', 0) || newV('hwwu', 0) * 350 <= newV('hwlp', 0)));
       allow delete: if isAdmin();
     }
 
@@ -449,7 +476,7 @@ service cloud.firestore {
     function pspentOk() {
       return newV('pspent', 0) >= oldV('pspent', 0)
         && newV('pspent', 0) - oldV('pspent', 0) <= (newV('packs', 0) - oldV('packs', 0)) * 100 + (newV('lpacks', 0) - oldV('lpacks', 0)) * 200
-           + (newV('tpacks', 0) - oldV('tpacks', 0)) * 100 + (newV('xpacks', 0) - oldV('xpacks', 0)) * 80;
+           + (newV('tpacks', 0) - oldV('tpacks', 0)) * 100 + (newV('xpacks', 0) - oldV('xpacks', 0)) * 80 + (newV('hpacks', 0) - oldV('hpacks', 0)) * 110;
     }
 
     // ---- predictions on someone else's match, placed within 30 seconds of its start (45s allowed for clock drift); never changed afterwards ----
