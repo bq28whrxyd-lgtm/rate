@@ -15,6 +15,7 @@ button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .wrap{max-width:520px;margin:0 auto;padding-inline:16px;padding-block:14px 48px;display:flex;flex-direction:column;gap:14px}
 .hd{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 html.inapp .protoonly{display:none!important}html.inapp .tabs{grid-template-columns:repeat(4,1fr)}html:not(.inapp) .hostonly{display:none!important}html.inapp #lv{display:none}
+.hmentor{position:relative;flex:none;height:40px;padding:0 14px;border-radius:999px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);font:700 13px/40px var(--px);color:#f2d58a}.hmentor i{position:absolute;top:2px;right:2px;width:9px;height:9px;border-radius:50%;background:#ff453a}
 .hclose{flex:none;width:40px;height:40px;border-radius:50%;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);font:400 22px/40px var(--px);color:var(--fg,#fff)}
 .btoast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;max-width:88vw;padding:10px 14px;border-radius:12px;background:#000c;color:#fff;font:500 13px/1.5 var(--jp)}
 .enhov{position:fixed;inset:0;z-index:40;background:rgba(5,4,8,.74);display:flex;align-items:flex-end;justify-content:center}
@@ -234,7 +235,7 @@ html.inapp .protoonly{display:none!important}html.inapp .tabs{grid-template-colu
 <div class="wrap">
   <div class="hd">
     <div><h1>分身アバターバトル</h1><small class="protoonly">試作。数字はすべて仮です</small><small class="hostonly">ベータ版 ・ 所持 <b id="hpt">0pt</b></small></div>
-    <div class="pow">戦闘力<b id="pow">0</b></div><button type="button" class="hclose hostonly" id="hclose" aria-label="閉じる">×</button>
+    <div class="pow">戦闘力<b id="pow">0</b></div><button type="button" class="hmentor hostonly" id="hmentor">師弟<i id="hmdot" hidden></i></button><button type="button" class="hclose hostonly" id="hclose" aria-label="閉じる">×</button>
   </div>
 
   <div class="stage" id="stage">
@@ -1825,7 +1826,7 @@ function takeBackProto(){const bad=S.inv.filter(it=>it.e===undefined&&!(it.id===
     if(W.length)S.eq.w=W[0].id;else{const it={id:S.nid++,k:'wood',r:'R',e:0};S.inv.push(it);S.eq.w=it.id}}
   return bad.length}
 if(HOST){document.documentElement.classList.add('inapp');{const n=takeBackProto();if(n){save();setTimeout(()=>toastB('試作用のボタンで手に入った装備'+n+'個を回収しました'),800)}}/* a new avatar starts with its points already spread (it can be redone in ステータス) */if(usedPts(S.al||{})===0)S.al=autoAlloc(S.lv,'atk');OPP.length=0;try{HOST.friends().forEach(o=>OPP.push(o))}catch(e){}if(S.opp>=OPP.length)S.opp=0;
-  $('hclose').onclick=()=>{saveNow();HOST.close()};$('ga1').onclick=()=>gachaPull(1);$('ga10').onclick=()=>gachaPull(10);$('g10').onclick=()=>{$('g10').hidden=true};
+  $('hclose').onclick=()=>{saveNow();HOST.close()};$('hmentor').onclick=()=>{if(HOST.mentor)HOST.mentor()};setInterval(()=>{try{$('hmdot').hidden=!(HOST.mentorDot&&HOST.mentorDot())}catch(e){}},2000);$('ga1').onclick=()=>gachaPull(1);$('ga10').onclick=()=>gachaPull(10);$('g10').onclick=()=>{$('g10').hidden=true};
   HOST.onChange&&HOST.onChange(()=>{S.lv=HOST.level();const L=HOST.friends();OPP.length=0;L.forEach(o=>OPP.push(o));if(!playing&&!OV)refresh();else renderHostBar()})}
 /* a picture of your avatar for the app (the skin gacha launches it): drawn once on the main canvas, cropped, handed to the host */
 function exportThumb(){if(!HOST||!HOST.thumb)return;try{const me=fighterMe();const out=[];for(const pose of ['p1','p6']){G.save();G.setTransform(SC,0,0,SC,0,0);G.clearRect(0,0,W,H);drawFighter(me,190,GY,{pose,flip:false});G.restore();
