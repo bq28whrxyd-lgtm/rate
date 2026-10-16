@@ -913,6 +913,8 @@ button.tkbtn{background:linear-gradient(90deg,#ff6ad5,#b88aff);color:#fff;border
 .pvwb{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;max-width:420px;width:100%}
 .pvcrop{position:relative;width:min(88vw,400px);height:min(76vw,300px);overflow:hidden;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.6);-webkit-mask:linear-gradient(180deg,#000 78%,transparent);mask:linear-gradient(180deg,#000 78%,transparent)}
 .pvcrop>*{margin:0!important;width:100%!important;max-width:none!important}
+.pvfull{position:relative;height:min(64vh,560px);aspect-ratio:9/16;max-width:84vw;overflow:hidden;isolation:isolate;border-radius:22px;background-size:cover!important;background-position:center!important;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 0 .5px rgba(255,255,255,.14)}
+.pvfull>.bgl{z-index:0}
 .pvwb h2{font:900 22px/1.2 var(--display);margin:0;text-transform:none;letter-spacing:.02em;color:var(--fg)}
 .pvwf{transform:scale(2.2);margin:70px 0}
 .vtsc.rb{background:linear-gradient(115deg,#ff3b6b,#ffb03b 18%,#ffe23b 32%,#3bff8a 48%,#3bd5ff 64%,#7b5bff 80%,#ff3bd5);background-size:300% 100%;animation:scin .55s cubic-bezier(.2,1.4,.4,1) both,foil 2.4s linear infinite;box-shadow:0 0 60px #ff7ad5aa,0 0 120px #7ad8ff66,0 18px 40px #000a;border:2px solid #fff}
@@ -11233,7 +11235,9 @@ function previewAny(it){
   if(it.k==='t'){bx.append(titleChip(it.id,true))}
   else if(it.k==='b'){
     /* (10/16) only the part of the profile the background covers (the top, behind the icon and the name), not the whole profile */
-    const crop=el('div','pvcrop');crop.append(profileCard(p,''));bx.append(crop)}
+    /* (10/16) backgrounds that fill the whole profile card (BG_FULL) are shown whole, in a tall frame, with nothing on top */
+    if(typeof BG_FULL!=='undefined'&&BG_FULL[it.v]){const f=el('div','pvfull pb-'+it.v);try{bgLayer(f,it.v)}catch(e){}bx.append(f)}
+    else{const crop=el('div','pvcrop');crop.append(profileCard(p,''));bx.append(crop)}}
   else{const fr=mkFrame(p,tidx(p.rating));fr.classList.add('pvwf');bx.append(fr)}
   bx.append(el('div','sub','タップで閉じる'));o.append(bx);o.onclick=()=>o.remove();document.body.append(o);
 }
