@@ -234,8 +234,6 @@ html.inapp .protoonly{display:none!important}html.inapp .tabs{grid-template-colu
 /* layout (v134): sticky tabs, a smaller stage outside 見た目 and battles, the 対戦 tab split in four */
 .tabs{position:sticky;top:0;z-index:20;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2),0 8px 18px rgba(0,0,0,.45)}
 .stage{transition:transform .25s ease,margin .25s ease;transform-origin:50% 0}
-.stage.mini{transform:scale(.62);margin-bottom:-25%}
-.wrap:has(#ctl:not([hidden])) .stage.mini,.wrap:has(.result.on) .stage.mini{transform:none;margin-bottom:0}
 @media (prefers-reduced-motion:reduce){.stage{transition:none}}
 .subt{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:3px;border-radius:12px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2)}
 html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
@@ -1450,7 +1448,7 @@ function frame(n){const dt=last?Math.min(.05,(n-last)/1000):0;last=n;
   view(T);requestAnimationFrame(frame)}
 
 /* ---------- UI: tabs ---------- */
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach(p=>p.hidden=p.id!=='p-'+b.dataset.p);$('stage').classList.toggle('mini',b.dataset.p!=='look');if(BT&&!playing)endBattle()});
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach(p=>p.hidden=p.id!=='p-'+b.dataset.p);if(BT&&!playing)endBattle()});
 
 /* look */
 function swatch(col3){return 'radial-gradient(circle at 35% 30%,'+col3[2]+','+col3[1]+' 55%,'+col3[0]+')'}
