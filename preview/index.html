@@ -2809,7 +2809,10 @@ button.tcgkeep{width:100%;margin-top:8px}
 .hlw-it{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px 12px;border-radius:18px;background:linear-gradient(170deg,#2c1538,#170b1f);box-shadow:inset 0 0 0 1px #ffffff14;text-align:center}
 .hlw-it.full{opacity:.6}
 .hlw-ia{height:64px;display:grid;place-items:center}.hlw-ia .tcf,.hlw-ia .card{max-height:64px;width:auto}
-.hlw-itx b{display:block;font-size:13px;line-height:1.3}.hlw-itx small{font-size:11px;color:#bba6c9}
+.hlw-itx b{display:block;font-size:13px;line-height:1.3}.hlw-itd{display:block;font-size:10.5px;line-height:1.45;color:#cdb8da;margin:3px 0 2px}
+.hlw-x2{position:relative;display:grid;place-items:center}.hlw-x2 b{position:absolute;right:-12px;bottom:-4px;font:900 15px/1 var(--k-num,inherit);color:#ffd36a;text-shadow:0 2px 0 #2a1206}
+.hlw-ptc{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font:900 16px/1 var(--k-num,inherit);color:#4a2e05;background:radial-gradient(circle at 35% 30%,#fff6cf,#f2c552 55%,#9a6614);box-shadow:inset 0 0 0 2px #fff3}
+.nx .hlw-np{display:inline-block;margin-left:.25em;vertical-align:-.12em;font-style:normal}.hlw-itx small{font-size:11px;color:#bba6c9}
 .hlw-buy{display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 14px;border-radius:999px;border:0;background:linear-gradient(180deg,#ffb15c,#ff7a1a);color:#2a1206;font-weight:800;font-variant-numeric:tabular-nums}
 .hlw-buy:disabled{background:#ffffff1a;color:#ffffff66}
 .hlw-eq{height:30px;padding:0 12px;border-radius:999px;border:0;background:#ffffff14;color:#f6ece2;font-weight:700;font-size:12px}
@@ -2886,7 +2889,7 @@ button.fmgo.steal{color:#fff;background:linear-gradient(180deg,#5b4a8a,#352a5c);
 .fmcoin{position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff2b8,#e3a93a 60%,#a86f12);animation:fmcoin .9s cubic-bezier(.16,1,.3,1) forwards}
 @keyframes fmcoin{0%{transform:translate(0,0) scale(.4);opacity:1}100%{transform:translate(var(--x),var(--y)) scale(1);opacity:0}}
 @media (prefers-reduced-motion:reduce){.fmbed.ripe .fmart,.fmfx,.fmfx b,.fmcoin{animation:none}}
-.fmps h3{margin:0 0 4px}.fmcs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fmps h3{margin:0 0 4px}.fmcs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.fmcs:has(>:nth-child(4)){grid-template-columns:repeat(2,1fr)}
 .mksb button.fmc{display:grid;justify-items:center;gap:2px;min-height:0;padding:8px 6px 10px;border:0;border-radius:14px;background:rgba(255,255,255,.05);color:#fff;font:inherit}
 .mksb button.fmc.on{box-shadow:inset 0 0 0 1.5px #e9b24f;background:rgba(233,178,79,.12)}.fmca{width:70px;height:70px}.fmca svg{width:100%;height:100%}.fmc b{font-size:13px}.fmc span{font-size:10.5px;opacity:.75}
 .fmam{display:flex;gap:6px;flex-wrap:wrap}.mksb .fmam button{min-height:0;height:36px;padding:0 14px;border:0;border-radius:999px;background:rgba(255,255,255,.07);color:#fff;font:inherit;font-weight:700}.mksb .fmam button.on{background:#ffe7a8;color:#2a1806}
@@ -6287,6 +6290,7 @@ function nameEl(cls,text,ti){
   ti=Math.max(0,Math.min(6,ti|0));const w=el('span',(cls?cls+' ':'')+'nx nx'+ti);w.append(el('span','nxt',text));
   for(let i=0;i<NXK[ti];i++){const k=el('i','nxk'),q=NXP[i];k.style.left=q[0]+'%';k.style.top=q[1]+'%';k.style.setProperty('--s',q[2]+'px');k.style.animationDelay=(i*.41)+'s';k.style.background=i===5&&ti===6?'#ff9fd0':NXC[ti];w.append(k)}
   if(ti===6)w.append(el('i','nxc'));
+  try{if(typeof hwNpOn==='function'&&hwNpOn(text)){const i=el('i','hlw-np');i.innerHTML='<svg viewBox="0 0 20 20" width="1em" height="1em" aria-hidden="true"><path d="M10 5.5c.3-1.4 1-2.2 2.2-2.5" stroke="#6f8a2e" stroke-width="1.6" fill="none" stroke-linecap="round"/><ellipse cx="10" cy="11.5" rx="7.5" ry="6" fill="#ff8a2a"/><path d="M6.5 10l1.6-1.2.5 1.8zM13.5 10l-1.6-1.2-.5 1.8zM6.5 13q3.5 2.2 7 0" fill="#3a1405" stroke="#3a1405" stroke-width=".6"/></svg>';w.append(i)}}catch(e){}
   return w;
 }
 const nameBox=(tag,cls,text,ti)=>{const d=el(tag,cls+' nxw');d.append(nameEl('',text,ti));return d};
@@ -7311,7 +7315,7 @@ function dupSheet(kind,res,onChange){document.querySelectorAll('.dps').forEach(x
 /* お試し版: the event runs from 10/16 18:00 so it can be tried, and everything it keeps goes under other names (pv…), so nothing
    carries over to the real event; pt and tickets from the お試し版 are not given (shown only) */
 const HW_PV=/\/preview\//.test(location.pathname),HW_PV0=Date.UTC(2026,9,16,9,0);
-const HWK=HW_PV?{x:'pvhx',b:'pvhb',c:'pvhmc',q:'pvhmq',p:'pvhmp',h:'pvhwh',g:'pvhwg0',s:'pvhs'}:{x:'hx',b:'hb',c:'hmc',q:'hmq',p:'hmp',h:'hwh',g:'hwg0',s:'hs'};
+const HWK=HW_PV?{x:'pvhx',b:'pvhb',c:'pvhmc',q:'pvhmq',p:'pvhmp',h:'pvhwh',g:'pvhwg0',s:'pvhs',xp:'pvhxp',d:'pvhbo',k:'pvhsd'}:{x:'hx',b:'hb',c:'hmc',q:'hmq',p:'hmp',h:'hwh',g:'hwg0',s:'hs',xp:'hxp',d:'hbo',k:'hsd'};
 /* ---------- ハロウィンイベント (v135): 10/20 5:00 - 11/3 5:00 JST. 前編 10/20-26, 後編 10/27-11/2.
    お菓子 (candy) is counted from what already exists, like the rest of the app's points:
      rate matches (win 10 / loss 3), TCG friend battles (10 / 3), TCG wins against the つよい CPU (8, kept in inv.tcg.hs = times),
@@ -7330,8 +7334,8 @@ const hwNightAt=t=>window.__hwNight?(t>=now()-2*36e5&&t<=now()+36e5):(t>=HWN0&&t
 const hwNightNow=()=>hwOn()&&hwNightAt(now());
 const hwMul=t=>hwNightAt(t)?2:1;
 let hwMemo={k:'',v:{}};
-function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms.length:0),bunLogs.length,hwT0(),!!window.__hwNight,pid===invFor?JSON.stringify([((inv.tcg||{})[HWK.s]||[]).length,inv[HWK.q]||0]):''].join('|');
-  if(hwMemo.k!==key)hwMemo={k:key,v:{}};if(hwMemo.v[pid]!=null)return hwMemo.v[pid];let c=0;const add=(n,t)=>{c+=n*hwMul(t)};
+function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms.length:0),bunLogs.length,hwT0(),!!window.__hwNight,pid===invFor?JSON.stringify([((inv.tcg||{})[HWK.s]||[]).length,inv[HWK.q]||0,(inv[HWK.d]||[]).length]):''].join('|');
+  if(hwMemo.k!==key)hwMemo={k:key,v:{}};if(hwMemo.v[pid]!=null)return hwMemo.v[pid];let c=0;const me_=pid===invFor,add=(n,t)=>{c+=n*hwMul(t)*(me_&&hwBoostAt(t)?2:1)};
   for(const m of matches){if(!hwIn(m.t||0))continue;if(m.w===pid)add(HW_C.rw,m.t);else if(m.l===pid)add(HW_C.rl,m.t)}
   if(typeof tcgms!=='undefined')for(const d of tcgms){if(!tcgDone(d)||!hwIn(d.t||0)||(d.a!==pid&&d.b!==pid)||d.wa==='draw')continue;add(d.wa===pid?HW_C.tw:HW_C.tl,d.t)}
   for(const l of bunAtk(pid))if(hwIn(l.t))add(l.w?HW_C.bw:HW_C.bl,l.t);
@@ -7352,14 +7356,34 @@ function hwShop(){const L=[{id:'ptk',k:'tk',tk:'ptk',n:'通常パックチケッ
   try{const tp=Object.keys(TCG_TK).filter(k=>TCG_TK[k].k===1).slice(-1)[0];if(tp)L.push({id:'tcg1',k:'tk',tk:tp,n:'TCG '+TCG_TK[tp].n,c:90,max:10})}catch(e){}
   Object.keys(HW_TTL).forEach((id,i)=>L.push({id,k:'t',n:HW_TTL[id].n,c:[150,400,1000][i],max:1}));
   L.unshift({id:'coin',k:'g',ref:'chw0',n:'ジャック・オ・ランタンコイン(限定)',c:3000,max:1});
+  L.push({id:'np',k:'np',n:'かぼちゃのネームプレート',d:'期間中、名前の横にかぼちゃ',c:500,max:1},
+    {id:'seed',k:'seed',n:'かぼちゃの種',d:'畑に植えられる限定の作物。よく育つ',c:80,max:5},
+    {id:'boost',k:'boost',n:'お菓子2倍券',d:'交換したときから1時間、もらえるお菓子が2倍',c:100,max:5},
+    {id:'guard',k:'guard',n:'いたずらよけのお守り',d:'交換したときから1日、いたずらされてもお菓子をとられない',c:60,max:7},
+    {id:'pt',k:'pt',n:'10pt',d:'余ったお菓子用。何回でも交換できる',c:50,p:10,max:99999});
   return L.concat(window.HW_SHOP_X||[])}
 const hwHave=id=>+((inv[HWK.b]||{})[id])||0;
+/* お菓子2倍券: 1 hour from each start (inv hbo); いたずらよけ: 1 day from each start, public in hwp/{pid} {L: starts} so the one who asks sees it */
+const HW_BOOST=36e5;
+const hwBoostAt=t=>(Array.isArray(inv[HWK.d])?inv[HWK.d]:[]).some(s=>t>=+s&&t<+s+HW_BOOST);
+const hwBoostLeft=()=>{const t=now(),L=(Array.isArray(inv[HWK.d])?inv[HWK.d]:[]).map(Number).filter(s=>s+HW_BOOST>t);return L.length?Math.max(...L)+HW_BOOST:0};
+let hwps={},hwpOn=false;
+function hwpWatch(){if(hwpOn||!db)return;hwpOn=true;db.collection('hwp').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});hwps=o;hwMemo.k='';queueRender()},()=>{})}
+const hwGuards=pid=>((hwps[pid]||{}).L||[]).map(Number);
+const hwGuardAt=(pid,t)=>hwGuards(pid).some(s=>t>=s&&t<s+864e5);
+const hwGuardLeft=pid=>{const t=now(),L=hwGuards(pid).filter(s=>s+864e5>t);return L.length?Math.max(...L)+864e5:0};
+const hwSeeds=()=>Math.max(0,+inv[HWK.k]||0);
+const hwNpOn=name=>{if(typeof hwOn!=='function'||!hwOn())return false;const me=myPlayer(),p=name==='あなた'&&me?me:players.find(q=>q.name===name);return !!(p&&p.eq&&p.eq.np==='hw')};
 async function hwBuy(it){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');if(!hwOn())throw new Error('off');
   if(hwHave(it.id)>=it.max)throw new Error('max');if(hwBal(me.id)<it.c)throw new Error('candy');
   const nv=Object.assign({},inv,{[HWK.x]:(+inv[HWK.x]||0)+it.c,[HWK.b]:Object.assign({},inv[HWK.b]||{},{[it.id]:hwHave(it.id)+1})});
   if(it.k==='tk'&&!HW_PV)nv.wkc=wkConvL().concat([{k:it.tk,n:1,t:now(),hw:1}]);
   if(it.k==='g'){nv.own=Object.assign({},nv.own||{});nv.own[it.ref]=(+nv.own[it.ref]||0)+1}
   if(it.k==='c'){const T=nv.tcg=Object.assign({},nv.tcg||{});T.own=Object.assign({},T.own||{});T.own[it.ref]=(+T.own[it.ref]||0)+1}
+  if(it.k==='pt')nv[HWK.xp]=(+inv[HWK.xp]||0)+it.p;
+  if(it.k==='seed')nv[HWK.k]=(+inv[HWK.k]||0)+1;
+  if(it.k==='boost'){const L=Array.isArray(inv[HWK.d])?inv[HWK.d]:[],st=Math.max(now(),...L.map(x=>+x+HW_BOOST));nv[HWK.d]=L.concat([st])}
+  if(it.k==='guard'){const L=hwGuards(me.id),st=Math.max(now(),...L.map(x=>+x+864e5));await db.doc('hwp/'+me.id).set({L:L.concat([st]).slice(-20),u:now()});hwps[me.id]={L:L.concat([st])}}
   await db.doc('inv/'+me.id).set(nv);inv=nv;try{ownSync()}catch(e){};return it}
 /* a TCG win against the つよい CPU (called from tcgResult) */
 function hwCpuWin(r){if(!hwOn()||!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!invFor)return;const T=Object.assign({},tcgOf(inv)),hs=(Array.isArray(T[HWK.s])?T[HWK.s]:[]).concat([now()]).slice(-400);T[HWK.s]=hs;inv=Object.assign({},inv,{tcg:T});
@@ -7378,9 +7402,9 @@ const hwLeft=t=>{const d=t-now();if(d<=0)return '';const D=Math.floor(d/864e5),h
    仲良しの印: how many times you gave. ---- */
 const TOT_DAY=3,TOT_GIVE=10,TOT_TRICK=20,TOT_WAIT=864e5;
 let tots=[],totOn=false;
-function totWatch(){if(totOn||!db)return;totOn=true;db.collection('tot').onSnapshot(s=>{tots=s.docs.map(d=>({id:d.id,...d.data()}));hwMemo.k='';queueRender();try{hwOpen.redraw&&document.querySelector('.hlw')&&hwOpen.redraw()}catch(e){}},()=>{})}
-const totRes=x=>x.st==='give'?'give':(x.st==='no'||now()-(+x.t||0)>=TOT_WAIT)?'trick':'wait';
-function totNet(pid){let c=0;for(const x of tots){if(!hwIn(+x.t||0))continue;const r=totRes(x);if(r==='wait')continue;const n=r==='give'?TOT_GIVE:TOT_TRICK;if(x.f===pid)c+=n;if(x.o===pid)c-=n}return c}
+function totWatch(){try{hwpWatch()}catch(e){}if(totOn||!db)return;totOn=true;db.collection('tot').onSnapshot(s=>{tots=s.docs.map(d=>({id:d.id,...d.data()}));hwMemo.k='';queueRender();try{hwOpen.redraw&&document.querySelector('.hlw')&&hwOpen.redraw()}catch(e){}},()=>{})}
+const totRes=x=>x.st==='give'?'give':(x.st==='no'||now()-(+x.t||0)>=TOT_WAIT)?(typeof hwGuardAt==='function'&&hwGuardAt(x.o,+x.t||0)?'safe':'trick'):'wait';
+function totNet(pid){let c=0;for(const x of tots){if(!hwIn(+x.t||0))continue;const r=totRes(x);if(r==='wait'||r==='safe')continue;const n=r==='give'?TOT_GIVE:TOT_TRICK;if(x.f===pid)c+=n;if(x.o===pid)c-=n}return c}
 const totGives=pid=>tots.filter(x=>x.o===pid&&x.st==='give').length;
 const totMine=pid=>tots.filter(x=>x.f===pid&&+x.d===dayNo(now()));
 const totLeft=pid=>Math.max(0,TOT_DAY-totMine(pid).length);
@@ -7473,7 +7497,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
         const ph=el('div','hlw-fa');try{ph.append(avatar(q))}catch(e){}bt.append(ph,el('b',null,q.name),el('small',null,asked?'今日はもう':'仲良し '+totGives(q.id)));bt.disabled=asked||!on||totLeft(me.id)<1;
         bt.onclick=async()=>{bt.disabled=true;try{await totAsk(q.id);toast(q.name+'にトリック・オア・トリート!  1日以内に答えが来ます');draw()}catch(e){bt.disabled=false;toast(e.message==='left'?'今日の3回は終わりました':'できませんでした')}};row.append(bt)});ts.append(row);
       const hist=tots.filter(x=>(x.f===me.id||x.o===me.id)&&totRes(x)!=='wait'&&hwIn(+x.t||0)).sort((a,b)=>(b.at||b.t)-(a.at||a.t)).slice(0,5);
-      if(hist.length){const ul=el('div','hlw-th');hist.forEach(x=>{const r=totRes(x),mine=x.f===me.id,other=(players.find(q=>q.id===(mine?x.o:x.f))||{}).name||'だれか';ul.append(el('div',null,mine?(r==='give'?other+'がお菓子をくれた  +'+TOT_GIVE:other+'にいたずら!  +'+TOT_TRICK):(r==='give'?other+'にお菓子をあげた  −'+TOT_GIVE:other+'にいたずらされた  −'+TOT_TRICK)))});ts.append(ul)}
+      if(hist.length){const ul=el('div','hlw-th');hist.forEach(x=>{const r=totRes(x),mine=x.f===me.id,other=(players.find(q=>q.id===(mine?x.o:x.f))||{}).name||'だれか';ul.append(el('div',null,r==='safe'?(mine?other+'はいたずらよけのお守りを持っていた':'いたずらよけのお守りで'+other+'のいたずらを防いだ'):mine?(r==='give'?other+'がお菓子をくれた  +'+TOT_GIVE:other+'にいたずら!  +'+TOT_TRICK):(r==='give'?other+'にお菓子をあげた  −'+TOT_GIVE:other+'にいたずらされた  −'+TOT_TRICK)))});ts.append(ul)}
       b.append(ts)}
     /* イベントミッション */
     if(sub==='mis'){const L=hwMisList(),done=L.filter(m=>m.got).length,ms=el('div','hlw-sec');const hd=el('h3',null,'イベントミッション');hd.append(el('small',null,done+' / '+L.length+' クリア'));ms.append(hd);const ml=el('div','hlw-mis');
@@ -7490,11 +7514,11 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
     /* 交換所 */
     if(sub==='shop'){const sh=el('div','hlw-sec');sh.append(el('h3',null,'お菓子の交換所'));const g=el('div','hlw-shop');
     hwShop().forEach(it=>{const have=hwHave(it.id),full=have>=it.max,c=el('div','hlw-it'+(full?' full':'')),art=el('div','hlw-ia');
-      if(it.k==='t'){const ch=titleChip(it.id);if(ch)art.append(ch)}else if(it.k==='g'||it.k==='c'){try{const I=cardInfo(it.k==='g'?'g':'t',it.ref);if(I)art.append(I.face())}catch(e){}}else art.innerHTML='<svg viewBox="0 0 40 28" width="54" aria-hidden="true"><rect x="1" y="1" width="38" height="26" rx="5" fill="#2b1838" stroke="#ff9d3c" stroke-width="1.5"/><path d="M28 1v26" stroke="#ff9d3c" stroke-dasharray="2 2"/><circle cx="14" cy="14" r="5" fill="#ff8a2a"/></svg>';
-      const tx=el('div','hlw-itx');tx.append(el('b',null,it.n),el('small',null,it.max>1?'交換 '+have+' / '+it.max:have?'交換済み':'1回だけ'));
+      if(it.k==='t'){const ch=titleChip(it.id);if(ch)art.append(ch)}else if(it.k==='g'||it.k==='c'){try{const I=cardInfo(it.k==='g'?'g':'t',it.ref);if(I)art.append(I.face())}catch(e){}}else if(it.k==='seed'||it.k==='np')art.innerHTML=hwPumpkinSvg(it.k==='np'?40:52);else if(it.k==='boost')art.innerHTML='<div class="hlw-x2">'+hwCandySvg(40)+'<b>×2</b></div>';else if(it.k==='guard')art.innerHTML='<svg viewBox="0 0 40 40" width="50" aria-hidden="true"><path d="M20 4l13 5v9c0 9-6 15-13 18C13 33 7 27 7 18V9z" fill="#3a1846" stroke="#ffb15c" stroke-width="2"/><path d="M14 20l4 4 8-9" stroke="#ffb15c" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>';else if(it.k==='pt')art.innerHTML='<div class="hlw-ptc">pt</div>';else art.innerHTML='<svg viewBox="0 0 40 28" width="54" aria-hidden="true"><rect x="1" y="1" width="38" height="26" rx="5" fill="#2b1838" stroke="#ff9d3c" stroke-width="1.5"/><path d="M28 1v26" stroke="#ff9d3c" stroke-dasharray="2 2"/><circle cx="14" cy="14" r="5" fill="#ff8a2a"/></svg>';
+      const tx=el('div','hlw-itx'),act=it.k==='boost'?hwBoostLeft():it.k==='guard'?hwGuardLeft(me.id):0;tx.append(el('b',null,it.n));if(it.d)tx.append(el('span','hlw-itd',it.d));tx.append(el('small',null,(act?'使用中 あと '+hwLeft(act)+'  ·  ':'')+(it.k==='seed'?'持っている種 '+hwSeeds()+'  ·  ':'')+(it.k==='pt'?'何回でも':it.max>1?'交換 '+have+' / '+it.max:have?'交換済み':'1回だけ')));
       const bt=el('button','hlw-buy');bt.innerHTML=hwCandySvg(16);bt.append(document.createTextNode(it.c.toLocaleString()));bt.disabled=!on||full||bal<it.c;
       bt.onclick=()=>askSheet({title:'交換する',ok:'お菓子 '+it.c+' で交換',lines:[it.n+' と交換します。','交換したあとのお菓子 '+(bal-it.c).toLocaleString()],run:async()=>{try{await hwBuy(it);toast(it.n+'と交換しました'+(HW_PV&&it.k==='tk'?'(お試し版なのでチケットは入りません)':''));draw();try{renderGacha()}catch(e){}}catch(e){toast(e.message==='candy'?'お菓子が足りません':e.message==='max'?'もう交換できません':'交換できませんでした')}}});
-      c.append(art,tx,bt);if(it.k==='t'&&have){const on2=(me.eq||{}).t===it.id,eb=el('button','hlw-eq',on2?'装備中':'称号にする');eb.onclick=async()=>{eb.disabled=true;try{const cur=Object.assign({},me.eq||{});cur.t=on2?null:it.id;await db.doc('players/'+me.id).update({eq:cur});me.eq=cur;draw()}catch(e){eb.disabled=false}};c.append(eb)}
+      c.append(art,tx,bt);if((it.k==='t'||it.k==='np')&&have){const fk=it.k==='np'?'np':'t',fv=it.k==='np'?'hw':it.id,on2=(me.eq||{})[fk]===fv,eb=el('button','hlw-eq',on2?(it.k==='np'?'付けている':'装備中'):(it.k==='np'?'名前に付ける':'称号にする'));eb.onclick=async()=>{eb.disabled=true;try{const cur=Object.assign({},me.eq||{});cur[fk]=on2?null:fv;await db.doc('players/'+me.id).update({eq:cur});me.eq=cur;draw()}catch(e){eb.disabled=false}};c.append(eb)}
       g.append(c)});
     sh.append(g,el('div','sub hlw-note','限定のスキンとTCGカードは、絵がそろったらここに並びます。限定ガチャとは別のものです。'));b.append(sh)}};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};hwOpen.redraw=draw}
@@ -7878,6 +7902,10 @@ function cropSvg(c,st){const u='fa'+(farmUid++),G=(id,a,b)=>'<linearGradient id=
   else if(c==='tomato'){const stake='<rect x="57" y="22" width="2.4" height="66" rx="1" fill="#a07a50"/>',vine='<path d="M50 88C49 70 54 58 50 44C47 34 52 28 52 22" stroke="'+f('st')+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>',L=leaf(50,74,-160,.9)+leaf(51,66,-20,.9,'lf2')+leaf(49,54,-165,.85)+leaf(51,46,-15,.8,'lf2')+leaf(51,32,-150,.7)+leaf(52,28,-30,.6,'lf2');
     if(st===2)body=stake+vine+L+[[44,60],[56,40]].map(([x,y])=>'<g transform="translate('+x+' '+y+')">'+[0,72,144,216,288].map(a=>'<path transform="rotate('+a+')" d="M0 0L1.2-4L0-5L-1.2-4Z" fill="#ffd23f"/>').join('')+'</g>').join('');
     else body=stake+vine+L+[[42,62,1],[55,56,.85],[43,42,.9],[58,36,.75]].map(([x,y,s])=>'<g transform="translate('+x+' '+y+') scale('+s+')"><circle r="7" fill="'+f('tm')+'"/><ellipse cx="-2.4" cy="-2.6" rx="2" ry="1.3" fill="#fff" opacity=".45"/><path d="M-4 -6L0 -4L4 -6L2 -7L0 -9L-2 -7Z" fill="#3f8a3a"/></g>').join('')}
+  else if(c==='pumpkin'){const L=leaf(50,86,-170,1.3)+leaf(50,86,-10,1.3,'lf2')+leaf(46,80,-130,1)+leaf(56,80,-50,1,'lf2'),vine='<path d="M24 86C34 78 48 92 62 84S78 80 82 84" stroke="'+f('st')+'" stroke-width="1.8" fill="none"/>';
+    const pk=(x,y,s,c1,c2)=>'<g transform="translate('+x+' '+y+') scale('+s+')"><ellipse cx="-7" cy="0" rx="8" ry="9.5" fill="'+c2+'"/><ellipse cx="7" cy="0" rx="8" ry="9.5" fill="'+c2+'"/><ellipse cx="0" cy="0" rx="8.5" ry="10.5" fill="'+c1+'"/><path d="M-1-10c0-4 2-6 5-7" stroke="#5b7a2a" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="-4" cy="-4" rx="2.4" ry="1.4" fill="#fff" opacity=".35"/></g>';
+    if(st===2)body=vine+L+pk(64,80,.55,'#9ccf5a','#7fb04a');
+    else body=vine+L+pk(36,79,.8,'#ff8a2a','#e8650f')+pk(60,76,1.05,'#ff9a3c','#ec6e12');}
   else{const L=leaf(50,84,-165,1.25)+leaf(52,84,-12,1.2,'lf2')+leaf(48,80,-120,1)+leaf(54,80,-60,1,'lf2'),vine='<path d="M30 86C40 80 60 90 74 82" stroke="'+f('st')+'" stroke-width="1.6" fill="none"/>';
     if(st===2)body=vine+L+'<g transform="translate(66 76)">'+[0,72,144,216,288].map(a=>'<ellipse transform="rotate('+a+')" cx="0" cy="-2.6" rx="1.6" ry="2.6" fill="#ffd23f"/>').join('')+'</g>';
     else{let net='';for(let i=-3;i<=3;i++)net+='<path d="M'+(50+i*6)+' 58C'+(46+i*6)+' 70 '+(54+i*6)+' 82 '+(50+i*6)+' 92" stroke="#fffbe0" stroke-width=".7" fill="none" opacity=".55"/><path d="M28 '+(74+i*5)+'C40 '+(70+i*5)+' 60 '+(78+i*5)+' 72 '+(74+i*5)+'" stroke="#fffbe0" stroke-width=".6" fill="none" opacity=".4"/>';
@@ -7893,7 +7921,9 @@ function dogSvg(on){return '<svg viewBox="0 0 100 80" aria-hidden="true"><defs><
    Points: the owner pays the seed (inv.fsd) and the dog (inv.fdog), and gets the harvest minus what was stolen (inv.fhv, plots in inv.fhl).
            A thief gets n, or pays the fine when bitten; the owner gets the fine. All of it from steal/, nothing written into anyone else's data. ---------- */
 /* growth by the hour: harvestable from FARM_MIN hours on, and the longer it stays, the more it is worth (up to cap) - and the longer friends can steal from it */
-const FARM_MIN=3,FARM_CROPS={ichigo:{n:'いちご',r:.025,cap:1.25},tomato:{n:'トマト',r:.015,cap:1.5},melon:{n:'メロン',r:.01,cap:1.8}};
+const FARM_MIN=3,FARM_CROPS={ichigo:{n:'いちご',r:.025,cap:1.25},tomato:{n:'トマト',r:.015,cap:1.5},melon:{n:'メロン',r:.01,cap:1.8},
+  /* ハロウィン (v135): needs a seed from the お菓子の交換所 (inv hsd). Grows faster than the others */
+  pumpkin:{n:'かぼちゃ',r:.03,cap:1.45,hw:1}};
 const FARM_DAY=600;/* 1日(朝5時から)に畑で増やせるのは600ptまで: 自分の収穫で増えた分 + 盗んだ分 (inv.fpd day, inv.fpg profit that day) */
 const FARM_SLOTS=3,FARM_SEED=[50,100,300,500,1000],FARM_TAKE=.1,FARM_MAXT=5,DOG_COST=100,DOG_DAYS=1,DOG_BITE=35,DOG_FINE=.2;
 let farms={},steals=[],farmsOn=false;
@@ -7918,11 +7948,11 @@ function farmToday(pid){const dn=dayNo(now());let t=0;if(pid===invFor&&inv&&+inv
 const farmRoom=pid=>Math.max(0,FARM_DAY-farmToday(pid));
 function farmNet(pid){let t=0;for(const s of steals){if(s.p===pid)t+=s.bit?-(+s.f||0):(+s.n||0);if(s.o===pid&&s.bit)t+=(+s.f||0)}return t}
 const farmLeft=t=>{const d=t-now();if(d<=0)return '';const h=Math.floor(d/36e5),m=Math.floor(d%36e5/6e4);return h>=24?Math.floor(h/24)+'日'+(h%24)+'時間':h?h+'時間'+m+'分':m+'分'};
-async function farmPlant(slot,c,a){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');if(!FARM_CROPS[c]||!FARM_SEED.includes(a))throw new Error('bad');
+async function farmPlant(slot,c,a){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');if(!FARM_CROPS[c]||!FARM_SEED.includes(a))throw new Error('bad');if(FARM_CROPS[c].hw&&!(typeof hwSeeds==='function'&&hwSeeds()>0))throw new Error('seed');
   if(farmPlots(me.id)[slot])throw new Error('used');if(balance(me.id)<a)throw new Error('pt');
   const x={i:'f'+now().toString(36)+Math.floor(Math.random()*1296).toString(36),c,a,t:now()},F=Object.assign({},farmOf(me.id)),P=Object.assign({},F.p||{});P[slot]=x;
   await db.doc('farm/'+me.id).set({p:P,dog:+F.dog||0,u:now()});farms[me.id]={p:P,dog:+F.dog||0};
-  const v=Object.assign({},inv,{fsd:(+inv.fsd||0)+a});await db.doc('inv/'+me.id).set(v);inv=v}
+  const v=Object.assign({},inv,{fsd:(+inv.fsd||0)+a},FARM_CROPS[c].hw?{[HWK.k]:Math.max(0,(+inv[HWK.k]||0)-1)}:{});await db.doc('inv/'+me.id).set(v);inv=v}
 async function farmHarvest(slot){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');const x=farmPlots(me.id)[slot];if(!x||!plotRipe(x))throw new Error('wait');
   const fhl=inv.fhl||[],raw=Math.max(0,plotYield(x)-plotTaken(x)),a=+x.a||0,gain=raw>a?a+Math.min(raw-a,farmRoom(me.id)):raw,dn=dayNo(now());
   if(!fhl.includes(x.i)){const v=Object.assign({},inv,{...(typeof hwOn==='function'&&hwOn()?{[HWK.h]:(+inv[HWK.h]||0)+1}:{}),fhv:(+inv.fhv||0)+gain,fhl:fhl.concat([x.i]).slice(-60),fpd:dn,fpg:(+inv.fpd===dn?(+inv.fpg||0):0)+Math.max(0,gain-a)});await db.doc('inv/'+me.id).set(v);inv=v}
@@ -7972,10 +8002,10 @@ function farmFx(bed,big,small,kind){const f=el('div','fmfx '+kind);f.append(el('
   else for(let i=0;i<8;i++){const c=el('i','fmcoin');c.style.setProperty('--x',(Math.cos(i/8*6.28)*60).toFixed(0)+'px');c.style.setProperty('--y',(-40-Math.random()*50).toFixed(0)+'px');c.style.animationDelay=(i*25)+'ms';f.append(c)}
   const r=bed.getBoundingClientRect();f.style.cssText='position:fixed;inset:auto;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;height:'+r.height+'px;z-index:130';document.body.append(f);setTimeout(()=>f.remove(),1800)}
 function farmPlantSheet(slot){document.querySelectorAll('.mks').forEach(x=>x.remove());const me=myPlayer(),o=el('div','mks'),b=el('div','mksb fmps');o.append(b);let c='tomato',a=100;
-  const draw=()=>{b.replaceChildren(el('h3',null,'植える'));const cs=el('div','fmcs');Object.keys(FARM_CROPS).forEach(k=>{const C=FARM_CROPS[k],t=el('button','fmc kx-fm'+(k===c?' on':''));const ar=el('div','fmca');ar.innerHTML=cropSvg(k,3);t.append(ar,el('b',null,C.n),el('span',null,cropRate(C)));t.onclick=()=>{c=k;draw()};cs.append(t)});b.append(cs);
+  const draw=()=>{b.replaceChildren(el('h3',null,'植える'));const cs=el('div','fmcs');Object.keys(FARM_CROPS).filter(k=>!FARM_CROPS[k].hw||(typeof hwSeeds==='function'&&hwSeeds()>0)).forEach(k=>{const C=FARM_CROPS[k],t=el('button','fmc kx-fm'+(k===c?' on':''));const ar=el('div','fmca');ar.innerHTML=cropSvg(k,3);t.append(ar,el('b',null,C.n),el('span',null,cropRate(C)+(C.hw?'  ·  種 '+hwSeeds()+'個':'')));t.onclick=()=>{c=k;draw()};cs.append(t)});b.append(cs);
     b.append(el('div','scpkh','種にするpt'));const am=el('div','fmam');FARM_SEED.forEach(v=>{const t=el('button','kx-fm'+(v===a?' on':''),v+'pt');t.disabled=balance(me.id)<v;t.onclick=()=>{a=v;draw()};am.append(t)});b.append(am);
     const C=FARM_CROPS[c],Y3=Math.round(a*(1+C.r*FARM_MIN)),YM=Math.round(a*C.cap),FH=Math.round((C.cap-1)/C.r);b.append(el('div','fmsum',FARM_MIN+'時間後から収穫できます(そのとき '+Y3+'pt)。置いておくほど増えて、'+(FH>=48?Math.round(FH/24)+'日':FH+'時間')+'後に最大 '+YM+'pt。そのぶん仲間に盗まれる時間も長くなります(みんなで最大50%)。'));
-    const go=el('button','mkgo','植える('+a+'pt)');go.disabled=balance(me.id)<a;go.onclick=async()=>{go.disabled=true;try{await farmPlant(slot,c,a);o.remove();toast(C.n+'を植えました');farmDraw()}catch(e){go.disabled=false;toast(e.message==='pt'?'ptが足りません':/permission/i.test(e.code||e.message||'')?'畑のルールがまだ反映されていないので植えられません':'植えられませんでした')}};
+    const go=el('button','mkgo','植える('+a+'pt)');go.disabled=balance(me.id)<a;go.onclick=async()=>{go.disabled=true;try{await farmPlant(slot,c,a);o.remove();toast(C.n+'を植えました');farmDraw()}catch(e){go.disabled=false;toast(e.message==='seed'?'かぼちゃの種がありません':e.message==='pt'?'ptが足りません':/permission/i.test(e.code||e.message||'')?'畑のルールがまだ反映されていないので植えられません':'植えられませんでした')}};
     const cl=el('button','sec','やめる');cl.onclick=()=>o.remove();b.append(go,cl)};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
 /* ---------- 師匠と弟子 (v134): an apprentice asks, the master accepts.
@@ -9014,7 +9044,7 @@ function earned(pid){
 const spentOf=v=>(v.packs||0)*PACK+Math.max(0,(v.lpacks||0)-(v.lfree||0))*LPACK+(v.tpacks||0)*TPACK+(v.xpacks||0)*(TXP-TPACK)+(+v.shopsp||0);
 /* points on the table in an unfinished match can't be spent */
 const betHeld=pid=>(typeof chs!=='undefined'?chs:[]).filter(c=>c.bet&&(c.st==='pending'?c.a===pid:(c.a===pid||c.b===pid)&&['active','reported','abortreq'].includes(c.st))&&live(c)&&!matches.some(m=>m.id===c.id)).reduce((a,c)=>a+c.bet,0);
-const invAdj=v=>spentOf(v)-(+v.mpts||0)-(+v.lbp||0)-(+v.ppp||0)-(+v.bpt||0)-(+v.hmp||0)+(+v.gfee||0)+(+v.scfee||0)+(+v.fsd||0)+(+v.fdog||0)-(+v.fhv||0);
+const invAdj=v=>spentOf(v)-(+v.mpts||0)-(+v.lbp||0)-(+v.ppp||0)-(+v.bpt||0)-(+v.hmp||0)-(+v.hxp||0)+(+v.gfee||0)+(+v.scfee||0)+(+v.fsd||0)+(+v.fdog||0)-(+v.fhv||0);
 const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)+(typeof mktNet==='function'?mktNet(pid):0)+(typeof bountyPts==='function'?bountyPts(pid):0)+(typeof farmNet==='function'?farmNet(pid):0)+(typeof mtPts==='function'?mtPts(pid):0)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
 const admInv={};
 /* ===== 分身アバターバトル (beta): the page runs in an overlay (bunshin.html) and talks to the app through BUNSHINHOST =====
@@ -9787,7 +9817,7 @@ function notes(){
   grants.filter(g=>g.pid===me.id&&((g.kind||'pt')==='pt'||g.kind==='buy')).slice(0,10).forEach(g=>L.push({key:'g'+g.id,t:g.t,k:'ポイント',x:(g.kind==='buy'?'購入ptが届きました  +':'開発者からポイント  +')+g.pt+'pt'+(g.note?'  ·  '+g.note:''),go:'gacha'}));
   try{slabsOf(inv).filter(x=>invFor===me.id&&(slabReady(x)||x.s)).forEach(x=>{const c=TC[x.id];if(c)L.push({key:'gr'+x.i,t:x.t+GR_H*36e5,k:'鑑定',x:x.s?'「'+c.n+'」の鑑定 '+x.s+'('+GR_NM[x.s]+')':'「'+c.n+'」の鑑定結果が届きました。開けてみよう',go:'grade'})})}catch(e){}
   try{mtReqsTo(me.id).forEach(d=>L.push({key:'mr'+d.id,t:+d.t||0,k:'師弟',x:pname(d.a)+'から弟子入りの申し込み',go:'mentor'}));mentors.filter(d=>d.a===me.id&&d.ok).forEach(d=>L.push({key:'mo'+d.id,t:+d.ok,k:'師弟',x:pname(d.m)+'があなたを弟子にしました。分身の経験値が1.5倍',go:'mentor'}));mentors.filter(d=>d.g&&(d.a===me.id||d.m===me.id)).forEach(d=>L.push({key:'mg'+d.id,t:+d.g,k:'師弟',x:d.a===me.id?pname(d.m)+'師匠のもとを卒業しました  +'+MT_GRAD_A+'pt':'弟子の'+pname(d.a)+'が卒業しました  +'+MT_GRAD_M+'pt',go:'mentor'}))}catch(e){}
-  try{if(typeof hwOn==='function'&&hwOn()){totIn(me.id).forEach(x=>L.push({key:'ti'+x.id,t:+x.t||0,k:'ハロウィン',x:pname(x.f)+'からトリック・オア・トリート! 1日以内にお菓子をあげないと、いたずらで'+TOT_TRICK+'個とられる',go:'hw'}));tots.filter(x=>x.f===me.id&&totRes(x)!=='wait').forEach(x=>L.push({key:'tr'+x.id,t:+(x.at||x.t+TOT_WAIT),k:'ハロウィン',x:totRes(x)==='give'?pname(x.o)+'がお菓子をくれた(+'+TOT_GIVE+')':pname(x.o)+'にいたずら!お菓子 +'+TOT_TRICK,go:'hw'}))}}catch(e){}
+  try{if(typeof hwOn==='function'&&hwOn()){totIn(me.id).forEach(x=>L.push({key:'ti'+x.id,t:+x.t||0,k:'ハロウィン',x:pname(x.f)+'からトリック・オア・トリート! 1日以内にお菓子をあげないと、いたずらで'+TOT_TRICK+'個とられる',go:'hw'}));tots.filter(x=>x.f===me.id&&totRes(x)!=='wait').forEach(x=>L.push({key:'tr'+x.id,t:+(x.at||x.t+TOT_WAIT),k:'ハロウィン',x:totRes(x)==='safe'?pname(x.o)+'はいたずらよけのお守りを持っていた':totRes(x)==='give'?pname(x.o)+'がお菓子をくれた(+'+TOT_GIVE+')':pname(x.o)+'にいたずら!お菓子 +'+TOT_TRICK,go:'hw'}))}}catch(e){}
   try{farmPlots(me.id).forEach(x=>{if(x&&plotRipe(x))L.push({key:'fr'+x.i,t:plotRipeAt(x),k:'畑',x:FARM_CROPS[x.c].n+'が収穫できます。置くほど増えるけど、そのぶん盗まれやすい',go:'farm'})});steals.filter(z=>z.o===me.id).forEach(z=>L.push({key:'fs'+z.id,t:+z.t||0,k:'畑',x:z.bit?'番犬が'+pname(z.p)+'を撃退!  罰金 +'+z.f+'pt':pname(z.p)+'に'+((FARM_CROPS[z.c]||{}).n||'作物')+'を盗まれた(-'+z.n+'pt)',go:'farm'}))}catch(e){}
   try{likes.filter(l=>l.o===me.id&&l.p!==me.id).forEach(l=>L.push({key:'lk'+l.id,t:+l.t||0,k:'いいね',x:pname(l.p)+'があなたのショーケースにいいね',go:'case'}))}catch(e){}
   devMsgs.slice(0,5).forEach(m=>L.push({key:'m'+m.id,t:m.t,k:'お知らせ',x:m.title||'開発者からのお知らせ',go:'home'}));
