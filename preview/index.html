@@ -3431,7 +3431,7 @@ body.kidle #lob .lhwd *,body.ui2 #lob .lhwd.kpz *{animation-play-state:paused}
 
 /* (10/17) the painted pumpkin field: sits right under the shield (same anchor as .emb2), its faces breathe with a warm glow */
 body.ui2 #lob .lhwd .hfield{position:absolute;left:50%;width:min(76%,360px);aspect-ratio:780/415;top:calc(50% - 170px + clamp(130px,26vh,190px) - 84px);transform:translateX(-50%);background:url("hw_field.webp") center/100% 100% no-repeat;opacity:.9}
-body.ui2 #lob .lhwd .hfield b{position:absolute;left:8%;right:8%;top:28%;height:46%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,150,60,.34),rgba(255,120,40,0));mix-blend-mode:screen;animation:lhwGlow 2.8s ease-in-out infinite}
+body.ui2 #lob .lhwd .hfield b{position:absolute;left:8%;right:8%;top:28%;height:46%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,150,60,.26),rgba(255,120,40,0));animation:lhwGlow 2.8s ease-in-out infinite}
 body.ui2 #lob.hwn .lhwd .hfield{opacity:1}
 body.ui2 #lob.hwn .lhwd .hfield b{background:radial-gradient(closest-side,rgba(255,150,60,.5),rgba(255,110,30,0))}
 @media (max-height:720px){body.ui2 #lob .lhwd .hfield{top:calc(50% - 150px + clamp(130px,26vh,190px) - 84px)}}
@@ -7672,7 +7672,8 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
   let sub=hwOpen.sub0||null;hwOpen.sub0=null;hwOpen.go=k=>{sub=k;draw();o.scrollTo(0,0)};
   const draw=()=>{b.replaceChildren();const on=hwOn(),pt=hwPart(),bal=hwBal(me.id),earn=hwEarn(me.id);
     /* (10/17) the key visual: the moving painting of かぼちゃ畑の夜 across the top, the title set in mincho over it */
-    const kv=el('div','hlw-kv');try{bgFilm(kv,{src:'fx_hwbg_gr2',fy:'50%'})}catch(e){}
+    /* the painting is made once per opening and kept across redraws, so the film never restarts or reloads */
+    let kv=o.__kv;if(!kv){kv=o.__kv=el('div','hlw-kv');try{bgFilm(kv,{src:'fx_hwbg_gr2',fy:'50%'})}catch(e){}}else kv.querySelectorAll('.hlw-x,.hlw-tt').forEach(x=>x.remove());
     const cl=el('button','hlw-x');cl.type='button';cl.setAttribute('aria-label','閉じる');cl.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';cl.onclick=()=>o.remove();
     const tt=el('div','hlw-tt');tt.append(el('small',null,on?(pt===1?'前編':'後編')+'  ·  '+(pt===1?'かぼちゃ頭の騎士の週':'夜宴の魔女の週'):now()<hwT0()?'10/20 から':'終了しました'),el('h2',null,'ハロウィン'),el('i',null,'Halloween Night 2026'));
     kv.append(cl,tt);b.append(kv);
