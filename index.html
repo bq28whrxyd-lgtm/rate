@@ -11037,7 +11037,10 @@ function watchInv(){
   watchTcgm();
   const me=myPlayer(),id=me&&me.id;if(!db||id===invFor)return;
   if(invUnsub){invUnsub();invUnsub=null}invFor=id;invLoaded=false;inv={own:{},packs:0,since:0,shards:0};
-  if(id)invUnsub=db.doc('inv/'+id).onSnapshot(s=>{inv=s.exists?Object.assign({own:{},packs:0,since:0,shards:0},s.data()):{own:{},packs:0,since:0,shards:0,gv:1};invLoaded=true;if(id===invFor&&s.exists&&!inv.gv){const o={};let ch=0;Object.keys(inv.own||{}).forEach(k=>{const n=+inv.own[k]||0;o[k]=Math.min(n,1);if(n>1)ch=1});inv.own=o;inv.gv=1;db.doc('inv/'+id).set({own:o,gv:1},{merge:true}).catch(()=>{})}if(id===invFor)setTimeout(ownSync,1200);if(s.exists&&inv.gotB==null&&id===invFor){inv.gotB=now();db.doc('inv/'+id).set({gotB:inv.gotB},{merge:true}).catch(()=>{})}renderGacha();renderTcg();if(typeof tcgScrGifts==='function')setTimeout(tcgScrGifts,0);if(typeof loginBonus==='function')setTimeout(loginBonus,700)},()=>{});
+  let invSrv=false;
+  if(id)invUnsub=db.doc('inv/'+id).onSnapshot(s=>{const cached=!!(s.metadata&&s.metadata.fromCache);if(!cached)invSrv=true;
+    inv=s.exists?Object.assign({own:{},packs:0,since:0,shards:0},s.data()):{own:{},packs:0,since:0,shards:0,gv:1};
+    if(!invSrv){invLoaded=false;try{renderGacha();renderTcg()}catch(e){}return}invLoaded=true;if(id===invFor&&s.exists&&!inv.gv){const o={};let ch=0;Object.keys(inv.own||{}).forEach(k=>{const n=+inv.own[k]||0;o[k]=Math.min(n,1);if(n>1)ch=1});inv.own=o;inv.gv=1;db.doc('inv/'+id).set({own:o,gv:1},{merge:true}).catch(()=>{})}if(id===invFor)setTimeout(ownSync,1200);if(s.exists&&inv.gotB==null&&id===invFor){inv.gotB=now();db.doc('inv/'+id).set({gotB:inv.gotB},{merge:true}).catch(()=>{})}renderGacha();renderTcg();if(typeof tcgScrGifts==='function')setTimeout(tcgScrGifts,0);if(typeof loginBonus==='function')setTimeout(loginBonus,700)},()=>{},{meta:true});
 }
 /* ---- limited banner (config/banner: {set,start,end}) ---- */
 let banner=null;
@@ -15635,14 +15638,14 @@ const synced=(c,o)=>({onSnapshot:(cb,er)=>{const f=o.f,sf=o.sort||f;let map=new 
     map=new Map(rec?Object.entries(rec.docs):[]);if(rec)emit();
     const from=rec&&rec.mx?rec.mx-MARGIN:null;
     const q=from==null?query(collection(FS,c)):query(collection(FS,c),where(f,'>',from));
-    un=LS(c,()=>onSnapshot(q,s=>{if(dead||my!==gen)return;s.docChanges().forEach(ch=>{if(ch.type==='removed')map.delete(ch.doc.id);else map.set(ch.doc.id,ch.doc.data())});emit(!s.metadata.fromCache);if(!s.metadata.fromCache)save()},e=>{(er||(()=>{}))(e)}),er)};
+    un=LS(c,()=>onSnapshot(q,s=>{if(dead||my!==gen)return;s.docChanges().forEach(ch=>{if(ch.type==='removed')map.delete(ch.doc.id);else map.set(ch.doc.id,ch.doc.data())});emit(!(s.metadata&&s.metadata.fromCache));if(!(s.metadata&&s.metadata.fromCache))save()},e=>{(er||(()=>{}))(e)}),er)};
   const onV=nv=>{if(nv!==v)start(false)};/* the saved copy is used again only if it was made with this version */
   syncVStart();syncSubs.add(onV);start(false);
   return()=>{dead=true;syncSubs.delete(onV);clearTimeout(saveT);if(un)un()}}});
 const db={
-  doc:p=>{const r=doc(FS,p);return{__r:r,set:(d,o)=>W(p,()=>o?setDoc(r,d,o):setDoc(r,d)),update:d=>W(p,()=>updateDoc(r,d)),delete:()=>W(p,()=>deleteDoc(r)),onSnapshot:(cb,er)=>LS(p,()=>onSnapshot(r,s=>cb(snap(s)),er||(()=>{})),er)}},
+  doc:p=>{const r=doc(FS,p);return{__r:r,set:(d,o)=>W(p,()=>o?setDoc(r,d,o):setDoc(r,d)),update:d=>W(p,()=>updateDoc(r,d)),delete:()=>W(p,()=>deleteDoc(r)),onSnapshot:(cb,er,o)=>LS(p,()=>o&&o.meta?onSnapshot(r,{includeMetadataChanges:true},s=>cb(Object.assign(snap(s),{metadata:{fromCache:!!(s.metadata&&s.metadata.fromCache)}})),er||(()=>{})):onSnapshot(r,s=>cb(snap(s)),er||(()=>{})),er)}},
   collection:c=>{const mk=cs=>({orderBy:(f,d)=>mk([...cs,orderBy(f,d||'asc')]),limit:n=>mk([...cs,limit(n)]),where:(f,op,v)=>mk([...cs,where(f,op,v)]),add:d=>W(c+'/+',()=>addDoc(collection(FS,c),d)),
-    onSnapshot:(cb,er,o)=>LS(c,()=>o&&o.meta?onSnapshot(query(collection(FS,c),...cs),{includeMetadataChanges:true},s=>cb({docs:s.docs.map(snap),metadata:{fromCache:s.metadata.fromCache}}),er||(()=>{})):onSnapshot(query(collection(FS,c),...cs),s=>cb({docs:s.docs.map(snap),metadata:{fromCache:s.metadata.fromCache}}),er||(()=>{})),er)});return mk([])},
+    onSnapshot:(cb,er,o)=>LS(c,()=>o&&o.meta?onSnapshot(query(collection(FS,c),...cs),{includeMetadataChanges:true},s=>cb({docs:s.docs.map(snap),metadata:{fromCache:!!(s.metadata&&s.metadata.fromCache)}}),er||(()=>{})):onSnapshot(query(collection(FS,c),...cs),s=>cb({docs:s.docs.map(snap),metadata:{fromCache:!!(s.metadata&&s.metadata.fromCache)}}),er||(()=>{})),er)});return mk([])},
   /* (10/16) read and write against the server's copy in one step (分身's chests) */
   runTransaction:fn=>W('tx',()=>runTransaction(FS,t=>fn({get:async d=>snap(await t.get(d.__r)),set:(d,v)=>{t.set(d.__r,v)}}))),
   synced,
