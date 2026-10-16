@@ -7200,13 +7200,34 @@ function dupSheet(kind,res,onChange){document.querySelectorAll('.dps').forEach(x
       r.append(rk,tx,s1,s2);ls.append(r)});b.append(ls,el('div','sub','右の2つのボタンは1枚ずつ。左がかけら、右が燃やす。ダブりではないカードも減らせます(確認が出ます)。'+(ex.length?'上の「全部」はダブりの分だけです':'')));
     const cl=el('button','sec dpsx','閉じる');cl.onclick=()=>o.remove();b.append(cl)};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
-/* iOS home-screen app: after the keyboard closes (a bid, a listing price…), the page can stay shifted and shrunk, and the bottom
-   bar ends up floating in the middle with black below it. Once no field has focus any more, put the viewport back. */
+/* iOS home-screen app: once the keyboard has been open, WebKit can keep the viewport shrunk (innerHeight / visualViewport stay small)
+   until the app is quit, so the bottom bar floats in the middle with black below it. Scrolling does not bring it back (10/16: the
+   old scrollTo nudge did nothing). What does: hiding a full-height element and showing it again in the same frame, which makes WebKit
+   measure the viewport again (dev.to/cederhook, iOS 17-18; iOS 26 has a similar bug). Done when no field has focus, and only while
+   the viewport is smaller than the largest seen in this orientation (or the visual viewport is smaller than the layout one). */
 (function(){if(!/iP(hone|ad|od)/.test(navigator.userAgent)&&!(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))return;
-  const typing=()=>{const a=document.activeElement;return !!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))};
-  const fix=()=>{if(typing())return;const y=window.scrollY;window.scrollTo(window.scrollX,y+1);window.scrollTo(window.scrollX,y)};
-  document.addEventListener('focusout',()=>{setTimeout(fix,60);setTimeout(fix,350)});
-  if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(!typing()&&visualViewport.height>=window.innerHeight-2)setTimeout(fix,30)})})();
+  const typing=()=>{const a=document.activeElement;return !!(a&&(/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)||a.isContentEditable))};
+  const ok=()=>innerWidth>innerHeight?'l':'p';let mx={p:0,l:0};
+  const note=()=>{if(typing())return;const k=ok();mx[k]=Math.max(mx[k],innerHeight)};note();
+  let he=null;const helper=()=>{if(he&&he.isConnected)return he;he=document.createElement('div');he.setAttribute('aria-hidden','true');
+    he.style.cssText='position:fixed;left:0;top:0;width:1px;height:100%;pointer-events:none;opacity:0;z-index:-1';document.body.appendChild(he);return he};
+  const stuck=()=>{const k=ok(),vv=window.visualViewport,z=vv&&Math.abs((vv.scale||1)-1)>.01;return !z&&((mx[k]-innerHeight>4)||(vv&&innerHeight-vv.height>4))};
+  const flip=el=>{const d=el.style.display;el.style.display='none';void el.offsetHeight;el.style.display=d};
+  /* hiding the page drops every scroll position: keep them and put them back */
+  const flipKeep=el=>{const S=[],y=scrollY,x=scrollX;document.querySelectorAll('*').forEach(e=>{if(e.scrollTop||e.scrollLeft)S.push([e,e.scrollTop,e.scrollLeft])});
+    flip(el);scrollTo(x,y);S.forEach(([e,t,l])=>{e.scrollTop=t;e.scrollLeft=l})};
+  let busy=false,lastBig=0,bigN=0;
+  const heal=()=>{if(busy||typing()||!document.body)return;if(!stuck()){bigN=0;return}busy=true;
+    try{flip(helper())}catch(e){}
+    /* still stuck: the whole page, at most once in 8 seconds and 3 times in a row */
+    setTimeout(()=>{try{if(!typing()&&stuck()&&Date.now()-lastBig>8000&&bigN<3){lastBig=Date.now();bigN++;flipKeep(document.body)}}catch(e){}note();busy=false},120)};
+  window.__vvHeal=heal;
+  addEventListener('resize',()=>{note();if(!typing())setTimeout(heal,60)});
+  document.addEventListener('focusout',()=>{setTimeout(heal,140);setTimeout(heal,450)});
+  if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(!typing())setTimeout(heal,80)});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(heal,300)});
+  addEventListener('pageshow',()=>setTimeout(heal,300));addEventListener('orientationchange',()=>{mx={p:0,l:0};setTimeout(note,500)});
+  setInterval(()=>{if(!document.hidden)heal()},2500)})();
 /* ---------- 賞金首 (v134): 3 rate wins in a row (any genre) puts a price on you: 300pt, +100 for every further win.
    Whoever ends the run gets it, paid by the app. Worked out from the match records only (counted from BOUNTY0), so nothing new is stored. ---------- */
 const BOUNTY0=Date.UTC(2026,9,16,5,53),BOUNTY_MIN=3,bountyOf=s=>s>=BOUNTY_MIN?300+(s-BOUNTY_MIN)*100:0;
