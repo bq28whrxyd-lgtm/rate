@@ -2796,6 +2796,7 @@ button.fmtab.on{background:#fff3df;color:#2a1a10}button.fmtab i{position:absolut
 .fmbed.ripe .fmart{animation:fmbob 2.4s ease-in-out infinite;transform-origin:50% 90%}@keyframes fmbob{50%{transform:translateY(-2px) scale(1.02)}}
 .fmi{display:grid;gap:6px;min-width:0;align-content:center}.fmi>b{font-size:14px;font-variant-numeric:tabular-nums}.fmi>span{font-size:12px;opacity:.85}.fmi .fmr{color:#ffd36e;font-weight:800;opacity:1}
 .fmpg{height:6px;border-radius:999px;background:rgba(255,255,255,.18);overflow:hidden}.fmpg i{display:block;height:100%;background:linear-gradient(90deg,#7ccf63,#c9ef8a);transform-origin:0 50%}.fmpg.gold i{background:linear-gradient(90deg,#e9b24f,#ffe7a8)}
+.fmcap{margin:2px 0 10px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,214,140,.22);display:flex;flex-direction:column;gap:2px}.fmcap b{font-size:13px;color:#ffd98a}.fmcap span{font-size:11px;opacity:.72;line-height:1.45}.fmcap.full b{color:#ff9d8a}.fmcut{display:block;font-size:11px;color:#ffc58a;margin:4px 0 2px;line-height:1.4}
 .fmth{display:flex;align-items:center;gap:5px;flex-wrap:wrap}.fmth i{width:10px;height:10px;border-radius:50%;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.45)}.fmth i.on{background:#ff7a6b;box-shadow:none}.fmth small{font-size:11px;opacity:.75;margin-left:3px}
 button.fmgo{height:44px;min-width:128px;padding:0 20px;border:0;border-radius:999px;font:inherit;font-size:14px;font-weight:800;color:#2a1806;background:linear-gradient(180deg,#ffe7a8,#e9b24f);box-shadow:0 6px 16px -6px rgba(233,178,79,.9);justify-self:start}
 button.fmgo.steal{color:#fff;background:linear-gradient(180deg,#5b4a8a,#352a5c);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2),0 6px 16px -6px rgba(0,0,0,.8)}button.fmgo:disabled{opacity:.5}
@@ -7593,6 +7594,7 @@ function dogSvg(on){return '<svg viewBox="0 0 100 80" aria-hidden="true"><defs><
            A thief gets n, or pays the fine when bitten; the owner gets the fine. All of it from steal/, nothing written into anyone else's data. ---------- */
 /* growth by the hour: harvestable from FARM_MIN hours on, and the longer it stays, the more it is worth (up to cap) - and the longer friends can steal from it */
 const FARM_MIN=3,FARM_CROPS={ichigo:{n:'いちご',r:.025,cap:1.25},tomato:{n:'トマト',r:.015,cap:1.5},melon:{n:'メロン',r:.01,cap:1.8}};
+const FARM_DAY=600;/* 1日(朝5時から)に畑で増やせるのは600ptまで: 自分の収穫で増えた分 + 盗んだ分 (inv.fpd day, inv.fpg profit that day) */
 const FARM_SLOTS=3,FARM_SEED=[50,100,300,500,1000],FARM_TAKE=.1,FARM_MAXT=5,DOG_COST=100,DOG_DAYS=1,DOG_BITE=35,DOG_FINE=.2;
 let farms={},steals=[],farmsOn=false;
 function farmWatch(){if(farmsOn||!db)return;farmsOn=true;
@@ -7612,6 +7614,8 @@ const farmOf=pid=>farms[pid]||{};
 const farmPlots=pid=>{const P=farmOf(pid).p||{},out=[];for(let i=0;i<FARM_SLOTS;i++)out.push(P[i]&&P[i].c?Object.assign({slot:i},P[i]):null);return out};
 const dogOn=pid=>(+farmOf(pid).dog||0)>now();
 /* points from stealing: my takes, my fines, fines paid to me */
+function farmToday(pid){const dn=dayNo(now());let t=0;if(pid===invFor&&inv&&+inv.fpd===dn)t+=+inv.fpg||0;for(const s of steals)if(s.p===pid&&!s.bit&&dayNo(+s.t||0)===dn)t+=+s.n||0;return t}
+const farmRoom=pid=>Math.max(0,FARM_DAY-farmToday(pid));
 function farmNet(pid){let t=0;for(const s of steals){if(s.p===pid)t+=s.bit?-(+s.f||0):(+s.n||0);if(s.o===pid&&s.bit)t+=(+s.f||0)}return t}
 const farmLeft=t=>{const d=t-now();if(d<=0)return '';const h=Math.floor(d/36e5),m=Math.floor(d%36e5/6e4);return h>=24?Math.floor(h/24)+'日'+(h%24)+'時間':h?h+'時間'+m+'分':m+'分'};
 async function farmPlant(slot,c,a){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');if(!FARM_CROPS[c]||!FARM_SEED.includes(a))throw new Error('bad');
@@ -7620,13 +7624,16 @@ async function farmPlant(slot,c,a){const me=myPlayer();if(!db||!me||!invLoaded||
   await db.doc('farm/'+me.id).set({p:P,dog:+F.dog||0,u:now()});farms[me.id]={p:P,dog:+F.dog||0};
   const v=Object.assign({},inv,{fsd:(+inv.fsd||0)+a});await db.doc('inv/'+me.id).set(v);inv=v}
 async function farmHarvest(slot){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');const x=farmPlots(me.id)[slot];if(!x||!plotRipe(x))throw new Error('wait');
-  const fhl=inv.fhl||[];const gain=Math.max(0,plotYield(x)-plotTaken(x));if(!fhl.includes(x.i)){const v=Object.assign({},inv,{fhv:(+inv.fhv||0)+gain,fhl:fhl.concat([x.i]).slice(-60)});await db.doc('inv/'+me.id).set(v);inv=v}
-  const F=Object.assign({},farmOf(me.id)),P=Object.assign({},F.p||{});delete P[slot];await db.doc('farm/'+me.id).set({p:P,dog:+F.dog||0,u:now()});farms[me.id]={p:P,dog:+F.dog||0};return {gain,lost:plotYield(x)-gain,x}}
+  const fhl=inv.fhl||[],raw=Math.max(0,plotYield(x)-plotTaken(x)),a=+x.a||0,gain=raw>a?a+Math.min(raw-a,farmRoom(me.id)):raw,dn=dayNo(now());
+  if(!fhl.includes(x.i)){const v=Object.assign({},inv,{fhv:(+inv.fhv||0)+gain,fhl:fhl.concat([x.i]).slice(-60),fpd:dn,fpg:(+inv.fpd===dn?(+inv.fpg||0):0)+Math.max(0,gain-a)});await db.doc('inv/'+me.id).set(v);inv=v}
+  const F=Object.assign({},farmOf(me.id)),P=Object.assign({},F.p||{});delete P[slot];await db.doc('farm/'+me.id).set({p:P,dog:+F.dog||0,u:now()});farms[me.id]={p:P,dog:+F.dog||0};return {gain,lost:plotYield(x)-raw,cut:raw-gain,x}}
 async function farmDog(){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');if(balance(me.id)<DOG_COST)throw new Error('pt');const F=Object.assign({},farmOf(me.id)),until=Math.max(now(),+F.dog||0)+DOG_DAYS*864e5;
   await db.doc('farm/'+me.id).set({p:F.p||{},dog:until,u:now()});farms[me.id]=Object.assign({},F,{dog:until});const v=Object.assign({},inv,{fdog:(+inv.fdog||0)+DOG_COST});await db.doc('inv/'+me.id).set(v);inv=v}
-const canSteal=(o,x)=>{const me=myPlayer();return !!(me&&o!==me.id&&x&&plotRipe(x)&&plotSteals(x).filter(s=>!s.bit).length<FARM_MAXT&&!plotSteals(x).some(s=>s.p===me.id))};
+/* 盗めるのは1人1日1回(どこか1つの畑から。噛まれても1回) */
+const stoleToday=pid=>{const dn=dayNo(now());return steals.some(s=>s.p===pid&&dayNo(+s.t||0)===dn)};
+const canSteal=(o,x)=>{const me=myPlayer();return !!(me&&o!==me.id&&x&&plotRipe(x)&&farmRoom(me.id)>0&&!stoleToday(me.id)&&plotSteals(x).filter(s=>!s.bit).length<FARM_MAXT&&!plotSteals(x).some(s=>s.p===me.id))};
 async function farmSteal(o,slot){const me=myPlayer();if(!db||!me)throw new Error('me');const x=farmPlots(o)[slot];if(!canSteal(o,x))throw new Error('no');const Y=plotYield(x),dog=dogOn(o),fine=Math.max(1,Math.floor(Y*DOG_FINE));
-  if(dog&&balance(me.id)<fine)throw new Error('fine');const bit=dog&&hsh('dog'+me.id+':'+x.i)%100<DOG_BITE?1:0,n=bit?0:Math.max(1,Math.floor(Y*FARM_TAKE)),doc={o,p:me.id,pl:x.i,c:x.c,t:now(),n,bit,f:bit?fine:0};
+  if(dog&&balance(me.id)<fine)throw new Error('fine');const bit=dog&&hsh('dog'+me.id+':'+x.i)%100<DOG_BITE?1:0,n=bit?0:Math.max(1,Math.min(farmRoom(me.id),Math.floor(Y*FARM_TAKE))),doc={o,p:me.id,pl:x.i,c:x.c,t:now(),n,bit,f:bit?fine:0};
   await db.doc('steal/'+o+'_'+x.i+'_'+me.id).set(doc);steals=steals.concat([Object.assign({id:o+'_'+x.i+'_'+me.id},doc)]);return doc}
 /* ---- 畑: the screen ---- */
 let farmView=null;
@@ -7638,14 +7645,15 @@ function farmDraw(){if(!farmView||!farmView.o||!farmView.o.isConnected)return;co
   /* whose field */
   const tabs=el('div','fmtabs'),fr=players.filter(x=>x.id!==me.id&&x.uid&&!x.retired&&!x.ban),ripeN=id=>farmPlots(id).filter(x=>x&&canSteal(id,x)).length,list=[me.id].concat(fr.sort((a,c)=>ripeN(c.id)-ripeN(a.id)).map(x=>x.id));
   list.forEach(id=>{const q=players.find(x=>x.id===id)||{},rp=farmPlots(id).filter(x=>x&&plotRipe(x)&&(id===me.id||canSteal(id,x))).length,t=el('button','fmtab kx-fm'+(id===pid?' on':'')+(rp?' rp':''));t.append(el('span',null,id===me.id?'自分':q.name||'?'));if(rp)t.append(el('i',null,String(rp)));t.onclick=()=>{farmView.pid=id;farmDraw()};tabs.append(t)});b.append(tabs);
+  {const rm=farmRoom(me.id),cp=el('div','fmcap'+(rm?'':' full'));cp.append(el('b',null,rm?'今日あと '+rm+'pt 増やせる':'今日の分は上限まで増やしました'),el('span',null,'畑で増やせるのは1日'+FARM_DAY+'ptまで(収穫で増えた分と盗んだ分の合計)。朝5時にリセット'));b.append(cp)}
   const beds=el('div','fmbeds');farmPlots(pid).forEach((x,slot)=>beds.append(farmBed(pid,slot,x)));b.append(beds);
-  if(mine){const R=farmPlots(pid).filter(x=>x&&plotRipe(x));if(R.length>1){const all=el('button','fmgo fmall kx-fm','まとめて収穫('+R.length+'つ)');all.onclick=async()=>{all.disabled=true;let g=0,l=0;for(const x of R){try{const r=await farmHarvest(x.slot);g+=r.gain;l+=r.lost}catch(e){}}farmFx(beds,'+'+g+'pt',l?'盗まれた '+l+'pt':'まるごと収穫','gain');setTimeout(farmDraw,1500)};b.insertBefore(all,beds)}}
+  if(mine){const R=farmPlots(pid).filter(x=>x&&plotRipe(x));if(R.length>1){const all=el('button','fmgo fmall kx-fm','まとめて収穫('+R.length+'つ)');all.onclick=async()=>{all.disabled=true;let g=0,l=0,c=0;for(const x of R){try{const r=await farmHarvest(x.slot);g+=r.gain;l+=r.lost;c+=r.cut}catch(e){}}farmFx(beds,'+'+g+'pt',c?'今日の上限で '+c+'pt は増えず':l?'盗まれた '+l+'pt':'まるごと収穫','gain');setTimeout(farmDraw,1500)};b.insertBefore(all,beds)}}
   /* the dog */
   const dg=el('div','fmdog'),dog=dogOn(pid);dg.append(el('div','fmdh',''));dg.firstChild.innerHTML=dogSvg(dog);const dt=el('div','fmdt');
   dt.append(el('b',null,dog?'番犬がいます':'番犬はいません'),el('span',null,dog?'あと '+farmLeft(+farmOf(pid).dog)+'。盗もうとした人は'+DOG_BITE+'%で噛まれて、罰金(実りの'+Math.round(DOG_FINE*100)+'%)を払う':mine?'雇うと、盗もうとした人が'+DOG_BITE+'%で噛まれて罰金を払います':'今なら噛まれずに盗めます'));dg.append(dt);
   if(mine){const db_=el('button','sec','雇う '+DOG_COST+'pt / '+DOG_DAYS+'日');if(dog)db_.textContent='延長 '+DOG_COST+'pt / +'+DOG_DAYS+'日';db_.onclick=()=>askSheet({title:'番犬を雇う',ok:'雇う('+DOG_COST+'pt)',lines:[DOG_DAYS+'日間、畑を守ります。','盗もうとした人は'+DOG_BITE+'%で噛まれ、実りの'+Math.round(DOG_FINE*100)+'%を罰金としてあなたに払います。'],run:async()=>{try{await farmDog();toast('番犬を雇いました');farmDraw()}catch(e){toast(e.message==='pt'?'ptが足りません':'雇えませんでした')}}});dg.append(db_)}
   b.append(dg);
-  b.append(el('div','sub fmnote','植えて3時間から収穫できて、置いておくほど増えます。いちご 1時間+2.5%(最大1.25倍) · トマト +1.5%(最大1.5倍) · メロン +1%(最大1.8倍)。実ってから収穫するまでの間は、仲間が1人1回10%ずつ、みんなで合計50%まで盗めます。早めに収穫しよう。'));
+  b.append(el('div','sub fmnote','植えて3時間から収穫できて、置いておくほど増えます。いちご 1時間+2.5%(最大1.25倍) · トマト +1.5%(最大1.5倍) · メロン +1%(最大1.8倍)。実ってから収穫するまでの間は、仲間が10%ずつ、みんなで合計50%まで盗めます。盗めるのは1人1日1回(どこか1つの畑から)。早めに収穫しよう。増やせるのは1日'+FARM_DAY+'ptまで。上限をこえた分は増えず、種のptはそのまま返ってきます。'));
   clearTimeout(farmDraw.t);farmDraw.t=setTimeout(farmDraw,30000)}
 function farmBed(pid,slot,x){const me=myPlayer(),mine=pid===me.id,w=el('div','fmbed'+(x&&plotRipe(x)?' ripe':'')),soil=el('div','fmsoil'),art=el('div','fmart'),info=el('div','fmi');
   if(x){art.innerHTML=cropSvg(x.c,plotStage(x));const C=FARM_CROPS[x.c],Y=plotYield(x),S=plotSteals(x),taken=plotTaken(x);
@@ -7654,8 +7662,8 @@ function farmBed(pid,slot,x){const me=myPlayer(),mine=pid===me.id,w=el('div','fm
     else{const full=now()>=plotFullAt(x),pr=el('div','fmpg gold'),bar=el('i');bar.style.transform='scaleX('+Math.min(1,(now()-x.t)/(plotFullAt(x)-x.t)).toFixed(3)+')';pr.append(bar);info.append(pr,el('span','fmr',(mine?'収穫できます':'実っています')+'  ·  '+(full?'最大まで育った':'最大 '+Math.round(x.a*C.cap)+'pt まであと '+farmLeft(plotFullAt(x)))))}
     const th=el('div','fmth');for(let k=0;k<FARM_MAXT;k++){const s=S.filter(z=>!z.bit)[k];const d=el('i',s?'on':'');if(s)d.title=pname(s.p);th.append(d)}const bitN=S.filter(z=>z.bit).length;
     th.append(el('small',null,S.length?(taken?'盗まれた '+taken+'pt':'')+(bitN?(taken?' · ':'')+'番犬が'+bitN+'人撃退':''):'まだ誰にも盗まれていない'));info.append(th);
-    if(mine&&plotRipe(x)){const hb=el('button','fmgo kx-fm','収穫する');hb.onclick=async()=>{hb.disabled=true;try{const r=await farmHarvest(slot);farmFx(w,'+'+r.gain+'pt',r.lost?'盗まれた '+r.lost+'pt':'まるごと収穫','gain');setTimeout(farmDraw,1500)}catch(e){hb.disabled=false;toast('収穫できませんでした')}};info.append(hb)}
-    else if(!mine&&plotRipe(x)){const tried=S.some(z=>z.p===me.id),ok=canSteal(pid,x),sb=el('button','fmgo steal kx-fm',tried?'盗みました':ok?'盗む(10%)':'もう盗めない');sb.disabled=!ok;
+    if(mine&&plotRipe(x)){const pr_=Math.max(0,Y-taken)-x.a,rm=farmRoom(me.id);if(pr_>rm)info.append(el('span','fmcut',rm?'今日の上限まであと'+rm+'pt。いま収穫すると増えるのは'+rm+'ptまで':'今日の上限に達しています。いま収穫すると種の'+x.a+'ptだけ返ってきます'));const hb=el('button','fmgo kx-fm','収穫する');hb.onclick=async()=>{hb.disabled=true;try{const r=await farmHarvest(slot);farmFx(w,'+'+r.gain+'pt',r.cut?'今日の上限で '+r.cut+'pt は増えず':r.lost?'盗まれた '+r.lost+'pt':'まるごと収穫','gain');setTimeout(farmDraw,1500)}catch(e){hb.disabled=false;toast('収穫できませんでした')}};info.append(hb)}
+    else if(!mine&&plotRipe(x)){const tried=S.some(z=>z.p===me.id),ok=canSteal(pid,x),sb=el('button','fmgo steal kx-fm',tried?'盗みました':ok?'盗む(10%)':stoleToday(me.id)?'今日はもう盗んだ':farmRoom(me.id)<=0?'今日の上限に達した':'もう盗めない');sb.disabled=!ok;
       sb.onclick=async()=>{sb.disabled=true;try{const r=await farmSteal(pid,slot);if(r.bit)farmFx(w,'噛まれた!','罰金 -'+r.f+'pt','bite');else farmFx(w,'+'+r.n+'pt',C.n+'を盗んだ','gain');setTimeout(farmDraw,1600)}catch(e){sb.disabled=false;toast(e.message==='fine'?'番犬がいるので、罰金ぶんのptがないと盗めません':'盗めませんでした')}};info.append(sb)}}
   else{art.innerHTML='<svg viewBox="0 0 100 100" aria-hidden="true"><ellipse cx="50" cy="86" rx="20" ry="4" fill="#4a3322" opacity=".6"/></svg>';info.append(el('b',null,'空いている畑'));
     if(mine){const pb=el('button','fmgo kx-fm','植える');pb.onclick=()=>farmPlantSheet(slot);info.append(pb)}else info.append(el('span',null,'何も植わっていない'))}
