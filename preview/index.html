@@ -2830,6 +2830,14 @@ button.tcgkeep{width:100%;margin-top:8px}
 .hlw-mc{height:32px;padding:0 12px;border-radius:999px;border:0;background:linear-gradient(180deg,#ffb15c,#ff7a1a);color:#2a1206;font-weight:800;font-size:12.5px}.hlw-mc:disabled{background:#ffffff14;color:#ffffff55}
 .hlw-mg{font-size:11px;color:#ffb36b;font-weight:700}
 .hlw-pv{font-size:12px;line-height:1.6;color:#ffd3a3;padding:10px 12px;border-radius:12px;background:#ff7a1a1f;box-shadow:inset 0 0 0 1px #ff9d3c44}
+.hlw-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.hlw-tile{position:relative;aspect-ratio:1/1;max-width:100%;border:0;border-radius:24px;padding:16px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;color:#fff;overflow:hidden;box-shadow:inset 0 0 0 1px #ffffff1a,0 16px 34px -18px #000}
+.hlw-tile b{font-size:17px;line-height:1.25;font-weight:800;white-space:pre-line}.hlw-tile small{font-size:12px;color:#ffffffc0}
+.hlw-tile .hlw-tic{position:absolute;right:10px;bottom:8px;opacity:.95}
+.hlw-tile em{position:absolute;top:10px;right:10px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#ff453a;color:#fff;font:800 12px/22px var(--k-num,inherit);font-style:normal;text-align:center}
+.hlw-tile.tt{background:linear-gradient(150deg,#a3401a,#4a1606)}.hlw-tile.ms{background:linear-gradient(150deg,#5b2370,#22102e)}
+.hlw-tile.sp{background:linear-gradient(150deg,#7a4a12,#2e1a06)}.hlw-tile.hw{background:linear-gradient(150deg,#2c3a5c,#121828)}
+.hlw-back{align-self:flex-start;height:36px;padding:0 14px;border-radius:999px;border:0;background:#ffffff12;color:#ffd3a3;font-weight:700;box-shadow:inset 0 0 0 1px #ffffff1a}
 .hlw-tsub{color:#cdb8da!important;margin:-2px 2px 10px;line-height:1.6}
 .hlw-inc{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .hlw-ir{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-radius:16px;background:linear-gradient(120deg,#5a2216,#2a1238);box-shadow:inset 0 0 0 1px #ff9d3c77}
@@ -7424,17 +7432,27 @@ function hwListSheet(done){const me=myPlayer();if(!me)return;document.querySelec
   const cl=el('button','sec','やめる');cl.onclick=()=>o.remove();b.append(f0,f1,f2,el('div','mkfl','期間'),dur,go,cl);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
 /* ---- the event screen ---- */
 function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e){}document.querySelectorAll('.hlw').forEach(x=>x.remove());const o=el('div','hlw'),b=el('div','hlw-b');o.append(b);document.body.append(o);
+  let sub=hwOpen.sub0||null;hwOpen.sub0=null;hwOpen.go=k=>{sub=k;draw();o.scrollTo(0,0)};
   const draw=()=>{b.replaceChildren();const on=hwOn(),pt=hwPart(),bal=hwBal(me.id),earn=hwEarn(me.id);
     const top=el('div','hlw-top'),cl=el('button','hlw-x','閉じる');cl.onclick=()=>o.remove();const tt=el('div','hlw-tt');
     tt.append(el('small',null,on?(pt===1?'前編':'後編')+'  ·  '+(pt===1?'かぼちゃ頭の騎士の週':'夜宴の魔女の週'):now()<hwT0()?'10/20 から':'終了しました'),el('h2',null,'ハロウィン'));top.append(tt,cl);b.append(top);
     if(HW_PV)b.append(el('div','hlw-pv','お試し版: 今日から始まっているように見せています。ここでのお菓子・交換・ミッションは本番(10/20〜)には持ち越されず、ptとチケットは入りません。'));
     const hero=el('div','hlw-hero');const pk=el('div','hlw-pk');pk.innerHTML=hwPumpkinSvg(92);const bx=el('div','hlw-bal');const lab=el('span',null,'持っているお菓子');const num=el('b');num.innerHTML=hwCandySvg(30);num.append(document.createTextNode(bal.toLocaleString()));
     bx.append(lab,num,el('small',null,'これまでに集めた '+earn.toLocaleString()+'  ·  '+(on?'終わるまで '+hwLeft(hwT1()):now()<hwT0()?'始まるまで '+hwLeft(hwT0()):'交換は終了')));hero.append(pk,bx);b.append(hero);
-    if(on){const mb=el('button','hlw-sell');mb.innerHTML=hwCandySvg(18);mb.append(document.createTextNode('お菓子を取引所に出品する'));mb.onclick=()=>hwListSheet(()=>draw());b.append(mb)}
+    if(on&&sub==='shop'){const mb=el('button','hlw-sell');mb.innerHTML=hwCandySvg(18);mb.append(document.createTextNode('お菓子を取引所に出品する'));mb.onclick=()=>hwListSheet(()=>draw());b.append(mb)}
     /* ハロウィンナイト */
     {const n=el('div','hlw-night'+(hwNightNow()?' on':''));n.append(el('b',null,'ハロウィンナイト'),el('span',null,hwNightNow()?'いまお菓子が2倍  ·  あと '+hwLeft(window.__hwNight?now()+36e5:HWN1):'10/31 17:00〜24:00  お菓子が2倍'+(now()<HWN0?'  ·  あと '+hwLeft(HWN0):'')));b.append(n)}
+    /* the menu: four big tiles (like 分身's), each opens its own page */
+    if(!sub){totWatch();const L=hwMisList(),ready=L.filter(m=>m.ok&&!m.got).length,inc=totIn(me.id).length,g=el('div','hlw-tiles');
+      const tile=(k,cls,title,line,badge,icon)=>{const t=el('button','hlw-tile '+cls);t.type='button';const ic=el('div','hlw-tic');ic.innerHTML=icon;t.append(el('b',null,title),el('small',null,line),ic);if(badge)t.append(el('em',null,String(badge)));t.onclick=()=>hwOpen.go(k);g.append(t)};
+      tile('tot','tt','トリック・\nオア・トリート',inc?inc+'人からねだられています':'今日あと '+totLeft(me.id)+' 回',inc,'<svg viewBox="0 0 48 48" width="58" aria-hidden="true"><path d="M14 18h20l-2 22H16z" fill="#ff8a2a"/><path d="M14 18c0-6 4-10 10-10s10 4 10 10" fill="none" stroke="#ffd29a" stroke-width="3"/><path d="M19 27l3 2-3 2M29 27l-3 2 3 2" stroke="#3a1a05" stroke-width="2" fill="none"/></svg>');
+      tile('mis','ms','イベント\nミッション',L.filter(m=>m.got).length+' / '+L.length+' クリア',ready,'<svg viewBox="0 0 48 48" width="58" aria-hidden="true"><rect x="11" y="8" width="26" height="32" rx="4" fill="#3a1846" stroke="#ffb15c" stroke-width="2"/><path d="M17 18l3 3 6-6M17 30l3 3 6-6" stroke="#ffb15c" stroke-width="2.4" fill="none"/></svg>');
+      tile('shop','sp','お菓子の\n交換所','お菓子 '+bal.toLocaleString()+' で交換',0,'<svg viewBox="0 0 48 48" width="58" aria-hidden="true"><path d="M8 20h32l-3 20H11z" fill="#5b2370"/><path d="M6 14h36l-2 6H8z" fill="#ff8a2a"/><circle cx="24" cy="30" r="5" fill="#ffd29a"/></svg>');
+      tile('how','hw','お菓子の\nもらい方','対戦・分身・ボス・お題','', hwCandySvg(56));
+      b.append(g)}
+    else{const bk=el('button','hlw-back','‹ ハロウィンのメニュー');bk.type='button';bk.onclick=()=>hwOpen.go(null);b.append(bk)}
     /* トリック・オア・トリート */
-    {totWatch();const ts=el('div','hlw-sec');const hd=el('h3',null,'トリック・オア・トリート');hd.append(el('small',null,'今日あと '+totLeft(me.id)+' 回  ·  仲良しの印 '+totGives(me.id)));ts.append(hd);
+    if(sub==='tot'){totWatch();const ts=el('div','hlw-sec');const hd=el('h3',null,'トリック・オア・トリート');hd.append(el('small',null,'今日あと '+totLeft(me.id)+' 回  ·  仲良しの印 '+totGives(me.id)));ts.append(hd);
       ts.append(el('div','sub hlw-tsub','仲間にお菓子をねだれます(1日'+TOT_DAY+'回、同じ仲間には1日1回)。仲間があげてくれたら +'+TOT_GIVE+'。「あげない」か1日答えなかったら、いたずらで '+TOT_TRICK+' もらえます。'));
       const inc=totIn(me.id);if(inc.length){const box=el('div','hlw-inc');inc.forEach(x=>{const r=el('div','hlw-ir'),p=players.find(q=>q.id===x.f)||{};r.append(el('div','hlw-it2',''));r.firstChild.append(el('b',null,(p.name||'だれか')+'からトリック・オア・トリート!'),el('small',null,'あげないと、いたずらで '+TOT_TRICK+' とられます  ·  あと '+hwLeft((+x.t||0)+TOT_WAIT)));
         const g=el('button','hlw-mc','あげる('+TOT_GIVE+')'),n2=el('button','hlw-eq','あげない');g.disabled=bal<TOT_GIVE;g.onclick=async()=>{g.disabled=true;try{await totAnswer(x,true);toast((p.name||'')+'にお菓子をあげました(仲良しの印 +1)');draw()}catch(e){g.disabled=false;toast(e.message==='candy'?'お菓子が足りません':'できませんでした')}};
@@ -7447,7 +7465,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
       if(hist.length){const ul=el('div','hlw-th');hist.forEach(x=>{const r=totRes(x),mine=x.f===me.id,other=(players.find(q=>q.id===(mine?x.o:x.f))||{}).name||'だれか';ul.append(el('div',null,mine?(r==='give'?other+'がお菓子をくれた  +'+TOT_GIVE:other+'にいたずら!  +'+TOT_TRICK):(r==='give'?other+'にお菓子をあげた  −'+TOT_GIVE:other+'にいたずらされた  −'+TOT_TRICK)))});ts.append(ul)}
       b.append(ts)}
     /* イベントミッション */
-    {const L=hwMisList(),done=L.filter(m=>m.got).length,ms=el('div','hlw-sec');const hd=el('h3',null,'イベントミッション');hd.append(el('small',null,done+' / '+L.length+' クリア'));ms.append(hd);const ml=el('div','hlw-mis');
+    if(sub==='mis'){const L=hwMisList(),done=L.filter(m=>m.got).length,ms=el('div','hlw-sec');const hd=el('h3',null,'イベントミッション');hd.append(el('small',null,done+' / '+L.length+' クリア'));ms.append(hd);const ml=el('div','hlw-mis');
       L.slice().sort((a,b)=>(b.ok&&!b.got)-(a.ok&&!a.got)||a.got-b.got).forEach(m=>{const r=el('div','hlw-mr'+(m.got?' got':m.ok?' ok':''));const tx=el('div','hlw-mt');tx.append(el('b',null,m.n));
         const bar=el('div','hlw-mp'),i=el('i');i.style.transform='scaleX('+(m.v/m.N).toFixed(3)+')';bar.append(i);tx.append(bar);
         const rw=el('div','hlw-mrw');if(m.c){const c=el('span','c');c.innerHTML=hwCandySvg(13);c.append(document.createTextNode(String(m.c)));rw.append(c)}if(m.p)rw.append(el('span','p',m.p+'pt'));if(m.tk)rw.append(el('span','k',hwTkName(m.tk)));tx.append(rw);
@@ -7455,11 +7473,11 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
         if(m.got)right.append(el('span','hlw-mg','受け取り済み'));else{const bt=el('button','hlw-mc','受け取る');bt.disabled=!m.ok||!on;bt.onclick=async()=>{bt.disabled=true;try{const x=await hwMisClaim(m.id);toast('ミッション達成  ·  '+[x.c?'お菓子 +'+x.c:'',x.p?'+'+x.p+'pt':'',x.tk?hwTkName(x.tk)+' 1枚':''].filter(Boolean).join('  ·  ')+(HW_PV&&(x.p||x.tk)?'(お試し版なのでptとチケットは入りません)':''));draw()}catch(e){bt.disabled=false;toast('受け取れませんでした')}};right.append(bt)}
         r.append(tx,right);ml.append(r)});ms.append(ml);b.append(ms)}
     /* how to get candy */
-    const how=el('div','hlw-sec');how.append(el('h3',null,'お菓子のもらい方'));const hl=el('div','hlw-how');
+    if(sub==='how'){const how=el('div','hlw-sec');how.append(el('h3',null,'お菓子のもらい方'));const hl=el('div','hlw-how');
     [['レートの対戦','勝ち '+HW_C.rw+'  ·  負け '+HW_C.rl],['TCGの友達戦','勝ち '+HW_C.tw+'  ·  負け '+HW_C.tl],['TCG CPU「つよい」','勝つたびに '+HW_C.cpu],['分身 仲間と戦う','勝ち '+HW_C.bw+'  ·  負け '+HW_C.bl+'(1日5回)'],['分身 クエスト','勝つたびに '+HW_C.q],['週末のボス','挑むたびに '+HW_C.rt+'  ·  倒したら '+HW_C.rk+'(一番 +'+HW_C.rtop+'、とどめ +'+HW_C.rlast+')'],['今日のお題','3つクリアで '+HW_C.mis]].forEach(([a,c])=>{const r=el('div','hlw-hr');r.append(el('span',null,a),el('b',null,c));hl.append(r)});
-    how.append(hl);b.append(how);
+    how.append(hl);b.append(how)}
     /* 交換所 */
-    const sh=el('div','hlw-sec');sh.append(el('h3',null,'お菓子の交換所'));const g=el('div','hlw-shop');
+    if(sub==='shop'){const sh=el('div','hlw-sec');sh.append(el('h3',null,'お菓子の交換所'));const g=el('div','hlw-shop');
     hwShop().forEach(it=>{const have=hwHave(it.id),full=have>=it.max,c=el('div','hlw-it'+(full?' full':'')),art=el('div','hlw-ia');
       if(it.k==='t'){const ch=titleChip(it.id);if(ch)art.append(ch)}else if(it.k==='g'||it.k==='c'){try{const I=cardInfo(it.k==='g'?'g':'t',it.ref);if(I)art.append(I.face())}catch(e){}}else art.innerHTML='<svg viewBox="0 0 40 28" width="54" aria-hidden="true"><rect x="1" y="1" width="38" height="26" rx="5" fill="#2b1838" stroke="#ff9d3c" stroke-width="1.5"/><path d="M28 1v26" stroke="#ff9d3c" stroke-dasharray="2 2"/><circle cx="14" cy="14" r="5" fill="#ff8a2a"/></svg>';
       const tx=el('div','hlw-itx');tx.append(el('b',null,it.n),el('small',null,it.max>1?'交換 '+have+' / '+it.max:have?'交換済み':'1回だけ'));
@@ -7467,7 +7485,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
       bt.onclick=()=>askSheet({title:'交換する',ok:'お菓子 '+it.c+' で交換',lines:[it.n+' と交換します。','交換したあとのお菓子 '+(bal-it.c).toLocaleString()],run:async()=>{try{await hwBuy(it);toast(it.n+'と交換しました'+(HW_PV&&it.k==='tk'?'(お試し版なのでチケットは入りません)':''));draw();try{renderGacha()}catch(e){}}catch(e){toast(e.message==='candy'?'お菓子が足りません':e.message==='max'?'もう交換できません':'交換できませんでした')}}});
       c.append(art,tx,bt);if(it.k==='t'&&have){const on2=(me.eq||{}).t===it.id,eb=el('button','hlw-eq',on2?'装備中':'称号にする');eb.onclick=async()=>{eb.disabled=true;try{const cur=Object.assign({},me.eq||{});cur.t=on2?null:it.id;await db.doc('players/'+me.id).update({eq:cur});me.eq=cur;draw()}catch(e){eb.disabled=false}};c.append(eb)}
       g.append(c)});
-    sh.append(g,el('div','sub hlw-note','限定のスキンとTCGカードは、絵がそろったらここに並びます。限定ガチャとは別のものです。'));b.append(sh)};
+    sh.append(g,el('div','sub hlw-note','限定のスキンとTCGカードは、絵がそろったらここに並びます。限定ガチャとは別のものです。'));b.append(sh)}};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};hwOpen.redraw=draw}
 /* ---------- 賞金首 (v134): 3 rate wins in a row (any genre) puts a price on you: 300pt, +100 for every further win.
    Whoever ends the run gets it, paid by the app. Worked out from the match records only (counted from BOUNTY0), so nothing new is stored. ---------- */
