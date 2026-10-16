@@ -7997,7 +7997,8 @@ function farmDraw(){if(!farmView||!farmView.o||!farmView.o.isConnected)return;co
   clearTimeout(farmDraw.t);farmDraw.t=setTimeout(farmDraw,30000)}
 function farmBed(pid,slot,x){const me=myPlayer(),mine=pid===me.id,w=el('div','fmbed'+(x&&plotRipe(x)?' ripe':'')),soil=el('div','fmsoil'),art=el('div','fmart'),info=el('div','fmi');
   if(x){art.innerHTML=cropSvg(x.c,plotStage(x));const C=FARM_CROPS[x.c],Y=plotYield(x),S=plotSteals(x),taken=plotTaken(x);
-    info.append(el('b',null,C.n+'  ·  '+x.a+'pt → いま '+Y+'pt'));
+    /* (10/16) the number is what a harvest would give now: the stolen part is already taken off */
+    info.append(el('b',null,C.n+'  ·  '+x.a+'pt → いま '+Math.max(0,Y-taken)+'pt'+(taken?'('+taken+'pt盗まれた)':'')));
     if(!plotRipe(x)){const pr=el('div','fmpg'),bar=el('i');bar.style.transform='scaleX('+Math.min(1,(now()-x.t)/(plotRipeAt(x)-x.t)).toFixed(3)+')';pr.append(bar);info.append(pr,el('span',null,'あと '+farmLeft(plotRipeAt(x))+'で収穫できる'))}
     else{const full=now()>=plotFullAt(x),pr=el('div','fmpg gold'),bar=el('i');bar.style.transform='scaleX('+Math.min(1,(now()-x.t)/(plotFullAt(x)-x.t)).toFixed(3)+')';pr.append(bar);info.append(pr,el('span','fmr',(mine?'収穫できます':'実っています')+'  ·  '+(full?'最大まで育った':'最大 '+Math.round(x.a*C.cap)+'pt まであと '+farmLeft(plotFullAt(x)))))}
     const th=el('div','fmth');for(let k=0;k<FARM_MAXT;k++){const s=S.filter(z=>!z.bit)[k];const d=el('i',s?'on':'');if(s)d.title=pname(s.p);th.append(d)}const bitN=S.filter(z=>z.bit).length;
