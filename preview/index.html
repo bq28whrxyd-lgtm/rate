@@ -3000,6 +3000,33 @@ button.tcgkeep{width:100%;margin-top:8px}
 .hwp-c.next{box-shadow:inset 0 0 0 1.5px #ffb15c}
 .hwp-c.art{grid-column:span 1}
 .hwp-note{font-size:11.5px;line-height:1.6}
+/* the stamp card: printed card stock, the stamps in ink */
+.hwp-card{position:relative;padding:14px 12px 12px;border-radius:16px;color:#3a2412;background:radial-gradient(120% 90% at 20% 0%,#fbf1dc,#efdfbf 60%,#e4cfa6);box-shadow:inset 0 0 0 1px rgba(120,70,20,.25),inset 0 0 0 5px #f6ead0,inset 0 0 0 6px rgba(180,90,30,.45),0 20px 40px -22px #000;will-change:transform}
+.hwp-card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:.35;background-image:radial-gradient(rgba(120,80,40,.18) .6px,transparent .7px);background-size:5px 5px}
+.hwp-card.off{filter:saturate(.75)}
+.hwp-chd{position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:2px 6px 10px;border-bottom:1px dashed rgba(120,70,20,.4);margin-bottom:10px}
+.hwp-chd b{font:600 16px/1.2 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.12em;color:#7a3a10}
+.hwp-chd span{font-size:11px;color:#7d5a36;text-align:right}
+.hwp-sg{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px 4px}
+.hwp-s{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0 4px}
+.hwp-s em{position:absolute;top:-1px;left:2px;font:700 9px/1 var(--k-num,inherit);font-style:normal;color:rgba(120,70,20,.55);z-index:0}
+.hwp-st{position:relative;width:100%;max-width:58px;aspect-ratio:1;display:grid;place-items:center;border-radius:50%;box-shadow:inset 0 0 0 1.4px rgba(120,70,20,.32);transform:translate(var(--x),var(--y)) rotate(var(--r))}
+.hwp-st::after{content:"";position:absolute;inset:14%;border-radius:50%;border:1px dashed rgba(120,70,20,.28)}
+.hwp-ink{position:absolute;inset:4%;width:92%;height:92%;opacity:0;color:#c2410f;mix-blend-mode:multiply}
+.hwp-s.vi .hwp-ink{color:#6b2a9e}.hwp-s.au .hwp-ink{color:#a8700a}
+.hwp-s.got .hwp-ink{opacity:.88}
+.hwp-s.got .hwp-st{box-shadow:none}.hwp-s.got .hwp-st::after{display:none}
+.hwp-s.got:nth-child(3n) .hwp-ink{opacity:.78}.hwp-s.got:nth-child(4n+1) .hwp-ink{opacity:.94}
+.hwp-s.lock .hwp-st{box-shadow:inset 0 0 0 1.4px rgba(194,65,15,.55)}
+.hwp-s.lock .hwp-st::before{content:"";position:absolute;inset:20%;border-radius:50%;background:rgba(194,65,15,.08)}
+.hwp-s.next .hwp-st{box-shadow:inset 0 0 0 2px rgba(194,65,15,.75)}
+.hwp-s.au .hwp-st{box-shadow:inset 0 0 0 1.6px rgba(168,112,10,.7),0 0 0 3px rgba(255,211,106,.25)}
+.hwp-s small{font:700 9.5px/1.2 var(--k-body,inherit);color:#5a3a1c;white-space:nowrap;letter-spacing:-.01em}
+.hwp-s.got small{color:#8a2f08}
+.hwp-s.wait .hwp-ink{opacity:0!important}
+.hwp-s.pressing .hwp-ink{will-change:transform,opacity}
+.hwp-sp{position:absolute;left:50%;top:42%;width:64px;height:64px;pointer-events:none;opacity:0;border-radius:50%;background:radial-gradient(circle,transparent 52%,rgba(194,65,15,.35) 54%,transparent 60%),radial-gradient(2px 2px at 20% 30%,rgba(194,65,15,.7),transparent),radial-gradient(2px 2px at 78% 22%,rgba(194,65,15,.7),transparent),radial-gradient(1.6px 1.6px at 85% 70%,rgba(194,65,15,.7),transparent),radial-gradient(1.8px 1.8px at 15% 78%,rgba(194,65,15,.7),transparent)}
+@media (prefers-reduced-motion:reduce){.hwp-sp{display:none}}
 .hdg{position:fixed;inset:0;z-index:135;color:#f6ece2;overflow:hidden;background:#0b0710;font-family:var(--k-body,inherit);-webkit-user-select:none;user-select:none;touch-action:manipulation;animation:fade .25s both}
 .hdg-bg{position:absolute;inset:0;pointer-events:none}
 .hdg-bg i{position:absolute;inset:0}
@@ -8151,7 +8178,7 @@ const hwPassTitleOk=(pid,id)=>id==='HW_P1'?!!hwPassAt(pid):id==='HW_S1'?!!hwSetA
 const hwPassRwName=r=>r.pt?r.pt+'pt':r.tk==='ltk'?'限定ガチャチケット '+r.n+'枚':r.tk?'TCG ハロウィンパック券 '+r.n+'枚':HWP_ART.id?'絵違い「'+HWP_ART.n+'」':'パス限定の絵違い(もうすぐ届く)';
 /* a toast when my pass rank goes up (once per rank, on this phone) */
 setInterval(()=>{try{const me=myPlayer();if(!me||!invLoaded||invFor!==me.id||!hwPassAt(me.id))return;const n=hwPassRank(me.id),k='hwpr_'+me.id;let last=0;try{last=+localStorage.getItem(k)||0}catch(e){}
-  if(n>last){try{localStorage.setItem(k,n)}catch(e){}if(last>0||n<=3)toast('ハロウィンパス ランク '+n+'!  '+hwPassRwName(HWP_R[n]))}}catch(e){}},15000);
+  if(n>last){try{localStorage.setItem(k,n)}catch(e){}if(last>0||n<=3)toast('ハロウィンパス ランク '+n+'!  ハロウィンの画面でスタンプを押そう')}}catch(e){}},15000);
 
 /* the pass page inside the Halloween screen */
 function hwPassSec(me){const sec=el('div','hlw-sec hwp');const on=!!hwPassAt(me.id),col=hwPassCol(me.id),lv=hwPassLv(me.id),u=typeof passUnit==='function'?passUnit():'応援値';
@@ -8163,10 +8190,8 @@ function hwPassSec(me){const sec=el('div','hlw-sec hwp');const on=!!hwPassAt(me.
   if(on){const id='HW_P1',eq=(me.eq||{}).t===id,eb=el('button','hlw-eq',eq?'装備中':'称号「'+HWP_TTL[id].n+'」にする');eb.onclick=()=>hwPassEquip(id,eb);hero.append(eb)}
   else hero.append(el('div','hwp-how',lv?'今買うと、ランク '+lv+' までのごほうびがすぐにもらえます。':'集めたお菓子の数でランクが上がります。あとから買っても、それまでのランクのぶんはもらえます。'));
   sec.append(hero);
-  /* the 20 ranks */
-  const g=el('div','hwp-grid');for(let i=1;i<=HWP_N;i++){const r=HWP_R[i],got=lv>=i,c=el('div','hwp-c'+(got?(on?' got':' lock'):'')+(i===lv+1?' next':'')+(r.art?' art':''));
-    const ic=el('i','hwp-ic '+(r.pt?'pt':r.tk==='ltk'?'lt':r.tk?'tc':'ar'));ic.textContent=r.pt?'pt':r.tk==='ltk'?'券':r.tk?'TCG':'絵';
-    c.append(el('em',null,String(i)),ic,el('small',null,r.pt?r.pt+'pt':r.tk?'×'+r.n:HWP_ART.id?'絵違い':'絵違い'));c.title=hwPassRwName(r);g.append(c)}
+  /* the 20 ranks: a stamp card. Ranks reached since this phone last saw the card are pressed one by one when it opens */
+  const g=hwpCard(me,on,lv);
   sec.append(g,el('div','sub hwp-note','pt はパック専用です(賭けや予想には使えません)。TCG ハロウィンパック券と限定ガチャチケットは期間中に使ってください。'+(HWP_ART.id?'':'ランク20の絵違いはもうすぐ届きます(届いたらランク20の人に自動で入ります)。')));
   /* the set */
   const st=el('div','hwp-set'+(hwSetAt(me.id)?' on':''));const sh=el('div','hwp-ht');sh.append(el('h3',null,'ハロウィン限定セット'),el('span',null,hwSetAt(me.id)?'購入済み':HWS_PRICE.toLocaleString()+' '+u+'  ·  1人1回'));st.append(sh);
@@ -8174,6 +8199,48 @@ function hwPassSec(me){const sec=el('div','hlw-sec hwp');const on=!!hwPassAt(me.
   if(hwSetAt(me.id)){const id='HW_S1',eq=(me.eq||{}).t===id,eb=el('button','hlw-eq',eq?'装備中':'称号「'+HWP_TTL[id].n+'」にする');eb.onclick=()=>hwPassEquip(id,eb);st.append(eb)}
   sec.append(st,el('div','sub hwp-note','パスとセットは、管理者に直接申し込んでください(付けてもらうとすぐに入ります)。'+(HW_PV?' お試し版では、ptとチケットは入りません。':'')));
   return sec}
+/* ---- the stamp card (references: paper loyalty cards and ラジオ体操 cards; the press is a rubber stamp that comes down big and
+   tilted, overshoots on impact and rests at its own slight angle). Ink is an SVG filter (rough edge + speckle), drawn once. ---- */
+const HWP_STAMP=(cls)=>'<svg class="'+cls+'" viewBox="0 0 60 60" aria-hidden="true"><defs><path id="hwpArcT" d="M10 30a20 20 0 0 1 40 0"/><path id="hwpArcB" d="M6.6 30a23.4 23.4 0 0 0 46.8 0"/></defs>'+
+  '<g filter="url(#hwpInk)" fill="currentColor" stroke="currentColor"><circle cx="30" cy="30" r="27" fill="none" stroke-width="2.6"/><circle cx="30" cy="30" r="22.5" fill="none" stroke-width=".9"/>'+
+  '<text font-size="6.2" font-weight="900" letter-spacing=".9" stroke="none" font-family="Arial,Helvetica,sans-serif"><textPath href="#hwpArcT" startOffset="50%" text-anchor="middle">TRICK OR TREAT</textPath></text><text font-size="5.6" font-weight="900" letter-spacing="1.4" stroke="none" font-family="Arial,Helvetica,sans-serif"><textPath href="#hwpArcB" startOffset="50%" text-anchor="middle">2026</textPath></text>'+
+  '<path fill-rule="evenodd" stroke="none" d="M30 19c1-3 3-4 5-4l-1 2c-1 0-2 1-2 2 6 0 11 4 11 10s-6 11-13 11-13-5-13-11 5-10 11-10zm-6 7l-3 4h5zm12 0l-2 4h5zm-11 8l2 2 2-2 2 2 2-2 2 2 2-2-1 3c-3 2-7 2-10 0z"/></g></svg>';
+function hwpInkDefs(){if(document.getElementById('hwpInkDefs'))return;const d=document.createElementNS('http://www.w3.org/2000/svg','svg');d.id='hwpInkDefs';d.setAttribute('width','0');d.setAttribute('height','0');d.setAttribute('aria-hidden','true');d.style.position='absolute';
+  d.innerHTML='<filter id="hwpInk" x="-12%" y="-12%" width="124%" height="124%"><feTurbulence type="fractalNoise" baseFrequency=".5" numOctaves="1" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.1" xChannelSelector="R" yChannelSelector="G" result="d"/>'+
+    '<feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="1" seed="11" result="s"/><feColorMatrix in="s" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 2.05" result="m"/><feComposite in="d" in2="m" operator="in"/></filter>';document.body.append(d)}
+const hwpTilt=i=>((i*73)%19-9),hwpDx=i=>((i*37)%7-3),hwpDy=i=>((i*53)%5-2);
+const hwpInkC=r=>r.art?'au':r.tk==='ltk'?'vi':'or';
+const hwpLabel=r=>r.pt?r.pt+'pt':r.tk==='ltk'?'ガチャ券 ×'+r.n:r.tk?'TCG券 ×'+r.n:'絵違い';
+function hwpCard(me,on,lv){hwpInkDefs();const card=el('div','hwp-card'+(on?'':' off')),head=el('div','hwp-chd');
+  head.append(el('b',null,'スタンプカード'),el('span',null,on?me.name+' さん':'パスを買うと、ここにスタンプが押されます'));card.append(head);
+  const g=el('div','hwp-sg'),slots=[];for(let i=1;i<=HWP_N;i++){const r=HWP_R[i],got=lv>=i,c=el('div','hwp-s '+hwpInkC(r)+(got?(on?' got':' lock'):'')+(i===lv+1?' next':''));
+    c.append(el('em',null,String(i)));const st=el('div','hwp-st');st.innerHTML=HWP_STAMP('hwp-ink');st.style.setProperty('--r',hwpTilt(i)+'deg');st.style.setProperty('--x',hwpDx(i)+'px');st.style.setProperty('--y',hwpDy(i)+'px');c.append(st);
+    c.append(el('small',null,hwpLabel(r)));c.title=hwPassRwName(r);g.append(c);slots.push({c,st,r,i})}
+  card.append(g);
+  /* press the new ones */
+  if(on){const k='hwpseen_'+me.id;let seen=0;try{seen=+localStorage.getItem(k)||0}catch(e){}seen=Math.min(seen,lv);
+    if(lv>seen){const fresh=slots.filter(x=>x.i>seen&&x.i<=lv),late=fresh.slice(-8);fresh.forEach(x=>{if(late.includes(x))x.c.classList.add('wait')});try{localStorage.setItem(k,lv)}catch(e){}
+      requestAnimationFrame(()=>requestAnimationFrame(()=>hwpPress(card,late)))}}
+  return card}
+function hwpPress(card,L){if(!L.length||!document.body.contains(card))return;const RMo=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
+  const GAP=RMo?.12:.42,DUR=.62,END=GAP*(L.length-1)+DUR+.2,t0=performance.now();let raf=0,done=false;
+  const SPR=(t,f,z)=>{if(t<=0)return 0;const w=6.2832*f,wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+z*w/wd*Math.sin(wd*t))};
+  L.forEach(x=>{x.c.classList.remove('wait');x.c.classList.add('pressing');const sp=el('i','hwp-sp');x.c.append(sp);x.sp=sp;x.ink=x.st.querySelector('.hwp-ink');x.fired=false});
+  const frame=t=>{let shake=0;L.forEach((x,n)=>{const u=t-n*GAP;
+      /* comes down big and tilted, lands at .16s, overshoots a little, settles at its own angle */
+      const land=.16,a=u<=0?0:u<land?(u/land)**2:1,s=u<land?2.3-1.3*a:1-.08*Math.exp(-(u-land)*12)*Math.cos((u-land)*38),rot=hwpTilt(x.i)+(1-a)*14;
+      x.ink.style.opacity=(u<=0?0:Math.min(.9,u/.08)).toFixed(3);x.ink.style.transform='translateY('+(-(1-a)*18).toFixed(1)+'px) rotate('+(rot-hwpTilt(x.i)).toFixed(2)+'deg) scale('+(RMo?1:s).toFixed(4)+')';
+      /* the ink splash and the dip of the card on impact */
+      const v=u-land;x.sp.style.opacity=(v>0?Math.max(0,1-v*3.5):0).toFixed(3);x.sp.style.transform='translate(-50%,-50%) scale('+(v>0?.6+v*2.6:.6).toFixed(3)+')';
+      if(v>0&&v<.12)shake=Math.max(shake,1-v/.12);
+      if(v>0&&!x.fired){x.fired=true;x.c.classList.add('got');try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}}
+      const lb=x.c.querySelector('small');if(lb){lb.style.transform=v>0?'scale('+(1+.25*Math.max(0,1-Math.abs(v-.1)*6)).toFixed(3)+')':''}});
+    card.style.transform=shake&&!RMo?'translate3d(0,'+(shake*2.2).toFixed(2)+'px,0)':''};
+  const stop=()=>{if(done)return;done=true;cancelAnimationFrame(raf);frame(END+1);card.style.transform='';L.forEach(x=>{x.c.classList.remove('pressing');x.c.classList.add('got');x.sp.remove();x.ink.style.opacity='';x.ink.style.transform=''});card.removeEventListener('pointerdown',stop);
+    const sum={};L.forEach(x=>{const k=hwpLabel(x.r).replace(/ ×\d+$/,'');sum[k]=(sum[k]||0)+(x.r.pt||x.r.n||1)});
+    toast('スタンプ '+L.length+'つ!  '+Object.keys(sum).map(k=>/pt$/.test(k)?(sum[k]+'pt'):k==='絵違い'?'絵違い':k+' ×'+sum[k]).join('・'))};
+  const tick=()=>{const t=(performance.now()-t0)/1000;if(t>=END)return stop();frame(t);raf=requestAnimationFrame(tick)};
+  card.addEventListener('pointerdown',stop);tick()}
 async function hwPassEquip(id,b){const me=myPlayer();if(!me||!hwPassTitleOk(me.id,id))return;b.disabled=true;try{const cur=Object.assign({},me.eq||{});cur.t=cur.t===id?null:id;await db.doc('players/'+me.id).update({eq:cur});me.eq=cur;try{hwOpen.redraw&&hwOpen.redraw()}catch(e){}}catch(e){b.disabled=false;toast('変えられませんでした')}}
 
 /* the admin card: give the pass or the set after taking the money */
