@@ -7817,8 +7817,19 @@ const hwLeft=t=>{const d=t-now();if(d<=0)return '';const D=Math.floor(d/864e5),h
 const TOT_DAY=1,TOT_GIVE=10,TOT_TRICK=20,TOT_WAIT=864e5;
 let tots=[],totOn=false;
 function totWatch(){try{hwpWatch()}catch(e){}if(totOn||!db)return;totOn=true;db.collection('tot').onSnapshot(s=>{tots=s.docs.map(d=>({id:d.id,...d.data()}));hwMemo.k='';queueRender();try{hwOpen.redraw&&document.querySelector('.hlw')&&hwOpen.redraw()}catch(e){}},()=>{})}
-const totRes=x=>x.st==='give'?'give':(x.st==='no'||now()-(+x.t||0)>=TOT_WAIT)?(typeof hwGuardAt==='function'&&hwGuardAt(x.o,+x.t||0)?'safe':'trick'):'wait';
-function totNet(pid){let c=0;for(const x of tots){if(!hwIn(+x.t||0))continue;const r=totRes(x);if(r==='wait'||r==='safe')continue;const n=r==='give'?TOT_GIVE:TOT_TRICK;if(x.f===pid)c+=n;if(x.o===pid)c-=n}return c}
+const totRaw=x=>x.st==='give'?'give':(x.st==='no'||now()-(+x.t||0)>=TOT_WAIT)?(typeof hwGuardAt==='function'&&hwGuardAt(x.o,+x.t||0)?'safe':'trick'):'wait';
+/* (10/17) いたずらは1日1人1回: for each friend and each ask day, only the trick that happened first takes candy (when it happened:
+   the あげない answer, or a day after the ask). Later ones that day are 'late' and move nothing. An unanswered ask always ends after
+   every trick that has already happened, so a result never changes once it is shown. */
+const totEndT=x=>x.st==='no'?(+x.at||+x.t||0):(+x.t||0)+TOT_WAIT;
+let totLC={a:null,h:null,m:-1,s:'',v:null};
+function totLate(){const m=Math.floor(now()/6e4),st=tots.map(x=>x.st).join('');if(totLC.a===tots&&totLC.h===hwps&&totLC.m===m&&totLC.s===st)return totLC.v;
+  const first={},late=new Set();tots.filter(x=>totRaw(x)==='trick').sort((a,b)=>totEndT(a)-totEndT(b)||(a.id<b.id?-1:1)).forEach(x=>{const k=x.o+'|'+x.d;if(first[k])late.add(x.id);else first[k]=x.id});
+  totLC={a:tots,h:hwps,m,s:st,v:late};return late}
+const totRes=x=>{const r=totRaw(x);return r==='trick'&&totLate().has(x.id)?'late':r};
+/* this friend was already tricked for that ask day (so saying あげない now takes nothing) */
+const totTricked=(pid,d)=>tots.some(x=>x.o===pid&&+x.d===+d&&totRes(x)==='trick');
+function totNet(pid){let c=0;for(const x of tots){if(!hwIn(+x.t||0))continue;const r=totRes(x);if(r==='wait'||r==='safe'||r==='late')continue;const n=r==='give'?TOT_GIVE:TOT_TRICK;if(x.f===pid)c+=n;if(x.o===pid)c-=n}return c}
 const totGives=pid=>tots.filter(x=>x.o===pid&&x.st==='give').length;
 const totMine=pid=>tots.filter(x=>x.f===pid&&+x.d===dayNo(now()));
 const totLeft=pid=>Math.max(0,TOT_DAY-totMine(pid).length);
@@ -7917,16 +7928,16 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
 
     /* トリック・オア・トリート */
     if(sub==='tot'){totWatch();const ts=el('div','hlw-sec');const hd=el('h3',null,'トリック・オア・トリート');hd.append(el('small',null,'今日あと '+totLeft(me.id)+' 回  ·  仲良しの印 '+totGives(me.id)));ts.append(hd);
-      ts.append(el('div','sub hlw-tsub','仲間にお菓子をねだれます(1日'+TOT_DAY+'回)。仲間があげてくれたら +'+TOT_GIVE+'。「あげない」か1日答えなかったら、いたずらで '+TOT_TRICK+' もらえます。'));
-      const inc=totIn(me.id);if(inc.length){const box=el('div','hlw-inc');inc.forEach(x=>{const r=el('div','hlw-ir'),p=players.find(q=>q.id===x.f)||{};r.append(el('div','hlw-it2',''));r.firstChild.append(el('b',null,(p.name||'だれか')+'からトリック・オア・トリート!'),el('small',null,'あげないと、いたずらで '+TOT_TRICK+' とられます  ·  あと '+hwLeft((+x.t||0)+TOT_WAIT)));
+      ts.append(el('div','sub hlw-tsub','仲間にお菓子をねだれます(1日'+TOT_DAY+'回)。仲間があげてくれたら +'+TOT_GIVE+'。「あげない」か1日答えなかったら、いたずらで '+TOT_TRICK+' もらえます。同じ人がいたずらされるのは1日1回まで(2人目からは何も起きない)。'));
+      const inc=totIn(me.id);if(inc.length){const box=el('div','hlw-inc');inc.forEach(x=>{const r=el('div','hlw-ir'),p=players.find(q=>q.id===x.f)||{};r.append(el('div','hlw-it2',''));r.firstChild.append(el('b',null,(p.name||'だれか')+'からトリック・オア・トリート!'),el('small',null,(totTricked(me.id,x.d)?'今日はもういたずらされたので、あげなくてもとられません':'あげないと、いたずらで '+TOT_TRICK+' とられます')+'  ·  あと '+hwLeft((+x.t||0)+TOT_WAIT)));
         const g=el('button','hlw-mc','あげる('+TOT_GIVE+')'),n2=el('button','hlw-eq','あげない');g.disabled=bal<TOT_GIVE;g.onclick=async()=>{g.disabled=true;try{await totAnswer(x,true);toast((p.name||'')+'にお菓子をあげました(仲良しの印 +1)');draw()}catch(e){g.disabled=false;toast(e.message==='candy'?'お菓子が足りません':'できませんでした')}};
-        n2.onclick=()=>askSheet({title:'あげない',ok:'あげない',danger:true,lines:['いたずらで、'+(p.name||'相手')+'にお菓子を'+TOT_TRICK+'個とられます。'],run:async()=>{try{await totAnswer(x,false);draw()}catch(e){toast('できませんでした')}}});
+        n2.onclick=()=>askSheet({title:'あげない',ok:'あげない',danger:true,lines:[totTricked(me.id,x.d)?'今日はもういたずらされたので、お菓子はとられません。':'いたずらで、'+(p.name||'相手')+'にお菓子を'+TOT_TRICK+'個とられます。'],run:async()=>{try{await totAnswer(x,false);draw()}catch(e){toast('できませんでした')}}});
         const bt=el('div','hlw-ib');bt.append(g,n2);r.append(bt);box.append(r)});ts.append(box)}
       const fr=players.filter(q=>q.id!==me.id&&q.uid&&!q.retired&&!q.ban),row=el('div','hlw-fr');fr.forEach(q=>{const asked=totAsked(me.id,q.id),bt=el('button','hlw-fb'+(asked?' done':''));bt.type='button';
         const ph=el('div','hlw-fa');try{ph.append(avatar(q))}catch(e){}bt.append(ph,el('b',null,q.name),el('small',null,asked?'今日はもう':'仲良し '+totGives(q.id)));bt.disabled=asked||!on||totLeft(me.id)<1;
         bt.onclick=async()=>{bt.disabled=true;try{await totAsk(q.id);toast(q.name+'にトリック・オア・トリート!  1日以内に答えが来ます');draw()}catch(e){bt.disabled=false;toast(e.message==='left'?'今日の分は終わりました':'できませんでした')}};row.append(bt)});ts.append(row);
       const hist=tots.filter(x=>(x.f===me.id||x.o===me.id)&&totRes(x)!=='wait'&&hwIn(+x.t||0)).sort((a,b)=>(b.at||b.t)-(a.at||a.t)).slice(0,5);
-      if(hist.length){const ul=el('div','hlw-th');hist.forEach(x=>{const r=totRes(x),mine=x.f===me.id,other=(players.find(q=>q.id===(mine?x.o:x.f))||{}).name||'だれか';ul.append(el('div',null,r==='safe'?(mine?other+'はいたずらよけのお守りを持っていた':'いたずらよけのお守りで'+other+'のいたずらを防いだ'):mine?(r==='give'?other+'がお菓子をくれた  +'+TOT_GIVE:other+'にいたずら!  +'+TOT_TRICK):(r==='give'?other+'にお菓子をあげた  −'+TOT_GIVE:other+'にいたずらされた  −'+TOT_TRICK)))});ts.append(ul)}
+      if(hist.length){const ul=el('div','hlw-th');hist.forEach(x=>{const r=totRes(x),mine=x.f===me.id,other=(players.find(q=>q.id===(mine?x.o:x.f))||{}).name||'だれか';ul.append(el('div',null,r==='late'?(mine?other+'は先にほかの人にいたずらされていた  +0':'その日はもういたずらされていたので、'+other+'のいたずらは何も起きなかった'):r==='safe'?(mine?other+'はいたずらよけのお守りを持っていた':'いたずらよけのお守りで'+other+'のいたずらを防いだ'):mine?(r==='give'?other+'がお菓子をくれた  +'+TOT_GIVE:other+'にいたずら!  +'+TOT_TRICK):(r==='give'?other+'にお菓子をあげた  −'+TOT_GIVE:other+'にいたずらされた  −'+TOT_TRICK)))});ts.append(ul)}
       b.append(ts)}
     /* イベントミッション */
     if(sub==='mis'){const L=hwMisList(),done=L.filter(m=>m.got).length,ms=el('div','hlw-sec');const hd=el('h3',null,'イベントミッション');hd.append(el('small',null,done+' / '+L.length+' クリア'));ms.append(hd);const ml=el('div','hlw-mis');
@@ -10387,7 +10398,7 @@ function notes(){
   grants.filter(g=>g.pid===me.id&&((g.kind||'pt')==='pt'||g.kind==='buy')).slice(0,10).forEach(g=>L.push({key:'g'+g.id,t:g.t,k:'ポイント',x:(g.kind==='buy'?'購入ptが届きました  +':'開発者からポイント  +')+g.pt+'pt'+(g.note?'  ·  '+g.note:''),go:'gacha'}));
   try{slabsOf(inv).filter(x=>invFor===me.id&&(slabReady(x)||x.s)).forEach(x=>{const c=TC[x.id];if(c)L.push({key:'gr'+x.i,t:x.t+GR_H*36e5,k:'鑑定',x:x.s?'「'+c.n+'」の鑑定 '+x.s+'('+GR_NM[x.s]+')':'「'+c.n+'」の鑑定結果が届きました。開けてみよう',go:'grade'})})}catch(e){}
   try{mtReqsTo(me.id).forEach(d=>L.push({key:'mr'+d.id,t:+d.t||0,k:'師弟',x:pname(d.a)+'から弟子入りの申し込み',go:'mentor'}));mentors.filter(d=>d.a===me.id&&d.ok).forEach(d=>L.push({key:'mo'+d.id,t:+d.ok,k:'師弟',x:pname(d.m)+'があなたを弟子にしました。分身の経験値が1.5倍',go:'mentor'}));mentors.filter(d=>d.g&&(d.a===me.id||d.m===me.id)).forEach(d=>L.push({key:'mg'+d.id,t:+d.g,k:'師弟',x:d.a===me.id?pname(d.m)+'師匠のもとを卒業しました  +'+MT_GRAD_A+'pt':'弟子の'+pname(d.a)+'が卒業しました  +'+MT_GRAD_M+'pt',go:'mentor'}))}catch(e){}
-  try{if(typeof hwOn==='function'&&hwOn()){totIn(me.id).forEach(x=>L.push({key:'ti'+x.id,t:+x.t||0,k:'ハロウィン',x:pname(x.f)+'からトリック・オア・トリート! 1日以内にお菓子をあげないと、いたずらで'+TOT_TRICK+'個とられる',go:'hw'}));tots.filter(x=>x.f===me.id&&totRes(x)!=='wait').forEach(x=>L.push({key:'tr'+x.id,t:+(x.at||x.t+TOT_WAIT),k:'ハロウィン',x:totRes(x)==='safe'?pname(x.o)+'はいたずらよけのお守りを持っていた':totRes(x)==='give'?pname(x.o)+'がお菓子をくれた(+'+TOT_GIVE+')':pname(x.o)+'にいたずら!お菓子 +'+TOT_TRICK,go:'hw'}))}}catch(e){}
+  try{if(typeof hwOn==='function'&&hwOn()){totIn(me.id).forEach(x=>L.push({key:'ti'+x.id,t:+x.t||0,k:'ハロウィン',x:pname(x.f)+'からトリック・オア・トリート! 1日以内にお菓子をあげないと、いたずらで'+TOT_TRICK+'個とられる',go:'hw'}));tots.filter(x=>x.f===me.id&&totRes(x)!=='wait').forEach(x=>L.push({key:'tr'+x.id,t:+(x.at||x.t+TOT_WAIT),k:'ハロウィン',x:totRes(x)==='late'?pname(x.o)+'は先にほかの人にいたずらされていた(+0)':totRes(x)==='safe'?pname(x.o)+'はいたずらよけのお守りを持っていた':totRes(x)==='give'?pname(x.o)+'がお菓子をくれた(+'+TOT_GIVE+')':pname(x.o)+'にいたずら!お菓子 +'+TOT_TRICK,go:'hw'}))}}catch(e){}
   try{farmPlots(me.id).forEach(x=>{if(x&&plotRipe(x))L.push({key:'fr'+x.i,t:plotRipeAt(x),k:'畑',x:FARM_CROPS[x.c].n+'が収穫できます。置くほど増えるけど、そのぶん盗まれやすい',go:'farm'})});steals.filter(z=>z.o===me.id).forEach(z=>L.push({key:'fs'+z.id,t:+z.t||0,k:'畑',x:z.bit?'番犬が'+pname(z.p)+'を撃退!  罰金 +'+z.f+'pt':pname(z.p)+'に'+((FARM_CROPS[z.c]||{}).n||'作物')+'を盗まれた(-'+z.n+'pt)',go:'farm'}))}catch(e){}
   try{likes.filter(l=>l.o===me.id&&l.p!==me.id).forEach(l=>L.push({key:'lk'+l.id,t:+l.t||0,k:'いいね',x:pname(l.p)+'があなたのショーケースにいいね',go:'case'}))}catch(e){}
   try{const me2=myPlayer();if(me2){if(invBy(me2.id)&&invDoneAt(me2.id))L.push({key:'iv'+me2.id,t:invDoneAt(me2.id),k:'招待',x:'招待のごほうび +'+INV_PT+'pt・TCGパックチケット',go:'profile'});invKids(me2.id).forEach(q=>{const d=invDoneAt(q.id);if(d)L.push({key:'iv'+q.id,t:d,k:'招待',x:q.name+'が'+INV_N+'戦を達成。招待のごほうび +'+INV_PT+'pt・TCGパックチケット',go:'profile'})})}}catch(e){}
@@ -11903,7 +11914,7 @@ const NEWS_V135=[
  ['TCG「ハロウィンナイト」',['期間限定のパック。1パック210pt。愛と裏切りの宴のカードと、ハロウィン版のカード20種が入っている','ハロウィン版のシークレットは、光が通ったところにかぼちゃが浮かぶホログラム','100パックごとに、好きなハロウィン版を1枚シークレットでもらえる']],
  ['ハロウィンのボス(分身)',['分身で、自分だけのボスに順番に挑む。かぼちゃ頭の騎士を5体倒すと、6体目に夜宴の魔女。1体ごとに強くなる','スタミナは5。3時間に1回復(交換所でも回復できる)','仲間の分身にお助けを頼める(200pt。助けた仲間に50pt)','倒すとお菓子とpt。2体目の魔女(12体目)を倒すと、分身がかぼちゃ頭の騎士になれるスキン','期間中は、週末のボスの代わりにこのボスになる']],
  ['ハロウィンナイト(10/31 17:00〜24:00)',['その夜だけの夜ボス「夜宴の魔女・真夜中の姿」に、みんなで挑む(1人5回まで)','この時間は、もらえるお菓子が全部2倍']],
- ['トリック・オア・トリート',['1日1回、仲間にお菓子をねだれる。あげてくれたら +'+TOT_GIVE,'「あげない」か、1日答えなかったら、いたずらで '+TOT_TRICK+' もらえる(相手は '+TOT_TRICK+' 減る)','交換所の「いたずらよけのお守り」があると、いたずらされても減らない']],
+ ['トリック・オア・トリート',['1日1回、仲間にお菓子をねだれる。あげてくれたら +'+TOT_GIVE,'「あげない」か、1日答えなかったら、いたずらで '+TOT_TRICK+' もらえる(相手は '+TOT_TRICK+' 減る)','同じ人がいたずらされるのは1日1回まで。その日2人目からのいたずらは何も起きない','交換所の「いたずらよけのお守り」があると、いたずらされても減らない']],
  ['お菓子ランキング',['集めたお菓子の数で順位が決まる(11/8 朝5時の時点)','1位 '+HW_RK_PTS[0]+'pt と称号「'+HW_RTTL.HW_R1.n+'」、2位 '+HW_RK_PTS[1]+'pt と「'+HW_RTTL.HW_R2.n+'」、3位 '+HW_RK_PTS[2]+'pt と「'+HW_RTTL.HW_R3.n+'」']],
  ['参加のルール',['アプリを開くと「参加のルール」が出る。SNSに載せない・知らない人を招待しない・1人1アカウントなど','同意するとそのまま使える(アカウントごとに1回だけ)']],
  ['友達を招待',['プロフィールの「設定・要望」に自分の招待リンク。LINEなどで友達に送れる','招待した友達が、レートとTCGの対戦を合わせて'+INV_N+'戦すると、ふたりとも '+INV_PT+'pt と、TCGの推し活パック・闇深パックのチケットを2枚ずつ','登録のときに「招待してくれた人」を選んでもらっても大丈夫']],
