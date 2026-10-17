@@ -1167,6 +1167,22 @@ body.ovl main video{visibility:hidden}
 .kpk small{font-size:10.5px;color:var(--gold-l);font-weight:600}
 .lceil{font-size:12px;color:var(--mut);margin-top:8px;text-align:center}
 /* ---- developer messages and requests ---- */
+.agw{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 14px) 14px calc(env(safe-area-inset-bottom,0px) + 14px);background:rgba(6,4,10,.86);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);animation:agIn .25s ease both}
+.agw.out{animation:agOut .25s ease both}@keyframes agIn{from{opacity:0}}@keyframes agOut{to{opacity:0}}
+.agc{width:min(460px,100%);max-height:100%;display:flex;flex-direction:column;border-radius:26px;overflow:hidden;background:linear-gradient(180deg,#18131e,#0e0b12);box-shadow:inset 0 0 0 1px rgba(255,255,255,.09),0 30px 80px rgba(0,0,0,.6)}
+.agbd{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:22px 20px 8px;min-height:0}
+.aghd .agk{font:700 12px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;letter-spacing:.12em;color:#e8c27a}
+.aghd h2{margin:8px 0 6px;font:800 24px/1.25 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:#f4f1ea}
+.aghd p{margin:0 0 14px;font:500 14px/1.65 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:rgba(244,241,234,.75)}
+.agl{margin:0;padding:0;list-style:none;counter-reset:ag;display:flex;flex-direction:column;gap:10px}
+.agl li{counter-increment:ag;position:relative;padding:12px 14px 12px 46px;border-radius:16px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);display:flex;flex-direction:column;gap:4px}
+.agl li::before{content:counter(ag);position:absolute;left:12px;top:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:800 13px/1 var(--kjf,-apple-system),sans-serif;color:#1b1405;background:linear-gradient(180deg,#fff0c2,#e2a73c)}
+.agl b{font:800 15px/1.4 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:#f4f1ea}.agl span{font:500 13.5px/1.6 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:rgba(244,241,234,.78)}
+.agl li:last-child{background:rgba(255,90,90,.07);box-shadow:inset 0 0 0 1px rgba(255,120,120,.18)}.agl li:last-child::before{background:linear-gradient(180deg,#ffb4b4,#e24a4a);color:#fff}
+.agft{flex:none;padding:14px 20px calc(16px);border-top:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:10px;background:rgba(10,8,14,.6)}
+.agck{display:flex;align-items:center;gap:10px;font:700 14.5px/1.4 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:#f4f1ea;cursor:pointer}.agck input{flex:none;width:22px!important;height:22px;margin:0;accent-color:#e2a73c}
+.agbtn{width:100%;height:50px;border:0;border-radius:999px;font:800 16px/1 var(--kjf,-apple-system),"Hiragino Sans",sans-serif;color:#1b1405;background:linear-gradient(180deg,#fff0c2,#e2a73c)}.agbtn:disabled{opacity:.35}
+.agsub{text-align:center;font-size:11.5px}
 .obinv{display:flex;flex-direction:column;gap:6px;margin-top:12px}.obinv select{width:100%}
 #invsec .invlink{display:flex;flex-direction:column;gap:10px;margin-top:12px;padding:14px;border-radius:16px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 #invsec .invurl{font:600 12.5px/1.4 ui-monospace,Menlo,monospace;word-break:break-all;opacity:.85;user-select:all;-webkit-user-select:all}
@@ -6403,6 +6419,7 @@ body.ui2 .lgr.got .gt b{color:#a9a49c}
 </div>
 </div>
 <div class="admpg" data-t="mem" hidden>
+<div class="admcard"><div class="admct">参加のルールへの同意</div><div class="admcd">全員、同意するまでアプリを使えません。ルールを変えたら下のボタンで全員にもう一度同意してもらえます。</div><div id="admAgree"></div></div>
 <div class="admcard"><div class="admct">ログイン状況</div><div class="admcd">管理者だけに見えます。</div><div id="admSeen"></div>
 </div>
 <div class="admcard"><div class="admct">操作の履歴</div><div id="admLog"></div>
@@ -7948,6 +7965,45 @@ const bountyPts=pid=>(bountyInfo().got[pid]||0);
 /* ---------- 友達招待 (v135): an invite link (?inv=<pid>) or the choice when registering puts inv:<pid> on the new player.
    When the invited player has finished INV_N battles (rate matches and TCG friend battles together), both get INV_PT pt and
    two tickets each of the two TCG normal packs. Worked out from the public records only, so every phone agrees. ---------- */
+/* ---------- 参加のルール (v135): everyone (old players too) sees it over the whole app until they agree. Kept per account in
+   agree/{pid} {v, t, n}; config/agree {v} lets the admin ask everyone again after changing the rules. If saving fails (no network,
+   or before the rules are in), the phone remembers it and tries again, so nobody is stuck. ---------- */
+const AGREE_V0=1;let agrees={},agreeCfg=0,agreeOn=false,agreeLoaded=false;
+const AGREE_RULES=[
+ ['SNSやネットに載せない','アプリの画面・中身・リンクを、SNSやネット(X・Instagram・TikTok・YouTube・掲示板など)に載せない。スクリーンショットや動画も同じです。'],
+ ['知らない人を招待しない','招待するのは友達だけ(ネットの友達もOK)。話したことがない人や、SNSで見かけただけの人には招待リンクを送らない。'],
+ ['1人1アカウント','サブ垢・複数アカウントは禁止。招待のごほうびや対戦のために、別のアカウントを作るのもだめです。'],
+ ['対戦の結果は正直に','勝ち負けはうそをつかずに報告する。八百長やわざと負けるのも禁止。'],
+ ['お金で売り買いしない','ポイント・カード・アカウントを、ほかの人とお金でやり取りしない。'],
+ ['仲間を大事に','悪口・いやがらせ・しつこい誘いはしない。'],
+ ['不具合は悪用しない','おかしなところを見つけたら、使わずに「開発者に要望を送る」から知らせる。'],
+ ['守れなかったとき','アカウントの停止や、ポイント・アイテムの取り消しになることがあります。']];
+const agreeV=()=>Math.max(AGREE_V0,agreeCfg||0);
+function agreeWatch(){if(agreeOn||!db)return;agreeOn=true;
+  db.collection('agree').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});agrees=o;agreeLoaded=true;try{agreeCheck()}catch(e){}try{admAgreeRender()}catch(e){}},()=>{agreeLoaded=true;try{agreeCheck()}catch(e){}});
+  db.doc('config/agree').onSnapshot(d=>{agreeCfg=+((d.exists&&d.data()||{}).v)||0;try{agreeCheck()}catch(e){}try{admAgreeRender()}catch(e){}},()=>{})}
+const agreeLocal=pid=>{try{return +localStorage.getItem('agree_'+pid)||0}catch(e){return 0}};
+const agreedSrv=pid=>(+((agrees[pid]||{}).v)||0)>=agreeV();
+const agreed=pid=>agreedSrv(pid)||agreeLocal(pid)>=agreeV();
+let agreeSaving=false,agreeTry=0;
+async function agreeSave(me,force){if(agreeSaving||!db||(!force&&now()-agreeTry<60000))return;agreeSaving=true;agreeTry=now();/* a failed save is tried again at most once a minute */try{await db.doc('agree/'+me.id).set({v:agreeV(),t:now(),n:String(me.name||'').slice(0,24)})}catch(e){}agreeSaving=false}
+function agreeCheck(){const me=myPlayer();if(!me||!agreeLoaded||document.getElementById('ob'))return;if(window.__FAKE&&!window.__agreeDemo)return;/* the demo shows it only from its panel */
+  if(agreed(me.id)){document.querySelectorAll('.agw').forEach(x=>x.remove());if(!agreedSrv(me.id))agreeSave(me);return}
+  if(!document.querySelector('.agw'))agreeShow(me)}
+function agreeShow(me){const o=el('div','agw'),w=el('div','agc');o.setAttribute('role','dialog');o.setAttribute('aria-label','参加のルール');
+  const hd=el('div','aghd');hd.append(el('div','agk','きもオタレート'),el('h2',null,'参加のルール'),el('p',null,'仲間内で楽しむためのアプリです。使う前に、次のことを守ると約束してください。'));
+  const ol=el('ol','agl');AGREE_RULES.forEach(([t,x])=>{const li=el('li');li.append(el('b',null,t),el('span',null,x));ol.append(li)});
+  const ft=el('div','agft'),lb=el('label','agck'),cb=el('input');cb.type='checkbox';lb.append(cb,el('span',null,'上のルールを読んで、守ります'));
+  const go=el('button','agbtn','同意してはじめる');go.disabled=true;cb.onchange=()=>{go.disabled=!cb.checked};
+  go.onclick=async()=>{go.disabled=true;try{localStorage.setItem('agree_'+me.id,agreeV())}catch(e){}await agreeSave(me,true);o.classList.add('out');setTimeout(()=>o.remove(),260)};
+  ft.append(lb,go,el('div','sub agsub',me.name+' として同意します'));
+  const bd=el('div','agbd');bd.append(hd,ol);w.append(bd,ft);o.append(w);document.body.append(o)}
+setInterval(()=>{try{if(myPlayer()){agreeWatch();agreeCheck()}}catch(e){}},1500);
+function admAgreeRender(){const box=$('admAgree');if(!box||!isAdmin())return;box.replaceChildren();const L=players.filter(p=>p.uid&&!p.ban&&!p.retired),ok=L.filter(p=>agreedSrv(p.id)),no=L.filter(p=>!agreedSrv(p.id));
+  box.append(el('div','sub','同意した人 '+ok.length+' / '+L.length+'人  ·  ルールの版 '+agreeV()));
+  if(no.length)box.append(el('div','sub','まだ: '+no.map(p=>p.name).join('、')));
+  const b=el('button','sec','ルールを変えたので、全員にもう一度同意してもらう');b.style.cssText='width:100%;margin-top:8px';
+  b.onclick=()=>askSheet({title:'もう一度同意してもらう',lines:['全員の画面に、参加のルールがもう一度出ます(同意するまで使えません)。'],ok:'出す',run:async()=>{try{await db.doc('config/agree').set({v:agreeV()+1,t:now()});toast('全員にもう一度出します')}catch(e){toast('できませんでした')}}});box.append(b)}
 const INV_N=5,INV_PT=500,INV_TK={tp1_a:2,tp1_b:2};
 try{const q=new URLSearchParams(location.search).get('inv');if(q&&/^[\w-]{4,40}$/.test(q))localStorage.setItem('invBy',q)}catch(e){}
 const invPick=()=>{try{const s=document.getElementById('obInv');const v=s?s.value:'';return v&&players.some(p=>p.id===v)?{inv:v}:{}}catch(e){return{}}};
@@ -11845,6 +11901,7 @@ const NEWS_V135=[
  ['ハロウィンナイト(10/31 17:00〜24:00)',['その夜だけの夜ボス「夜宴の魔女・真夜中の姿」に、みんなで挑む(1人5回まで)','この時間は、もらえるお菓子が全部2倍']],
  ['トリック・オア・トリート',['1日1回、仲間にお菓子をねだれる。あげてくれたら +'+TOT_GIVE,'「あげない」か、1日答えなかったら、いたずらで '+TOT_TRICK+' もらえる(相手は '+TOT_TRICK+' 減る)','交換所の「いたずらよけのお守り」があると、いたずらされても減らない']],
  ['お菓子ランキング',['集めたお菓子の数で順位が決まる(11/8 朝5時の時点)','1位 '+HW_RK_PTS[0]+'pt と称号「'+HW_RTTL.HW_R1.n+'」、2位 '+HW_RK_PTS[1]+'pt と「'+HW_RTTL.HW_R2.n+'」、3位 '+HW_RK_PTS[2]+'pt と「'+HW_RTTL.HW_R3.n+'」']],
+ ['参加のルール',['アプリを開くと「参加のルール」が出る。SNSに載せない・知らない人を招待しない・1人1アカウントなど','同意するとそのまま使える(アカウントごとに1回だけ)']],
  ['友達を招待',['プロフィールの「設定・要望」に自分の招待リンク。LINEなどで友達に送れる','招待した友達が、レートとTCGの対戦を合わせて'+INV_N+'戦すると、ふたりとも '+INV_PT+'pt と、TCGの推し活パック・闇深パックのチケットを2枚ずつ','登録のときに「招待してくれた人」を選んでもらっても大丈夫']],
  ['推しキャラ',['コレクションに「推しキャラ」を追加','KMRの応援演出が出た対戦を'+OSHI_NEED+'回すると、そのキャラをホームの推しにできる(全部のKMR)']]
 ];
