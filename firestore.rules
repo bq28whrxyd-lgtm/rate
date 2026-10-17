@@ -341,7 +341,7 @@ service cloud.firestore {
     // one try per friend per plot: steal/{owner}_{plot}_{thief}; never changed afterwards
     /* ハロウィン (v135): トリック・オア・トリート. The one who asks creates it (3 a day is kept by the app); only the one asked answers, within a day */
     /* ハロウィン (v135): いたずらよけのお守り, public so the one who asks sees it. Only the owner writes */
-    // (10/18) TCG CPU「つよい」に勝った数(経験値用・だれでも見える)。1回ずつ、前の記録から1分以上あけて(回数の上限なし)
+    // (10/18) TCG CPU「つよい」に勝った数(経験値用・だれでも見える)。1回ずつ、前の記録から15秒以上あけて(回数の上限なし)
     match /cpux/{pid} {
       allow read: if signedIn();
       allow create: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['n', 'u', 'dd', 'dn'])
@@ -349,7 +349,7 @@ service cloud.firestore {
         && request.resource.data.u is int && request.resource.data.u <= request.time.toMillis() + 120000;
       allow update: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['n', 'u', 'dd', 'dn'])
         && request.resource.data.n == resource.data.n + 1
-        && request.resource.data.u is int && request.resource.data.u >= resource.data.u + 60000 && request.resource.data.u <= request.time.toMillis() + 120000
+        && request.resource.data.u is int && request.resource.data.u >= resource.data.u + 15000 && request.resource.data.u <= request.time.toMillis() + 120000
         && request.resource.data.dd == today()
         && request.resource.data.dn == (resource.data.dd == today() ? resource.data.dn + 1 : 1);
       allow delete: if isAdmin();
