@@ -1007,6 +1007,9 @@ body.gkview .scr{display:none!important}
 .bc.hwfoil .bart .foilsheen{opacity:.35!important}
 .bc.hwfoil .bart .hwholo{opacity:.95}
 
+/* (10/18) つよい: XP for a win */
+.cpulv .lvb .lvxp{display:block;margin-top:6px;font-style:normal;font-weight:800;font-size:12px;color:#ffd36a;letter-spacing:.02em}
+
 /* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
    hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
 :root{--vs-a1:#8b7bff;--vs-a2:#67e8f9;--vs-pink:#ff5fb0;--vs-fg:#f4f1ea;--vs-mut:rgba(244,241,234,.55);--vs-num:"Geist","Inter Tight",-apple-system,system-ui,sans-serif}
@@ -2620,7 +2623,7 @@ let g=null,H=0,myKey='weak',cpuKey='girl',myDeck=null,cpuDeck=null,busy=false,mo
 let CPU_LV=(()=>{try{return localStorage.getItem('kotcg_cpulv')==='strong'?'strong':'normal'}catch(e){return'normal'}})();
 function cpuPick(d){const mine=loadDecks().filter(x=>CD.validDeck(x.cards,x.lead));
   sheet((s,close)=>{s.append(el('div','k','CPU BATTLE'),el('h3',null,'CPUの相手を選ぶ'));
-    const lv=el('div','cpulv');lv.setAttribute('role','radiogroup');lv.setAttribute('aria-label','CPUの強さ');[['normal','ふつう','今までのCPU'],['strong','つよい','先の展開を読んで、いちばん勝てる手を選ぶ']].forEach(([k,t,sub])=>{const b=el('button','lvb'+(CPU_LV===k?' on':''));b.setAttribute('role','radio');b.setAttribute('aria-checked',CPU_LV===k?'true':'false');b.append(el('b',null,t),el('span',null,sub));b.onclick=()=>{CPU_LV=k;try{localStorage.setItem('kotcg_cpulv',k)}catch(e){}lv.querySelectorAll('.lvb').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-checked',on?'true':'false')})};lv.append(b)});s.append(el('div','cpuh','CPUの強さ'),lv,el('div','cpuh','相手のデッキ'));
+    const lv=el('div','cpulv');lv.setAttribute('role','radiogroup');lv.setAttribute('aria-label','CPUの強さ');[['normal','ふつう','今までのCPU'],['strong','つよい','先の展開を読んで、いちばん勝てる手を選ぶ']].forEach(([k,t,sub])=>{const b=el('button','lvb'+(CPU_LV===k?' on':''));b.setAttribute('role','radio');b.setAttribute('aria-checked',CPU_LV===k?'true':'false');b.append(el('b',null,t),el('span',null,sub));if(k==='strong')b.append(el('em','lvxp','勝つと経験値 +5'));b.onclick=()=>{CPU_LV=k;try{localStorage.setItem('kotcg_cpulv',k)}catch(e){}lv.querySelectorAll('.lvb').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-checked',on?'true':'false')})};lv.append(b)});s.append(el('div','cpuh','CPUの強さ'),lv,el('div','cpuh','相手のデッキ'));
     const L=el('div','cpupick');const opt=(t,sub,fn,cls)=>{const b=el('button','cpuopt'+(cls?' '+cls:''));b.append(el('b',null,t),el('span',null,sub));b.onclick=()=>{close();fn()};L.append(b)};
     opt('おまかせ','CPUが強いと判断したデッキ('+AI.poolDecks().length+'種類)から選んでくる。同じデッキが続かないように毎回入れ替わる',()=>{let H=[];try{H=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,H);H.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(H.slice(-12)))}catch(e){}startMatch(d,x)},'main');
     opt('ランダム構築','1つの族・2つの族の組み合わせ・テーマ型から、CPUがその場で組む(強さはばらばら)',()=>startMatch(d,AI.makeDeck(Math.random)));
