@@ -7920,18 +7920,17 @@ async function hwBuy(it){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==m
   if(it.k==='guard'){const L=hwGuards(me.id),st=Math.max(now(),...L.map(x=>+x+864e5));await db.doc('hwp/'+me.id).set({L:L.concat([st]).slice(-20),u:now()},{merge:true});hwps[me.id]=Object.assign({},hwps[me.id]||{},{L:L.concat([st])})}
   await db.doc('inv/'+me.id).set(nv);inv=nv;try{ownSync()}catch(e){};return it}
 /* a TCG win against the つよい CPU (called from tcgResult) */
-/* ---- (10/18) TCG CPU「つよい」に勝つと経験値 +CPUX_XP (event or not). The wins are counted in cpux/{pid} {n, u: last, dd: day, dn: wins that day}
-   so every phone sees the same level; the rules let it go up by 1 at a time, a minute apart, CPUX_DAY a day ---- */
-const CPUX_XP=5,CPUX_DAY=20;let cpuxs={},cpuxOn=false;
+/* ---- (10/18) TCG CPU「つよい」に勝つと経験値 +CPUX_XP (event or not, no daily limit). The wins are counted in cpux/{pid} {n, u: last, dd: day, dn: wins that day}
+   so every phone sees the same level; the rules let it go up by 1 at a time, a minute apart ---- */
+const CPUX_XP=5;let cpuxs={},cpuxOn=false;
 function cpuxWatch(){if(cpuxOn||!db)return;cpuxOn=true;db.collection('cpux').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});cpuxs=o;queueRender()},()=>{cpuxOn=false})}
 setInterval(()=>{try{if(db&&!cpuxOn&&myPlayer())cpuxWatch()}catch(e){}},3000);
 const cpuxN=pid=>Math.max(0,Math.min(1000000,+((cpuxs[pid]||{}).n)||0));
 const cpuxToday=pid=>{const d=cpuxs[pid]||{};return +d.dd===dayNo(now())?(+d.dn||0):0};
 async function cpuxWin(r){const me=myPlayer();if(!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!me||me.ban)return;
   const cur=cpuxs[me.id]||null,t=now(),dd=dayNo(t);if(cur&&t<(+cur.u||0)+60000)return;
-  if(cpuxToday(me.id)>=CPUX_DAY){setTimeout(()=>toast('今日のCPU「つよい」の経験値は '+CPUX_DAY+'回までもらいました(朝5時に戻ります)'),3400);return}
   const nv={n:(cur?cpuxN(me.id):0)+1,u:t,dd,dn:cur&&+cur.dd===dd?(+cur.dn||0)+1:1};
-  try{await db.doc('cpux/'+me.id).set(nv);cpuxs=Object.assign({},cpuxs,{[me.id]:nv});queueRender();setTimeout(()=>toast('経験値 +'+CPUX_XP+'(CPU つよい に勝利  ·  今日 '+nv.dn+' / '+CPUX_DAY+')'),3400)}catch(e){}}
+  try{await db.doc('cpux/'+me.id).set(nv);cpuxs=Object.assign({},cpuxs,{[me.id]:nv});queueRender();setTimeout(()=>toast('経験値 +'+CPUX_XP+'(CPU つよい に勝利)'),3400)}catch(e){}}
 function hwCpuWin(r){if(!hwOn()||!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!invFor)return;const T=Object.assign({},tcgOf(inv)),hs=(Array.isArray(T[HWK.s])?T[HWK.s]:[]).concat([now()]).slice(-400);T[HWK.s]=hs;inv=Object.assign({},inv,{tcg:T});
   db.doc('inv/'+invFor).set({tcg:{[HWK.s]:hs}},{merge:true}).catch(()=>{});setTimeout(()=>toast('お菓子 +'+HW_C.cpu*hwMul(now())+'(CPU つよい に勝利)'),2200)}
 /* candy you just got, shown once (the victory screen goes first) */
