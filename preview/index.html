@@ -7158,13 +7158,16 @@ function rollPack(pity){
 }
 /* limited pack: richer rates; SR/UR come from the limited set half the time, GR and KMR always */
 const LPACK=200,LRATE=[45.5,35,14,5,.4,.1],LRATE_G=[0,75.5,18,6,.4,.1],LIM_SHARE=.5;
+/* how often a card of each rarity is that banner's limited item (N, R, SR, UR, GR, KMR). (10/18) the ハロウィンガチャ: N 10%, R 15%, SR 30%, UR 35%, GR and KMR always */
+const LIM_SHARE_R={hw:[.10,.15,.30,.35,1,1]};
+const limShare=(set,r)=>{const L=LIM_SHARE_R[set];return L&&L[r]!=null?L[r]:(r>=4?1:LIM_SHARE)};
 const LROLL=[45.52,35,14,5,.4,.08],LROLL_G=[0,75.52,18,6,.4,.08];
 function rollLimPack(set,pity){
   const out=[];
   for(let i=0;i<5;i++){
     const r=i===4&&pity?4:rollRar(i===4?LROLL_G:LROLL);
     /* GR and KMR in a limited pack are always that pack's limited items; SR/UR are limited half the time */
-    const lp=ITEMS.filter(x=>x.lim===set&&x.r===r),pool=lp.length&&(r>=4||Math.random()<LIM_SHARE)?lp:ITEMS.filter(x=>x.r===r&&!x.lim);
+    const lp=ITEMS.filter(x=>x.lim===set&&x.r===r),pool=lp.length&&Math.random()<limShare(set,r)?lp:ITEMS.filter(x=>x.r===r&&!x.lim);
     const kinds=[...new Set(pool.map(x=>x.k))],k=kinds[Math.random()*kinds.length|0],ks=pool.filter(x=>x.k===k);
     out.push(ks[Math.random()*ks.length|0]);
   }
@@ -12096,7 +12099,7 @@ function renderLim(){
   const byR='';
   det.innerHTML='<summary>限定パックの中身と排出率</summary><table><tr><th></th><th>1〜4枚目</th><th>5枚目(R以上確定)</th></tr>'+
     RAR.map((x,i)=>'<tr><td class="r'+i+'">'+x.k+'</td><td>'+LRATE[i]+'%</td><td>'+(LRATE_G[i]?LRATE_G[i]+'%':'—')+'</td></tr>').join('')+
-    '</table><p>1パック5枚・'+LPACK+'pt。通常より高レア率。SR・URは半分の確率で限定アイテム、<b>GR以上は必ず限定アイテム</b>です(N・Rは通常アイテム)。限定パックを350パック開けるごとに<b>'+(banner.set==='hw'?'ハロウィンの限定KMRの選択チケット(ハロウィンガチャのKMRだけ選べます)':'好きな限定KMRの選択チケット')+'</b>が1枚もらえます。KMRは必ず限定KMRです。限定KMR'+KMRS.filter(K=>K.lim===banner.set).map(K=>'「'+K.n+'」').join('')+'はこのパックでしか出ません。KMRは選択チケットになり、アイコン・対戦演出・勝利演出から1つ選べます。GR確定までのカウントは通常パックとは別に数えます。</p>'+byR+'<p>限定アイテムはかけらとの交換はできません。</p>';
+    '</table><p>1パック5枚・'+LPACK+'pt。通常より高レア率。'+(LIM_SHARE_R[banner.set]?'限定アイテムが出る割合は '+['N','R','SR','UR'].map((k,i)=>ITEMS.some(x=>x.lim===banner.set&&x.r===i)?k+' '+Math.round(LIM_SHARE_R[banner.set][i]*100)+'%':'').filter(Boolean).join('・')+'、<b>GR以上は必ず限定アイテム</b>です。':'SR・URは半分の確率で限定アイテム、<b>GR以上は必ず限定アイテム</b>です(N・Rは通常アイテム)。')+'限定パックを350パック開けるごとに<b>'+(banner.set==='hw'?'ハロウィンの限定KMRの選択チケット(ハロウィンガチャのKMRだけ選べます)':'好きな限定KMRの選択チケット')+'</b>が1枚もらえます。KMRは必ず限定KMRです。限定KMR'+KMRS.filter(K=>K.lim===banner.set).map(K=>'「'+K.n+'」').join('')+'はこのパックでしか出ません。KMRは選択チケットになり、アイコン・対戦演出・勝利演出から1つ選べます。GR確定までのカウントは通常パックとは別に数えます。</p>'+byR+'<p>限定アイテムはかけらとの交換はできません。</p>';
   {/* every limited item, tap to preview */
     det.append(el('p','limph','限定アイテム一覧(タップでプレビュー)'));const g=el('div','limgrid');
     set.slice().sort((a,b)=>b.r-a.r).forEach(it=>{const c=el('button','limcell');c.append(cardFace(it),el('span','limk',KIND[it.k]));c.onclick=()=>previewAny(it);g.append(c)});det.append(g);
@@ -12147,7 +12150,7 @@ function renderGacha(){if(window.__tcgReady&&gPage==='tcg')renderTcgPacks();
 }
 /* 10連: ten packs in one go (same price as ten), with at least one SR or better guaranteed */
 const TEN=10;
-function pickR(r,lim){const lp=lim?ITEMS.filter(x=>x.lim===banner.set&&x.r===r):[],pool=lp.length&&(r>=4||Math.random()<LIM_SHARE)?lp:ITEMS.filter(x=>x.r===r&&!x.lim);
+function pickR(r,lim){const lp=lim?ITEMS.filter(x=>x.lim===banner.set&&x.r===r):[],pool=lp.length&&Math.random()<limShare(banner.set,r)?lp:ITEMS.filter(x=>x.r===r&&!x.lim);
   const kinds=[...new Set(pool.map(x=>x.k))],k=kinds[Math.random()*kinds.length|0],ks=pool.filter(x=>x.k===k);return ks[Math.random()*ks.length|0]}
 async function openTen(lim,tk){
   lim=lim===true;tk=tk===true;const me=myPlayer();if(!db||!me||me.ban||opening||lbBusy||!invLoaded||invFor!==me.id||!econReady())return;
