@@ -207,7 +207,21 @@ exports.pushTot = onDocumentWritten('tot/{id}', async ev => {
   const b = ev.data.before.exists ? ev.data.before.data() : null, a = ev.data.after.exists ? ev.data.after.data() : null;
   if (!a || !a.f || !a.o) return;
   if (!b && a.st === 'ask') await send([a.o], 'give', {title: 'トリック・オア・トリート!', body: (await totNm(a.f)) + 'がお菓子をねだっています。1日以内にあげないと、いたずらで20個とられる', go: 'home', tag: 'tot' + ev.params.id}, TOT_PV);
-  else if (b && b.st === 'ask' && a.st !== 'ask') await send([a.f], 'give', a.st === 'give' ? {title: 'お菓子をもらった', body: (await totNm(a.o)) + 'がお菓子を10個くれました', go: 'home', tag: 'tota' + ev.params.id} : {title: 'いたずら成功', body: (await totNm(a.o)) + 'はお菓子をくれなかったので、いたずらで20個もらいました', go: 'home', tag: 'tota' + ev.params.id}, TOT_PV);
+  else if (b && b.st === 'ask' && a.st !== 'ask') {
+    /* (10/17) いたずらは1日1人1回 (same as the app): a guard, or a trick that already happened to this friend for the same ask day → nothing moves */
+    let why = '';
+    if (a.st !== 'give') { try {
+      const at = +a.at || Date.now(), g = ((await db.doc('hwp/' + a.o).get()).data() || {}).L || [], guard = t => g.map(Number).some(s => t >= s && t < s + 864e5);
+      if (guard(+a.t || 0)) why = 'safe';
+      else { const q = await db.collection('tot').where('o', '==', a.o).get();
+        if (q.docs.some(d => { const x = d.data(); if (d.id === ev.params.id || +x.d !== +a.d || guard(+x.t || 0)) return false; const e = x.st === 'no' ? (+x.at || +x.t || 0) : x.st === 'ask' ? (+x.t || 0) + 864e5 : Infinity; return e < at || (e === at && d.id < ev.params.id); })) why = 'late'; }
+    } catch (e) {} }
+    const nm = await totNm(a.o);
+    await send([a.f], 'give', a.st === 'give' ? {title: 'お菓子をもらった', body: nm + 'がお菓子を10個くれました', go: 'home', tag: 'tota' + ev.params.id}
+      : why === 'safe' ? {title: 'いたずら失敗', body: nm + 'はいたずらよけのお守りを持っていました', go: 'home', tag: 'tota' + ev.params.id}
+      : why === 'late' ? {title: 'いたずら失敗', body: nm + 'は今日もう先にいたずらされていました(お菓子はなし)', go: 'home', tag: 'tota' + ev.params.id}
+      : {title: 'いたずら成功', body: nm + 'はお菓子をくれなかったので、いたずらで20個もらいました', go: 'home', tag: 'tota' + ev.params.id}, TOT_PV);
+  }
 });
 /* 友達招待 (v135): a new player who came from an invite (inv = the inviter) → tell the inviter */
 exports.pushInvite = onDocumentCreated('players/{id}', async ev => {
