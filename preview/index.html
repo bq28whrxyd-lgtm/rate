@@ -7809,7 +7809,7 @@ const hwNightAt=t=>window.__hwNight?(t>=now()-2*36e5&&t<=now()+36e5):(t>=HWN0&&t
 const hwNightNow=()=>hwOn()&&hwNightAt(now());
 const hwMul=t=>hwNightAt(t)?2:1;
 let hwMemo={k:'',v:{}};
-function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms.length:0),bunLogs.length,hwT0(),!!window.__hwNight,pid===invFor?JSON.stringify([((inv.tcg||{})[HWK.s]||[]).length,inv[HWK.q]||0,(inv[HWK.d]||[]).length,inv[HWK.dg]||0]):''].join('|');
+function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms.length+':'+tcgms.reduce((a,d)=>a+(tcgDone(d)?1:0),0):0)/* (10/18) a friend battle's result arrives as an update, not a new doc */,bunLogs.length,hwT0(),!!window.__hwNight,pid===invFor?JSON.stringify([((inv.tcg||{})[HWK.s]||[]).length,inv[HWK.q]||0,(inv[HWK.d]||[]).length,inv[HWK.dg]||0]):''].join('|');
   const hpA=typeof hwPassAt==='function'?hwPassAt(pid):0,hsA=typeof hwSetAt==='function'?hwSetAt(pid):0;
   if(hwMemo.k!==key+'|'+(typeof passes!=='undefined'?Object.keys(passes).length+JSON.stringify([hpA,hsA]):''))hwMemo={k:key+'|'+(typeof passes!=='undefined'?Object.keys(passes).length+JSON.stringify([hpA,hsA]):''),v:{}};if(hwMemo.v[pid]!=null)return hwMemo.v[pid];let c=0;const me_=pid===invFor,add=(n,t)=>{c+=n*hwMul(t)*(me_&&hwBoostAt(t)?2:1)*(hpA&&t>=hpA?1+HWP_BONUS:1)};
   for(const m of matches){if(!hwIn(m.t||0))continue;if(m.w===pid)add(HW_C.rw,m.t);else if(m.l===pid)add(HW_C.rl,m.t)}
@@ -7822,7 +7822,7 @@ function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms
   try{hbCandyEv(pid).forEach(([n,t])=>add(n,t))}catch(e){}
   try{const N=nightInfo();N.hits.forEach(h=>{if(h.a===pid&&hwIn(h.t))add(HW_C.nbt,h.t)});if(N.dead&&hwIn(N.killT)&&N.rank.some(x=>x.a===pid))add(HW_C.nbk,N.killT)}catch(e){}
   if(pid===invFor){((inv.tcg||{})[HWK.s]||[]).forEach(t=>{if(hwIn(+t))add(HW_C.cpu,+t)});c+=+inv[HWK.q]||0;try{hdEv(pid).forEach(([n,t])=>add(n,t))}catch(e){}}
-  if(hsA)c+=HWS_CANDY;
+  if(hsA&&now()>=hwT0())c+=HWS_CANDY;
   return hwMemo.v[pid]=Math.floor(c)}
 /* ---- 夜のボス (ハロウィンナイト 10/31 17:00〜24:00): everyone hits one boss in 分身 (bunlog d:HW_NB, s:damage), HW_NB_DAY tries each.
    Candy only: every try HW_C.nbt, a kill HW_C.nbk to everyone who hit it (the night doubles both: 40 and 600) ---- */
@@ -7922,15 +7922,19 @@ async function hwBuy(it){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==m
 /* a TCG win against the つよい CPU (called from tcgResult) */
 /* ---- (10/18) TCG CPU「つよい」に勝つと経験値 +CPUX_XP (event or not, no daily limit). The wins are counted in cpux/{pid} {n, u: last, dd: day, dn: wins that day}
    so every phone sees the same level; the rules let it go up by 1 at a time, 15 seconds apart ---- */
-const CPUX_XP=5;let cpuxs={},cpuxOn=false;
-function cpuxWatch(){if(cpuxOn||!db)return;cpuxOn=true;db.collection('cpux').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});cpuxs=o;queueRender()},()=>{cpuxOn=false})}
+let cpuxLoaded=false;const CPUX_XP=5,CPUX_T0=Date.UTC(2026,9,17,18,15);/* when it started (10/18 3:15): the bell tells everyone for 2 weeks, and a toast once */
+setTimeout(function cpuxTell(){try{const me=myPlayer();if(!me||now()>CPUX_T0+14*864e5)return;const k='cpuxTold_'+me.id;let d=null;try{d=localStorage.getItem(k)}catch(e){}if(d)return;try{localStorage.setItem(k,'1')}catch(e){}toast('お知らせ: TCGのCPU「つよい」に勝つと、経験値 +'+CPUX_XP+'(いつでも・何回でも)')}catch(e){}},9000);let cpuxs={},cpuxOn=false;
+function cpuxWatch(){if(cpuxOn||!db)return;cpuxOn=true;db.collection('cpux').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});cpuxs=o;cpuxLoaded=true;queueRender()},()=>{cpuxOn=false})}
 setInterval(()=>{try{if(db&&!cpuxOn&&myPlayer())cpuxWatch()}catch(e){}},3000);
 const cpuxN=pid=>Math.max(0,Math.min(1000000,+((cpuxs[pid]||{}).n)||0));
 const cpuxToday=pid=>{const d=cpuxs[pid]||{};return +d.dd===dayNo(now())?(+d.dn||0):0};
-async function cpuxWin(r){const me=myPlayer();if(!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!me||me.ban)return;
+async function cpuxWin(r,again){const me=myPlayer();if(!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!me||me.ban)return;
+  /* the count must be the latest one: wait for the first snapshot (up to 6s) */
+  for(let i=0;i<12&&!cpuxLoaded;i++){try{cpuxWatch()}catch(e){}await new Promise(z=>setTimeout(z,500))}
   const cur=cpuxs[me.id]||null,t=now(),dd=dayNo(t);if(cur&&t<(+cur.u||0)+15000)return;
   const nv={n:(cur?cpuxN(me.id):0)+1,u:t,dd,dn:cur&&+cur.dd===dd?(+cur.dn||0)+1:1};
-  try{await db.doc('cpux/'+me.id).set(nv);cpuxs=Object.assign({},cpuxs,{[me.id]:nv});queueRender();setTimeout(()=>toast('経験値 +'+CPUX_XP+'(CPU つよい に勝利)'),3400)}catch(e){}}
+  try{await db.doc('cpux/'+me.id).set(nv);cpuxs=Object.assign({},cpuxs,{[me.id]:nv});queueRender();setTimeout(()=>toast('経験値 +'+CPUX_XP+'(CPU つよい に勝利)'),3400)}
+  catch(e){/* refused (an old count, or the day turned over at 5:00): try once more a moment later with the fresh numbers */if(!again)setTimeout(()=>cpuxWin(r,true),2500)}}
 function hwCpuWin(r){if(!hwOn()||!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!invFor)return;const T=Object.assign({},tcgOf(inv)),hs=(Array.isArray(T[HWK.s])?T[HWK.s]:[]).concat([now()]).slice(-400);T[HWK.s]=hs;inv=Object.assign({},inv,{tcg:T});
   db.doc('inv/'+invFor).set({tcg:{[HWK.s]:hs}},{merge:true}).catch(()=>{});setTimeout(()=>toast('お菓子 +'+HW_C.cpu*hwMul(now())+'(CPU つよい に勝利)'),2200)}
 /* candy you just got, shown once (the victory screen goes first) */
@@ -8192,8 +8196,10 @@ const HWF_R=[null,{},{pt:50},{},{tk:'ptk',n:1},{},{pt:50},{},{tk:'tp1_h',n:1},{}
 HWP_TTL.HW_F1={n:'かぼちゃの常連',r:3};
 const hwPassAt=pid=>+((typeof passes!=='undefined'&&passes[pid]||{}).hw)||0;
 const hwSetAt=pid=>+((typeof passes!=='undefined'&&passes[pid]||{}).hs)||0;
-/* candy collected in the event (spending does not lower it): live for me, the published number for everyone else */
-function hwPassCol(pid){try{const me=myPlayer();if(me&&pid===me.id&&invLoaded&&invFor===me.id)return Math.max(0,Math.floor(hwGot(pid)));return Math.max(0,+((hwps[pid]||{})[HW_RK_KEY])||0)}catch(e){return 0}}
+/* candy collected in the event (spending does not lower it). Everyone else: the published number. Me: the higher of that and my live
+   count (so a rank never drops while data loads). After the event only the published number counts, so every phone agrees */
+function hwPassCol(pid){try{const pub=Math.max(0,+((hwps[pid]||{})[HW_RK_KEY])||0);if(now()>=hwT1())return pub;const me=myPlayer();
+  if(me&&pid===me.id&&invLoaded&&invFor===me.id)return Math.max(pub,Math.floor(hwGot(pid)));return pub}catch(e){return 0}}
 const hwPassLv=pid=>Math.min(HWP_N,Math.floor(hwPassCol(pid)/HWP_STEP));
 const hwPassRank=pid=>hwPassAt(pid)?hwPassLv(pid):0;
 function hwPassPts(pid){if(HW_PV)return 0;const n=hwPassRank(pid);let s=0;for(let i=1;i<=n;i++)s+=HWP_R[i].pt||0;return s}
@@ -8280,17 +8286,21 @@ function admHwPassRender(){const box=$('admHwPass');if(!box)return;const sp=$('a
   const L=$('admHwList');if(!L)return;L.replaceChildren();const rows=players.filter(p=>hwPassAt(p.id)||hwSetAt(p.id));
   if(!rows.length){L.textContent='まだ誰も持っていません';return}
   rows.forEach(p=>{const d=el('div');d.textContent=p.name+'  ·  '+[hwPassAt(p.id)?'パス(ランク '+hwPassRank(p.id)+')':'',hwSetAt(p.id)?'セット':''].filter(Boolean).join(' / ');L.append(d)})}
+/* gives the pass or the set. The doc is merged (never overwrites the monthly pass), and the grants that go with it are checked one by
+   one, so pressing again after a failed half only adds what is missing (never twice) */
 async function admHwPassGive(){const p=players.find(x=>x.id===$('admHwP').value),k=$('admHwK').value;if(!isAdmin()||!p)return;const msg=$('admHwMsg');
   if(HW_PV){msg.textContent='お試し版では付けられません(本番のアプリから付けてください)';return}
-  const cur=passes[p.id]||{},key=k==='set'?'hs':'hw';if(+cur[key]){msg.textContent=p.name+' はもう'+(k==='set'?'セットを買っています(1人1回)':'パスを持っています');return}
+  if(typeof passesLoaded!=='undefined'&&!passesLoaded){msg.textContent='読み込み中です。少し待ってからもう一度押してください';return}
+  const key=k==='set'?'hs':'hw',name=k==='set'?'ハロウィン限定セット':'ハロウィンパス';
+  const need=k==='set'?[['ltk',HWS_LTK,name+': 限定ガチャチケット ×'+HWS_LTK,hwT0()],['tp1_h',HWS_TCG,name+': TCG ハロウィンパック券 ×'+HWS_TCG,null]]:[['ltk',1,name+': 限定ガチャチケット ×1',hwT0()]];
+  const missing=need.filter(([kind,n,note])=>!grants.some(g=>g.pid===p.id&&g.kind===kind&&g.note===note));
+  const had=+((passes[p.id]||{})[key])||0;if(had&&!missing.length){msg.textContent=p.name+' はもう'+(k==='set'?'セットを買っています(1人1回)':'パスを持っています');return}
   const v=Math.max(0,Math.round(+$('admHwV').value||0)),t=now();
-  try{await db.doc('pass/'+p.id).set(Object.assign({},cur,{[key]:t}));passes[p.id]=Object.assign({},cur,{[key]:t});
-    const G=(kind,n,note,ev)=>db.collection('grants').add(Object.assign({pid:p.id,pn:p.name,kind,n,pt:0,note,t},ev!=null?{ev}:{}));
-    if(k==='set'){await G('ltk',HWS_LTK,'ハロウィン限定セット: 限定ガチャチケット ×'+HWS_LTK,hwT0());await G('tp1_h',HWS_TCG,'ハロウィン限定セット: TCG ハロウィンパック券 ×'+HWS_TCG)}
-    else await G('ltk',1,'ハロウィンパス: 限定ガチャチケット ×1',hwT0());
-    if(v>0){await db.collection('suplog').add({pid:p.id,v,note:k==='set'?'ハロウィン限定セット':'ハロウィンパス',t});try{supRecalc()}catch(e){}}
-    msg.textContent=p.name+' に'+(k==='set'?'ハロウィン限定セット':'ハロウィンパス')+'を付けました'+(v>0?'  ランク +'+v.toLocaleString():'');admHwPassRender()}
-  catch(e){msg.textContent='付けられませんでした('+(e.code||e.message)+')'}}
+  try{if(!had){await db.doc('pass/'+p.id).set({[key]:t},{merge:true});passes[p.id]=Object.assign({},passes[p.id]||{},{[key]:t})}
+    for(const [kind,n,note,ev] of missing)await db.collection('grants').add(Object.assign({pid:p.id,pn:p.name,kind,n,pt:0,note,t},ev!=null?{ev}:{}));
+    if(!had&&v>0){await db.collection('suplog').add({pid:p.id,v,note:name,t});try{supRecalc()}catch(e){}}
+    msg.textContent=had?p.name+' に'+name+'のチケットを付け直しました':p.name+' に'+name+'を付けました'+(v>0?'  ランク +'+v.toLocaleString():'');admHwPassRender()}
+  catch(e){msg.textContent='途中で止まりました('+(e.code||e.message)+')。もう一度押すと、足りないぶんだけ付けます'}}
 /* ---- イベントミッション (v135): the whole event, each one pays candy and pt (or a ticket) once claimed.
    Progress comes from data that is already there; a few things are counted when they happen (inv[HWK.h] harvests) or from a
    starting point taken the first time the app is open during the event (inv[HWK.g] = gacha pulls so far).
@@ -10855,6 +10865,7 @@ function notes(){
   grants.filter(g=>g.pid===me.id&&((g.kind||'pt')==='pt'||g.kind==='buy')).slice(0,10).forEach(g=>L.push({key:'g'+g.id,t:g.t,k:'ポイント',x:(g.kind==='buy'?'購入ptが届きました  +':'開発者からポイント  +')+g.pt+'pt'+(g.note?'  ·  '+g.note:''),go:'gacha'}));
   try{slabsOf(inv).filter(x=>invFor===me.id&&(slabReady(x)||x.s)).forEach(x=>{const c=TC[x.id];if(c)L.push({key:'gr'+x.i,t:x.t+GR_H*36e5,k:'鑑定',x:x.s?'「'+c.n+'」の鑑定 '+x.s+'('+GR_NM[x.s]+')':'「'+c.n+'」の鑑定結果が届きました。開けてみよう',go:'grade'})})}catch(e){}
   try{mtReqsTo(me.id).forEach(d=>L.push({key:'mr'+d.id,t:+d.t||0,k:'師弟',x:pname(d.a)+'から弟子入りの申し込み',go:'mentor'}));mentors.filter(d=>d.a===me.id&&d.ok).forEach(d=>L.push({key:'mo'+d.id,t:+d.ok,k:'師弟',x:pname(d.m)+'があなたを弟子にしました。分身の経験値が1.5倍',go:'mentor'}));mentors.filter(d=>d.g&&(d.a===me.id||d.m===me.id)).forEach(d=>L.push({key:'mg'+d.id,t:+d.g,k:'師弟',x:d.a===me.id?pname(d.m)+'師匠のもとを卒業しました  +'+MT_GRAD_A+'pt':'弟子の'+pname(d.a)+'が卒業しました  +'+MT_GRAD_M+'pt',go:'mentor'}))}catch(e){}
+  try{if(typeof CPUX_T0!=='undefined'&&now()<CPUX_T0+14*864e5)L.push({key:'cpuxp1',t:CPUX_T0,k:'お知らせ',x:'TCGのCPU「つよい」に勝つと、経験値 +'+CPUX_XP+' もらえるようになりました(イベントに関係なく、何回でも)',go:'battle'})}catch(e){}
   try{if(typeof hwOn==='function'&&hwOn()){totIn(me.id).forEach(x=>L.push({key:'ti'+x.id,t:+x.t||0,k:'ハロウィン',x:pname(x.f)+'からトリック・オア・トリート! 1日以内にお菓子をあげないと、いたずらで'+TOT_TRICK+'個とられる',go:'hw'}));tots.filter(x=>x.f===me.id&&totRes(x)!=='wait').forEach(x=>L.push({key:'tr'+x.id,t:+(x.at||x.t+TOT_WAIT),k:'ハロウィン',x:totRes(x)==='late'?pname(x.o)+'は先にほかの人にいたずらされていた(+0)':totRes(x)==='safe'?pname(x.o)+'はいたずらよけのお守りを持っていた':totRes(x)==='give'?pname(x.o)+'がお菓子をくれた(+'+TOT_GIVE+')':pname(x.o)+'にいたずら!お菓子 +'+TOT_TRICK,go:'hw'}))}}catch(e){}
   try{farmPlots(me.id).forEach(x=>{if(x&&plotRipe(x))L.push({key:'fr'+x.i,t:plotRipeAt(x),k:'畑',x:FARM_CROPS[x.c].n+'が収穫できます。置くほど増えるけど、そのぶん盗まれやすい',go:'farm'})});steals.filter(z=>z.o===me.id).forEach(z=>L.push({key:'fs'+z.id,t:+z.t||0,k:'畑',x:z.bit?'番犬が'+pname(z.p)+'を撃退!  罰金 +'+z.f+'pt':pname(z.p)+'に'+((FARM_CROPS[z.c]||{}).n||'作物')+'を盗まれた(-'+z.n+'pt)',go:'farm'}))}catch(e){}
   try{likes.filter(l=>l.o===me.id&&l.p!==me.id).forEach(l=>L.push({key:'lk'+l.id,t:+l.t||0,k:'いいね',x:pname(l.p)+'があなたのショーケースにいいね',go:'case'}))}catch(e){}
@@ -11330,7 +11341,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=135';
+const TCG_SRC='tcg_play.html?v=136';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
