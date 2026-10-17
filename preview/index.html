@@ -3027,6 +3027,14 @@ button.tcgkeep{width:100%;margin-top:8px}
 .hwp-s.pressing .hwp-ink{will-change:transform,opacity}
 .hwp-sp{position:absolute;left:50%;top:42%;width:64px;height:64px;pointer-events:none;opacity:0;border-radius:50%;background:radial-gradient(circle,transparent 52%,rgba(194,65,15,.35) 54%,transparent 60%),radial-gradient(2px 2px at 20% 30%,rgba(194,65,15,.7),transparent),radial-gradient(2px 2px at 78% 22%,rgba(194,65,15,.7),transparent),radial-gradient(1.6px 1.6px at 85% 70%,rgba(194,65,15,.7),transparent),radial-gradient(1.8px 1.8px at 15% 78%,rgba(194,65,15,.7),transparent)}
 @media (prefers-reduced-motion:reduce){.hwp-sp{display:none}}
+/* (10/18) the top progress and the free card */
+.hwp-top{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:20px;background:linear-gradient(160deg,rgba(50,30,62,.9),rgba(22,13,30,.94));box-shadow:inset 0 0 0 1px rgba(255,214,160,.2)}
+.hwp-card.free{background:radial-gradient(120% 90% at 20% 0%,#f6f1e2,#e7e0c8 60%,#d9d1b4);box-shadow:inset 0 0 0 1px rgba(60,80,40,.25),inset 0 0 0 5px #f2eddc,inset 0 0 0 6px rgba(60,110,60,.45),0 20px 40px -22px #000}
+.hwp-card.free .hwp-chd b{color:#2f5a2c}
+.hwp-s.gr .hwp-ink{color:#2f6a35}
+.hwp-s.gr.lock .hwp-st,.hwp-card.free .hwp-s.next .hwp-st{box-shadow:inset 0 0 0 2px rgba(47,106,53,.7)}
+.hwp-s.blank small{visibility:hidden}
+.hwp>.hlw-eq{align-self:flex-start;margin-top:-6px}
 .hdg{position:fixed;inset:0;z-index:135;color:#f6ece2;overflow:hidden;background:#0b0710;font-family:var(--k-body,inherit);-webkit-user-select:none;user-select:none;touch-action:manipulation;animation:fade .25s both}
 .hdg-bg{position:absolute;inset:0;pointer-events:none}
 .hdg-bg i{position:absolute;inset:0}
@@ -8165,6 +8173,9 @@ const HWP_ART={id:null,n:'',g:2};
 const HWP_R=[null,{pt:150},{tk:'tp1_h',n:1},{pt:150},{pt:150},{tk:'ltk',n:2},{tk:'tp1_h',n:1},{pt:150},{pt:150},{tk:'tp1_h',n:1},{tk:'ltk',n:2},
   {pt:150},{pt:150},{tk:'tp1_h',n:1},{pt:150},{tk:'ltk',n:2},{pt:150},{tk:'tp1_h',n:1},{pt:150},{pt:150},{art:1}];
 const HWP_TTL={HW_P1:{n:'夜宴の招待客',r:4},HW_S1:{n:'ジャック・オ・ランタン',r:4}};
+/* (10/18) 無料のスタンプカード: everyone, on the same ranks (candy collected, 150 a stamp). Rewards on the even ranks, a title at 20 */
+const HWF_R=[null,{},{pt:50},{},{tk:'ptk',n:1},{},{pt:50},{},{tk:'tp1_h',n:1},{},{tk:'ltk',n:1},{},{pt:50},{},{tk:'ptk',n:1},{},{pt:50},{},{tk:'tp1_h',n:1},{},{tk:'ltk',n:1,ttl:1}];
+HWP_TTL.HW_F1={n:'かぼちゃの常連',r:3};
 const hwPassAt=pid=>+((typeof passes!=='undefined'&&passes[pid]||{}).hw)||0;
 const hwSetAt=pid=>+((typeof passes!=='undefined'&&passes[pid]||{}).hs)||0;
 /* candy collected in the event (spending does not lower it): live for me, the published number for everyone else */
@@ -8172,27 +8183,33 @@ function hwPassCol(pid){try{const me=myPlayer();if(me&&pid===me.id&&invLoaded&&i
 const hwPassLv=pid=>Math.min(HWP_N,Math.floor(hwPassCol(pid)/HWP_STEP));
 const hwPassRank=pid=>hwPassAt(pid)?hwPassLv(pid):0;
 function hwPassPts(pid){if(HW_PV)return 0;const n=hwPassRank(pid);let s=0;for(let i=1;i<=n;i++)s+=HWP_R[i].pt||0;return s}
-function hwPassTk(pid,kind){if(HW_PV)return 0;const n=hwPassRank(pid);let s=0;for(let i=1;i<=n;i++)if(HWP_R[i].tk===kind)s+=HWP_R[i].n;return s}
+function hwFreePts(pid){if(HW_PV)return 0;const n=hwPassLv(pid);let s=0;for(let i=1;i<=n;i++)s+=HWF_R[i].pt||0;return s}
+/* tickets from both cards (the free one for everyone, the pass one for its owners) */
+function hwPassTk(pid,kind){if(HW_PV)return 0;const n=hwPassRank(pid),f=hwPassLv(pid);let s=0;for(let i=1;i<=n;i++)if(HWP_R[i].tk===kind)s+=HWP_R[i].n;for(let i=1;i<=f;i++)if(HWF_R[i].tk===kind)s+=HWF_R[i].n;return s}
 const hwPassArt=pid=>!HW_PV&&HWP_ART.id&&hwPassRank(pid)>=HWP_N?HWP_ART.id:null;
-const hwPassTitleOk=(pid,id)=>id==='HW_P1'?!!hwPassAt(pid):id==='HW_S1'?!!hwSetAt(pid):false;
-const hwPassRwName=r=>r.pt?r.pt+'pt':r.tk==='ltk'?'限定ガチャチケット '+r.n+'枚':r.tk?'TCG ハロウィンパック券 '+r.n+'枚':HWP_ART.id?'絵違い「'+HWP_ART.n+'」':'パス限定の絵違い(もうすぐ届く)';
-/* a toast when my pass rank goes up (once per rank, on this phone) */
-setInterval(()=>{try{const me=myPlayer();if(!me||!invLoaded||invFor!==me.id||!hwPassAt(me.id))return;const n=hwPassRank(me.id),k='hwpr_'+me.id;let last=0;try{last=+localStorage.getItem(k)||0}catch(e){}
-  if(n>last){try{localStorage.setItem(k,n)}catch(e){}if(last>0||n<=3)toast('ハロウィンパス ランク '+n+'!  ハロウィンの画面でスタンプを押そう')}}catch(e){}},15000);
+const hwPassTitleOk=(pid,id)=>id==='HW_P1'?!!hwPassAt(pid):id==='HW_S1'?!!hwSetAt(pid):id==='HW_F1'?hwPassLv(pid)>=HWP_N:false;
+const hwPassRwName=r=>r.pt?r.pt+'pt':r.tk==='ltk'?'限定ガチャチケット '+r.n+'枚'+(r.ttl?' と称号「'+HWP_TTL.HW_F1.n+'」':''):r.tk==='ptk'?'通常パックチケット '+r.n+'枚':!r.tk&&!r.art?'スタンプ':r.tk?'TCG ハロウィンパック券 '+r.n+'枚':HWP_ART.id?'絵違い「'+HWP_ART.n+'」':'パス限定の絵違い(もうすぐ届く)';
+/* a toast when my stamp card rank goes up (once per rank, on this phone) */
+setInterval(()=>{try{const me=myPlayer();if(!me||!invLoaded||invFor!==me.id||!hwOn())return;const n=hwPassLv(me.id),k='hwpr_'+me.id;let last=0;try{last=+localStorage.getItem(k)||0}catch(e){}
+  if(n>last){try{localStorage.setItem(k,n)}catch(e){}if(last>0||n<=3)toast('スタンプカード ランク '+n+'!  ハロウィンの画面でスタンプを押そう')}}catch(e){}},15000);
 
-/* the pass page inside the Halloween screen */
+/* the stamp card page inside the Halloween screen: the progress, the free card, the pass and its card, the set */
 function hwPassSec(me){const sec=el('div','hlw-sec hwp');const on=!!hwPassAt(me.id),col=hwPassCol(me.id),lv=hwPassLv(me.id),u=typeof passUnit==='function'?passUnit():'応援値';
-  /* the pass card */
+  const top=el('div','hwp-top');const tt=el('div','hwp-ht');tt.append(el('h3',null,'スタンプカード'),el('span',null,'お菓子 '+col.toLocaleString()+' 集めた'));top.append(tt);
+  const pr=el('div','hwp-pr');const nx=lv>=HWP_N?0:(lv+1)*HWP_STEP-col;pr.append(el('b',null,'ランク '+lv+' / '+HWP_N),el('span',null,lv>=HWP_N?'全部そろいました':'次のスタンプまで お菓子 '+nx));top.append(pr);
+  const bar=el('div','hwp-bar'),bi=el('i');bi.style.width=(lv>=HWP_N?100:((col%HWP_STEP)/HWP_STEP*100)).toFixed(1)+'%';bar.append(bi);top.append(bar);
+  top.append(el('div','hwp-how','お菓子を '+HWP_STEP+' 集めるごとにスタンプが1つ(全部 '+HWP_N+')。使っても減りません。無料のカードはみんな、パスのカードはパスを持っている人がもらえます。'));sec.append(top);
+  /* the free card */
+  const fc=hwpCard(me,{R:HWF_R,on:true,lv,key:'hwfseen_',title:'無料のスタンプカード',sub:'みんなもらえる',free:true});sec.append(fc);
+  if(lv>=HWP_N){const id='HW_F1',eq=(me.eq||{}).t===id,eb=el('button','hlw-eq',eq?'装備中':'称号「'+HWP_TTL[id].n+'」にする');eb.onclick=()=>hwPassEquip(id,eb);sec.append(eb)}
+  /* the pass */
   const hero=el('div','hwp-hero'+(on?' on':''));const ht=el('div','hwp-ht');ht.append(el('h3',null,'ハロウィンパス'),el('span',null,on?'持っています':HWP_PRICE.toLocaleString()+' '+u+'  ·  期間中ずっと'));hero.append(ht);
-  const pr=el('div','hwp-pr');const nx=lv>=HWP_N?0:(lv+1)*HWP_STEP-col;pr.append(el('b',null,'ランク '+lv+' / '+HWP_N),el('span',null,lv>=HWP_N?'全部そろいました':'次のランクまで お菓子 '+nx));hero.append(pr);
-  const bar=el('div','hwp-bar'),bi=el('i');bi.style.width=(lv>=HWP_N?100:((col%HWP_STEP)/HWP_STEP*100)).toFixed(1)+'%';bar.append(bi);hero.append(bar);
-  const now0=el('ul','hwp-now');[['すぐ','限定ガチャチケット 1枚'],['ずっと','もらえるお菓子 +'+Math.round(HWP_BONUS*100)+'%'],['称号','「'+HWP_TTL.HW_P1.n+'」']].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));now0.append(li)});hero.append(now0);
+  const now0=el('ul','hwp-now');[['すぐ','限定ガチャチケット 1枚'],['ずっと','もらえるお菓子 +'+Math.round(HWP_BONUS*100)+'%'],['称号','「'+HWP_TTL.HW_P1.n+'」'],['カード','下のパスのスタンプカード']].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));now0.append(li)});hero.append(now0);
   if(on){const id='HW_P1',eq=(me.eq||{}).t===id,eb=el('button','hlw-eq',eq?'装備中':'称号「'+HWP_TTL[id].n+'」にする');eb.onclick=()=>hwPassEquip(id,eb);hero.append(eb)}
-  else hero.append(el('div','hwp-how',lv?'今買うと、ランク '+lv+' までのごほうびがすぐにもらえます。':'集めたお菓子の数でランクが上がります。あとから買っても、それまでのランクのぶんはもらえます。'));
+  else hero.append(el('div','hwp-how',lv?'今買うと、ランク '+lv+' までのパスのごほうびがすぐにもらえます。':'あとから買っても、それまでのランクのぶんはもらえます。'));
   sec.append(hero);
-  /* the 20 ranks: a stamp card. Ranks reached since this phone last saw the card are pressed one by one when it opens */
-  const g=hwpCard(me,on,lv);
-  sec.append(g,el('div','sub hwp-note','pt はパック専用です(賭けや予想には使えません)。TCG ハロウィンパック券と限定ガチャチケットは期間中に使ってください。'+(HWP_ART.id?'':'ランク20の絵違いはもうすぐ届きます(届いたらランク20の人に自動で入ります)。')));
+  const pc=hwpCard(me,{R:HWP_R,on,lv,key:'hwpseen_',title:'パスのスタンプカード',sub:on?me.name+' さん':'パスを買うと、ここにも押されます',delay:(fc.__n||0)*.42});
+  sec.append(pc,el('div','sub hwp-note','パスの pt はパック専用です(賭けや予想には使えません)。チケットは期間中に使ってください。'+(HWP_ART.id?'':'ランク20の絵違いはもうすぐ届きます(届いたらランク20の人に自動で入ります)。')));
   /* the set */
   const st=el('div','hwp-set'+(hwSetAt(me.id)?' on':''));const sh=el('div','hwp-ht');sh.append(el('h3',null,'ハロウィン限定セット'),el('span',null,hwSetAt(me.id)?'購入済み':HWS_PRICE.toLocaleString()+' '+u+'  ·  1人1回'));st.append(sh);
   const sl=el('ul','hwp-now');[['限定ガチャチケット',HWS_LTK+'枚'],['TCG ハロウィンパック券',HWS_TCG+'枚'],['お菓子',String(HWS_CANDY)],['称号','「'+HWP_TTL.HW_S1.n+'」(セットだけ)']].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));sl.append(li)});st.append(sl);
@@ -8209,21 +8226,22 @@ function hwpInkDefs(){if(document.getElementById('hwpInkDefs'))return;const d=do
   d.innerHTML='<filter id="hwpInk" x="-12%" y="-12%" width="124%" height="124%"><feTurbulence type="fractalNoise" baseFrequency=".5" numOctaves="1" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.1" xChannelSelector="R" yChannelSelector="G" result="d"/>'+
     '<feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="1" seed="11" result="s"/><feColorMatrix in="s" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 2.05" result="m"/><feComposite in="d" in2="m" operator="in"/></filter>';document.body.append(d)}
 const hwpTilt=i=>((i*73)%19-9),hwpDx=i=>((i*37)%7-3),hwpDy=i=>((i*53)%5-2);
-const hwpInkC=r=>r.art?'au':r.tk==='ltk'?'vi':'or';
-const hwpLabel=r=>r.pt?r.pt+'pt':r.tk==='ltk'?'ガチャ券 ×'+r.n:r.tk?'TCG券 ×'+r.n:'絵違い';
-function hwpCard(me,on,lv){hwpInkDefs();const card=el('div','hwp-card'+(on?'':' off')),head=el('div','hwp-chd');
-  head.append(el('b',null,'スタンプカード'),el('span',null,on?me.name+' さん':'パスを買うと、ここにスタンプが押されます'));card.append(head);
-  const g=el('div','hwp-sg'),slots=[];for(let i=1;i<=HWP_N;i++){const r=HWP_R[i],got=lv>=i,c=el('div','hwp-s '+hwpInkC(r)+(got?(on?' got':' lock'):'')+(i===lv+1?' next':''));
+const hwpInkC=(r,free)=>r.art||r.ttl?'au':r.tk==='ltk'?'vi':free?'gr':'or';
+const hwpLabel=r=>r.pt?r.pt+'pt':r.tk==='ltk'?'ガチャ券 ×'+r.n+(r.ttl?'+称号':''):r.tk==='ptk'?'パック券 ×'+r.n:r.tk?'TCG券 ×'+r.n:r.art?'絵違い':'';
+/* o: {R: the rewards, on: stamps go in, lv, key: what this phone last saw, title, sub, free, delay} */
+function hwpCard(me,o){hwpInkDefs();const on=o.on,lv=o.lv,card=el('div','hwp-card'+(on?'':' off')+(o.free?' free':'')),head=el('div','hwp-chd');
+  head.append(el('b',null,o.title),el('span',null,o.sub));card.append(head);
+  const g=el('div','hwp-sg'),slots=[];for(let i=1;i<=HWP_N;i++){const r=o.R[i],got=lv>=i,c=el('div','hwp-s '+hwpInkC(r,o.free)+(got?(on?' got':' lock'):'')+(i===lv+1?' next':'')+(r.pt||r.tk||r.art?'':' blank'));
     c.append(el('em',null,String(i)));const st=el('div','hwp-st');st.innerHTML=HWP_STAMP('hwp-ink');st.style.setProperty('--r',hwpTilt(i)+'deg');st.style.setProperty('--x',hwpDx(i)+'px');st.style.setProperty('--y',hwpDy(i)+'px');c.append(st);
     c.append(el('small',null,hwpLabel(r)));c.title=hwPassRwName(r);g.append(c);slots.push({c,st,r,i})}
   card.append(g);
   /* press the new ones */
-  if(on){const k='hwpseen_'+me.id;let seen=0;try{seen=+localStorage.getItem(k)||0}catch(e){}seen=Math.min(seen,lv);
-    if(lv>seen){const fresh=slots.filter(x=>x.i>seen&&x.i<=lv),late=fresh.slice(-8);fresh.forEach(x=>{if(late.includes(x))x.c.classList.add('wait')});try{localStorage.setItem(k,lv)}catch(e){}
-      requestAnimationFrame(()=>requestAnimationFrame(()=>hwpPress(card,late)))}}
+  card.__n=0;if(on){const k=o.key+me.id;let seen=0;try{seen=+localStorage.getItem(k)||0}catch(e){}seen=Math.min(seen,lv);
+    if(lv>seen){const fresh=slots.filter(x=>x.i>seen&&x.i<=lv),late=fresh.slice(-8);fresh.forEach(x=>{if(late.includes(x))x.c.classList.add('wait')});try{localStorage.setItem(k,lv)}catch(e){}card.__n=late.length;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>hwpPress(card,late,o.delay||0,o.free?'無料のカード':'パスのカード')))}}
   return card}
-function hwpPress(card,L){if(!L.length||!document.body.contains(card))return;const RMo=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
-  const GAP=RMo?.12:.42,DUR=.62,END=GAP*(L.length-1)+DUR+.2,t0=performance.now();let raf=0,done=false;
+function hwpPress(card,L,delay,name){if(!L.length||!document.body.contains(card))return;const RMo=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
+  const GAP=RMo?.12:.42,DUR=.62,END=GAP*(L.length-1)+DUR+.2,t0=performance.now()+(RMo?0:(delay||0))*1000;let raf=0,done=false;
   const SPR=(t,f,z)=>{if(t<=0)return 0;const w=6.2832*f,wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+z*w/wd*Math.sin(wd*t))};
   L.forEach(x=>{x.c.classList.remove('wait');x.c.classList.add('pressing');const sp=el('i','hwp-sp');x.c.append(sp);x.sp=sp;x.ink=x.st.querySelector('.hwp-ink');x.fired=false});
   const frame=t=>{let shake=0;L.forEach((x,n)=>{const u=t-n*GAP;
@@ -8237,9 +8255,9 @@ function hwpPress(card,L){if(!L.length||!document.body.contains(card))return;con
       const lb=x.c.querySelector('small');if(lb){lb.style.transform=v>0?'scale('+(1+.25*Math.max(0,1-Math.abs(v-.1)*6)).toFixed(3)+')':''}});
     card.style.transform=shake&&!RMo?'translate3d(0,'+(shake*2.2).toFixed(2)+'px,0)':''};
   const stop=()=>{if(done)return;done=true;cancelAnimationFrame(raf);frame(END+1);card.style.transform='';L.forEach(x=>{x.c.classList.remove('pressing');x.c.classList.add('got');x.sp.remove();x.ink.style.opacity='';x.ink.style.transform=''});card.removeEventListener('pointerdown',stop);
-    const sum={};L.forEach(x=>{const k=hwpLabel(x.r).replace(/ ×\d+$/,'');sum[k]=(sum[k]||0)+(x.r.pt||x.r.n||1)});
-    toast('スタンプ '+L.length+'つ!  '+Object.keys(sum).map(k=>/pt$/.test(k)?(sum[k]+'pt'):k==='絵違い'?'絵違い':k+' ×'+sum[k]).join('・'))};
-  const tick=()=>{const t=(performance.now()-t0)/1000;if(t>=END)return stop();frame(t);raf=requestAnimationFrame(tick)};
+    const sum={};L.forEach(x=>{const k=hwpLabel(x.r).replace(/ ×\d+(\+称号)?$/,'');if(!k)return;sum[k]=(sum[k]||0)+(x.r.pt||x.r.n||1)});const ks=Object.keys(sum);
+    toast((name||'スタンプ')+'  スタンプ '+L.length+'つ!'+(ks.length?'  '+ks.map(k=>/pt$/.test(k)?(sum[k]+'pt'):k==='絵違い'?'絵違い':k+' ×'+sum[k]).join('・'):''))};
+  const tick=()=>{const t=(performance.now()-t0)/1000;if(t>=END)return stop();frame(Math.max(-1,t));raf=requestAnimationFrame(tick)};
   card.addEventListener('pointerdown',stop);tick()}
 async function hwPassEquip(id,b){const me=myPlayer();if(!me||!hwPassTitleOk(me.id,id))return;b.disabled=true;try{const cur=Object.assign({},me.eq||{});cur.t=cur.t===id?null:id;await db.doc('players/'+me.id).update({eq:cur});me.eq=cur;try{hwOpen.redraw&&hwOpen.redraw()}catch(e){}}catch(e){b.disabled=false;toast('変えられませんでした')}}
 
@@ -8342,7 +8360,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
         if(badge)t.append(el('em',null,String(badge)));t.append(el('i','hlw-chev'));t.onclick=()=>typeof k==='function'?k():hwOpen.go(k);g.append(t)};
       tile('tot','tt','トリック・オア・トリート',inc?inc+'人からねだられています':'今日あと '+totLeft(me.id)+' 回',inc);
       {const cu=hdCur(),lf=hdLeft();tile(()=>hdOpen(),'dg','おばけ屋敷のドア',!on?'ハロウィンの期間だけ':cu?'続きから(お菓子 '+hdPot(hdRooms(me.id,cu.d,cu.i),hdPicks(cu.r))+' 持っている)':lf?'今日あと '+lf+' 回  ·  運だめしでお菓子':'今日はおしまい(朝5時にまた3回)',on&&(cu||lf)?(cu?'続き':lf):0)}
-      tile('pass','hp','ハロウィンパス',hwPassAt(me.id)?'ランク '+hwPassRank(me.id)+' / '+HWP_N+(hwSetAt(me.id)?'  ·  限定セット購入済み':''):'お菓子を集めてランクアップ  ·  限定セットも','');
+      tile('pass','hp','スタンプカード','ランク '+hwPassLv(me.id)+' / '+HWP_N+'  ·  '+(hwPassAt(me.id)?'パスあり':'無料のカードとハロウィンパス'),'');
       tile('mis','ms','イベントミッション',L.filter(m=>m.got).length+' / '+L.length+' クリア',ready);
       tile('shop','sp','お菓子の交換所','お菓子 '+bal.toLocaleString()+' で交換',0);
       tile('how','hw','お菓子のもらい方','対戦・分身・ボス・お題・ドア','');
@@ -9942,7 +9960,7 @@ const grantTk=(pid,kind,ev)=>grants.reduce((a,g)=>a+(g.pid===pid&&g.kind===kind&
 /* 限定10連 tickets belong to one event, like the single ones */
 const limTk10=pid=>{if(!banner||!limActive())return 0;const g=grantTk(pid,'ltk10',banner.start),u=inv.lte10===banner.start?(+inv.ltn10||0):0;return Math.max(0,g-u)};
 const limTk=pid=>{if(!banner||!limActive())return 0;const g=grantTk(pid,'ltk',banner.start)+(pid===invFor?wkConv('ltk',banner.start):0)+(banner.set==='hw'&&typeof hwPassTk==='function'?hwPassTk(pid,'ltk'):0),u=inv.lte===banner.start?(+inv.ltn||0):0;return Math.max(0,g-u)};
-const ticketsLeft=pid=>ticketsWon(pid)+grantTk(pid,'ptk')+(pid===invFor?wkConv('ptk'):0)-(inv.tused||0);
+const ticketsLeft=pid=>ticketsWon(pid)+grantTk(pid,'ptk')+(pid===invFor?wkConv('ptk'):0)+(typeof hwPassTk==='function'?hwPassTk(pid,'ptk'):0)-(inv.tused||0);
 /* ---- weekly No.1 of each genre: the best rating when the week ends (Monday 5:00 JST) among players who played it that week.
    Prize: tickets for any one-pack gacha of your choice (no 10連 / box) — きもオタTCG 5, every other genre 3.
    The prize is a "choice" ticket kept in inv.wkc as [{k: ticket kind, n, ev}] once you pick what it becomes ---- */
@@ -12190,7 +12208,7 @@ function openCollection(asPlayer){
    Every action is a doc in "grants": {pid,pn,kind:'pt'|'ban'|'unban',pt,note,t} ---- */
 let adminCfg=null,adminLoaded=false,grants=[];
 const isAdmin=()=>!!(adminCfg&&myId&&adminCfg.uid===myId);
-const grantPts=pid=>grants.reduce((a,g)=>a+(g.pid===pid&&((g.kind||'pt')==='pt'||g.kind==='buy')&&giftGot(g)?(+g.pt||0):0),0)+(typeof hwPassPts==='function'?hwPassPts(pid):0);
+const grantPts=pid=>grants.reduce((a,g)=>a+(g.pid===pid&&((g.kind||'pt')==='pt'||g.kind==='buy')&&giftGot(g)?(+g.pt||0):0),0)+(typeof hwPassPts==='function'?hwPassPts(pid)+hwFreePts(pid):0);
 function toast(t){const e=el('div','toast',t);document.body.append(e);setTimeout(()=>e.remove(),4200)}
 let admMode=1;const admInvSub={};
 const admAmt=()=>Math.max(0,Math.round(+$('admPt').value||0));
