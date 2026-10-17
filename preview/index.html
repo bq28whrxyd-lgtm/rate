@@ -2392,14 +2392,13 @@ button.tcgdp span{font-size:11px;color:var(--mut);font-weight:500}
 @media(prefers-reduced-motion:reduce){.tcf.foil,.tcf.foil .foilsheen,.tcf.foil .foilspark{animation:none}}
 /* (10/17) secret Halloween versions: a pattern holo of small pumpkins that lights up only where the foil's light band passes
    (same angle, size and timing as .foilsheen), plus a very faint pattern all the time */
-.tcf.foil .hwholo{position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:inherit;opacity:.78;mix-blend-mode:hard-light;
-  background:repeating-linear-gradient(118deg,#ff9a2e 0 6%,#ffd34a 6% 12%,#ff4fb0 12% 18%,#9b5cff 18% 24%,#3fd0ff 24% 30%) 0 0/200% 200%;
-  -webkit-mask:url("hwpk/holo.png") 0 0/24cqw auto repeat,linear-gradient(60deg,transparent 30%,#000 43%,#000 57%,transparent 70%) 0 0/250% 250% no-repeat;
-  -webkit-mask-composite:source-in;mask:url("hwpk/holo.png") 0 0/24cqw auto repeat,linear-gradient(60deg,transparent 30%,#000 43%,#000 57%,transparent 70%) 0 0/250% 250% no-repeat;mask-composite:intersect;
-  animation:hwHolo 2.6s linear infinite}
+/* (10/17) lighter: the pumpkin pattern is a still mask and only a light band moves inside it (a transform, done by the GPU), instead of moving the mask every frame */
+.tcf.foil .hwholo{position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:inherit;opacity:.78;mix-blend-mode:hard-light;overflow:hidden;
+  -webkit-mask:url("hwpk/holo.png") 0 0/24cqw auto repeat;mask:url("hwpk/holo.png") 0 0/24cqw auto repeat}
+.tcf.foil .hwholo::before{content:"";position:absolute;top:-30%;bottom:-30%;left:-40%;width:180%;background:repeating-linear-gradient(118deg,#ff9a2e 0 6%,#ffd34a 6% 12%,#ff4fb0 12% 18%,#9b5cff 18% 24%,#3fd0ff 24% 30%);-webkit-mask:linear-gradient(60deg,transparent 30%,#000 43%,#000 57%,transparent 70%);mask:linear-gradient(60deg,transparent 30%,#000 43%,#000 57%,transparent 70%);transform:translate3d(-100%,0,0);animation:hwHoloX 2.6s linear infinite;will-change:transform}
 .tcf.foil .hwholo b{position:absolute;inset:0;background:rgba(255,236,200,.16);-webkit-mask:url("hwpk/holo.png") 0 0/24cqw auto repeat;mask:url("hwpk/holo.png") 0 0/24cqw auto repeat}
-@keyframes hwHolo{0%{-webkit-mask-position:0 0,-60% 0;mask-position:0 0,-60% 0;background-position:0% 50%}100%{-webkit-mask-position:0 0,160% 0;mask-position:0 0,160% 0;background-position:100% 50%}}
-@media(prefers-reduced-motion:reduce){.tcf.foil .hwholo{animation:none;-webkit-mask:url("hwpk/holo.png") 0 0/24cqw auto repeat;mask:url("hwpk/holo.png") 0 0/24cqw auto repeat;opacity:.35}}
+@keyframes hwHoloX{to{transform:translate3d(100%,0,0)}}
+@media(prefers-reduced-motion:reduce){.tcf.foil .hwholo::before{animation:none;opacity:0}.tcf.foil .hwholo{opacity:.35}}
 
 /* ===== BOX BREAK (box opening + secret rare). Moving parts use transform / opacity / clip-path only ===== */
 .bxc{position:fixed;inset:0;z-index:106;overflow:hidden;color:#fff;isolation:isolate;touch-action:none;-webkit-user-select:none;user-select:none;transition:opacity .26s}
@@ -2871,7 +2870,7 @@ button.tcgkeep{width:100%;margin-top:8px}
 .hlw-shop{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .hlw-it{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px 12px;border-radius:18px;background:linear-gradient(170deg,#2c1538,#170b1f);box-shadow:inset 0 0 0 1px #ffffff14;text-align:center}
 .hlw-it.full{opacity:.6}
-.hlw-ia{height:64px;display:grid;place-items:center}.hlw-ia .tcf,.hlw-ia .card{max-height:64px;width:auto}
+.hlw-ia{height:64px;display:grid;place-items:center}.hlw-buy:not(:disabled) svg{filter:brightness(0) opacity(.72)}.hlw-coin{width:64px;height:64px;filter:drop-shadow(0 4px 10px rgba(255,120,30,.35))}.hlw-coin svg{width:100%;height:100%;display:block}.hlw-ia .hlw-gf{position:relative;inset:auto;height:64px;width:auto;aspect-ratio:3/4}.hlw-ia .tcf,.hlw-ia .card{max-height:64px;width:auto}
 .hlw-itx b{display:block;font-size:13px;line-height:1.3}.hlw-itd{display:block;font-size:10.5px;line-height:1.45;color:#cdb8da;margin:3px 0 2px}
 .hlw-x2{position:relative;display:grid;place-items:center}.hlw-x2 b{position:absolute;right:-12px;bottom:-4px;font:900 15px/1 var(--k-num,inherit);color:#ffd36a;text-shadow:0 2px 0 #2a1206}
 .hlw-xpc{background:radial-gradient(circle at 35% 30%,#e9dcff,#a77bff 55%,#4b2397)!important;color:#fff!important;font-size:14px!important}
@@ -5704,30 +5703,30 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .hd-sc{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;opacity:0}
 .hd-sky{position:absolute;inset:0;background:radial-gradient(70% 45% at 50% 22%,rgba(122,70,200,.5),transparent 70%),radial-gradient(80% 40% at 50% 100%,rgba(255,120,40,.18),transparent 70%),linear-gradient(180deg,#160a2c,#0b0616 55%,#060309)}
 .hd-stars{position:absolute;inset:0 0 40% 0;opacity:.65;background-image:radial-gradient(1.2px 1.2px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 28% 8%,#fff,transparent),radial-gradient(1.4px 1.4px at 64% 14%,#fff,transparent),radial-gradient(1px 1px at 82% 26%,#fff,transparent),radial-gradient(1.2px 1.2px at 46% 30%,#fff,transparent),radial-gradient(1px 1px at 90% 8%,#fff,transparent),radial-gradient(1px 1px at 6% 36%,#fff,transparent)}
-.hd-moon{position:absolute;right:8%;top:7%;width:min(30vw,150px);aspect-ratio:1;background:url("hw_moon.webp") center/contain no-repeat;filter:drop-shadow(0 0 30px rgba(230,220,255,.4))}
-.hd-frame{position:absolute;left:50%;top:16%;width:min(64vw,290px);aspect-ratio:2/3.1;perspective:900px;transform-origin:50% 100%;--jy:0px}
+.hd-moon{position:absolute;right:8%;top:7%;width:min(30vw,150px);aspect-ratio:1;background:url("hw_moon.webp") center/contain no-repeat;filter:drop-shadow(0 0 30px rgba(230,220,255,.4));will-change:transform,opacity}
+.hd-frame{position:absolute;will-change:transform;left:50%;top:16%;width:min(64vw,290px);aspect-ratio:2/3.1;perspective:900px;transform-origin:50% 100%;--jy:0px}
 .hd-arch{position:absolute;inset:-7% -9% -2%;border-radius:50% 50% 6px 6px/24% 24% 6px 6px;background:linear-gradient(180deg,#3a3448,#221d2c);box-shadow:inset 0 0 0 3px #4d4560,inset 0 -30px 40px rgba(0,0,0,.5),0 30px 60px -20px #000}
 .hd-hole{position:absolute;inset:0;border-radius:46% 46% 2px 2px/20% 20% 2px 2px;overflow:hidden;background:#0a0510}
 .hd-beyond{position:absolute;inset:0;opacity:0}
 .hd-beyond video{width:100%;height:100%;object-fit:cover}
 .hd-beyond.gr video{object-position:50% 50%}.hd-beyond.kmr video{object-position:50% 22%}
 .hd-beyond.warm{background:radial-gradient(60% 50% at 50% 40%,#fff3d8,var(--lc,#ffa24a) 45%,#5a2a10 100%)}
-.hd-glow{position:absolute;inset:-20%;opacity:0;background:radial-gradient(50% 50% at 50% 55%,#fff,color-mix(in srgb,var(--lc,#ffa24a) 70%,transparent) 40%,transparent 75%);mix-blend-mode:screen}
+.hd-glow{position:absolute;inset:-20%;opacity:0;background:radial-gradient(50% 50% at 50% 55%,#fff,color-mix(in srgb,var(--lc,#ffa24a) 70%,transparent) 40%,transparent 75%);will-change:opacity}
 .kgo.rb .hd-glow{background:radial-gradient(50% 50% at 50% 55%,#fff,rgba(255,150,210,.7) 30%,rgba(140,220,255,.5) 50%,transparent 75%)}
 .hd-slit{position:absolute;left:50%;top:4%;bottom:0;width:5px;margin-left:-2.5px;z-index:3;opacity:0;border-radius:3px;background:linear-gradient(180deg,transparent,#fff 20%,var(--lc,#ffa24a) 60%,#fff 85%,transparent);box-shadow:0 0 16px 4px var(--lc,#ffa24a),0 0 50px 16px color-mix(in srgb,var(--lc,#ffa24a) 50%,transparent)}
 .kgo.rb .hd-slit{background:linear-gradient(180deg,#ff8ac4,#ffd98a 30%,#8affcf 55%,#7ab8ff 75%,#cf9bff);box-shadow:0 0 16px 4px #fff,0 0 50px 16px rgba(255,170,230,.6)}
-.hd-leaf{position:absolute;top:0;bottom:0;width:50%;z-index:2;transform-style:preserve-3d;backface-visibility:hidden;filter:drop-shadow(0 0 1px #000);translate:0 var(--jy)}
+.hd-leaf{position:absolute;top:0;bottom:0;width:50%;z-index:2;transform-style:preserve-3d;backface-visibility:hidden;translate:0 var(--jy);will-change:transform}
 .hd-leaf svg{display:block;width:100%;height:100%}
 .hd-leaf.l{left:0;transform-origin:0 50%;border-radius:92% 0 0 0/31% 0 0 0;overflow:hidden}
 .hd-leaf.r{right:0;transform-origin:100% 50%;border-radius:0 92% 0 0/0 31% 0 0;overflow:hidden}
 .hd-step{position:absolute;left:-16%;right:-16%;bottom:-6%;height:6%;border-radius:4px;background:linear-gradient(180deg,#4a4258,#241f2e);box-shadow:0 14px 30px #000}
-.hd-lan{position:absolute;top:calc(16% + min(64vw,290px)*1.55*.84);width:min(22vw,100px);aspect-ratio:1}
+.hd-lan{position:absolute;will-change:transform;top:calc(16% + min(64vw,290px)*1.55*.84);width:min(22vw,100px);aspect-ratio:1}
 .hd-lan.l{left:calc(50% - min(64vw,290px)*.5 - min(22vw,100px)*.82)}.hd-lan.r{left:calc(50% + min(64vw,290px)*.5 - min(22vw,100px)*.18)}
 .hd-lan img{position:relative;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
-.hd-lglow{position:absolute;inset:-70%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,150,60,.5),transparent);mix-blend-mode:screen}
-.hd-knock{position:absolute;left:50%;top:40%;font:900 clamp(26px,8.4vw,40px)/1 "HD Maru","Zen Maru Gothic","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;color:#fff;-webkit-text-stroke:7px #ff7a1a;paint-order:stroke fill;text-shadow:0 4px 0 #5a1a8a,0 7px 12px rgba(40,10,60,.55);opacity:0;letter-spacing:.02em}
+.hd-lglow{position:absolute;inset:-70%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,150,60,.42),transparent)}
+.hd-knock{position:absolute;left:50%;top:40%;font:900 clamp(26px,8.4vw,40px)/1 "HD Maru","Zen Maru Gothic","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;color:#fff;-webkit-text-stroke:7px #ff7a1a;paint-order:stroke fill;text-shadow:0 4px 0 #5a1a8a,0 7px 12px rgba(40,10,60,.55);opacity:0;letter-spacing:.02em;will-change:transform,opacity}
 .hd-words{position:absolute;left:0;right:0;top:calc(16% + min(64vw,290px)*1.55 + 30px);display:flex;justify-content:center;flex-wrap:nowrap;gap:1px;font:900 clamp(24px,7.4vw,38px)/1.15 "HD Maru","Zen Maru Gothic","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif}
-.hd-words span{display:inline-block;opacity:0;color:#fff;-webkit-text-stroke:7px #ff7a1a;paint-order:stroke fill;text-shadow:0 4px 0 #5a1a8a,0 8px 14px rgba(40,10,60,.5)}
+.hd-words span{display:inline-block;opacity:0;will-change:transform,opacity;color:#fff;-webkit-text-stroke:7px #ff7a1a;paint-order:stroke fill;text-shadow:0 4px 0 #5a1a8a,0 8px 14px rgba(40,10,60,.5)}
 .hd-words span:nth-child(odd){-webkit-text-stroke-color:#9b5cff}
 .hd-cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .hd-cbp{width:56%;height:auto;filter:drop-shadow(0 0 8px rgba(255,150,60,.6))}
@@ -7920,7 +7919,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
     /* 交換所 */
     if(sub==='shop'){const sh=el('div','hlw-sec');sh.append(el('h3',null,'お菓子の交換所'));const g=el('div','hlw-shop');
     hwShop().forEach(it=>{const have=hwHave(it.id),full=have>=it.max,c=el('div','hlw-it'+(full?' full':'')),art=el('div','hlw-ia');
-      if(it.k==='t'){const ch=titleChip(it.id);if(ch)art.append(ch)}else if(it.k==='g'||it.k==='c'){try{const I=cardInfo(it.k==='g'?'g':'t',it.ref);if(I)art.append(I.face())}catch(e){}}else if(it.k==='seed'||it.k==='np')art.innerHTML=hwPumpkinSvg(it.k==='np'?40:52);else if(it.k==='boost')art.innerHTML='<div class="hlw-x2">'+hwCandySvg(40)+'<b>×2</b></div>';else if(it.k==='guard')art.innerHTML='<svg viewBox="0 0 40 40" width="50" aria-hidden="true"><path d="M20 4l13 5v9c0 9-6 15-13 18C13 33 7 27 7 18V9z" fill="#3a1846" stroke="#ffb15c" stroke-width="2"/><path d="M14 20l4 4 8-9" stroke="#ffb15c" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>';else if(it.k==='pt')art.innerHTML='<div class="hlw-ptc">pt</div>';else if(it.k==='xp')art.innerHTML='<div class="hlw-ptc hlw-xpc">XP</div>';else if(it.k==='sta')art.innerHTML='<div class="hlw-ptc hlw-stc"><svg viewBox="0 0 24 24" width="24" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="#fff"/></svg></div>';else if(it.k==='dog')art.innerHTML='<div class="hlw-dog">'+dogSvg(true)+'</div>';else if(it.k==='grt')art.innerHTML='<svg viewBox="0 0 40 48" width="40" aria-hidden="true"><rect x="3" y="2" width="34" height="44" rx="4" fill="#24142e" stroke="#ffb15c" stroke-width="2"/><rect x="7" y="6" width="26" height="8" rx="2" fill="#ff8a2a"/><text x="20" y="12.6" text-anchor="middle" font-size="6" font-weight="900" fill="#2a1240">GRADE</text><rect x="9" y="17" width="22" height="25" rx="2" fill="#3a1846" stroke="#c99bff" stroke-width="1"/><text x="20" y="34" text-anchor="middle" font-size="12" font-weight="900" fill="#ffd29a">10</text></svg>';else art.innerHTML='<svg viewBox="0 0 40 28" width="54" aria-hidden="true"><rect x="1" y="1" width="38" height="26" rx="5" fill="#2b1838" stroke="#ff9d3c" stroke-width="1.5"/><path d="M28 1v26" stroke="#ff9d3c" stroke-dasharray="2 2"/><circle cx="14" cy="14" r="5" fill="#ff8a2a"/></svg>';
+      if(it.k==='t'){const ch=titleChip(it.id);if(ch)art.append(ch)}else if(it.k==='g'||it.k==='c'){/* (10/17) the item itself (the old cardInfo() did not exist, so the coin had no picture) */try{if(it.k==='g'){const I=ITEMS.find(x=>x.id===it.ref);if(I&&I.k==='c')art.innerHTML='<div class="hlw-coin">'+coinFace(I.v)+'</div>';else if(I){const f=cardFace(I);f.classList.add('hlw-gf');art.append(f)}}else{const f=tcgFace(it.ref,'',false);f.classList.add('hlw-gf');art.append(f)}}catch(e){}}else if(it.k==='seed'||it.k==='np')art.innerHTML=hwPumpkinSvg(it.k==='np'?40:52);else if(it.k==='boost')art.innerHTML='<div class="hlw-x2">'+hwCandySvg(40)+'<b>×2</b></div>';else if(it.k==='guard')art.innerHTML='<svg viewBox="0 0 40 40" width="50" aria-hidden="true"><path d="M20 4l13 5v9c0 9-6 15-13 18C13 33 7 27 7 18V9z" fill="#3a1846" stroke="#ffb15c" stroke-width="2"/><path d="M14 20l4 4 8-9" stroke="#ffb15c" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>';else if(it.k==='pt')art.innerHTML='<div class="hlw-ptc">pt</div>';else if(it.k==='xp')art.innerHTML='<div class="hlw-ptc hlw-xpc">XP</div>';else if(it.k==='sta')art.innerHTML='<div class="hlw-ptc hlw-stc"><svg viewBox="0 0 24 24" width="24" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="#fff"/></svg></div>';else if(it.k==='dog')art.innerHTML='<div class="hlw-dog">'+dogSvg(true)+'</div>';else if(it.k==='grt')art.innerHTML='<svg viewBox="0 0 40 48" width="40" aria-hidden="true"><rect x="3" y="2" width="34" height="44" rx="4" fill="#24142e" stroke="#ffb15c" stroke-width="2"/><rect x="7" y="6" width="26" height="8" rx="2" fill="#ff8a2a"/><text x="20" y="12.6" text-anchor="middle" font-size="6" font-weight="900" fill="#2a1240">GRADE</text><rect x="9" y="17" width="22" height="25" rx="2" fill="#3a1846" stroke="#c99bff" stroke-width="1"/><text x="20" y="34" text-anchor="middle" font-size="12" font-weight="900" fill="#ffd29a">10</text></svg>';else art.innerHTML='<svg viewBox="0 0 40 28" width="54" aria-hidden="true"><rect x="1" y="1" width="38" height="26" rx="5" fill="#2b1838" stroke="#ff9d3c" stroke-width="1.5"/><path d="M28 1v26" stroke="#ff9d3c" stroke-dasharray="2 2"/><circle cx="14" cy="14" r="5" fill="#ff8a2a"/></svg>';
       const tx=el('div','hlw-itx'),act=it.k==='boost'?hwBoostLeft():it.k==='guard'?hwGuardLeft(me.id):0;tx.append(el('b',null,it.n));if(it.d)tx.append(el('span','hlw-itd',it.d));tx.append(el('small',null,(it.k==='sta'?(()=>{let st=0;try{st=hbInfo(me.id).st}catch(e){}return'今のスタミナ '+st+' / '+HB_ST+'  ·  交換 '+have+' 回'})():it.k==='xp'?'交換 '+have+' 回  ·  今 Lv'+lvOf(me.id).L:(act?'使用中 あと '+hwLeft(act)+'  ·  ':'')+(it.k==='seed'?'持っている種 '+hwSeeds()+'  ·  ':'')+(it.k==='pt'?'何回でも':it.max>1?'交換 '+have+' / '+it.max:have?'交換済み':'1回だけ'))));
       const bt=el('button','hlw-buy');bt.innerHTML=hwCandySvg(16);bt.append(document.createTextNode(it.c.toLocaleString()));bt.disabled=!on||full||bal<it.c||(it.k==='sta'&&!!hbRefBlock(me.id));
       bt.onclick=()=>askSheet({title:'交換する',ok:'お菓子 '+it.c+' で交換',lines:[it.n+' と交換します。','交換したあとのお菓子 '+(bal-it.c).toLocaleString()],run:async()=>{try{await hwBuy(it);toast(it.n+'と交換しました'+(HW_PV&&it.k==='tk'?'(お試し版なのでチケットは入りません)':''));draw();try{renderGacha()}catch(e){}}catch(e){toast(e.message==='candy'?'お菓子が足りません':e.message==='max'?'もう交換できません':e.message==='sta'?(hbRefBlock(me.id)||'今は回復できません'):'交換できませんでした')}}});
@@ -9495,7 +9494,7 @@ const admInv={};
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
 const BUN_GIRL=false;/* 分身の女の子(一旦お休み)。bunshin の GIRL_ON と合わせる */
-const BUN_SRC='bunshin.html?v=29',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=30',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -11795,10 +11794,10 @@ const NEWS_EXP=typeof TCGD!=='undefined'&&!!TCGD.packs.c;
 const NEWS_HW=HW_HERE()&&NEWS_EXP;
 const NEWS_ID=NEWS_HW?'2026-v135':NEWS_EXP?'2026-v134':'2026-v121';
 const NEWS_V135=[
- ['ハロウィンイベント(10/19 朝5時〜11/8 朝5時)',['ホームの「ハロウィン」からイベント画面へ。20日間','対戦・TCG・分身で遊ぶとお菓子がたまる(もらえる数はイベント画面の「お菓子のもらい方」)','お菓子は交換所で、パックチケット・限定ガチャチケット・称号・経験値・ボス戦のスタミナなどと交換できる','イベントミッション18個。クリアするとお菓子と、ptかチケット','期間中はホームがハロウィンの夜の見た目に']],
+ ['ハロウィンイベント(10/19 朝5時〜11/8 朝5時)',['ホームの「ハロウィン」からイベント画面へ。20日間','対戦・TCG・分身で遊ぶとお菓子がたまる(もらえる数はイベント画面の「お菓子のもらい方」)','お菓子は交換所で、パックチケット・限定ガチャチケット・称号・経験値・ボス戦のスタミナなどと交換できる','イベントミッション'+HW_MIS.length+'個。クリアするとお菓子と、ptかチケット','期間中はホームがハロウィンの夜の見た目に']],
  ['ハロウィンガチャ',['1パック'+LPACK+'pt。GR以上は必ず限定アイテム','限定KMR「夜宴の小悪魔」。アイコン・対戦演出・勝利演出から選べる。対戦演出か勝利演出を付けると、対戦中に応援してくれる','限定の背景: UR「魔女の宴」、GR「かぼちゃ畑の夜」(動く背景)','350パックごとに、ハロウィンの限定KMRの選択チケット','引くとトリック・オア・トリートのドアの演出']],
  ['TCG「ハロウィンナイト」',['期間限定のパック。1パック210pt。愛と裏切りの宴のカードと、ハロウィン版のカード20種が入っている','ハロウィン版のシークレットは、光が通ったところにかぼちゃが浮かぶホログラム','100パックごとに、好きなハロウィン版を1枚シークレットでもらえる']],
- ['ハロウィンのボス(分身)',['分身で、自分だけのボスに順番に挑む。かぼちゃ頭の騎士を5体倒すと、6体目に夜宴の魔女。1体ごとに強くなる','スタミナは5。3時間に1回復(交換所でも回復できる)','仲間の分身にお助けを頼める(200pt。助けた仲間に50pt)','倒すとお菓子とpt。2体目の魔女(12体目)を倒すと、分身がかぼちゃ頭の騎士になれるスキン','週末のボスもハロウィン仕様に。挑むたびにお菓子がもらえる']],
+ ['ハロウィンのボス(分身)',['分身で、自分だけのボスに順番に挑む。かぼちゃ頭の騎士を5体倒すと、6体目に夜宴の魔女。1体ごとに強くなる','スタミナは5。3時間に1回復(交換所でも回復できる)','仲間の分身にお助けを頼める(200pt。助けた仲間に50pt)','倒すとお菓子とpt。2体目の魔女(12体目)を倒すと、分身がかぼちゃ頭の騎士になれるスキン','期間中は、週末のボスの代わりにこのボスになる']],
  ['ハロウィンナイト(10/31 17:00〜24:00)',['その夜だけの夜ボス「夜宴の魔女・真夜中の姿」に、みんなで挑む(1人5回まで)','この時間は、もらえるお菓子が全部2倍']],
  ['トリック・オア・トリート',['1日1回、仲間にお菓子をねだれる。あげてくれたら +'+TOT_GIVE,'「あげない」か、1日答えなかったら、いたずらで '+TOT_TRICK+' もらえる(相手は '+TOT_TRICK+' 減る)','交換所の「いたずらよけのお守り」があると、いたずらされても減らない']],
  ['お菓子ランキング',['集めたお菓子の数で順位が決まる(11/8 朝5時の時点)','1位 '+HW_RK_PTS[0]+'pt と称号「'+HW_RTTL.HW_R1.n+'」、2位 '+HW_RK_PTS[1]+'pt と「'+HW_RTTL.HW_R2.n+'」、3位 '+HW_RK_PTS[2]+'pt と「'+HW_RTTL.HW_R3.n+'」']],
