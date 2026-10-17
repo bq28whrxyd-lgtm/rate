@@ -172,7 +172,7 @@ exports.pushFarmSteal = onDocumentCreated('steal/{id}', async ev => {
 });
 /* every 10 minutes: crops that became ripe since the last run */
 /* needs the Cloud Scheduler API (enable it and give the key roles/cloudscheduler.admin first), then set FARM_RIPE = true */
-const FARM_RIPE = false;
+const FARM_RIPE = true;  // (10/17) on: 抜き打ちガチャ・畑の実り・鑑定結果 (Cloud Scheduler)
 if (FARM_RIPE) exports.pushAp = onSchedule({schedule: 'every 1 minutes', timeZone: 'Asia/Tokyo'}, async () => {
   const nowt = Date.now(), st = apStart(dayNo(nowt));
   if (st > nowt || nowt - st >= 90000) return;  // within 1.5 minutes after the start (runs every minute)
