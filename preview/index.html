@@ -7700,19 +7700,19 @@ function hwShop(){const L=[{id:'ptk',k:'tk',tk:'ptk',n:'通常パックチケッ
     {id:'ltk',k:'tk',tk:'ltk',n:'限定ガチャチケット',d:'ハロウィンガチャを1回引ける(期間中に使う)',c:150,max:10},
     {id:'grt',k:'grt',n:'鑑定券',d:'TCGカードを1枚、ptを払わずに鑑定に出せる(期間が終わっても使える)',c:80,max:5},
     {id:'dog',k:'dog',n:'番犬1日',d:'交換したときから1日、畑に番犬がつく(ptはいらない。雇っていればその分のびる)',c:70,max:7},
-    {id:'xp',k:'xp',n:'経験値 +'+HW_XP1,d:'アカウントと分身のレベルが上がる(期間が終わっても残る)',c:80,max:20},
-    {id:'sta',k:'sta',n:'ボス戦のスタミナ1回復',d:'ハロウィンのボス(分身)にもう1回挑める。1日'+HB_REFDAY+'回まで',c:30,max:99999},
+    {id:'xp',k:'xp',n:'経験値 +'+HW_XP1,d:'アカウントと分身のレベルが上がる(期間が終わっても残る)。何回でも交換できる',c:120,max:99999},
+    {id:'sta',k:'sta',n:'ボス戦のスタミナ1回復',d:'ハロウィンのボス(分身)にもう1回挑める。何回でも交換できる(満タンのときは使えない)',c:50,max:99999},
     {id:'pt',k:'pt',n:'10pt',d:'余ったお菓子用。何回でも交換できる',c:50,p:10,max:99999});
   return L.concat(window.HW_SHOP_X||[])}
 const hwHave=id=>+((inv[HWK.b]||{})[id])||0;
 /* (10/17) 経験値 and ボス戦のスタミナ from the 交換所: public in hwp/{pid} (x: extra XP, S: when each refill was used) so every phone sees
    the same level and the same boss chain. The お試し版 keeps its own (px, pS) and changes nothing in the main app */
 const HWX=HW_PV?'px':'x',HWS=HW_PV?'pS':'S',HW_XP1=100,HB_REFDAY=3;
-const hwXp=pid=>{try{return Math.max(0,Math.min(2000,+((hwps[pid]||{})[HWX])||0))}catch(e){return 0}};
+const hwXp=pid=>{try{return Math.max(0,Math.min(1000000,+((hwps[pid]||{})[HWX])||0))}catch(e){return 0}};
 const hbRefills=pid=>{try{const L=(hwps[pid]||{})[HWS];return Array.isArray(L)?L.map(Number).filter(t=>t>0):[]}catch(e){return[]}};
 const hbRefToday=pid=>{const k=dayKey(now()-5*36e5);return hbRefills(pid).filter(t=>dayKey(t-5*36e5)===k).length};
 /* why the stamina refill cannot be used right now ('' = it can) */
-const hbRefBlock=pid=>{try{if(hbRefToday(pid)>=HB_REFDAY)return'今日の分は終わり';if(hbInfo(pid).st>=HB_ST)return'スタミナは満タン'}catch(e){}return''};
+const hbRefBlock=pid=>{try{if(hbInfo(pid).st>=HB_ST)return'スタミナは満タン'}catch(e){}return''};
 /* お菓子2倍券: 1 hour from each start (inv hbo); いたずらよけ: 1 day from each start, public in hwp/{pid} {L: starts} so the one who asks sees it */
 const HW_BOOST=36e5;
 const hwBoostAt=t=>(Array.isArray(inv[HWK.d])?inv[HWK.d]:[]).some(s=>t>=+s&&t<+s+HW_BOOST);
@@ -7736,7 +7736,7 @@ async function hwBuy(it){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==m
   if(it.k==='dog'&&!HW_PV){const F=Object.assign({},farmOf(me.id)),until=Math.max(now(),+F.dog||0)+864e5;await db.doc('farm/'+me.id).set({p:F.p||{},dog:until,u:now()});farms[me.id]=Object.assign({},F,{dog:until})}
   if(it.k==='boost'){const L=Array.isArray(inv[HWK.d])?inv[HWK.d]:[],st=Math.max(now(),...L.map(x=>+x+HW_BOOST));nv[HWK.d]=L.concat([st])}
   if(it.k==='xp'){const x=hwXp(me.id)+HW_XP1;await db.doc('hwp/'+me.id).set({[HWX]:x,u:now()},{merge:true});hwps[me.id]=Object.assign({},hwps[me.id]||{},{[HWX]:x})}
-  if(it.k==='sta'){if(hbRefBlock(me.id))throw new Error('sta');const L=hbRefills(me.id).concat([now()]).slice(-100);await db.doc('hwp/'+me.id).set({[HWS]:L,u:now()},{merge:true});hwps[me.id]=Object.assign({},hwps[me.id]||{},{[HWS]:L});hbC.k=''}
+  if(it.k==='sta'){if(hbRefBlock(me.id))throw new Error('sta');const L=hbRefills(me.id).concat([now()]).slice(-2000);await db.doc('hwp/'+me.id).set({[HWS]:L,u:now()},{merge:true});hwps[me.id]=Object.assign({},hwps[me.id]||{},{[HWS]:L});hbC.k=''}
   if(it.k==='guard'){const L=hwGuards(me.id),st=Math.max(now(),...L.map(x=>+x+864e5));await db.doc('hwp/'+me.id).set({L:L.concat([st]).slice(-20),u:now()},{merge:true});hwps[me.id]=Object.assign({},hwps[me.id]||{},{L:L.concat([st])})}
   await db.doc('inv/'+me.id).set(nv);inv=nv;try{ownSync()}catch(e){};return it}
 /* a TCG win against the つよい CPU (called from tcgResult) */
@@ -7921,7 +7921,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
     if(sub==='shop'){const sh=el('div','hlw-sec');sh.append(el('h3',null,'お菓子の交換所'));const g=el('div','hlw-shop');
     hwShop().forEach(it=>{const have=hwHave(it.id),full=have>=it.max,c=el('div','hlw-it'+(full?' full':'')),art=el('div','hlw-ia');
       if(it.k==='t'){const ch=titleChip(it.id);if(ch)art.append(ch)}else if(it.k==='g'||it.k==='c'){try{const I=cardInfo(it.k==='g'?'g':'t',it.ref);if(I)art.append(I.face())}catch(e){}}else if(it.k==='seed'||it.k==='np')art.innerHTML=hwPumpkinSvg(it.k==='np'?40:52);else if(it.k==='boost')art.innerHTML='<div class="hlw-x2">'+hwCandySvg(40)+'<b>×2</b></div>';else if(it.k==='guard')art.innerHTML='<svg viewBox="0 0 40 40" width="50" aria-hidden="true"><path d="M20 4l13 5v9c0 9-6 15-13 18C13 33 7 27 7 18V9z" fill="#3a1846" stroke="#ffb15c" stroke-width="2"/><path d="M14 20l4 4 8-9" stroke="#ffb15c" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>';else if(it.k==='pt')art.innerHTML='<div class="hlw-ptc">pt</div>';else if(it.k==='xp')art.innerHTML='<div class="hlw-ptc hlw-xpc">XP</div>';else if(it.k==='sta')art.innerHTML='<div class="hlw-ptc hlw-stc"><svg viewBox="0 0 24 24" width="24" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="#fff"/></svg></div>';else if(it.k==='dog')art.innerHTML='<div class="hlw-dog">'+dogSvg(true)+'</div>';else if(it.k==='grt')art.innerHTML='<svg viewBox="0 0 40 48" width="40" aria-hidden="true"><rect x="3" y="2" width="34" height="44" rx="4" fill="#24142e" stroke="#ffb15c" stroke-width="2"/><rect x="7" y="6" width="26" height="8" rx="2" fill="#ff8a2a"/><text x="20" y="12.6" text-anchor="middle" font-size="6" font-weight="900" fill="#2a1240">GRADE</text><rect x="9" y="17" width="22" height="25" rx="2" fill="#3a1846" stroke="#c99bff" stroke-width="1"/><text x="20" y="34" text-anchor="middle" font-size="12" font-weight="900" fill="#ffd29a">10</text></svg>';else art.innerHTML='<svg viewBox="0 0 40 28" width="54" aria-hidden="true"><rect x="1" y="1" width="38" height="26" rx="5" fill="#2b1838" stroke="#ff9d3c" stroke-width="1.5"/><path d="M28 1v26" stroke="#ff9d3c" stroke-dasharray="2 2"/><circle cx="14" cy="14" r="5" fill="#ff8a2a"/></svg>';
-      const tx=el('div','hlw-itx'),act=it.k==='boost'?hwBoostLeft():it.k==='guard'?hwGuardLeft(me.id):0;tx.append(el('b',null,it.n));if(it.d)tx.append(el('span','hlw-itd',it.d));tx.append(el('small',null,(it.k==='sta'?(()=>{let st=0;try{st=hbInfo(me.id).st}catch(e){}return'今のスタミナ '+st+' / '+HB_ST+'  ·  今日あと '+Math.max(0,HB_REFDAY-hbRefToday(me.id))+' 回'})():it.k==='xp'?'交換 '+have+' / '+it.max+'  ·  今 Lv'+lvOf(me.id).L:(act?'使用中 あと '+hwLeft(act)+'  ·  ':'')+(it.k==='seed'?'持っている種 '+hwSeeds()+'  ·  ':'')+(it.k==='pt'?'何回でも':it.max>1?'交換 '+have+' / '+it.max:have?'交換済み':'1回だけ'))));
+      const tx=el('div','hlw-itx'),act=it.k==='boost'?hwBoostLeft():it.k==='guard'?hwGuardLeft(me.id):0;tx.append(el('b',null,it.n));if(it.d)tx.append(el('span','hlw-itd',it.d));tx.append(el('small',null,(it.k==='sta'?(()=>{let st=0;try{st=hbInfo(me.id).st}catch(e){}return'今のスタミナ '+st+' / '+HB_ST+'  ·  交換 '+have+' 回'})():it.k==='xp'?'交換 '+have+' 回  ·  今 Lv'+lvOf(me.id).L:(act?'使用中 あと '+hwLeft(act)+'  ·  ':'')+(it.k==='seed'?'持っている種 '+hwSeeds()+'  ·  ':'')+(it.k==='pt'?'何回でも':it.max>1?'交換 '+have+' / '+it.max:have?'交換済み':'1回だけ'))));
       const bt=el('button','hlw-buy');bt.innerHTML=hwCandySvg(16);bt.append(document.createTextNode(it.c.toLocaleString()));bt.disabled=!on||full||bal<it.c||(it.k==='sta'&&!!hbRefBlock(me.id));
       bt.onclick=()=>askSheet({title:'交換する',ok:'お菓子 '+it.c+' で交換',lines:[it.n+' と交換します。','交換したあとのお菓子 '+(bal-it.c).toLocaleString()],run:async()=>{try{await hwBuy(it);toast(it.n+'と交換しました'+(HW_PV&&it.k==='tk'?'(お試し版なのでチケットは入りません)':''));draw();try{renderGacha()}catch(e){}}catch(e){toast(e.message==='candy'?'お菓子が足りません':e.message==='max'?'もう交換できません':e.message==='sta'?(hbRefBlock(me.id)||'今は回復できません'):'交換できませんでした')}}});
       c.append(art,tx,bt);if((it.k==='t'||it.k==='np')&&have){const fk=it.k==='np'?'np':'t',fv=it.k==='np'?'hw':it.id,on2=(me.eq||{})[fk]===fv,eb=el('button','hlw-eq',on2?(it.k==='np'?'付けている':'装備中'):(it.k==='np'?'名前に付ける':'称号にする'));eb.onclick=async()=>{eb.disabled=true;try{const cur=Object.assign({},me.eq||{});cur[fk]=on2?null:fv;await db.doc('players/'+me.id).update({eq:cur});me.eq=cur;draw()}catch(e){eb.disabled=false}};c.append(eb)}
