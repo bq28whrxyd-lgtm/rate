@@ -7921,14 +7921,14 @@ async function hwBuy(it){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==m
   await db.doc('inv/'+me.id).set(nv);inv=nv;try{ownSync()}catch(e){};return it}
 /* a TCG win against the つよい CPU (called from tcgResult) */
 /* ---- (10/18) TCG CPU「つよい」に勝つと経験値 +CPUX_XP (event or not, no daily limit). The wins are counted in cpux/{pid} {n, u: last, dd: day, dn: wins that day}
-   so every phone sees the same level; the rules let it go up by 1 at a time, a minute apart ---- */
+   so every phone sees the same level; the rules let it go up by 1 at a time, 15 seconds apart ---- */
 const CPUX_XP=5;let cpuxs={},cpuxOn=false;
 function cpuxWatch(){if(cpuxOn||!db)return;cpuxOn=true;db.collection('cpux').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});cpuxs=o;queueRender()},()=>{cpuxOn=false})}
 setInterval(()=>{try{if(db&&!cpuxOn&&myPlayer())cpuxWatch()}catch(e){}},3000);
 const cpuxN=pid=>Math.max(0,Math.min(1000000,+((cpuxs[pid]||{}).n)||0));
 const cpuxToday=pid=>{const d=cpuxs[pid]||{};return +d.dd===dayNo(now())?(+d.dn||0):0};
 async function cpuxWin(r){const me=myPlayer();if(!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!me||me.ban)return;
-  const cur=cpuxs[me.id]||null,t=now(),dd=dayNo(t);if(cur&&t<(+cur.u||0)+60000)return;
+  const cur=cpuxs[me.id]||null,t=now(),dd=dayNo(t);if(cur&&t<(+cur.u||0)+15000)return;
   const nv={n:(cur?cpuxN(me.id):0)+1,u:t,dd,dn:cur&&+cur.dd===dd?(+cur.dn||0)+1:1};
   try{await db.doc('cpux/'+me.id).set(nv);cpuxs=Object.assign({},cpuxs,{[me.id]:nv});queueRender();setTimeout(()=>toast('経験値 +'+CPUX_XP+'(CPU つよい に勝利)'),3400)}catch(e){}}
 function hwCpuWin(r){if(!hwOn()||!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!invFor)return;const T=Object.assign({},tcgOf(inv)),hs=(Array.isArray(T[HWK.s])?T[HWK.s]:[]).concat([now()]).slice(-400);T[HWK.s]=hs;inv=Object.assign({},inv,{tcg:T});
