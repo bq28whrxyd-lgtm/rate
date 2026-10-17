@@ -165,7 +165,10 @@ service cloud.firestore {
     match /players/{pid} {
       allow read: if signedIn();
       allow create: if isAdmin()
-        || (signedIn() && newV('uid', '') == me() && request.resource.data.keys().hasOnly(['name', 'uid']));
+        || (signedIn() && newV('uid', '') == me() && request.resource.data.keys().hasOnly(['name', 'uid', 'inv'])
+            // (10/17) 友達招待: who invited this player (an existing player). Only set when the player is created
+            && (!('inv' in request.resource.data) || (request.resource.data.inv is string && request.resource.data.inv.size() <= 40
+                && exists(/databases/$(database)/documents/players/$(request.resource.data.inv)))));
       allow update: if isAdmin() || (signedIn() && (ownerUpdate(pid) || claimUpdate(pid) || matchUpdate(pid)));
       allow delete: if isAdmin() || (signedIn() && oldV('uid', '') == me());
     }
@@ -340,8 +343,13 @@ service cloud.firestore {
     /* ハロウィン (v135): いたずらよけのお守り, public so the one who asks sees it. Only the owner writes */
     match /hwp/{pid} {
       allow read: if signedIn();
-      allow write: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['L', 'u', 'c', 'pc'])
+      allow write: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['L', 'u', 'c', 'pc', 'x', 'px', 'S', 'pS'])
         && (!('L' in request.resource.data) || (request.resource.data.L is list && request.resource.data.L.size() <= 20))
+        // (10/17) 交換所の経験値 (x / お試し版 px: 100 ずつ、何回でも) とボス戦のスタミナ回復 (S / pS: 使った時刻の list、何回でも)
+        && (!('x' in request.resource.data) || (request.resource.data.x is int && request.resource.data.x >= 0 && request.resource.data.x <= 1000000))
+        && (!('px' in request.resource.data) || (request.resource.data.px is int && request.resource.data.px >= 0 && request.resource.data.px <= 1000000))
+        && (!('S' in request.resource.data) || (request.resource.data.S is list && request.resource.data.S.size() <= 2000))
+        && (!('pS' in request.resource.data) || (request.resource.data.pS is list && request.resource.data.pS.size() <= 2000))
         && (!('c' in request.resource.data) || (request.resource.data.c is int && request.resource.data.c >= 0 && request.resource.data.c <= 200000))
         && (!('pc' in request.resource.data) || (request.resource.data.pc is int && request.resource.data.pc >= 0 && request.resource.data.pc <= 200000));
     }
@@ -518,6 +526,19 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['t', 'v'])
         && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000
         && request.resource.data.get('v', '') is string && request.resource.data.get('v', '').size() <= 16;
+    }
+
+    // ---- (10/17) 参加のルールへの同意: each player writes only their own; config/agree {v} (admin) asks everyone again ----
+    match /agree/{pid} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['v', 't', 'n'])
+        && request.resource.data.v is int && request.resource.data.v >= 1 && request.resource.data.v <= 1000
+        && request.resource.data.n is string && request.resource.data.n.size() <= 24;
+      allow delete: if isAdmin();
+    }
+    match /config/agree {
+      allow read: if signedIn();
+      allow write: if isAdmin() && request.resource.data.keys().hasOnly(['v', 't']) && request.resource.data.v is int;
     }
 
     // ---- messages from the developer to everyone ----
