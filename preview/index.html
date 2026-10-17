@@ -1167,6 +1167,13 @@ body.ovl main video{visibility:hidden}
 .kpk small{font-size:10.5px;color:var(--gold-l);font-weight:600}
 .lceil{font-size:12px;color:var(--mut);margin-top:8px;text-align:center}
 /* ---- developer messages and requests ---- */
+.obinv{display:flex;flex-direction:column;gap:6px;margin-top:12px}.obinv select{width:100%}
+#invsec .invlink{display:flex;flex-direction:column;gap:10px;margin-top:12px;padding:14px;border-radius:16px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+#invsec .invurl{font:600 12.5px/1.4 ui-monospace,Menlo,monospace;word-break:break-all;opacity:.85;user-select:all;-webkit-user-select:all}
+#invsec .invbt{display:flex;gap:8px}#invsec .invbt button{flex:1}
+#invsec .invh{margin-top:14px}
+#invsec .invrow{position:relative;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 4px 14px;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px}#invsec .invrow span{font-size:12.5px;opacity:.8;white-space:nowrap}#invsec .invrow.done span{color:var(--gold);opacity:1}#invsec .invrow.me{border:0;margin-top:10px;padding:12px 14px;border-radius:14px;background:rgba(255,200,120,.08)}
+#invsec .invbar{position:absolute;left:4px;right:4px;bottom:5px;height:3px;border-radius:2px;background:rgba(255,255,255,.08);overflow:hidden}#invsec .invbar i{position:absolute;inset:0;transform-origin:0 50%;background:linear-gradient(90deg,#ffb15c,#c58bff)}
 .devmsg{border-color:color-mix(in srgb,var(--gold) 50%,var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 12%,var(--panel)),var(--panel) 70%);display:flex;flex-direction:column;gap:8px}
 .devmsg .dmk{font:700 10px/1 var(--display);letter-spacing:.28em;color:var(--gold)}
 .devmsg h3{margin:0;font-size:16px}
@@ -6310,7 +6317,7 @@ body.ui2 .lgr.got .gt b{color:#a9a49c}
 <div class="view" id="v-profile" data-pt="me" hidden><div class="psub" id="psub" role="tablist"><button data-p="me" class="on">プロフィール</button><button data-p="st">成績</button><button data-p="set">設定・要望</button><button data-p="adm" hidden>管理</button></div><div id="pcard" data-pg="me"></div><div class="pbtns" data-pg="me"><button id="pedit" class="sec">コレクション・図鑑</button><button id="ptcg" class="sec">TCGデッキ・図鑑</button><button id="pnews" class="sec">お知らせ</button></div>
 <section id="msgsec" data-pg="me" hidden><h2>開発者からのお知らせ</h2><div id="msglist"></div></section>
 <section id="pushsec" data-pg="set" hidden><h2>通知</h2><div id="pushbox"></div></section>
-<section id="reqsec" data-pg="set" hidden><h2>開発者に要望を送る</h2><div class="sub">「こんな機能がほしい」「ここがバグってる」など、なんでもどうぞ。開発者だけが読めます。</div><textarea id="reqtx" maxlength="500" rows="3" placeholder="要望・バグ報告など(500文字まで)" style="width:100%;margin-top:10px;resize:vertical"></textarea><button id="reqgo" style="width:100%;margin-top:8px">送る</button><div id="reqmsg" class="sub" style="margin-top:6px;min-height:18px"></div></section>
+<section id="invsec" data-pg="set" hidden><h2>友達を招待</h2><div class="sub">招待リンクから登録した友達が、レートとTCGの対戦を合わせて5戦すると、ふたりとも 500pt と、TCGの推し活パック・闇深パックのチケットを2枚ずつもらえます。登録のときに「招待してくれた人」を選んでもらっても大丈夫です。</div><div id="invbody"></div></section><section id="reqsec" data-pg="set" hidden><h2>開発者に要望を送る</h2><div class="sub">「こんな機能がほしい」「ここがバグってる」など、なんでもどうぞ。開発者だけが読めます。</div><textarea id="reqtx" maxlength="500" rows="3" placeholder="要望・バグ報告など(500文字まで)" style="width:100%;margin-top:10px;resize:vertical"></textarea><button id="reqgo" style="width:100%;margin-top:8px">送る</button><div id="reqmsg" class="sub" style="margin-top:6px;min-height:18px"></div></section>
 <section id="seas" data-pg="st" hidden></section>
 <section id="decksec" data-pg="st" hidden></section>
 <section id="mine" data-pg="st" hidden></section>
@@ -7938,6 +7945,39 @@ function bountyInfo(){const key=matches.length+'|'+(matches[0]&&matches[0].id);i
   const wanted=Object.keys(st).filter(p=>st[p]>=BOUNTY_MIN).map(p=>({p,s:st[p],v:bountyOf(st[p]),t:since[p]})).sort((a,b)=>b.v-a.v);
   return bountyC={k:key,v:{st,got,kills,wanted}}.v}
 const bountyPts=pid=>(bountyInfo().got[pid]||0);
+/* ---------- 友達招待 (v135): an invite link (?inv=<pid>) or the choice when registering puts inv:<pid> on the new player.
+   When the invited player has finished INV_N battles (rate matches and TCG friend battles together), both get INV_PT pt and
+   two tickets each of the two TCG normal packs. Worked out from the public records only, so every phone agrees. ---------- */
+const INV_N=5,INV_PT=500,INV_TK={tp1_a:2,tp1_b:2};
+try{const q=new URLSearchParams(location.search).get('inv');if(q&&/^[\w-]{4,40}$/.test(q))localStorage.setItem('invBy',q)}catch(e){}
+const invPick=()=>{try{const s=document.getElementById('obInv');const v=s?s.value:'';return v&&players.some(p=>p.id===v)?{inv:v}:{}}catch(e){return{}}};
+const invBy=pid=>{const p=players.find(x=>x.id===pid);return p&&p.inv&&p.inv!==pid&&players.some(x=>x.id===p.inv)?p.inv:''};
+let invC={k:'',v:{}};
+function invBattles(pid){const key=matches.length+'|'+(typeof tcgms!=='undefined'?tcgms.length:0)+'|'+players.length;if(invC.k!==key)invC={k:key,v:{}};if(invC.v[pid])return invC.v[pid];
+  const T=[];for(const m of matches)if(m.w===pid||m.l===pid)T.push(+m.t||0);
+  if(typeof tcgms!=='undefined')for(const d of tcgms)if((d.a===pid||d.b===pid)&&tcgDone(d))T.push(+tcgConfirmT(d)||0);
+  T.sort((a,b)=>a-b);return invC.v[pid]=T}
+const invDoneAt=pid=>{if(!invBy(pid))return 0;const T=invBattles(pid);return T.length>=INV_N?(T[INV_N-1]||1):0};
+const invKids=pid=>players.filter(q=>q.id!==pid&&q.inv===pid&&invBy(q.id)===pid);
+/* how many rewards this player has: one for being invited, one for each invited friend who reached INV_N battles */
+const invCount=pid=>(invBy(pid)&&invDoneAt(pid)?1:0)+invKids(pid).filter(q=>invDoneAt(q.id)).length;
+const invPts=pid=>invCount(pid)*INV_PT;
+const invTk=(pid,kind)=>INV_TK[kind]?INV_TK[kind]*invCount(pid):0;
+const invLink=pid=>location.origin+location.pathname.replace(/index\.html$/,'')+'?inv='+encodeURIComponent(pid);
+/* a reward that became ready: shown once on this phone */
+function invCheck(){const me=myPlayer();if(!me||!playersLoaded||!tcgmLoaded||!matches.length)return;const n=invCount(me.id);let seen=0;try{seen=+localStorage.getItem('invSeen_'+me.id)||0}catch(e){}
+  if(n>seen){try{localStorage.setItem('invSeen_'+me.id,n)}catch(e){}const who=[...(invBy(me.id)&&invDoneAt(me.id)?[(players.find(p=>p.id===invBy(me.id))||{}).name+'の招待']:[]),...invKids(me.id).filter(q=>invDoneAt(q.id)).map(q=>q.name)];
+    askSheet({title:'招待のごほうび',info:1,ok:'受け取る',lines:[(who.slice(-(n-seen)).join('・')||'招待')+'で'+INV_N+'戦を達成しました。',INV_PT*(n-seen)+'pt と、TCGの推し活パック・闇深パックのチケットを'+2*(n-seen)+'枚ずつ受け取りました(ガチャのTCGカードから使えます)。'],run:()=>{}})}}
+setInterval(()=>{try{invCheck()}catch(e){}},5000);
+function renderInv(){const sec=$('invsec'),me=myPlayer();if(!sec)return;sec.hidden=!me;if(!me)return;const L=$('invbody');L.replaceChildren();
+  const link=invLink(me.id),box=el('div','invlink'),u=el('div','invurl',link),cp=el('button','sec','リンクをコピー'),sh=el('button',null,'友達に送る');
+  cp.onclick=async()=>{try{await navigator.clipboard.writeText(link);toast('招待リンクをコピーしました')}catch(e){const r=document.createRange();r.selectNodeContents(u);const g=getSelection();g.removeAllRanges();g.addRange(r);toast('リンクを選びました。コピーしてください')}};
+  sh.onclick=async()=>{const t='きもオタレートやろう! このリンクから登録して'+INV_N+'戦すると、ふたりとも '+INV_PT+'pt とTCGパックのチケットがもらえる';try{if(navigator.share){await navigator.share({title:'きもオタレート',text:t,url:link});return}}catch(e){if(e&&e.name==='AbortError')return}try{await navigator.clipboard.writeText(t+' '+link);toast('文とリンクをコピーしました')}catch(e){toast('リンクをコピーしてください')}};
+  const bt=el('div','invbt');bt.append(sh,cp);box.append(u,bt);L.append(box);
+  const by=invBy(me.id);if(by){const T=invBattles(me.id).length,d=invDoneAt(me.id),r=el('div','invrow me');r.append(el('b',null,((players.find(p=>p.id===by)||{}).name||'')+'の招待で参加'),el('span',null,d?'ごほうび受け取り済み':'ごほうびまで '+Math.min(T,INV_N)+' / '+INV_N+' 戦'));L.append(r)}
+  const K=invKids(me.id);L.append(el('div','sub invh',K.length?'招待した人 '+K.length+'人':'まだ招待した人はいません'));
+  K.forEach(q=>{const T=invBattles(q.id).length,d=invDoneAt(q.id),r=el('div','invrow'+(d?' done':''));const bar=el('i','invbar');const f=el('i');f.style.transform='scaleX('+(Math.min(T,INV_N)/INV_N).toFixed(3)+')';bar.append(f);
+    r.append(el('b',null,q.name),el('span',null,d?'ごほうび受け取り済み':Math.min(T,INV_N)+' / '+INV_N+' 戦'),bar);L.append(r)})}
 function renderWanted(into){const box=into||$('wanted');if(!box)return;if(into)into.classList.add('wanted');const me=myPlayer(),B=bountyInfo(),W=B.wanted;box.hidden=!W.length;if(!W.length)return;box.replaceChildren();
   const hd=el('div','wnh');hd.append(el('b',null,'賞金首'),el('span',null,'レートの対戦で倒すと、賞金はアプリから'));box.append(hd);const row=el('div','wnr');
   W.slice(0,4).forEach(x=>{const p=players.find(y=>y.id===x.p);if(!p)return;const c=el('button','wnc'+(me&&x.p===me.id?' me':''));c.type='button';
@@ -9033,6 +9073,8 @@ function buildOnboard(){
   const nm=el('input');nm.id='obName';nm.placeholder='あなたの名前';nm.maxLength=12;
   sec.append(nm);
   nm.style.width='100%';
+  /* (10/17) 友達招待: who invited you (filled in from the invite link when it was opened on this phone) */
+  if(players.length){const iv=el('label','obinv');iv.append(el('span','sub','招待してくれた人(いれば)'));const isel=el('select');isel.id='obInv';const o0=el('option',null,'いない');o0.value='';isel.append(o0);players.filter(p=>p.uid).sort((a,b)=>a.name.localeCompare(b.name,'ja')).forEach(p=>{const op=el('option',null,p.name);op.value=p.id;isel.append(op)});let pre='';try{pre=localStorage.getItem('invBy')||''}catch(e){}if(pre&&players.some(p=>p.id===pre))isel.value=pre;iv.append(isel);sec.append(iv)}
   const err=el('div','sub');err.style.cssText='margin-top:8px;min-height:18px';
   const go=el('button',null,'はじめる');go.style.cssText='width:100%;margin-top:12px';
   go.onclick=async()=>{
@@ -9040,7 +9082,7 @@ function buildOnboard(){
     if(players.some(p=>p.name===name)){err.textContent='同じ名前の人がいます。下の一覧から選んでください';return}
     go.disabled=true;
     try{
-      const ref=await db.collection('players').add({name,uid:myId});
+      const ref=await db.collection('players').add(Object.assign({name,uid:myId},invPick()));
       await db.doc('data/users/'+myId+'/me').set({pid:ref.id});
     }catch(e){err.textContent='設定できませんでした(編集権限が必要です)';go.disabled=false}
   };
@@ -9481,7 +9523,7 @@ const spentOf=v=>(v.packs||0)*PACK+Math.max(0,(v.lpacks||0)-(v.lfree||0))*LPACK+
 /* points on the table in an unfinished match can't be spent */
 const betHeld=pid=>(typeof chs!=='undefined'?chs:[]).filter(c=>c.bet&&(c.st==='pending'?c.a===pid:(c.a===pid||c.b===pid)&&['active','reported','abortreq'].includes(c.st))&&live(c)&&!matches.some(m=>m.id===c.id)).reduce((a,c)=>a+c.bet,0);
 const invAdj=v=>spentOf(v)-(+v.mpts||0)-(+v.lbp||0)-(+v.ppp||0)-(+v.bpt||0)-(+v.hmp||0)-(+v.hxp||0)+(+v.gfee||0)+(+v.scfee||0)+(+v.fsd||0)+(+v.fdog||0)-(+v.fhv||0);
-const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)+(typeof mktNet==='function'?mktNet(pid):0)+(typeof bountyPts==='function'?bountyPts(pid):0)+(typeof farmNet==='function'?farmNet(pid):0)+(typeof mtPts==='function'?mtPts(pid):0)+(typeof hwRankPts==='function'?hwRankPts(pid):0)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
+const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)+(typeof mktNet==='function'?mktNet(pid):0)+(typeof bountyPts==='function'?bountyPts(pid):0)+(typeof farmNet==='function'?farmNet(pid):0)+(typeof mtPts==='function'?mtPts(pid):0)+(typeof hwRankPts==='function'?hwRankPts(pid):0)+(typeof invPts==='function'?invPts(pid):0)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
 const admInv={};
 /* ===== 分身アバターバトル (beta): the page runs in an overlay (bunshin.html) and talks to the app through BUNSHINHOST =====
    bunshin/{pid}: your avatar (look, allocation, items, equipped, quest stage, gacha pulls, chests opened)
@@ -10003,6 +10045,7 @@ function renderDevMsg(){
   devMsgs.slice(0,10).forEach(x=>{const d=el('button','msgi msgrow'+(x.t>seen?' unread':''));{const ps=msgPics(x);if(ps.length){const im=el('img','msgth');im.src=ps[0];im.alt='';d.append(im)}}
     const tx=el('span','msgtx');tx.append(msgHead(x),el('span','sub',msgDate(x.t)));d.append(tx);d.onclick=()=>openMsgBoard(x.id);L.append(d)});
   $('reqsec').hidden=!me;
+  try{renderInv()}catch(e){console.warn('inv',e)}
 }
 $('reqgo').onclick=async()=>{
   const me=myPlayer(),x=$('reqtx').value.trim();if(!db||!me||!x)return;
@@ -10287,6 +10330,7 @@ function notes(){
   try{if(typeof hwOn==='function'&&hwOn()){totIn(me.id).forEach(x=>L.push({key:'ti'+x.id,t:+x.t||0,k:'ハロウィン',x:pname(x.f)+'からトリック・オア・トリート! 1日以内にお菓子をあげないと、いたずらで'+TOT_TRICK+'個とられる',go:'hw'}));tots.filter(x=>x.f===me.id&&totRes(x)!=='wait').forEach(x=>L.push({key:'tr'+x.id,t:+(x.at||x.t+TOT_WAIT),k:'ハロウィン',x:totRes(x)==='safe'?pname(x.o)+'はいたずらよけのお守りを持っていた':totRes(x)==='give'?pname(x.o)+'がお菓子をくれた(+'+TOT_GIVE+')':pname(x.o)+'にいたずら!お菓子 +'+TOT_TRICK,go:'hw'}))}}catch(e){}
   try{farmPlots(me.id).forEach(x=>{if(x&&plotRipe(x))L.push({key:'fr'+x.i,t:plotRipeAt(x),k:'畑',x:FARM_CROPS[x.c].n+'が収穫できます。置くほど増えるけど、そのぶん盗まれやすい',go:'farm'})});steals.filter(z=>z.o===me.id).forEach(z=>L.push({key:'fs'+z.id,t:+z.t||0,k:'畑',x:z.bit?'番犬が'+pname(z.p)+'を撃退!  罰金 +'+z.f+'pt':pname(z.p)+'に'+((FARM_CROPS[z.c]||{}).n||'作物')+'を盗まれた(-'+z.n+'pt)',go:'farm'}))}catch(e){}
   try{likes.filter(l=>l.o===me.id&&l.p!==me.id).forEach(l=>L.push({key:'lk'+l.id,t:+l.t||0,k:'いいね',x:pname(l.p)+'があなたのショーケースにいいね',go:'case'}))}catch(e){}
+  try{const me2=myPlayer();if(me2){if(invBy(me2.id)&&invDoneAt(me2.id))L.push({key:'iv'+me2.id,t:invDoneAt(me2.id),k:'招待',x:'招待のごほうび +'+INV_PT+'pt・TCGパックチケット',go:'profile'});invKids(me2.id).forEach(q=>{const d=invDoneAt(q.id);if(d)L.push({key:'iv'+q.id,t:d,k:'招待',x:q.name+'が'+INV_N+'戦を達成。招待のごほうび +'+INV_PT+'pt・TCGパックチケット',go:'profile'})})}}catch(e){}
   devMsgs.slice(0,5).forEach(m=>L.push({key:'m'+m.id,t:m.t,k:'お知らせ',x:m.title||'開発者からのお知らせ',go:'home'}));
   preds.filter(q=>q.pid===me.id).slice(0,15).forEach(q=>{const m=matches.find(x=>x.id===q.cid);if(!m)return;const o=predOut(q);L.push({key:'p'+q.id,t:m.t,k:'予想',x:(o>0?'予想的中!  ':'予想はずれ  ')+(m.wn||pname(m.w))+'の勝ち  ·  '+(o>0?'+':'')+o+'pt',go:'home'})});
   feed.filter(f=>f.p===me.id).forEach(f=>{const n=Object.entries(f.r||{}).filter(([k,v])=>v&&k!==me.id).length;if(n)L.push({key:'f'+f.id+'_'+n,t:f.t,k:'リアクション',x:'あなたの速報に '+n+'人がリアクション',go:'home'})});
@@ -10876,7 +10920,7 @@ async function tcgOpenPack(pk,tk){const me=myPlayer();if(!db||!me||me.ban||openi
 const TCG_TK={};Object.keys(TCGD.packs).forEach(pk=>{const n=TCGD.packs[pk].n;TCG_TK['tp1_'+pk]={pk,k:1,n:n+' 1パックチケット'};TCG_TK['tpb_'+pk]={pk,k:'box',n:n+' ボックスチケット'};TCG_TK['tsc_'+pk]={pk,k:'sel',n:n+' シークレット選択チケット'}});
 Object.keys(TCG_TK).forEach(k=>{TKNAME[k]=TCG_TK[k].n});
 if(typeof GNAME!=='undefined')GNAME.tcg='きもオタTCG';
-const tcgTk=(pid,kind)=>Math.max(0,grantTk(pid,kind)+(pid===invFor&&typeof wkConv==='function'?wkConv(kind):0)-(+((inv.ttu||{})[kind])||0));
+const tcgTk=(pid,kind)=>Math.max(0,grantTk(pid,kind)+(pid===invFor&&typeof wkConv==='function'?wkConv(kind):0)+(typeof invTk==='function'?invTk(pid,kind):0)-(+((inv.ttu||{})[kind])||0));/* (10/17) + 友達招待 */
 const tcgTkAll=pid=>Object.keys(TCG_TK).reduce((a,k)=>a+tcgTk(pid,k),0);
 /* 1 or 10 packs with a ticket: no points are spent, the ticket is used instead */
 async function tcgOpenTicketPacks(pk,tk,count){const me=myPlayer();if(!db||!me||me.ban||opening||lbBusy||!invLoaded||invFor!==me.id||!econReady())return;
@@ -11801,6 +11845,7 @@ const NEWS_V135=[
  ['ハロウィンナイト(10/31 17:00〜24:00)',['その夜だけの夜ボス「夜宴の魔女・真夜中の姿」に、みんなで挑む(1人5回まで)','この時間は、もらえるお菓子が全部2倍']],
  ['トリック・オア・トリート',['1日1回、仲間にお菓子をねだれる。あげてくれたら +'+TOT_GIVE,'「あげない」か、1日答えなかったら、いたずらで '+TOT_TRICK+' もらえる(相手は '+TOT_TRICK+' 減る)','交換所の「いたずらよけのお守り」があると、いたずらされても減らない']],
  ['お菓子ランキング',['集めたお菓子の数で順位が決まる(11/8 朝5時の時点)','1位 '+HW_RK_PTS[0]+'pt と称号「'+HW_RTTL.HW_R1.n+'」、2位 '+HW_RK_PTS[1]+'pt と「'+HW_RTTL.HW_R2.n+'」、3位 '+HW_RK_PTS[2]+'pt と「'+HW_RTTL.HW_R3.n+'」']],
+ ['友達を招待',['プロフィールの「設定・要望」に自分の招待リンク。LINEなどで友達に送れる','招待した友達が、レートとTCGの対戦を合わせて'+INV_N+'戦すると、ふたりとも '+INV_PT+'pt と、TCGの推し活パック・闇深パックのチケットを2枚ずつ','登録のときに「招待してくれた人」を選んでもらっても大丈夫']],
  ['推しキャラ',['コレクションに「推しキャラ」を追加','KMRの応援演出が出た対戦を'+OSHI_NEED+'回すると、そのキャラをホームの推しにできる(全部のKMR)']]
 ];
 const NEWS_V134=NEWS_EXP?[
