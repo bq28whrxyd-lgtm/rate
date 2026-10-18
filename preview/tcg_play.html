@@ -1279,6 +1279,66 @@ body:not(.gkview){background:
 .bgmlab span{font:600 11px/1.2 var(--body);color:var(--vs-mut)}
 .bgmvol{flex:1;min-width:0;margin-left:auto;accent-color:var(--vs-a1);height:28px}
 
+/* ===== (10/18) マスターデュエル風のバトル画面: a tilted board behind the table, the far side smaller, deck and discard piles, the opponent's hand as sleeves, a fanned hand ===== */
+/* the board: drawn on a layer of its own (leaning back), so the cards and every animation stay flat and measure as before */
+.field{background:none!important;box-shadow:none!important}
+/* the board is a trapezoid (narrow at the far end): a gold rim (::before) with the mat inside (::after) */
+.field::before,.field::after{content:"";display:block!important;position:absolute;pointer-events:none;border-radius:0!important;padding:0!important;-webkit-mask:none!important;mask:none!important}
+.field::before{z-index:-2;inset:-7px -9px -5px;clip-path:polygon(9% 0,91% 0,100% 100%,0 100%);background:linear-gradient(180deg,#7a5a22,#e8c47a 48%,#f6dc9c 52%,#8a6a2a)}
+.field::after{z-index:-1;inset:-5.5px -7.5px -3.5px;clip-path:polygon(9.1% 0,90.9% 0,100% 100%,0 100%);
+  background:
+    linear-gradient(180deg,transparent 49.6%,rgba(255,226,160,.38) 50%,transparent 50.4%),
+    radial-gradient(60% 16% at 50% 50%,rgba(255,226,160,.16),transparent 70%),
+    radial-gradient(90% 50% at 50% 18%,rgba(255,95,176,.08),transparent 70%),
+    radial-gradient(90% 50% at 50% 84%,rgba(103,232,249,.08),transparent 70%),
+    repeating-linear-gradient(180deg,rgba(255,255,255,.028) 0 1px,transparent 1px 28px),
+    radial-gradient(120% 90% at 50% 50%,transparent 55%,rgba(0,0,0,.45)),
+    linear-gradient(180deg,#191430,#131a30 50%,#0e1b2b)}
+/* the far side: smaller and drawn in toward the middle, like a table seen from your seat */
+.lane.o{transform-origin:50% 100%}
+.lane.o[data-l="0"]{transform:translateX(19%) scale(.84)}
+.lane.o[data-l="1"]{transform:translateX(6.3%) scale(.84)}
+.lane.o[data-l="2"]{transform:translateX(-6.3%) scale(.84)}
+.lane.o[data-l="3"]{transform:translateX(-19%) scale(.84)}
+#oppST{transform:scale(.8);transform-origin:50% 100%}
+.midl{opacity:.9}
+/* zones: thin gold outlines on the board */
+.slot{background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01))!important;box-shadow:inset 0 0 0 1px rgba(222,186,112,.32),inset 0 0 18px rgba(0,0,0,.4)!important}
+/* trap rows: bigger slots so a set card shows its sleeve; room at both ends for the piles */
+.strow{position:relative;min-height:64px;padding:3px 0}
+.strow .z{width:38px;height:56px;border-radius:6px}
+.strow .z .cb{border-radius:6px}
+/* deck and discard piles */
+.strow .pile{position:absolute;top:50%;width:40px;height:58px;margin-top:-29px;padding:0;border:0;background:none;border-radius:6px;cursor:pointer}
+.strow .pile.m.deck,.strow .pile.o.gy{right:10px}
+.strow .pile.m.gy,.strow .pile.o.deck{left:10px}
+.pile.deck::before{content:"";position:absolute;left:2px;right:-2px;bottom:-5px;height:10px;border-radius:50%;background:radial-gradient(closest-side,#000a,transparent)}
+.pile.deck .cb{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:5px;transform:translate(calc(var(--i) * -.8px),calc(var(--i) * -1.7px));box-shadow:0 1px 0 #0009,0 0 0 .5px #0006}
+.pile .pe{position:absolute;inset:0;border-radius:5px;border:1px dashed rgba(222,186,112,.45);background:rgba(255,255,255,.02)}
+.pile .bc{position:absolute;left:0;top:0;width:40px!important;margin:0;pointer-events:none;box-shadow:0 2px 6px #0009}
+.pile .pn{position:absolute;right:-7px;bottom:-6px;z-index:9;min-width:18px;padding:3px 5px;border-radius:9px;background:rgba(11,13,24,.92);color:#fff;font:700 10px/1 var(--body);text-align:center;box-shadow:0 0 0 1px rgba(222,186,112,.5)}
+.pile .pl{position:absolute;left:50%;top:-13px;transform:translateX(-50%);font:600 9px/1 var(--body);color:rgba(255,255,255,.62);white-space:nowrap;letter-spacing:.04em}
+.gygrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.gygrid .bc{width:100%!important;position:relative}
+/* the opponent's hand: their sleeves, fanned, at the top */
+.ohand{flex:1;min-width:0;display:flex;justify-content:center;align-items:flex-start;height:40px;position:relative;padding-top:2px}
+.ohand .cb{flex:none;width:21px;height:31px;margin:0 -4.5px;border-radius:4px;transform-origin:50% 130%;transform:rotate(calc(var(--k) * 7deg)) translateY(calc(var(--k) * var(--k) * 1.3px));box-shadow:0 3px 6px #000b}
+.ohand .ohn{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);z-index:9;padding:2px 7px;border-radius:9px;background:rgba(11,13,24,.92);color:#fff;font:700 10px/1 var(--body);box-shadow:0 0 0 1px rgba(255,255,255,.2)}
+/* your hand: overlapping, fanned (fanHand sets rotate/translate); a picked card stands up straight */
+.hand .bc{transform-origin:50% 140%}
+.hand .bc.on{rotate:0deg!important;translate:0 0!important}
+/* the opponent's bar is crowded: the trait chip gives way to the hand */
+#oppBar .trchip{max-width:74px;min-width:0;flex:0 1 auto}
+#oppBar .trchip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+#oppBar .ohand .cb{margin:0 -5.5px}
+/* the opponent's hand hangs just under their bar, over the far edge of the board (like the top of the screen in マスターデュエル) */
+#s-game>#oppBar{z-index:5}
+#oppBar .ohand{position:absolute;left:50%;top:100%;margin-top:-6px;transform:translateX(-50%);height:auto;flex:none;padding:0;z-index:6;pointer-events:none}
+#oppBar .ohand .cb{width:22px;height:32px;margin:0 -5px;transform-origin:50% -80%;transform:rotate(calc(var(--k) * -6deg))}
+#oppBar .ohand .ohn{left:100%;top:9px;bottom:auto;transform:none;margin-left:8px}
+#oppBar .trchip{max-width:110px}
+#oppST{padding-top:30px;min-height:90px}
+
 </style>
 
 <div id="tcgBoot"><b>きもオタTCG</b><span role="status">読み込んでいます…</span><div class="bootActions"><button class="btn" onclick="location.reload()">もう一度読み込む</button><button class="btn sec" onclick="try{(parent.TCGWATCH||parent.TCGHOST).close()}catch(e){history.back()}">アプリに戻る</button></div></div>
@@ -2687,7 +2747,7 @@ function queueSpectator(events){if(!g||!NET||!HOST||!HOST.publishSpectator||!win
     spectatorTimer=setTimeout(()=>{try{const p=HOST.publishSpectator(payload);if(p&&p.catch)p.catch(()=>{})}catch(e){}},180);
   }catch(e){} }
 function snap(){return{cur:g.cur,over:g.over,win:g.win,turns:g.turns,
-  p:g.p.map(P=>({deckN:P.deck.length,hand:P.hand.slice(),life:P.life,gy:P.gy.length,energy:P.energy,maxE:P.maxE,turn:P.turn,gauge:P.gauge,skill:P.skill,lead:{id:P.leader.id,out:P.leader.out,n:P.leader.n},skillUsed:P.skillUsed,seal:(P.seal||0)>=g.turns,
+  p:g.p.map(P=>({deckN:P.deck.length,hand:P.hand.slice(),life:P.life,gy:P.gy.length,gyTop:P.gy.length?P.gy[P.gy.length-1]:null,energy:P.energy,maxE:P.maxE,turn:P.turn,gauge:P.gauge,skill:P.skill,lead:{id:P.leader.id,out:P.leader.out,n:P.leader.n},skillUsed:P.skillUsed,seal:(P.seal||0)>=g.turns,
     st:P.st.map(t=>({uid:t.uid,id:t.id,ready:t.ready})),
     slot:P.slot.map(m=>m?{uid:m.uid,id:m.id,owner:m.owner,slot:m.slot,A:E.ATK(g,m),D:E.DEF(g,m),sick:m.sick,rush:m.rush,gutsUsed:m.gutsUsed,star:m.star,awk:m.awk,under:m.under.length,cover:E.hasCover(m),frz:m.frozen>=g.turns,oshi:E.units(g,1-m.owner).some(x=>x.oshi===m.uid),gradN:m.gradT!=null?Math.max(0,m.gradT-P.turn):null,dlN:m.dlT!=null?Math.max(0,m.dlT-P.turn):null}:null)}))}}
 
@@ -2698,8 +2758,8 @@ function fit(){const gm=$('s-game');if(gm.hidden)return;const W=gm.clientWidth,H
   const tz=[...document.querySelectorAll('.strow')].reduce((a,x)=>a+x.offsetHeight,0);const rowH=(Hh-fixed-tz-56-16)/2-4,colW=(Math.min(W,560)-16)/4-8;const cw=Math.max(54,Math.floor(Math.min(colW,rowH*59/86)));gm.style.setProperty('--cw',cw+'px');fanHand()}
 window.addEventListener('resize',fit);
 function fanHand(){const hd=$('hand');const cs=[...hd.querySelectorAll(WATCH?'.cb':'.bc')];const n=cs.length;if(!n)return;const W=hd.clientWidth-20,w=cs[0].offsetWidth||60;
-  const step=n>1?Math.min(w+5,(W-w)/(n-1)):0;const total=w+step*(n-1);const x0=(hd.clientWidth-total)/2;
-  cs.forEach((c,i)=>{const k=n>1?(i-(n-1)/2)/((n-1)/2):0;c.style.left=(x0+step*i)+'px';c.style.zIndex=i+1})}
+  const step=n>1?Math.min(w*.74,(W-w)/(n-1)):0;const total=w+step*(n-1);const x0=(hd.clientWidth-total)/2,amp=Math.min(9,2+n*1.1);
+  cs.forEach((c,i)=>{const k=n>1?(i-(n-1)/2)/((n-1)/2):0;c.style.left=(x0+step*i)+'px';c.style.zIndex=i+1;c.style.rotate=(k*amp).toFixed(2)+'deg';c.style.translate='0 '+(k*k*amp*1.1).toFixed(1)+'px'})}
 
 /* ---------- rendering ---------- */
 const kwOf=id=>BY[id].kw||{};
@@ -2759,7 +2819,15 @@ function lifeEl(P,isOpp){const w=el('button','life');w.id=isOpp?'oppLife':'myLif
   w.onclick=()=>{if(isOpp&&mode&&mode.k==='atk'&&E.attackTargets(g,H,mode&&mode.uid?E.find(g,mode.uid):null).includes('life')){mode.target='life';render(snap());return}caption((isOpp?'相手':'あなた')+'のライフ '+P.life+'。0になったら負け')};return w}
 function trapsEl(P,isOpp){const w=el('div','tz2 strow');w.id=isOpp?'oppST':'myST';w.append(el('span','stl',(isOpp?'相手の':'')+'トラップ '+P.st.length+'/'+E.R.ST+(P.seal?' ・ 封印中':'')));if(P.seal)w.classList.add('sealed');for(let i=0;i<E.R.ST;i++){const t=P.st[i];const z=el('button','z'+(isOpp?'':' me'));
   if(t){z.dataset.tuid=t.uid;z.append(backCard(isOpp));if(!t.ready)z.classList.add('wait');z.onclick=()=>isOpp?caption('相手が伏せたトラップ'):cardSheet(t.id,null,t.ready?'伏せてあるトラップ。相手のターンに条件がそろうと、発動するか聞かれます':'伏せたばかり。次の相手のターンから使えます')}
-  else z.onclick=()=>caption('トラップを伏せる場所');w.append(z)}return w}
+  else z.onclick=()=>caption('トラップを伏せる場所');w.append(z)}
+  /* (10/18) マスターデュエル風: the deck (a stack of the sleeve) and the discard pile sit at the ends of the trap row */
+  w.append(pileEl(P,isOpp,'deck'),pileEl(P,isOpp,'gy'));return w}
+function pileEl(P,isOpp,kind){const b=el('button','pile '+kind+(isOpp?' o':' m'));
+  if(kind==='deck'){b.id=isOpp?'oppPile':'myPile';const n=P.deckN|0,L=n?Math.min(7,Math.ceil(n/3)):0;for(let i=0;i<L;i++){const c=backCard(isOpp);c.style.setProperty('--i',i);b.append(c)}if(!n)b.append(el('i','pe'));b.append(el('b','pn',n));b.setAttribute('aria-label',(isOpp?'相手の':'')+'山札 '+n+'枚');b.onclick=()=>caption((isOpp?'相手の':'あなたの')+'山札 残り'+n+'枚')}
+  else{const n=P.gy|0;b.id=isOpp?'oppGy':'myGy';if(n&&P.gyTop&&BY[P.gyTop]){const c=bigCard(P.gyTop,true);c.classList.add('gyc');b.append(c)}else b.append(el('i','pe'));b.append(el('b','pn',n),el('span','pl','捨て札'));b.setAttribute('aria-label',(isOpp?'相手の':'')+'捨て札 '+n+'枚');b.onclick=()=>gySheet(isOpp?1-H:H,n)}
+  return b}
+function gySheet(pi,n){const L=g&&g.p[pi]?g.p[pi].gy.slice().reverse():null;if(!L){caption('捨て札 '+(n|0)+'枚');return}
+  sheet(s=>{s.append(el('h3',null,(pi===H?'あなた':'相手')+'の捨て札 '+L.length+'枚'));if(!L.length){s.append(el('p','mut','まだありません'));return}const gr=el('div','gygrid');L.forEach(id=>{if(!BY[id])return;const c=bigCard(id,true);c.onclick=()=>cardSheet(id);gr.append(c)});s.append(gr)})}
 function endBtn(S){const mine=S.cur===H&&!S.over;const b=el('button','endb'+(mine?'':' off')+(mine&&left<=10?' warn':''));b.id='endb';
   const r=24,C=2*Math.PI*r;b.innerHTML='<svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#ffffff14" stroke-width="3"/><circle class="tr" cx="28" cy="28" r="'+r+'" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+(mine?C*(1-left/TURN_SEC):C)+'"/></svg>';
   b.append(el('span',null,mine?'ターン\n終了':'相手の\nターン'));if(mine)b.append(el('small',null,left));
@@ -2840,9 +2908,11 @@ function shatter(e){const r=rectOf(e);if(!r)return;const [cx,cy]=ctr(e),color=ge
   anim(gh,[{clipPath:'inset(0 0 0 0)',filter:'brightness(1)',opacity:1},{clipPath:'inset(0 0 0 0)',filter:'brightness(2.6)',opacity:1,offset:.25},{clipPath:'inset(0 0 100% 0)',filter:'brightness(3) blur(2px)',opacity:0}],{duration:520,easing:'ease-in'}).then(()=>gh.remove());
   for(let i=0;i<16;i++){const s=fx('shard','left:'+cx+'px;top:'+cy+'px;--c:'+(i%3?color:'#fff'));const a=Math.random()*Math.PI*2,d=50+Math.random()*70;
     anim(s,[{transform:'translate(-50%,-50%) rotate(0)',opacity:1},{transform:'translate('+(Math.cos(a)*d-5)+'px,'+(Math.sin(a)*d-7)+'px) rotate('+(Math.random()*540)+'deg)',opacity:0}],{duration:650+Math.random()*300,easing:'cubic-bezier(.2,.8,.4,1)'}).then(()=>s.remove())}}
-function flyCard(fromEl,toEl,face,ms,opp){const a=rectOf(fromEl),b=rectOf(toEl);if(!a||!b||!b.width)return wait(0);const c=face||backCard(opp);c.classList.add('ghost');const w0=Math.max(18,b.width);
+function flyCard(fromEl,toEl,face,ms,opp,flip){const a=rectOf(fromEl),b=rectOf(toEl);if(!a||!b||!b.width)return wait(0);const c=face||backCard(opp);c.classList.add('ghost');const w0=Math.max(18,b.width);
   c.style.left=(a.left+a.width/2-w0/2)+'px';c.style.top=(a.top+a.height/2-w0*86/59/2)+'px';c.style.width=w0+'px';document.body.append(c);
   const dx=(b.left+b.width/2)-(a.left+a.width/2),dy=(b.top+b.height/2)-(a.top+a.height/2);
+  /* (10/18) flip: the back flies out of the deck, then turns edge-on as it lands (the real card turns face up from there) */
+  if(flip)return anim(c,[{transform:'translate(0,0) scale(.55) rotate(10deg)',opacity:.5},{transform:'translate('+(dx*.86)+'px,'+(dy*.86-18)+'px) scale(1.08) rotate(-3deg) perspective(500px) rotateY(0deg)',opacity:1,offset:.72},{transform:'translate('+dx+'px,'+dy+'px) scale(1) rotate(0) perspective(500px) rotateY(90deg)',opacity:1}],{duration:ms||440,easing:'cubic-bezier(.25,.7,.35,1)'}).then(()=>c.remove());
   return anim(c,[{transform:'translate(0,0) scale(.4) rotate(12deg)',opacity:.4},{transform:'translate('+dx+'px,'+dy+'px) scale(1) rotate(0)',opacity:1}],{duration:ms||380,easing:'cubic-bezier(.3,.7,.3,1)'}).then(()=>c.remove())}
 async function spotlight(e,who,color){if(!e)return;const r=rectOf(e),fr=rectOf($('field'));const col=color||(who===H?'#ffe9a8':'#ff9ccf');
   const beam=fx('beam','left:'+(r.left+r.width/2)+'px;top:'+fr.top+'px;height:'+(r.bottom-fr.top+8)+'px;width:'+(r.width*1.5)+'px;--c:'+col);
@@ -2860,8 +2930,8 @@ async function renderAnimated(S){const old=view;
     const da=u.A-o.A,dd=u.D-o.D;if((da||dd)&&u.star===o.star){const t=[da?'ATK'+(da>0?'+':'')+da:'',dd?'DEF'+(dd>0?'+':'')+dd:''].filter(Boolean).join(' ');floatOn(e,t,da<0||dd<0?'bad':'');if(da>0||dd>0){const [x,y]=ctr(e);sparks(x,y,'#ffe08a',6,40)}}}));
   if(born.length)await Promise.all(born);
   const drew=S.p[H].hand.length-oldHand[0];
-  if(drew>0){const cards=[...$('hand').querySelectorAll(WATCH?'.cb':'.bc')].slice(-drew);cards.forEach(c=>c.style.opacity='0');for(const c of cards){await flyCard($('myDeck'),c,null,300);c.style.opacity=''}}
-  const od=S.p[1-H].hand.length-oldHand[1];for(let i=0;i<Math.min(od,4);i++)await flyCard($('oppAv'),$('oppHand'),null,220,true)}
+  if(drew>0){const cards=[...$('hand').querySelectorAll(WATCH?'.cb':'.bc')].slice(-drew);cards.forEach(c=>c.style.opacity='0');for(const c of cards){if(WATCH){await flyCard($('myPile')||$('myDeck'),c,null,300);c.style.opacity='';continue}await flyCard($('myPile')||$('myDeck'),c,null,D(460),false,true);c.style.opacity='';anim(c,[{transform:'perspective(500px) rotateY(-90deg)',filter:'brightness(1.8)'},{transform:'perspective(500px) rotateY(0deg)',filter:'brightness(1)'}],{duration:D(190),easing:'ease-out'})}}
+  const od=S.p[1-H].hand.length-oldHand[1];for(let i=0;i<Math.min(od,4);i++)await flyCard($('oppPile')||$('oppAv'),$('oppHand'),null,220,true)}
 function notice(id,who,kind,ga){const c=BY[id];const n=el('button','notice '+kind+(who===H?' me':''));const a=el('div','na');a.append(artEl(id,ga|0));
   const tx=el('div','nt');tx.append(el('small',null,(who===H?'あなた':'相手')+'の'+{sum:'登場',spell:'魔法',trap:'トラップ',stack:'育成'}[kind]),el('b',null,c.n),el('span',null,CD.text(c).replace(/\n/g,' ')));n.append(a,tx);
   n.onclick=()=>cardSheet(id,null,null,ga|0);if(who!==H)n.classList.add('full');const feed=$('feed');feed.prepend(n);[...feed.children].slice(who!==H?2:1).forEach(x=>x.remove());
@@ -2904,7 +2974,7 @@ function sliceApart(e){const r=rectOf(e);if(!r)return;const k=Math.random()<.5?1
   const cx=r.left+r.width/2,cy=r.top+r.height/2;const ln=fx('cutline','left:'+cx+'px;top:'+cy+'px;width:'+(r.width*1.9)+'px');anim(ln,[{transform:'translate(-50%,-50%) rotate(-14deg) scaleX(0)',opacity:1},{transform:'translate(-50%,-50%) rotate(-14deg) scaleX(1)',opacity:1,offset:.35},{transform:'translate(-50%,-50%) rotate(-14deg) scaleX(1)',opacity:0}],{duration:420}).then(()=>ln.remove())}
 async function strike(uid,t,heavy){const a=uidEl(uid);if(!a||!t)return;const st=a.querySelector('.stand')||a;const m=find0(uid);const col=FCOL[m?FAC(m.id):'gen']||'#fff';
   const ra=rectOf(st),rt=rectOf(t.querySelector&&t.querySelector('.stand')||t);const ax=ra.left+ra.width/2,ay=ra.top+ra.height/2,tx=rt.left+rt.width/2,ty=rt.top+rt.height/2;
-  const dx=tx-ax,dy=ty-ay,len=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)*180/Math.PI;a.getAnimations().forEach(x=>x.cancel());a.style.zIndex=20;st.style.animation='none';
+  const dx=tx-ax,dy=ty-ay,len=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)*180/Math.PI,KS=Math.max(.3,(a.getBoundingClientRect().width/(a.offsetWidth||1))||1),lx=dx/KS,ly=dy/KS;a.getAnimations().forEach(x=>x.cancel());a.style.zIndex=20;st.style.animation='none';
   /* 1. charge: a ring under the feet and lines rushing in */
   const [px,py]=[ra.left+ra.width/2,ra.bottom];ring(px,py,col,36);const cl=fx('chargel','left:'+ax+'px;top:'+ay+'px;--c:'+col);anim(cl,[{transform:'translate(-50%,-50%) scale(1.6)',opacity:0},{transform:'translate(-50%,-50%) scale(.6)',opacity:1,offset:.7},{transform:'translate(-50%,-50%) scale(.3)',opacity:0}],{duration:300}).then(()=>cl.remove());
   await anim(st,[{transform:'translateX(-50%)',filter:'brightness(1)'},{transform:'translateX(-50%) translateY(4px) scale(1.04,.94)',filter:'brightness(1.8) drop-shadow(0 0 8px '+col+')'}],{duration:180,fill:'forwards'});
@@ -2912,7 +2982,7 @@ async function strike(uid,t,heavy){const a=uidEl(uid);if(!a||!t)return;const st=
   const tr=fx('trail','left:'+ax+'px;top:'+ay+'px;width:'+len+'px;transform:rotate('+ang+'deg);--c:'+col);
   anim(tr,[{transform:'rotate('+ang+'deg) scaleX(0)',opacity:1},{transform:'rotate('+ang+'deg) scaleX(1)',opacity:1,offset:.6},{transform:'rotate('+ang+'deg) scaleX(1)',opacity:0}],{duration:460,easing:'ease-out'}).then(()=>tr.remove());
   [.25,.5,.7].forEach((k,i)=>setTimeout(()=>afterimage(st,dx,dy,k),D(40+i*55)));
-  await anim(st,[{transform:'translateX(-50%) translateY(4px)'},{transform:'translateX(-50%) translate('+(dx*.45)+'px,'+(dy*.45-26)+'px) rotate('+(dx>0?8:-8)+'deg) scale(1.15)',offset:.55},{transform:'translateX(-50%) translate('+(dx*.82)+'px,'+(dy*.82)+'px) scale(1.2)'}],{duration:230,easing:'cubic-bezier(.5,0,.9,.5)',fill:'forwards'});
+  await anim(st,[{transform:'translateX(-50%) translateY(4px)'},{transform:'translateX(-50%) translate('+(lx*.45)+'px,'+(ly*.45-26)+'px) rotate('+(dx>0?8:-8)+'deg) scale(1.15)',offset:.55},{transform:'translateX(-50%) translate('+(lx*.82)+'px,'+(ly*.82)+'px) scale(1.2)'}],{duration:230,easing:'cubic-bezier(.5,0,.9,.5)',fill:'forwards'});
   /* 3. impact: hit-stop, flash, cross slash, shockwave */
   const fl=fx('hitflash','left:'+tx+'px;top:'+ty+'px');anim(fl,[{transform:'translate(-50%,-50%) scale(.2)',opacity:1},{transform:'translate(-50%,-50%) scale(heavy?2.2:1.6)'.replace('heavy?2.2:1.6',heavy?'2.2':'1.6'),opacity:0}],{duration:420,easing:'ease-out'}).then(()=>fl.remove());
   [-32,28].forEach((r,i)=>{const sl=fx('slash','left:'+tx+'px;top:'+ty+'px;width:'+(Math.max(70,rt.width)*2)+'px;--c:'+col);anim(sl,[{transform:'translate(-50%,-50%) rotate('+r+'deg) scaleX(0)',opacity:1},{transform:'translate(-50%,-50%) rotate('+r+'deg) scaleX(1)',opacity:1,offset:.4},{transform:'translate(-50%,-50%) rotate('+r+'deg) scaleX(1.1)',opacity:0}],{duration:360,delay:D(i*70)}).then(()=>sl.remove())});
@@ -2922,7 +2992,7 @@ async function strike(uid,t,heavy){const a=uidEl(uid);if(!a||!t)return;const st=
   else anim(t,[{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:260,fill:'none'});
   await wait(heavy?110:70);shake(heavy?10:6);
   /* 4. back to the card */
-  await anim(st,[{transform:'translateX(-50%) translate('+(dx*.82)+'px,'+(dy*.82)+'px) scale(1.2)'},{transform:'translateX(-50%) translate('+(dx*.2)+'px,'+(dy*.2-16)+'px) scale(1.05)',offset:.5},{transform:'translateX(-50%)'}],{duration:300,easing:'ease-out',fill:'forwards'});
+  await anim(st,[{transform:'translateX(-50%) translate('+(lx*.82)+'px,'+(ly*.82)+'px) scale(1.2)'},{transform:'translateX(-50%) translate('+(lx*.2)+'px,'+(ly*.2-16)+'px) scale(1.05)',offset:.5},{transform:'translateX(-50%)'}],{duration:300,easing:'ease-out',fill:'forwards'});
   st.getAnimations().forEach(x=>x.cancel());st.style.animation='';a.style.zIndex=''}
 function settle(){if(aimUid){const a=uidEl(aimUid);if(a){a.getAnimations().forEach(x=>x.cancel());a.style.zIndex='';a.classList.remove('charge')}}aimUid=null;document.querySelectorAll('.aim').forEach(x=>x.classList.remove('aim'))}
 function clashChip(ev){const a=find0(ev.a),b=find0(ev.b);const be=uidEl(ev.b);const r=rectOf(be)||rectOf($('field'));const m=rectOf($('midl'));
@@ -3465,7 +3535,7 @@ $('goDeck').onclick=deckScreen;$('goHelp').onclick=helpSheet;
 const PVP=HOST&&HOST.pvp?HOST.pvp():null;
 if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(CPU_GO)cpuGo(CPU_GO);else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
 clearTimeout(window.__tcgBootTimer);if(document.documentElement.classList.contains('tcg-embedded')&&!HOST&&!(WATCH&&window.parent!==window&&window.parent.TCGWATCH)){const b=$('tcgBoot');b.classList.add('slow');b.querySelector('[role="status"]').textContent='アプリから編成・対戦・観戦を開き直してください。'}else document.documentElement.classList.remove('tcg-booting');
-window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o=>backCard(o),flyCard:(a,b,o)=>flyCard(a,b,null,2400,o)},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},endMyTurn,startMatch,E,AI};
+window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o=>backCard(o),flyCard:(a,b,o,f)=>flyCard(a,b,null,2400,o,f)},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},endMyTurn,startMatch,E,AI};
 
 /* ===== v121 duel v2 (ui5_v2.js, appended after ui5_main.js) =====
    1) drawing is incremental: a lane, a hand card or an avatar is rebuilt only when what it shows has changed. Before, every
@@ -3477,12 +3547,14 @@ var V2=V2||{av:{},lane:[],hand:'',traps:['','']};
 function v2unitKey(u,S,side){if(!u)return'';let ready=0;try{if(side==='me'&&S.cur===H&&!S.over&&!busy&&g){const m=E.find(g,u.uid);if(m&&E.canAttack(g,H,m)&&!(mode&&mode.k!=='atk'))ready=1}}catch(e){}
   let v=0;try{v=WATCH?(u.scr?1:0)+'/'+(u.ga|0):unitVar(u,S)}catch(e){}
   return [u.uid,u.id,u.A,u.D,u.star,u.awk?1:0,u.sick?1:0,u.rush?1:0,u.cover?1:0,u.gutsUsed?1:0,u.under|0,ready,v].join('|')}
-function v2trapKey(P){return [P.st.length,P.seal?1:0,P.st.map(t=>t.uid+(t.ready?'r':'w')).join(',')].join('|')}
+function v2trapKey(P){return [P.st.length,P.seal?1:0,P.st.map(t=>t.uid+(t.ready?'r':'w')).join(','),P.deckN|0,P.gy|0,P.gyTop||''].join('|')}
 function render(S){if(!V2)V2={av:{},lane:[],hand:'',traps:['','']};view=S;queueSpectator();const me=S.p[H],op=S.p[1-H];
   /* the avatars: kept while the gauge and the leader's state are the same (their picture is the heavy part) */
   const avOf=(P,key,isOpp)=>{const k=[key,P.gauge,P.skillUsed?1:0,P.lead&&P.lead.out?1:0,P.lead?P.lead.id:''].join('|');const c=V2.av[isOpp?'o':'m'];if(c&&c.k===k&&c.el)return c.el;const e=avatar(P,key,isOpp);V2.av[isOpp?'o':'m']={k,el:e};return e};
-  const ob=$('oppBar');ob.replaceChildren();ob.append(avOf(op,cpuKey,true),lifeEl(op,true),traitEl(op,1-H),el('div','sp'));
-  const oh=el('div','meta');oh.id='oppHand';oh.innerHTML='<span class="ic hcard'+(slOf(true)?' hsl':'')+'"'+(slOf(true)?' style="--sl:url(&quot;'+slOf(true).img+'&quot;)"':'')+'></span><b>'+op.hand.length+'</b><span class="ic gem"></span><b>'+op.energy+'<small>/'+op.maxE+'</small></b>';ob.append(oh);
+  const ob=$('oppBar');ob.replaceChildren();ob.append(avOf(op,cpuKey,true),lifeEl(op,true),traitEl(op,1-H));
+  /* (10/18) マスターデュエル風: the opponent's hand is shown as its sleeves, fanned */
+  const oh=el('div','ohand');oh.id='oppHand';const nH=op.hand.length,nV=Math.min(nH,7);for(let i=0;i<nV;i++){const c=backCard(true);c.style.setProperty('--k',nV>1?(i-(nV-1)/2).toFixed(2):0);oh.append(c)}oh.append(el('b','ohn',nH));oh.setAttribute('aria-label','相手の手札 '+nH+'枚');
+  const om=el('div','meta');om.innerHTML='<span class="ic gem"></span><b>'+op.energy+'<small>/'+op.maxE+'</small></b>';ob.append(oh,om);
   const tc=el('button','tchip');tc.append(el('b',null,S.over?'終了':Math.max(1,S.p[S.cur].turn)+'/'+E.R.MAXTURN),el('span',null,'メニュー'));tc.onclick=menuSheet;ob.append(tc);
   /* the table: built once, then each lane is swapped only when its unit changed */
   const f=$('field');
