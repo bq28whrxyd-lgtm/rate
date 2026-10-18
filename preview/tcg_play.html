@@ -1337,6 +1337,11 @@ body:not(.gkview){background:
 .strow .pile.m.gy,.strow .pile.o.deck{left:8px;right:auto}
 .pile .pl{top:auto;bottom:calc(100% + 2px);font-size:9.5px}
 #oppST .pile{margin-top:7px}
+/* (10/18) bigger piles (--ph, about 1.4× a trap slot); the trap row is as tall as the piles */
+.strow{min-height:calc(var(--ph,80px) + 8px)}
+.strow .pile,.strow .pile.o,.strow .pile.m{width:calc(var(--ph,80px) * 59 / 86)}
+#oppST .pile{margin-top:7px}
+.pile .pn{font-size:12px;min-width:22px;padding:3px 6px}
 
 </style>
 
@@ -2755,7 +2760,7 @@ function fit(){const gm=$('s-game');if(gm.hidden)return;const W=gm.clientWidth,H
   const hw=Math.max(60,Math.min(84,Math.floor(Hh*0.112)));gm.style.setProperty('--hw',hw+'px');
   const fixed=['oppBar','myBar','hand'].reduce((a,id)=>a+$(id).offsetHeight,0);
   /* (10/18) マスターデュエル風: side gutters for the piles, trap slots sized by the screen height */
-  const gut=8,zh=Math.round(Math.max(46,Math.min(70,Hh*.074)));gm.style.setProperty('--gut',gut+'px');gm.style.setProperty('--zh',zh+'px');
+  const gut=8,zh=Math.round(Math.max(40,Math.min(64,Hh*.066))),ph=Math.round(zh*1.42);gm.style.setProperty('--gut',gut+'px');gm.style.setProperty('--zh',zh+'px');gm.style.setProperty('--ph',ph+'px');
   const tz=[...document.querySelectorAll('.strow')].reduce((a,x)=>a+x.offsetHeight,0);const rowH=(Hh-fixed-tz-28-16)/2-4,colW=(Math.min(W,560)-2*gut-8)/4-6;const cw=Math.max(54,Math.floor(Math.min(colW,rowH*59/86)));gm.style.setProperty('--cw',cw+'px');fanHand()}
 window.addEventListener('resize',fit);
 function fanHand(){const hd=$('hand');const cs=[...hd.querySelectorAll(WATCH?'.cb':'.bc')];const n=cs.length;if(!n)return;const W=hd.clientWidth-20,w=cs[0].offsetWidth||60;
