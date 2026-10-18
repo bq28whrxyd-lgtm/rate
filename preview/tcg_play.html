@@ -1009,6 +1009,21 @@ body.gkview .scr{display:none!important}
 
 /* (10/18) つよい: XP for a win */
 .cpulv .lvb .lvxp{display:block;margin-top:6px;font-style:normal;font-weight:800;font-size:12px;color:#ffd36a;letter-spacing:.02em}
+/* (10/18) スリーブ */
+.cb.cbs{background:var(--sl) center/cover no-repeat!important;border-color:#0000!important;box-shadow:0 2px 6px #0006!important;position:relative;overflow:hidden}
+.cb.cbs::before{display:none!important}
+.cb.cbx::after,.slt.cbx::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,#ffffff55 48%,#fff0 60%);transform:translateX(-130%);animation:slsh 3.4s ease-in-out infinite;pointer-events:none}
+@keyframes slsh{0%,55%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+.ic.hcard.hsl{background:var(--sl) center/cover!important;border-radius:2px;border:0!important}
+.slt{position:relative;overflow:hidden;display:inline-block;width:44px;aspect-ratio:59/86;border-radius:5px;background:var(--sl) center/cover;flex:none;box-shadow:0 2px 6px #0006}
+.slt.std{background:radial-gradient(#2a2350,#0d0b1e);border:1.5px solid #b89a54}
+.slrow{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;margin:4px 0 8px;border-radius:14px;background:#ffffff0d;border:1px solid #ffffff1a;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.slrow .sll{font-size:12px;opacity:.7;flex:none}.slrow b{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.slrow .slg{font-size:12px;opacity:.7;flex:none}
+.slgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.slopt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px;border-radius:12px;background:#ffffff08;border:1.5px solid transparent;color:inherit;font:inherit;font-size:12px;cursor:pointer;text-align:center}
+.slopt .slt{width:72px}.slopt.on{border-color:#ffd27a;background:#ffd27a14}
+.dsl{display:flex;align-items:center;gap:8px;font-size:12px;opacity:.85;margin:6px 0 2px}.dsl .slt{width:26px;border-radius:3px}
+@media (prefers-reduced-motion:reduce){.cb.cbx::after,.slt.cbx::after{animation:none;display:none}}
 
 /* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
    hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
@@ -2560,7 +2575,11 @@ function bigCard(id,mini,foil,ga){ga=CARD_ALT[id]?(ga|0):0;if(ga>=2)foil=true;if
     /* scattered glints: small four-point stars at random spots, each lighting up briefly at its own random moment */
     const gl=el('i','glints');for(let k=0;k<9;k++){const s=el('i');s.style.left=(6+Math.random()*88)+'%';s.style.top=(5+Math.random()*90)+'%';s.style.setProperty('--z',(.55+Math.random()*.75).toFixed(2));s.style.animationDelay=(-Math.random()*6).toFixed(2)+'s';s.style.animationDuration=(4.5+Math.random()*3).toFixed(2)+'s';gl.append(s)}a.append(gl)}
   d.append(el('div','btx',CD.text(c)));return d}
-const backCard=()=>el('div','cb');
+/* (10/18) スリーブ: the back of the cards. Each deck can carry its own (deck.sl, an item id); the app tells us its picture */
+const SLI=id=>{try{return id&&HOST&&HOST.slInfo?HOST.slInfo(id):null}catch(e){return null}};
+function slOf(opp){const d=opp?cpuDeck:myDeck;let id=d&&d.sl;if(!id&&!opp&&!NET&&HOST&&HOST.slDef){try{id=HOST.slDef()}catch(e){}}return SLI(id)}
+function slPaint(c,S){if(!S)return c;c.classList.add('cbs');if(S.r>=3)c.classList.add('cbx');c.style.setProperty('--sl','url("'+S.img+'")');return c}
+const backCard=opp=>slPaint(el('div','cb'),slOf(!!opp));
 
 /* ---------- title + deck select ---------- */
 (function(){if(HOST||WATCH)return;const f=$('fan');['q8','w8','y8'].forEach((id,i)=>{const c=bigCard(id,true);c.style.transform='rotate('+((i-1)*12)+'deg) translateY('+(i===1?-8:6)+'px)';c.style.zIndex=i===1?2:1;f.append(c)})})();
@@ -2575,6 +2594,7 @@ function deckRow(d,actions){const k=BY[d.lead].f;const t=el('div','dk '+k);t.sty
   const tr=el('div','sk trait');tr.append(el('b',null,'特性「'+CD.TRAITS[k].n+'」'),document.createTextNode(CD.TRAITS[k].t));
   const sk=el('div','sk');sk.append(el('b',null,'必殺技「'+CD.SKILLS[k].n+'」'),document.createTextNode(CD.SKILLS[k].t));t.append(tr,sk,leaderAbil(d.lead));
   const strip=el('div','strip');const sc=d.scr||{},al=altClean(d);[...new Set(d.cards)].flatMap(id=>{const all=d.cards.filter(x=>x===id).length,A=al[id]||[],f=Math.min(sc[id]||0,all-A.length);return[...A.map(k=>[id,1,false,k]),[id,f,true,0],[id,all-A.length-f,false,0]].filter(x=>x[1]>0)}).forEach(([id,n,sv,k])=>{const c=bigCard(id,true,sv,k);if(n>1)c.append(el('i','cnt','×'+n));c.onclick=()=>cardSheet(id,null,null,k?k:sv?'s':0);strip.append(c)});t.append(strip);
+  if(HOST&&HOST.slInfo){const S=SLI(d.sl)||(()=>{try{return SLI(HOST.slDef())}catch(e){return null}})();if(S){const sr=el('div','dsl');sr.append(slThumb(S),el('span',null,'スリーブ「'+S.n+'」'+(d.sl?'':'(いつもの)')));t.append(sr)}}
   const acts=el('div','dacts');actions.forEach(([label,cls,fn])=>{const b=el('button','btn'+(cls?' '+cls:''),label);b.onclick=fn;acts.append(b)});t.append(acts);return t}
 function deckScreen(){if(BUILD_ONLY){HOST.close();return}const box=$('decks');box.replaceChildren();
   if(HOST){const hb=el('button','btn sec hostback','← アプリに戻る');hb.onclick=()=>HOST.close();box.append(hb)}
@@ -2588,12 +2608,21 @@ function deckScreen(){if(BUILD_ONLY){HOST.close();return}const box=$('decks');bo
   show('s-deck')}
 /* ---------- deck builder ---------- */
 let B=null;
-function builder(d,idx){if(d&&HOST)d=fitDeck(d);const L0=HOST?(Object.values(CD.LEADERS).find(id=>OWN(id)>0)||CD.LEADERS.weak):CD.LEADERS.weak;B={idx,name:d?d.name:'マイデッキ',lead:d?d.lead:L0,cards:d?d.cards.slice():[],scr:d&&d.scr?Object.assign({},d.scr):{},alt:d&&d.alt?JSON.parse(JSON.stringify(d.alt)):{},tab:HOST?'own':'all',query:''};B.alt=altClean(B);B.scr=scrClean(B);show('s-build');drawBuilder()}
+function builder(d,idx){if(d&&HOST)d=fitDeck(d);const L0=HOST?(Object.values(CD.LEADERS).find(id=>OWN(id)>0)||CD.LEADERS.weak):CD.LEADERS.weak;B={idx,name:d?d.name:'マイデッキ',lead:d?d.lead:L0,cards:d?d.cards.slice():[],scr:d&&d.scr?Object.assign({},d.scr):{},alt:d&&d.alt?JSON.parse(JSON.stringify(d.alt)):{},sl:d&&d.sl||null,tab:HOST?'own':'all',query:''};B.alt=altClean(B);B.scr=scrClean(B);show('s-build');drawBuilder()}
+/* (10/18) スリーブ: the deck's own sleeve, chosen in the deck builder. 「いつもの」 = the one picked in the app's コレクション */
+function slThumb(S,cls){const t=el('i','slt'+(cls?' '+cls:''));if(S){t.style.setProperty('--sl','url("'+S.img+'")');if(S.r>=3)t.classList.add('cbx')}else t.classList.add('std');return t}
+function slRow(){const own=HOST.slOwn()||[],cur=B.sl&&own.find(x=>x.id===B.sl),def=(()=>{try{return SLI(HOST.slDef())}catch(e){return null}})();
+  const r=el('button','slrow');r.append(slThumb(cur||def),el('span','sll','スリーブ'),el('b',null,cur?cur.n:'いつもの'+(def?'('+def.n+')':'(標準)')),el('span','slg',own.length?'変える ›':'まだ持っていません'));
+  r.onclick=()=>sheet((s,close)=>{s.append(el('h3',null,'このデッキのスリーブ'),el('p','mut','対戦で、伏せたカードや引くカードの裏に出ます。オンライン対戦では相手にも見えます'));
+    const gr=el('div','slgrid');const opt=(S,id,name)=>{const b=el('button','slopt'+((B.sl||null)===id?' on':''));b.append(slThumb(S),el('span',null,name));b.onclick=()=>{B.sl=id;close();drawBuilder()};gr.append(b)};
+    opt(def,null,'いつもの'+(def?'('+def.n+')':'(標準)'));own.forEach(x=>opt(x,x.id,x.n));s.append(gr);
+    if(!own.length)s.append(el('p','mut','スリーブはスキンガチャ(いまはハロウィンガチャ)から出ます'))});return r}
 function drawBuilder(){const box=$('s-build'),keep=box.scrollTop,tabScroll=box.querySelector('.btabs')?.scrollLeft||0,leadScroll=box.querySelector('.lrow')?.scrollLeft||0;box.replaceChildren();const lf=BY[B.lead].f;
   const top=el('div','bhd');const back=el('button','iconb','←');back.onclick=deckScreen;const nm=el('input','bname');nm.value=B.name;nm.maxLength=16;nm.oninput=()=>B.name=nm.value;
   const cnt=el('b','bcount'+(B.cards.length===CD.DECK_SIZE?' ok':''),B.cards.length+'/'+CD.DECK_SIZE);const sv=el('button','btn','保存');sv.disabled=B.cards.length!==CD.DECK_SIZE;
-  sv.onclick=()=>{const L=loadDecks();const al=altClean(B),d={name:(B.name||'マイデッキ').slice(0,16),lead:B.lead,cards:B.cards.slice(),scr:scrClean(B)};if(Object.keys(al).length)d.alt=al;if(B.idx>=0)L[B.idx]=d;else{L.push(d);B.idx=L.length-1}saveDecks(L);caption('保存しました');deckScreen()};
+  sv.onclick=()=>{const L=loadDecks();const al=altClean(B),d={name:(B.name||'マイデッキ').slice(0,16),lead:B.lead,cards:B.cards.slice(),scr:scrClean(B)};if(Object.keys(al).length)d.alt=al;if(B.sl)d.sl=B.sl;if(B.idx>=0)L[B.idx]=d;else{L.push(d);B.idx=L.length-1}saveDecks(L);caption('保存しました');deckScreen()};
   top.append(back,nm,cnt,sv);box.append(top);
+  if(HOST&&HOST.slOwn)box.append(slRow());
   box.append(el('div','sec-h','リーダー(特性と必殺技を持つ・金のカード11種類から)'));
   const lr=el('div','lrow');Object.values(CD.LEADERS).forEach(id=>{const c=bigCard(id,true);if(id===B.lead)c.classList.add('pick');if(OWN(id)<1){c.classList.add('lock');c.onclick=()=>caption('このリーダーはまだ持っていません(パックのガチレア)')}else c.onclick=()=>{B.lead=id;const f=fitDeck(B);B.cards=f.cards;B.scr=f.scr;drawBuilder()};lr.append(c)});box.append(lr);
   const info=el('div','linfo');info.append(el('b',null,'特性「'+CD.TRAITS[lf].n+'」'),document.createTextNode(CD.TRAITS[lf].t),el('br'),el('b',null,'必殺技「'+CD.SKILLS[lf].n+'」'),document.createTextNode(CD.SKILLS[lf].t));box.append(info,leaderAbil(B.lead));
@@ -2729,7 +2758,7 @@ function lifeEl(P,isOpp){const w=el('button','life');w.id=isOpp?'oppLife':'myLif
   w.append(el('small',null,'ライフ'),b,bar);w.setAttribute('aria-label',(isOpp?'相手':'あなた')+'のライフ '+P.life);
   w.onclick=()=>{if(isOpp&&mode&&mode.k==='atk'&&E.attackTargets(g,H,mode&&mode.uid?E.find(g,mode.uid):null).includes('life')){mode.target='life';render(snap());return}caption((isOpp?'相手':'あなた')+'のライフ '+P.life+'。0になったら負け')};return w}
 function trapsEl(P,isOpp){const w=el('div','tz2 strow');w.id=isOpp?'oppST':'myST';w.append(el('span','stl',(isOpp?'相手の':'')+'トラップ '+P.st.length+'/'+E.R.ST+(P.seal?' ・ 封印中':'')));if(P.seal)w.classList.add('sealed');for(let i=0;i<E.R.ST;i++){const t=P.st[i];const z=el('button','z'+(isOpp?'':' me'));
-  if(t){z.dataset.tuid=t.uid;z.append(backCard());if(!t.ready)z.classList.add('wait');z.onclick=()=>isOpp?caption('相手が伏せたトラップ'):cardSheet(t.id,null,t.ready?'伏せてあるトラップ。相手のターンに条件がそろうと、発動するか聞かれます':'伏せたばかり。次の相手のターンから使えます')}
+  if(t){z.dataset.tuid=t.uid;z.append(backCard(isOpp));if(!t.ready)z.classList.add('wait');z.onclick=()=>isOpp?caption('相手が伏せたトラップ'):cardSheet(t.id,null,t.ready?'伏せてあるトラップ。相手のターンに条件がそろうと、発動するか聞かれます':'伏せたばかり。次の相手のターンから使えます')}
   else z.onclick=()=>caption('トラップを伏せる場所');w.append(z)}return w}
 function endBtn(S){const mine=S.cur===H&&!S.over;const b=el('button','endb'+(mine?'':' off')+(mine&&left<=10?' warn':''));b.id='endb';
   const r=24,C=2*Math.PI*r;b.innerHTML='<svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="'+r+'" fill="none" stroke="#ffffff14" stroke-width="3"/><circle class="tr" cx="28" cy="28" r="'+r+'" fill="none" stroke-width="3" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+(mine?C*(1-left/TURN_SEC):C)+'"/></svg>';
@@ -2738,7 +2767,7 @@ function endBtn(S){const mine=S.cur===H&&!S.over;const b=el('button','endb'+(min
 function tickEnd(){const b=$('endb');if(!b)return;const r=24,C=2*Math.PI*r;const tr=b.querySelector('.tr');if(tr)tr.setAttribute('stroke-dashoffset',C*(1-left/TURN_SEC));const s=b.querySelector('small');if(s)s.textContent=left;b.classList.toggle('warn',left<=10)}
 function render(S){view=S;queueSpectator();const me=S.p[H],op=S.p[1-H];
   const ob=$('oppBar');ob.replaceChildren();ob.append(avatar(op,cpuKey,true),lifeEl(op,true),traitEl(op,1-H),el('div','sp'));
-  const oh=el('div','meta');oh.id='oppHand';oh.innerHTML='<span class="ic hcard"></span><b>'+op.hand.length+'</b><span class="ic gem"></span><b>'+op.energy+'<small>/'+op.maxE+'</small></b>';ob.append(oh);
+  const oh=el('div','meta');oh.id='oppHand';oh.innerHTML='<span class="ic hcard'+(slOf(true)?' hsl':'')+'"'+(slOf(true)?' style="--sl:url(&quot;'+slOf(true).img+'&quot;)"':'')+'></span><b>'+op.hand.length+'</b><span class="ic gem"></span><b>'+op.energy+'<small>/'+op.maxE+'</small></b>';ob.append(oh);
   const tc=el('button','tchip');tc.append(el('b',null,S.over?'終了':Math.max(1,S.p[S.cur].turn)+'/'+E.R.MAXTURN),el('span',null,'メニュー'));tc.onclick=menuSheet;ob.append(tc);
   const f=$('field');f.replaceChildren();f.append(trapsEl(op,true));
   for(let L=0;L<4;L++){const ln=el('div','lane o');ln.dataset.side='o';ln.dataset.l=L;const u=op.slot[L];ln.append(u?unitEl(u,S,'opp'):el('div','slot'));f.append(ln)}
@@ -2811,7 +2840,7 @@ function shatter(e){const r=rectOf(e);if(!r)return;const [cx,cy]=ctr(e),color=ge
   anim(gh,[{clipPath:'inset(0 0 0 0)',filter:'brightness(1)',opacity:1},{clipPath:'inset(0 0 0 0)',filter:'brightness(2.6)',opacity:1,offset:.25},{clipPath:'inset(0 0 100% 0)',filter:'brightness(3) blur(2px)',opacity:0}],{duration:520,easing:'ease-in'}).then(()=>gh.remove());
   for(let i=0;i<16;i++){const s=fx('shard','left:'+cx+'px;top:'+cy+'px;--c:'+(i%3?color:'#fff'));const a=Math.random()*Math.PI*2,d=50+Math.random()*70;
     anim(s,[{transform:'translate(-50%,-50%) rotate(0)',opacity:1},{transform:'translate('+(Math.cos(a)*d-5)+'px,'+(Math.sin(a)*d-7)+'px) rotate('+(Math.random()*540)+'deg)',opacity:0}],{duration:650+Math.random()*300,easing:'cubic-bezier(.2,.8,.4,1)'}).then(()=>s.remove())}}
-function flyCard(fromEl,toEl,face,ms){const a=rectOf(fromEl),b=rectOf(toEl);if(!a||!b||!b.width)return wait(0);const c=face||backCard();c.classList.add('ghost');const w0=Math.max(18,b.width);
+function flyCard(fromEl,toEl,face,ms,opp){const a=rectOf(fromEl),b=rectOf(toEl);if(!a||!b||!b.width)return wait(0);const c=face||backCard(opp);c.classList.add('ghost');const w0=Math.max(18,b.width);
   c.style.left=(a.left+a.width/2-w0/2)+'px';c.style.top=(a.top+a.height/2-w0*86/59/2)+'px';c.style.width=w0+'px';document.body.append(c);
   const dx=(b.left+b.width/2)-(a.left+a.width/2),dy=(b.top+b.height/2)-(a.top+a.height/2);
   return anim(c,[{transform:'translate(0,0) scale(.4) rotate(12deg)',opacity:.4},{transform:'translate('+dx+'px,'+dy+'px) scale(1) rotate(0)',opacity:1}],{duration:ms||380,easing:'cubic-bezier(.3,.7,.3,1)'}).then(()=>c.remove())}
@@ -2832,7 +2861,7 @@ async function renderAnimated(S){const old=view;
   if(born.length)await Promise.all(born);
   const drew=S.p[H].hand.length-oldHand[0];
   if(drew>0){const cards=[...$('hand').querySelectorAll(WATCH?'.cb':'.bc')].slice(-drew);cards.forEach(c=>c.style.opacity='0');for(const c of cards){await flyCard($('myDeck'),c,null,300);c.style.opacity=''}}
-  const od=S.p[1-H].hand.length-oldHand[1];for(let i=0;i<Math.min(od,4);i++)await flyCard($('oppAv'),$('oppHand'),null,220)}
+  const od=S.p[1-H].hand.length-oldHand[1];for(let i=0;i<Math.min(od,4);i++)await flyCard($('oppAv'),$('oppHand'),null,220,true)}
 function notice(id,who,kind,ga){const c=BY[id];const n=el('button','notice '+kind+(who===H?' me':''));const a=el('div','na');a.append(artEl(id,ga|0));
   const tx=el('div','nt');tx.append(el('small',null,(who===H?'あなた':'相手')+'の'+{sum:'登場',spell:'魔法',trap:'トラップ',stack:'育成'}[kind]),el('b',null,c.n),el('span',null,CD.text(c).replace(/\n/g,' ')));n.append(a,tx);
   n.onclick=()=>cardSheet(id,null,null,ga|0);if(who!==H)n.classList.add('full');const feed=$('feed');feed.prepend(n);[...feed.children].slice(who!==H?2:1).forEach(x=>x.remove());
@@ -3180,7 +3209,7 @@ async function playEvents(evs){for(let i=0;i<evs.length;i++){const e=evs[i];LOG.
     if(e.who!==H)notice(e.id,e.who,'stack');if(e.same)caption('同じカードを重ねた。★+2');break}
   case'star':{const u=uidEl(e.uid);if(u){const s=u.querySelector('.stars');if(s){s.textContent=SN(e.to);s.className='stars s'+e.to;anim(s,[{transform:'scale(2)',filter:'brightness(2)'},{transform:'none',filter:'none'}],{duration:420,fill:'none'})}if(e.to<3)stamp(u,'★'+e.to,'gold')}await wait(e.to<3?520:120);break}
   case'awake':await awaken(e);break;
-  case'set':{const z=document.querySelector((e.who===H?'#myST':'#oppST')+' .z:not([data-tuid])');const from=e.who===H?$('hand'):$('oppHand');if(e.who!==H)caption('相手がトラップを伏せた');if(z&&from){await flyCard(from,z,null,340);const [x,y]=ctr(z);ring(x,y,'#b48cff',24);z.dataset.tuid=e.uid;z.replaceChildren(backCard())}break}
+  case'set':{const z=document.querySelector((e.who===H?'#myST':'#oppST')+' .z:not([data-tuid])');const from=e.who===H?$('hand'):$('oppHand');if(e.who!==H)caption('相手がトラップを伏せた');if(z&&from){await flyCard(from,z,null,340,e.who!==H);const [x,y]=ctr(z);ring(x,y,'#b48cff',24);z.dataset.tuid=e.uid;z.replaceChildren(backCard(e.who!==H))}break}
   case'trap':{const z=document.querySelector('.z[data-tuid="'+e.uid+'"]');if(z){const [x,y]=ctr(z);ring(x,y,'#b48cff',40);sparks(x,y,'#b48cff',12,60);z.style.visibility='hidden'}notice(e.id,e.who,'trap',e.ga);if((e.ga|0)>=3)await gokuReveal(e,'trap',z);else if(e.scr)await scrReveal(e,'trap',z);else await showcase(e.id,e.who,'trap',e.ga);break}
   case'negated':{const a=aimUid&&uidEl(aimUid);settle();if(a)stamp(a,'無効','blue');caption('無効になった');await wait(700);break}
   case'atk':await aim(e);break;
@@ -3436,7 +3465,7 @@ $('goDeck').onclick=deckScreen;$('goHelp').onclick=helpSheet;
 const PVP=HOST&&HOST.pvp?HOST.pvp():null;
 if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(CPU_GO)cpuGo(CPU_GO);else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
 clearTimeout(window.__tcgBootTimer);if(document.documentElement.classList.contains('tcg-embedded')&&!HOST&&!(WATCH&&window.parent!==window&&window.parent.TCGWATCH)){const b=$('tcgBoot');b.classList.add('slow');b.querySelector('[role="status"]').textContent='アプリから編成・対戦・観戦を開き直してください。'}else document.documentElement.classList.remove('tcg-booting');
-window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},endMyTurn,startMatch,E,AI};
+window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o=>backCard(o),flyCard:(a,b,o)=>flyCard(a,b,null,2400,o)},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},endMyTurn,startMatch,E,AI};
 
 /* ===== v121 duel v2 (ui5_v2.js, appended after ui5_main.js) =====
    1) drawing is incremental: a lane, a hand card or an avatar is rebuilt only when what it shows has changed. Before, every
@@ -3453,7 +3482,7 @@ function render(S){if(!V2)V2={av:{},lane:[],hand:'',traps:['','']};view=S;queueS
   /* the avatars: kept while the gauge and the leader's state are the same (their picture is the heavy part) */
   const avOf=(P,key,isOpp)=>{const k=[key,P.gauge,P.skillUsed?1:0,P.lead&&P.lead.out?1:0,P.lead?P.lead.id:''].join('|');const c=V2.av[isOpp?'o':'m'];if(c&&c.k===k&&c.el)return c.el;const e=avatar(P,key,isOpp);V2.av[isOpp?'o':'m']={k,el:e};return e};
   const ob=$('oppBar');ob.replaceChildren();ob.append(avOf(op,cpuKey,true),lifeEl(op,true),traitEl(op,1-H),el('div','sp'));
-  const oh=el('div','meta');oh.id='oppHand';oh.innerHTML='<span class="ic hcard"></span><b>'+op.hand.length+'</b><span class="ic gem"></span><b>'+op.energy+'<small>/'+op.maxE+'</small></b>';ob.append(oh);
+  const oh=el('div','meta');oh.id='oppHand';oh.innerHTML='<span class="ic hcard'+(slOf(true)?' hsl':'')+'"'+(slOf(true)?' style="--sl:url(&quot;'+slOf(true).img+'&quot;)"':'')+'></span><b>'+op.hand.length+'</b><span class="ic gem"></span><b>'+op.energy+'<small>/'+op.maxE+'</small></b>';ob.append(oh);
   const tc=el('button','tchip');tc.append(el('b',null,S.over?'終了':Math.max(1,S.p[S.cur].turn)+'/'+E.R.MAXTURN),el('span',null,'メニュー'));tc.onclick=menuSheet;ob.append(tc);
   /* the table: built once, then each lane is swapped only when its unit changed */
   const f=$('field');

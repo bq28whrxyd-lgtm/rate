@@ -964,6 +964,15 @@ button.tkbtn{background:linear-gradient(90deg,#ff6ad5,#b88aff);color:#fff;border
 .limcell .limk{font-size:11px;text-align:center;color:var(--mut)}
 .pvw{position:fixed;inset:0;z-index:130;background:#05060aee;display:flex;align-items:center;justify-content:center;padding:24px;animation:fade .25s both}
 .pvwb{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;max-width:420px;width:100%}
+/* (10/18) TCGのスリーブ */
+.gcx.gsl{position:relative;background:radial-gradient(circle,#ffffff12,transparent 70%)}
+.gcx.gsl img{height:100%;aspect-ratio:59/86;border-radius:3px;box-shadow:0 2px 6px #0008;object-fit:cover}
+.slpv{position:relative;width:min(58vw,240px);aspect-ratio:59/86;border-radius:14px;overflow:hidden;box-shadow:0 18px 40px #000a,0 0 0 1px #ffffff1a;animation:slpv 4s ease-in-out infinite alternate}
+.slpv img{width:100%;height:100%;display:block;object-fit:cover}
+@keyframes slpv{from{transform:perspective(700px) rotateY(-14deg) rotateX(4deg)}to{transform:perspective(700px) rotateY(14deg) rotateX(-3deg)}}
+.slpv.shx::after,.gsl.shx::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,#ffffff55 48%,#fff0 60%);transform:translateX(-130%);animation:slsh 3.4s ease-in-out infinite;pointer-events:none}
+@keyframes slsh{0%,55%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+@media (prefers-reduced-motion:reduce){.slpv{animation:none}.slpv.shx::after,.gsl.shx::after{display:none}}
 .pvcrop{position:relative;width:min(88vw,400px);height:min(76vw,300px);overflow:hidden;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.6);-webkit-mask:linear-gradient(180deg,#000 78%,transparent);mask:linear-gradient(180deg,#000 78%,transparent)}
 .pvcrop>*{margin:0!important;width:100%!important;max-width:none!important}
 .pvfull{position:relative;height:min(64vh,560px);aspect-ratio:9/16;max-width:84vw;overflow:hidden;isolation:isolate;border-radius:22px;background-size:cover!important;background-position:center!important;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 0 .5px rgba(255,255,255,.14)}
@@ -7014,7 +7023,9 @@ function battleView(a,b,gname,h){
 /* ---- gacha: titles, frame patterns, effect skins ---- */
 const RAR=[{k:'N',c:'#a3a9b4',p:59.95,sh:1,cost:20},{k:'R',c:'#4aa3ff',p:30,sh:3,cost:60},{k:'SR',c:'#b678ff',p:8,sh:10,cost:200},{k:'UR',c:'#f5c84c',p:1.7,sh:40,cost:800},{k:'GR',c:'#ff4f8b',p:.3,sh:150,cost:3000},{k:'KMR',c:'#ff6ad5',p:.05,sh:300,cost:6000}];
 const RATE_G=[0,79.95,15.5,4.2,.3,.05],PACK=100,START_PT=300,PITY=100,TPACK=100,TXP=180;
-const KIND={t:'称号',a:'アイコン',f:'フレーム',x:'対戦演出',b:'背景',v:'勝利演出',c:'コイン',bun:'分身の装備'};
+const KIND={t:'称号',a:'アイコン',f:'フレーム',x:'対戦演出',b:'背景',v:'勝利演出',c:'コイン',sl:'スリーブ',bun:'分身の装備'};
+/* (10/18) TCGのスリーブ (kind sl): the picture of each. Set per deck in the TCG deck builder; eq.sl is the usual one */
+const SLV={slbat:{img:'sl_bat.webp'},sljol:{img:'sl_jol.webp'},slwitch:{img:'sl_witch.webp'},slfield:{img:'sl_field.webp'}};
 const TITLES=[
   ['駆け出しデュエリスト','見習い決闘者','デッキ調整中','引きが弱い人','手札事故常連','シャッフル職人','放課後の挑戦者','ルール確認係'],
   ['逆転の使い手','読み合い上手','先攻の申し子','粘りの鬼','冷静沈着','初手の魔術師','深淵を覗く者'],
@@ -7096,7 +7107,8 @@ const LIM_SETS={vt:[
 /* ハロウィンガチャ (v135): N〜SR are drawn here, UR / GR are picture backgrounds, the KMR is an illustration (pictures: placeholders until the real art arrives) */
 if(HW_HERE()){LIMS.hw={name:'ハロウィンガチャ',en:'HALLOWEEN NIGHT',theme:'hw'};
   LIM_SETS.hw=[['t',0,'かぼちゃ見習い'],['f',1,'こうもりの夜','hwbat'],['x',2,'ハロウィンナイト','hwnight'],['v',2,'トリック・オア・トリート','hwtot'],['b',3,'魔女の宴','hwur'],['b',4,'かぼちゃ畑の夜','hwgr'],
-    /* (10/18) UR・GR を増やした */['f',3,'魔女の帽子','hwhat'],['x',3,'魔女の大鍋','hwbrew'],['v',3,'魔女の夜会','hwwitch'],['f',4,'かぼちゃの灯火','hwjack'],['x',4,'ゴーストパレード','hwparade'],['v',4,'お菓子の王様','hwking']]}
+    /* (10/18) UR・GR を増やした */['f',3,'魔女の帽子','hwhat'],['x',3,'魔女の大鍋','hwbrew'],['v',3,'魔女の夜会','hwwitch'],['f',4,'かぼちゃの灯火','hwjack'],['x',4,'ゴーストパレード','hwparade'],['v',4,'お菓子の王様','hwking'],
+    /* (10/18) TCGのスリーブ */['sl',1,'月夜のこうもり','slbat'],['sl',2,'ジャック・オ・ランタン','sljol'],['sl',3,'満月の魔女','slwitch'],['sl',4,'真夜中のかぼちゃ畑','slfield']]}
 Object.entries(LIM_SETS).forEach(([set,L])=>L.forEach((a,i)=>ITEMS.push({id:'l'+set+i,k:a[0],r:a[1],n:a[2],v:a[3],lim:set})));
 /* supporter perks: owned automatically while the supporter rank is high enough; never in a pack, never for shards */
 XS.supsaph={bg:'radial-gradient(circle,#1d3a9a,#03050f 72%)',tx:['#eef3ff','#5a7dff'],pal:['#cfdcff','#5a7dff','#ffffff','#9fb4ff'],ex:[['stars',46]],en:'SAPPHIRE DUEL',sig:'sweep'};
@@ -7668,6 +7680,7 @@ function cardFace(it){
   else if(it.k==='b'){const sw=el('div','gcx pb-'+it.v);bgLayer(sw,it.v);pv.append(sw)}
   else if(it.k==='v'){const sw=el('div','gcx vsw vk-'+it.v);sw.append(el('span','vt',VTXT[it.v]));pv.append(sw)}
   else if(it.k==='c'){const sw=el('div','gcx gcoin');sw.append(coinEl(it.v,52));pv.append(sw)}
+  else if(it.k==='sl'){const sw=el('div','gcx gsl'),im=el('img');im.src=(SLV[it.v]||{}).img||'';im.alt='';im.loading='lazy';sw.append(im);if(it.r>=3)sw.classList.add('shx');pv.append(sw)}
   else{const S=XS[it.v],sw=el('div','gcx');sw.style.background=S.bg;const tx=el('span',null,'対戦開始');tx.style.backgroundImage='linear-gradient(180deg,'+S.tx[0]+','+S.tx[1]+')';sw.append(tx,el('i',null,S.en));pv.append(sw)}
   f.append(pv,el('div','gcn',it.n));
   if(it.r>=3&&it.k!=='i')f.append(el('b','holo'));
@@ -9286,7 +9299,7 @@ function collectionView(inv,eq,h,info){
     const tx=el('div','cdi'),rc=el('span','cdr',RAR[it.r].k);rc.style.setProperty('--rc',RAR[it.r].c);
     tx.append(el('div','cdn',it.n),rc,el('div','cds',src(it)),el('div','cdo',n?'所持 '+n+'枚'+(on?'  ·  装備中':''):'まだ持っていません'));top.append(f,tx);
     const act=el('div','cda'),pv=el('button','sec','試しに見る');pv.onclick=()=>previewAny(it);
-    if(n){const b=el('button',on?'sec':'',on?'はずす':'装備する');b.onclick=()=>{const prev=eq[it.k];eq[it.k]=on?null:it.id;draw();detail(it);toast(on?'はずしました':it.n+' を装備しました');/* show it right away, save in the background */h.equip(it.k,eq[it.k]).catch(()=>{eq[it.k]=prev;draw();toast('変更できませんでした')})};act.append(b,pv)}
+    if(n){const SL=it.k==='sl',b=el('button',on?'sec':'',on?'はずす':SL?'いつものスリーブにする':'装備する');b.onclick=()=>{const prev=eq[it.k];eq[it.k]=on?null:it.id;draw();detail(it);toast(on?'はずしました':SL?it.n+' をいつものスリーブにしました':it.n+' を装備しました');/* show it right away, save in the background */h.equip(it.k,eq[it.k]).catch(()=>{eq[it.k]=prev;draw();toast('変更できませんでした')})};act.append(b,pv);if(SL)act.append(el('div','sub cdnote','いつものスリーブは、スリーブを付けていないTCGのデッキ全部に使われます。デッキごとに変えるときは TCG → デッキを編集 → スリーブ'))}
     else if(it.lim){act.append(pv,el('div','sub cdnote',it.lim==='sup'?'サポーターランクの特典です':it.lim==='coin'?'コインガチャが開催されているときだけ手に入ります。かけらでは交換できません':it.lim==='hwshop'?'ハロウィン(10/19〜11/7)のお菓子の交換所だけで手に入ります。かけらでは交換できません':it.lim==='hw'?'ハロウィン(10/19〜11/7)のハロウィンガチャだけで手に入ります。かけらでは交換できません':'期間限定パックが開催されているときだけ手に入ります'))}
     else{const ex=el('div','cdx'),line=el('div','cdxl');
       line.append(el('span',null,'交換に必要'),el('b',null,cost+' かけら'));
@@ -11473,7 +11486,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=137';
+const TCG_SRC='tcg_play.html?v=138';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -11821,7 +11834,7 @@ setInterval(function admDecks(){try{if(admDecks.done)return;const me=myPlayer();
   const fin=()=>{try{localStorage.setItem('admDecks131','1')}catch(e){}};if(!add.length)return fin();const N=L.concat(add.map(d=>({name:d.name,lead:d.lead,cards:d.cards.slice()}))).slice(0,20),n=N.length-L.length;
   if(!n){toast('デッキが20個いっぱいなので、強いデッキを追加できませんでした');return}tcgSaveDecks(N).then(()=>{fin();toast('管理者用に強いデッキを'+n+'つ追加しました(TCGのデッキ一覧)')})}catch(e){}},3000);
 async function tcgSaveDecks(L){const me=myPlayer();if(!db||!me||invFor!==me.id)return;
-  const decks=(L||[]).slice(0,20).map(d=>{const dd=d||{},lead=tcgCardId(dd.lead);const o={name:String(dd.name||'マイデッキ').slice(0,16),cards:tcgFlatCards(dd.cards)};if(lead!=null)o.lead=lead;const al=tcgAltMap(dd.alt,o.cards);if(Object.keys(al).length)o.alt=al;const sc=tcgScrMap(dd.scr,o.cards);if(Object.keys(sc).length)o.scr=sc;return o});
+  const decks=(L||[]).slice(0,20).map(d=>{const dd=d||{},lead=tcgCardId(dd.lead);const o={name:String(dd.name||'マイデッキ').slice(0,16),cards:tcgFlatCards(dd.cards)};if(lead!=null)o.lead=lead;const al=tcgAltMap(dd.alt,o.cards);if(Object.keys(al).length)o.alt=al;const sc=tcgScrMap(dd.scr,o.cards);if(Object.keys(sc).length)o.scr=sc;const sl=tcgSlOk(dd.sl);if(sl)o.sl=sl;return o});
   const t=Object.assign({},tcgOf(inv),{decks});inv=Object.assign({},inv,{tcg:t});
   try{await db.doc('inv/'+me.id).set({tcg:{decks}},{merge:true})}catch(e){try{console.error('deck save failed',e)}catch(_){}toast('デッキ保存失敗: '+String((e&&e.message)||(e&&e.code)||e).slice(0,220))}}
 
@@ -11833,7 +11846,12 @@ function tcgPublicCoins(d,first){return(first==='b'?[d.b,d.a]:[d.a,d.b]).map(id=
 function tcgAltOwned(){const me=myPlayer();if(!me||typeof passArts!=='function')return{};const o=passArts(me.id),r={};Object.keys(o).forEach(id=>{if(TCGD.alt&&TCGD.alt[id]&&TC[id])r[id]=o[id].slice()});return r}
 /* a deck's alt copies, kept only if owned and only as many as the deck holds of that card */
 function tcgAltMap(v,cards){const n={},o={},own=tcgAltOwned();(cards||[]).forEach(id=>n[id]=(n[id]||0)+1);if(v&&typeof v==='object')Object.keys(v).forEach(id=>{const L=Array.isArray(v[id])?v[id]:[],have=own[id]||[];const k=[...new Set(L.map(x=>+x))].filter(x=>have.includes(x)).sort((a,b)=>b-a).slice(0,n[id]||0);if(k.length)o[id]=k});return o}
-window.TCGHOST={altOwn:()=>tcgAltOwned(),own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
+/* (10/18) スリーブ: an item of kind sl. A deck keeps its own (deck.sl); without one, the sleeve picked in コレクション (eq.sl) is used */
+function tcgSlInfo(id){const it=id&&typeof ITEM==='function'&&ITEM(String(id));return it&&it.k==='sl'&&SLV[it.v]?{id:it.id,n:it.n,r:it.r,img:SLV[it.v].img}:null}
+function tcgSlOk(id){return id&&tcgSlInfo(id)&&((inv&&inv.own||{})[id]||0)>0?String(id):null}
+function tcgSlDef(){const me=myPlayer();return tcgSlOk(me&&me.eq&&me.eq.sl)}
+function tcgSlOwn(){return ITEMS.filter(x=>x.k==='sl'&&tcgSlOk(x.id)).sort((a,b)=>b.r-a.r).map(x=>tcgSlInfo(x.id))}
+window.TCGHOST={altOwn:()=>tcgAltOwned(),slOwn:()=>tcgSlOwn(),slInfo:id=>tcgSlInfo(id),slDef:()=>tcgSlDef(),own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
   const f=el('iframe');f.src=TCG_SRC+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
@@ -12054,7 +12072,9 @@ function tcgDeckOk(d){if(!d||!TC[d.lead]||!Array.isArray(d.cards)||d.cards.lengt
 /* a deck as plain data of this window (Firestore refuses arrays/objects made inside the game frame) */
 function tcgPlainDeck(d){const cards=tcgFlatCards(d.cards),o={name:String(d.name||'マイデッキ').slice(0,16),lead:String(d.lead),cards},sc=tcgScrMap(d.scr,cards);if(Object.keys(sc).length)o.scr=sc;
   /* the deck's alternate-art copies (owned only): the other phone shows those copies with the new picture too */
-  {const al=tcgAltMap(d.alt,cards);if(Object.keys(al).length)o.alt=al}return o}
+  {const al=tcgAltMap(d.alt,cards);if(Object.keys(al).length)o.alt=al}
+  /* (10/18) the deck's sleeve (or the usual one): the other phone shows it on this side's card backs */
+  {const sl=tcgSlOk(d.sl)||tcgSlDef();if(sl)o.sl=sl}return o}
 function tcgDeckPicker(box,onPick){const L=(tcgOf(inv).decks||[]).filter(tcgDeckOk);
   if(!L.length){box.append(el('p','sub','使えるデッキがありません。「デッキ・図鑑」でデッキを組んでください。'));return}
   L.forEach(d=>{const r=el('button','tcgdp');r.append(tcgFace(d.lead),el('b',null,d.name),el('span',null,TC[d.lead].n));r.onclick=()=>onPick(tcgPlainDeck(d));box.append(r)})}
@@ -12223,6 +12243,9 @@ const limActive=()=>!!(banner&&LIMS[banner.set]&&now()>=banner.start&&now()<bann
 const PIC_BG=new Set(['hwur','hwgr']);
 function previewAny(it){
   if(it.k==='c'){const o=coinToss({id:'pv'},it.v);[...document.querySelectorAll('.ctw')].forEach(x=>x.style.zIndex=131);return}
+  if(it.k==='sl'){const o=el('div','pvw'),bx=el('div','pvwb');bx.append(el('div','eyebrow','スリーブ プレビュー'),el('h2',null,it.n));
+    const st=el('div','slpv'+(it.r>=3?' shx':'')),im=el('img');im.src=(SLV[it.v]||{}).img||'';im.alt=it.n;st.append(im);bx.append(st,el('p','sub','TCGのカードの裏。デッキごとに付けられます(TCG → デッキを編集 → スリーブ)。オンライン対戦では相手にも見えます'),el('p','sub','タップで閉じる'));
+    o.append(bx);o.onclick=()=>o.remove();document.body.append(o);return}
   if(it.k==='x'||it.k==='v'){const n0=document.body.children.length;previewItem(it.id);[...document.body.children].slice(n0).forEach(x=>x.style.zIndex=130);return}
   const me=(typeof myPlayer==='function'&&myPlayer())||{name:'あなた',rating:2150,ygo_rating:2150,ygo_wins:1};
   const p={...me,rating:me.rating??(me.ygo_rating||1500),eq:{...(me.eq||{}),[it.k]:it.id}};
@@ -12513,7 +12536,7 @@ const NEWS_HW=HW_HERE()&&NEWS_EXP;
 const NEWS_ID=NEWS_HW?'2026-v135':NEWS_EXP?'2026-v134':'2026-v121';
 const NEWS_V135=[
  ['ハロウィンイベント(10/19 朝5時〜11/8 朝5時)',['ホームの「ハロウィン」からイベント画面へ。20日間','対戦・TCG・分身で遊ぶとお菓子がたまる(もらえる数はイベント画面の「お菓子のもらい方」)','お菓子は交換所で、パックチケット・限定ガチャチケット・称号・経験値・ボス戦のスタミナなどと交換できる','イベントミッション'+HW_MIS.length+'個。クリアするとお菓子と、ptかチケット','期間中はホームがハロウィンの夜の見た目に']],
- ['ハロウィンガチャ',['1パック'+LPACK+'pt。GR以上は必ず限定アイテム','限定KMR「夜宴の小悪魔」。アイコン・対戦演出・勝利演出から選べる。対戦演出か勝利演出を付けると、対戦中に応援してくれる','UR(魔女): 背景「魔女の宴」・フレーム「魔女の帽子」・対戦演出「魔女の大鍋」・勝利演出「魔女の夜会」','GR(かぼちゃ畑): 背景「かぼちゃ畑の夜」(動く背景)・フレーム「かぼちゃの灯火」・対戦演出「ゴーストパレード」・勝利演出「お菓子の王様」','350パックごとに、ハロウィンの限定KMRの選択チケット','引くとトリック・オア・トリートのドアの演出']],
+ ['ハロウィンガチャ',['1パック'+LPACK+'pt。GR以上は必ず限定アイテム','限定KMR「夜宴の小悪魔」。アイコン・対戦演出・勝利演出から選べる。対戦演出か勝利演出を付けると、対戦中に応援してくれる','UR(魔女): 背景「魔女の宴」・フレーム「魔女の帽子」・対戦演出「魔女の大鍋」・勝利演出「魔女の夜会」','GR(かぼちゃ畑): 背景「かぼちゃ畑の夜」(動く背景)・フレーム「かぼちゃの灯火」・対戦演出「ゴーストパレード」・勝利演出「お菓子の王様」','TCGのスリーブ: R「月夜のこうもり」・SR「ジャック・オ・ランタン」・UR「満月の魔女」・GR「真夜中のかぼちゃ畑」。デッキごとに付けられる','350パックごとに、ハロウィンの限定KMRの選択チケット','引くとトリック・オア・トリートのドアの演出']],
  ['TCG「ハロウィンナイト」',['期間限定のパック。1パック210pt。愛と裏切りの宴のカードと、ハロウィン版のカード20種が入っている','ハロウィン版のシークレットは、光が通ったところにかぼちゃが浮かぶホログラム','100パックごとに、好きなハロウィン版を1枚シークレットでもらえる']],
  ['ハロウィンのボス(分身)',['分身で、自分だけのボスに順番に挑む。かぼちゃ頭の騎士を5体倒すと、6体目に夜宴の魔女。1体ごとに強くなる','スタミナは5。3時間に1回復(交換所でも回復できる)','仲間の分身にお助けを頼める(200pt。助けた仲間に50pt)','倒すとお菓子とpt。2体目の魔女(12体目)を倒すと、分身がかぼちゃ頭の騎士になれるスキン','期間中は、週末のボスの代わりにこのボスになる']],
  ['ハロウィンナイト(10/31 17:00〜24:00)',['その夜だけの夜ボス「夜宴の魔女・真夜中の姿」に、みんなで挑む(1人5回まで)','この時間は、もらえるお菓子が全部2倍']],
@@ -13817,7 +13840,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   col.innerHTML='<h2>コレクション</h2><div class="kcolg">'+
     '<button type="button" class="kcolc" data-c="skin"><span class="kci">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="3"/><circle cx="12" cy="10" r="3.2"/><path d="M7.5 17.5c1.2-2 2.7-3 4.5-3s3.3 1 4.5 3"/></svg></span>'+
-      '<b>スキン・アイコン</b><small>集めたアイコン・<wbr>フレーム・<wbr>背景・<wbr>称号</small><em class="kcn" data-n="skin"></em></button>'+
+      '<b>スキン・アイコン</b><small>集めたアイコン・<wbr>フレーム・<wbr>背景・<wbr>称号・<wbr>スリーブ</small><em class="kcn" data-n="skin"></em></button>'+
     '<button type="button" class="kcolc" data-c="dex"><span class="kci">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="6" width="10" height="14" rx="1.6" transform="rotate(-10 8.5 13)"/><rect x="10.5" y="4" width="10" height="14" rx="1.6" transform="rotate(8 15.5 11)"/></svg></span>'+
       '<b>きもオタTCG 図鑑</b><small>持っているカードと、<wbr>まだのカード</small><em class="kcn" data-n="dex"></em></button>'+
@@ -16631,7 +16654,7 @@ window.__tcgOnly=true;/*TCGONLY*/
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),seg=(t,a,b)=>clamp((t-a)/(b-a),0,1),lerp=(a,b,u)=>a+(b-a)*u,eo=u=>1-Math.pow(1-u,3),ex=u=>u>=1?1:1-Math.pow(2,-10*u),ei=u=>u*u*u;
   const rng=s=>{let v=s>>>0||1;return()=>{v^=v<<13;v^=v>>>17;v^=v<<5;return((v>>>0)%100000)/100000}};
   const TC=['#e2e6ee','#4aa3ff','#b678ff','#f7c94a','#ff4f8b','#ff6ad5'],RB=['#ff7ab8','#ffd970','#8fffb0','#7fd8ff','#c79bff'];
-  const KN={t:'称号',a:'アイコン',f:'フレーム',x:'対戦演出',b:'背景',v:'勝利演出',c:'コイン',bun:'分身',g:'カード',tk:'チケット'};
+  const KN={t:'称号',a:'アイコン',f:'フレーム',x:'対戦演出',b:'背景',v:'勝利演出',c:'コイン',bun:'分身',sl:'スリーブ',g:'カード',tk:'チケット'};
   const hex6=c=>c.length===4?'#'+c[1]+c[1]+c[2]+c[2]+c[3]+c[3]:c;
   /* kinetic text: each letter slams in from big to its place, 40ms apart (the 極 treatment) */
   function kinetic(el,txt){el.innerHTML='';[...txt].forEach(ch=>{const sp=document.createElement('span');sp.className='kdk-ch';sp.textContent=ch;el.append(sp)});
