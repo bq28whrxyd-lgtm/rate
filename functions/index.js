@@ -248,5 +248,5 @@ exports.pushOrder = onDocumentCreated('orders/{id}', async ev => {
   const o = ev.data && ev.data.data(); if (!o || o.st !== 'wait') return;
   const a = (await db.doc('config/admin').get()).data(); if (!a || !a.uid) return;
   const me = (await db.doc('data/users/' + a.uid + '/me').get()).data(); const pid = me && me.pid; if (!pid) return;
-  await send([pid], null, {title: '申し込みが来ました', body: cut(o.pn, 20) + '  ' + orderName(o) + '  番号 ' + cut(o.code, 12) + '(送金を確かめて承認)', go: 'adm', tag: 'ord' + ev.params.id});
+  await send([pid], null, {title: '申し込みが来ました', body: cut(o.pn, 20) + '  ' + orderName(o) + '  番号 ' + cut(o.code, 12) + '(届いているか確かめて承認)', go: 'adm', tag: 'ord' + ev.params.id});
 });
