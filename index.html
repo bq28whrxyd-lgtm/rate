@@ -4915,6 +4915,9 @@ body.ui2 .kpc-full .kpc-rt{background:linear-gradient(180deg,rgba(20,16,28,.7),r
 body.ui2 .kpc-full .kpc-av::before{background:rgba(14,10,22,.9)}
 /* ranking rows are a thin strip of the background: aim the moving GR background at the pumpkins' faces */
 body.ui2 .krk-art.pb-hwgr .bglv video{object-position:center 60%!important}
+
+/* (10/18) つよい + おまかせ: XP for a win */
+.kx-tsb .kx-txp{display:block;margin-top:5px;font-style:normal;font-weight:800;font-size:11px;line-height:1.3;color:#e0a92a}
 /* ===== v121 rating trend (kt). Dark SaaS look: one gradient line (violet to cyan), a soft area under it,
    rank borders as dotted lines, the number on top. Only transform/opacity move. ===== */
 
@@ -7040,7 +7043,7 @@ KMRS.push({n:'ひだまりニット',chH:'56%',img:'kmr_vt1.jpg',vid:'kmr_vt1.mp
 KMRS.push({n:'はなかんむり',chH:'58%',img:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',w:480,h:800,fx:50,fy:24,z:1.8,c:['#8fbf6a','#f3ead2','#2f3a1e'],bg:['#f8faef','#e6efd6'],en:'FLOWER CROWN',lay:'full',ex:[['petal',40],['leaf',24]],pal:['#ffffff','#f3ead2','#8fbf6a'],lim:'vt',scene:'flower'});
 KMRS.push({n:'堕ちた天使',img:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',w:480,h:620,fx:56,fy:27,z:1.5,c:['#ff3b4a','#b8b8d8','#1a0a0e'],bg:['#f43d43','#c8242c'],en:'FALLEN HALO',lay:'full',noblend:1,dark:1,ex:[['dfeather',46]],pal:['#120610','#2a0a1a','#3a0a2a'],lim:'vt',scene:'alley'});
 /* ハロウィンの限定KMR: the user draws it. Put its entry here when the picture arrives, e.g. {n:'…',img:'kmr_hw1.jpg',w:480,h:800,fx:50,fy:28,z:1.4,c:[…],bg:[…],en:'…',lay:'full',ex:[['bat',16]],pal:[…],lim:'hw'} */
-const HW_KMR=[{n:'夜宴の小悪魔',whole:1,img:'kmr_hw3.jpg',vid:'kmr_hw3.mp4',w:480,h:800,fx:43,fy:24,z:1.15,c:['#9b5cff','#ff8a2a','#1a0a24'],bg:['#f6f2fb','#e4dbf1'],en:'TRICK OR TREAT',lay:'full',ex:[['bat',18],['stars',26]],pal:['#ffffff','#c9a8ff','#ff8a2a'],lim:'hw',scene:'night',cheers:['トリック・オア・トリート!','がんばれ!','お菓子あげるから勝って!','いたずらしちゃうぞ!','ファイト!','応援してる!','ハッピーハロウィン!','ここからだよ!']}];/* (10/17) the user's Halloween KMR (video) */
+const HW_KMR=[{n:'夜宴の小悪魔',whole:1,img:'kmr_hw4.jpg',vid:'kmr_hw4.mp4',w:704,h:1174,/* (10/18) re-made from the original at 704 wide */fx:43,fy:24,z:1.15,c:['#9b5cff','#ff8a2a','#1a0a24'],bg:['#f6f2fb','#e4dbf1'],en:'TRICK OR TREAT',lay:'full',ex:[['bat',18],['stars',26]],pal:['#ffffff','#c9a8ff','#ff8a2a'],lim:'hw',scene:'night',cheers:['トリック・オア・トリート!','がんばれ!','お菓子あげるから勝って!','いたずらしちゃうぞ!','ファイト!','応援してる!','ハッピーハロウィン!','ここからだよ!']}];/* (10/17) the user's Halloween KMR (video) */
 if(HW_HERE())HW_KMR.forEach(K=>KMRS.push(K));
 KMRS.forEach((K,i)=>{K.ar=K.w/K.h;const v='kmr'+i,L=K.lim?{lim:K.lim}:{};
   ITEMS.push({id:'kx'+i,k:'x',r:5,n:K.n,v,K,...L},{id:'kv'+i,k:'v',r:5,n:K.n,v,K,...L},{id:'kf'+i,k:'a',r:5,n:K.n,v,K,...L});
@@ -7923,20 +7926,20 @@ async function hwBuy(it){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==m
 /* ---- (10/18) TCG CPU「つよい」に勝つと経験値 +CPUX_XP (event or not, no daily limit). The wins are counted in cpux/{pid} {n, u: last, dd: day, dn: wins that day}
    so every phone sees the same level; the rules let it go up by 1 at a time, 15 seconds apart ---- */
 let cpuxLoaded=false;const CPUX_XP=5,CPUX_T0=Date.UTC(2026,9,17,18,15);/* when it started (10/18 3:15): the bell tells everyone for 2 weeks, and a toast once */
-setTimeout(function cpuxTell(){try{const me=myPlayer();if(!me||now()>CPUX_T0+14*864e5)return;const k='cpuxTold_'+me.id;let d=null;try{d=localStorage.getItem(k)}catch(e){}if(d)return;try{localStorage.setItem(k,'1')}catch(e){}toast('お知らせ: TCGのCPU「つよい」に勝つと、経験値 +'+CPUX_XP+'(いつでも・何回でも)')}catch(e){}},9000);let cpuxs={},cpuxOn=false;
+setTimeout(function cpuxTell(){try{const me=myPlayer();if(!me||now()>CPUX_T0+14*864e5)return;const k='cpuxTold_'+me.id;let d=null;try{d=localStorage.getItem(k)}catch(e){}if(d)return;try{localStorage.setItem(k,'1')}catch(e){}toast('お知らせ: TCGのCPU「つよい」で、相手「おまかせ」に勝つと経験値 +'+CPUX_XP+'(いつでも・何回でも)')}catch(e){}},9000);let cpuxs={},cpuxOn=false;
 function cpuxWatch(){if(cpuxOn||!db)return;cpuxOn=true;db.collection('cpux').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});cpuxs=o;cpuxLoaded=true;queueRender()},()=>{cpuxOn=false})}
 setInterval(()=>{try{if(db&&!cpuxOn&&myPlayer())cpuxWatch()}catch(e){}},3000);
 const cpuxN=pid=>Math.max(0,Math.min(1000000,+((cpuxs[pid]||{}).n)||0));
 const cpuxToday=pid=>{const d=cpuxs[pid]||{};return +d.dd===dayNo(now())?(+d.dn||0):0};
-async function cpuxWin(r,again){const me=myPlayer();if(!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!me||me.ban)return;
+async function cpuxWin(r,again){const me=myPlayer();if(!r||r.pvp||r.w!=='win'||r.lv!=='strong'||r.opp!=='auto'||!db||!me||me.ban)return;/* (10/18) only against おまかせ */
   /* the count must be the latest one: wait for the first snapshot (up to 6s) */
   for(let i=0;i<12&&!cpuxLoaded;i++){try{cpuxWatch()}catch(e){}await new Promise(z=>setTimeout(z,500))}
   const cur=cpuxs[me.id]||null,t=now(),dd=dayNo(t);if(cur&&t<(+cur.u||0)+15000)return;
   const nv={n:(cur?cpuxN(me.id):0)+1,u:t,dd,dn:cur&&+cur.dd===dd?(+cur.dn||0)+1:1};
-  try{await db.doc('cpux/'+me.id).set(nv);cpuxs=Object.assign({},cpuxs,{[me.id]:nv});queueRender();setTimeout(()=>toast('経験値 +'+CPUX_XP+'(CPU つよい に勝利)'),3400)}
+  try{await db.doc('cpux/'+me.id).set(nv);cpuxs=Object.assign({},cpuxs,{[me.id]:nv});queueRender();setTimeout(()=>toast('経験値 +'+CPUX_XP+'(CPU つよい・おまかせ に勝利)'),3400)}
   catch(e){/* refused (an old count, or the day turned over at 5:00): try once more a moment later with the fresh numbers */if(!again)setTimeout(()=>cpuxWin(r,true),2500)}}
-function hwCpuWin(r){if(!hwOn()||!r||r.pvp||r.w!=='win'||r.lv!=='strong'||!db||!invFor)return;const T=Object.assign({},tcgOf(inv)),hs=(Array.isArray(T[HWK.s])?T[HWK.s]:[]).concat([now()]).slice(-400);T[HWK.s]=hs;inv=Object.assign({},inv,{tcg:T});
-  db.doc('inv/'+invFor).set({tcg:{[HWK.s]:hs}},{merge:true}).catch(()=>{});setTimeout(()=>toast('お菓子 +'+HW_C.cpu*hwMul(now())+'(CPU つよい に勝利)'),2200)}
+function hwCpuWin(r){if(!hwOn()||!r||r.pvp||r.w!=='win'||r.lv!=='strong'||r.opp!=='auto'||!db||!invFor)return;/* (10/18) only against おまかせ */const T=Object.assign({},tcgOf(inv)),hs=(Array.isArray(T[HWK.s])?T[HWK.s]:[]).concat([now()]).slice(-400);T[HWK.s]=hs;inv=Object.assign({},inv,{tcg:T});
+  db.doc('inv/'+invFor).set({tcg:{[HWK.s]:hs}},{merge:true}).catch(()=>{});setTimeout(()=>toast('お菓子 +'+HW_C.cpu*hwMul(now())+'(CPU つよい・おまかせ に勝利)'),2200)}
 /* candy you just got, shown once (the victory screen goes first) */
 let hwSeen=null;
 /* ---- お菓子ランキング: what you collected in the event (spending does not lower it) = hwEarn + candy won by trick-or-treat.
@@ -8311,8 +8314,8 @@ const HW_MIS=[
  {id:'r5',n:'レートの対戦で5勝',N:5,c:30,p:50,f:me=>matches.filter(m=>m.w===me&&hwInT(m.t)).length},
  {id:'r15',n:'レートの対戦で15勝',N:15,c:80,p:150,f:me=>matches.filter(m=>m.w===me&&hwInT(m.t)).length},
  {id:'t3',n:'TCGの友達戦で3勝',N:3,c:40,tk:'tcg',f:me=>typeof tcgms==='undefined'?0:tcgms.filter(d=>tcgDone(d)&&d.wa===me&&hwInT(d.t)).length},
- {id:'cp3',n:'TCG CPU「つよい」に3勝',N:3,c:40,p:100,f:()=>(((inv.tcg||{})[HWK.s])||[]).filter(hwInT).length},
- {id:'cp10',n:'TCG CPU「つよい」に10勝',N:10,c:80,p:200,f:()=>(((inv.tcg||{})[HWK.s])||[]).filter(hwInT).length},
+ {id:'cp3',n:'TCG CPU「つよい」(おまかせ)に3勝',N:3,c:40,p:100,f:()=>(((inv.tcg||{})[HWK.s])||[]).filter(hwInT).length},
+ {id:'cp10',n:'TCG CPU「つよい」(おまかせ)に10勝',N:10,c:80,p:200,f:()=>(((inv.tcg||{})[HWK.s])||[]).filter(hwInT).length},
  {id:'b10',n:'分身で仲間に10勝',N:10,c:30,p:50,f:me=>bunAtk(me).filter(l=>l.w&&hwInT(l.t)).length},
  {id:'q10',n:'分身のクエストで10勝',N:10,c:30,tk:'ptk',f:me=>bunLogs.filter(l=>l.a===me&&l.w&&/^q/.test(String(l.d))&&hwInT(l.t)).length},
  {id:'rb3',n:'ハロウィンのボスに3回挑む',N:3,c:30,p:80,f:me=>hbInfo(me).tries.filter(x=>hwInT(x.t)).length},
@@ -8414,7 +8417,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
         r.append(tx,right);ml.append(r)});ms.append(ml);b.append(ms)}
     /* how to get candy */
     if(sub==='how'){const how=el('div','hlw-sec');how.append(el('h3',null,'お菓子のもらい方'));const hl=el('div','hlw-how');
-    [['レートの対戦','勝ち '+HW_C.rw+'  ·  負け '+HW_C.rl],['TCGの友達戦','勝ち '+HW_C.tw+'  ·  負け '+HW_C.tl],['TCG CPU「つよい」','勝つたびに '+HW_C.cpu],['分身 仲間と戦う','勝ち '+HW_C.bw+'  ·  負け '+HW_C.bl+'(1日5回)'],['分身 クエスト','勝つたびに '+HW_C.q],['ハロウィンのボス(分身)','挑むたびに '+HB_CT+'  ·  倒したら '+hbKillC(1)+'〜(後ろほど多い、魔女は3倍)'],['夜のボス(10/31の夜だけ)','挑むたびに '+HW_C.nbt*2+'  ·  倒したら '+HW_C.nbk*2+'(夜の2倍こみ)'],['今日のお題','3つクリアで '+HW_C.mis],['おばけ屋敷のドア','1日'+HD_RUNS+'回  ·  奥の部屋ほど多い  ·  8部屋抜けたら +'+HD_CLEAR]].forEach(([a,c])=>{const r=el('div','hlw-hr');r.append(el('span',null,a),el('b',null,c));hl.append(r)});
+    [['レートの対戦','勝ち '+HW_C.rw+'  ·  負け '+HW_C.rl],['TCGの友達戦','勝ち '+HW_C.tw+'  ·  負け '+HW_C.tl],['TCG CPU「つよい」(おまかせ)','勝つたびに '+HW_C.cpu],['分身 仲間と戦う','勝ち '+HW_C.bw+'  ·  負け '+HW_C.bl+'(1日5回)'],['分身 クエスト','勝つたびに '+HW_C.q],['ハロウィンのボス(分身)','挑むたびに '+HB_CT+'  ·  倒したら '+hbKillC(1)+'〜(後ろほど多い、魔女は3倍)'],['夜のボス(10/31の夜だけ)','挑むたびに '+HW_C.nbt*2+'  ·  倒したら '+HW_C.nbk*2+'(夜の2倍こみ)'],['今日のお題','3つクリアで '+HW_C.mis],['おばけ屋敷のドア','1日'+HD_RUNS+'回  ·  奥の部屋ほど多い  ·  8部屋抜けたら +'+HD_CLEAR]].forEach(([a,c])=>{const r=el('div','hlw-hr');r.append(el('span',null,a),el('b',null,c));hl.append(r)});
     how.append(hl);b.append(how)}
     /* 交換所 */
     if(sub==='shop'){const sh=el('div','hlw-sec');sh.append(el('h3',null,'お菓子の交換所'));const g=el('div','hlw-shop');
@@ -10865,7 +10868,7 @@ function notes(){
   grants.filter(g=>g.pid===me.id&&((g.kind||'pt')==='pt'||g.kind==='buy')).slice(0,10).forEach(g=>L.push({key:'g'+g.id,t:g.t,k:'ポイント',x:(g.kind==='buy'?'購入ptが届きました  +':'開発者からポイント  +')+g.pt+'pt'+(g.note?'  ·  '+g.note:''),go:'gacha'}));
   try{slabsOf(inv).filter(x=>invFor===me.id&&(slabReady(x)||x.s)).forEach(x=>{const c=TC[x.id];if(c)L.push({key:'gr'+x.i,t:x.t+GR_H*36e5,k:'鑑定',x:x.s?'「'+c.n+'」の鑑定 '+x.s+'('+GR_NM[x.s]+')':'「'+c.n+'」の鑑定結果が届きました。開けてみよう',go:'grade'})})}catch(e){}
   try{mtReqsTo(me.id).forEach(d=>L.push({key:'mr'+d.id,t:+d.t||0,k:'師弟',x:pname(d.a)+'から弟子入りの申し込み',go:'mentor'}));mentors.filter(d=>d.a===me.id&&d.ok).forEach(d=>L.push({key:'mo'+d.id,t:+d.ok,k:'師弟',x:pname(d.m)+'があなたを弟子にしました。分身の経験値が1.5倍',go:'mentor'}));mentors.filter(d=>d.g&&(d.a===me.id||d.m===me.id)).forEach(d=>L.push({key:'mg'+d.id,t:+d.g,k:'師弟',x:d.a===me.id?pname(d.m)+'師匠のもとを卒業しました  +'+MT_GRAD_A+'pt':'弟子の'+pname(d.a)+'が卒業しました  +'+MT_GRAD_M+'pt',go:'mentor'}))}catch(e){}
-  try{if(typeof CPUX_T0!=='undefined'&&now()<CPUX_T0+14*864e5)L.push({key:'cpuxp1',t:CPUX_T0,k:'お知らせ',x:'TCGのCPU「つよい」に勝つと、経験値 +'+CPUX_XP+' もらえるようになりました(イベントに関係なく、何回でも)',go:'battle'})}catch(e){}
+  try{if(typeof CPUX_T0!=='undefined'&&now()<CPUX_T0+14*864e5)L.push({key:'cpuxp1',t:CPUX_T0,k:'お知らせ',x:'TCGのCPU「つよい」で、相手を「おまかせ」にして勝つと、経験値 +'+CPUX_XP+' もらえるようになりました(イベントに関係なく、何回でも)',go:'battle'})}catch(e){}
   try{if(typeof hwOn==='function'&&hwOn()){totIn(me.id).forEach(x=>L.push({key:'ti'+x.id,t:+x.t||0,k:'ハロウィン',x:pname(x.f)+'からトリック・オア・トリート! 1日以内にお菓子をあげないと、いたずらで'+TOT_TRICK+'個とられる',go:'hw'}));tots.filter(x=>x.f===me.id&&totRes(x)!=='wait').forEach(x=>L.push({key:'tr'+x.id,t:+(x.at||x.t+TOT_WAIT),k:'ハロウィン',x:totRes(x)==='late'?pname(x.o)+'は先にほかの人にいたずらされていた(+0)':totRes(x)==='safe'?pname(x.o)+'はいたずらよけのお守りを持っていた':totRes(x)==='give'?pname(x.o)+'がお菓子をくれた(+'+TOT_GIVE+')':pname(x.o)+'にいたずら!お菓子 +'+TOT_TRICK,go:'hw'}))}}catch(e){}
   try{farmPlots(me.id).forEach(x=>{if(x&&plotRipe(x))L.push({key:'fr'+x.i,t:plotRipeAt(x),k:'畑',x:FARM_CROPS[x.c].n+'が収穫できます。置くほど増えるけど、そのぶん盗まれやすい',go:'farm'})});steals.filter(z=>z.o===me.id).forEach(z=>L.push({key:'fs'+z.id,t:+z.t||0,k:'畑',x:z.bit?'番犬が'+pname(z.p)+'を撃退!  罰金 +'+z.f+'pt':pname(z.p)+'に'+((FARM_CROPS[z.c]||{}).n||'作物')+'を盗まれた(-'+z.n+'pt)',go:'farm'}))}catch(e){}
   try{likes.filter(l=>l.o===me.id&&l.p!==me.id).forEach(l=>L.push({key:'lk'+l.id,t:+l.t||0,k:'いいね',x:pname(l.p)+'があなたのショーケースにいいね',go:'case'}))}catch(e){}
@@ -11341,7 +11344,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=136';
+const TCG_SRC='tcg_play.html?v=137';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -13342,7 +13345,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   /* ---- oshi in the lobby (plan B "推しがいる"): the KMR picture fills the upper screen behind everything,
      shaded at the top, left and bottom, sways slowly, and talks in a bubble. Only the admin can set one for now (test). ---- */
   const OSHI=[{id:'chibi',n:'ふくれっつら',kmr:'ふくれっつら',src:'kmr_chibi.jpg',vid:'kmr_chibi.mp4',fx:50,fy:16},{id:'hood',n:'オーバーサイズ',kmr:'オーバーサイズ',src:'kmr_hood.jpg',vid:'kmr_hood.mp4',fx:54,fy:18},{id:'hoodie2',n:'ためいき',kmr:'ためいき',src:'kmr_hoodie2.jpg',fx:53,fy:18},
-    {id:'vt1',n:'ひだまりニット',kmr:'ひだまりニット',src:'kmr_vt1.jpg',vid:'kmr_vt1.mp4',fx:50,fy:18},{id:'vt2',n:'はなかんむり',kmr:'はなかんむり',src:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',fx:50,fy:16},{id:'hw2',n:'夜宴の小悪魔',src:'kmr_hw3.jpg',vid:'kmr_hw3.mp4',fx:50,fy:20,kmr:'夜宴の小悪魔'},{id:'vt3',n:'堕ちた天使',kmr:'堕ちた天使',src:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',fx:56,fy:18}];
+    {id:'vt1',n:'ひだまりニット',kmr:'ひだまりニット',src:'kmr_vt1.jpg',vid:'kmr_vt1.mp4',fx:50,fy:18},{id:'vt2',n:'はなかんむり',kmr:'はなかんむり',src:'kmr_vt2.jpg',vid:'kmr_vt2.mp4',fx:50,fy:16},{id:'hw2',n:'夜宴の小悪魔',src:'kmr_hw4.jpg',vid:'kmr_hw4.mp4',fx:50,fy:20,kmr:'夜宴の小悪魔'},{id:'vt3',n:'堕ちた天使',kmr:'堕ちた天使',src:'kmr_vt3.jpg',vid:'kmr_vt3.mp4',fx:56,fy:18}];
   function oshiGet(){try{let v=localStorage.getItem('oshiPick');if(v===null&&localStorage.getItem('oshiDemo'))v='vt1';return OSHI.some(o=>o.id===v)?v:''}catch(e){return ''}}
   function oshiSet(id){try{localStorage.setItem('oshiPick',id||'');localStorage.removeItem('oshiDemo')}catch(e){}window.__lobOshi&&__lobOshi()}
   window.__oshiList=OSHI;window.__oshiGet=oshiGet;window.__oshiSet=oshiSet;
@@ -14101,7 +14104,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   const tOpps=mk('div','kx-card kx-glass'),tDk=mk('div','kx-card kx-glass'),tCpu=mk('div','kx-card kx-glass'),tGo=mk('div','kx-go'),tRow=mk('div','kx-trow');
   tOpps.innerHTML='<div class="kx-h"><h2>相手</h2><span class="kx-hs">CPUか友達を選ぶ</span></div><div class="kx-opps" role="listbox" aria-label="TCGの対戦相手"></div>';
   tDk.innerHTML='<div class="kx-h"><h2>デッキ</h2><button type="button" class="kx-link">デッキのページ'+S.right+'</button></div><div class="kx-tdecks" role="listbox" aria-label="使うデッキ"></div>';
-  tCpu.innerHTML='<div class="kx-h"><h2>CPUの設定</h2></div><div class="kx-tseg" role="radiogroup" aria-label="CPUの強さ"><button type="button" class="kx-tsb" role="radio" data-v="normal"><b>ふつう</b><small>いつものCPU</small></button><button type="button" class="kx-tsb" role="radio" data-v="strong"><b>つよい</b><small>先の展開を読んで、いちばん勝てる手を選ぶ</small></button></div>'+
+  tCpu.innerHTML='<div class="kx-h"><h2>CPUの設定</h2></div><div class="kx-tseg" role="radiogroup" aria-label="CPUの強さ"><button type="button" class="kx-tsb" role="radio" data-v="normal"><b>ふつう</b><small>いつものCPU</small></button><button type="button" class="kx-tsb" role="radio" data-v="strong"><b>つよい</b><small>先の展開を読んで、いちばん勝てる手を選ぶ</small><em class="kx-txp"><span style="white-space:nowrap">「おまかせ」に勝つと</span><span style="white-space:nowrap">経験値 +5</span></em></button></div>'+
     '<div class="kx-topts" role="radiogroup" aria-label="CPUのデッキ"></div><p class="kx-sub kx-toptd"></p>';
   tGo.innerHTML='<button type="button" class="kx-cta kx-shine kx-tcta">CPUと対戦</button><p class="kx-foot"></p>';
   tRow.innerHTML='<button type="button" class="kx-tpack">パックを開ける'+S.right+'</button><button type="button" class="kx-tpack kx-trk">ランキング'+S.right+'</button><span class="kx-trec"></span>';
@@ -15129,7 +15132,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     for(let i=0;i<14;i++){const b=mk('i');const a=(i/14)*Math.PI*2+Math.random()*.4,d=38+Math.random()*30;b.style.setProperty('--dx',(Math.cos(a)*d).toFixed(1)+'vmax');b.style.setProperty('--dy',(Math.sin(a)*d*.7-6).toFixed(1)+'vmax');b.style.setProperty('--s',(.6+Math.random()*.8).toFixed(2));b.style.setProperty('--dl',(Math.random()*.18).toFixed(2)+'s');bats.append(b)}
     const kmr=best>=5,gr=best>=4;
     if(gr){const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';
-      v.src=kmr?'kmr_hw3.mp4':'fx_hwbg_gr2.mp4';v.poster=kmr?'kmr_hw3.jpg':'fx_hwbg_gr2.jpg';if(kmr)film.classList.add('kmr');film.append(v);try{const p=v.play();p&&p.catch&&p.catch(()=>{})}catch(e){}}
+      v.src=kmr?'kmr_hw4.mp4':'fx_hwbg_gr2.mp4';v.poster=kmr?'kmr_hw4.jpg':'fx_hwbg_gr2.jpg';if(kmr)film.classList.add('kmr');film.append(v);try{const p=v.play();p&&p.catch&&p.catch(()=>{})}catch(e){}}
     const bg=o.querySelector('.kg-bg');bg.insertBefore(L,bg.firstChild.nextSibling);
     if(!tl||RM){if(best>=3)moon.style.opacity='1';if(gr)film.style.opacity='1';return o}
     const burst=o.__TB||1.62;/* the summon's burst time (it is later when the light climbs) */
@@ -15159,7 +15162,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     const fr=mk('div','hd-frame'),hole=mk('div','hd-hole'),beyond=mk('div','hd-beyond'),glow=mk('i','hd-glow'),slit=mk('i','hd-slit');
     const dl=mk('div','hd-leaf l',DOOR_SVG('l')),dr=mk('div','hd-leaf r',DOOR_SVG('r')),arch=mk('i','hd-arch'),step=mk('i','hd-step');
     if(gr){const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';
-      v.src=kmr?'kmr_hw3.mp4':'fx_hwbg_gr2.mp4';v.poster=kmr?'kmr_hw3.jpg':'fx_hwbg_gr2.jpg';beyond.classList.add(kmr?'kmr':'gr');beyond.append(v);try{const p=v.play();p&&p.catch&&p.catch(()=>{})}catch(e){}}
+      v.src=kmr?'kmr_hw4.mp4':'fx_hwbg_gr2.mp4';v.poster=kmr?'kmr_hw4.jpg':'fx_hwbg_gr2.jpg';beyond.classList.add(kmr?'kmr':'gr');beyond.append(v);try{const p=v.play();p&&p.catch&&p.catch(()=>{})}catch(e){}}
     else beyond.classList.add('warm');
     hole.append(beyond,glow);fr.append(arch,hole,slit,dl,dr,step);
     const lan=[0,1].map(k=>{const w=mk('div','hd-lan '+(k?'r':'l')),im=document.createElement('img');im.src='hwpk/pk'+(k?'07':'03')+'.webp';im.alt='';w.append(mk('i','hd-lglow'),im);return w});

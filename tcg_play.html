@@ -2623,9 +2623,9 @@ let g=null,H=0,myKey='weak',cpuKey='girl',myDeck=null,cpuDeck=null,busy=false,mo
 let CPU_LV=(()=>{try{return localStorage.getItem('kotcg_cpulv')==='strong'?'strong':'normal'}catch(e){return'normal'}})();
 function cpuPick(d){const mine=loadDecks().filter(x=>CD.validDeck(x.cards,x.lead));
   sheet((s,close)=>{s.append(el('div','k','CPU BATTLE'),el('h3',null,'CPUの相手を選ぶ'));
-    const lv=el('div','cpulv');lv.setAttribute('role','radiogroup');lv.setAttribute('aria-label','CPUの強さ');[['normal','ふつう','今までのCPU'],['strong','つよい','先の展開を読んで、いちばん勝てる手を選ぶ']].forEach(([k,t,sub])=>{const b=el('button','lvb'+(CPU_LV===k?' on':''));b.setAttribute('role','radio');b.setAttribute('aria-checked',CPU_LV===k?'true':'false');b.append(el('b',null,t),el('span',null,sub));if(k==='strong')b.append(el('em','lvxp','勝つと経験値 +5'));b.onclick=()=>{CPU_LV=k;try{localStorage.setItem('kotcg_cpulv',k)}catch(e){}lv.querySelectorAll('.lvb').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-checked',on?'true':'false')})};lv.append(b)});s.append(el('div','cpuh','CPUの強さ'),lv,el('div','cpuh','相手のデッキ'));
+    const lv=el('div','cpulv');lv.setAttribute('role','radiogroup');lv.setAttribute('aria-label','CPUの強さ');[['normal','ふつう','今までのCPU'],['strong','つよい','先の展開を読んで、いちばん勝てる手を選ぶ']].forEach(([k,t,sub])=>{const b=el('button','lvb'+(CPU_LV===k?' on':''));b.setAttribute('role','radio');b.setAttribute('aria-checked',CPU_LV===k?'true':'false');b.append(el('b',null,t),el('span',null,sub));if(k==='strong'){const x=el('em','lvxp');x.innerHTML='<span style="white-space:nowrap">「おまかせ」に勝つと</span><span style="white-space:nowrap">経験値 +5</span>';b.append(x)}b.onclick=()=>{CPU_LV=k;try{localStorage.setItem('kotcg_cpulv',k)}catch(e){}lv.querySelectorAll('.lvb').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-checked',on?'true':'false')})};lv.append(b)});s.append(el('div','cpuh','CPUの強さ'),lv,el('div','cpuh','相手のデッキ'));
     const L=el('div','cpupick');const opt=(t,sub,fn,cls)=>{const b=el('button','cpuopt'+(cls?' '+cls:''));b.append(el('b',null,t),el('span',null,sub));b.onclick=()=>{close();fn()};L.append(b)};
-    opt('おまかせ','CPUが強いと判断したデッキ('+AI.poolDecks().length+'種類)から選んでくる。同じデッキが続かないように毎回入れ替わる',()=>{let H=[];try{H=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,H);H.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(H.slice(-12)))}catch(e){}startMatch(d,x)},'main');
+    opt('おまかせ','CPUが強いと判断したデッキ('+AI.poolDecks().length+'種類)から選んでくる。同じデッキが続かないように毎回入れ替わる',()=>{let H=[];try{H=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,H);H.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(H.slice(-12)))}catch(e){}startMatch(d,Object.assign({},x,{__auto:1}))},'main');
     opt('ランダム構築','1つの族・2つの族の組み合わせ・テーマ型から、CPUがその場で組む(強さはばらばら)',()=>startMatch(d,AI.makeDeck(Math.random)));
     opt('おすすめデッキ','11族のおすすめデッキから1つ',()=>{const others=Object.keys(CD.STARTERS).filter(x=>x!==BY[d.lead].f);startMatch(d,presetOf(others[Math.floor(Math.random()*others.length)]))});
     if(mine.length){L.append(el('div','cpuh','自分のデッキを使わせる'));mine.forEach(x=>opt(x.name,'リーダー:'+BY[x.lead].n+'('+CD.FNAME[BY[x.lead].f]+')',()=>startMatch(d,Object.assign({},x,{name:x.name+'(CPU)',cards:x.cards.slice()}))))}
@@ -2636,7 +2636,7 @@ function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]],o=p[1]||
   if(o==='rand')cpu=AI.makeDeck(Math.random);
   else if(o==='rec'){const others=Object.keys(CD.STARTERS).filter(x=>x!==BY[d.lead].f);cpu=presetOf(others[Math.floor(Math.random()*others.length)])}
   else if(o==='mirror')cpu=Object.assign({},d,{name:d.name+'(CPU)',cards:d.cards.slice()});
-  if(!cpu){let Hh=[];try{Hh=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,Hh);Hh.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(Hh.slice(-12)))}catch(e){}cpu=x}
+  if(!cpu){let Hh=[];try{Hh=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,Hh);Hh.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(Hh.slice(-12)))}catch(e){}cpu=Object.assign({},x,{__auto:1})}
   startMatch(d,cpu)}
 function startMatch(d,cpu){if(!cpu&&!AUTO){cpuPick(d);return}if(!cpu)cpu=AI.pickDeck(Math.random);
   myDeck=d;myKey=BY[d.lead].f;cpuDeck=cpu;cpuKey=BY[cpu.lead].f;const ck=cpuKey;
@@ -3412,7 +3412,7 @@ async function autoTurn(){let n=0;while(!g.over&&g.cur===H&&n++<40){const a=AI.n
   if(!g.over)endMyTurn()}
 function finish(){if(done)return;queueSpectator(g&&g.ev);done=true;stopTimer();busy=false;closeSheets();render(snap());const w=g.win===-1?'draw':g.win===H?'win':'lose';const e=g.ev.concat(LOG).reverse().find(x=>x.t==='end');
   if(NET){const sideOf=pi=>pi===0?NET.first:(NET.first==='a'?'b':'a');try{NET.claim({win:g.win===-1?'draw':sideOf(g.win),turns:g.turns})}catch(er){}}
-  if(HOST){try{HOST.result({w,me:g.p[H].life,cpu:g.p[1-H].life,deck:myDeck.name,cards:myDeck.name==='極のデモ'?[]:[myDeck.lead].concat(myDeck.cards||[]),cpuName:NET?NET.names[NET.side==='a'?'b':'a']:BY[cpuDeck.lead].n,pvp:!!NET,lv:NET?'':CPU_LV})}catch(er){}}
+  if(HOST){try{HOST.result({w,me:g.p[H].life,cpu:g.p[1-H].life,deck:myDeck.name,cards:myDeck.name==='極のデモ'?[]:[myDeck.lead].concat(myDeck.cards||[]),cpuName:NET?NET.names[NET.side==='a'?'b':'a']:BY[cpuDeck.lead].n,pvp:!!NET,lv:NET?'':CPU_LV,opp:NET?'':(cpuDeck&&cpuDeck.__auto?'auto':'other')})}catch(er){}}
   const o=el('div','ovl'),b=el('div','box');o.append(b);b.append(el('div',null,myDeck.name+' vs '+cpuDeck.name));
   b.append(el('h2',w==='lose'?'lose':'win',w==='win'?'勝利':w==='lose'?'敗北':'引き分け'),el('div','why',(e&&e.why==='time'?'時間切れ ・ ':'')+'あなたのライフ '+g.p[H].life+' ・ 相手のライフ '+g.p[1-H].life));
   if(NET){const r=el('button','btn','アプリに戻る');r.onclick=()=>HOST.close();const l=el('button','btn sec','流れを見る');l.onclick=logSheet;b.append(r,l)}
