@@ -76,6 +76,7 @@ button.danger{background:transparent;color:var(--dn);border:1px solid color-mix(
 
 /* emblems + frames */
 .emb{display:inline-block;flex:none;line-height:0}
+.emb.emb-ws svg{filter:sepia(1) saturate(1.5) hue-rotate(38deg) brightness(.5) contrast(1.25)}
 .emb svg{display:block;width:100%;height:100%;overflow:visible}
 .av{width:44px;height:44px;border-radius:50%;object-fit:cover;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font:700 17px var(--body)}
 .fr{position:relative;display:flex;border-radius:50%;flex:none;padding:3px;isolation:isolate}
@@ -6372,6 +6373,8 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .chest.kch .kch-ct .coin{flex:none}
 .chest.kch.big .kch-n b{filter:drop-shadow(0 6px 26px rgba(255,196,70,.5))}
 @media (prefers-reduced-motion: reduce){.chest.kch .kch-tk b{animation:none}}
+/* (10/18) the クズ / 産廃 cut: a dull rust chip, not the gold one */
+.chest.kch .kch-mul.kch-kz{color:#f3e6dc;background:linear-gradient(180deg,#6b4a3a,#45302a);box-shadow:0 0 0 1px rgba(255,200,170,.25),0 6px 18px rgba(0,0,0,.35)}
 /* ===== v133 通常パック capsule film (kcap) ===== */
 .kgo.kg-cap{background:#000}
 .kgo.kg-cap .kg-bg{z-index:3;background:none}
@@ -6815,8 +6818,12 @@ const gname=g=>GNAME[g]||GAMES[g]||'';
 const $=id=>document.getElementById(id);
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 const TIERS=[[3000,'マスター','MASTER'],[2700,'ダイヤ','DIAMOND'],[2400,'プラチナ','PLATINUM'],[2100,'ゴールド','GOLD'],[1800,'シルバー','SILVER'],[1500,'ブロンズ','BRONZE'],[-1e9,'クズ','SCRAP']];
-const tier=r=>TIERS.find(t=>r>=t[0]);
-const tidx=r=>TIERS.length-1-TIERS.indexOf(tier(r));
+/* (10/18) 産廃: below 1400 (クズ is 1400-1499). It shares クズ's slot (index 0) everywhere data is kept
+   (peak, season titles S{n}_0, effects), and only differs in its name, its rusty emblem and the smaller win chest */
+const WASTE_R=1400,WASTE=[-1e9,'産廃','WASTE'];
+const isWaste=r=>+r<WASTE_R;
+const tier=r=>isWaste(r)?WASTE:TIERS.find(t=>r>=t[0]);
+const tidx=r=>TIERS.length-1-TIERS.findIndex(t=>r>=t[0]);
 const TN=ti=>TIERS[TIERS.length-1-ti];
 /* each tier from ブロンズ to ダイヤ has 3 divisions of 100: 1 (lowest) to 3 */
 const DIV=r=>{const t=tier(r);return t[0]<1500||t[0]>=3000?0:Math.min(3,Math.floor((r-t[0])/100)+1)};
@@ -6876,6 +6883,8 @@ function emblemSVG(ti){
   return s+'</svg>';
 }
 function emblem(ti,px){const e=el('span','emb');e.style.width=e.style.height=px+'px';e.innerHTML=emblemSVG(ti);return e}
+/* the emblem for a rating: 産廃 gets クズ's emblem, rusted */
+function emblemR(r,px){const e=emblem(tidx(r),px);if(isWaste(r))e.classList.add('emb-ws');return e}
 const GLINT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C13 9 15 11 24 12 15 13 13 15 12 24 11 15 9 13 0 12 9 11 11 9 12 0Z" fill="currentColor"/></svg>';
 const CROWN='<svg viewBox="0 0 32 20" aria-hidden="true"><defs><linearGradient id="cwg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset="1" stop-color="#c8901c"/></linearGradient></defs><path d="M2 18 4 5l7 6 5-10 5 10 7-6 2 13z" fill="url(#cwg)" stroke="#fff3d6" stroke-opacity=".6"/><circle cx="16" cy="13" r="1.8" fill="#d62f5a"/></svg>';
 
@@ -6886,18 +6895,18 @@ function avatarFull(p){const d=el('div','avf ef');d.append(mkFrame(p,tidx(p.rati
 
 function rankProg(r){
   const ti=tidx(r);if(ti===6)return{ti,pct:100,next:null,need:0};
-  const hi=r<1500?1500:(Math.floor(r/100)+1)*100,lo=hi-100;
+  const hi=isWaste(r)?WASTE_R:r<1500?1500:(Math.floor(r/100)+1)*100,lo=hi-100;
   return{ti,pct:Math.max(2,Math.min(100,(r-lo)/(hi-lo)*100)),next:RN(hi),need:hi-r};
 }
 function myRankCard(box,p,gname,stats){
-  const P=rankProg(p.rating),ti=P.ti,T=TN(ti);
+  const P=rankProg(p.rating),ti=P.ti,T=tier(p.rating);
   box.replaceChildren();mvars(box,ti);
   box.classList.toggle('sw2',ti>=5);
   [...box.classList].filter(c=>c.startsWith('pb-')).forEach(c=>box.classList.remove(c));{const bi=p.eq&&p.eq.b&&ITEM(p.eq.b);bgLayer(box,bi&&bi.v);if(bi)box.classList.add('pb-'+bi.v)}
   const em=el('div','mye');if(ti>=3)em.append(el('i','myrays'));em.append(avatarFull(p));
   if(ti>=4)for(let k=0;k<(ti>=6?3:2);k++){const g=el('span','gl');g.innerHTML=GLINT;g.style.left=[4,82,70][k]+'%';g.style.top=[16,8,60][k]+'%';g.style.animationDelay=(k*.9)+'s';em.append(g)}
   const tx=el('div','myt'),line=el('div','myl'),pr=el('div','prog'),pi=el('i'),nr=el('div','myrow');
-  nr.append(emblem(ti,26),el('span','myn mt sh',RE(p.rating)));
+  nr.append(emblemR(p.rating,26),el('span','myn mt sh',RE(p.rating)));
   line.append(el('span',null,RN(p.rating)),el('b',null,String(p.rating)));
   pi.style.width=P.pct+'%';pr.append(pi);
   const nx=P.next?P.next+'まであと '+P.need:'最高ランクに到達';
@@ -6913,7 +6922,7 @@ function podium(list){
     const p=list[i];const c=el('div','pd p'+(i+1));if(p&&p.id)c.dataset.pid=p.id;
     if(p){const ti=tidx(p.rating),b=el('div','pdb',String(i+1)),C=PODC[i];
       b.style.setProperty('--pl',C.l);b.style.setProperty('--pm',C.m);b.style.setProperty('--pd',C.d);
-      const r=el('div','pdr');r.append(emblem(ti,14),el('span',null,String(p.rating)));
+      const r=el('div','pdr');r.append(emblemR(p.rating,14),el('span',null,String(p.rating)));
       mvars(c,ti);c.append(avatarFull(p),supName(nameBox('div','pdn',p.name,ti),p.id));{const tc=titleChip(p.eq&&p.eq.t);if(tc)c.append(tc)}{const sp=supBadge(p.id,true);if(sp)c.append(sp)}c.append(r,b)}
     box.append(c);
   });
@@ -6922,9 +6931,9 @@ function podium(list){
 
 /* match request card: kind 'in' (someone challenges you) or 'out' (waiting for them) */
 function challengeModal(p,gname,kind,h){
-  const ti=tidx(p.rating),T=TN(ti),o=el('div','md'),c=mvars(el('div','mdc'),ti);
+  const ti=tidx(p.rating),T=tier(p.rating),o=el('div','md'),c=mvars(el('div','mdc'),ti);
   c.append(el('div','eyebrow',kind==='in'?'MATCH REQUEST':'WAITING'),el('div','mdt',kind==='in'?p.name+'から対戦の申し込み':p.name+'の承認を待っています'),avatarFull(p));
-  const r=el('div','brat');r.append(emblem(ti,16),el('span',null,RN(p.rating)+'  ·  '+p.rating+'  ·  '+gname));c.append(r);
+  const r=el('div','brat');r.append(emblemR(p.rating,16),el('span',null,RN(p.rating)+'  ·  '+p.rating+'  ·  '+gname));c.append(r);
   const err=el('div','berr'),bb=el('div','mdb');
   const act=(b,fn)=>{b.onclick=async()=>{bb.querySelectorAll('button').forEach(x=>x.disabled=true);try{await fn()}catch(e){err.textContent=e&&e.message==='nobet'?'賭けるポイントが足りないので受けられません':e&&e.message==='expired'?'この申し込みは期限切れか取り消されています':'送信できませんでした。通信を確認してください';bb.querySelectorAll('button').forEach(x=>x.disabled=false)}}};
   if(kind==='in'){const n=el('button','sec','断る'),y=el('button',null,'承認して対戦開始');act(n,h.decline);act(y,h.accept);bb.append(n,y)}
@@ -7031,7 +7040,7 @@ function chestView(v,done){
   let opened=false;
   const open=()=>{if(opened)return;opened=true;o.classList.add('shake');vib(3);
     setTimeout(()=>{o.classList.remove('shake');o.classList.add('open');if(big)o.classList.add('big');
-      res.replaceChildren(...(tk?[el('b',null,'通常パックチケット'),el('span',null,'×'+(v==='T3'?3:1))]:[el('b',null,'+'+Math.round(v*mul)),el('span',null,'pt')]),...(mul>1&&!tk?[el('span',null,'  ジャンル週間 ×1.5')]:[]));
+      res.replaceChildren(...(tk?[el('b',null,'通常パックチケット'),el('span',null,'×'+(v==='T3'?3:1))]:[el('b',null,'+'+Math.round(v*mul*(ch.kz||1))),el('span',null,'pt')]),...(mul>1&&!tk?[el('span',null,'  ジャンル週間 ×1.5')]:[]),...(ch.kz<1&&!tk?[el('span','chkz','  '+ch.kzn+'なので '+Math.round(ch.kz*10)+'割')]:[]));
       if(ch.ct){const t=el('div','chct');t.append(coinEl('gold',30),el('span',null,'コインチケット +1'));res.after(t)}
       FX(o,big?5:3,0,tk?XS.rainbow:XS.gold);vib(big?5:2);hint.textContent='タップで閉じる';
       o.onclick=()=>{o.remove();done&&done()}},900)};
@@ -7068,11 +7077,11 @@ const MIN_MATCH=4*60000;
 /* how long after the start a result can be reported: スマブラ is quicker */
 const minMatch=g=>/スマブラ|smash/i.test((typeof GAMES!=='undefined'&&GAMES[g])||'')?3*60000:MIN_MATCH;
 function battleView(a,b,gname,h){
-  const ti=tidx(b.rating),mi=tidx(a.rating),T=TN(ti),M=TN(mi);
+  const ti=tidx(b.rating),mi=tidx(a.rating),T=tier(b.rating),M=tier(a.rating);
   const o=mvars(el('div','bo'),ti);if(ti>=4)o.classList.add('shk');
   o.append(el('div','bgo'),mvars(el('div','bgm'),mi));
   if(ti>=3)o.append(el('div','brays'));
-  const wm=el('div','wm');wm.append(emblem(ti,270));o.append(wm);
+  const wm=el('div','wm');wm.append(emblemR(b.rating,270));o.append(wm);
   const SK=a.eq&&a.eq.x&&ITEM(a.eq.x),S=SK&&SK.k==='x'?XS[SK.v]:null;/* your own 対戦演出 plays on your own screen */
   const WARPD=matchMedia('(prefers-reduced-motion: reduce)').matches?0:900;FX(o,ti,1000+WARPD,S);
   const c=el('div','bc');
@@ -7081,11 +7090,11 @@ function battleView(a,b,gname,h){
   top.append(tm);
   const q=el('div','bq mt',QUOTES[ti]);
   const opp=el('div','bopp'),rn=el('div','brank');
-  rn.append(emblem(ti,26),el('span','bren mt sh',RE(b.rating)));
+  rn.append(emblemR(b.rating,26),el('span','bren mt sh',RE(b.rating)));
   opp.append(avatarFull(b),el('div','plat'),rn,nameBox('div','bname',b.name,ti),rankChip(ti));{const tc=titleChip(b.eq&&b.eq.t);if(tc)opp.append(tc)}opp.append(el('div','brat',RN(b.rating)+'  ·  '+b.rating));
   const vs=el('div','bvs');vs.append(el('i','slash'),el('span','vst','VS'),el('i','slash r'));
   const me=mvars(el('div','bme'+(mi>=3?' glow':'')),mi),mt=el('div'),mr=el('div','brank s');
-  mr.append(emblem(mi,20),el('span','bren s mt sh',RE(a.rating)));
+  mr.append(emblemR(a.rating,20),el('span','bren s mt sh',RE(a.rating)));
   mt.append(nameBox('div','bname s',a.name,mi),rankChip(mi));{const tc=titleChip(a.eq&&a.eq.t);if(tc)mt.append(tc)}mt.append(mr,el('div','brat',RN(a.rating)+'  ·  '+a.rating));me.append(avatarFull(a),mt);
   const note=el('div','bnote'),err=el('div','berr'),act=el('div','bb');
   const dk=el('div','bdeck');if(h.decks){const sel=el('select');sel.setAttribute('aria-label','使用デッキ');const o0=el('option',null,h.decks.length?'使用デッキを選ぶ':'デッキ未登録(プロフィール → 成績で登録)');o0.value='';sel.append(o0);h.decks.forEach(n=>{const o=el('option',null,n);o.value=n;sel.append(o)});sel.value=h.deck||'';sel.onchange=()=>h.setDeck(sel.value);dk.append(el('span',null,'使用デッキ'),sel)}else dk.hidden=true;
@@ -9975,7 +9984,7 @@ function renderSeasons(){
   if(!SS.length){sec.append(el('div','sub','シーズン'+seasonNo(now())+'が終わると、ここに最終ランクが残ります。'));return}
   SS.forEach(sn=>{const h=H.find(x=>x.s===sn),t=T.find(x=>x.s===sn),ti=Math.max(h?recTi(h):0,t?t.ti:0),tid='S'+sn+'_'+ti,on=(me.eq||{}).t===tid,row=mvars(el('div','shr'),ti);
     const L=el('div','shl');L.append(el('div','shs','SEASON '+sn));
-    if(h)recG(h).forEach(g=>{const gn=gname(g);{const ln=el('div','shg');ln.append(emblem(tidx(h[g]),18),el('span',null,gn+'  '+RN(h[g])+'  ·  '+h[g]));L.append(ln)}});
+    if(h)recG(h).forEach(g=>{const gn=gname(g);{const ln=el('div','shg');ln.append(emblemR(h[g],18),el('span',null,gn+'  '+RN(h[g])+'  ·  '+h[g]));L.append(ln)}});
     if(t){const ln=el('div','shg');ln.append(emblem(t.ti,18),el('span',null,'きもオタTCG  '+RN(t.r)+'  ·  '+t.r));L.append(ln)}
     L.append(el('div','sub','報酬 '+((h?SREW[recTi(h)]:0)+(t?t.pt:0))+'pt'+(t?'(TCGは半分)':'')));
     const R2=el('div','shrt');R2.append(titleChip(tid));const b=el('button',on?'sec':'',on?'装備中':'称号にする');
@@ -10218,8 +10227,8 @@ function onChallenges(){
     const c=chs.find(x=>x.id===btCtl.id);btCtl.close();btCtl=null;document.querySelectorAll('.ctw').forEach(x=>x.remove());
     if(c)$('bmsg').textContent=c.st==='done'?c.res:c.st==='aborted'?'対戦は中止されました':'';
     if(c&&c.st==='done'&&c.rep){setTimeout(showRmBar,c.rep.win===me.id?5200:4800);const wp=players.find(x=>x.id===c.rep.win),wn=wp?wp.name:(c.rep.win===c.a?c.an:c.bn),ln=c.rep.win===c.a?c.bn:c.an;victoryView(wn,ln,wp&&wp.eq&&wp.eq.v,c.res,c.rep.win===me.id,wp&&wp.eq&&wp.eq.i);
-      if(c.rep.win===me.id&&(c.u||c.t)>=RULE3){const vi=wp&&wp.eq&&wp.eq.v&&ITEM(wp.eq.v),mm=matches.find(x=>x.id===c.id),ch=chestFor({id:c.id,t:mm?mm.t:(c.u||now()),g:c.g});setTimeout(()=>chestView(ch,()=>renderGacha()),(vi&&vi.K?6000:4500)+400);
-        if(ch.gold)post('c_'+c.id,'gold',me.id,me.name,me.name+'が豪華宝箱を引き当てた ('+(ch.v==='T3'?'パックチケット×3':'+'+Math.round(ch.v*ch.mul)+'pt')+')',c.g)}}
+      if(c.rep.win===me.id&&(c.u||c.t)>=RULE3){const vi=wp&&wp.eq&&wp.eq.v&&ITEM(wp.eq.v),mm=matches.find(x=>x.id===c.id),ch=chestFor(mm?mm:{id:c.id,t:c.u||now(),g:c.g,wr:wp?(typeof effR==='function'?effR(wp,c.g):wp[c.g+'_rating']??1500):null});setTimeout(()=>chestView(ch,()=>renderGacha()),(vi&&vi.K?6000:4500)+400);
+        if(ch.gold)post('c_'+c.id,'gold',me.id,me.name,me.name+'が豪華宝箱を引き当てた ('+(ch.v==='T3'?'パックチケット×3':'+'+Math.round(ch.v*ch.mul*(ch.kz||1))+'pt')+')',c.g)}}
   }
   mine.forEach(c=>{if(FINAL.includes(c.st)&&now()-(c.u||c.t)>6*3600000)chDoc(c.id).delete().catch(()=>{})});
   if(typeof renderPreds==='function')renderPreds();
@@ -10252,13 +10261,15 @@ async function finishMatch(c){
 
 function renderTiers(){
   const box=$('tiers');box.replaceChildren();{const o=box.parentNode.querySelector('.tilist');if(o)o.remove()}
+  {const d=el('div','ti ti-ws');d.append(emblemR(0,36),el('b',null,WASTE[1]),el('span',null,'〜'+(WASTE_R-1)));box.append(d)}
   for(let ti=0;ti<7;ti++){
     const T=TN(ti),d=el('div','ti');
-    d.append(emblem(ti,36),el('b',null,T[1]),el('span',null,ti===0?'〜1499':ti===6?T[0]+'〜':T[0]+'〜'+(T[0]+299)));
+    d.append(emblem(ti,36),el('b',null,T[1]),el('span',null,ti===0?WASTE_R+'〜1499':ti===6?T[0]+'〜':T[0]+'〜'+(T[0]+299)));
     box.append(d);
   }
   const L=el('div','tilist');L.append(el('div','sub','ランクが上がるほど名前が豪華になります(ゴールドからキラキラ、ダイヤでオーラ、マスターで王冠)。ランク称号も付きます。'));
-  for(let ti=6;ti>=0;ti--){const r=mvars(el('div','tir'),ti),me=myPlayer();{const b=el('b','nxw');b.append(nameEl('',me?me.name:'あなた',ti));r.append(emblem(ti,22),b,rankChip(ti),el('span','sub',TN(ti)[1]))}L.append(r)}
+  for(let ti=6;ti>=0;ti--){const r=mvars(el('div','tir'),ti),me=myPlayer();{const b=el('b','nxw');b.append(nameEl('',me?me.name:'あなた',ti));r.append(emblem(ti,22),b,rankChip(ti),el('span','sub',TN(ti)[1]+(ti===0?'(勝ちの宝箱 '+Math.round(KZ_MUL[0]*10)+'割)':'')))}L.append(r)}
+  {const r=mvars(el('div','tir'),0),me=myPlayer(),b=el('b','nxw');b.append(nameEl('',me?me.name:'あなた',0));r.append(emblemR(0,22),b,rankChip(0),el('span','sub',WASTE[1]+'(勝ちの宝箱 '+Math.round(KZ_MUL[1]*10)+'割)'));L.append(r)}
   box.after(L);
 }
 const HM={rank:false,feed:false,mvp:false};
@@ -10282,11 +10293,11 @@ function render(){
   if(sorted.length>=2)rk.append(podium(sorted));
   sorted.forEach((p,i)=>{
     if(!HM.rank&&sorted.length>=4&&i<3)return;/* the podium already shows the top three */
-    const ti=tidx(p.rating),T=TN(ti),r=mvars(el('div','rk'+(ti>=3?' hi':' lo')+(ti>=5?' sw':'')),ti);
+    const ti=tidx(p.rating),T=tier(p.rating),r=mvars(el('div','rk'+(ti>=3?' hi':' lo')+(ti>=5?' sw':'')),ti);
     {const bi=p.eq&&p.eq.b&&ITEM(p.eq.b);if(bi&&bi.k==='b'){r.classList.add('pb-'+bi.v,'rkbg');bgLayer(r,bi.v)}}
     r.append(el('div','no'+(i===0?' no1':''),String(i+1)),mkFrame(p,ti));
     const n=el('div','nm'),sb=el('div','sub tierline');
-    sb.append(lvChip(p.id),emblem(ti,16),el('span',null,RN(p.rating)),el('span',null,'·  '+p.wins+'勝 '+p.losses+'敗'));
+    sb.append(lvChip(p.id),emblemR(p.rating,16),el('span',null,RN(p.rating)),el('span',null,'·  '+p.wins+'勝 '+p.losses+'敗'));
     {const nb=supName(nameBox('div','pn',p.name,ti),p.id),sp=typeof supBadge==='function'&&supBadge(p.id,true);if(sp){const w=el('div','pnw');w.append(nb,sp);n.append(w)}else n.append(nb)}{const l=el('div','rkl');l.append(rankChip(ti));const tc=titleChip(p.eq&&p.eq.t);if(tc)l.append(tc);n.append(l)}n.append(sb);
     r.append(n,el('div','rt',p.rating));
     if(ti===6)for(let k=0;k<3;k++){const g=el('span','gl rg');g.innerHTML=GLINT;g.style.left=(34+k*20)+'%';g.style.top=(k%2?66:14)+'%';g.style.animationDelay=(k*.85)+'s';r.append(g)}
@@ -10647,10 +10658,16 @@ const GOLDCH=[200,300,500,'T3'];
 const GOLDCH2=[150,200,300,'T3'];
 const RULE6=Date.UTC(2026,9,8,15,0);   /* 2026-10-09 0:00 JST: 下剋上 bonus ended, new chests and level rewards start */
 const RULE5=Date.UTC(2026,9,4,11,10);   /* genre week was x2 (points and tickets) before this, x1.5 points after */
+/* (10/18) クズ以下の罰: from KZ_T0 the win chest's pt is ×0.7 for クズ (1400-1499) and ×0.4 for 産廃 (under 1400), by the winner's rating before the match (m.wr). Tickets are not cut */
+const KZ_MUL=[.7,.4];
+const KZ_T0=()=>(typeof window!=='undefined'&&window.__kz0)||Date.UTC(2026,9,18,20,0);/* 10/19 5:00 JST */
+const kzMul=(r,t)=>r==null||!((t||0)>=KZ_T0())?1:isWaste(r)?KZ_MUL[1]:+r<1500?KZ_MUL[0]:1;
+const kzName=r=>isWaste(r)?WASTE[1]:'クズ';
 function chestFor(m){const t=m.t||0;let v=chestOf(m.id,t),gold=false,mul=1;
   if(t>=RULE4){const h=hsh(m.id+'#golden'),n8=t>=RULE8;if((h>>>7)%(n8?40:20)===0){gold=true;v=(n8?GOLDCH2:GOLDCH)[(h>>>19)%4]}if(gweekAt(m.g,t))mul=t>=RULE5?1.5:2}
-  return{v,gold,mul,ct:typeof coinTkOf==='function'&&coinTkOf(m)}}
-const chestPt=m=>{const c=chestFor(m);return typeof c.v==='number'?Math.round(c.v*c.mul):0};
+  const kz=kzMul(m.wr,t);
+  return{v,gold,mul,kz,kzn:kz<1?kzName(m.wr):'',ct:typeof coinTkOf==='function'&&coinTkOf(m)}}
+const chestPt=m=>{const c=chestFor(m);return typeof c.v==='number'?Math.round(c.v*c.mul*(c.kz||1)):0};
 const chestTix=m=>{const c=chestFor(m);return (c.v==='T'?1:c.v==='T3'?3:0)*((m.t||0)>=RULE5?1:c.mul)};
 /* 下剋上: beat someone a whole tier above you (+50) or 100+ above you (+30) */
 const gekoOf=m=>m&&m.t>=RULE4&&m.t<RULE6&&m.wr!=null&&m.lr!=null?(tidx(m.lr)>tidx(m.wr)?50:m.lr-m.wr>=100?30:0):0;
@@ -12337,7 +12354,10 @@ function tcgChestRun(){const by={},ok={};tcgms.filter(d=>tcgDone(d)&&d.wa!=='dra
     tcgStock(st,t);if(st.left>0){if(st.left>=TCG_CHEST_N)st.at=t;st.left--;ok[d.id]=1}});return {ok,by}}
 function tcgWins(){return tcgChestRun().ok}
 function tcgChestLeft(pid){const st=tcgChestRun().by[pid];if(!st)return {left:TCG_CHEST_N,next:0};const c={left:st.left,at:st.at};tcgStock(c,now());return {left:c.left,next:c.left<TCG_CHEST_N?c.at+TCG_CHEST_H:0}}
-function tcgPts(pid){if(!tcgms.length)return 0;const ok=tcgWins();return tcgms.reduce((a,d)=>a+(ok[d.id]&&d.wa===pid?tcgChestOf(d.id):0),0)+tcgSeasonPts(pid)}
+function tcgPts(pid){if(!tcgms.length)return 0;const ok=tcgWins();return tcgms.reduce((a,d)=>a+(ok[d.id]&&d.wa===pid?tcgChestPt(d,pid):0),0)+tcgSeasonPts(pid)}
+/* (10/18) the TCG win chest is cut for クズ / 産廃 too, by the winner's TCG rating before that match (from KZ_T0) */
+function tcgKz(d,pid){try{const pr=(tcgRatings().pr||{})[d.id];return typeof kzMul==='function'?kzMul(pr?pr[pid]:null,d.t||0):1}catch(e){return 1}}
+function tcgChestPt(d,pid){return Math.round(tcgChestOf(d.id)*tcgKz(d,pid))}
 function tcgFriendRec(pid){let w=0,l=0;tcgms.forEach(d=>{if(!tcgDone(d)||d.wa==='draw'||(d.a!==pid&&d.b!==pid))return;if(d.wa===pid)w++;else l++});return w+'勝 '+l+'敗'}
 /* a deck you can take into a match: 20 cards, owned, leader rule */
 function tcgDeckOk(d){if(!d||!TC[d.lead]||!Array.isArray(d.cards)||d.cards.length!==TCGD.deckSize)return false;const own=tcgOwn(),n={};
@@ -12420,7 +12440,7 @@ function tcgmTick(){const me=myPlayer();if(!me)return;const t=now();
   if(sig!==tcgSig){tcgSig=sig;if(typeof queueRender==='function')queueRender();if(curView==='tcg'&&!$('tcgw')&&!document.querySelector('.tcgmd'))renderTcg()}}
 let tcgSig='';const tcgChestQ=[];let tcgChestOn=false;
 function tcgChestNext(){if(tcgChestOn||!tcgChestQ.length)return;tcgChestOn=true;const id=tcgChestQ.shift();
-  setTimeout(()=>chestView(tcgChestOf(id),()=>{tcgChestOn=false;renderTcg();renderGacha();tcgChestNext()}),tcgLive?5200:300)}
+  setTimeout(()=>chestView((()=>{const d=tcgms.find(x=>x.id===id),me=myPlayer(),kz=d&&me?tcgKz(d,me.id):1,pr=d&&me?((tcgRatings().pr||{})[d.id]||{})[me.id]:null;return{v:tcgChestOf(id),gold:false,mul:1,kz,kzn:kz<1&&typeof kzName==='function'?kzName(pr):''}})(),()=>{tcgChestOn=false;renderTcg();renderGacha();tcgChestNext()}),tcgLive?5200:300)}
 /* the friend section of the TCG screen: open challenges and matches you can rejoin */
 /* 最近の対戦 for きもオタTCG: every finished friend match, drawn exactly like the other genres' list */
 let tcgHistOpen=false;
@@ -12439,7 +12459,7 @@ function tcgFriendSec(){const me=myPlayer();if(!me)return null;const t=now();
   if(!live.length&&!inc.length)return null;const s=el('section','tcgfs');s.append(el('h2',null,'友達戦'));
   live.forEach(d=>{const r=el('div','tcgfr'),op=tcgOther(d,me.id);r.append(el('b',null,'vs '+op.n),el('span',null,d.st==='end'?'相手は記録ずみ':'対戦中'));const b=el('button',null,d.st==='end'?'結果を見る':'続きから');b.onclick=()=>tcgPvpOpen(d.id);r.append(b);s.append(r)});
   inc.forEach(d=>{const r=el('div','tcgfr');r.append(el('b',null,d.an+' から申し込み'),el('span',null,ago(d.t)));const b=el('button',null,'見る');b.onclick=()=>tcgIncoming(d);r.append(b);s.append(r)});
-  const ok=tcgWins(),DL=tcgRatings().dl;hist.forEach(d=>{const r=el('div','tcgfr'),op=tcgOther(d,me.id),w=d.wa===me.id,dv=DL[d.id]&&DL[d.id][me.id];r.append(el('b',null,'vs '+op.n+(dv!=null?'  ('+(dv>=0?'+':'')+dv+')':'')),el('span',w?'win':d.wa==='draw'?'':'lose',w?'勝ち'+(ok[d.id]?'  ·  宝箱 '+tcgChestOf(d.id)+'pt':''):d.wa==='draw'?'引き分け':'負け'),el('span','sub',ago(d.t)));s.append(r)});
+  const ok=tcgWins(),DL=tcgRatings().dl;hist.forEach(d=>{const r=el('div','tcgfr'),op=tcgOther(d,me.id),w=d.wa===me.id,dv=DL[d.id]&&DL[d.id][me.id];r.append(el('b',null,'vs '+op.n+(dv!=null?'  ('+(dv>=0?'+':'')+dv+')':'')),el('span',w?'win':d.wa==='draw'?'':'lose',w?'勝ち'+(ok[d.id]?'  ·  宝箱 '+tcgChestPt(d,me.id)+'pt':''):d.wa==='draw'?'引き分け':'負け'),el('span','sub',ago(d.t)));s.append(r)});
   const cl=tcgChestLeft(me.id);s.append(el('p','tcgcl','もらえる宝箱 あと'+cl.left+'回'+(cl.left<TCG_CHEST_N&&cl.next?'  ·  次の回復 '+tcgHm(cl.next):'')));
   s.append(el('p','sub','勝つと宝箱(10〜50pt)とTCGランクのポイント。宝箱は5回まで。使ったら1時間ごとに1回ずつ回復します。'));return s}
 function tcgHm(t){const d=new Date(t);return d.getHours()+':'+String(d.getMinutes()).padStart(2,'0')}
@@ -12451,13 +12471,13 @@ let tcgRkMemo=null,tcgRkKey=null;
    when a season ends the final rating of everyone who played in it is kept (SH[pid][season]) and every rating
    moves halfway back to 1500 (softReset), exactly like the other genres */
 let tcgRkSeason=0;
-function tcgRatings(){const cur=seasonNo(now());if(tcgRkKey===tcgms&&tcgRkSeason===cur)return tcgRkMemo;const R={},n={},w={},l={},dl={},SH={},SR={};let S=0,played={};
+function tcgRatings(){const cur=seasonNo(now());if(tcgRkKey===tcgms&&tcgRkSeason===cur)return tcgRkMemo;const R={},n={},w={},l={},dl={},SH={},SR={},pr={};let S=0,played={};
   const close=to=>{while(S&&S<to){Object.keys(played).forEach(pid=>{(SH[pid]=SH[pid]||{})[S]=R[pid]??1500});Object.keys(R).forEach(pid=>{R[pid]=softReset(R[pid]);if(SR[pid])SR[pid].push({t:seasonEnd(S),r:R[pid],reset:1})});played={};S++}};
   tcgms.filter(d=>tcgDone(d)).sort((x,y)=>x.t-y.t).forEach(d=>{const ds=seasonNo(d.t||0);if(!S)S=ds;close(ds);
     const a=R[d.a]??1500,b=R[d.b]??1500,ea=1/(1+Math.pow(10,(b-a)/400)),sa=d.wa==='draw'?.5:d.wa===d.a?1:0;
     const da=Math.round(32*(sa-ea));R[d.a]=a+da;R[d.b]=b-da;played[d.a]=played[d.b]=1;
-    [[d.a,a,da,d.bn,sa===1],[d.b,b,-da,d.an,sa===0]].forEach(([pid,pre,dd,on,wn])=>{const L=SR[pid]||(SR[pid]=[]);if(!L.length)L.push({t:(d.t||0)-1,r:pre,start:1});L.push({t:d.t||0,r:pre+dd,win:wn,o:on||'?',d:dd})});n[d.a]=(n[d.a]||0)+1;n[d.b]=(n[d.b]||0)+1;if(d.wa!=='draw'){w[d.wa]=(w[d.wa]||0)+1;const lo=d.wa===d.a?d.b:d.a;l[lo]=(l[lo]||0)+1}dl[d.id]={[d.a]:da,[d.b]:-da}});
-  close(cur);tcgRkKey=tcgms;tcgRkSeason=cur;tcgRkMemo={R,n,w,l,dl,SH,SR};return tcgRkMemo}
+    [[d.a,a,da,d.bn,sa===1],[d.b,b,-da,d.an,sa===0]].forEach(([pid,pre,dd,on,wn])=>{const L=SR[pid]||(SR[pid]=[]);if(!L.length)L.push({t:(d.t||0)-1,r:pre,start:1});L.push({t:d.t||0,r:pre+dd,win:wn,o:on||'?',d:dd})});n[d.a]=(n[d.a]||0)+1;n[d.b]=(n[d.b]||0)+1;if(d.wa!=='draw'){w[d.wa]=(w[d.wa]||0)+1;const lo=d.wa===d.a?d.b:d.a;l[lo]=(l[lo]||0)+1}dl[d.id]={[d.a]:da,[d.b]:-da};pr[d.id]={[d.a]:a,[d.b]:b}});
+  close(cur);tcgRkKey=tcgms;tcgRkSeason=cur;tcgRkMemo={R,n,w,l,dl,SH,SR,pr};return tcgRkMemo}
 /* season results of one player: [{s, r, ti, pt}] (newest first). The reward is half of the other genres' table */
 const tcgSeasonRec=pid=>{const H=(tcgRatings().SH||{})[pid]||{};return Object.keys(H).map(Number).sort((a,b)=>b-a).map(s=>{const r=H[s],ti=tidx(r);return{s,r,ti,pt:Math.floor(SREW[ti]/2)}})};
 const tcgSeries=pid=>(tcgRatings().SR||{})[pid]||[];
@@ -12486,7 +12506,7 @@ function tcgRankSec(){const me=myPlayer();if(!me)return null;const K=tcgRatings(
     {const bi=p.eq&&p.eq.b&&ITEM(p.eq.b);if(bi&&bi.k==='b'){r.classList.add('pb-'+bi.v,'rkbg');bgLayer(r,bi.v)}}
     r.append(el('div','no'+(i===0?' no1':''),String(i+1)),mkFrame(p,ti));
     const n=el('div','nm'),sb=el('div','sub tierline');
-    sb.append(lvChip(p.id),emblem(ti,16),el('span',null,RN(p.rating)),el('span',null,'·  '+p.wins+'勝 '+p.losses+'敗'));
+    sb.append(lvChip(p.id),emblemR(p.rating,16),el('span',null,RN(p.rating)),el('span',null,'·  '+p.wins+'勝 '+p.losses+'敗'));
     {const nb=(typeof supName==='function'?supName:(x=>x))(nameBox('div','pn',p.name,ti),p.id),sp=typeof supBadge==='function'&&supBadge(p.id,true);if(sp){const w=el('div','pnw');w.append(nb,sp);n.append(w)}else n.append(nb)}{const l=el('div','rkl');l.append(rankChip(ti));const tc=titleChip(p.eq&&p.eq.t);if(tc)l.append(tc);n.append(l)}n.append(sb);
     r.append(n,el('div','rt',p.rating));
     if(ti===6)for(let k=0;k<3;k++){const g=el('span','gl rg');g.innerHTML=GLINT;g.style.left=(34+k*20)+'%';g.style.top=(k%2?66:14)+'%';g.style.animationDelay=(k*.85)+'s';r.append(g)}
@@ -14236,12 +14256,12 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   gear.onclick=()=>{try{psubSet('set');scrollTo(0,0);slideIn($i('v-profile'),1)}catch(e){}frameSync()};
   gpill.onclick=()=>{const me=ME();const L=mk('div','kx-gl');
     Object.keys(GAMES).forEach(g=>{const pv=me&&typeof pView==='function'?pView(me.id,g):null,r=pv?pv.rating:1500,w=pv?pv.wins||0:0,l=pv?pv.losses||0:0;
-      const b=mk('button','kx-gr'+(g===game&&!(curView==='rank'&&rkTcg)?' on':''));b.type='button';let em;try{em=emblem(TI(r),34)}catch(e){em=mk('span')}
+      const b=mk('button','kx-gr'+(g===game&&!(curView==='rank'&&rkTcg)?' on':''));b.type='button';let em;try{em=emblemR(+r||1500,34)}catch(e){em=mk('span')}
       const t=mk('span','t');t.append(mk('b',null,esc(GAMES[g])),mk('small',null,w+l?esc(RNk(r))+' ・ '+w+'勝 '+l+'敗':'まだ対戦していません'));
       b.append(em,t,mk('span','v',String(r)));b.onclick=()=>{close();const was=rkTcg;if(g===game&&!was)return;SOFT(()=>{rkSet(false);if(g!==game){try{pickGame(g)}catch(e){}}else if(was){rankSig='';refresh()}})};L.append(b)});
     /* on the ランキング tab, きもオタTCG is one more ladder */
     if(curView==='rank'&&typeof tcgRatings==='function'&&me){let r=1500,w=0,l=0;try{const K=tcgRatings();r=tcgRating(me.id);w=K.w[me.id]||0;l=K.l[me.id]||0}catch(e){}
-      const b=mk('button','kx-gr kx-grt'+(rkTcg?' on':''));b.type='button';let em;try{em=emblem(TI(r),34)}catch(e){em=mk('span')}
+      const b=mk('button','kx-gr kx-grt'+(rkTcg?' on':''));b.type='button';let em;try{em=emblemR(+r||1500,34)}catch(e){em=mk('span')}
       const t=mk('span','t');t.append(mk('b',null,'きもオタTCG'),mk('small',null,w+l?esc(RNk(r))+' ・ '+w+'勝 '+l+'敗':'友達戦をすると載ります'));
       b.append(em,t,mk('span','v',String(r)));b.onclick=()=>{close();if(!rkTcg)SOFT(()=>{rkSet(true);rankSig='';refresh()})};L.append(mk('div','kx-grsep'),b)}
     const close=panel('ジャンル',L)};
@@ -14363,7 +14383,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const body=mk('div','kvs-body');
     if(p){const aw=mk('div','kvs-avw');aw.append(AV(p.id,av||80),mk('i','kvs-ring'));body.append(aw);
       const n=mk('div','kvs-nm');n.append(NAME(p.name,ti));body.append(n);
-      const m=mk('div','kvs-meta');try{m.append(emblem(ti,17))}catch(e){}m.append(mk('b','kx-num',String(r)));body.append(m);
+      const m=mk('div','kvs-meta');try{m.append(emblemR(r,17))}catch(e){}m.append(mk('b','kx-num',String(r)));body.append(m);
       let tc=null;try{tc=titleChip(p.eq&&p.eq.t)}catch(e){}if(tc){tc.classList.add('kvs-ttl');body.append(tc)}}
     else body.innerHTML='<div class="kvs-avw"><div class="kvs-q">?</div></div><div class="kvs-nm kvs-pick">相手を選ぶ</div><div class="kvs-meta"><span>下の一覧から</span></div>';
     s.append(body);return s}
@@ -14723,7 +14743,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     if(place===0){const cr=mk('i','krk-crown');cr.innerHTML=crownSVG();aw.append(cr)}
     aw.append(AV(p.id,place===0?84:62),mk('i','kvs-ring'),mk('b','krk-medal',String(place+1)));body.append(aw);
     const n=mk('div','krk-nm');n.append(NAME(p.name,ti));body.append(n);
-    const m=mk('div','krk-rt');try{m.append(emblem(ti,place===0?19:15))}catch(e){}m.append(mk('b','kx-num',String(r)));body.append(m);
+    const m=mk('div','krk-rt');try{m.append(emblemR(r,place===0?19:15))}catch(e){}m.append(mk('b','kx-num',String(r)));body.append(m);
     if(place===0){let tc=null;try{tc=titleChip(p.eq&&p.eq.t)}catch(e){}if(tc){tc.classList.add('kvs-ttl','krk-ttl');body.append(tc)}}
     const sub=gap?mk('em','krk-gap',esc(gap)):mvEl(mv);if(sub)body.append(sub);
     s.append(body);s.onclick=()=>{try{showProfile(p,statLine(p))}catch(e){}};return s}
@@ -16686,8 +16706,9 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
       function schedule(){later(()=>sfx('pop'),200);later(()=>sfx('whoosh'),380);later(()=>{sfx('chime');vb(big?6:4)},860);later(()=>sfx('collect'),1050);later(()=>showResult(0),1300)}}
     function showResult(delay){res.replaceChildren();const items=[];
       if(tk){const t=mk('div','kch-tk');t.append(mk('b',null,'通常パックチケット'),mk('span',null,'×'+(v==='T3'?3:1)));items.push(t)}
-      else{const n=Math.round(v*mul),b=mk('div','kch-n'),num=mk('b',null,'+'+(RM?fmt(n):'0')),u=mk('span',null,'pt');b.append(num,u);items.push(b);
+      else{const n=Math.round(v*mul*(ch.kz||1)),b=mk('div','kch-n'),num=mk('b',null,'+'+(RM?fmt(n):'0')),u=mk('span',null,'pt');b.append(num,u);items.push(b);
         if(mul>1)items.push(mk('div','kch-mul','ジャンル週間 ×1.5'));
+        if(ch.kz<1)items.push(mk('div','kch-mul kch-kz',(ch.kzn||'クズ')+'なので '+Math.round(ch.kz*10)+'割'));
         if(!RM&&G){const c={k:0};later(()=>G.to(c,{k:1,duration:.85,ease:'power3.out',onUpdate:()=>{num.textContent='+'+fmt(Math.round(n*c.k))},onComplete:()=>{num.textContent='+'+fmt(n);G.fromTo(num,{scale:1.14},{scale:1,duration:.4,ease:'back.out(3)'})}}),delay+120)}}
       if(ch.ct){const t=mk('div','kch-ct');try{t.append(coinEl('gold',30))}catch(e){}t.append(mk('span',null,'コインチケット +1'));items.push(t)}
       res.append(...items);
