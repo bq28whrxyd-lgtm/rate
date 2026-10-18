@@ -403,7 +403,8 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['s', 'k', 'c', 'f', 'sp', 'bn', 'end', 't', 'hb', 'hp', 'n', 'g', 'bt'])
         && (!('bt' in request.resource.data) || (request.resource.data.k == 'b' && request.resource.data.bt is int))
         && (!('g' in request.resource.data) || (request.resource.data.k == 't' && request.resource.data.g is int && request.resource.data.g >= 1 && request.resource.data.g <= 10))
-        && request.resource.data.k in ['g', 't', 'b', 'h'] && request.resource.data.c is string && request.resource.data.f is bool
+        && request.resource.data.k in ['g', 't', 'b', 'h', 's'] && request.resource.data.c is string && request.resource.data.f is bool
+        && (request.resource.data.k != 's' || (request.resource.data.c.matches('s[1-9]') && request.resource.data.f == false))
         && (request.resource.data.k != 'h' || (request.resource.data.c.matches('[1-9][0-9]{0,4}') && request.resource.data.f == false))
         && request.resource.data.sp is int && request.resource.data.sp >= 1
         && request.resource.data.bn is int && (request.resource.data.bn == 0 || request.resource.data.bn > request.resource.data.sp)
