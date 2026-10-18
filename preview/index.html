@@ -6626,7 +6626,7 @@ body.ui2 .lgr.got .gt b{color:#a9a49c}
 <div class="row supvrow" style="margin-top:8px"><span class="sub" style="flex:none">サポーターランクに</span><input id="admHwV" type="number" inputmode="numeric" min="0" value="2000" aria-label="ランクに足す値" style="flex:1;min-width:0"><span class="sub supunit" style="flex:none"></span></div>
 <button id="admHwGo" style="width:100%;margin-top:8px">付ける</button><div id="admHwMsg" class="sub" style="margin-top:6px;min-height:18px"></div>
 <div id="admHwList" class="sub" style="margin-top:6px"></div>
-<div class="admct" style="margin-top:14px">申し込み(PayPay)</div><div class="admcd">アプリの「申し込む」から来たものです。PayPayで同じ番号の送金が届いているか確かめてから承認してください(Discordのボタンでも承認できます)。</div>
+<div class="admct" style="margin-top:14px">申し込み(PayPay)</div><div class="admcd">アプリの「申し込む」から来たものです(来るとスマホに通知が届きます)。PayPayで同じ番号の送金が届いているか確かめてから承認してください。</div>
 <div id="admHwOrd" style="margin-top:6px"></div>
 <div class="row" style="margin-top:10px"><input id="admPayTo" maxlength="80" placeholder="送り先の案内(例: PayPay ID xxxx)" aria-label="送り先の案内" style="flex:1;min-width:0"><button id="admPayGo" style="flex:none">保存</button></div>
 </div>
@@ -8397,7 +8397,7 @@ async function hwPassEquip(id,b){const me=myPlayer();if(!me||!hwPassTitleOk(me.i
 /* the admin card: give the pass or the set after taking the money */
 /* ORDjs:begin */
 /* ---- (10/18) 申し込み: buy the ハロウィンパス / 限定セット by PayPay (outside the app). The player gets a code to write in the PayPay memo;
-   the admin approves from Discord (a server function gives the item) or from the admin card below. orders/{id} = {pid, pn, kind, code, t, st}
+   the admin gets a push (server function pushOrder) and approves from the admin card below. orders/{id} = {pid, pn, kind, code, t, st}
    st: wait → (go) → ok | ng | dup (already owned, nothing given) ---- */
 const HWO={hwpass:{n:'ハロウィンパス',price:()=>HWP_PRICE,has:pid=>!!hwPassAt(pid),k:'pass'},hwset:{n:'ハロウィン限定セット',price:()=>HWS_PRICE,has:pid=>!!hwSetAt(pid),k:'set'}};
 let hwOrders=[],hwOrdOn=false,hwPayCfg=null,hwPayOn=false,admOrders=[],admOrdOn=false;
@@ -8455,6 +8455,8 @@ async function admOrdOk(o){const ref=db.doc('orders/'+o.id),K=HWO[o.kind];if(!K)
   if(r.ok||r.dup)await ref.update({st:r.dup?'dup':'ok',ut:now()});else await ref.update({st:'wait'});
   toast(r.msg)}
 async function admPaySave(){if(!isAdmin())return;const v=String(($('admPayTo')||{}).value||'').trim().slice(0,80);try{await db.doc('config/pay').set({to:v},{merge:true});toast('送り先を保存しました')}catch(e){toast('保存できませんでした')}}
+/* the admin's push (go=adm) opens 管理 → 配布 at the waiting orders */
+function admOrdGo(){setView('profile');if(!isAdmin())return;try{psubSet('adm')}catch(e){}setTimeout(()=>{try{admTab('give');admOrdWatch();admOrdRender();const c=$('admHwOrd');c&&c.scrollIntoView({block:'center'})}catch(e){}},400)}
 /* ORDjs:end */
 function admHwPassRender(){const box=$('admHwPass');if(!box)return;try{admOrdWatch();admOrdRender()}catch(e){}const sp=$('admHwP');if(sp){const v=sp.value;sp.replaceChildren();players.filter(p=>!p.ban).sort((a,b)=>a.name.localeCompare(b.name,'ja')).forEach(p=>{const o=el('option',null,p.name);o.value=p.id;sp.append(o)});if(v&&players.some(p=>p.id===v))sp.value=v}
   const L=$('admHwList');if(!L)return;L.replaceChildren();const rows=players.filter(p=>hwPassAt(p.id)||hwSetAt(p.id));
@@ -10711,8 +10713,8 @@ function renderPush(){const sec=$('pushsec'),box=$('pushbox'),me=myPlayer();if(!
   tb.onclick=()=>{db.doc('push/'+me.id).set({test:now()},{merge:true}).then(()=>toast('テスト通知を送りました。数秒で届きます')).catch(()=>toast('送れませんでした'))};ob.onclick=pushOff;row.append(tb,ob);row.style.marginTop='10px';box.append(row);
   if(IS_PV||isAdmin()){const ab=el('button','sec','抜き打ちガチャを試す(自分だけ)');ab.style.cssText='width:100%;margin-top:8px';ab.onclick=apTrial;box.append(ab,el('div','sub','押すと、本物と同じようにスマホに通知が来て、ホームに10分だけ抜き打ちガチャが出ます(お試し版だけ・ほかの人には出ません)'))}}
 /* opened from a notification: go to the right screen */
-if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{const g=e.data&&e.data.kgo;if(g&&['home','battle','gacha','tcg','rank','profile'].includes(g))setView(g)});
-{const g=new URLSearchParams(location.search).get('go');if(g&&['home','battle','gacha','tcg','rank','profile'].includes(g)){setTimeout(()=>{try{setView(g)}catch(e){}},1500);try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}}
+if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{const g=e.data&&e.data.kgo;if(g==='adm'){try{admOrdGo()}catch(_){}return}if(g&&['home','battle','gacha','tcg','rank','profile'].includes(g))setView(g)});
+{const g=new URLSearchParams(location.search).get('go');if(g==='adm'){setTimeout(()=>{try{admOrdGo()}catch(e){}},2500);try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}else if(g&&['home','battle','gacha','tcg','rank','profile'].includes(g)){setTimeout(()=>{try{setView(g)}catch(e){}},1500);try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}}
 let seenMap={},seenSub=null,lastPing=0;
 function ping(force){const me=myPlayer();if(!db||!me||document.visibilityState!=='visible')return;if(now()-lastPing<(force?30000:290000))return;lastPing=now();db.doc('seen/'+me.id).set({t:now(),v:APP_VER}).catch(()=>{})}
 setInterval(()=>ping(),300000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping(true)});
