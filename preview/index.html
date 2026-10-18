@@ -5909,6 +5909,15 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .hd-rx.big .hd-st{-webkit-text-stroke-color:#9b5cff;font-size:clamp(28px,8.4vw,46px)}
 @keyframes hdSt{0%{opacity:0;transform:translate(-50%,0) scale(.3) rotate(-12deg)}20%{opacity:1;transform:translate(-50%,0) scale(1.08) rotate(-4deg)}70%{opacity:1;transform:translate(-50%,0) scale(1) rotate(-4deg)}100%{opacity:0;transform:translate(-50%,-20px) scale(.95) rotate(-4deg)}}
 @media (prefers-reduced-motion:reduce){.hd-rx{display:none}}
+
+/* (10/18) ハロウィンガチャのフリーズ: the picture stops, cold and dark; knocks from inside; a rainbow flash; 確定 */
+.kgo.kg-hwd.hd-fzon .hd-sc>:not(.hd-fz):not(.hd-fzk):not(.hd-fzf):not(.hd-fzkk){filter:grayscale(.85) brightness(.62) contrast(1.08) hue-rotate(-12deg)}
+.hd-fz{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0;background:radial-gradient(48% 38% at 50% 46%,rgba(30,40,80,.0),rgba(8,10,24,.55) 60%,rgba(0,0,6,.92) 100%),linear-gradient(180deg,rgba(60,80,140,.18),rgba(10,10,30,.25))}
+.hd-fzk{position:absolute;left:50%;top:44%;z-index:7;opacity:0;pointer-events:none;white-space:nowrap;font:900 clamp(24px,7.6vw,36px)/1 "HD Maru","Zen Maru Gothic","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;color:#efe6ff;-webkit-text-stroke:6px #6b2fb4;paint-order:stroke fill;text-shadow:0 0 18px rgba(170,110,255,.85),0 3px 0 #2a0a4a}
+.hd-fzk.b{font-size:clamp(30px,9.6vw,46px);-webkit-text-stroke-width:7px}
+.hd-fzf{position:absolute;inset:0;z-index:8;pointer-events:none;opacity:0;background:radial-gradient(60% 50% at 50% 45%,#fff 0%,rgba(255,240,255,.9) 25%,rgba(255,160,220,.55) 45%,rgba(140,220,255,.35) 65%,rgba(200,150,255,0) 85%)}
+.hd-fzkk{position:absolute;left:50%;top:22%;z-index:9;opacity:0;pointer-events:none;white-space:nowrap;font:900 clamp(34px,11vw,56px)/1 "Zen Maru Gothic","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;color:#fff;-webkit-text-stroke:9px #9b5cff;paint-order:stroke fill;text-shadow:0 5px 0 #2a0a4a,0 0 30px rgba(255,170,240,.8)}
+@media (prefers-reduced-motion:reduce){.hd-fz,.hd-fzk,.hd-fzf,.hd-fzkk{display:none}}
 /* ===== v121 ガチャ画面 (kgu): banner chips + one big banner card, the old sections hidden underneath ===== */
 @property --a1{syntax:'<color>';inherits:true;initial-value:#8b7bff}
 @property --a2{syntax:'<color>';inherits:true;initial-value:#3dd8f0}
@@ -15156,8 +15165,12 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
   const DCOL=['#ffa24a','#ffa24a','#c58bff','#ffd36a','#ffffff','#ffffff'];
   function hwDoor(res,onMore,label,opt){opt=opt||{};
     const n=res.length,best=Math.max(...res.map(x=>x.c.r)),ten=n>6,gr=best>=4,kmr=best>=5;
-    const climb=best>=3&&!RM&&(window.__kgClimb===true||(window.__kgClimb!==false&&Math.random()<.35)),shown=climb?best-1:best;
-    const o=stage('kg-hwd'+(best>=4?' rb':''));o.style.setProperty('--tc',TC[shown]);
+    /* (10/18) フリーズ: a KMR that looks like a plain orange door; the moment light leaks through the gap everything stops dead,
+       goes cold and dark, the lanterns go out one by one, then something knocks back from INSIDE (twice), the gap turns rainbow
+       and the doors burst open on the KMR. Like the normal pack's freeze: KMR only, 4 in 10 (window.__hwFreeze forces it) */
+    const fz=best>=5&&!RM&&(window.__hwFreeze===true||(window.__hwFreeze!==false&&window.__kgClimb!==true&&Math.random()<.4));
+    const climb=!fz&&best>=3&&!RM&&(window.__kgClimb===true||(window.__kgClimb!==false&&Math.random()<.35)),shown=fz?1:climb?best-1:best;
+    const o=stage('kg-hwd'+(best>=4&&!fz?' rb':''));o.style.setProperty('--tc',TC[shown]);let fzDone=false;
     const sc=mk('div','hd-sc'),sky=mk('i','hd-sky'),moon=mk('i','hd-moon'),stars=mk('i','hd-stars');
     const fr=mk('div','hd-frame'),hole=mk('div','hd-hole'),beyond=mk('div','hd-beyond'),glow=mk('i','hd-glow'),slit=mk('i','hd-slit');
     const dl=mk('div','hd-leaf l',DOOR_SVG('l')),dr=mk('div','hd-leaf r',DOOR_SVG('r')),arch=mk('i','hd-arch'),step=mk('i','hd-step');
@@ -15170,11 +15183,16 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     const words=mk('div','hd-words');const W='トリック・オア・トリート!'.split('').map(ch=>{const s=mk('span');s.textContent=ch;words.append(s);return s});
     const cv=mk('canvas','hd-cv');
     sc.append(sky,stars,moon,fr,...lan,...knock,words,cv);
+    /* the freeze layers: the cold and the dark, the knocks from inside, the flash when it breaks, the 確定 sticker */
+    const fzL=mk('i','hd-fz'),fzK=[0,1].map(k=>mk('b','hd-fzk'+(k?' b':''),k?'コン!!':'コン…')),fzF=mk('i','hd-fzf'),fzKK=mk('b','hd-fzkk','KMR確定');
+    if(fz)sc.append(fzL,...fzK,fzF,fzKK);
     const E=engine(o,res,onMore,{label,sumPrefix:'ハッピーハロウィン',onTurn:z=>hdReact(o,z.x.c.r),
       back:c=>{const cb=c.querySelector('.kg-cb');if(cb)cb.innerHTML='<img class="hd-cbp" src="hwpk/pk03.webp" alt="">'},
-      jump:()=>{if(tl&&tl.time()<TB-.02)tl.seek(TB-.01)},end:()=>{if(tl)tl.progress(1)},onResize:()=>{lay()}});
+      jump:()=>{if(tl&&tl.time()<TB+SH-.02)tl.seek(TB+SH-.01)},end:()=>{if(tl)tl.progress(1)},onResize:()=>{lay()}});
     const {cards,deck}=E;o.insertBefore(sc,o.querySelector('.kg-cv'));o.append(deck,E.hd,E.tap,E.ft);document.body.append(o);
     const K=[.5,.8,1.1],TL=1.3,TG=1.62,TC2=climb?2.05:0,TB=climb?2.5:2.05,END=TB+1.6;
+    /* the freeze sits at TF and lasts FZ; everything after it on the real clock moves by SH */
+    const TF=TG+.22,FZ=2.5,SH=fz?FZ:0,IK=[1.45,1.9],UB=2.3;
     let Wd=0,Hd=0,dpr=1,cx2=0,cy2=0,fw=0,fh=0;const C=cv.getContext('2d');
     function lay(){Wd=innerWidth;Hd=innerHeight;dpr=Math.min(2,devicePixelRatio||1);cv.width=Math.round(Wd*dpr);cv.height=Math.round(Hd*dpr);const r=fr.getBoundingClientRect();cx2=r.left+r.width/2;cy2=r.top+r.height*.55;fw=r.width;fh=r.height}
     lay();requestAnimationFrame(()=>{lay();E.lay()});
@@ -15182,7 +15200,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     const CANDY=[...Array(ten?90:64)].map(()=>({a:-Math.PI/2+(R()-.5)*2.6,v:.6+R()*1.1,s:.7+R()*.9,r0:R()*6,vr:(R()-.5)*14,c:['#ff8a2a','#b45cff','#ffd34a','#ff5fa8','#7fe0ff','#9bff8a'][(R()*6)|0],k:R()<.5?0:1,d:R()*.1}));
     const BATS=[...Array(12)].map(()=>({a:-Math.PI/2+(R()-.5)*3,v:.9+R()*.9,s:.7+R()*.7,ph:R()*6}));
     const DUST=[...Array(26)].map(()=>({x:R(),y:R(),s:.4+R(),p:R()*6}));
-    const lc=t=>t<(TC2||99)?DCOL[shown]:DCOL[best];
+    const lc=t=>fz?DCOL[fzDone?best:shown]:t<(TC2||99)?DCOL[shown]:DCOL[best];
     /* candy drawn like stickers: a white rim, a stripe, a gloss (wrapped sweets and swirl lollipops) */
     function candy(x,y,s,c,k){C.lineJoin='round';
       if(k){C.fillStyle='#fff';C.beginPath();C.arc(0,0,s*1.22,0,6.283);C.fill();C.fillStyle=c;C.beginPath();C.arc(0,0,s,0,6.283);C.fill();
@@ -15225,21 +15243,39 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
           C.globalAlpha=Math.min(1,u/.08)*(1-Math.max(0,(u-1.2)/.6));C.fillStyle='#14081f';C.save();C.translate(x,y);C.scale(1,fl);C.beginPath();C.moveTo(0,s*.15);
           C.quadraticCurveTo(-s*.3,-s*.35,-s,-s*.15);C.quadraticCurveTo(-s*.7,0,-s*.85,s*.3);C.quadraticCurveTo(-s*.45,s*.1,-s*.25,s*.35);C.quadraticCurveTo(0,s*.2,s*.25,s*.35);C.quadraticCurveTo(s*.45,s*.1,s*.85,s*.3);C.quadraticCurveTo(s*.7,0,s,-s*.15);C.quadraticCurveTo(s*.3,-s*.35,0,s*.15);C.fill();C.restore()}}
       C.globalAlpha=1}
+    /* the real clock → the scene's clock (it stands still during the freeze), plus the freeze layers on top */
+    function renderR(t){if(!fz){render(t);return}
+      const u=t-TF,inF=u>=0&&u<FZ,done=u>=FZ;fzDone=done;o.classList.toggle('hd-fzon',inF);o.classList.toggle('rb',done&&best>=4);o.style.setProperty('--tc',TC[done?best:shown]);
+      render(u<0?t:inF?TF:t-FZ);
+      /* cold at once, then the dark closes in; the lanterns go out one by one */
+      fzL.style.opacity=(inF?Math.min(1,.45+.55*Math.min(1,u/1.3)):0).toFixed(3);
+      lan.forEach((w,k)=>{if(inF&&u>.55+k*.35){w.firstChild.style.opacity='0';w.lastChild.style.opacity='.28'}else w.lastChild.style.opacity=''});
+      /* the knocks from inside: the door jolts toward you, a purple word in the gap */
+      let jz=0;IK.forEach((tk,k)=>{const e=u-tk;if(inF&&e>0&&e<.35)jz+=Math.exp(-e*13)*Math.sin(e*55)*(k?1:.6);
+        const b=fzK[k],sk=DSPR(e,3,.42);b.style.opacity=(inF&&e>0?Math.min(1,e/.04)*(1-Math.max(0,(u-UB+.05)/.15))*(k?1:1-Math.min(1,Math.max(0,(u-IK[1])/.12))):0).toFixed(3);
+        b.style.transform='translate(-50%,-50%) translate3d(0,'+(-fh*(k?.06:.18)).toFixed(1)+'px,0) scale('+(sk*(k?1.25:1)).toFixed(3)+') rotate('+(k?-4:3)+'deg)'});
+      if(jz)fr.style.transform+=' scale('+(1+jz*.035).toFixed(4)+')';
+      /* it breaks: a rainbow flash */
+      const fb=t-(TF+UB);fzF.style.opacity=(fb>0?Math.max(0,1-fb/.45)*(fb<.06?fb/.06:1):0).toFixed(3);
+      /* 確定 once the doors are open */
+      const kk=t-(TB+SH+.3),ks=DSPR(kk,2.4,.4);fzKK.style.opacity=(kk>0?Math.min(1,kk/.06)*(1-Math.max(0,(kk-1.2)/.3)):0).toFixed(3);
+      fzKK.style.transform='translate(-50%,-50%) scale('+(.3+.7*ks).toFixed(3)+') rotate(-5deg)'}
     const tl=G?G.timeline({paused:true}):null,clock={t:0};
-    if(tl){tl.to(clock,{t:END,duration:END,ease:'none',onUpdate:()=>render(clock.t)},0);
+    if(tl){tl.to(clock,{t:END+SH,duration:END+SH,ease:'none',onUpdate:()=>renderR(clock.t)},0);
       K.forEach(tk=>tl.call(()=>{if(!o.__seek){SFX('tick');VIB(1)}},null,tk));
       tl.call(()=>{if(!o.__seek){SFX('pop');VIB(2)}},null,TL).call(()=>{if(!o.__seek){SFX(shown>=3?'beam':'chime');VIB(shown>=3?3:1)}},null,TG);
       if(climb)tl.call(()=>{if(!o.__seek){o.style.setProperty('--tc',TC[best]);if(best>=4)o.classList.add('rb');SFX('slam');VIB(5)}},null,TC2);
-      tl.call(()=>{if(!o.__seek){SFX('whoosh');VIB(best>=3?4:2)}},null,TB)
-        .fromTo(o.querySelector('.kg-flash'),{opacity:.85},{opacity:0,duration:.55,immediateRender:false},TB)
-        .fromTo(o.querySelector('.kg-rays'),{opacity:0},{opacity:shown>=3?.55:.2,duration:.5,immediateRender:false},TB)
-        .call(()=>{deck.style.visibility='visible';E.lay()},null,TB+.12);
+      if(fz){tl.call(()=>{if(!o.__seek)VIB(2)},null,TF);IK.forEach((tk,k)=>tl.call(()=>{if(!o.__seek){SFX('tick');VIB(k?5:3)}},null,TF+tk));tl.call(()=>{if(!o.__seek){SFX('slam');VIB(7)}},null,TF+UB)}
+      tl.call(()=>{if(!o.__seek){SFX('whoosh');VIB(best>=3?4:2)}},null,TB+SH)
+        .fromTo(o.querySelector('.kg-flash'),{opacity:.85},{opacity:0,duration:.55,immediateRender:false},TB+SH)
+        .fromTo(o.querySelector('.kg-rays'),{opacity:0},{opacity:(fz?best:shown)>=3?.55:.2,duration:.5,immediateRender:false},TB+SH)
+        .call(()=>{deck.style.visibility='visible';E.lay()},null,TB+SH+.12);
       cards.forEach((c,i)=>tl.fromTo(c,{x:()=>{const r=c.getBoundingClientRect();return cx2-(r.left+r.width/2)},y:()=>{const r=c.getBoundingClientRect();return cy2-(r.top+r.height/2)},scale:.12,opacity:0,rotation:()=>(i%2?14:-14)},
-        {x:0,y:0,scale:1,opacity:1,rotation:0,duration:ten?.5:.64,ease:'back.out(1.3)',immediateRender:false},TB+.16+(ten?i*.014:i*.07)))}
-    E.intro={draw:()=>{},time:()=>tl?tl.time():99,end:END};
-    window.__kgSeek=t=>{if(!tl)return;o.__seek=true;tl.pause();tl.seek(t,false);render(t)};
+        {x:0,y:0,scale:1,opacity:1,rotation:0,duration:ten?.5:.64,ease:'back.out(1.3)',immediateRender:false},TB+SH+.16+(ten?i*.014:i*.07)))}
+    E.intro={draw:()=>{},time:()=>tl?tl.time():99,end:END+SH};
+    window.__kgSeek=t=>{if(!tl)return;o.__seek=true;tl.pause();tl.seek(t,false);renderR(t)};
     if(tl){tl.eventCallback('onComplete',()=>{if(!o.__seek)setTimeout(E.start,ten?140:300)});tl.play(0);E.kick()}
-    else{render(END);deck.style.visibility='visible';E.lay();E.start()}
+    else{renderR(END+SH);deck.style.visibility='visible';E.lay();E.start()}
     return o}
   /* as each card turns: candy for SR, a TREAT! sticker for UR, HAPPY HALLOWEEN and bats for GR/KMR */
   function hdReact(o,r){if(RM||r<2)return;const L=mk('div','hd-rx'+(r>=4?' big':''));
