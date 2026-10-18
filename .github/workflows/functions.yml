@@ -27,6 +27,10 @@ jobs:
         id: deploy
         env:
           SA: ${{ secrets.FIREBASE_SA }}
+          DT: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DP: ${{ secrets.DISCORD_PUBLIC_KEY }}
+          DCH: ${{ secrets.DISCORD_CHANNEL_ID }}
+          DA: ${{ secrets.DISCORD_ADMIN_ID }}
         run: |
           set -o pipefail
           if [ -z "$SA" ]; then echo "FIREBASE_SA secret is missing" | tee "$RUNNER_TEMP/log.txt"; exit 1; fi
@@ -39,9 +43,12 @@ jobs:
           echo "region: ${R:-unknown}" | tee -a "$RUNNER_TEMP/log.txt"
           if [ -z "$R" ]; then echo "existing functions not found: not deploying (run push/setup.sh in Cloud Shell instead)" | tee -a "$RUNNER_TEMP/log.txt"; rm -f "$RUNNER_TEMP/sa.json"; exit 1; fi
           echo "$R" > functions/region.txt
+          # (10/18) the Discord keys for 申し込み go to the functions as settings (never printed); empty if the secrets are not set yet
+          printf 'DISCORD_BOT_TOKEN=%s\nDISCORD_PUBLIC_KEY=%s\nDISCORD_CHANNEL_ID=%s\nDISCORD_ADMIN_ID=%s\n' "$DT" "$DP" "$DCH" "$DA" > functions/.env
+          echo "discord settings: token $([ -n "$DT" ] && echo set || echo missing), public key $([ -n "$DP" ] && echo set || echo missing), channel $([ -n "$DCH" ] && echo set || echo missing), admin $([ -n "$DA" ] && echo set || echo missing)" | tee -a "$RUNNER_TEMP/log.txt"
           (cd functions && npm install --no-audit --no-fund --loglevel=error)
           npx -y firebase-tools@14 deploy --only functions --project kimoota-15777 --non-interactive --force 2>&1 | tee -a "$RUNNER_TEMP/log.txt"
-          rm -f "$RUNNER_TEMP/sa.json"
+          rm -f "$RUNNER_TEMP/sa.json" functions/.env
       - name: Report result
         if: always()
         env:

@@ -238,3 +238,88 @@ exports.pushMentor = onDocumentWritten('mentor/{id}', async ev => {
     await send([a.a], 'give', {title: '卒業おめでとう', body: M + '師匠に追いつきました。+300pt', go: 'home', tag: 'mg' + ev.params.id}, MT_PV);
     await send([a.m], 'give', {title: '弟子が卒業しました', body: A + 'があなたに追いつきました。+500pt', go: 'home', tag: 'mg' + ev.params.id}, MT_PV); }
 });
+
+/* ===== (10/18) 申し込み → Discord. A player creates orders/{id} ({pid, pn, kind, code, t, st:'wait'}) in the app and pays by PayPay
+   (outside the app) with the code in the memo. This posts the order to the admin's Discord channel with 承認 / 却下 buttons;
+   pressing 承認 gives the item exactly like the admin card in the app (pass/{pid}, grants, suplog).
+   Setup (GitHub secrets, written to functions/.env when deploying): DISCORD_BOT_TOKEN, DISCORD_PUBLIC_KEY, DISCORD_CHANNEL_ID,
+   DISCORD_ADMIN_ID (user ids allowed to press the buttons, comma separated). Without them nothing is posted and the endpoint refuses. */
+const {onRequest} = require('firebase-functions/v2/https');
+const crypto = require('crypto');
+const DC = {token: process.env.DISCORD_BOT_TOKEN || '', pub: (process.env.DISCORD_PUBLIC_KEY || '').trim(), ch: (process.env.DISCORD_CHANNEL_ID || '').trim(),
+  admins: (process.env.DISCORD_ADMIN_ID || '').split(',').map(s => s.trim()).filter(Boolean)};
+const HW0 = Date.UTC(2026, 9, 18, 20, 0);
+const ORDER = {
+  hwpass: {n: 'ハロウィンパス', price: 2000, key: 'hw', need: [['ltk', 1, 'ハロウィンパス: 限定ガチャチケット ×1', true]]},
+  hwset: {n: 'ハロウィン限定セット', price: 2000, key: 'hs', need: [['ltk', 8, 'ハロウィン限定セット: 限定ガチャチケット ×8', true], ['tp1_h', 5, 'ハロウィン限定セット: TCG ハロウィンパック券 ×5', false]]}
+};
+async function dcApi(method, path, body) {
+  if (!DC.token) return null;
+  try {
+    const r = await fetch('https://discord.com/api/v10' + path, {method, headers: {Authorization: 'Bot ' + DC.token, 'Content-Type': 'application/json'}, body: body ? JSON.stringify(body) : undefined});
+    if (!r.ok) { console.error('discord', r.status, (await r.text()).slice(0, 300)); return null; }
+    return r.status === 204 ? {} : await r.json();
+  } catch (e) { console.error('discord', e.message); return null; }
+}
+const orderText = (o, P, head) => (head ? head + '\n' : '') + '**' + cut(o.pn, 30) + '** さんの申し込み\n' + P.n + '  ' + P.price.toLocaleString('ja-JP') + ' 応援値\n送金メモの番号: **' + cut(o.code, 12) + '**';
+const orderBtns = id => [{type: 1, components: [{type: 2, style: 3, label: '承認(付ける)', custom_id: 'ok:' + id}, {type: 2, style: 4, label: '却下', custom_id: 'ng:' + id}]}];
+exports.orderNotify = onDocumentCreated('orders/{id}', async ev => {
+  const o = ev.data && ev.data.data(); const P = o && ORDER[o.kind]; if (!P || o.st !== 'wait' || !DC.ch) return;
+  const had = +(((await db.doc('pass/' + o.pid).get()).data() || {})[P.key]) || 0;
+  const m = await dcApi('POST', '/channels/' + DC.ch + '/messages', {content: orderText(o, P, had ? '(注意: この人はもう持っています。承認しても何も付きません)' : '') + '\nPayPayで同じ番号の送金が届いているか確かめてから「承認」を押してください。', components: orderBtns(ev.params.id), allowed_mentions: {parse: []}});
+  if (m && m.id) await ev.data.ref.set({dm: m.id}, {merge: true});
+});
+/* gives the item for one order (once): the same writes as the admin card in the app */
+async function orderApprove(id, by) {
+  const ref = db.doc('orders/' + id);
+  const r = await db.runTransaction(async tx => {
+    const s = await tx.get(ref); if (!s.exists) return {msg: '申し込みが見つかりません(取り消されたかもしれません)'};
+    const o = s.data(); if (o.st !== 'wait') return {msg: o.st === 'ok' ? 'もう承認されています' : o.st === 'dup' ? 'もう持っていたので、付けずに閉じています' : 'もう却下されています', o};
+    tx.update(ref, {st: 'go', by, ut: Date.now()}); return {go: true, o};
+  });
+  if (!r.go) return r;
+  const o = r.o, P = ORDER[o.kind], t = Date.now();
+  if (!P) { await ref.update({st: 'ng', ut: t}); return {msg: '知らない商品です', o}; }
+  const had = +(((await db.doc('pass/' + o.pid).get()).data() || {})[P.key]) || 0;
+  const gs = (await db.collection('grants').where('pid', '==', o.pid).get()).docs.map(d => d.data());
+  const missing = P.need.filter(([kind, , note]) => !gs.some(g => g.kind === kind && g.note === note));
+  if (had && !missing.length) { await ref.update({st: 'dup', ut: t}); return {msg: 'もう持っていたので、何も付けていません(返金してください)', o, dup: true}; }
+  if (!had) await db.doc('pass/' + o.pid).set({[P.key]: t}, {merge: true});
+  for (const [kind, n, note, ev] of missing) await db.collection('grants').add(Object.assign({pid: o.pid, pn: o.pn || '', kind, n, pt: 0, note, t}, ev ? {ev: HW0} : {}));
+  if (!had) await db.collection('suplog').add({pid: o.pid, v: P.price, note: P.n, t});
+  await ref.update({st: 'ok', ut: Date.now()});
+  return {ok: true, o};
+}
+const DER = hex => Buffer.concat([Buffer.from('302a300506032b6570032100', 'hex'), Buffer.from(hex, 'hex')]);
+function dcVerify(ts, raw, sig) {
+  try { const key = crypto.createPublicKey({key: DER(DC.pub), format: 'der', type: 'spki'});
+    return crypto.verify(null, Buffer.concat([Buffer.from(ts, 'utf8'), raw]), key, Buffer.from(sig, 'hex')); } catch (e) { return false; }
+}
+/* Discord calls this when a button is pressed (set it as the app's INTERACTIONS ENDPOINT URL) */
+exports.discordInteract = onRequest({invoker: 'public', timeoutSeconds: 20}, async (req, res) => {
+  const sig = req.get('X-Signature-Ed25519'), ts = req.get('X-Signature-Timestamp');
+  if (req.method !== 'POST' || !DC.pub || !sig || !ts || !req.rawBody || !dcVerify(ts, req.rawBody, sig)) { res.status(401).send('invalid request signature'); return; }
+  const b = req.body || {};
+  if (b.type === 1) { res.json({type: 1}); return; }
+  if (b.type !== 3) { res.status(400).send('unsupported'); return; }
+  const uid = (b.member && b.member.user && b.member.user.id) || (b.user && b.user.id) || '';
+  const [act, id] = String((b.data && b.data.custom_id) || '').split(':');
+  if (!DC.admins.includes(uid)) { res.json({type: 4, data: {content: '承認できるのは管理者だけです', flags: 64}}); return; }
+  const base = String((b.message && b.message.content) || '').split('\nPayPay')[0];
+  try {
+    if (act === 'ok') {
+      const r = await orderApprove(id, 'discord:' + uid);
+      res.json({type: 7, data: {content: base + '\n\n' + (r.ok ? '【承認済み】アプリに付けました(' + new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}) + ')' : '【' + r.msg + '】'), components: [], allowed_mentions: {parse: []}}});
+    } else if (act === 'ng') {
+      const ref = db.doc('orders/' + id), s = await ref.get();
+      if (s.exists && s.data().st === 'wait') await ref.update({st: 'ng', by: 'discord:' + uid, ut: Date.now()});
+      res.json({type: 7, data: {content: base + '\n\n【却下しました】', components: [], allowed_mentions: {parse: []}}});
+    } else res.json({type: 4, data: {content: '知らないボタンです', flags: 64}});
+  } catch (e) { console.error('interact', e); res.json({type: 4, data: {content: 'うまくいきませんでした: ' + cut(e.message, 120) + '(もう一度押すか、アプリの管理画面から承認してください)', flags: 64}}); }
+});
+/* the app's 承認 / 却下 (admin) only changes st; this keeps the Discord message in step */
+exports.orderSync = onDocumentUpdated('orders/{id}', async ev => {
+  const b = ev.data.before.data(), a = ev.data.after.data(); if (!a || !a.dm || !DC.ch || b.st === a.st || !['ok', 'ng', 'dup'].includes(a.st) || String(a.by || '').startsWith('discord:')) return;
+  const P = ORDER[a.kind]; if (!P) return;
+  await dcApi('PATCH', '/channels/' + DC.ch + '/messages/' + a.dm, {content: orderText(a, P) + '\n\n' + (a.st === 'ok' ? '【アプリで承認済み】' : a.st === 'dup' ? '【もう持っていたので付けていません】' : '【アプリで却下】'), components: []});
+});
