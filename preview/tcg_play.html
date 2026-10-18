@@ -1024,6 +1024,7 @@ body.gkview .scr{display:none!important}
 .slopt .slt{width:72px}.slopt.on{border-color:#ffd27a;background:#ffd27a14}
 .dsl{display:flex;align-items:center;gap:8px;font-size:12px;opacity:.85;margin:6px 0 2px}.dsl .slt{width:26px;border-radius:3px}
 @media (prefers-reduced-motion:reduce){.cb.cbx::after,.slt.cbx::after{animation:none;display:none}}
+.slopt .slu{font-size:10px;line-height:1.2;color:#ffb3c0;opacity:.9}
 
 /* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
    hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
@@ -2641,9 +2642,12 @@ function bigCard(id,mini,foil,ga){ga=CARD_ALT[id]?(ga|0):0;if(ga>=2)foil=true;if
     /* scattered glints: small four-point stars at random spots, each lighting up briefly at its own random moment */
     const gl=el('i','glints');for(let k=0;k<9;k++){const s=el('i');s.style.left=(6+Math.random()*88)+'%';s.style.top=(5+Math.random()*90)+'%';s.style.setProperty('--z',(.55+Math.random()*.75).toFixed(2));s.style.animationDelay=(-Math.random()*6).toFixed(2)+'s';s.style.animationDuration=(4.5+Math.random()*3).toFixed(2)+'s';gl.append(s)}a.append(gl)}
   d.append(el('div','btx',CD.text(c)));return d}
-/* (10/18) スリーブ: the back of the cards. Each deck can carry its own (deck.sl, an item id); the app tells us its picture */
-const SLI=id=>{try{return id&&HOST&&HOST.slInfo?HOST.slInfo(id):null}catch(e){return null}};
-function slOf(opp){const d=opp?cpuDeck:myDeck;let id=d&&d.sl;if(!id&&!opp&&!NET&&HOST&&HOST.slDef){try{id=HOST.slDef()}catch(e){}}return SLI(id)}
+/* (10/18) スリーブ: the back of the cards. Each deck can carry its own (deck.sl, an item id); the app tells us its picture.
+   One sleeve goes on one deck (as many decks as copies owned). Without one, the standard KIMOOTA back */
+const SL_STD={id:null,n:'標準(KIMOOTA)',r:0,img:'sl_std.webp',std:1};
+const SLI0=id=>{try{return id&&HOST&&HOST.slInfo?HOST.slInfo(id):null}catch(e){return null}};
+const SLI=id=>SLI0(id)||SL_STD;
+function slOf(opp){const d=opp?cpuDeck:myDeck;return SLI(d&&d.sl)}
 function slPaint(c,S){if(!S)return c;c.classList.add('cbs');if(S.r>=3)c.classList.add('cbx');c.style.setProperty('--sl','url("'+S.img+'")');return c}
 const backCard=opp=>slPaint(el('div','cb'),slOf(!!opp));
 
@@ -2660,7 +2664,7 @@ function deckRow(d,actions){const k=BY[d.lead].f;const t=el('div','dk '+k);t.sty
   const tr=el('div','sk trait');tr.append(el('b',null,'特性「'+CD.TRAITS[k].n+'」'),document.createTextNode(CD.TRAITS[k].t));
   const sk=el('div','sk');sk.append(el('b',null,'必殺技「'+CD.SKILLS[k].n+'」'),document.createTextNode(CD.SKILLS[k].t));t.append(tr,sk,leaderAbil(d.lead));
   const strip=el('div','strip');const sc=d.scr||{},al=altClean(d);[...new Set(d.cards)].flatMap(id=>{const all=d.cards.filter(x=>x===id).length,A=al[id]||[],f=Math.min(sc[id]||0,all-A.length);return[...A.map(k=>[id,1,false,k]),[id,f,true,0],[id,all-A.length-f,false,0]].filter(x=>x[1]>0)}).forEach(([id,n,sv,k])=>{const c=bigCard(id,true,sv,k);if(n>1)c.append(el('i','cnt','×'+n));c.onclick=()=>cardSheet(id,null,null,k?k:sv?'s':0);strip.append(c)});t.append(strip);
-  if(HOST&&HOST.slInfo){const S=SLI(d.sl)||(()=>{try{return SLI(HOST.slDef())}catch(e){return null}})();if(S){const sr=el('div','dsl');sr.append(slThumb(S),el('span',null,'スリーブ「'+S.n+'」'+(d.sl?'':'(いつもの)')));t.append(sr)}}
+  if(HOST&&HOST.slInfo){const S=SLI0(d.sl);if(S){const sr=el('div','dsl');sr.append(slThumb(S),el('span',null,'スリーブ「'+S.n+'」'));t.append(sr)}}
   const acts=el('div','dacts');actions.forEach(([label,cls,fn])=>{const b=el('button','btn'+(cls?' '+cls:''),label);b.onclick=fn;acts.append(b)});t.append(acts);return t}
 function deckScreen(){if(BUILD_ONLY){HOST.close();return}const box=$('decks');box.replaceChildren();
   if(HOST){const hb=el('button','btn sec hostback','← アプリに戻る');hb.onclick=()=>HOST.close();box.append(hb)}
@@ -2676,17 +2680,20 @@ function deckScreen(){if(BUILD_ONLY){HOST.close();return}const box=$('decks');bo
 let B=null;
 function builder(d,idx){if(d&&HOST)d=fitDeck(d);const L0=HOST?(Object.values(CD.LEADERS).find(id=>OWN(id)>0)||CD.LEADERS.weak):CD.LEADERS.weak;B={idx,name:d?d.name:'マイデッキ',lead:d?d.lead:L0,cards:d?d.cards.slice():[],scr:d&&d.scr?Object.assign({},d.scr):{},alt:d&&d.alt?JSON.parse(JSON.stringify(d.alt)):{},sl:d&&d.sl||null,tab:HOST?'own':'all',query:''};B.alt=altClean(B);B.scr=scrClean(B);show('s-build');drawBuilder()}
 /* (10/18) スリーブ: the deck's own sleeve, chosen in the deck builder. 「いつもの」 = the one picked in the app's コレクション */
-function slThumb(S,cls){const t=el('i','slt'+(cls?' '+cls:''));if(S){t.style.setProperty('--sl','url("'+S.img+'")');if(S.r>=3)t.classList.add('cbx')}else t.classList.add('std');return t}
-function slRow(){const own=HOST.slOwn()||[],cur=B.sl&&own.find(x=>x.id===B.sl),def=(()=>{try{return SLI(HOST.slDef())}catch(e){return null}})();
-  const r=el('button','slrow');r.append(slThumb(cur||def),el('span','sll','スリーブ'),el('b',null,cur?cur.n:'いつもの'+(def?'('+def.n+')':'(標準)')),el('span','slg',own.length?'変える ›':'まだ持っていません'));
+function slThumb(S,cls){S=S||SL_STD;const t=el('i','slt'+(cls?' '+cls:''));t.style.setProperty('--sl','url("'+S.img+'")');if(S.r>=3)t.classList.add('cbx');return t}
+/* which decks (other than this one) carry a sleeve */
+function slUsers(id,idx){try{return loadDecks().map((d,j)=>({d,j})).filter(x=>x.j!==idx&&x.d&&x.d.sl===id)}catch(e){return[]}}
+function slRow(){const own=HOST.slOwn()||[],cur=B.sl&&own.find(x=>x.id===B.sl);
+  const r=el('button','slrow');r.append(slThumb(cur),el('span','sll','スリーブ'),el('b',null,cur?cur.n:'なし(標準の裏)'),el('span','slg',own.length?'変える ›':'まだ持っていません'));
   r.onclick=()=>sheet((s,close)=>{s.append(el('h3',null,'このデッキのスリーブ'),el('p','mut','対戦で、伏せたカードや引くカードの裏に出ます。オンライン対戦では相手にも見えます'));
-    const gr=el('div','slgrid');const opt=(S,id,name)=>{const b=el('button','slopt'+((B.sl||null)===id?' on':''));b.append(slThumb(S),el('span',null,name));b.onclick=()=>{B.sl=id;close();drawBuilder()};gr.append(b)};
-    opt(def,null,'いつもの'+(def?'('+def.n+')':'(標準)'));own.forEach(x=>opt(x,x.id,x.n));s.append(gr);
+    s.append(el('p','mut','スリーブ1枚につき、付けられるデッキは1つです。ほかのデッキで使っているスリーブを選ぶと、そのデッキからは外れます(保存したとき)'));
+    const gr=el('div','slgrid');const opt=(S,id,name,note)=>{const b=el('button','slopt'+((B.sl||null)===id?' on':''));b.append(slThumb(S),el('span',null,name));if(note)b.append(el('small','slu',note));b.onclick=()=>{B.sl=id;close();drawBuilder()};gr.append(b)};
+    opt(SL_STD,null,'なし(標準の裏)');own.forEach(x=>{const U=slUsers(x.id,B.idx),full=U.length>=(x.k||1);opt(x,x.id,x.n,full&&B.sl!==x.id?'「'+String(U[0].d.name||'').slice(0,10)+'」で使用中':'')});s.append(gr);
     if(!own.length)s.append(el('p','mut','スリーブはスキンガチャ(いまはハロウィンガチャ)から出ます'))});return r}
 function drawBuilder(){const box=$('s-build'),keep=box.scrollTop,tabScroll=box.querySelector('.btabs')?.scrollLeft||0,leadScroll=box.querySelector('.lrow')?.scrollLeft||0;box.replaceChildren();const lf=BY[B.lead].f;
   const top=el('div','bhd');const back=el('button','iconb','←');back.onclick=deckScreen;const nm=el('input','bname');nm.value=B.name;nm.maxLength=16;nm.oninput=()=>B.name=nm.value;
   const cnt=el('b','bcount'+(B.cards.length===CD.DECK_SIZE?' ok':''),B.cards.length+'/'+CD.DECK_SIZE);const sv=el('button','btn','保存');sv.disabled=B.cards.length!==CD.DECK_SIZE;
-  sv.onclick=()=>{const L=loadDecks();const al=altClean(B),d={name:(B.name||'マイデッキ').slice(0,16),lead:B.lead,cards:B.cards.slice(),scr:scrClean(B)};if(Object.keys(al).length)d.alt=al;if(B.sl)d.sl=B.sl;if(B.idx>=0)L[B.idx]=d;else{L.push(d);B.idx=L.length-1}saveDecks(L);caption('保存しました');deckScreen()};
+  sv.onclick=()=>{const L=loadDecks();const al=altClean(B),d={name:(B.name||'マイデッキ').slice(0,16),lead:B.lead,cards:B.cards.slice(),scr:scrClean(B)};if(Object.keys(al).length)d.alt=al;if(B.sl){d.sl=B.sl;try{const k=((HOST&&HOST.slOwn&&HOST.slOwn()||[]).find(x=>x.id===B.sl)||{}).k||1;let n=1;L.forEach((x,j)=>{if(j===B.idx||!x||x.sl!==B.sl)return;if(n<k)n++;else{const y=Object.assign({},x);delete y.sl;L[j]=y}})}catch(e){}}if(B.idx>=0)L[B.idx]=d;else{L.push(d);B.idx=L.length-1}saveDecks(L);caption('保存しました');deckScreen()};
   top.append(back,nm,cnt,sv);box.append(top);
   if(HOST&&HOST.slOwn)box.append(slRow());
   box.append(el('div','sec-h','リーダー(特性と必殺技を持つ・金のカード11種類から)'));

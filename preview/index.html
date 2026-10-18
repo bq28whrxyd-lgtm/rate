@@ -9299,7 +9299,8 @@ function collectionView(inv,eq,h,info){
     const tx=el('div','cdi'),rc=el('span','cdr',RAR[it.r].k);rc.style.setProperty('--rc',RAR[it.r].c);
     tx.append(el('div','cdn',it.n),rc,el('div','cds',src(it)),el('div','cdo',n?'所持 '+n+'枚'+(on?'  ·  装備中':''):'まだ持っていません'));top.append(f,tx);
     const act=el('div','cda'),pv=el('button','sec','試しに見る');pv.onclick=()=>previewAny(it);
-    if(n){const SL=it.k==='sl',b=el('button',on?'sec':'',on?'はずす':SL?'いつものスリーブにする':'装備する');b.onclick=()=>{const prev=eq[it.k];eq[it.k]=on?null:it.id;draw();detail(it);toast(on?'はずしました':SL?it.n+' をいつものスリーブにしました':it.n+' を装備しました');/* show it right away, save in the background */h.equip(it.k,eq[it.k]).catch(()=>{eq[it.k]=prev;draw();toast('変更できませんでした')})};act.append(b,pv);if(SL)act.append(el('div','sub cdnote','いつものスリーブは、スリーブを付けていないTCGのデッキ全部に使われます。デッキごとに変えるときは TCG → デッキを編集 → スリーブ'))}
+    if(n&&it.k==='sl'){act.append(pv,el('div','sub cdnote','スリーブは TCG → デッキを編集 → スリーブ で付けます。1枚につき、付けられるデッキは1つです(付けていないデッキは標準の「KIMOOTA」の裏)'))}
+    else if(n){const SL=false,b=el('button',on?'sec':'',on?'はずす':'装備する');b.onclick=()=>{const prev=eq[it.k];eq[it.k]=on?null:it.id;draw();detail(it);toast(on?'はずしました':SL?it.n+' をいつものスリーブにしました':it.n+' を装備しました');/* show it right away, save in the background */h.equip(it.k,eq[it.k]).catch(()=>{eq[it.k]=prev;draw();toast('変更できませんでした')})};act.append(b,pv);if(SL)act.append(el('div','sub cdnote','いつものスリーブは、スリーブを付けていないTCGのデッキ全部に使われます。デッキごとに変えるときは TCG → デッキを編集 → スリーブ'))}
     else if(it.lim){act.append(pv,el('div','sub cdnote',it.lim==='sup'?'サポーターランクの特典です':it.lim==='coin'?'コインガチャが開催されているときだけ手に入ります。かけらでは交換できません':it.lim==='hwshop'?'ハロウィン(10/19〜11/7)のお菓子の交換所だけで手に入ります。かけらでは交換できません':it.lim==='hw'?'ハロウィン(10/19〜11/7)のハロウィンガチャだけで手に入ります。かけらでは交換できません':'期間限定パックが開催されているときだけ手に入ります'))}
     else{const ex=el('div','cdx'),line=el('div','cdxl');
       line.append(el('span',null,'交換に必要'),el('b',null,cost+' かけら'));
@@ -11843,6 +11844,8 @@ setInterval(function admDecks(){try{if(admDecks.done)return;const me=myPlayer();
   if(!n){toast('デッキが20個いっぱいなので、強いデッキを追加できませんでした');return}tcgSaveDecks(N).then(()=>{fin();toast('管理者用に強いデッキを'+n+'つ追加しました(TCGのデッキ一覧)')})}catch(e){}},3000);
 async function tcgSaveDecks(L){const me=myPlayer();if(!db||!me||invFor!==me.id)return;
   const decks=(L||[]).slice(0,20).map(d=>{const dd=d||{},lead=tcgCardId(dd.lead);const o={name:String(dd.name||'マイデッキ').slice(0,16),cards:tcgFlatCards(dd.cards)};if(lead!=null)o.lead=lead;const al=tcgAltMap(dd.alt,o.cards);if(Object.keys(al).length)o.alt=al;const sc=tcgScrMap(dd.scr,o.cards);if(Object.keys(sc).length)o.scr=sc;const sl=tcgSlOk(dd.sl);if(sl)o.sl=sl;return o});
+  /* a sleeve on more decks than copies owned: the later decks lose it */
+  {const used={};decks.forEach(o=>{if(!o.sl)return;const k=Math.max(1,+((inv.own||{})[o.sl])||0);used[o.sl]=(used[o.sl]||0)+1;if(used[o.sl]>k)delete o.sl})}
   const t=Object.assign({},tcgOf(inv),{decks});inv=Object.assign({},inv,{tcg:t});
   try{await db.doc('inv/'+me.id).set({tcg:{decks}},{merge:true})}catch(e){try{console.error('deck save failed',e)}catch(_){}toast('デッキ保存失敗: '+String((e&&e.message)||(e&&e.code)||e).slice(0,220))}}
 
@@ -11855,9 +11858,10 @@ function tcgAltOwned(){const me=myPlayer();if(!me||typeof passArts!=='function')
 /* a deck's alt copies, kept only if owned and only as many as the deck holds of that card */
 function tcgAltMap(v,cards){const n={},o={},own=tcgAltOwned();(cards||[]).forEach(id=>n[id]=(n[id]||0)+1);if(v&&typeof v==='object')Object.keys(v).forEach(id=>{const L=Array.isArray(v[id])?v[id]:[],have=own[id]||[];const k=[...new Set(L.map(x=>+x))].filter(x=>have.includes(x)).sort((a,b)=>b-a).slice(0,n[id]||0);if(k.length)o[id]=k});return o}
 /* (10/18) スリーブ: an item of kind sl. A deck keeps its own (deck.sl); without one, the sleeve picked in コレクション (eq.sl) is used */
-function tcgSlInfo(id){const it=id&&typeof ITEM==='function'&&ITEM(String(id));return it&&it.k==='sl'&&SLV[it.v]?{id:it.id,n:it.n,r:it.r,img:SLV[it.v].img}:null}
+function tcgSlInfo(id){const it=id&&typeof ITEM==='function'&&ITEM(String(id));return it&&it.k==='sl'&&SLV[it.v]?{id:it.id,n:it.n,r:it.r,img:SLV[it.v].img,k:Math.max(0,+((inv&&inv.own||{})[it.id])||0)}:null}
 function tcgSlOk(id){return id&&tcgSlInfo(id)&&((inv&&inv.own||{})[id]||0)>0?String(id):null}
-function tcgSlDef(){const me=myPlayer();return tcgSlOk(me&&me.eq&&me.eq.sl)}
+/* (10/18) one sleeve, one deck: there is no 「いつもの」 sleeve any more (decks without one show the standard KIMOOTA back) */
+function tcgSlDef(){return null}
 function tcgSlOwn(){return ITEMS.filter(x=>x.k==='sl'&&tcgSlOk(x.id)).sort((a,b)=>b.r-a.r).map(x=>tcgSlInfo(x.id))}
 window.TCGHOST={altOwn:()=>tcgAltOwned(),slOwn:()=>tcgSlOwn(),slInfo:id=>tcgSlInfo(id),slDef:()=>tcgSlDef(),own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
@@ -12082,7 +12086,7 @@ function tcgPlainDeck(d){const cards=tcgFlatCards(d.cards),o={name:String(d.name
   /* the deck's alternate-art copies (owned only): the other phone shows those copies with the new picture too */
   {const al=tcgAltMap(d.alt,cards);if(Object.keys(al).length)o.alt=al}
   /* (10/18) the deck's sleeve (or the usual one): the other phone shows it on this side's card backs */
-  {const sl=tcgSlOk(d.sl)||tcgSlDef();if(sl)o.sl=sl}return o}
+  {const sl=tcgSlOk(d.sl);if(sl)o.sl=sl}return o}
 function tcgDeckPicker(box,onPick){const L=(tcgOf(inv).decks||[]).filter(tcgDeckOk);
   if(!L.length){box.append(el('p','sub','使えるデッキがありません。「デッキ・図鑑」でデッキを組んでください。'));return}
   L.forEach(d=>{const r=el('button','tcgdp');r.append(tcgFace(d.lead),el('b',null,d.name),el('span',null,TC[d.lead].n));r.onclick=()=>onPick(tcgPlainDeck(d));box.append(r)})}
