@@ -2989,7 +2989,7 @@ function sliceApart(e){const r=rectOf(e);if(!r)return;const k=Math.random()<.5?1
   const cx=r.left+r.width/2,cy=r.top+r.height/2;const ln=fx('cutline','left:'+cx+'px;top:'+cy+'px;width:'+(r.width*1.9)+'px');anim(ln,[{transform:'translate(-50%,-50%) rotate(-14deg) scaleX(0)',opacity:1},{transform:'translate(-50%,-50%) rotate(-14deg) scaleX(1)',opacity:1,offset:.35},{transform:'translate(-50%,-50%) rotate(-14deg) scaleX(1)',opacity:0}],{duration:420}).then(()=>ln.remove())}
 async function strike(uid,t,heavy){const a=uidEl(uid);if(!a||!t)return;const st=a.querySelector('.stand')||a;const m=find0(uid);const col=FCOL[m?FAC(m.id):'gen']||'#fff';
   const ra=rectOf(st),rt=rectOf(t.querySelector&&t.querySelector('.stand')||t);const ax=ra.left+ra.width/2,ay=ra.top+ra.height/2,tx=rt.left+rt.width/2,ty=rt.top+rt.height/2;
-  const dx=tx-ax,dy=ty-ay,len=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)*180/Math.PI,KS=Math.max(.3,(a.getBoundingClientRect().width/(a.offsetWidth||1))||1),lx=dx/KS,ly=dy/KS;a.getAnimations().forEach(x=>x.cancel());a.style.zIndex=20;st.style.animation='none';
+  const dx=tx-ax,dy=ty-ay,len=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)*180/Math.PI,KS0=(a.getAnimations().forEach(x=>x.cancel()),0),KS=Math.max(.3,(a.getBoundingClientRect().width/(a.offsetWidth||1))||1),lx=dx/KS,ly=dy/KS;a.style.zIndex=20;st.style.animation='none';
   /* 1. charge: a ring under the feet and lines rushing in */
   const [px,py]=[ra.left+ra.width/2,ra.bottom];ring(px,py,col,36);const cl=fx('chargel','left:'+ax+'px;top:'+ay+'px;--c:'+col);anim(cl,[{transform:'translate(-50%,-50%) scale(1.6)',opacity:0},{transform:'translate(-50%,-50%) scale(.6)',opacity:1,offset:.7},{transform:'translate(-50%,-50%) scale(.3)',opacity:0}],{duration:300}).then(()=>cl.remove());
   await anim(st,[{transform:'translateX(-50%)',filter:'brightness(1)'},{transform:'translateX(-50%) translateY(4px) scale(1.04,.94)',filter:'brightness(1.8) drop-shadow(0 0 8px '+col+')'}],{duration:180,fill:'forwards'});
@@ -3309,7 +3309,7 @@ async function playEvents(evs){for(let i=0;i<evs.length;i++){const e=evs[i];LOG.
   case'gauge':{const av=$(e.who===H?'myAv':'oppAv');if(av){const [x,y]=ctr(av);ring(x,y,'#ff5fb0',30)}if(e.v>=E.R.GAUGE)caption((e.who===H?'あなた':'相手')+'の推しゲージがたまった。必殺技が使える');break}
   case'skill':await cutin(e.who,e.k);break;
   case'end':if(e.why==='life'){const t=fx('finish');t.textContent='FINISH';const f=el('div','flash');document.body.append(f);setTimeout(()=>f.remove(),D(500));await anim(t,[{transform:'translate(-50%,-50%) skewX(-12deg) scale(2.2)',opacity:0},{transform:'translate(-50%,-50%) skewX(-12deg) scale(1)',opacity:1,offset:.25},{transform:'translate(-50%,-50%) skewX(-12deg) scale(1.05)',opacity:1}],{duration:1100});setTimeout(()=>t.remove(),D(400))}break;
-  case'energy':{const en=e.who===H?document.querySelector('#myBar .energy'):$('oppHand');if(en){const [x,y]=ctr(en);ring(x,y,'#ffd36b',30);sparks(x,y,'#ffd36b',10,40)}caption((e.who===H?'あなた':'相手')+'の熱量'+(e.n<0?e.n:'+'+e.n));await wait(350);break}
+  case'energy':{const en=e.who===H?document.querySelector('#myBar .energy'):(document.querySelector('#oppBar .meta')||$('oppHand'));if(en){const [x,y]=ctr(en);ring(x,y,'#ffd36b',30);sparks(x,y,'#ffd36b',10,40)}caption((e.who===H?'あなた':'相手')+'の熱量'+(e.n<0?e.n:'+'+e.n));await wait(350);break}
   case'steal':{const u=uidEl(e.uid);if(u){const [x,y]=ctr(u);const f=el('div','flash vio');document.body.append(f);setTimeout(()=>f.remove(),D(450));ring(x,y,'#ff7fd0',60);sparks(x,y,'#ff7fd0',22,110);stamp(u,'寝返り','vio');
       await anim(u,[{transform:'none',filter:'brightness(1)'},{transform:'translateY('+(e.who===H?'40px':'-40px')+') scale(1.1)',filter:'brightness(1.8) hue-rotate(40deg)',offset:.5},{transform:'none',filter:'brightness(1)'}],{duration:700})}
     caption((e.who===H?'あなた':'相手')+'が「'+BY[e.id].n+'」を寝返らせた');render(snap());await wait(500);break}
@@ -3569,7 +3569,7 @@ function render(S){if(!V2)V2={av:{},lane:[],hand:'',traps:['','']};view=S;queueS
   const ob=$('oppBar');ob.replaceChildren();ob.append(avOf(op,cpuKey,true),lifeEl(op,true),traitEl(op,1-H));
   /* (10/18) マスターデュエル風: the opponent's hand is shown as its sleeves, fanned */
   const oh=el('div','ohand');oh.id='oppHand';const nH=op.hand.length,nV=Math.min(nH,7);for(let i=0;i<nV;i++){const c=backCard(true);c.style.setProperty('--k',nV>1?(i-(nV-1)/2).toFixed(2):0);oh.append(c)}oh.append(el('b','ohn',nH));oh.setAttribute('aria-label','相手の手札 '+nH+'枚');
-  const om=el('div','meta');om.innerHTML='<span class="ic gem"></span><b>'+op.energy+'<small>/'+op.maxE+'</small></b>';ob.append(oh,om);
+  const om=el('div','meta');om.innerHTML='<span class="ic gem"></span><b>'+op.energy+'<small>/'+op.maxE+'</small></b>';ob.append(el('div','sp'),oh,om);
   const tc=el('button','tchip');tc.append(el('b',null,S.over?'終了':Math.max(1,S.p[S.cur].turn)+'/'+E.R.MAXTURN),el('span',null,'メニュー'));tc.onclick=menuSheet;ob.append(tc);
   /* the table: built once, then each lane is swapped only when its unit changed */
   const f=$('field');
