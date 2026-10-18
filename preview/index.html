@@ -8282,7 +8282,7 @@ const HWP_PRICE=2000,HWS_PRICE=2000,HWP_STEP=150,HWP_N=20,HWP_BONUS=.1,HWS_CANDY
 /* the pass-only 絵違い (rank 20): set id when the picture is in TCGD.alt; until then the rank shows it as coming soon */
 const HWP_ART={id:null,n:'',g:2};
 const HWP_R=[null,{pt:150},{tk:'tp1_h',n:1},{pt:150},{pt:150},{tk:'ltk',n:2},{tk:'tp1_h',n:1},{pt:150},{pt:150},{tk:'tp1_h',n:1},{tk:'ltk',n:2},
-  {pt:150},{pt:150},{tk:'tp1_h',n:1},{pt:150},{tk:'ltk',n:2},{pt:150},{tk:'tp1_h',n:1},{pt:150},{pt:150},{art:1}];
+  {pt:150},{pt:150},{tk:'tp1_h',n:1},{pt:150},{tk:'ltk',n:2},{pt:150},{tk:'tp1_h',n:1},{pt:150},{pt:150},/* (10/18) 絵違いはやめて、限定ガチャチケット3枚 */{tk:'ltk',n:3}];
 const HWP_TTL={HW_P1:{n:'夜宴の招待客',r:4},HW_S1:{n:'ジャック・オ・ランタン',r:4}};
 /* (10/18) 無料のスタンプカード: everyone, on the same ranks (candy collected, 150 a stamp). Rewards on the even ranks, a title at 20 */
 const HWF_R=[null,{},{pt:50},{},{tk:'ptk',n:1},{},{pt:50},{},{tk:'tp1_h',n:1},{},{tk:'ltk',n:1},{},{pt:50},{},{tk:'ptk',n:1},{},{pt:50},{},{tk:'tp1_h',n:1},{},{tk:'ltk',n:1,ttl:1}];
@@ -8322,7 +8322,7 @@ function hwPassSec(me){const sec=el('div','hlw-sec hwp');const on=!!hwPassAt(me.
   else hero.append(el('div','hwp-how',lv?'今買うと、ランク '+lv+' までのパスのごほうびがすぐにもらえます。':'あとから買っても、それまでのランクのぶんはもらえます。'));
   sec.append(hero);
   const pc=hwpCard(me,{R:HWP_R,on,lv,key:'hwpseen_',title:'パスのスタンプカード',sub:on?me.name+' さん':'パスを買うと、ここにも押されます',delay:(fc.__n||0)*.42});
-  sec.append(pc,el('div','sub hwp-note','パスの pt はパック専用です(賭けや予想には使えません)。チケットは期間中に使ってください。'+(HWP_ART.id?'':'ランク20の絵違いはもうすぐ届きます(届いたらランク20の人に自動で入ります)。')));
+  sec.append(pc,el('div','sub hwp-note','パスの pt はパック専用です(賭けや予想には使えません)。チケットは期間中に使ってください。'));
   /* the set */
   const st=el('div','hwp-set'+(hwSetAt(me.id)?' on':''));const sh=el('div','hwp-ht');sh.append(el('h3',null,'ハロウィン限定セット'),el('span',null,hwSetAt(me.id)?'購入済み':HWS_PRICE.toLocaleString()+' '+u+'  ·  1人1回'));st.append(sh);
   const sl=el('ul','hwp-now');[['限定ガチャチケット',HWS_LTK+'枚'],['TCG ハロウィンパック券',HWS_TCG+'枚'],['お菓子',String(HWS_CANDY)],['称号','「'+HWP_TTL.HW_S1.n+'」(セットだけ)']].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));sl.append(li)});st.append(sl);
@@ -11472,7 +11472,7 @@ if(typeof hwPackSync==='function')hwPackSync(true);
 const tcgFaces=pk=>{const P=TCGD.packs[pk];return P.face||P.f.map(f=>TCGD.leaders[f])};
 /* holo (foil) cards: a 1/100 chance per pulled card. Tracked apart from the normal copy; same per-card cap, extras become かけら. Purely cosmetic. */
 const TCG_FOIL=0.01;
-const TCG_BOX_PACKS=15,TCG_BOX_PRICE=1500,TCG_BOX_DOUBLE=0.05;
+const TCG_BOX_PACKS=15,TCG_BOX_PRICE=1500,TCG_BOX_DOUBLE=0.05,TCG_HW_SCR=0.3;
 const tcgFoil=()=>tcgOf(inv).foil||{};
 const tcgIsFoil=id=>(tcgFoil()[id]||0)>0;
 /* card art lives in tcg/cardimg.js (large), loaded the first time the TCG screen needs it */
@@ -11534,7 +11534,15 @@ function tcgApply(v,ids,foilSlots){const t=Object.assign({},tcgOf(v)),own=Object
 function tcgRollBox(pk){const count=Math.random()<TCG_BOX_DOUBLE?2:1,ids=[];
   for(let i=0;i<TCG_BOX_PACKS;i++)ids.push(...tcgRoll(pk));
   const foils=ids.map(()=>false),slots=ids.map((_,i)=>i);
-  for(let i=0;i<count;i++){const k=Math.random()*slots.length|0;foils[slots.splice(k,1)[0]]=true}return{ids,foils}}
+  for(let i=0;i<count;i++){const k=Math.random()*slots.length|0;foils[slots.splice(k,1)[0]]=true}
+  /* (10/18) ハロウィンのボックス: 30% of boxes have a secret of a ハロウィン card (exactly 30%: the other boxes' secrets are never one).
+     A ハロウィン card already in the box is made the secret; if the box has none, one card is swapped for a ハロウィン card of the same rarity */
+  if(TCGD.packs[pk]&&TCGD.packs[pk].hw){const isHw=id=>!!(TC[id]&&TC[id].hwOf),nF=foils.filter(Boolean).length;for(let i=0;i<foils.length;i++)foils[i]=false;
+    const non=()=>{const L=ids.map((id,i)=>!isHw(id)&&!foils[i]?i:-1).filter(i=>i>=0);return L.length?L[Math.random()*L.length|0]:-1};
+    for(let k=0;k<nF;k++){if(k===0&&Math.random()<TCG_HW_SCR){const H=ids.map((id,i)=>isHw(id)?i:-1).filter(i=>i>=0);let i;if(H.length)i=H[Math.random()*H.length|0];
+        else{i=non();const r=TC[ids[i]]&&TC[ids[i]].r,A=TCGD.cards.filter(c=>c.hwOf&&c.r===r),B=A.length?A:TCGD.cards.filter(c=>c.hwOf);ids[i]=B[Math.random()*B.length|0].id}foils[i]=true}
+      else{const i=non();if(i>=0)foils[i]=true}}}
+  return{ids,foils}}
 
 async function tcgStarter(k){const me=myPlayer();if(!db||!me||me.ban||!invLoaded||invFor!==me.id||tcgOf(inv).st)return;
   const S=TCGD.starters[k],own={};S.cards.forEach(id=>own[id]=(own[id]||0)+1);
@@ -11658,7 +11666,7 @@ async function tcgScrGifts(){const me=myPlayer();if(!db||!me||tcgGiftBusy||openi
     whenFree(()=>tcgBoxCinematic(Object.keys(TCGD.packs)[0],G.map(g=>({c:tcgItem(g.cid),isNew:true,sh:0,foil:true})),()=>{},()=>{},{revealed:true}));toast('シークレットが届きました')}
   catch(e){}tcgGiftBusy=false}
 function tcgConfirmBox(pk){const me=myPlayer();if(!TCGD.packs[pk]||!me||opening)return;
-  tcgModal((c,close)=>{c.append(el('div','mdt',TCGD.packs[pk].n+' · ボックス購入'),el('p',null,TCG_BOX_PACKS+'パック・'+(TCG_BOX_PACKS*TCGD.size)+'枚 / '+tcgBoxPrice(pk)+'pt'),el('p','sub','SCRは45枚の中に含まれます。所持上限を超えたカードは、通常パックと同じくかけらになります。'));
+  tcgModal((c,close)=>{c.append(el('div','mdt',TCGD.packs[pk].n+' · ボックス購入'),el('p',null,TCG_BOX_PACKS+'パック・'+(TCG_BOX_PACKS*TCGD.size)+'枚 / '+tcgBoxPrice(pk)+'pt'),el('p','sub','SCRは45枚の中に含まれます。'+(TCGD.packs[pk].hw?'30%の確率で、シークレットがハロウィンのカードになります。':'')+'所持上限を超えたカードは、通常パックと同じくかけらになります。'));
     const buy=el('button','tcgboxconfirm','購入する（'+tcgBoxPrice(pk)+'pt）');buy.disabled=!econReady()||!tcgHasSt()||balance(me.id)<tcgBoxPrice(pk);buy.onclick=()=>{close();tcgOpenBox(pk)};const cancel=el('button','sec','キャンセル');cancel.onclick=close;
     const keep=el('button','sec tcgkeep','開けずに取っておく('+tcgBoxPrice(pk)+'pt)');keep.disabled=buy.disabled;keep.onclick=()=>{close();try{bxBuy(pk)}catch(e){}};
     if(TCGD.packs[pk].hw){c.append(buy,el('p','sub','期間限定のパックなので、開けずに取っておくことはできません。'),cancel);return}
@@ -16329,7 +16337,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
   function zoomTcg(id){try{const it=tcgItem(id);if(window.__kgZoomCard){const host=mk('div','kgu-zh');document.body.append(host);__kgZoomCard(host,{c:it,isNew:false,sh:0,foil:false});
       const z=host.querySelector('.kp-zoom');if(z){const old=z.onclick;z.onclick=()=>{old&&old();host.style.transition='opacity .26s';host.style.opacity='0';setTimeout(()=>host.remove(),280)}}}}catch(e){console.warn('kgu',e)}}
   function shTcg(pk){const P=TCGD.packs[pk];sheet(P.n,b=>{sec(b,'排出率');{const RR=tcgRateRows(pk),CO={r4:'#f5c84c',r3:'#8fd3ff',r2:'#b678ff',r0:'#a3a9b4'};b.append(table(RR[0],RR.slice(1).map(r=>[[r[0],CO[r[3]]],r[1],r[2]])))}
-    b.append(mk('p','kgu-note','どのカードも1%でシークレット(キラ)になります。ボックスは15パック・45枚で、シークレットが1枚以上入っています(20箱に1つは2枚)。同じカードは2枚まで持てて(リーダーは3枚)、それ以上はかけら(コモン1・レア3'+(P.rt&&P.rt.z.SR?'・スーパーレア10':'')+'・ガチレア40)になります。'));
+    b.append(mk('p','kgu-note','どのカードも1%でシークレット(キラ)になります。ボックスは15パック・45枚で、シークレットが1枚以上入っています(20箱に1つは2枚)。'+(P.hw?'このボックスは30%の確率で、シークレットがハロウィンのカードになります。':'')+'同じカードは2枚まで持てて(リーダーは3枚)、それ以上はかけら(コモン1・レア3'+(P.rt&&P.rt.z.SR?'・スーパーレア10':'')+'・ガチレア40)になります。'));
     const pool=(()=>{try{return tcgPool(pk).slice()}catch(e){return []}})(),ord={GR:0,SR:1,R:2,C:3};pool.sort((a,c)=>ord[a.r]-ord[c.r]);
     [['GR','ガチレア'],['SR','スーパーレア'],['R','レア'],['C','コモン']].forEach(([r,lab])=>{const L=pool.filter(c=>c.r===r);if(!L.length)return;sec(b,lab+' '+L.length+'種類');const g=mk('div','kgu-gr tcg');
       L.forEach(c=>{const x=bt('kgu-gi t');try{x.append(tcgFace(c.id))}catch(e){}x.append(mk('span',null,esc(c.n)));x.onclick=()=>zoomTcg(c.id);g.append(x)});b.append(g)})})}
