@@ -5911,13 +5911,21 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 @media (prefers-reduced-motion:reduce){.hd-rx{display:none}}
 
 /* (10/18) ハロウィンガチャのフリーズ: the picture stops, cold and dark; knocks from inside; a rainbow flash; 確定 */
-.kgo.kg-hwd.hd-fzon .hd-sc>:not(.hd-fz):not(.hd-fzk):not(.hd-fzf):not(.hd-fzkk){filter:grayscale(.85) brightness(.62) contrast(1.08) hue-rotate(-12deg)}
+.kgo.kg-hwd.hd-fzon .hd-sc>:not(.hd-fz):not(.hd-fzk):not(.hd-fzf):not(.hd-fzkk):not(.hd-fzc):not(.hd-frame),.kgo.kg-hwd.hd-fzon .hd-frame>:not(.hd-fzs):not(.hd-fzx):not(.hd-fzh){filter:grayscale(.85) brightness(.62) contrast(1.08) hue-rotate(-12deg)}
 .hd-fz{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0;background:radial-gradient(48% 38% at 50% 46%,rgba(30,40,80,.0),rgba(8,10,24,.55) 60%,rgba(0,0,6,.92) 100%),linear-gradient(180deg,rgba(60,80,140,.18),rgba(10,10,30,.25))}
 .hd-fzk{position:absolute;left:50%;top:44%;z-index:7;opacity:0;pointer-events:none;white-space:nowrap;font:900 clamp(24px,7.6vw,36px)/1 "HD Maru","Zen Maru Gothic","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;color:#efe6ff;-webkit-text-stroke:6px #6b2fb4;paint-order:stroke fill;text-shadow:0 0 18px rgba(170,110,255,.85),0 3px 0 #2a0a4a}
 .hd-fzk.b{font-size:clamp(30px,9.6vw,46px);-webkit-text-stroke-width:7px}
 .hd-fzf{position:absolute;inset:0;z-index:8;pointer-events:none;opacity:0;background:radial-gradient(60% 50% at 50% 45%,#fff 0%,rgba(255,240,255,.9) 25%,rgba(255,160,220,.55) 45%,rgba(140,220,255,.35) 65%,rgba(200,150,255,0) 85%)}
-.hd-fzkk{position:absolute;left:50%;top:22%;z-index:9;opacity:0;pointer-events:none;white-space:nowrap;font:900 clamp(34px,11vw,56px)/1 "Zen Maru Gothic","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;color:#fff;-webkit-text-stroke:9px #9b5cff;paint-order:stroke fill;text-shadow:0 5px 0 #2a0a4a,0 0 30px rgba(255,170,240,.8)}
+.hd-fzkk{position:absolute;left:50%;top:22%;z-index:9;opacity:0;pointer-events:none;white-space:nowrap;font:900 clamp(34px,11vw,56px)/1 "Zen Maru Gothic","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif;color:transparent;background:linear-gradient(100deg,#ff6fa8,#ffb35c 22%,#ffe66b 38%,#7dffb0 54%,#6bd8ff 70%,#c58bff 88%,#ff6fa8);-webkit-background-clip:text;background-clip:text;-webkit-text-stroke:2.5px #fff;filter:drop-shadow(0 0 1px #3a0d6a) drop-shadow(0 3px 0 #3a0d6a) drop-shadow(0 0 18px rgba(255,190,240,.9))}
 @media (prefers-reduced-motion:reduce){.hd-fz,.hd-fzk,.hd-fzf,.hd-fzkk{display:none}}
+
+/* (10/18) the freeze's rainbow */
+.hd-fzc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hd-fzh{position:absolute;inset:-30% -48%;z-index:0;border-radius:50%;pointer-events:none;opacity:0;background:conic-gradient(from 0deg,#ff6fa8,#ffb35c,#ffe66b,#7dffb0,#6bd8ff,#8b7bff,#e07bff,#ff6fa8);-webkit-mask:radial-gradient(closest-side,transparent 58%,#000 64%,#000 69%,transparent 76%);mask:radial-gradient(closest-side,transparent 58%,#000 64%,#000 69%,transparent 76%);filter:blur(5px);will-change:transform,opacity}
+.hd-fzs{position:absolute;left:50%;top:6%;bottom:2%;width:6px;margin-left:-3px;z-index:4;border-radius:3px;pointer-events:none;opacity:0;transform-origin:50% 50%;background:linear-gradient(180deg,#ff6fa8,#ffb35c,#ffe66b,#7dffb0,#6bd8ff,#8b7bff,#e07bff);box-shadow:0 0 14px 3px rgba(255,255,255,.55),0 0 40px 10px rgba(200,140,255,.45)}
+.hd-fzx{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0}
+.hd-fzx svg{width:100%;height:100%;overflow:visible}
+.hd-fzx path{fill:none;stroke:url(#hdfzg);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 4px rgba(220,170,255,.9))}
 /* ===== v121 ガチャ画面 (kgu): banner chips + one big banner card, the old sections hidden underneath ===== */
 @property --a1{syntax:'<color>';inherits:true;initial-value:#8b7bff}
 @property --a2{syntax:'<color>';inherits:true;initial-value:#3dd8f0}
@@ -15185,7 +15193,14 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     sc.append(sky,stars,moon,fr,...lan,...knock,words,cv);
     /* the freeze layers: the cold and the dark, the knocks from inside, the flash when it breaks, the 確定 sticker */
     const fzL=mk('i','hd-fz'),fzK=[0,1].map(k=>mk('b','hd-fzk'+(k?' b':''),k?'コン!!':'コン…')),fzF=mk('i','hd-fzf'),fzKK=mk('b','hd-fzkk','KMR確定');
-    if(fz)sc.append(fzL,...fzK,fzF,fzKK);
+    /* (10/18) the rainbow: a canvas behind the door (rays, the shock ring, sparkles), a halo ring behind the arch, a line of rainbow
+       in the gap and rainbow cracks across the doors */
+    const fzC=mk('canvas','hd-fzc'),fzH=mk('i','hd-fzh'),fzS=mk('i','hd-fzs'),fzX=mk('div','hd-fzx');
+    fzX.innerHTML='<svg viewBox="0 0 100 155" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="hdfzg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6fa8"/><stop offset=".2" stop-color="#ffb35c"/><stop offset=".4" stop-color="#ffe66b"/><stop offset=".6" stop-color="#7dffb0"/><stop offset=".8" stop-color="#6bd8ff"/><stop offset="1" stop-color="#c58bff"/></linearGradient></defs>'+
+      ['M50 60 L41 52 L33 55 L22 44 L10 46','M50 78 L60 70 L68 74 L80 62 L92 64','M50 96 L39 104 L31 101 L19 113 L6 112','M50 112 L61 121 L70 118 L82 131 L94 130','M50 40 L56 30 L52 22 L58 10'].map(d=>'<path d="'+d+'" pathLength="1"/>').join('')+'</svg>';
+    if(fz){sc.insertBefore(fzC,fr);fr.insertBefore(fzH,fr.firstChild);fr.append(fzS,fzX);sc.append(fzL,...fzK,fzF,fzKK)}
+    const FC=fzC.getContext('2d'),HUE=['#ff6fa8','#ffb35c','#ffe66b','#7dffb0','#6bd8ff','#8b7bff','#e07bff'];
+    const SPK=[...Array(70)].map((_,i)=>({a:Math.random()*6.283,v:.25+Math.random()*.8,s:2+Math.random()*4.5,h:i%7,d:Math.random()*.5,tw:Math.random()*6}));
     const E=engine(o,res,onMore,{label,sumPrefix:'ハッピーハロウィン',onTurn:z=>hdReact(o,z.x.c.r),
       back:c=>{const cb=c.querySelector('.kg-cb');if(cb)cb.innerHTML='<img class="hd-cbp" src="hwpk/pk03.webp" alt="">'},
       jump:()=>{if(tl&&tl.time()<TB+SH-.02)tl.seek(TB+SH-.01)},end:()=>{if(tl)tl.progress(1)},onResize:()=>{lay()}});
@@ -15194,7 +15209,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     /* the freeze sits at TF and lasts FZ; everything after it on the real clock moves by SH */
     const TF=TG+.22,FZ=2.5,SH=fz?FZ:0,IK=[1.45,1.9],UB=2.3;
     let Wd=0,Hd=0,dpr=1,cx2=0,cy2=0,fw=0,fh=0;const C=cv.getContext('2d');
-    function lay(){Wd=innerWidth;Hd=innerHeight;dpr=Math.min(2,devicePixelRatio||1);cv.width=Math.round(Wd*dpr);cv.height=Math.round(Hd*dpr);const r=fr.getBoundingClientRect();cx2=r.left+r.width/2;cy2=r.top+r.height*.55;fw=r.width;fh=r.height}
+    function lay(){Wd=innerWidth;Hd=innerHeight;dpr=Math.min(2,devicePixelRatio||1);cv.width=Math.round(Wd*dpr);cv.height=Math.round(Hd*dpr);if(fz){fzC.width=cv.width;fzC.height=cv.height}const r=fr.getBoundingClientRect();cx2=r.left+r.width/2;cy2=r.top+r.height*.55;fw=r.width;fh=r.height}
     lay();requestAnimationFrame(()=>{lay();E.lay()});
     const R=rng(n*17+best*3+5);
     const CANDY=[...Array(ten?90:64)].map(()=>({a:-Math.PI/2+(R()-.5)*2.6,v:.6+R()*1.1,s:.7+R()*.9,r0:R()*6,vr:(R()-.5)*14,c:['#ff8a2a','#b45cff','#ffd34a','#ff5fa8','#7fe0ff','#9bff8a'][(R()*6)|0],k:R()<.5?0:1,d:R()*.1}));
@@ -15257,6 +15272,25 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
       if(jz)fr.style.transform+=' scale('+(1+jz*.035).toFixed(4)+')';
       /* it breaks: a rainbow flash */
       const fb=t-(TF+UB);fzF.style.opacity=(fb>0?Math.max(0,1-fb/.45)*(fb<.06?fb/.06:1):0).toFixed(3);
+      /* the rainbow. A line of it in the gap after the first knock from inside, cracks after the second, then everything at the break */
+      const gS=inF?Math.max(0,Math.min(1,(u-IK[0])/.5)):0;fzS.style.opacity=(inF?gS*(.35+.25*Math.sin(u*14))+Math.max(0,Math.min(1,(u-IK[1])/.3))*.4:0).toFixed(3);fzS.style.transform='scaleY('+(.3+.7*gS).toFixed(3)+')';
+      const cr=inF?Math.max(0,Math.min(1,(u-IK[1]-.05)/.32)):0,crOut=t>TF+UB?Math.max(0,1-(t-TF-UB)/.35):1;fzX.style.opacity=(cr>0?crOut:0).toFixed(3);
+      fzX.querySelectorAll('path').forEach((pth,i)=>{const c2=Math.max(0,Math.min(1,cr*1.25-i*.06));pth.style.strokeDashoffset=(1-c2).toFixed(3)});
+      const bb=t-(TF+UB),aft=t-(TB+SH);
+      /* the halo ring behind the arch: comes in with the break, keeps turning while the cards come out */
+      fzH.style.opacity=(bb>0?Math.min(1,bb/.25)*(1-Math.max(0,(aft-1.6)/.8)):0).toFixed(3);fzH.style.transform='rotate('+(t*40).toFixed(1)+'deg) scale('+(bb>0?.7+.3*DSPR(bb,1.4,.6):.7).toFixed(3)+')';
+      FC.setTransform(dpr,0,0,dpr,0,0);FC.clearRect(0,0,Wd,Hd);
+      if(bb>0&&aft<3.2){FC.globalCompositeOperation='lighter';const fade=Math.min(1,bb/.12)*(1-Math.max(0,(aft-1.8)/1.2));
+        /* rays turning slowly behind the door */
+        const N=22,rot=t*.3,L=Math.hypot(Wd,Hd)*.62;for(let i=0;i<N;i++){const a=rot+i/N*6.283,w=.022+.014*Math.sin(i*1.7),h=(i*360/N+t*70)%360;
+          const g=FC.createLinearGradient(cx2,cy2,cx2+Math.cos(a)*L,cy2+Math.sin(a)*L);g.addColorStop(0,'hsla('+h+',100%,80%,'+(.42*fade).toFixed(3)+')');g.addColorStop(.45,'hsla('+h+',95%,72%,'+(.16*fade).toFixed(3)+')');g.addColorStop(1,'hsla('+h+',90%,65%,0)');
+          FC.fillStyle=g;FC.beginPath();FC.moveTo(cx2,cy2);FC.arc(cx2,cy2,L,a-w,a+w);FC.closePath();FC.fill()}
+        /* the shock ring, in every colour */
+        if(bb<1){const r=bb*Hd*1.15,lw=Math.max(2,26*(1-bb));for(let k=0;k<42;k++){FC.strokeStyle='hsla('+(k*360/42+t*120)%360+',100%,70%,'+((1-bb)*.9).toFixed(3)+')';FC.lineWidth=lw;FC.beginPath();FC.arc(cx2,cy2,r,k/42*6.283,(k+1.15)/42*6.283);FC.stroke()}}
+        /* sparkles that drift out and twinkle */
+        for(const p of SPK){const v=bb-p.d;if(v<0)continue;const d=p.v*Hd*.6*(1-Math.exp(-1.8*v)),x=cx2+Math.cos(p.a)*d,y=cy2+Math.sin(p.a)*d+v*v*14,tw=.5+.5*Math.sin(v*9+p.tw),al=Math.min(1,v/.1)*(1-Math.max(0,(v-1.8)/1))*tw;if(al<=0)continue;
+          const sz=p.s*(.6+.4*tw);FC.fillStyle=HUE[(p.h+Math.floor(v*4))%7];FC.globalAlpha=al;FC.beginPath();FC.moveTo(x,y-sz*2.2);FC.quadraticCurveTo(x,y,x+sz*2.2,y);FC.quadraticCurveTo(x,y,x,y+sz*2.2);FC.quadraticCurveTo(x,y,x-sz*2.2,y);FC.quadraticCurveTo(x,y,x,y-sz*2.2);FC.fill()}
+        FC.globalAlpha=1;FC.globalCompositeOperation='source-over'}
       /* 確定 once the doors are open */
       const kk=t-(TB+SH+.3),ks=DSPR(kk,2.4,.4);fzKK.style.opacity=(kk>0?Math.min(1,kk/.06)*(1-Math.max(0,(kk-1.2)/.3)):0).toFixed(3);
       fzKK.style.transform='translate(-50%,-50%) scale('+(.3+.7*ks).toFixed(3)+') rotate(-5deg)'}
