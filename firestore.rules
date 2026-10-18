@@ -601,6 +601,27 @@ service cloud.firestore {
       allow read: if signedIn();
       allow write: if isAdmin();
     }
+    // ---- (10/18) 申し込み (orders): a player asks to buy (sends the 応援値 outside the app, writes the code in the memo).
+    //      The admin approves from the app (kind: hwpass | hwset | pt (pl = plan 0-7) | mpass (pl = grade 1-3)). Players only create their own, waiting ones,
+    //      and may cancel them while they wait ----
+    match /orders/{id} {
+      allow read: if isAdmin() || (signedIn() && myPid() != '' && resource.data.pid == myPid());
+      allow create: if signedIn() && myPid() != '' && request.resource.data.pid == myPid()
+        && request.resource.data.keys().hasOnly(['pid', 'pn', 'kind', 'code', 't', 'st', 'pl'])
+        && request.resource.data.st == 'wait' && request.resource.data.kind in ['hwpass', 'hwset', 'pt', 'mpass']
+        && (request.resource.data.kind != 'pt' || (request.resource.data.get('pl', -1) is int && request.resource.data.get('pl', -1) >= 0 && request.resource.data.get('pl', -1) <= 7))
+        && (request.resource.data.kind != 'mpass' || (request.resource.data.get('pl', -1) is int && request.resource.data.get('pl', -1) >= 1 && request.resource.data.get('pl', -1) <= 3))
+        && request.resource.data.code is string && request.resource.data.code.size() <= 12
+        && request.resource.data.pn is string && request.resource.data.pn.size() <= 40
+        && request.resource.data.t is number;
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (signedIn() && myPid() != '' && resource.data.pid == myPid() && resource.data.st == 'wait');
+    }
+    // where to send the 応援値 (the admin's own words); everyone signed in can read it
+    match /config/pay {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
     match /grants/{g} {
       allow read: if signedIn();
       allow create: if isAdmin();
