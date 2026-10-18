@@ -1331,6 +1331,12 @@ body:not(.gkview){background:
 .strow .pile.m.deck,.strow .pile.o.gy{right:calc(7px - var(--gut,58px))}
 .strow .pile.m.gy,.strow .pile.o.deck{left:calc(5px - var(--gut,58px))}
 .pile .pn{right:-3px}
+/* (10/18) the piles go back into the trap rows (at both ends), the same height as the trap slots; the card spots use the whole width */
+.strow .pile,.strow .pile.o,.strow .pile.m{top:50%;bottom:auto;transform:translateY(-50%);width:calc(var(--zh,60px) * 1.06 * 59 / 86)}
+.strow .pile.m.deck,.strow .pile.o.gy{right:8px;left:auto}
+.strow .pile.m.gy,.strow .pile.o.deck{left:8px;right:auto}
+.pile .pl{top:auto;bottom:calc(100% + 2px);font-size:9.5px}
+#oppST .pile{margin-top:7px}
 
 </style>
 
@@ -2749,7 +2755,7 @@ function fit(){const gm=$('s-game');if(gm.hidden)return;const W=gm.clientWidth,H
   const hw=Math.max(60,Math.min(84,Math.floor(Hh*0.112)));gm.style.setProperty('--hw',hw+'px');
   const fixed=['oppBar','myBar','hand'].reduce((a,id)=>a+$(id).offsetHeight,0);
   /* (10/18) マスターデュエル風: side gutters for the piles, trap slots sized by the screen height */
-  const gut=Math.round(Math.max(48,Math.min(66,W*.15))),zh=Math.round(Math.max(46,Math.min(70,Hh*.074)));gm.style.setProperty('--gut',gut+'px');gm.style.setProperty('--zh',zh+'px');
+  const gut=8,zh=Math.round(Math.max(46,Math.min(70,Hh*.074)));gm.style.setProperty('--gut',gut+'px');gm.style.setProperty('--zh',zh+'px');
   const tz=[...document.querySelectorAll('.strow')].reduce((a,x)=>a+x.offsetHeight,0);const rowH=(Hh-fixed-tz-28-16)/2-4,colW=(Math.min(W,560)-2*gut-8)/4-6;const cw=Math.max(54,Math.floor(Math.min(colW,rowH*59/86)));gm.style.setProperty('--cw',cw+'px');fanHand()}
 window.addEventListener('resize',fit);
 function fanHand(){const hd=$('hand');const cs=[...hd.querySelectorAll(WATCH?'.cb':'.bc')];const n=cs.length;if(!n)return;const W=hd.clientWidth-20,w=cs[0].offsetWidth||60;
