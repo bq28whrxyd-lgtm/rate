@@ -3148,10 +3148,9 @@ button.tcgkeep{width:100%;margin-top:8px}
 @media (max-width:360px){.stka-g{gap:12px 4px}}
 /* one sticker, big */
 .stkv{position:fixed;inset:0;z-index:122;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:16px;background:rgba(6,5,10,.86);animation:fade .2s both}
-.stkv-f{position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,1.2,.4,1)}
-.stkv-f>.stk{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
-.stkv-f>.stk.back{transform:rotateY(180deg)}
-.stkv-f.flip{transform:rotateY(180deg)}
+.stkv-f{position:relative;transition:transform .17s ease-in}
+.stkv-f.turn{transform:scaleX(0)}
+.stkv-f>.stk{position:absolute;inset:0}
 .stkv-c{display:flex;flex-direction:column;align-items:center;gap:4px;color:#f2ede4;text-align:center}.stkv-c b{font-size:18px;font-weight:900}.stkv-c span{font-size:12px;color:#bdb6cc}
 .stkv-bt{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
 .stkv-bt button{height:42px;padding:0 16px;border-radius:12px;border:0;font:800 13px/1 inherit;font-family:inherit;background:linear-gradient(180deg,#ffd27a,#ff9a3c);color:#2a1206;cursor:pointer}
@@ -3196,6 +3195,12 @@ button.tcgkeep{width:100%;margin-top:8px}
 /* in the market's small thumbnails (they draw everything at 120×168, scaled) */
 .mkth>.stk{height:120px!important;top:24px!important}
 .stka-c{display:block;width:auto;min-width:0;min-height:0;margin:0}
+
+/* (10/19) the real stickers are cut-out chibi pictures standing on the pattern (no round frame) */
+.stk .stk-ch{left:3%;right:3%;top:2%;bottom:15%;width:auto;aspect-ratio:auto;transform:none;border-radius:0;overflow:visible;background:none!important;box-shadow:none!important}
+.stk .stk-ch img{width:100%;height:100%;object-fit:contain;object-position:50% 100%;transform:none;filter:drop-shadow(0 calc(var(--w) * .012) 0 rgba(0,0,0,.28))}
+.stk .stk-q{border-radius:50%;width:70%;height:96%;margin:0 auto;background:rgba(0,0,0,.25)}
+.stk.g-tai .stk-ch img{filter:drop-shadow(0 0 calc(var(--w) * .03) rgba(255,255,255,.85)) drop-shadow(0 calc(var(--w) * .012) 0 rgba(0,0,0,.25))}
 /* STKcss:end */
 /* ORDcss:begin */
 /* (10/18) 申し込み */
@@ -8658,30 +8663,26 @@ async function hwPassEquip(id,b){const me=myPlayer();if(!me||!hwPassTitleOk(me.i
 
 /* the admin card: give the pass or the set after taking the money */
 /* STKjs:begin */
-/* ---- (10/19) ハロウィン シールアルバム: 12 stickers, only during the Halloween event.
+/* ---- (10/19) ハロウィン シールアルバム: 9 stickers, only during the Halloween event.
    Every rate match and TCG friend battle (win or lose) gives each player a 10% chance of one sticker. The chance and the sticker
    are worked out from the match id and the player id (hsh), so nothing is stored for a drop and nobody can pick theirs.
-   Kinds: おばけ 4, 魔女 3, かぼちゃ 3 (plain), 大将 2 (キラ, the two event bosses, rarer).
+   Kinds: おばけ 3, 魔女 3, かぼちゃ 1 (plain), 大将 2 (キラ: おばけ番長 and 夜宴の魔女, rarer).
    Extra copies go to the オークション as kind 's' (c = sticker id). inv.stkd {id: +n received / -n listed} keeps those moves.
-   The collection stays after the event; new stickers only drop while hwIn(t). Art: STK_ART until the chibi art arrives. ---- */
+   The collection stays after the event; new stickers only drop while hwIn(t). Art: pwa/stk/sN.webp (the user's chibi art, cut out). ---- */
 const STK_RATE=.10,STK_KIRA_W=.4;
 const STK_G={obk:{n:'おばけ',m:'霊',c1:'#b9a8ff',c2:'#5b4bd1'},maj:{n:'魔女',m:'魔',c1:'#c04cf0',c2:'#5a1680'},kab:{n:'かぼちゃ',m:'瓜',c1:'#ffb03a',c2:'#d9580f'},tai:{n:'大将',m:'将',c1:'#8b6dff',c2:'#ff4dc4',kira:1}};
 const STK=[
   {id:'s1',g:'obk',n:'ふわりん',t:'ハロウィンの夜だけ町に下りてくる、いちばん小さなおばけ。人見知りで、目が合うとシーツの中に隠れてしまう。'},
   {id:'s2',g:'obk',n:'ランタンおばけ',t:'かぼちゃのランタンを提げて道を照らす。迷子のおばけを集めて、魔女の宴には近づかないよう見張っている。'},
   {id:'s3',g:'obk',n:'つまみぐいおばけ',t:'お菓子の匂いがするとどこにでも現れる。魔女の城の台所にも、こっそり忍びこんだことがあるらしい。'},
-  {id:'s4',g:'obk',n:'おばけ番長',t:'町じゅうのおばけをまとめる親分。かぼちゃ頭の騎士とは昔からの飲み友だちで、夜明けまで語り合う仲。'},
   {id:'s5',g:'maj',n:'見習い魔女ミント',t:'夜宴の魔女のいちばん新しい弟子。お菓子を消す呪文がまだうまく使えず、毎年キャンディに変えてしまう。'},
   {id:'s6',g:'maj',n:'ほうき星の魔女',t:'ほうきで夜空を飛び回り、宴の招待状を配る。ただし本当に招きたいのは、お菓子を山ほど持っている人だけ。'},
   {id:'s7',g:'maj',n:'キャンディ魔女',t:'作るあめ玉は、なめると一晩だけ空が飛べる。魔女たちの中で、ただ一人だけ子どもたちの味方をしている。'},
-  {id:'s8',g:'kab',n:'ちびかぼ',t:'畑で生まれたばかりのかぼちゃ。いつか騎士さまのように町を守るのが夢で、毎晩ランタンの練習をしている。'},
-  {id:'s9',g:'kab',n:'かぼちゃ門番',t:'町の入り口に立つ大きなかぼちゃ。魔女の手下が来ると、ぴかっと光ってみんなに知らせる。'},
-  {id:'s10',g:'kab',n:'くりぬき職人',t:'町のランタンはぜんぶ、この職人が彫ったもの。騎士さまのかぶとを作ったのもこの人だという。'},
-  {id:'s11',g:'tai',n:'かぼちゃ頭の騎士',t:'ハロウィンの夜、町のお菓子を守る騎士。かぶとの中の顔はだれも見たことがない。魔女とは毎年、夜明けまで戦う。'},
-  {id:'s12',g:'tai',n:'夜宴の魔女',t:'満月の夜に城で宴を開き、町じゅうのお菓子を集めようとする魔女。でも本当は、ひとりで食べるのがさびしいだけ。'}];
-/* placeholder pictures (the event's own art) until the chibi stickers arrive: replace with 'stk/sN.webp' */
-const STK_ART={s1:'hw_gha.webp',s2:'hw_ghb.webp',s3:'hw_ghc.webp',s4:'cardhd/hw9.webp',s5:'cardhd/hq8.webp',s6:'cardhd/hx6.webp',s7:'cardhd/hx17.webp',s8:'hw_pka.webp',s9:'hw_pkc.webp',s10:'cardhd/hn9.webp',s11:'cardhd/ho9.webp',s12:'cardhd/hx24.webp'};
-const STK_FIT={s1:1,s2:1,s3:1,s8:1,s9:1};/* whole pictures (no crop) */
+  {id:'s8',g:'kab',n:'くりぬき職人',t:'町のランタンはぜんぶ、この職人が彫ったもの。かぼちゃ頭の騎士のかぶとを作ったのもこの人だという。'},
+  {id:'s4',g:'tai',n:'おばけ番長',t:'町じゅうのおばけをまとめる親分。魔女の宴の夜だけは、子分たちを引き連れて町の入り口を守りにくる。'},
+  {id:'s9',g:'tai',n:'夜宴の魔女',t:'満月の夜に城で宴を開き、町じゅうのお菓子を集めようとする魔女。でも本当は、ひとりで食べるのがさびしいだけ。'}];
+/* the chibi stickers (cut out, with a white die-cut rim): pwa/stk/sN.webp */
+const STK_ART=Object.fromEntries(STK.map(s=>[s.id,'stk/'+s.id+'.webp']));
 const STKI=Object.fromEntries(STK.map((s,i)=>[s.id,Object.assign({no:i+1},s)]));
 const stkKira=id=>!!(STKI[id]&&STK_G[STKI[id].g].kira);
 /* which sticker a lucky drop is: kira ones are rarer */
@@ -8704,13 +8705,13 @@ function stkInfo(id){const s=STKI[id];if(!s)return null;const G=STK_G[s.g];retur
 /* ---- the sticker itself (front / back) ---- */
 function stkFace(id,o){o=o||{};const s=STKI[id];const w=o.w||200,d=el('div','stk g-'+(s?s.g:'obk')+(o.lock?' stk-lock':''));d.style.setProperty('--w',w+'px');if(!s)return d;const G=STK_G[s.g];
   const inn=el('div','stk-in'),ch=el('div','stk-ch');
-  if(o.lock){ch.append(el('span','stk-q','?'))}else{const im=el('img');im.alt='';im.decoding='async';im.src=STK_ART[id]||'';if(STK_FIT[id])im.classList.add('fit');ch.append(im)}
+  if(o.lock){ch.append(el('span','stk-q','?'))}else{const im=el('img');im.alt='';im.decoding='async';im.src=STK_ART[id]||'';ch.append(im)}
   const nm=el('div','stk-nm');nm.append(el('b',null,o.lock?'？？？':s.n));
   inn.append(ch,nm,el('i','stk-no',String(s.no).padStart(2,'0')),el('i','stk-gk',G.m));d.append(inn,el('i','stk-gl'));
   if(G.kira&&!o.lock)d.append(el('i','stk-sp'));return d}
 function stkBack(id,o){o=o||{};const s=STKI[id],w=o.w||200,d=el('div','stk back');d.style.setProperty('--w',w+'px');if(!s)return d;const G=STK_G[s.g];
   const inn=el('div','stk-in'),h=el('div','bk-h');h.append(el('span',null,'ハロウィンシール'),el('span',null,'No.'+String(s.no).padStart(2,'0')));
-  const g=el('span','bk-g',G.n+(G.kira?'(キラ)':''));g.style.background=G.c2;inn.append(h,el('div','bk-n',s.n),g,el('div','bk-t',s.t),el('div','bk-f','12枚あつめると、ハロウィンの夜の物語がわかる'));d.append(inn);return d}
+  const g=el('span','bk-g',G.n+(G.kira?'(キラ)':''));g.style.background=G.c2;inn.append(h,el('div','bk-n',s.n),g,el('div','bk-t',s.t),el('div','bk-f','9枚あつめると、ハロウィンの夜の物語がわかる'));d.append(inn);return d}
 /* the foil follows the finger (and the phone's tilt is not used: no permission prompts) */
 function stkTilt(card){const set=(x,y)=>{card.style.setProperty('--px',(20+x*60).toFixed(1)+'%');card.style.setProperty('--a',((x-.5)*30).toFixed(1)+'deg');card.style.transform='perspective(700px) rotateY('+((x-.5)*16).toFixed(1)+'deg) rotateX('+((.5-y)*16).toFixed(1)+'deg)'};
   card.addEventListener('pointermove',e=>{const r=card.getBoundingClientRect();set(Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),Math.min(1,Math.max(0,(e.clientY-r.top)/r.height)))});
@@ -8728,12 +8729,14 @@ function stkAlbumDraw(){const o=stkEl,me=myPlayer();if(!o||!o.isConnected||!me)r
   b.scrollTop=sc}
 /* one sticker, big: tap to turn it over; extras can go to the auction */
 function stkView(id){document.querySelectorAll('.stkv').forEach(x=>x.remove());const s=STKI[id];if(!s)return;const o=el('div','stkv'),w=Math.min(300,Math.round(innerWidth*.74)),fl=el('div','stkv-f');
-  fl.append(stkFace(id,{w}),stkBack(id,{w}));fl.style.width=fl.style.height=w+'px';const n=stkHaveMe(id);
+  const fF=stkFace(id,{w}),fB=stkBack(id,{w});fB.hidden=true;fl.append(fF,fB);fl.style.width=fl.style.height=w+'px';const n=stkHaveMe(id);
+  /* turn over: squash to nothing, swap the side, open again (no 3D, so nothing shows through) */
+  let turning=false;const flip=()=>{if(turning)return;turning=true;fl.classList.add('turn');setTimeout(()=>{const b=fB.hidden;fB.hidden=!b;fF.hidden=b;fl.classList.toggle('flip',b);fl.classList.remove('turn');turn.textContent=b?'表を見る':'裏を見る';setTimeout(()=>{turning=false},200)},170)};
   const cap=el('div','stkv-c');cap.append(el('b',null,s.n),el('span',null,STK_G[s.g].n+(stkKira(id)?' キラ':'')+'  ·  '+n+'枚持っています'));
-  const bt=el('div','stkv-bt'),turn=el('button','sec','裏を見る');turn.type='button';turn.onclick=e=>{e.stopPropagation();fl.classList.toggle('flip');turn.textContent=fl.classList.contains('flip')?'表を見る':'裏を見る'};bt.append(turn);
+  const bt=el('div','stkv-bt'),turn=el('button','sec','裏を見る');turn.type='button';turn.onclick=e=>{e.stopPropagation();flip()};bt.append(turn);
   if(n>1&&typeof listSheet==='function'){const sell=el('button',null,'1枚オークションに出す');sell.type='button';sell.onclick=e=>{e.stopPropagation();o.remove();listSheet('s',id,false,()=>{try{stkAlbumDraw()}catch(_){}})};bt.append(sell)}
   const cl=el('button','sec','閉じる');cl.type='button';cl.onclick=()=>o.remove();bt.append(cl);
-  fl.onclick=e=>{e.stopPropagation();fl.classList.toggle('flip');turn.textContent=fl.classList.contains('flip')?'表を見る':'裏を見る'};
+  fl.onclick=e=>{e.stopPropagation();flip()};
   o.append(fl,cap,bt);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o);stkTilt(fl.querySelector('.stk'))}
 /* ---- a new sticker: the pack tears, the sticker slides out and turns over ---- */
 const STK_SEEN=pid=>'stkSeen_'+pid;
@@ -8746,7 +8749,7 @@ function stkCheck(){const me=myPlayer();if(!me||typeof hwIn!=='function'||docume
 function stkReveal(ids,keys){keys=keys||[];if(!ids.length)return;const me=myPlayer(),o=el('div','stkr'),st=el('div','stkr-st');o.append(st);let i=0,busy=false;
   const close=()=>{o.classList.add('out');setTimeout(()=>o.remove(),300);try{stkAlbumDraw()}catch(e){}};
   const show=()=>{const id=ids[i],s=STKI[id],kira=stkKira(id),w=Math.min(280,Math.round(innerWidth*.7));st.replaceChildren();o.classList.toggle('kira',kira);
-    const pk=el('div','stkr-pk'+(kira?' kira':''));pk.innerHTML='<i class="t"></i><i class="b"></i><span><small>HALLOWEEN</small><b>STICKER</b><em>ハロウィンシール 全12種</em></span>';
+    const pk=el('div','stkr-pk'+(kira?' kira':''));pk.innerHTML='<i class="t"></i><i class="b"></i><span><small>HALLOWEEN</small><b>STICKER</b><em>ハロウィンシール 全9種</em></span>';
     const card=el('div','stkr-c');card.style.width=card.style.height=w+'px';card.append(stkFace(id,{w}));
     const cap=el('div','stkr-cap');const first=stkHaveMe(id)<=ids.slice(0,i+1).filter(x=>x===id).length;cap.append(el('small',null,(kira?'キラ  ·  ':'')+STK_G[s.g].n+'  ·  No.'+String(s.no).padStart(2,'0')),el('b',null,s.n),el('span',null,first?'NEW':'×'+stkHaveMe(id)+'枚目'));
     const hint=el('div','stkr-h',ids.length>1?(i+1)+' / '+ids.length+'  ·  タップで次へ':'タップで閉じる');
@@ -14422,7 +14425,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
       '<b>推しキャラ</b><small>応援300回で<wbr>ホームに出せる</small><em class="kcn" data-n="oshi"></em></button>'+
     '<button type="button" class="kcolc" data-c="stk"><span class="kci">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3.5"/><circle cx="12" cy="10.5" r="3.6"/><path d="M7.5 17h9"/><path d="M15.5 4.5 19.5 8.5"/></svg></span>'+
-      '<b>シールアルバム</b><small>ハロウィンのシール<wbr>12枚</small><em class="kcn" data-n="stk"></em></button></div>';
+      '<b>シールアルバム</b><small>ハロウィンのシール<wbr>9枚</small><em class="kcn" data-n="stk"></em></button></div>';
   col.querySelector('[data-c=skin]').onclick=()=>{try{openCollection()}catch(e){}};
   col.querySelector('[data-c=dex]').onclick=()=>window.tcgDeckView('dex');
   col.querySelector('[data-c=grade]').onclick=()=>{try{grSheet()}catch(e){}};
