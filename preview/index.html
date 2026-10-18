@@ -5926,6 +5926,16 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
 .hd-fzx{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0}
 .hd-fzx svg{width:100%;height:100%;overflow:visible}
 .hd-fzx path{fill:none;stroke:url(#hdfzg);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 4px rgba(220,170,255,.9))}
+
+/* (10/18) the GR freeze: red and gold, a blood moon, 「GR確定」 in red */
+.hd-fzgr .hd-fzs{background:linear-gradient(180deg,#ffd36a,#ff6a3a,#ff1f3d,#a8001a,#ff1f3d,#ff6a3a,#ffd36a);box-shadow:0 0 14px 3px rgba(255,225,190,.55),0 0 40px 10px rgba(255,40,60,.55)}
+.hd-fzgr .hd-fzh{background:conic-gradient(from 0deg,#ff1f3d,#ff8a3a,#ffd36a,#ff1f3d,#a8001a,#ff5a3c,#ffd36a,#ff1f3d)}
+.hd-fzgr .hd-fzx path{filter:drop-shadow(0 0 1.5px #fff3e0) drop-shadow(0 0 4px rgba(255,60,70,.9))}
+.hd-fzgr .hd-fzf{background:radial-gradient(60% 50% at 50% 45%,#fff 0%,rgba(255,236,220,.92) 22%,rgba(255,70,70,.6) 45%,rgba(255,170,60,.35) 65%,rgba(255,60,60,0) 85%)}
+.hd-fzgr .hd-fzk{-webkit-text-stroke-color:#a3001c;text-shadow:0 0 18px rgba(255,60,80,.85),0 3px 0 #3a0008}
+.hd-fzgr .hd-fzkk{background:linear-gradient(180deg,#ff8a6a 0%,#ff2a3d 42%,#c2001f 78%,#ff4a4a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2.5px #fff;filter:drop-shadow(0 0 1px #4a0008) drop-shadow(0 3px 0 #4a0008) drop-shadow(0 0 18px rgba(255,60,60,.95))}
+.kgo.kg-hwd.hd-fzrd .hd-moon{filter:sepia(1) saturate(7) hue-rotate(-28deg) brightness(.95) drop-shadow(0 0 34px rgba(255,40,40,.75))}
+.kgo.kg-hwd.hd-fzrd .hd-sky{background:radial-gradient(70% 45% at 50% 22%,rgba(200,30,40,.45),transparent 70%),radial-gradient(80% 40% at 50% 100%,rgba(255,90,40,.22),transparent 70%),linear-gradient(180deg,#2a0810,#12040a 55%,#070205)}
 /* ===== v121 ガチャ画面 (kgu): banner chips + one big banner card, the old sections hidden underneath ===== */
 @property --a1{syntax:'<color>';inherits:true;initial-value:#8b7bff}
 @property --a2{syntax:'<color>';inherits:true;initial-value:#3dd8f0}
@@ -15176,9 +15186,10 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     /* (10/18) フリーズ: a KMR that looks like a plain orange door; the moment light leaks through the gap everything stops dead,
        goes cold and dark, the lanterns go out one by one, then something knocks back from INSIDE (twice), the gap turns rainbow
        and the doors burst open on the KMR. Like the normal pack's freeze: KMR only, 4 in 10 (window.__hwFreeze forces it) */
-    const fz=best>=5&&!RM&&(window.__hwFreeze===true||(window.__hwFreeze!==false&&window.__kgClimb!==true&&Math.random()<.4));
+    /* (10/18) GR too (2 in 10), in red and gold under a blood moon, with 「GR確定」 in red */
+    const fz=best>=5&&!RM&&(window.__hwFreeze===true||(window.__hwFreeze!==false&&window.__kgClimb!==true&&Math.random()<.4)),fzGr=best===4&&!RM;
     const climb=!fz&&best>=3&&!RM&&(window.__kgClimb===true||(window.__kgClimb!==false&&Math.random()<.35)),shown=fz?1:climb?best-1:best;
-    const o=stage('kg-hwd'+(best>=4&&!fz?' rb':''));o.style.setProperty('--tc',TC[shown]);let fzDone=false;
+    const o=stage('kg-hwd'+(best>=4&&!fz&&!fzGr?' rb':'')+(fzGr?' hd-fzgr':''));o.style.setProperty('--tc',TC[shown]);let fzDone=false;
     const sc=mk('div','hd-sc'),sky=mk('i','hd-sky'),moon=mk('i','hd-moon'),stars=mk('i','hd-stars');
     const fr=mk('div','hd-frame'),hole=mk('div','hd-hole'),beyond=mk('div','hd-beyond'),glow=mk('i','hd-glow'),slit=mk('i','hd-slit');
     const dl=mk('div','hd-leaf l',DOOR_SVG('l')),dr=mk('div','hd-leaf r',DOOR_SVG('r')),arch=mk('i','hd-arch'),step=mk('i','hd-step');
@@ -15192,14 +15203,17 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     const cv=mk('canvas','hd-cv');
     sc.append(sky,stars,moon,fr,...lan,...knock,words,cv);
     /* the freeze layers: the cold and the dark, the knocks from inside, the flash when it breaks, the 確定 sticker */
-    const fzL=mk('i','hd-fz'),fzK=[0,1].map(k=>mk('b','hd-fzk'+(k?' b':''),k?'コン!!':'コン…')),fzF=mk('i','hd-fzf'),fzKK=mk('b','hd-fzkk','KMR確定');
+    const fzL=mk('i','hd-fz'),fzK=[0,1].map(k=>mk('b','hd-fzk'+(k?' b':''),k?'コン!!':'コン…')),fzF=mk('i','hd-fzf'),fzKK=mk('b','hd-fzkk',fzGr?'GR確定':'KMR確定');
     /* (10/18) the rainbow: a canvas behind the door (rays, the shock ring, sparkles), a halo ring behind the arch, a line of rainbow
        in the gap and rainbow cracks across the doors */
     const fzC=mk('canvas','hd-fzc'),fzH=mk('i','hd-fzh'),fzS=mk('i','hd-fzs'),fzX=mk('div','hd-fzx');
-    fzX.innerHTML='<svg viewBox="0 0 100 155" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="hdfzg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff6fa8"/><stop offset=".2" stop-color="#ffb35c"/><stop offset=".4" stop-color="#ffe66b"/><stop offset=".6" stop-color="#7dffb0"/><stop offset=".8" stop-color="#6bd8ff"/><stop offset="1" stop-color="#c58bff"/></linearGradient></defs>'+
+    fzX.innerHTML='<svg viewBox="0 0 100 155" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="hdfzg'+(fzGr?'r':'')+'" x1="0" y1="0" x2="1" y2="1">'+(fzGr?['#ffd36a','#ff7a3a','#ff1f3d','#ff4a5a','#ffb347','#ff1f3d']:['#ff6fa8','#ffb35c','#ffe66b','#7dffb0','#6bd8ff','#c58bff']).map((c,i)=>'<stop offset="'+(i/5).toFixed(2)+'" stop-color="'+c+'"/>').join('')+'</linearGradient></defs>'+
       ['M50 60 L41 52 L33 55 L22 44 L10 46','M50 78 L60 70 L68 74 L80 62 L92 64','M50 96 L39 104 L31 101 L19 113 L6 112','M50 112 L61 121 L70 118 L82 131 L94 130','M50 40 L56 30 L52 22 L58 10'].map(d=>'<path d="'+d+'" pathLength="1"/>').join('')+'</svg>';
-    if(fz){sc.insertBefore(fzC,fr);fr.insertBefore(fzH,fr.firstChild);fr.append(fzS,fzX);sc.append(fzL,...fzK,fzF,fzKK)}
-    const FC=fzC.getContext('2d'),HUE=['#ff6fa8','#ffb35c','#ffe66b','#7dffb0','#6bd8ff','#8b7bff','#e07bff'];
+    if(fz){sc.insertBefore(fzC,fr);fr.insertBefore(fzH,fr.firstChild);fr.append(fzS,fzX);sc.append(fzL,...fzK,fzF,fzKK)}else if(fzGr){sc.insertBefore(fzC,fr);fr.insertBefore(fzH,fr.firstChild);sc.append(fzKK)}
+    if(fzGr)fzX.querySelectorAll('path').forEach(p=>p.style.stroke='url(#hdfzgr)');
+    const FC=fzC.getContext('2d'),HUE=fzGr?['#ff2a3d','#ffd36a','#ff6a3a','#ff4560','#ffb347','#ff1f3d','#ffe08a']:['#ff6fa8','#ffb35c','#ffe66b','#7dffb0','#6bd8ff','#8b7bff','#e07bff'];
+    /* the colour of ray i / ring piece k: every hue for a KMR, reds and golds for a GR */
+    const rayH=(i,N,t)=>fzGr?[352,8,42,356,22][i%5]:(i*360/N+t*70)%360,ringH=(k,t)=>fzGr?[355,40,10,48][k%4]:(k*360/42+t*120)%360,rayL=fzGr?62:80;
     const SPK=[...Array(70)].map((_,i)=>({a:Math.random()*6.283,v:.25+Math.random()*.8,s:2+Math.random()*4.5,h:i%7,d:Math.random()*.5,tw:Math.random()*6}));
     const E=engine(o,res,onMore,{label,sumPrefix:'ハッピーハロウィン',onTurn:z=>hdReact(o,z.x.c.r),
       back:c=>{const cb=c.querySelector('.kg-cb');if(cb)cb.innerHTML='<img class="hd-cbp" src="hwpk/pk03.webp" alt="">'},
@@ -15209,13 +15223,13 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     /* the freeze sits at TF and lasts FZ; everything after it on the real clock moves by SH */
     const TF=TG+.22,FZ=2.5,SH=fz?FZ:0,IK=[1.45,1.9],UB=2.3;
     let Wd=0,Hd=0,dpr=1,cx2=0,cy2=0,fw=0,fh=0;const C=cv.getContext('2d');
-    function lay(){Wd=innerWidth;Hd=innerHeight;dpr=Math.min(2,devicePixelRatio||1);cv.width=Math.round(Wd*dpr);cv.height=Math.round(Hd*dpr);if(fz){fzC.width=cv.width;fzC.height=cv.height}const r=fr.getBoundingClientRect();cx2=r.left+r.width/2;cy2=r.top+r.height*.55;fw=r.width;fh=r.height}
+    function lay(){Wd=innerWidth;Hd=innerHeight;dpr=Math.min(2,devicePixelRatio||1);cv.width=Math.round(Wd*dpr);cv.height=Math.round(Hd*dpr);if(fz||fzGr){fzC.width=cv.width;fzC.height=cv.height}const r=fr.getBoundingClientRect();cx2=r.left+r.width/2;cy2=r.top+r.height*.55;fw=r.width;fh=r.height}
     lay();requestAnimationFrame(()=>{lay();E.lay()});
     const R=rng(n*17+best*3+5);
     const CANDY=[...Array(ten?90:64)].map(()=>({a:-Math.PI/2+(R()-.5)*2.6,v:.6+R()*1.1,s:.7+R()*.9,r0:R()*6,vr:(R()-.5)*14,c:['#ff8a2a','#b45cff','#ffd34a','#ff5fa8','#7fe0ff','#9bff8a'][(R()*6)|0],k:R()<.5?0:1,d:R()*.1}));
     const BATS=[...Array(12)].map(()=>({a:-Math.PI/2+(R()-.5)*3,v:.9+R()*.9,s:.7+R()*.7,ph:R()*6}));
     const DUST=[...Array(26)].map(()=>({x:R(),y:R(),s:.4+R(),p:R()*6}));
-    const lc=t=>fz?DCOL[fzDone?best:shown]:t<(TC2||99)?DCOL[shown]:DCOL[best];
+    const lc=t=>fz?(fzDone?DCOL[best]:DCOL[shown]):t<(TC2||99)?(shown===4&&fzGr?'#ff3a4a':DCOL[shown]):(fzGr?'#ff3a4a':DCOL[best]);
     /* candy drawn like stickers: a white rim, a stripe, a gloss (wrapped sweets and swirl lollipops) */
     function candy(x,y,s,c,k){C.lineJoin='round';
       if(k){C.fillStyle='#fff';C.beginPath();C.arc(0,0,s*1.22,0,6.283);C.fill();C.fillStyle=c;C.beginPath();C.arc(0,0,s,0,6.283);C.fill();
@@ -15259,7 +15273,8 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
           C.quadraticCurveTo(-s*.3,-s*.35,-s,-s*.15);C.quadraticCurveTo(-s*.7,0,-s*.85,s*.3);C.quadraticCurveTo(-s*.45,s*.1,-s*.25,s*.35);C.quadraticCurveTo(0,s*.2,s*.25,s*.35);C.quadraticCurveTo(s*.45,s*.1,s*.85,s*.3);C.quadraticCurveTo(s*.7,0,s,-s*.15);C.quadraticCurveTo(s*.3,-s*.35,0,s*.15);C.fill();C.restore()}}
       C.globalAlpha=1}
     /* the real clock → the scene's clock (it stands still during the freeze), plus the freeze layers on top */
-    function renderR(t){if(!fz){render(t);return}
+    function renderR(t){if(!fz&&!fzGr){render(t);return}
+      if(!fz){const b0=t-TB;o.classList.toggle('hd-fzrd',b0>0);render(t)}else{
       const u=t-TF,inF=u>=0&&u<FZ,done=u>=FZ;fzDone=done;o.classList.toggle('hd-fzon',inF);o.classList.toggle('rb',done&&best>=4);o.style.setProperty('--tc',TC[done?best:shown]);
       render(u<0?t:inF?TF:t-FZ);
       /* cold at once, then the dark closes in; the lanterns go out one by one */
@@ -15275,18 +15290,18 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
       /* the rainbow. A line of it in the gap after the first knock from inside, cracks after the second, then everything at the break */
       const gS=inF?Math.max(0,Math.min(1,(u-IK[0])/.5)):0;fzS.style.opacity=(inF?gS*(.35+.25*Math.sin(u*14))+Math.max(0,Math.min(1,(u-IK[1])/.3))*.4:0).toFixed(3);fzS.style.transform='scaleY('+(.3+.7*gS).toFixed(3)+')';
       const cr=inF?Math.max(0,Math.min(1,(u-IK[1]-.05)/.32)):0,crOut=t>TF+UB?Math.max(0,1-(t-TF-UB)/.35):1;fzX.style.opacity=(cr>0?crOut:0).toFixed(3);
-      fzX.querySelectorAll('path').forEach((pth,i)=>{const c2=Math.max(0,Math.min(1,cr*1.25-i*.06));pth.style.strokeDashoffset=(1-c2).toFixed(3)});
-      const bb=t-(TF+UB),aft=t-(TB+SH);
+      fzX.querySelectorAll('path').forEach((pth,i)=>{const c2=Math.max(0,Math.min(1,cr*1.25-i*.06));pth.style.strokeDashoffset=(1-c2).toFixed(3)})}
+      const bb=fz?t-(TF+UB):t-TB,aft=t-(TB+SH);
       /* the halo ring behind the arch: comes in with the break, keeps turning while the cards come out */
       fzH.style.opacity=(bb>0?Math.min(1,bb/.25)*(1-Math.max(0,(aft-1.6)/.8)):0).toFixed(3);fzH.style.transform='rotate('+(t*40).toFixed(1)+'deg) scale('+(bb>0?.7+.3*DSPR(bb,1.4,.6):.7).toFixed(3)+')';
       FC.setTransform(dpr,0,0,dpr,0,0);FC.clearRect(0,0,Wd,Hd);
       if(bb>0&&aft<3.2){FC.globalCompositeOperation='lighter';const fade=Math.min(1,bb/.12)*(1-Math.max(0,(aft-1.8)/1.2));
         /* rays turning slowly behind the door */
-        const N=22,rot=t*.3,L=Math.hypot(Wd,Hd)*.62;for(let i=0;i<N;i++){const a=rot+i/N*6.283,w=.022+.014*Math.sin(i*1.7),h=(i*360/N+t*70)%360;
-          const g=FC.createLinearGradient(cx2,cy2,cx2+Math.cos(a)*L,cy2+Math.sin(a)*L);g.addColorStop(0,'hsla('+h+',100%,80%,'+(.42*fade).toFixed(3)+')');g.addColorStop(.45,'hsla('+h+',95%,72%,'+(.16*fade).toFixed(3)+')');g.addColorStop(1,'hsla('+h+',90%,65%,0)');
+        const N=22,rot=t*.3,L=Math.hypot(Wd,Hd)*.62;for(let i=0;i<N;i++){const a=rot+i/N*6.283,w=.022+.014*Math.sin(i*1.7),h=rayH(i,N,t);
+          const g=FC.createLinearGradient(cx2,cy2,cx2+Math.cos(a)*L,cy2+Math.sin(a)*L);g.addColorStop(0,'hsla('+h+',100%,'+rayL+'%,'+(.42*fade).toFixed(3)+')');g.addColorStop(.45,'hsla('+h+',95%,72%,'+(.16*fade).toFixed(3)+')');g.addColorStop(1,'hsla('+h+',90%,65%,0)');
           FC.fillStyle=g;FC.beginPath();FC.moveTo(cx2,cy2);FC.arc(cx2,cy2,L,a-w,a+w);FC.closePath();FC.fill()}
         /* the shock ring, in every colour */
-        if(bb<1){const r=bb*Hd*1.15,lw=Math.max(2,26*(1-bb));for(let k=0;k<42;k++){FC.strokeStyle='hsla('+(k*360/42+t*120)%360+',100%,70%,'+((1-bb)*.9).toFixed(3)+')';FC.lineWidth=lw;FC.beginPath();FC.arc(cx2,cy2,r,k/42*6.283,(k+1.15)/42*6.283);FC.stroke()}}
+        if(bb<1){const r=bb*Hd*1.15,lw=Math.max(2,26*(1-bb));for(let k=0;k<42;k++){FC.strokeStyle='hsla('+ringH(k,t)+',100%,'+(fzGr?60:70)+'%,'+((1-bb)*.9).toFixed(3)+')';FC.lineWidth=lw;FC.beginPath();FC.arc(cx2,cy2,r,k/42*6.283,(k+1.15)/42*6.283);FC.stroke()}}
         /* sparkles that drift out and twinkle */
         for(const p of SPK){const v=bb-p.d;if(v<0)continue;const d=p.v*Hd*.6*(1-Math.exp(-1.8*v)),x=cx2+Math.cos(p.a)*d,y=cy2+Math.sin(p.a)*d+v*v*14,tw=.5+.5*Math.sin(v*9+p.tw),al=Math.min(1,v/.1)*(1-Math.max(0,(v-1.8)/1))*tw;if(al<=0)continue;
           const sz=p.s*(.6+.4*tw);FC.fillStyle=HUE[(p.h+Math.floor(v*4))%7];FC.globalAlpha=al;FC.beginPath();FC.moveTo(x,y-sz*2.2);FC.quadraticCurveTo(x,y,x+sz*2.2,y);FC.quadraticCurveTo(x,y,x,y+sz*2.2);FC.quadraticCurveTo(x,y,x-sz*2.2,y);FC.quadraticCurveTo(x,y,x,y-sz*2.2);FC.fill()}
@@ -15298,7 +15313,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     if(tl){tl.to(clock,{t:END+SH,duration:END+SH,ease:'none',onUpdate:()=>renderR(clock.t)},0);
       K.forEach(tk=>tl.call(()=>{if(!o.__seek){SFX('tick');VIB(1)}},null,tk));
       tl.call(()=>{if(!o.__seek){SFX('pop');VIB(2)}},null,TL).call(()=>{if(!o.__seek){SFX(shown>=3?'beam':'chime');VIB(shown>=3?3:1)}},null,TG);
-      if(climb)tl.call(()=>{if(!o.__seek){o.style.setProperty('--tc',TC[best]);if(best>=4)o.classList.add('rb');SFX('slam');VIB(5)}},null,TC2);
+      if(climb)tl.call(()=>{if(!o.__seek){o.style.setProperty('--tc',TC[best]);if(best>=4&&!fzGr)o.classList.add('rb');SFX('slam');VIB(5)}},null,TC2);
       if(fz){tl.call(()=>{if(!o.__seek)VIB(2)},null,TF);IK.forEach((tk,k)=>tl.call(()=>{if(!o.__seek){SFX('tick');VIB(k?5:3)}},null,TF+tk));tl.call(()=>{if(!o.__seek){SFX('slam');VIB(7)}},null,TF+UB)}
       tl.call(()=>{if(!o.__seek){SFX('whoosh');VIB(best>=3?4:2)}},null,TB+SH)
         .fromTo(o.querySelector('.kg-flash'),{opacity:.85},{opacity:0,duration:.55,immediateRender:false},TB+SH)
