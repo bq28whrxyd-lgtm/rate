@@ -1338,6 +1338,19 @@ body:not(.gkview){background:
 #oppBar .ohand .ohn{left:100%;top:9px;bottom:auto;transform:none;margin-left:8px}
 #oppBar .trchip{max-width:110px}
 #oppST{padding-top:30px;min-height:90px}
+/* (10/18) bigger piles and trap slots; no 「トラップ 0/3」 label (only 封印中 shows, when sealed) */
+.strow{min-height:86px;gap:10px}
+.strow .stl{display:none}
+.strow.sealed .stl{display:block;position:absolute;left:50%;top:-2px;transform:translateX(-50%);z-index:3;font-size:9px;padding:3px 8px;margin:0}
+.strow .z{width:52px;height:76px;border-radius:7px}
+.strow .z .cb{border-radius:7px}
+.strow .pile{width:54px;height:79px;margin-top:-39.5px}
+.strow .pile.m.deck,.strow .pile.o.gy{right:8px}
+.strow .pile.m.gy,.strow .pile.o.deck{left:8px}
+.pile .bc{width:54px!important}
+.pile .pn{font-size:11px;min-width:20px;right:-6px;bottom:-6px}
+.pile .pl{top:-14px;font-size:10px}
+#oppST{padding-top:30px;min-height:112px}
 
 </style>
 
@@ -2817,7 +2830,7 @@ function traitEl(P,pi){const t=CD.TRAITS[P.skill];const b=el('button','trchip'+(
 function lifeEl(P,isOpp){const w=el('button','life');w.id=isOpp?'oppLife':'myLife';const b=el('b',null,P.life);const bar=el('i','lbar');const f=el('i');f.style.width=Math.min(100,100*P.life/E.R.LIFE)+'%';if(P.life<=E.R.LIFE*0.3)w.classList.add('low');bar.append(f);
   w.append(el('small',null,'ライフ'),b,bar);w.setAttribute('aria-label',(isOpp?'相手':'あなた')+'のライフ '+P.life);
   w.onclick=()=>{if(isOpp&&mode&&mode.k==='atk'&&E.attackTargets(g,H,mode&&mode.uid?E.find(g,mode.uid):null).includes('life')){mode.target='life';render(snap());return}caption((isOpp?'相手':'あなた')+'のライフ '+P.life+'。0になったら負け')};return w}
-function trapsEl(P,isOpp){const w=el('div','tz2 strow');w.id=isOpp?'oppST':'myST';w.append(el('span','stl',(isOpp?'相手の':'')+'トラップ '+P.st.length+'/'+E.R.ST+(P.seal?' ・ 封印中':'')));if(P.seal)w.classList.add('sealed');for(let i=0;i<E.R.ST;i++){const t=P.st[i];const z=el('button','z'+(isOpp?'':' me'));
+function trapsEl(P,isOpp){const w=el('div','tz2 strow');w.id=isOpp?'oppST':'myST';w.append(el('span','stl',P.seal?(isOpp?'相手のトラップ ':'トラップ ')+'封印中':''));if(P.seal)w.classList.add('sealed');for(let i=0;i<E.R.ST;i++){const t=P.st[i];const z=el('button','z'+(isOpp?'':' me'));
   if(t){z.dataset.tuid=t.uid;z.append(backCard(isOpp));if(!t.ready)z.classList.add('wait');z.onclick=()=>isOpp?caption('相手が伏せたトラップ'):cardSheet(t.id,null,t.ready?'伏せてあるトラップ。相手のターンに条件がそろうと、発動するか聞かれます':'伏せたばかり。次の相手のターンから使えます')}
   else z.onclick=()=>caption('トラップを伏せる場所');w.append(z)}
   /* (10/18) マスターデュエル風: the deck (a stack of the sleeve) and the discard pile sit at the ends of the trap row */
