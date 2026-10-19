@@ -8796,10 +8796,14 @@ function invCampView(){const me=myPlayer();try{if(me)localStorage.setItem(CAMP_K
   const nt=el('div','camp-note');nt.append(el('b',null,'期間  ·  '+campEnd()+'まで'),el('span',null,'期間中に友達の'+INV_N+'戦目が終わった招待が対象です(登録が期間の前でもOK)。何人招待しても、1人ごとにもらえます。'),el('span',null,'1人1アカウントです。自分のサブアカウントを招待したときは、ポイントを取り消します。'));c.append(nt);
   const bt=el('div','camp-btns'),go=el('button','camp-go','招待リンクを送る'),x=el('button','camp-cl','あとで');go.type=x.type='button';go.onclick=()=>{invShare()};x.onclick=close;bt.append(go,x);c.append(bt);
   document.body.append(o)}
-/* the push, once (from the admin's real app) */
+/* the pushes, once each (from the admin's real app): a notices/{id} doc is made once, the server function pushNotice sends it.
+   on: while that push still makes sense */
+const PUSH_ONCE=[Object.assign({on:()=>invCampOn(),done:'みんなに招待キャンペーンの通知を送ります'},CAMP_PUSH),
+  {id:'cpurk1',title:'TCGのCPU戦でもランクが動くように',body:'対戦 > TCG の「ランク戦」で、CPUと戦ってもTCGのランクが上下します。ふつうか つよいかはランダム。勝つと経験値 +5',on:()=>true,done:'みんなにCPUランク戦の通知を送ります'}];
 let campPushed=false;
-function campPush(){if(campPushed||!db||/\/preview\//.test(location.pathname)||window.__FAKE||typeof isAdmin!=='function'||!isAdmin()||!invCampOn())return;campPushed=true;
-  const ref=db.doc('notices/'+CAMP_PUSH.id);let un=null;un=ref.onSnapshot(d=>{try{un&&un()}catch(e){}if(d.exists)return;ref.set({title:CAMP_PUSH.title,body:CAMP_PUSH.body,go:'home',t:now()}).then(()=>toast('みんなに招待キャンペーンの通知を送ります')).catch(()=>{campPushed=false})},()=>{campPushed=false})}
+function campPush(){if(campPushed||!db||/\/preview\//.test(location.pathname)||window.__FAKE||typeof isAdmin!=='function'||!isAdmin())return;campPushed=true;
+  PUSH_ONCE.forEach(P=>{try{if(!P.on())return}catch(e){return}const ref=db.doc('notices/'+P.id);let un=null;
+    un=ref.onSnapshot(d=>{try{un&&un()}catch(e){}if(d.exists)return;ref.set({title:P.title,body:P.body,go:'home',t:now()}).then(()=>toast(P.done)).catch(()=>{campPushed=false})},()=>{campPushed=false})})}
 setInterval(()=>{try{if(myPlayer())campPush()}catch(e){}},6000);
 /* AUDjs:end */
 /* STKjs:begin */
