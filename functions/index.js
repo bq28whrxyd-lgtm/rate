@@ -251,3 +251,9 @@ exports.pushOrder = onDocumentCreated('orders/{id}', async ev => {
   const me = (await db.doc('data/users/' + a.uid + '/me').get()).data(); const pid = me && me.pid; if (!pid) return;
   await send([pid], null, {title: '申し込みが来ました', body: cut(o.pn, 20) + '  ' + orderName(o) + '  番号 ' + cut(o.code, 12) + '(届いているか確かめて承認)', go: 'adm', tag: 'ord' + ev.params.id});
 });
+
+/* (10/19) a notice to every phone, once: the admin's app creates notices/{id} (rules: admin only, create only) */
+exports.pushNotice = onDocumentCreated('notices/{id}', async ev => {
+  const n = ev.data && ev.data.data(); if (!n || !n.title) return;
+  await send(null, 'give', {title: cut(n.title, 40), body: cut(n.body, 120), go: 'home', tag: 'nt' + ev.params.id});
+});
