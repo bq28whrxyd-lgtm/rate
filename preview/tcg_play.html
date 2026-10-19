@@ -1768,7 +1768,9 @@ __def('./engine4.js',function(module,exports,require){
    Life points. Up to 4 characters each. Attack any enemy character; the life only when the enemy has no characters.
    Raise: stack a card from hand under your character (1 熱量, once per character per turn) -> ★+1 (same card -> ★+2). ★3 = awakening.
    Battle: attacker ATK > defender DEF -> defender falls, the rest goes to its owner's life. Defender ATK > attacker DEF -> attacker falls the same way (counter). */
-const {BY}=require('./cards4.js');
+const {BY,fk}=require('./cards4.js');
+/* (10/19) a ハロウィン版 is the same character as its original: stacking one on the other is 'the same card' (★+2) */
+const sameC=(a,b)=>a===b||(fk?fk(a)===fk(b):false);
 const R={TRAIT:1,GAY_N:3,GAY_B:300,HAGE_D:300,SEI_A:200,CHU_D:300,IDOL_H:200,LIFE:4000,SLOTS:4,ST:3,HAND:7,START:4,START2:0,MAXE:8,MAXTURN:8,GAUGE:3,BOOST2:1,EVOC:1,STAR:400,PIERCE:1,EVO_READY:0};
 function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 let UID=0;const opp=p=>1-p;
@@ -1900,7 +1902,7 @@ function canEvolve(g,pi,hi,uid){const P=g.p[pi],id=P.hand[hi],m=find(g,uid);if(!
 function lectured(g,pi){const n=Math.max(0,...units(g,opp(pi)).map(m=>(BY[m.id].kw||{}).lecture||0));return n>0&&(g.p[pi].usedN||0)>=n}
 function evoCost(g,pi){return tr(g,pi,'weak')&&g.p[pi].life<g.p[opp(pi)].life?0:R.EVOC}
 function evolve(g,pi,hi,uid){if(!canEvolve(g,pi,hi,uid))return false;const P=g.p[pi],m=find(g,uid);g.acted=(g.acted||0)+1;P.usedN=(P.usedN||0)+1;const id=P.hand.splice(hi,1)[0];P.energy-=evoCost(g,pi);m.under.push(id);m.evoT=P.turn;
-  ev(g,{t:'stack',who:pi,uid,id,same:id===m.id});if(R.EVO_READY){m.sick=false}starUp(g,m,id===m.id?2:1,'stack');if(tr(g,pi,'cre'))draw(g,pi,1);return true}
+  ev(g,{t:'stack',who:pi,uid,id,same:sameC(id,m.id)});if(R.EVO_READY){m.sick=false}starUp(g,m,sameC(id,m.id)?2:1,'stack');if(tr(g,pi,'cre'))draw(g,pi,1);return true}
 /* ---- trap windows: the non-acting player may answer ---- */
 function window(g,kind){const P=g.p[opp(g.cur)];if((P.seal||0)>=g.turns)return[];return P.st.filter(t=>{const w=BY[t.id].when;return t.ready&&(w===kind||(w==='any'&&kind!=='summon')||(kind==='direct'&&w==='attack')||(w==='play'&&(kind==='summon'||kind==='spell')))}).map(t=>t.uid)}
 function fire(g,pi,uid,ctx){const P=g.p[pi];const i=P.st.findIndex(t=>t.uid===uid);if(i<0)return false;const t=P.st.splice(i,1)[0];P.gy.push(t.id);ev(g,{t:'trap',who:pi,id:t.id,uid:t.uid});run(g,pi,BY[t.id].ops,ctx);return true}
@@ -1988,7 +1990,7 @@ function endTurn(g){if(g.over||g.pending)return false;g.p.forEach(P=>P.slot.forE
    The uid counter is put back afterwards so the real game's numbering never changes. */
 function clone(g,seed){const r=g.r,ev=g.ev;g.r=null;g.ev=[];const c=JSON.parse(JSON.stringify(g));g.r=r;g.ev=ev;c.r=rng(seed);return c}
 const uidGet=()=>UID,uidSet=v=>{UID=v};
-module.exports={quickWin,clone,uidGet,uidSet,fam,pureN,mixedN,canQuick,castQuick,tribPool,canLeader,summonLeader,leaderCost,POW,evoCost,R,BY,newGame,startTurn,endTurn,playChara,castSpell,setTrap,evolve,canEvolve,attack,attackTargets,canAttack,canPlay,targets,cost,window,fire,canSkill,skill,ATK,DEF,find,units,opp,hasCover,maxAttacks};
+module.exports={sameC,quickWin,clone,uidGet,uidSet,fam,pureN,mixedN,canQuick,castQuick,tribPool,canLeader,summonLeader,leaderCost,POW,evoCost,R,BY,newGame,startTurn,endTurn,playChara,castSpell,setTrap,evolve,canEvolve,attack,attackTargets,canAttack,canPlay,targets,cost,window,fire,canSkill,skill,ATK,DEF,find,units,opp,hasCover,maxAttacks};
 
 });
 __def('./ai4.js',function(module,exports,require){
@@ -2087,7 +2089,7 @@ function next(g,pi){const P=g.p[pi],O=g.p[1-pi];const mine=E.units(g,pi),theirs=
   for(let i=0;i<P.hand.length;i++){const id=P.hand[i],d=BY[id];
     if(d.type==='chara'&&!d.trib&&free&&E.canPlay(g,pi,i)&&afford(d.c)){const k=d.kw||{};const s=d.c*700+d.atk*0.3+d.def*0.2+(k.revenge?300:0)+(k.mimic?200:0)+(d.onPlay&&d.onPlay.some(o=>o.op==='copyAtk')?Math.max(0,(theirs.length?Math.max(...theirs.map(m=>E.ATK(g,m))):0)-d.atk)*0.3:0)+(bt&&hfam(d)===bt?900:0);if(!best||s>best.s)best={s,a:{type:'chara',hand:i}}}
     if(d.trib&&E.canPlay(g,pi,i)&&afford(d.c)){const low=E.tribPool(g,pi,id).sort((a,b)=>val(g,a)-val(g,b)).slice(0,d.trib);const lost=low.reduce((t,m)=>t+val(g,m),0);const s=d.c*700+d.atk*0.5+d.def*0.3+800+(d.same?onPlayVal(g,pi,d)+((d.kw||{}).rush?700:0)+300:0)-lost*(d.same?0.6:0.8);if(s>0&&(!best||s>best.s))best={s,a:{type:'chara',hand:i,tribs:low.map(m=>m.uid)}}}
-    for(const m of mine){if(!E.canEvolve(g,pi,i,m.uid)||!afford(E.evoCost(g,pi)))continue;const n=Math.min(3-m.star,id===m.id?2:1);let s=n*650+(m.star+n>=3?1300:0)+(id===m.id?300:0)-cardVal(id)*0.55+(E.evoCost(g,pi)===0?300:0)+(P.skill==='cre'?250:0);
+    for(const m of mine){if(!E.canEvolve(g,pi,i,m.uid)||!afford(E.evoCost(g,pi)))continue;const sm=E.sameC?E.sameC(id,m.id):id===m.id,n=Math.min(3-m.star,sm?2:1);let s=n*650+(m.star+n>=3?1300:0)+(sm?300:0)-cardVal(id)*0.55+(E.evoCost(g,pi)===0?300:0)+(P.skill==='cre'?250:0);
       if(!free&&d.type==='chara')s+=300;if(d.type==='trap'&&P.st.length>=E.R.ST)s+=400;if(d.type==='spell'&&d.c>P.maxE)s+=200;
       if(s>0&&(!best||s>best.s))best={s,a:{type:'evolve',hand:i,uid:m.uid}}}}
   if(E.canLeader(g,pi)){const L=BY[P.leader.id];const lb=(b=>b&&b.replace('#',''))(bossTribe(g,pi));const low=mine.filter(m=>!m.isLeader).sort((a,b)=>(lb&&E.fam(g,a)===lb?1:0)-(lb&&E.fam(g,b)===lb?1:0)||val(g,a)-val(g,b))[0];if(low){const sc=E.leaderCost(g,pi)*700+L.atk*0.5+L.def*0.3+800-val(g,low)*0.8;if(sc>0&&(!best||sc>best.s))best={s:sc,a:{type:'leader',tribs:[low.uid]}}}}
@@ -2150,7 +2152,7 @@ function legal(g,pi){const P=g.p[pi],A=[];const mine=E.units(g,pi),theirs=E.unit
     if(d.type==='chara'&&E.canPlay(g,pi,i)){if(d.trib){const low=E.tribPool(g,pi,id).sort((a,b)=>val(g,a)-val(g,b)).slice(0,d.trib);A.push({type:'chara',hand:i,tribs:low.map(m=>m.uid)})}else A.push({type:'chara',hand:i})}
     if(d.type==='trap'&&E.canPlay(g,pi,i))A.push({type:'set',hand:i});
     if(d.type==='spell'&&E.canPlay(g,pi,i)){if(d.tgt){const T=E.targets(g,pi,id);if(T.length)T.forEach(t=>A.push({type:'spell',hand:i,target:t}));else if(d.tgt==='trapOpt')A.push({type:'spell',hand:i})}else A.push({type:'spell',hand:i})}}
-  for(const m of mine){let best=null;for(let i=0;i<P.hand.length;i++){if(!E.canEvolve(g,pi,i,m.uid))continue;const id=P.hand[i];const v=id===m.id?-9999:cardVal(id);if(!best||v<best.v)best={v,i}}if(best)A.push({type:'evolve',hand:best.i,uid:m.uid})}
+  for(const m of mine){let best=null;for(let i=0;i<P.hand.length;i++){if(!E.canEvolve(g,pi,i,m.uid))continue;const id=P.hand[i];const v=(E.sameC?E.sameC(id,m.id):id===m.id)?-9999:cardVal(id);if(!best||v<best.v)best={v,i}}if(best)A.push({type:'evolve',hand:best.i,uid:m.uid})}
   if(E.canSkill(g,pi)){if(P.skill==='girl')theirs.forEach(t=>A.push({type:'skill',target:t.uid}));else A.push({type:'skill'})}
   for(const m of mine)if(E.canAttack(g,pi,m))E.attackTargets(g,pi,m).forEach(t=>A.push({type:'attack',uid:m.uid,target:t}));
   A.push({type:'end'});return A}
@@ -2606,7 +2608,7 @@ function phArt(id,fig){const c=BY[id],[a,b]=PHC[c.f]||PHC.gen,n=c.n,L=n.length,f
    +'<rect width="120" height="100" fill="url(#'+k+')"/><rect x="7" y="7" width="106" height="86" fill="none" stroke="'+a+'" stroke-opacity=".45" stroke-width=".6"/><rect x="10" y="10" width="100" height="80" fill="none" stroke="'+a+'" stroke-opacity=".2" stroke-width=".4"/>'
    +'<path d="M48 30h24M44 70h32" stroke="'+a+'" stroke-opacity=".6" stroke-width=".7"/><text x="60" y="'+(52+fs*.35)+'" text-anchor="middle" font-family="Hiragino Mincho ProN,Yu Mincho,Noto Serif JP,serif" font-weight="700" font-size="'+fs+'" fill="#fff" fill-opacity=".92" letter-spacing=".5">'+n.replace(/[<&]/g,'')+'</text>'
    +'<text x="60" y="80" text-anchor="middle" font-family="sans-serif" font-size="4.2" letter-spacing="1.6" fill="'+a+'" fill-opacity=".8">'+({chara:'CHARACTER',spell:'MAGIC',trap:'TRAP'}[c.type])+'</text></svg>'}
-function figEl(id,ga){if(ga&&CARD_ALT[id]){const w=el('div','panel altp');if(ga>=3){const v=mvEl(id);if(v){w.append(v);return w}}const i=el('img');i.src=CARD_ALT[id];i.alt='';i.style.objectPosition='50% '+(CARD_ALT_POS[id]||25)+'%';w.append(i);return w}if(noArt(id)&&!CARD_CUT[id]){const w=el('div','panel');w.innerHTML=phArt(id,1);return w}if(CARD_CUT[id]){const i=el('img');i.src=CARD_CUT[id];i.alt='';return i}if(CARD_IMG[id]&&CARD_PANEL.includes(id)){const w=el('div','panel');const i=el('img');i.src=CARD_IMG[id];i.alt='';i.style.objectPosition='50% '+(CARD_POS[id]||25)+'%';w.append(i);return w}const d=el('div');d.innerHTML=ART.figure(id);return d.firstChild}
+function figEl(id,ga){if(ga&&CARD_ALT[id]){const w=el('div','panel altp');if(ga>=3){const v=mvEl(id);if(v){w.append(v);return w}}const i=el('img');i.src=CARD_ALT[id];i.alt='';i.style.objectPosition='50% '+(CARD_ALT_POS[id]||25)+'%';w.append(i);return w}if(noArt(id)&&!CARD_CUT[id]){const w=el('div','panel');w.innerHTML=phArt(id,1);return w}if(CARD_CUT[id]){const i=el('img');i.src=CARD_CUT[id];i.alt='';return i}/* (10/19) a ハロウィン版 has its own picture but no cut-out figure: show the picture in a panel (it was drawing an empty placeholder) */if(CARD_IMG[id]&&(CARD_PANEL.includes(id)||(BY[id]&&BY[id].hwOf)||!(ART.ART&&ART.ART[id]))){const w=el('div','panel');const i=el('img');i.src=CARD_IMG[id];i.alt='';i.style.objectPosition='50% '+(CARD_POS[id]||25)+'%';w.append(i);return w}const d=el('div');d.innerHTML=ART.figure(id);return d.firstChild}
 /* alternate art (monthly pass): pictures by card id; which copies use them is in the deck (deck.alt) */
 const CARD_ALT=window.CARD_ALT||{},CARD_ALT_POS=window.CARD_ALT_POS||{};
 const CARD_ALT_MV=window.CARD_ALT_MV||{},MVU={};
