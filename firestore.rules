@@ -619,6 +619,14 @@ service cloud.firestore {
       allow delete: if isAdmin() || (signedIn() && myPid() != '' && resource.data.pid == myPid() && resource.data.st == 'wait');
     }
     // where to send the 応援値 (the admin's own words); everyone signed in can read it
+    // ---- (10/19) a notice the admin sends to every phone once (the server function pushNotice sends it when it is created) ----
+    match /notices/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.keys().hasOnly(['title', 'body', 'go', 't'])
+        && request.resource.data.title is string && request.resource.data.title.size() <= 40
+        && request.resource.data.body is string && request.resource.data.body.size() <= 120;
+      allow update, delete: if false;
+    }
     match /config/pay {
       allow read: if signedIn();
       allow write: if isAdmin();
