@@ -1025,6 +1025,10 @@ body.gkview .scr{display:none!important}
 .dsl{display:flex;align-items:center;gap:8px;font-size:12px;opacity:.85;margin:6px 0 2px}.dsl .slt{width:26px;border-radius:3px}
 @media (prefers-reduced-motion:reduce){.cb.cbx::after,.slt.cbx::after{animation:none;display:none}}
 .slopt .slu{font-size:10px;line-height:1.2;color:#ffb3c0;opacity:.9}
+/* (10/19) CPUランク戦 in the CPU picker */
+.cpuopt.rk{border-color:#ffd36bcc;background:linear-gradient(135deg,#ffd36b33,#ffffff08);margin-bottom:4px}
+.cpuh-pr{margin-top:14px}
+.cpurkw{display:grid;flex-shrink:0}.cpurkw .cpuopt{flex-shrink:0}
 
 /* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
    hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
@@ -1279,6 +1283,13 @@ body:not(.gkview){background:
 .bgmlab b{font:800 14px/1.2 var(--body);color:#fff}
 .bgmlab span{font:600 11px/1.2 var(--body);color:var(--vs-mut)}
 .bgmvol{flex:1;min-width:0;margin-left:auto;accent-color:var(--vs-a1);height:28px}
+
+/* (10/19) CPUランク戦: the rank change on the result box */
+.ovl .rkdv{display:flex;flex-direction:column;align-items:center;gap:2px;margin:12px auto 4px;padding:10px 22px;border-radius:16px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16)}
+.ovl .rkdv small{font:700 11px/1.4 var(--body);color:var(--vs-mut)}
+.ovl .rkdv b{font:900 26px/1.15 var(--body);font-variant-numeric:tabular-nums;color:#fff}
+.ovl .rkdv.up b{color:#ffe08a}
+.ovl .rkdv.dn b{color:#a9a3cf}
 
 /* ===== (10/18) マスターデュエル風のバトル画面 (v2: no frame, the piles stand beside the card spots, sizes follow the screen height) =====
    fit() sets --gut (the side gutters that hold the piles), --zh (trap slot height) */
@@ -2725,17 +2736,23 @@ let g=null,H=0,myKey='weak',cpuKey='girl',myDeck=null,cpuDeck=null,busy=false,mo
 /* mode: null | {k:'atk',uid,target} | {k:'evo',hi} | {k:'tgt',hi} | {k:'skill'} */
 /* before a CPU match: choose what the CPU plays. おまかせ builds a new deck every time (one tribe, two tribes, or a theme) */
 let CPU_LV=(()=>{try{return localStorage.getItem('kotcg_cpulv')==='strong'?'strong':'normal'}catch(e){return'normal'}})();
-function cpuPick(d){const mine=loadDecks().filter(x=>CD.validDeck(x.cards,x.lead));
-  sheet((s,close)=>{s.append(el('div','k','CPU BATTLE'),el('h3',null,'CPUの相手を選ぶ'));
+function cpuPick(d){const mine=loadDecks().filter(x=>CD.validDeck(x.cards,x.lead));if(RK){RK=false;CPU_LV=lvSaved()}
+  sheet((s,close)=>{s.append(el('div','k','CPU BATTLE'),el('h3',null,'CPUの相手を選ぶ'));const RKOK=!!(HOST&&HOST.rkStart);
+    if(RKOK){const rb=el('button','cpuopt main rk');rb.append(el('b',null,'ランク戦'),el('span',null,'おまかせのCPU。ふつうかつよいかは始まるまでわからない。勝つとTCGのランクが上がり、負けると下がる(友達戦の半分)。勝つと経験値 +5。途中でやめると負け'));rb.onclick=()=>{close();rkGo(d)};const w=el('div','cpurkw');w.append(rb);s.append(w,el('div','cpuh cpuh-pr','練習(ランクは変わらない)'))}
+
     const lv=el('div','cpulv');lv.setAttribute('role','radiogroup');lv.setAttribute('aria-label','CPUの強さ');[['normal','ふつう','今までのCPU'],['strong','つよい','先の展開を読んで、いちばん勝てる手を選ぶ']].forEach(([k,t,sub])=>{const b=el('button','lvb'+(CPU_LV===k?' on':''));b.setAttribute('role','radio');b.setAttribute('aria-checked',CPU_LV===k?'true':'false');b.append(el('b',null,t),el('span',null,sub));if(k==='strong'){const x=el('em','lvxp');x.innerHTML='<span style="white-space:nowrap">「おまかせ」に勝つと</span><span style="white-space:nowrap">経験値 +5</span>';b.append(x)}b.onclick=()=>{CPU_LV=k;try{localStorage.setItem('kotcg_cpulv',k)}catch(e){}lv.querySelectorAll('.lvb').forEach(x=>{const on=x===b;x.classList.toggle('on',on);x.setAttribute('aria-checked',on?'true':'false')})};lv.append(b)});s.append(el('div','cpuh','CPUの強さ'),lv,el('div','cpuh','相手のデッキ'));
     const L=el('div','cpupick');const opt=(t,sub,fn,cls)=>{const b=el('button','cpuopt'+(cls?' '+cls:''));b.append(el('b',null,t),el('span',null,sub));b.onclick=()=>{close();fn()};L.append(b)};
-    opt('おまかせ','CPUが強いと判断したデッキ('+AI.poolDecks().length+'種類)から選んでくる。同じデッキが続かないように毎回入れ替わる',()=>{let H=[];try{H=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,H);H.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(H.slice(-12)))}catch(e){}startMatch(d,Object.assign({},x,{__auto:1}))},'main');
+    opt('おまかせ','CPUが強いと判断したデッキ('+AI.poolDecks().length+'種類)から選んでくる。同じデッキが続かないように毎回入れ替わる',()=>{let H=[];try{H=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,H);H.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(H.slice(-12)))}catch(e){}startMatch(d,Object.assign({},x,{__auto:1}))},RKOK?'':'main');
     opt('ランダム構築','1つの族・2つの族の組み合わせ・テーマ型から、CPUがその場で組む(強さはばらばら)',()=>startMatch(d,AI.makeDeck(Math.random)));
     opt('おすすめデッキ','11族のおすすめデッキから1つ',()=>{const others=Object.keys(CD.STARTERS).filter(x=>x!==BY[d.lead].f);startMatch(d,presetOf(others[Math.floor(Math.random()*others.length)]))});
     if(mine.length){L.append(el('div','cpuh','自分のデッキを使わせる'));mine.forEach(x=>opt(x.name,'リーダー:'+BY[x.lead].n+'('+CD.FNAME[BY[x.lead].f]+')',()=>startMatch(d,Object.assign({},x,{name:x.name+'(CPU)',cards:x.cards.slice()}))))}
     s.append(L);const c=el('button','btn sec','やめる');c.onclick=close;s.append(c)})}
 /* started from the app's 対戦 page: nothing of the old deck screen shows; the match begins on the dark stage, and a bad deck sends you back to the app */
-function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]],o=p[1]||'auto';if(!d||!CD.validDeck(d.cards,d.lead)){deckScreen();return}
+/* (10/19) CPUランク戦 ('0.auto.rk'): the opponent is always おまかせ, and its strength is drawn now (ふつう or つよい, half each) */
+let RK=false;
+const lvSaved=()=>{try{return localStorage.getItem('kotcg_cpulv')==='strong'?'strong':'normal'}catch(e){return'normal'}};
+function rkGo(d){RK=true;CPU_LV=Math.random()<.5?'strong':'normal';let Hh=[];try{Hh=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,Hh);Hh.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(Hh.slice(-12)))}catch(e){}startMatch(d,Object.assign({},x,{__auto:1}))}
+function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]];RK=p[2]==='rk';const o=RK?'auto':p[1]||'auto';if(RK)CPU_LV=Math.random()<.5?'strong':'normal';if(!d||!CD.validDeck(d.cards,d.lead)){deckScreen();return}
   let cpu=null;
   if(o==='rand')cpu=AI.makeDeck(Math.random);
   else if(o==='rec'){const others=Object.keys(CD.STARTERS).filter(x=>x!==BY[d.lead].f);cpu=presetOf(others[Math.floor(Math.random()*others.length)])}
@@ -2744,13 +2761,14 @@ function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]],o=p[1]||
   startMatch(d,cpu)}
 function startMatch(d,cpu){if(!cpu&&!AUTO){cpuPick(d);return}if(!cpu)cpu=AI.pickDeck(Math.random);
   myDeck=d;myKey=BY[d.lead].f;cpuDeck=cpu;cpuKey=BY[cpu.lead].f;const ck=cpuKey;
+  /* ランク戦: the start is written before the first move, so leaving halfway counts as a loss */if(RK&&HOST&&HOST.rkStart){try{HOST.rkStart(CPU_LV)}catch(e){}}
   if(HOST){busy=true;HOST.toss({cpu:BY[cpuDeck.lead].n,cpuLead:cpuDeck.lead,deck:d.name},heads=>{busy=false;H=heads?0:1;beginGame()});return}
   const heads=Math.random()<.5;H=heads?0:1;show('s-toss');const coin=$('coin'),res=$('tossRes');res.replaceChildren();
   coin.animate([{transform:'translateY(0) rotateY(0)'},{transform:'translateY(-120px) rotateY(900deg)',offset:.5},{transform:'translateY(0) rotateY('+(1800+(heads?0:180))+'deg)'}],{duration:D(1600),easing:'cubic-bezier(.3,.6,.3,1)',fill:'forwards'});
   setTimeout(()=>{res.append(document.createTextNode(heads?'表 ・ あなたが先攻':'裏 ・ あなたは後攻'));res.append(el('small',null,'相手:'+cpuDeck.name+'(リーダー '+BY[cpuDeck.lead].n+')'));res.append(el('small',null,heads?'先攻は最初のターン、引けず攻撃もできません':'後攻は最初のターン熱量+1'))},D(1650));
   setTimeout(beginGame,D(3400))}
 function beginGame(){try{window.KHD&&setTimeout(()=>KHD.preload([...(myDeck&&myDeck.cards||[]),...(cpuDeck&&cpuDeck.cards||[])]),1200)}catch(e){}{/* get the 極 premiere's grain and soft backdrop ready before it is needed */try{const ids=[myDeck,cpuDeck].flatMap(d=>Object.entries((d&&d.alt)||{}).filter(([,L])=>Array.isArray(L)&&L.includes(3)).map(([id])=>id));if(ids.length)setTimeout(()=>{gkGrainFrames();ids.forEach(id=>CARD_ALT[id]&&gkSoft(id))},1200)}catch(_){}const a=myDeck.cards.slice(),b=cpuDeck.cards.slice();g=H===0?E.newGame(a,b,seed++,myDeck.lead,cpuDeck.lead):E.newGame(b,a,seed++,cpuDeck.lead,myDeck.lead);g.ev=[];
-    done=false;mode=null;LOG=[];view=snap();view.p.forEach(P=>{P.deckN+=P.hand.length;P.hand=[]});show('s-game');render(view);dealOpening();setTimeout(()=>caption((CPU_LV==='strong'?'つよいCPU ・ ':'')+'相手のデッキ:'+cpuDeck.name),D(300))}}
+    done=false;mode=null;LOG=[];view=snap();view.p.forEach(P=>{P.deckN+=P.hand.length;P.hand=[]});show('s-game');render(view);dealOpening();setTimeout(()=>caption((RK?'ランク戦 ・ '+(CPU_LV==='strong'?'つよい':'ふつう')+'のCPU ・ ':CPU_LV==='strong'?'つよいCPU ・ ':'')+'相手のデッキ:'+cpuDeck.name),D(300))}}
 async function dealOpening(){busy=true;render(view);await renderAnimated(snap());busy=false;beginTurn()}
 
 /* ---------- snapshots: the table shows `view`, the engine runs ahead, the table catches up ---------- */
@@ -3528,11 +3546,14 @@ async function autoTurn(){let n=0;while(!g.over&&g.cur===H&&n++<40){const a=AI.n
   if(!g.over)endMyTurn()}
 function finish(){if(done)return;queueSpectator(g&&g.ev);done=true;stopTimer();busy=false;closeSheets();render(snap());const w=g.win===-1?'draw':g.win===H?'win':'lose';const e=g.ev.concat(LOG).reverse().find(x=>x.t==='end');
   if(NET){const sideOf=pi=>pi===0?NET.first:(NET.first==='a'?'b':'a');try{NET.claim({win:g.win===-1?'draw':sideOf(g.win),turns:g.turns})}catch(er){}}
-  if(HOST){try{HOST.result({w,me:g.p[H].life,cpu:g.p[1-H].life,deck:myDeck.name,cards:myDeck.name==='極のデモ'?[]:[myDeck.lead].concat(myDeck.cards||[]),cpuName:NET?NET.names[NET.side==='a'?'b':'a']:BY[cpuDeck.lead].n,pvp:!!NET,lv:NET?'':CPU_LV,opp:NET?'':(cpuDeck&&cpuDeck.__auto?'auto':'other')})}catch(er){}}
+  let rkDv=null;if(!NET&&RK&&HOST&&HOST.rkDelta){try{rkDv=HOST.rkDelta(CPU_LV,w)}catch(er){}}
+  if(HOST){try{HOST.result({w,me:g.p[H].life,cpu:g.p[1-H].life,deck:myDeck.name,cards:myDeck.name==='極のデモ'?[]:[myDeck.lead].concat(myDeck.cards||[]),cpuName:NET?NET.names[NET.side==='a'?'b':'a']:BY[cpuDeck.lead].n,pvp:!!NET,lv:NET?'':CPU_LV,opp:NET?'':(cpuDeck&&cpuDeck.__auto?'auto':'other'),rk:!NET&&RK?1:0})}catch(er){}}
   const o=el('div','ovl'),b=el('div','box');o.append(b);b.append(el('div',null,myDeck.name+' vs '+cpuDeck.name));
   b.append(el('h2',w==='lose'?'lose':'win',w==='win'?'勝利':w==='lose'?'敗北':'引き分け'),el('div','why',(e&&e.why==='time'?'時間切れ ・ ':'')+'あなたのライフ '+g.p[H].life+' ・ 相手のライフ '+g.p[1-H].life));
+  if(!NET&&RK&&rkDv!=null){const k=el('div','rkdv'+(rkDv>0?' up':rkDv<0?' dn':''));k.append(el('small',null,'ランク戦 ・ '+(CPU_LV==='strong'?'つよい':'ふつう')+'のCPU'),el('b',null,'ランク '+(rkDv>=0?'+':'')+rkDv));b.append(k)}
   if(NET){const r=el('button','btn','アプリに戻る');r.onclick=()=>HOST.close();const l=el('button','btn sec','流れを見る');l.onclick=logSheet;b.append(r,l)}
-  else if(HOST&&CPU_GO){const r=el('button','btn','アプリに戻る');r.onclick=()=>HOST.close();const a=el('button','btn sec','同じ相手ともう一度');a.onclick=()=>{o.remove();startMatch(myDeck,cpuDeck)};const l=el('button','btn sec','流れを見る');l.onclick=logSheet;b.append(r,a,l)}
+  else if(HOST&&CPU_GO){const r=el('button','btn','アプリに戻る');r.onclick=()=>HOST.close();const a=el('button','btn sec',RK?'もう一度ランク戦':'同じ相手ともう一度');a.onclick=()=>{o.remove();if(RK)cpuGo(CPU_GO);else startMatch(myDeck,cpuDeck)};const l=el('button','btn sec','流れを見る');l.onclick=logSheet;b.append(r,a,l)}
+  else if(RK){const r=el('button','btn','もう一度ランク戦');r.onclick=()=>{o.remove();rkGo(myDeck)};const d=el('button','btn sec','デッキを選び直す');d.onclick=()=>{o.remove();RK=false;CPU_LV=lvSaved();deckScreen()};const l=el('button','btn sec','流れを見る');l.onclick=logSheet;b.append(r,d,l)}
   else{const r=el('button','btn','同じデッキでもう一度');r.onclick=()=>{o.remove();startMatch(myDeck)};const d=el('button','btn sec','デッキを選び直す');d.onclick=()=>{o.remove();deckScreen()};const l=el('button','btn sec','流れを見る');l.onclick=logSheet;b.append(r,d,l)}
   setTimeout(()=>document.body.append(o),D(700))}
 
@@ -3552,7 +3573,7 @@ $('goDeck').onclick=deckScreen;$('goHelp').onclick=helpSheet;
 const PVP=HOST&&HOST.pvp?HOST.pvp():null;
 if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(CPU_GO)cpuGo(CPU_GO);else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
 clearTimeout(window.__tcgBootTimer);if(document.documentElement.classList.contains('tcg-embedded')&&!HOST&&!(WATCH&&window.parent!==window&&window.parent.TCGWATCH)){const b=$('tcgBoot');b.classList.add('slow');b.querySelector('[role="status"]').textContent='アプリから編成・対戦・観戦を開き直してください。'}else document.documentElement.classList.remove('tcg-booting');
-window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o=>backCard(o),flyCard:(a,b,o,f)=>flyCard(a,b,null,2400,o,f)},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},endMyTurn,startMatch,E,AI};
+window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o=>backCard(o),flyCard:(a,b,o,f)=>flyCard(a,b,null,2400,o,f)},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},get rk(){return RK},get lv(){return CPU_LV},finish,endMyTurn,startMatch,E,AI};
 
 /* ===== v121 duel v2 (ui5_v2.js, appended after ui5_main.js) =====
    1) drawing is incremental: a lane, a hand card or an avatar is rebuilt only when what it shows has changed. Before, every

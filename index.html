@@ -5292,6 +5292,12 @@ body.ui2 .krk-art.pb-hwgr .bglv video{object-position:center 60%!important}
 
 /* (10/18) つよい + おまかせ: XP for a win */
 .kx-tsb .kx-txp{display:block;margin-top:5px;font-style:normal;font-weight:800;font-size:11px;line-height:1.3;color:#e0a92a}
+/* (10/19) CPUランク戦 */
+body.ui2 .kx-tmode{margin-bottom:10px}
+body.ui2 .kx-tseg button[data-m=rank].on{background:linear-gradient(135deg,rgba(233,185,73,.26),rgba(139,123,255,.08));box-shadow:inset 0 0 0 1.5px rgba(255,227,163,.8)}
+body.ui2 .kx-trkd{margin:2px 2px 0}
+body.ui2 .kvs-lv.rk{color:#fff3d1;background:rgba(233,185,73,.2);box-shadow:inset 0 0 0 .5px rgba(255,227,163,.6)}
+body.ui2 .kx-cta.kx-tcta.rk{box-shadow:inset 0 .5px 0 #fff,0 0 0 .5px rgba(255,255,255,.5),0 16px 36px -12px rgba(233,185,73,.85)}
 /* ===== v121 rating trend (kt). Dark SaaS look: one gradient line (violet to cyan), a soft area under it,
    rank borders as dotted lines, the number on top. Only transform/opacity move. ===== */
 
@@ -8359,12 +8365,12 @@ function cpuxWatch(){if(cpuxOn||!db)return;cpuxOn=true;db.collection('cpux').onS
 setInterval(()=>{try{if(db&&!cpuxOn&&myPlayer())cpuxWatch()}catch(e){}},3000);
 const cpuxN=pid=>Math.max(0,Math.min(1000000,+((cpuxs[pid]||{}).n)||0));
 const cpuxToday=pid=>{const d=cpuxs[pid]||{};return +d.dd===dayNo(now())?(+d.dn||0):0};
-async function cpuxWin(r,again){const me=myPlayer();if(!r||r.pvp||r.w!=='win'||r.lv!=='strong'||r.opp!=='auto'||!db||!me||me.ban)return;/* (10/18) only against おまかせ */
+async function cpuxWin(r,again){const me=myPlayer();if(!r||r.pvp||r.w!=='win'||!(r.rk||(r.lv==='strong'&&r.opp==='auto'))||!db||!me||me.ban)return;/* (10/18) only against おまかせ. (10/19) and any win in the CPUランク戦 (ふつう too) */
   /* the count must be the latest one: wait for the first snapshot (up to 6s) */
   for(let i=0;i<12&&!cpuxLoaded;i++){try{cpuxWatch()}catch(e){}await new Promise(z=>setTimeout(z,500))}
   const cur=cpuxs[me.id]||null,t=now(),dd=dayNo(t);if(cur&&t<(+cur.u||0)+15000)return;
   const nv={n:(cur?cpuxN(me.id):0)+1,u:t,dd,dn:cur&&+cur.dd===dd?(+cur.dn||0)+1:1};
-  try{await db.doc('cpux/'+me.id).set(nv);cpuxs=Object.assign({},cpuxs,{[me.id]:nv});queueRender();setTimeout(()=>toast('経験値 +'+CPUX_XP+'(CPU つよい・おまかせ に勝利)'),3400)}
+  try{await db.doc('cpux/'+me.id).set(nv);cpuxs=Object.assign({},cpuxs,{[me.id]:nv});queueRender();setTimeout(()=>toast('経験値 +'+CPUX_XP+(r.rk?'(CPUランク戦に勝利)':'(CPU つよい・おまかせ に勝利)')),3400)}
   catch(e){/* refused (an old count, or the day turned over at 5:00): try once more a moment later with the fresh numbers */if(!again)setTimeout(()=>cpuxWin(r,true),2500)}}
 function hwCpuWin(r){if(!hwOn()||!r||r.pvp||r.w!=='win'||r.lv!=='strong'||r.opp!=='auto'||!db||!invFor)return;/* (10/18) only against おまかせ */const T=Object.assign({},tcgOf(inv)),hs=(Array.isArray(T[HWK.s])?T[HWK.s]:[]).concat([now()]).slice(-400);T[HWK.s]=hs;inv=Object.assign({},inv,{tcg:T});
   db.doc('inv/'+invFor).set({tcg:{[HWK.s]:hs}},{merge:true}).catch(()=>{});setTimeout(()=>toast('お菓子 +'+HW_C.cpu*hwMul(now())+'(CPU つよい・おまかせ に勝利)'),2200)}
@@ -12179,7 +12185,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=139';
+const TCG_SRC='tcg_play.html?v=140';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -12555,7 +12561,7 @@ function tcgSlOk(id){return id&&tcgSlInfo(id)&&((inv&&inv.own||{})[id]||0)>0?Str
 /* (10/18) one sleeve, one deck: there is no 「いつもの」 sleeve any more (decks without one show the standard KIMOOTA back) */
 function tcgSlDef(){return null}
 function tcgSlOwn(){return ITEMS.filter(x=>x.k==='sl'&&tcgSlOk(x.id)).sort((a,b)=>b.r-a.r).map(x=>tcgSlInfo(x.id))}
-window.TCGHOST={altOwn:()=>tcgAltOwned(),slOwn:()=>tcgSlOwn(),slInfo:id=>tcgSlInfo(id),slDef:()=>tcgSlDef(),own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
+window.TCGHOST={rkStart:lv=>{try{tcgcStart(lv)}catch(e){}},rkDelta:(lv,w)=>{try{return tcgcDelta(lv,w)}catch(e){return 0}},altOwn:()=>tcgAltOwned(),slOwn:()=>tcgSlOwn(),slInfo:id=>tcgSlInfo(id),slDef:()=>tcgSlDef(),own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
   const f=el('iframe');f.src=TCG_SRC+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
@@ -12580,7 +12586,9 @@ function tcgIntro(info,done){
   const end=()=>{if(closed)return;closed=true;o.style.transition='opacity .3s';o.style.opacity='0';setTimeout(()=>{o.remove();done()},300)};
   setTimeout(()=>{o.onclick=end},600);setTimeout(end,hold)}
 /* the result: your own 勝利演出 when you win; wins and losses are counted on the TCG screen */
-function tcgResult(r){try{if(typeof tcgMarkUsed==='function')tcgMarkUsed(r.cards)}catch(e){}const me=myPlayer()||{},line=(r.pvp?'きもオタTCG 友達戦':'きもオタTCG')+'  ·  あなた '+r.me+'  /  相手 '+r.cpu;
+function tcgResult(r){try{if(typeof tcgMarkUsed==='function')tcgMarkUsed(r.cards)}catch(e){}const me=myPlayer()||{};
+  /* CPUランク戦: the change is worked out before the write, so the win / loss screen can show it */let rk='';if(r.rk&&!r.pvp){const dv=tcgcDelta(r.lv,r.w);rk='  ·  ランク '+(dv>=0?'+':'')+dv;try{tcgcEnd(r.w)}catch(e){}}
+  const line=(r.pvp?'きもオタTCG 友達戦':r.rk?'きもオタTCG CPUランク戦('+(r.lv==='strong'?'つよい':'ふつう')+')':'きもオタTCG')+'  ·  あなた '+r.me+'  /  相手 '+r.cpu+rk;
   setTimeout(()=>{if(r.w==='win')victoryView(me.name||'あなた',r.pvp?r.cpuName:'CPU',me.eq&&me.eq.v,line,true,me.eq&&me.eq.i);
     else if(r.w==='lose')lossView(r.pvp?r.cpuName:'CPU('+r.cpuName+')',line);else toast('引き分け  ·  '+line)},500);
   if(!r.pvp&&(r.w==='win'||r.w==='lose')){const k=r.w==='win'?'w':'l',t=Object.assign({},tcgOf(inv));t[k]=(t[k]||0)+1;inv=Object.assign({},inv,{tcg:t});
@@ -12881,14 +12889,17 @@ let tcgRkMemo=null,tcgRkKey=null;
 /* TCG ratings are replayed from the match list. Seasons follow the same 30-day calendar as the other genres:
    when a season ends the final rating of everyone who played in it is kept (SH[pid][season]) and every rating
    moves halfway back to 1500 (softReset), exactly like the other genres */
-let tcgRkSeason=0;
-function tcgRatings(){const cur=seasonNo(now());if(tcgRkKey===tcgms&&tcgRkSeason===cur)return tcgRkMemo;const R={},n={},w={},l={},dl={},SH={},SR={},pr={};let S=0,played={};
+let tcgRkSeason=0,tcgRkC=null,tcgRkTb=0;
+function tcgRatings(){const cur=seasonNo(now());const tb=Math.floor(now()/6e5);if(tcgRkKey===tcgms&&tcgRkC===tcgcs&&tcgRkSeason===cur&&tcgRkTb===tb)return tcgRkMemo;const R={},n={},w={},l={},dl={},SH={},SR={},pr={};let S=0,played={};
   const close=to=>{while(S&&S<to){Object.keys(played).forEach(pid=>{(SH[pid]=SH[pid]||{})[S]=R[pid]??1500});Object.keys(R).forEach(pid=>{R[pid]=softReset(R[pid]);if(SR[pid])SR[pid].push({t:seasonEnd(S),r:R[pid],reset:1})});played={};S++}};
-  tcgms.filter(d=>tcgDone(d)).sort((x,y)=>x.t-y.t).forEach(d=>{const ds=seasonNo(d.t||0);if(!S)S=ds;close(ds);
+  tcgms.filter(d=>tcgDone(d)).concat(tcgcEvents()).sort((x,y)=>x.t-y.t).forEach(d=>{const ds=seasonNo(d.t||0);if(!S)S=ds;close(ds);
+    if(d.cpu){/* CPUランク戦: only the player moves, against the CPU's fixed number, half of a friend battle */const a=R[d.p]??1500,e=1/(1+Math.pow(10,(TCGC_R[d.lv]-a)/400)),sc=d.c==='w'?1:d.c==='d'?.5:0,dd=Math.round(TCGC_K*(sc-e));
+      R[d.p]=a+dd;played[d.p]=1;const L=SR[d.p]||(SR[d.p]=[]);if(!L.length)L.push({t:d.t-1,r:a,start:1});L.push({t:d.t,r:a+dd,win:sc===1,o:'CPU '+TCGC_LV[d.lv]+(d.q?'(途中でやめた)':''),d:dd,cpu:1});
+      n[d.p]=(n[d.p]||0)+1;if(sc===1)w[d.p]=(w[d.p]||0)+1;else if(sc===0)l[d.p]=(l[d.p]||0)+1;dl[d.id]={[d.p]:dd};pr[d.id]={[d.p]:a};return}
     const a=R[d.a]??1500,b=R[d.b]??1500,ea=1/(1+Math.pow(10,(b-a)/400)),sa=d.wa==='draw'?.5:d.wa===d.a?1:0;
     const da=Math.round(32*(sa-ea));R[d.a]=a+da;R[d.b]=b-da;played[d.a]=played[d.b]=1;
     [[d.a,a,da,d.bn,sa===1],[d.b,b,-da,d.an,sa===0]].forEach(([pid,pre,dd,on,wn])=>{const L=SR[pid]||(SR[pid]=[]);if(!L.length)L.push({t:(d.t||0)-1,r:pre,start:1});L.push({t:d.t||0,r:pre+dd,win:wn,o:on||'?',d:dd})});n[d.a]=(n[d.a]||0)+1;n[d.b]=(n[d.b]||0)+1;if(d.wa!=='draw'){w[d.wa]=(w[d.wa]||0)+1;const lo=d.wa===d.a?d.b:d.a;l[lo]=(l[lo]||0)+1}dl[d.id]={[d.a]:da,[d.b]:-da};pr[d.id]={[d.a]:a,[d.b]:b}});
-  close(cur);tcgRkKey=tcgms;tcgRkSeason=cur;tcgRkMemo={R,n,w,l,dl,SH,SR,pr};return tcgRkMemo}
+  close(cur);tcgRkKey=tcgms;tcgRkC=tcgcs;tcgRkTb=tb;tcgRkSeason=cur;tcgRkMemo={R,n,w,l,dl,SH,SR,pr};return tcgRkMemo}
 /* season results of one player: [{s, r, ti, pt}] (newest first). The reward is half of the other genres' table */
 const tcgSeasonRec=pid=>{const H=(tcgRatings().SH||{})[pid]||{};return Object.keys(H).map(Number).sort((a,b)=>b-a).map(s=>{const r=H[s],ti=tidx(r);return{s,r,ti,pt:Math.floor(SREW[ti]/2)}})};
 const tcgSeries=pid=>(tcgRatings().SR||{})[pid]||[];
@@ -12907,7 +12918,7 @@ function tcgRankSec(){const me=myPlayer();if(!me)return null;const K=tcgRatings(
   const v=rec(me),pos=sorted.findIndex(p=>p.id===me.id),mc=el('section','myc compact tcgmy');
   myRankCard(mc,v,'きもオタTCG',v.wins+'勝 '+v.losses+'敗');
   {const rb=el('button','sec tcgrg','レートの推移を見る');rb.onclick=()=>openRateChart('tcg');mc.append(rb)}
-  {const t=mc.querySelector('.myt');if(t){const mp=el('div','mypos',pos>=0?(pos+1)+'位 / '+sorted.length+'人中':'ランキング外  ·  友達戦を1試合すると載ります');mp.prepend(lvChip(me.id));t.insertBefore(mp,t.firstChild);t.append(el('div','sub','友達戦で上下'))}}
+  {const t=mc.querySelector('.myt');if(t){const mp=el('div','mypos',pos>=0?(pos+1)+'位 / '+sorted.length+'人中':'ランキング外  ·  友達戦かCPUランク戦を1試合すると載ります');mp.prepend(lvChip(me.id));t.insertBefore(mp,t.firstChild);t.append(el('div','sub','友達戦とCPUランク戦で上下(CPUランク戦は友達戦の半分)'))}}
   s.append(mc);
   const rk=el('div','tcgrkl2');
   if(!sorted.length)rk.append(el('div','empty','まだ友達戦をした人がいません。1試合すると、ここに載ります。'));
@@ -12927,9 +12938,34 @@ function tcgRankSec(){const me=myPlayer();if(!me)return null;const K=tcgRatings(
   s.append(rk);return s}
 window.__tcgReady=true;
 
+/* ---- (10/19) CPUランク戦. The opponent is an おまかせ CPU whose strength (ふつう / つよい) is drawn at random when the game starts;
+   the TCG rank moves by half of a friend battle (K 16) against the CPU's fixed number (ふつう 1400, つよい 1700).
+   Each player's games are one list on tcgc/{pid}: r = ['?n:1792400000', 'ws:1792400900', ...]
+   ('?' = started, w / l / d = win / loss / draw, n / s = ふつう / つよい, the number = start time in seconds).
+   The start is written before the first move, so quitting halfway counts as a loss: a start with no result becomes a loss
+   once a newer game exists or 60 minutes have passed. Everyone reads the lists, so every phone replays the same rank. ---- */
+const TCGC_R={n:1400,s:1700},TCGC_K=16,TCGC_LV={n:'ふつう',s:'つよい'},TCGC_OPEN=36e5;
+let tcgcs={},tcgcUnsub=null,tcgcLoaded=false,tcgcQ=Promise.resolve();
+function watchTcgc(){if(tcgcUnsub||!db)return;tcgcUnsub=db.collection('tcgc').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});tcgcs=o;tcgcLoaded=true;try{queueRender()}catch(e){}},()=>{tcgcLoaded=true})}
+function tcgcEvents(){const E=[],T=now();Object.keys(tcgcs).forEach(pid=>{const x=tcgcs[pid],L=x&&Array.isArray(x.r)?x.r:[];
+  L.forEach((e,i)=>{const m=/^([?wld])([ns]):(\d+)$/.exec(String(e));if(!m)return;const t=+m[3]*1000;let c=m[1];
+    if(c==='?'){if(i<L.length-1||T-t>TCGC_OPEN)c='l';else return}E.push({cpu:1,id:'c:'+pid+':'+i,p:pid,c,lv:m[2],t,q:m[1]==='?'})})});return E}
+const tcgcMine=()=>{const me=myPlayer(),x=me&&tcgcs[me.id];return x&&Array.isArray(x.r)?x.r:[]};
+/* games of one player, newest first: [{c, lv, t, d, q}] */
+function tcgcList(pid){const K=tcgRatings();return tcgcEvents().filter(e=>e.p===pid).sort((a,b)=>b.t-a.t).map(e=>({c:e.c,lv:e.lv,t:e.t,q:e.q,d:(K.dl[e.id]||{})[pid]}))}
+/* the change a result would make now (shown on the win / loss screen before the write lands) */
+function tcgcDelta(lv,w){const me=myPlayer();if(!me)return 0;const a=tcgRating(me.id),e=1/(1+Math.pow(10,(TCGC_R[lv==='strong'?'s':'n']-a)/400)),sc=w==='win'?1:w==='draw'?.5:0;return Math.round(TCGC_K*(sc-e))}
+/* writes go one after another; a refused write (an old copy) is tried once more with the fresh list */
+function tcgcWrite(fn){tcgcQ=tcgcQ.then(async()=>{const me=myPlayer();if(!db||!me||me.ban)return;
+  for(let i=0;i<12&&!tcgcLoaded;i++){try{watchTcgc()}catch(e){}await new Promise(z=>setTimeout(z,500))}
+  for(let k=0;k<2;k++){const nv=fn(tcgcMine().slice());if(!nv)return;const doc={r:nv,u:now()};
+    try{await db.doc('tcgc/'+me.id).set(doc);tcgcs=Object.assign({},tcgcs,{[me.id]:doc});try{queueRender()}catch(e){}return}catch(e){await new Promise(z=>setTimeout(z,2500))}}}).catch(()=>{});return tcgcQ}
+function tcgcStart(lv){const L=lv==='strong'?'s':'n',sec=Math.floor(now()/1000);return tcgcWrite(old=>old.concat('?'+L+':'+sec))}
+function tcgcEnd(w){const c=w==='win'?'w':w==='lose'?'l':'d';return tcgcWrite(old=>{const i=old.length-1;if(i<0||String(old[i])[0]!=='?')return null;old[i]=c+String(old[i]).slice(1);return old})}
+
 /*TCG-END*/
 function watchInv(){
-  watchTcgm();
+  watchTcgm();try{watchTcgc()}catch(e){}
   const me=myPlayer(),id=me&&me.id;if(!db||id===invFor)return;
   if(invUnsub){invUnsub();invUnsub=null}invFor=id;invLoaded=false;inv={own:{},packs:0,since:0,shards:0};
   /* (10/16) the copy saved on this phone comes first and can be old (or from before an offline write). It is shown, but nothing is
@@ -14932,7 +14968,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
 
   /* ---------- 対戦 > TCG: the same VS stage. Your collection and your deck's leader card against the CPU or a friend ---------- */
   const LS=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:v}catch(e){return d}},LSset=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-  let tOpp=LS('kxtopp','cpu'),tDeck=+LS('kxtdeck',0)||0,tLv=LS('kotcg_cpulv','normal')==='strong'?'strong':'normal',tOpt=LS('kxtcpu','auto');
+  let tOpp=LS('kxtopp','cpu'),tDeck=+LS('kxtdeck',0)||0,tLv=LS('kotcg_cpulv','normal')==='strong'?'strong':'normal',tOpt=LS('kxtcpu','auto'),tMode=LS('kxtmode','rank')==='free'?'free':'rank';/* (10/19) rank = CPUランク戦 (おまかせ, random strength, the TCG rank moves), free = 練習 */
   const TOPT=[['auto','おまかせ','CPUが強いと判断したデッキから選ぶ。毎回入れ替わる'],['rand','ランダム構築','CPUがその場で組む。強さはばらばら'],['rec','おすすめ','11族のおすすめデッキから1つ'],['mirror','同じデッキ','あなたと同じデッキをCPUが使う']];
   if(!TOPT.some(o=>o[0]===tOpt))tOpt='auto';
   let cpuN=0;
@@ -14957,34 +14993,42 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     w.append(i,mk('div','kvs-tdeck',esc(label||'')));return w}
   function tMeSide(me,deck){const s=sideEl(me,'me',60,tRate(me.id),9);s.classList.add('kvs-tside');const body=s.querySelector('.kvs-body');
     body.append(deck?tCard(deck,deck.name):tCard(null,'デッキを組む','+'));return s}
-  function tCpuSide(deck){const s=mk('div','kvs-side op kvs-cpu kvs-tside'+(tLv==='strong'?' strong':''));s.style.setProperty('--mg',tLv==='strong'?'#fb7185':'#8b7bff');s.style.setProperty('--ml',tLv==='strong'?'#fda4af':'#c4b5fd');
+  function tCpuSide(deck){if(tMode==='rank')return tRkSide();const s=mk('div','kvs-side op kvs-cpu kvs-tside'+(tLv==='strong'?' strong':''));s.style.setProperty('--mg',tLv==='strong'?'#fb7185':'#8b7bff');s.style.setProperty('--ml',tLv==='strong'?'#fda4af':'#c4b5fd');
     const bg=mk('div','kvs-bg kvs-bgcpu');bg.innerHTML='<i class="a1"></i><i class="a2"></i><i class="gd"></i>';s.append(bg,mk('div','kvs-shade'));
     const fx=mk('div','kvs-fx');fxInto(fx,{ex:[['bit',1],['stars',1]],pal:tLv==='strong'?['#fda4af','#c4b5fd','#fb7185']:['#a5b4fc','#67e8f9','#c4b5fd']},'op',8);s.append(fx);
     const body=mk('div','kvs-body'),aw=mk('div','kvs-avw kvs-cpuav');aw.innerHTML=cpuSVG(tLv==='strong');aw.append(mk('i','kvs-ring'));body.append(aw);
     body.append(mk('div','kvs-nm','CPU'));const m=mk('div','kvs-meta');m.append(mk('span','kvs-lv'+(tLv==='strong'?' hi':''),tLv==='strong'?'つよい':'ふつう'));body.append(m);
     const o=TOPT.find(x=>x[0]===tOpt)||TOPT[0];body.append(tOpt==='mirror'&&deck?tCard(deck,'同じデッキ'):tCard(null,o[1],'?'));s.append(body);return s}
+  /* ランク戦: the CPU's strength is hidden until the game starts */
+  function tRkSide(){const s=mk('div','kvs-side op kvs-cpu kvs-tside kvs-rk');s.style.setProperty('--mg','#e9b949');s.style.setProperty('--ml','#ffe3a3');
+    const bg=mk('div','kvs-bg kvs-bgcpu');bg.innerHTML='<i class="a1"></i><i class="a2"></i><i class="gd"></i>';s.append(bg,mk('div','kvs-shade'));
+    const fx=mk('div','kvs-fx');fxInto(fx,{ex:[['bit',1],['stars',1]],pal:['#ffe3a3','#e9b949','#c4b5fd']},'op',8);s.append(fx);
+    const body=mk('div','kvs-body'),aw=mk('div','kvs-avw kvs-cpuav');aw.innerHTML=cpuSVG(false);aw.append(mk('i','kvs-ring'));body.append(aw);
+    body.append(mk('div','kvs-nm','CPU'));const m=mk('div','kvs-meta');m.append(mk('span','kvs-lv rk','ふつう か つよい'));body.append(m);
+    body.append(tCard(null,'おまかせ','?'));s.append(body);return s}
   function tFriendSide(p){const s=sideEl(p,'op',60,tRate(p.id),9);s.classList.add('kvs-tside');s.querySelector('.kvs-body').append(tCard(null,'相手が選ぶ','?'));return s}
 
   const tvs=mk('div','kvs kvs-tcg');tvs.innerHTML=vsMarkup+'<i class="kvs-beam"></i>';tvs.querySelector('.kvs-top').append(mk('div','kvs-tag'));if(offIO)offIO.observe(tvs);
   const tOpps=mk('div','kx-card kx-glass'),tDk=mk('div','kx-card kx-glass'),tCpu=mk('div','kx-card kx-glass'),tGo=mk('div','kx-go'),tRow=mk('div','kx-trow');
   tOpps.innerHTML='<div class="kx-h"><h2>相手</h2><span class="kx-hs">CPUか友達を選ぶ</span></div><div class="kx-opps" role="listbox" aria-label="TCGの対戦相手"></div>';
   tDk.innerHTML='<div class="kx-h"><h2>デッキ</h2><button type="button" class="kx-link">デッキのページ'+S.right+'</button></div><div class="kx-tdecks" role="listbox" aria-label="使うデッキ"></div>';
-  tCpu.innerHTML='<div class="kx-h"><h2>CPUの設定</h2></div><div class="kx-tseg" role="radiogroup" aria-label="CPUの強さ"><button type="button" class="kx-tsb" role="radio" data-v="normal"><b>ふつう</b><small>いつものCPU</small></button><button type="button" class="kx-tsb" role="radio" data-v="strong"><b>つよい</b><small>先の展開を読んで、いちばん勝てる手を選ぶ</small><em class="kx-txp"><span style="white-space:nowrap">「おまかせ」に勝つと</span><span style="white-space:nowrap">経験値 +5</span></em></button></div>'+
-    '<div class="kx-topts" role="radiogroup" aria-label="CPUのデッキ"></div><p class="kx-sub kx-toptd"></p>';
+  tCpu.innerHTML='<div class="kx-h"><h2>CPUの設定</h2></div><div class="kx-tseg kx-tmode" role="radiogroup" aria-label="CPU戦の種類"><button type="button" class="kx-tsb" role="radio" data-m="rank"><b>ランク戦</b><small>強さはランダム。勝ち負けでランクが上下。勝つと経験値 +5</small></button><button type="button" class="kx-tsb" role="radio" data-m="free"><b>練習</b><small>強さとデッキを選べる。ランクは変わらない</small></button></div><p class="kx-sub kx-trkd">相手はおまかせのデッキ。ふつうか つよいかは、始まるまでわかりません。勝つとTCGのランクが上がり、負けると下がります(友達戦の半分)。勝つと、ふつうでも つよいでも経験値 +5。途中でやめると負けになります。</p><div class="kx-tfree"><div class="kx-tseg kx-tlv" role="radiogroup" aria-label="CPUの強さ"><button type="button" class="kx-tsb" role="radio" data-v="normal"><b>ふつう</b><small>いつものCPU</small></button><button type="button" class="kx-tsb" role="radio" data-v="strong"><b>つよい</b><small>先の展開を読んで、いちばん勝てる手を選ぶ</small><em class="kx-txp"><span style="white-space:nowrap">「おまかせ」に勝つと</span><span style="white-space:nowrap">経験値 +5</span></em></button></div>'+
+    '<div class="kx-topts" role="radiogroup" aria-label="CPUのデッキ"></div><p class="kx-sub kx-toptd"></p></div>';
   tGo.innerHTML='<button type="button" class="kx-cta kx-shine kx-tcta">CPUと対戦</button><p class="kx-foot"></p>';
   tRow.innerHTML='<button type="button" class="kx-tpack">パックを開ける'+S.right+'</button><button type="button" class="kx-tpack kx-trk">ランキング'+S.right+'</button><span class="kx-trec"></span>';
   tHero.append(tvs,tOpps,tDk,tCpu,tGo,tRow);
   tDk.querySelector('.kx-link').onclick=()=>{try{kbSeg('deck')}catch(e){}};
   tRow.querySelector('.kx-tpack').onclick=()=>{try{tcgGoPacks()}catch(e){}};
   tRow.querySelector('.kx-trk').onclick=()=>{rkSet(true);rankSig='';try{setView('rank');scrollTo(0,0)}catch(e){}};
-  tCpu.querySelectorAll('.kx-tseg button').forEach(b=>b.onclick=()=>{if(tLv===b.dataset.v)return;tLv=b.dataset.v;LSset('kotcg_cpulv',tLv);sfx('tick');paintTcg()});
+  tCpu.querySelectorAll('.kx-tmode button').forEach(b=>b.onclick=()=>{if(tMode===b.dataset.m)return;tMode=b.dataset.m;LSset('kxtmode',tMode);sfx('tick');tOppSig='';renderTcg2()});
+  tCpu.querySelectorAll('.kx-tlv button').forEach(b=>b.onclick=()=>{if(tLv===b.dataset.v)return;tLv=b.dataset.v;LSset('kotcg_cpulv',tLv);sfx('tick');paintTcg()});
   TOPT.forEach(([k,n])=>{const b=mk('button','kx-tob',esc(n));b.type='button';b.setAttribute('role','radio');b.dataset.v=k;b.onclick=()=>{if(tOpt===k)return;tOpt=k;LSset('kxtcpu',k);sfx('tick');paintTcg()};tCpu.querySelector('.kx-topts').append(b)});
   const tCta=tGo.querySelector('.kx-cta');let tSending=false;
   tCta.hidden=true;const tV=vsBtn(tvs,()=>tCta.onclick());
   tCta.onclick=async()=>{const me=ME();if(!me||tSending)return;let st=false;try{st=tcgHasSt()}catch(e){}
     if(!st){const s=document.querySelector('#tcgbox .tcgst');if(s)s.scrollIntoView({behavior:'smooth',block:'start'});return}
     const deck=tSel();if(!deck||!tcgOk(deck)){try{kbSeg('deck')}catch(e){}return}
-    if(tOpp==='cpu'){LSset('kotcg_cpulv',tLv);burstVS(tvs,'v');sfx('slam');setTimeout(()=>{try{tcgPlay('cpu='+tDeck+'.'+tOpt)}catch(e){}},260);return}
+    if(tOpp==='cpu'){LSset('kotcg_cpulv',tLv);burstVS(tvs,'v');sfx('slam');const hs=tMode==='rank'?'cpu='+tDeck+'.auto.rk':'cpu='+tDeck+'.'+tOpt;setTimeout(()=>{try{tcgPlay(hs)}catch(e){}},260);return}
     const p=players.find(x=>x.id===tOpp);if(!p)return;tSending=true;paintTcg();
     try{await tcgChallenge(p,tcgPlainDeck(deck));if(document.querySelector('.tcgmd[data-wait]')){burstVS(tvs,'v');sfx('chime')}}catch(e){}tSending=false;paintTcg()};
   function burst2(host){if(RMO)return;const r=host.getBoundingClientRect(),pr=tGo.getBoundingClientRect();const cx=r.left-pr.left+r.width/2,cy=r.top-pr.top+r.height/2;
@@ -14998,7 +15042,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const kMe=me.id+'|'+tRate(me.id)+'|'+JSON.stringify(me.eq||{})+'|'+(deck?deck.lead+deck.name:'-')+'|'+!!window.CARD_IMG;
     if(!tMe||tMe.dataset.k!==kMe){const n=tMeSide(me,deck);n.dataset.k=kMe;n.dataset.who=me.id+'|'+JSON.stringify(me.eq||{});const old=tMe;if(old)old.replaceWith(n);else tvs.prepend(n);tMe=n;if(old&&old.dataset.who===n.dataset.who)flipIn(n)}
     const p=tOpp==='cpu'?null:players.find(x=>x.id===tOpp);
-    const kOp=p?'p|'+p.id+'|'+tRate(p.id)+'|'+JSON.stringify(p.eq||{}):'cpu|'+tLv+'|'+tOpt+'|'+(tOpt==='mirror'&&deck?deck.lead+'|'+!!window.CARD_IMG:'');
+    const kOp=p?'p|'+p.id+'|'+tRate(p.id)+'|'+JSON.stringify(p.eq||{}):tMode==='rank'?'cpu|rank':'cpu|'+tLv+'|'+tOpt+'|'+(tOpt==='mirror'&&deck?deck.lead+'|'+!!window.CARD_IMG:'');
     if(!tOp||tOp.dataset.k!==kOp){const n=p?tFriendSide(p):tCpuSide(deck);n.dataset.k=kOp;n.dataset.who=p?p.id:'cpu';const old=tOp;tOp=n;tMe.after(n);
       if(old&&old.dataset.who!==n.dataset.who){const a=ani(old,[{opacity:1,transform:'none'},{opacity:0,transform:'translateX(24px)'}],{duration:180,easing:'ease-in',fill:'forwards'});if(a)a.onfinish=()=>old.remove();else old.remove();
         ani(n,[{opacity:0,transform:'translateX(40px)'},{opacity:1,transform:'none'}],{duration:560,delay:70});
@@ -15015,10 +15059,10 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     if(tOpp!=='cpu'&&!players.some(p=>p.id===tOpp&&!p.ban))tOpp='cpu';
     const fr=players.filter(p=>p.id!==me.id&&!p.ban&&!p.hidden).map(p=>({p,id:p.id,r:tRate(p.id),h:tH2H(me.id,p.id)})).sort((a,b)=>(b.h.last-a.h.last)||(b.r-a.r));
     let T={};try{T=tcgOf(inv)}catch(e){}
-    const os=JSON.stringify([fr.map(o=>[o.id,o.p.name,o.r,o.h.w,o.h.l,bgOf(o.p),o.p.eq&&o.p.eq.a,o.p.eq&&o.p.eq.f]),T.w,T.l,tLv]);
+    const os=JSON.stringify([fr.map(o=>[o.id,o.p.name,o.r,o.h.w,o.h.l,bgOf(o.p),o.p.eq&&o.p.eq.a,o.p.eq&&o.p.eq.f]),T.w,T.l,tLv,tMode]);
     if(os!==tOppSig){tOppSig=os;const box=tOpps.querySelector('.kx-opps');
-      const c=mk('button','kx-opp kx-ocpu');c.type='button';c.dataset.id='cpu';c.setAttribute('role','option');const sw=mk('i','kx-osw kx-oswcpu'),av=mk('span','kav kx-cpuav');av.style.setProperty('--es','56px');av.innerHTML=cpuSVG(tLv==='strong');
-      c.append(sw,mk('i','ck'),av,mk('b',null,'CPU'),mk('small',null,tLv==='strong'?'つよい':'ふつう'),mk('em','new',(T.w||0)+'勝 '+(T.l||0)+'敗'));c.onclick=()=>{if(tOpp==='cpu')return;tOpp='cpu';LSset('kxtopp','cpu');paintTcg();ani(c,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
+      const c=mk('button','kx-opp kx-ocpu');c.type='button';c.dataset.id='cpu';c.setAttribute('role','option');const sw=mk('i','kx-osw kx-oswcpu'),av=mk('span','kav kx-cpuav');av.style.setProperty('--es','56px');av.innerHTML=cpuSVG(tMode!=='rank'&&tLv==='strong');
+      c.append(sw,mk('i','ck'),av,mk('b',null,'CPU'),mk('small',null,tMode==='rank'?'ランク戦':tLv==='strong'?'つよい':'ふつう'),mk('em','new',(T.w||0)+'勝 '+(T.l||0)+'敗'));c.onclick=()=>{if(tOpp==='cpu')return;tOpp='cpu';LSset('kxtopp','cpu');paintTcg();ani(c,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
       const L=[c].concat(fr.map(o=>{const b=mk('button','kx-opp');b.type='button';b.dataset.id=o.id;b.setAttribute('role','option');
         const sw=mk('i','kx-osw'),bv=bgOf(o.p);if(bv)sw.classList.add('pb-'+bv);else sw.classList.add('none');try{mvars(b,TI(o.r))}catch(e){}
         b.append(sw,mk('i','ck'),AV(o.id,56),mk('b',null,esc(o.p.name)),mk('small',null,esc(RNk(o.r))),mk('em',o.h.w+o.h.l?'':'new',o.h.w+o.h.l?o.h.w+'勝 '+o.h.l+'敗':'初対戦'));
@@ -15039,15 +15083,18 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const deck=st?tSel():null;
     tDk.querySelectorAll('.kx-tdk[data-i]').forEach(b=>{const on=+b.dataset.i===tDeck;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false')});
     tCpu.hidden=tOpp!=='cpu';
-    tCpu.querySelectorAll('.kx-tseg button').forEach(b=>{const on=b.dataset.v===tLv;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false')});
+    tCpu.querySelectorAll('.kx-tmode button').forEach(b=>{const on=b.dataset.m===tMode;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false')});
+    tCpu.querySelector('.kx-tfree').hidden=tMode==='rank';tCpu.querySelector('.kx-trkd').hidden=tMode!=='rank';
+    tCpu.querySelectorAll('.kx-tlv button').forEach(b=>{const on=b.dataset.v===tLv;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false')});
     tCpu.querySelectorAll('.kx-topts button').forEach(b=>{const on=b.dataset.v===tOpt;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false')});
     tCpu.querySelector('.kx-toptd').textContent=(TOPT.find(x=>x[0]===tOpt)||TOPT[0])[2];
     paintTStage(me,deck);
     const p=tOpp==='cpu'?null:players.find(x=>x.id===tOpp);
-    tCta.classList.toggle('strong',!p&&tLv==='strong');
+    tCta.classList.toggle('strong',!p&&tMode!=='rank'&&tLv==='strong');tCta.classList.toggle('rk',!p&&tMode==='rank');
     if(!st){tCta.disabled=false;tCta.textContent='スターターデッキを選ぶ';tGo.querySelector('.kx-foot').textContent='VSを押して、3つのスターターデッキから1つ選ぶと、CPUや友達と対戦できます';tV.set('はじめる',true,'スターターデッキを選ぶ')}
     else if(!deck||!tcgOk(deck)){tCta.disabled=false;tCta.textContent='デッキを組む';tGo.querySelector('.kx-foot').textContent='使えるデッキがありません。VSを押すとデッキのページへ移ります';tV.set('デッキへ',true,'デッキを組む')}
     else if(p){tCta.disabled=tSending;tCta.innerHTML=tSending?'送信中…':esc(p.name)+'に申し込む';tGo.querySelector('.kx-foot').textContent='VSを押すと申し込みます。相手が受けると始まります(10分有効)。勝つと宝箱(最大50pt)';tV.set(tSending?'送信中':'申し込む',!tSending,p.name+'に申し込む')}
+    else if(tMode==='rank'){let rr=1500;try{rr=tcgRating(me.id)}catch(e){}tCta.disabled=false;tCta.textContent='ランク戦をはじめる';tGo.querySelector('.kx-foot').textContent='VSを押すと始まります。いまのTCGレート '+rr+'。勝つと上がり、負けると下がります。途中でやめると負け';tV.set('ランク戦',true,'ランク戦をはじめる')}
     else{tCta.disabled=false;tCta.textContent=tLv==='strong'?'つよいCPUと対戦':'CPUと対戦';tGo.querySelector('.kx-foot').textContent='VSを押すと始まります。練習やデッキの試しに。レートは変わりません';tV.set('対戦する',true,tLv==='strong'?'つよいCPUと対戦':'CPUと対戦')}}
   /* entrance: same as the rate stage, then both cards are dealt face up */
   let tIntroN=0;
