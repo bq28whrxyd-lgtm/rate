@@ -8248,7 +8248,7 @@ const hwMul=t=>hwNightAt(t)?2:1;
 let hwMemo={k:'',v:{}};
 function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms.length+':'+tcgms.reduce((a,d)=>a+(tcgDone(d)?1:0),0):0)/* (10/18) a friend battle's result arrives as an update, not a new doc */,bunLogs.length,hwT0(),!!window.__hwNight,pid===invFor?JSON.stringify([((inv.tcg||{})[HWK.s]||[]).length,inv[HWK.q]||0,(inv[HWK.d]||[]).length,inv[HWK.dg]||0]):''].join('|');
   const hpA=typeof hwPassAt==='function'?hwPassAt(pid):0,hsA=typeof hwSetAt==='function'?hwSetAt(pid):0;
-  if(hwMemo.k!==key+'|'+(typeof passes!=='undefined'?Object.keys(passes).length+JSON.stringify([hpA,hsA]):''))hwMemo={k:key+'|'+(typeof passes!=='undefined'?Object.keys(passes).length+JSON.stringify([hpA,hsA]):''),v:{}};if(hwMemo.v[pid]!=null)return hwMemo.v[pid];let c=0;const me_=pid===invFor,add=(n,t)=>{c+=n*hwMul(t)*(me_&&hwBoostAt(t)?2:1)*(hpA&&t>=hpA?1+HWP_BONUS:1)};
+  if(hwMemo.k!==key+'|'+(typeof passes!=='undefined'?Object.keys(passes).length+JSON.stringify([hpA,hsA]):''))hwMemo={k:key+'|'+(typeof passes!=='undefined'?Object.keys(passes).length+JSON.stringify([hpA,hsA]):''),v:{}};if(hwMemo.v[pid]!=null)return hwMemo.v[pid];let c=0;const me_=pid===invFor,add=(n,t)=>{c+=n*hwMul(t)*(me_&&hwBoostAt(t)?2:1)*(1+(hpA&&t>=hpA?HWP_BONUS:0)+(hsA&&t>=hsA?HWS_BONUS:0))};/* (10/19) the set also +10% from when it was given; with the pass too, +20% */
   for(const m of matches){if(!hwIn(m.t||0))continue;if(m.w===pid)add(HW_C.rw,m.t);else if(m.l===pid)add(HW_C.rl,m.t)}
   if(typeof tcgms!=='undefined')for(const d of tcgms){if(!tcgDone(d)||!hwIn(d.t||0)||(d.a!==pid&&d.b!==pid)||d.wa==='draw')continue;add(d.wa===pid?HW_C.tw:HW_C.tl,d.t)}
   for(const l of bunAtk(pid))if(hwIn(l.t))add(l.w?HW_C.bw:HW_C.bl,l.t);
@@ -8398,10 +8398,15 @@ function hwRankSec(me){const L=hwRank(),done=hwRankDone(),i=L.findIndex(x=>x.p.i
   return sec}
 function hwTick(){const me=myPlayer();if(!me||!hwOn())return;try{totWatch()}catch(e){}try{hwPub()}catch(e){}if(!invLoaded||invFor!==me.id)return;const e=hwEarn(me.id);if(hwSeen==null){hwSeen=e;return}if(e>hwSeen){const d=e-hwSeen;hwSeen=e;setTimeout(()=>{try{hwToast(d)}catch(x){}},2600)}else hwSeen=e}
 setInterval(()=>{try{hwPackSync()}catch(e){}try{hwTick()}catch(e){}try{if((HW_HERE()||window.__hw0)&&myPlayer())hwpWatch()}catch(e){}},4000);
-/* ハロウィン限定パック (TCG): TCGD.hwpack becomes packs.h only while the event is on. Every 100 packs: one ハロウィン版 card as a シークレット, your pick */
+/* ハロウィン限定パック (TCG): TCGD.hwpack becomes packs.h while the event is on. (10/19) After the event it stays, marked over:
+   it is no longer sold (tcgOver), but a box kept sealed (未開封ボックス) can still be opened, priced and traded.
+   (before:) only while the event is on. Every 100 packs: one ハロウィン版 card as a シークレット, your pick */
 function hwPackSync(boot){try{if(typeof TCGD==='undefined'||!TCGD.hwpack)return;const on=hwOn();
   if(on&&!TCGD.packs.h){TCGD.packs.h=TCGD.hwpack;if(!boot){const n=TCGD.hwpack.n;TCG_TK.tp1_h={pk:'h',k:1,n:n+' 1パックチケット'};TCG_TK.tpb_h={pk:'h',k:'box',n:n+' ボックスチケット'};TCG_TK.tsc_h={pk:'h',k:'sel',n:n+' シークレット選択チケット'};queueRender();try{renderGacha()}catch(e){}}}
-  else if(!on&&TCGD.packs.h){delete TCGD.packs.h;if(!boot){queueRender();try{renderGacha()}catch(e){}}}}catch(e){}}
+  else if(!on&&now()>=hwT1()){if(!TCGD.packs.h)TCGD.packs.h=TCGD.hwpack;if(!TCGD.packs.h.over){TCGD.packs.h.over=1;if(!boot){queueRender();try{renderGacha()}catch(e){}}}}
+  else if(!on&&TCGD.packs.h){delete TCGD.packs.h;if(!boot){queueRender();try{renderGacha()}catch(e){}}}
+  if(on&&TCGD.packs.h&&TCGD.packs.h.over)delete TCGD.packs.h.over}catch(e){}}
+const tcgOver=pk=>!!(typeof TCGD!=='undefined'&&TCGD.packs[pk]&&TCGD.packs[pk].over);
 const HW_TCG_CEIL=100;
 const hwTcgN=()=>+(tcgOf(inv).hwn)||0;
 const hwTcgLeft=()=>Math.max(0,Math.floor(hwTcgN()/HW_TCG_CEIL)-(+(tcgOf(inv).hwu)||0));
@@ -8621,8 +8626,8 @@ function hdOpen(opt){opt=opt||{};const me=myPlayer();if(!me)return;document.quer
    The rest is worked out from what is public, like the rest of the event:
      pass: お菓子 +10% from when it was given (hwEarn), ranks from the candy collected in the event (150 a rank, 20 ranks):
            150pt (pack-only, like other paid points), TCG ハロウィンパック券, 限定ガチャチケット 2, and at 20 a pass-only 絵違い
-     set : お菓子 200 (hwEarn), the title.  Nothing here gives anything in the お試し版 (HW_PV). ---- */
-const HWP_PRICE=2000,HWS_PRICE=2000,HWP_STEP=150,HWP_N=20,HWP_BONUS=.1,HWS_CANDY=200,HWS_LTK=8,HWS_TCG=5;
+     set : お菓子 200 and (10/19) お菓子 +10% from when it was given (hwEarn), the title.  Nothing here gives anything in the お試し版 (HW_PV). ---- */
+const HWP_PRICE=2000,HWS_PRICE=2000,HWP_STEP=150,HWP_N=20,HWP_BONUS=.1,HWS_BONUS=.1,HWS_CANDY=200,HWS_LTK=8,HWS_TCG=5;
 /* the pass-only 絵違い (rank 20): set id when the picture is in TCGD.alt; until then the rank shows it as coming soon */
 const HWP_ART={id:null,n:'',g:2};
 const HWP_R=[null,{pt:150},{tk:'tp1_h',n:1},{pt:150},{pt:150},{tk:'ltk',n:2},{tk:'tp1_h',n:1},{pt:150},{pt:150},{tk:'tp1_h',n:1},{tk:'ltk',n:2},
@@ -8670,7 +8675,7 @@ function hwPassSec(me){const sec=el('div','hlw-sec hwp');const on=!!hwPassAt(me.
   sec.append(pc,el('div','sub hwp-note','パスの pt はパック専用です(賭けや予想には使えません)。チケットは期間中に使ってください。'));
   /* the set */
   const st=el('div','hwp-set'+(hwSetAt(me.id)?' on':''));const sh=el('div','hwp-ht');sh.append(el('h3',null,'ハロウィン限定セット'),el('span',null,hwSetAt(me.id)?'購入済み':HWS_PRICE.toLocaleString()+' '+u+'  ·  1人1回'));st.append(sh);
-  const sl=el('ul','hwp-now');[['限定ガチャチケット',HWS_LTK+'枚'],['TCG ハロウィンパック券',HWS_TCG+'枚'],['お菓子',String(HWS_CANDY)],['称号','「'+HWP_TTL.HW_S1.n+'」(セットだけ)']].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));sl.append(li)});st.append(sl);
+  const sl=el('ul','hwp-now');[['限定ガチャチケット',HWS_LTK+'枚'],['TCG ハロウィンパック券',HWS_TCG+'枚'],['お菓子',String(HWS_CANDY)],['ずっと','もらえるお菓子 +'+Math.round(HWS_BONUS*100)+'%(パスと合わせて +'+Math.round((HWP_BONUS+HWS_BONUS)*100)+'%)'],['称号','「'+HWP_TTL.HW_S1.n+'」(セットだけ)']].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));sl.append(li)});st.append(sl);
   if(hwSetAt(me.id)){const id='HW_S1',eq=(me.eq||{}).t===id,eb=el('button','hlw-eq',eq?'装備中':'称号「'+HWP_TTL[id].n+'」にする');eb.onclick=()=>hwPassEquip(id,eb);st.append(eb)}
   else{const ob=hwOrderBox(me,'hwset');if(ob)st.append(ob)}
   sec.append(st,el('div','sub hwp-note','パスとセットは「申し込む」から。応援値を送って、メッセージに番号を書くと、管理者が確かめてすぐに入ります。'+(HW_PV?' お試し版では、ptとチケットは入りません。':'')));
@@ -9031,7 +9036,7 @@ function shopPassTab(b,me,u){const ks=typeof passLive==='function'?passLive(me.i
   b.append(g,el('p','pts-note','付いた日から30日間。ちがう種類は重ねて持てます。同じパスをもう一度買うと30日のびます。'));
   /* the event's pass and set, while it runs */
   if(hwShopOn()&&typeof HWO!=='undefined'){const eh=el('div','shp-sh');eh.append(el('h3',null,'ハロウィン限定'),el('span','shp-sale on','期間中だけ'));b.append(eh);
-    const items={hwpass:[['すぐ','限定ガチャチケット 1枚'],['ずっと','お菓子 +'+Math.round(HWP_BONUS*100)+'%'],['カード','パスのスタンプカード'],['称号','「'+HWP_TTL.HW_P1.n+'」']],hwset:[['限定ガチャチケット',HWS_LTK+'枚'],['TCG ハロウィンパック券',HWS_TCG+'枚'],['お菓子',String(HWS_CANDY)],['称号','「'+HWP_TTL.HW_S1.n+'」']]};
+    const items={hwpass:[['すぐ','限定ガチャチケット 1枚'],['ずっと','お菓子 +'+Math.round(HWP_BONUS*100)+'%'],['カード','パスのスタンプカード'],['称号','「'+HWP_TTL.HW_P1.n+'」']],hwset:[['限定ガチャチケット',HWS_LTK+'枚'],['TCG ハロウィンパック券',HWS_TCG+'枚'],['お菓子',String(HWS_CANDY)],['ずっと','お菓子 +'+Math.round(HWS_BONUS*100)+'%'],['称号','「'+HWP_TTL.HW_S1.n+'」']]};
     ['hwpass','hwset'].forEach(kind=>{const K=HWO[kind],has=K.has(me.id),pend=shopPend(kind),c=el('div','shp-pass shp-hw'+(has?' own':''));
       const top=el('div','shp-ph');const nm=el('div','shp-pn');nm.append(el('small',null,kind==='hwpass'?'HALLOWEEN PASS':'HALLOWEEN SET'),el('b',null,K.n));top.append(nm,shopPrice(K.price(),u+(kind==='hwset'?' / 1回':'')));c.append(top);
       if(has)c.append(el('div','shp-own','持っています'));
@@ -9626,12 +9631,12 @@ const BX_DAY=.01,BX_CAP=1.5;
 const bxAgeX=t=>1+Math.min(BX_CAP,Math.max(0,(now()-t)/864e5*BX_DAY));
 const bxAgeAt=(t,at)=>1+Math.min(BX_CAP,Math.max(0,(at-t)/864e5*BX_DAY));
 const bxOf=v=>(((v&&v.tcg)||{}).bx)||[];
-const bxImg=pk=>'fx_sbx_'+(['a','b','c'].includes(pk)?pk:'a')+'.webp';
+const bxImg=pk=>'fx_sbx_'+(['a','b','c','h'].includes(pk)?pk:'a')+'.webp';
 const bxName=pk=>((typeof TCGD!=='undefined'&&TCGD.packs[pk])||{}).n||'BOX';
 const bxPrice=(pk,t)=>Math.round(mkPrice('b',pk,false)*bxAgeX(t));
 const bxDays=t=>Math.floor(Math.max(0,now()-t)/864e5);
 function bxFace(pk){const w=el('div','kbxf');const im=el('img');im.alt=bxName(pk)+' BOX';im.decoding='async';im.src=bxImg(pk);w.append(im);return w}
-async function bxBuy(pk){const me=myPlayer();if(!TCGD.packs[pk]||!db||!me||me.ban||opening||!invLoaded||invFor!==me.id||!econReady())return;const price=tcgBoxPrice(pk);
+async function bxBuy(pk){const me=myPlayer();if(!TCGD.packs[pk]||tcgOver(pk)||!db||!me||me.ban||opening||!invLoaded||invFor!==me.id||!econReady())return;const price=tcgBoxPrice(pk);
   if(balance(me.id)<price){toast('ポイントが足りません(1ボックス'+price+'pt)');return}opening=true;
   try{const paid0=paidLeft(me.id),n=JSON.parse(JSON.stringify(inv)),T=n.tcg=n.tcg||{};n.tpacks=(inv.tpacks||0)+TCG_BOX_PACKS;if(tcgXp(pk))n.xpacks=(inv.xpacks||0)+TCG_BOX_PACKS;if(tcgHp(pk))n.hpacks=(inv.hpacks||0)+TCG_BOX_PACKS;n.pspent=(inv.pspent||0)+Math.min(price,Math.max(0,paid0));
     T.bx=bxOf(n).concat([{i:'x'+now().toString(36)+Math.floor(Math.random()*1296).toString(36),pk,t:now()}]);await db.doc('inv/'+me.id).set(n);inv=n;ownSync();toast('未開封のまま取っておきました');setTimeout(()=>bxSheet(),300)}
@@ -10839,10 +10844,10 @@ const WK1_0=Math.floor((Math.floor((Date.UTC(2026,9,10,20)+4*3600000)/864e5)+3)/
 const wkStart=w=>(7*w-3)*864e5-4*36e5;
 function rateAt(S,T){let r=null;for(const x of S){if(x.t>T)break;if(!x.adj)r=x.r}return r}
 const wkMemo={};
-function wkTop(w){const key=matches.length+'|'+(typeof tcgms!=='undefined'?tcgms.length:0)+'|'+players.length;if(wkMemo[w]&&wkMemo[w].k===key)return wkMemo[w].v;
+function wkTop(w){const CE=typeof tcgcEvents==='function'&&typeof MVP_CPU!=='undefined'&&w>=MVP_CPU?tcgcEvents().filter(e=>!e.q):[];const key=matches.length+'|'+(typeof tcgms!=='undefined'?tcgms.length:0)+'|'+players.length+'|'+CE.length;if(wkMemo[w]&&wkMemo[w].k===key)return wkMemo[w].v;
   const t0=wkStart(w),t1=t0+7*864e5,out={},ok=id=>{const p=players.find(x=>x.id===id);return p&&!p.ban};
   const gs=Object.keys(GAMES).concat(typeof tcgms!=='undefined'?['tcg']:[]);
-  gs.forEach(g=>{const ids=new Set();if(g==='tcg')tcgms.forEach(d=>{if(tcgDone(d)&&d.t>=t0&&d.t<t1){ids.add(d.a);ids.add(d.b)}});
+  gs.forEach(g=>{const ids=new Set();if(g==='tcg'){tcgms.forEach(d=>{if(tcgDone(d)&&d.t>=t0&&d.t<t1){ids.add(d.a);ids.add(d.b)}});/* (10/19) CPUランク戦 too, from the week of 10/19 */CE.forEach(e=>{if(e.t>=t0&&e.t<t1)ids.add(e.p)})}
     else matches.forEach(m=>{if(m.g===g&&m.t>=t0&&m.t<t1){ids.add(m.w);ids.add(m.l)}});
     let best=-1e9,top=[];[...ids].filter(ok).forEach(id=>{const r=rateAt(rateSeries(id,g),t1-1);if(r==null)return;if(r>best){best=r;top=[id]}else if(r===best)top.push(id)});
     if(top.length)out[g]={ids:top,r:best}});
@@ -11249,13 +11254,17 @@ const MVPK=[['w','最多勝','勝'],['n','最多対戦','戦'],['p','予想王',
 const mvpK=w=>w>=MVP_NOP?MVPK.filter(([k])=>k!=='p'):MVPK;
 /* TCG friend battles count for 最多勝/最多対戦 from the week of 10/12 (past weeks stay as they were decided) */
 const MVP_TCG=weekNo(Date.UTC(2026,9,13,0));
+/* (10/19) CPUランク戦 also count, from the week of 10/19 (a game that was left halfway does not) */
+const MVP_CPU=weekNo(Date.UTC(2026,9,19,13));
 const mvpMemo={};
 function mvpOf(w){
   const TM=w>=MVP_TCG&&typeof tcgms!=='undefined'&&typeof tcgDone==='function'?tcgms.filter(d=>tcgDone(d)&&weekNo(+d.t||0)===w):[];
-  const key=w+'|'+matches.length+'|'+preds.length+'|'+players.filter(p=>p.ban).length+'|'+TM.map(d=>d.id+(d.wa||'')).join();if(mvpMemo[w]&&mvpMemo[w].k===key)return mvpMemo[w].v;
+  const CM=w>=MVP_CPU&&typeof tcgcEvents==='function'?tcgcEvents().filter(e=>!e.q&&weekNo(e.t)===w):[];
+  const key=w+'|'+matches.length+'|'+preds.length+'|'+players.filter(p=>p.ban).length+'|'+TM.map(d=>d.id+(d.wa||'')).join()+'|'+CM.map(e=>e.id+e.c).join();if(mvpMemo[w]&&mvpMemo[w].k===key)return mvpMemo[w].v;
   const S={},get=id=>S[id]||(S[id]={w:0,n:0,p:0});
   matches.forEach(m=>{if(weekNo(m.t)!==w)return;get(m.w).w++;get(m.w).n++;get(m.l).n++});
   TM.forEach(d=>{if(!d.a||!d.b)return;get(d.a).n++;get(d.b).n++;if(d.wa===d.a||d.wa===d.b)get(d.wa).w++});
+  CM.forEach(e=>{get(e.p).n++;if(e.c==='w')get(e.p).w++});
   preds.forEach(p=>{const m=matches.find(x=>x.id===p.cid);if(!m||weekNo(m.t)!==w)return;get(p.pid).p+=m.w===p.pick?predGain(p):-p.stake});
   const ok=id=>{const p=players.find(x=>x.id===id);return p&&!p.ban},out={};
   MVPK.forEach(([k])=>{let best=0,ids=[];Object.entries(S).forEach(([id,s])=>{if(!ok(id))return;if(s[k]>best){best=s[k];ids=[id]}else if(s[k]===best&&best>0)ids.push(id)});out[k]={v:best,ids:best>0?ids:[]}});
@@ -11280,7 +11289,7 @@ function renderMvp(){
   {const wk=cw-1>=WK1_0?cw-1:cw,T=wkTop(wk),d=el('div','mvp');d.append(el('div','mvph',(wk<cw?'先週':'今週')+'のジャンル別 1位(週の終わりのレート)'));
     const gs=Object.keys(GAMES).concat(['tcg']);gs.forEach(g=>{const x=T[g],r=el('div','mvpr');r.append(el('span','sub',g==='tcg'?'きもオタTCG':gname(g)),x?nms(x.ids,()=>tidx(+x.r||START),'  '+x.r):el('b',null,'—'));d.append(r)});
     d.append(el('div','sub','その週に対戦した人の中でレート1位  ·  好きなガチャのチケット きもオタTCG 5枚 / ほかのジャンル 3枚'));box.append(d)}
-  box.append(card(cw<MVP0?'週間MVPは来週の月曜朝5時から始まります(今はお試し集計)':'今週のトップ(月曜朝5時に確定)',mvpOf(cw),'各部門 500pt  ·  レート戦とTCGの友達戦を合わせて数える'));
+  box.append(card(cw<MVP0?'週間MVPは来週の月曜朝5時から始まります(今はお試し集計)':'今週のトップ(月曜朝5時に確定)',mvpOf(cw),'各部門 500pt  ·  レート戦・TCGの友達戦・CPUランク戦を合わせて数える'));
 }
 
 /* ---- genre week banner ---- */
@@ -12300,7 +12309,7 @@ function tcgPackView(pk,res,onMore,opt={}){try{window.KHD&&KHD.preload((res||[])
     f.append(el('div','pksum','NEW '+nw+'枚'+(sh?'  ·  かけら +'+sh:'')));const cl=el('button','sec',opt.onClose?'ボックスの結果を見る':'閉じる');cl.onclick=()=>{o.remove();if(opt.onClose)opt.onClose()};f.append(cl);
     if(onMore){const mo=el('button',null,opt.moreLabel||'もう1パック');mo.onclick=()=>pullMore(o,onMore);f.append(mo)}stage.append(f);got.classList.add('done')}
   return o}
-async function tcgOpenPack(pk,tk){const me=myPlayer();if(!db||!me||me.ban||opening||lbBusy||!invLoaded||invFor!==me.id||!econReady())return;
+async function tcgOpenPack(pk,tk){const me=myPlayer();if(tcgOver(pk)||!db||!me||me.ban||opening||lbBusy||!invLoaded||invFor!==me.id||!econReady())return;
   if(tk){if(tcgTk(me.id,tk)<1){toast('チケットがありません');return}return tcgOpenTicketPacks(pk,tk,1)}
   if(!tcgHasSt()){toast('先にスターターデッキを選んでください');return}
   if(balance(me.id)<tcgPrice(pk)){toast('ポイントが足りません(1パック'+tcgPrice(pk)+'pt)');return}
@@ -12320,7 +12329,7 @@ if(typeof GNAME!=='undefined')GNAME.tcg='きもオタTCG';
 const tcgTk=(pid,kind)=>Math.max(0,grantTk(pid,kind)+(pid===invFor&&typeof wkConv==='function'?wkConv(kind):0)+(typeof invTk==='function'?invTk(pid,kind):0)+(typeof hwPassTk==='function'?hwPassTk(pid,kind):0)-(+((inv.ttu||{})[kind])||0));/* (10/17) + 友達招待 */
 const tcgTkAll=pid=>Object.keys(TCG_TK).reduce((a,k)=>a+tcgTk(pid,k),0);
 /* 1 or 10 packs with a ticket: no points are spent, the ticket is used instead */
-async function tcgOpenTicketPacks(pk,tk,count){const me=myPlayer();if(!db||!me||me.ban||opening||lbBusy||!invLoaded||invFor!==me.id||!econReady())return;
+async function tcgOpenTicketPacks(pk,tk,count){const me=myPlayer();if(tcgOver(pk)||!db||!me||me.ban||opening||lbBusy||!invLoaded||invFor!==me.id||!econReady())return;
   if(tcgTk(me.id,tk)<1){toast('チケットがありません');return}if(!tcgHasSt()){toast('先にスターターデッキを選んでください');return}
   opening=true;renderTcg();let res;
   try{await tcgLoad();if(tcgTk(me.id,tk)<1)throw new Error('none');const ids=[];for(let i=0;i<count;i++)ids.push(...tcgRoll(pk));
@@ -12348,7 +12357,7 @@ const tcgAskTk=(pk,k)=>{const K=TCG_TK[k],box=K.k==='box';return pull(()=>pkSpec
   [box?TCG_BOX_PACKS+'パック・'+(TCG_BOX_PACKS*TCGD.size)+'枚':'1パック・'+TCGD.size+'枚',['sub',K.n+'を1枚使います（残り'+tcgTk(myPlayer().id,k)+'枚）']],'チケットで開ける'),
   ()=>box?tcgOpenBox(pk,k):tcgOpenPack(pk,k))};
 /* secret pick ticket: choose any card of the pack and get it as a secret (SCR) copy */
-function tcgPickScr(pk,tk){const me=myPlayer();if(!me||!TCGD.packs[pk]||opening)return;if(tcgTk(me.id,tk)<1){toast('チケットがありません');return}
+function tcgPickScr(pk,tk){const me=myPlayer();if(!me||!TCGD.packs[pk]||tcgOver(pk)||opening)return;if(tcgTk(me.id,tk)<1){toast('チケットがありません');return}
   const P=TCGD.packs[pk],pool=tcgPool(pk),order={GR:0,SR:1,R:2,C:3},foil=tcgOf(inv).foil||{};
   pool.sort((a,b)=>(order[a.r]??3)-(order[b.r]??3));
   const o=el('div','tcgpick'),w=el('div','tcgpw'),hd=el('div','tcgph');hd.append(el('div','eyebrow','SECRET PICK'),el('h2',null,'好きなカードを1枚'),el('p','sub',P.n+' のカードから、シークレットで1枚もらえます。チケット残り '+tcgTk(me.id,tk)+'枚'));
@@ -12368,13 +12377,13 @@ async function tcgScrGifts(){const me=myPlayer();if(!db||!me||tcgGiftBusy||openi
     const n=Object.assign({},inv,{tcg:t,tscgD:[...done]});await db.doc('inv/'+me.id).set(n);inv=n;renderTcg();
     whenFree(()=>tcgBoxCinematic(Object.keys(TCGD.packs)[0],G.map(g=>({c:tcgItem(g.cid),isNew:true,sh:0,foil:true})),()=>{},()=>{},{revealed:true}));toast('シークレットが届きました')}
   catch(e){}tcgGiftBusy=false}
-function tcgConfirmBox(pk){const me=myPlayer();if(!TCGD.packs[pk]||!me||opening)return;
+function tcgConfirmBox(pk){const me=myPlayer();if(!TCGD.packs[pk]||tcgOver(pk)||!me||opening)return;
   tcgModal((c,close)=>{c.append(el('div','mdt',TCGD.packs[pk].n+' · ボックス購入'),el('p',null,TCG_BOX_PACKS+'パック・'+(TCG_BOX_PACKS*TCGD.size)+'枚 / '+tcgBoxPrice(pk)+'pt'),el('p','sub','SCRは45枚の中に含まれます。'+(TCGD.packs[pk].hw?'30%の確率で、シークレットがハロウィンのカードになります。':'')+'所持上限を超えたカードは、通常パックと同じくかけらになります。'));
     const buy=el('button','tcgboxconfirm','購入する（'+tcgBoxPrice(pk)+'pt）');buy.disabled=!econReady()||!tcgHasSt()||balance(me.id)<tcgBoxPrice(pk);buy.onclick=()=>{close();tcgOpenBox(pk)};const cancel=el('button','sec','キャンセル');cancel.onclick=close;
     const keep=el('button','sec tcgkeep','開けずに取っておく('+tcgBoxPrice(pk)+'pt)');keep.disabled=buy.disabled;keep.onclick=()=>{close();try{bxBuy(pk)}catch(e){}};
-    if(TCGD.packs[pk].hw){c.append(buy,el('p','sub','期間限定のパックなので、開けずに取っておくことはできません。'),cancel);return}
-    c.append(buy,keep,el('p','sub','取っておいた箱は「コレクション → 未開封ボックス」から、いつでも開けられます。寝かせるほど相場が上がり、ショーケースに飾ったり取引所に出したりもできます。'),cancel)})}
-async function tcgOpenBox(pk,tk){const me=myPlayer();if(!TCGD.packs[pk]||!db||!me||me.ban||opening||lbBusy||!invLoaded||invFor!==me.id||!econReady())return;
+    /* (10/19) the Halloween box can be kept sealed too: it can be opened after the event, but it is no longer sold then */
+    c.append(buy,keep,el('p','sub','取っておいた箱は「コレクション → 未開封ボックス」から、いつでも開けられます。寝かせるほど相場が上がり、ショーケースに飾ったり取引所に出したりもできます。'+(TCGD.packs[pk].hw?'期間限定のボックスなので、ハロウィンが終わったあとも開けられますが、新しくは買えなくなります。':'')),cancel)})}
+async function tcgOpenBox(pk,tk){const me=myPlayer();if(!TCGD.packs[pk]||tcgOver(pk)||!db||!me||me.ban||opening||lbBusy||!invLoaded||invFor!==me.id||!econReady())return;
   if(tk)return tcgOpenTicketBox(pk,tk);
   if(!tcgHasSt()){toast('先にスターターデッキを選んでください');return}
   if(balance(me.id)<tcgBoxPrice(pk)){toast('ポイントが足りません(1ボックス'+tcgBoxPrice(pk)+'pt)');return}
@@ -12705,7 +12714,7 @@ function renderTcgPacks(){const box=$('tcgpacks');if(!box)return;const me=myPlay
   if(!window.CARD_IMG&&curView==='gacha'&&gPage==='tcg')tcgLoad().then(()=>{if(window.CARD_IMG)renderTcgPacks()});
   box.replaceChildren();const s=el('section','tcgps');s.append(el('div','eyebrow','KIMOOTA TCG'),el('h2','tcgpsh','カードパック'));
   const bal=el('div','tcgbal');bal.append(el('span',null,'所持ポイント'),el('b',null,me?String(balance(me.id)):'-'),el('span',null,'かけら'),el('b',null,String(inv.shards||0)));s.append(bal);
-  Object.keys(TCGD.packs).forEach(pk=>s.append(tcgPackSlide(pk)));box.append(s);
+  Object.keys(TCGD.packs).filter(pk=>!TCGD.packs[pk].over).forEach(pk=>s.append(tcgPackSlide(pk)));box.append(s);
   const s2=el('section','tcgps2'),r=el('div','tcgsc'),b1=el('button','sec','TCGデッキ・図鑑'),b2=el('button','sec','TCGで遊ぶ');b1.onclick=()=>tcgDeckView();b2.onclick=()=>setView('tcg');r.append(b1,b2);s2.append(r);try{const g=grCaseBtn();if(g)s2.append(g)}catch(e){}box.append(s2)}
 function tcgGoPacks(){setView('gacha');gpageSet('tcg',56)}
 function renderTcg(){
@@ -13352,7 +13361,7 @@ const NEWS_PREV=(NEWS_HW&&NEWS_V134?NEWS_V134:[]).concat([
  ['勝敗予想',['ほかの人の対戦の勝ち負けを予想してptを賭けられる(対戦が始まってから30秒以内)','オッズはレート差・最近の勝率・2人の対戦成績で決まる。格下が勝つと大きく増える','自分の対戦は予想できない']],
  ['今日のお題',['毎日3つのお題。全部クリアで100pt(毎朝5時に入れ替わり)']],
  ['宝箱がパワーアップ',['20回に1回くらい豪華宝箱に。中身は 200 / 300 / 500pt かパックチケット3枚','下剋上ボーナス: 1ランク上の人に勝つと+50pt、レートが100以上高い人に勝つと+30pt']],
- ['ジャンル週間と週間MVP',['管理者が開催する「○○週間」は、そのジャンルの宝箱のptが1.5倍','毎週月曜の朝5時に「最多勝」「最多対戦」を発表(レート戦とTCGの友達戦を合わせて数える)。各500ptと1週間MVPマーク']],
+ ['ジャンル週間と週間MVP',['管理者が開催する「○○週間」は、そのジャンルの宝箱のptが1.5倍','毎週月曜の朝5時に「最多勝」「最多対戦」を発表(レート戦・TCGの友達戦・CPUランク戦を合わせて数える)。各500ptと1週間MVPマーク']],
  ['ポイント購入',['購入したポイントはガチャ専用。賭けや予想に使えるのは、対戦やお題でもらったポイントだけ']],
  ['ランクごとの見た目',['ランクが上がるほど名前が豪華に。シルバーで光が走り、ゴールドからキラキラ、ダイヤでオーラ、マスターは王冠付き','ランクごとの「ランク称号」(崖っぷちオタク〜オタクの頂点)も付く','ランキング・プロフィール・対戦画面・タイムラインに出る。見本はホームの「ランクの一覧」から']],
  ['対戦開始の演出',['自分の画面には、自分が装備している対戦演出が出るように']],
@@ -16989,7 +16998,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
       cards:gr.slice(0,5),
       bal:b,acts:st?[{l:'1パック',c:tcgPrice(pk),need:tcgPrice(pk)-b,on:ok&&b>=tcgPrice(pk),go:()=>tcgAskPack(pk)()},{l:'1ボックス',c:tcgBoxPrice(pk),need:tcgBoxPrice(pk)-b,note:TCG_BOX_PACKS+'パック',main:1,on:ok&&b>=tcgBoxPrice(pk),go:()=>tcgConfirmBox(pk)}]
         :[{l:'スターターデッキを選ぶ',note:'先にTCGで1つ選ぶ',main:1,on:true,go:()=>{try{window.kbSeg?kbSeg('tcg'):setView('tcg')}catch(e){setView('tcg')}}}],tks,sheet:()=>shTcg(pk)}}
-  function list(pg){if(pg==='tcg'){try{return Object.keys(TCGD.packs).sort((a,b)=>(!!TCGD.packs[b].hw)-(!!TCGD.packs[a].hw)).map(mTcg)}catch(e){return []}}
+  function list(pg){if(pg==='tcg'){try{return Object.keys(TCGD.packs).filter(k=>!TCGD.packs[k].over).sort((a,b)=>(!!TCGD.packs[b].hw)-(!!TCGD.packs[a].hw)).map(mTcg)}catch(e){return []}}
     const L=[];try{if(limActive())L.push(mLim())}catch(e){console.warn('kgu lim',e)}try{if(coinOn(now()))L.push(mCoin())}catch(e){}try{L.push(mNormal())}catch(e){}return L}
 
   /* ---------- drawing ---------- */
