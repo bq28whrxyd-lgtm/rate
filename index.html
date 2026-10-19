@@ -3091,6 +3091,22 @@ button.tcgkeep{width:100%;margin-top:8px}
 .hwp-s.gr.lock .hwp-st,.hwp-card.free .hwp-s.next .hwp-st{box-shadow:inset 0 0 0 2px rgba(47,106,53,.7)}
 .hwp-s.blank small{visibility:hidden}
 .hwp>.hlw-eq{align-self:flex-start;margin-top:-6px}
+/* AUDcss:begin */
+/* ---- (10/19) 管理者: ポイントの不正チェック ---- */
+#admAudOut{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.aud-h{display:flex;flex-direction:column;gap:3px}.aud-h b{font-size:16px}.aud-h span{font-size:12px;color:var(--mut,#a9a3b8)}
+.aud-s{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:12px;font-size:13px;line-height:1.55}
+.aud-s.ok{background:rgba(95,211,155,.12);box-shadow:inset 0 0 0 1px rgba(95,211,155,.45)}
+.aud-s.bad{background:rgba(255,92,128,.12);box-shadow:inset 0 0 0 1px rgba(255,92,128,.5)}
+.aud-s ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.aud-t{display:flex;flex-direction:column;border-radius:12px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.aud-r{display:grid;grid-template-columns:1.6fr 1fr .8fr .9fr;gap:6px;padding:7px 10px;font-size:12px;align-items:center;font-variant-numeric:tabular-nums}
+.aud-r:nth-child(even){background:rgba(255,255,255,.03)}
+.aud-r>*:not(:first-child){text-align:right}
+.aud-th{font-size:10.5px;color:var(--mut,#a9a3b8);background:rgba(255,255,255,.06)!important}
+.aud-r.odd{background:rgba(255,92,128,.16)!important}.aud-r.odd b{color:#ff8fab}
+.aud-o{display:flex;flex-direction:column;gap:3px}
+/* AUDcss:end */
 /* STKcss:begin */
 /* ---- (10/19) ハロウィン シールアルバム ---- */
 .stk{--w:200px;position:relative;flex:none;width:var(--w);height:var(--w);border-radius:11%;padding:calc(var(--w) * .042);box-sizing:border-box;background:linear-gradient(160deg,#fffdf6,#efe7d6);box-shadow:0 1px 0 #fff inset,0 calc(var(--w) * .04) calc(var(--w) * .1) rgba(0,0,0,.42),0 1px 3px rgba(0,0,0,.35);transition:transform .18s ease-out;font-family:var(--kjf,-apple-system),"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;text-align:left}
@@ -6784,6 +6800,11 @@ body.ui2 .lgr.got .gt b{color:#a9a49c}
   /* the few loops that are not handed to the graphics chip are paused by name while their screen is hidden (named, so only
      those parts are re-checked when the screen changes) */
   main>.view[hidden] :is(.nxt,.csh,.kgu-lens,.jit,.flap,.flk,.rot,.rotr,.supnmL),main>.view[hidden] :is(.nx6,.pb-suptopaz)::after{animation-play-state:paused!important}}
+/* (10/19) scrolling: the tab bar stayed blurred glass on every screen but the home, so the phone had to blur the moving page
+   behind it on every frame (lag), and the page's rubber-band bounce at the ends dragged the fixed bar along with it.
+   Now: no bounce on the page itself, and the tab bar is the same tinted glass as on the home (no live blur), on its own layer */
+html,body{overscroll-behavior-y:none}
+body.ui2 .bnav{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(180deg,rgba(40,39,52,.86),rgba(14,14,20,.95))!important;-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -6937,6 +6958,9 @@ body.ui2 .lgr.got .gt b{color:#a9a49c}
 <div class="admpg" data-t="mem" hidden>
 <div class="admcard"><div class="admct">参加のルールへの同意</div><div class="admcd">全員、同意するまでアプリを使えません。ルールを変えたら下のボタンで全員にもう一度同意してもらえます。</div><div id="admAgree"></div></div>
 <div class="admcard"><div class="admct">ログイン状況</div><div class="admcd">管理者だけに見えます。</div><div id="admSeen"></div>
+</div>
+<div class="admcard" id="admAud"><div class="admct">ポイントの不正チェック</div><div class="admcd">選んだ人のポイントを、出どころごとに全員と比べます。とびぬけて多い項目や、ありえない数があると赤で出ます。調べるのはこのスマホの中だけで、何も書きかえません。</div>
+<div class="row" style="margin-top:8px"><select id="admAudP" aria-label="調べる人" style="flex:1;min-width:0" onfocus="try{audFill()}catch(e){}"></select><button id="admAudGo" style="flex:none" onclick="try{audFill();audRun()}catch(e){}">調べる</button></div><div id="admAudOut"></div>
 </div>
 <div class="admcard"><div class="admct">操作の履歴</div><div id="admLog"></div>
 </div>
@@ -8662,6 +8686,56 @@ function hwpPress(card,L,delay,name){if(!L.length||!document.body.contains(card)
 async function hwPassEquip(id,b){const me=myPlayer();if(!me||!hwPassTitleOk(me.id,id))return;b.disabled=true;try{const cur=Object.assign({},me.eq||{});cur.t=cur.t===id?null:id;await db.doc('players/'+me.id).update({eq:cur});me.eq=cur;try{hwOpen.redraw&&hwOpen.redraw()}catch(e){}}catch(e){b.disabled=false;toast('変えられませんでした')}}
 
 /* the admin card: give the pass or the set after taking the money */
+/* AUDjs:begin */
+/* ---- (10/19) 管理者: ポイントの不正チェック. Everything a balance is made of, for one player, next to everyone else's
+   (the median and the top), plus the counters the player's own phone writes (inv) checked against what is possible.
+   It runs on the admin's phone only (admins can read every inv); nothing is written or sent anywhere. ---- */
+function audFill(){const sp=$('admAudP');if(!sp||sp.options.length)return;players.filter(p=>!p.retired).sort((a,b)=>a.name.localeCompare(b.name,'ja')).forEach(p=>{const o=el('option',null,p.name+(p.ban?'(BAN)':''));o.value=p.id;sp.append(o)})}
+/* one read of a document (a single snapshot when .get is not there) */
+function audGet(path){const r=db.doc(path);if(typeof r.get==='function')return r.get().then(d=>d.exists?d.data():null);return new Promise(res=>{let u=null,done=false;const fin=x=>{if(done)return;done=true;res(x);try{u&&u()}catch(e){}};u=r.onSnapshot(d=>fin(d&&d.exists?d.data():null),()=>fin(null));setTimeout(()=>fin(null),4000)})}
+const audMed=L=>{const a=L.slice().sort((x,y)=>x-y),n=a.length;return n?(n%2?a[(n-1)/2]:(a[n/2-1]+a[n/2])/2):0};
+/* the parts of balance() (same order), each a function of the player id */
+const AUD_PARTS=[
+  ['対戦の宝箱・初対戦・賭け',pid=>earned(pid)],['シーズン報酬',pid=>seasonPts(players.find(p=>p.id===pid))],['管理者から(配布・購入)',pid=>grantPts(pid)],
+  ['予想',pid=>predNet(pid)],['週間MVP',pid=>mvpPts(pid)],['レベルアップ',pid=>lvPts(pid)],['大会',pid=>tourPts(pid)],['TCG',pid=>tcgPts(pid)],['分身',pid=>bunPts(pid)],
+  ['取引所(オークション・闇鍋)',pid=>typeof mktNet==='function'?mktNet(pid):0],['賞金首',pid=>typeof bountyPts==='function'?bountyPts(pid):0],['畑',pid=>typeof farmNet==='function'?farmNet(pid):0],
+  ['師匠と弟子',pid=>typeof mtPts==='function'?mtPts(pid):0],['ハロウィンのランキング',pid=>typeof hwRankPts==='function'?hwRankPts(pid):0],['友達招待',pid=>typeof invPts==='function'?invPts(pid):0]];
+/* the counters each phone writes for itself (inv). sign: + adds to the balance, - takes away */
+const AUD_INV=[['ログインボーナス','lbp',1],['デイリーミッション','mpts',1],['月額パスの毎日のpt','ppp',1],['燃やした(焼却炉)','bpt',1],['ハロウィンのミッション','hmp',1],['ハロウィンの交換所','hxp',1],['畑の収穫','fhv',1],
+  ['パック・ガチャに使った','',-1],['ショップで使った','shopsp',-1],['ガチャの手数料','gfee',-1],['ショーケースの手数料','scfee',-1],['畑の種','fsd',-1],['畑の番犬','fdog',-1]];
+function audInvVal(v,k){if(!v)return 0;if(k==='')return typeof spentOf==='function'?spentOf(v)-(+v.shopsp||0):0;return +v[k]||0}
+async function audRun(){const pid=($('admAudP')||{}).value,box=$('admAudOut');if(!isAdmin()||!pid||!box)return;const P=players.find(p=>p.id===pid);if(!P)return;
+  box.replaceChildren(el('div','sub','調べています…'));
+  const ids=players.filter(p=>!p.retired).map(p=>p.id),IV={};
+  await Promise.all(ids.map(id=>audGet('inv/'+id).then(d=>{IV[id]=d}).catch(()=>{IV[id]=null})));
+  const v=IV[pid]||{},now_=now();
+  /* how long the player has been here (first record) */
+  const myMs=matches.filter(m=>m.w===pid||m.l===pid),first=Math.min(...[+P.t||Infinity,...myMs.map(m=>m.t||Infinity),+v.t||Infinity].filter(Number.isFinite),now_),days=Math.max(1,Math.ceil((now_-first)/864e5));
+  const flags=[],rows=[];
+  const cmp=(label,f,sign)=>{const all=ids.map(id=>{try{return Math.round(f(id)*(sign||1))}catch(e){return 0}}),mine=Math.round((f(pid)||0)*(sign||1)),med=audMed(all),mx=Math.max(...all),rank=all.filter(x=>x>mine).length+1;
+    const odd=mine>0&&mine===mx&&ids.length>=4&&mine>=500&&mine>Math.max(1,med)*4;if(odd)flags.push(label+'が全員の中でとびぬけて多い('+mine.toLocaleString()+'pt、真ん中の人は'+Math.round(med).toLocaleString()+'pt)');
+    rows.push({label,mine,med,mx,rank,odd})};
+  AUD_PARTS.forEach(([n,f])=>cmp(n,f));
+  AUD_INV.forEach(([n,k,s])=>cmp(n,id=>audInvVal(IV[id],k),s));
+  /* hard limits for the counters a phone writes for itself */
+  const lim=[['ログインボーナス',+v.lbp||0,50*(days+1)],['デイリーミッション',+v.mpts||0,100*(days+1)],['月額パスの毎日のpt',+v.ppp||0,630*(days+1)],['ハロウィンのミッション',+v.hmp||0,1500]];
+  lim.forEach(([n,x,m])=>{if(x>m)flags.push(n+'が、ありえる上限より多い('+x.toLocaleString()+'pt / 上限 '+m.toLocaleString()+'pt)')});
+  ['shopsp','gfee','scfee','fsd','fdog'].forEach(k=>{if((+v[k]||0)<0)flags.push('使ったptの記録('+k+')がマイナスになっている')});
+  if((+v.pspent||0)>(+v.packs||0)*100+(+v.lpacks||0)*200+(+v.tpacks||0)*100+(+v.xpacks||0)*80+(+v.hpacks||0)*110)flags.push('購入ptの使った記録が、開けたパックより多い');
+  /* matches: the same opponent over and over, many in a short time */
+  const byOpp={};myMs.forEach(m=>{const o=m.w===pid?m.l:m.w;const x=byOpp[o]||(byOpp[o]={n:0,w:0,t:[]});x.n++;if(m.w===pid)x.w++;x.t.push(m.t||0)});
+  const opp=Object.entries(byOpp).sort((a,b)=>b[1].n-a[1].n),nm=id=>(players.find(p=>p.id===id)||{}).name||'?';
+  if(opp.length){const [oid,x]=opp[0];if(myMs.length>=10&&x.n/myMs.length>=.6&&x.w/x.n>=.85)flags.push(nm(oid)+'との対戦が全体の'+Math.round(x.n/myMs.length*100)+'%で、そのうち'+Math.round(x.w/x.n*100)+'%勝っている(八百長やサブアカウントの可能性)')}
+  const dayN={};myMs.forEach(m=>{const d=dayKey(m.t);dayN[d]=(dayN[d]||0)+1});const busiest=Object.entries(dayN).sort((a,b)=>b[1]-a[1])[0];
+  if(busiest&&busiest[1]>=25)flags.push(busiest[0]+' に'+busiest[1]+'戦している');
+  /* draw */
+  box.replaceChildren();const head=el('div','aud-h');head.append(el('b',null,P.name),el('span',null,'いまの残高 '+balance(pid).toLocaleString()+'pt  ·  全員の真ん中 '+Math.round(audMed(ids.map(id=>{try{return balance(id)}catch(e){return 0}}))).toLocaleString()+'pt  ·  はじめて '+days+'日前'));box.append(head);
+  const sm=el('div','aud-s'+(flags.length?' bad':' ok'));if(flags.length){sm.append(el('b',null,'気になるところ '+flags.length+'件'));const ul=el('ul');flags.forEach(f=>ul.append(el('li',null,f)));sm.append(ul)}else sm.append(el('b',null,'おかしいところは見つかりませんでした'),el('span',null,'どの項目も、ありえる範囲で、ほかの人と比べてもとびぬけていません。'));box.append(sm);
+  const tb=el('div','aud-t');const hr=el('div','aud-r aud-th');['項目','この人','真ん中','いちばん多い人'].forEach(x=>hr.append(el('span',null,x)));tb.append(hr);
+  rows.filter(r=>r.mine||r.mx).forEach(r=>{const x=el('div','aud-r'+(r.odd?' odd':''));x.append(el('span',null,r.label),el('b',null,r.mine.toLocaleString()+(r.rank===1&&r.mine?'  (1位)':'')),el('span',null,Math.round(r.med).toLocaleString()),el('span',null,r.mx.toLocaleString()));tb.append(x)});box.append(tb);
+  if(opp.length){const ol=el('div','aud-o');ol.append(el('div','admsh','よく対戦している相手'));opp.slice(0,5).forEach(([oid,x])=>ol.append(el('div','sub',nm(oid)+'  ·  '+x.n+'戦 '+x.w+'勝')));box.append(ol)}
+  box.append(el('div','sub','「この人」は、その項目でこの人が手に入れた(マイナスは使った)pt。ログインボーナスなどは、その人のスマホが書く記録なので、ありえる上限と比べています。'))}
+/* AUDjs:end */
 /* STKjs:begin */
 /* ---- (10/19) ハロウィン シールアルバム: 9 stickers, only during the Halloween event.
    Every rate match and TCG friend battle (win or lose) gives each player a 10% chance of one sticker. The chance and the sticker
@@ -11979,7 +12053,7 @@ $('admPassK')&&($('admPassK').onchange=()=>{$('admPassV').value=PASS[+$('admPass
 $('admPassGo')&&($('admPassGo').onclick=()=>twoTap($('admPassGo'),'月額パスを付ける',async()=>{
   const p=players.find(x=>x.id===$('admPassP').value),k=+$('admPassK').value;if(!isAdmin()||!p||!PASS[k])return;
   const r=await mpGiveCore(p,k,Math.max(0,Math.round(+$('admPassV').value||0)));$('admPassMsg').textContent=r.msg}));
-function admPassRender(){admPassSale();try{admHwPassRender()}catch(e){}const sp=$('admPassP');if(!sp)return;{const v=sp.value;sp.replaceChildren();players.filter(p=>!p.ban).sort((a,b)=>a.name.localeCompare(b.name,'ja')).forEach(p=>{const o=el('option',null,p.name);o.value=p.id;sp.append(o)});if(v&&players.some(p=>p.id===v))sp.value=v}
+function admPassRender(){try{audFill()}catch(e){}admPassSale();try{admHwPassRender()}catch(e){}const sp=$('admPassP');if(!sp)return;{const v=sp.value;sp.replaceChildren();players.filter(p=>!p.ban).sort((a,b)=>a.name.localeCompare(b.name,'ja')).forEach(p=>{const o=el('option',null,p.name);o.value=p.id;sp.append(o)});if(v&&players.some(p=>p.id===v))sp.value=v}
   const L=$('admPassList');L.replaceChildren();const t=now(),rows=players.map(p=>[p,passLive(p.id)]).filter(([,ks])=>ks.length);
   if(!rows.length){L.textContent='今パスに入っている人はいません';return}
   rows.forEach(([p,ks])=>{const d=el('div');d.textContent=p.name+'  ·  '+ks.map(k=>PASS[k].n+' 残り'+Math.ceil(((+passes[p.id]['e'+k])-t)/864e5)+'日').join(' / ');L.append(d)})}
