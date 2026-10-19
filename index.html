@@ -6840,6 +6840,8 @@ body.ui2 .lgr.got .gt b{color:#a9a49c}
    Now: no bounce on the page itself, and the tab bar is the same tinted glass as on the home (no live blur), on its own layer */
 html,body{overscroll-behavior-y:none}
 body.ui2 .bnav{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(180deg,rgba(40,39,52,.86),rgba(14,14,20,.95))!important;-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
+/* (10/20) battery: a block scrolled out of sight pauses its loops (ui2.js puts .koff on it) */
+.koff,.koff *,.koff *::before,.koff *::after{animation-play-state:paused!important}
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -14314,19 +14316,30 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   requestAnimationFrame(tick);
   /* idle on the home: after 20 s without a touch the ambient motion pauses (CSS and the stage); any touch brings it back */
   {let last=Date.now();const wake=()=>{last=Date.now();if(document.body.classList.contains('kidle'))document.body.classList.remove('kidle')};
-    ['pointerdown','touchstart','keydown','wheel'].forEach(k=>addEventListener(k,wake,{capture:true,passive:true}));addEventListener('scroll',wake,{capture:true,passive:true});
+    ['pointerdown','touchstart','keydown','wheel'].forEach(k=>addEventListener(k,wake,{capture:true,passive:true}));/* (10/20) only the page's own scroll wakes it: a strip on the home that scrolls by itself fired scroll on an element every
+       few seconds (captured here), so the home never went idle. A swipe on a strip is a touch, which wakes it anyway */
+    addEventListener('scroll',wake,{passive:true});
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)wake()});
-    setInterval(()=>{const c=document.body.classList;if(!c.contains('kidle')&&c.contains('lobhome')&&Date.now()-last>20000&&!window.__kmT)c.add('kidle')},2000)}
+    /* (10/20) battery: idle on every screen, not only the home (no touch for 20 s; not while the game, a popup or a film is up) */
+    setInterval(()=>{const c=document.body.classList;if(!c.contains('kidle')&&Date.now()-last>20000&&!window.__kmT&&!c.contains('tcgon')&&!c.contains('ovl')&&!document.querySelector('body>.kg-st,body>.kbx,body>.kp,body>.cut,body>.ae'))c.add('kidle')},2000)}
   /* where the pause goes: on the screen showing (popup on top), and on the home, top bar and tab bar (idle on the home, or a
      sheet over it). Only those parts are re-checked when it changes (a class on <body> re-checked every screen). */
   {const B=document.body.classList,main=document.querySelector('main');
     const set=(e,k,on)=>{if(e&&e.classList.contains(k)!==on)e.classList.toggle(k,on)};
-    const sync=()=>{const ovl=B.contains('ovl'),home=B.contains('lobhome'),idle=B.contains('kidle')&&home,sheet=B.contains('lobsheet'),vh=document.getElementById('v-home');
-      if(main)[...main.children].forEach(c=>{set(c,'kpz',ovl&&!(c.classList.contains('view')&&c.hidden));if(c===vh)set(c,'kpd',idle||sheet)});
-      set(document.querySelector('.lbar'),'kpd',idle);set(document.querySelector('.bnav'),'kpd',idle)};
+    const sync=()=>{const ovl=B.contains('ovl'),home=B.contains('lobhome'),idle=B.contains('kidle'),sheet=B.contains('lobsheet')&&home,vh=document.getElementById('v-home');
+      /* (10/20) battery: a hidden screen's loops are paused too (they kept running under content-visibility), and the screen
+         showing pauses when idle on any screen */
+      if(main)[...main.children].forEach(c=>{const isV=c.classList.contains('view');set(c,'kpz',ovl&&!(isV&&c.hidden));if(isV)set(c,'kpd',c.hidden||idle||(c===vh&&sheet))});
+      set(document.querySelector('.lbar'),'kpd',idle);set(document.querySelector('.bnav'),'kpd',idle);
+      /* the illustrated coins' clips (video copied onto a canvas every frame) rest while idle */
+      try{if(typeof clipPool!=='undefined')Object.values(clipPool).forEach(v=>{if(idle){if(v._activeClips&&v._activeClips.size&&!v.__idleP&&[...v._activeClips].every(c=>c&&c.ctx&&c.ctx.canvas&&main&&main.contains(c.ctx.canvas))){v.__idleP=1;try{v.pause()}catch(e){}cancelAnimationFrame(v._frame);v._frame=0}}else if(v.__idleP){v.__idleP=0;try{v._resume()}catch(e){}}})}catch(e){}};
     new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
     if(main)new MutationObserver(sync).observe(main,{subtree:false,childList:true,attributes:true,attributeFilter:['hidden']});
     if(main)[...main.querySelectorAll(':scope>.view')].forEach(v=>new MutationObserver(sync).observe(v,{attributes:true,attributeFilter:['hidden']}));sync()}
+  /* (10/20) battery: the parts of a screen scrolled out of sight pause their loops (each screen's top-level blocks, watched
+     by one IntersectionObserver; a block comes back to life 200px before it scrolls in) */
+  {const main=document.querySelector('main');if(main&&'IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{const t=e.target,off=!e.isIntersecting;if(t.classList.contains('koff')!==off)t.classList.toggle('koff',off)}),{rootMargin:'200px 0px'});
+    const seen=new WeakSet(),watch=()=>{[...main.querySelectorAll(':scope>.view>*,:scope>.view>*>*')].forEach(x=>{if(!seen.has(x)&&x.nodeType===1&&x.tagName!=='SCRIPT'){seen.add(x);io.observe(x)}})};watch();let wq=0;const wsoon=()=>{if(!wq)wq=setTimeout(()=>{wq=0;watch()},400)};new MutationObserver(wsoon).observe(main,{childList:true,subtree:false});[...main.querySelectorAll(':scope>.view')].forEach(v=>{new MutationObserver(wsoon).observe(v,{childList:true});[...v.children].forEach(x=>new MutationObserver(wsoon).observe(x,{childList:true}))})}}
   window.__lobStep=t=>{window.__kmT=t;if(window.gsap){if(!window.__kmG){window.__kmG=1;gsap.ticker.remove(gsap.updateRoot)}gsap.updateRoot(t)}frame(t)};
   lob.addEventListener('pointermove',e=>{if(!stage)return;const r=lob.getBoundingClientRect();stage.pointer((e.clientX-r.left)/r.width-.5,(e.clientY-r.top)/r.height-.5)},{passive:true});
   lob.addEventListener('pointerleave',()=>stage&&stage.pointer(0,0));
