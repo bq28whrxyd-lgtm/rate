@@ -6941,7 +6941,7 @@ body.ui2 .bnav{-webkit-backdrop-filter:none!important;backdrop-filter:none!impor
 <div id="admPassList" class="sub" style="margin-top:6px"></div>
 </div>
 <div class="admcard" id="admHwPass"><div class="admct">ハロウィンパス・限定セット</div><div class="admcd">応援値をもらったときに使います。パス 2,000・セット 2,000(どちらも1人1回)。付けるとすぐに、パスは限定ガチャチケット1枚、セットは限定ガチャチケット8枚とTCG ハロウィンパック券5枚がプレゼントに入ります。</div>
-<div class="row" style="margin-top:8px"><select id="admHwP" aria-label="買った人" style="flex:1;min-width:0"></select><select id="admHwK" aria-label="種類" style="flex:1;min-width:0"><option value="pass">ハロウィンパス 2,000</option><option value="set">ハロウィン限定セット 2,000</option></select></div>
+<div class="row" style="margin-top:8px"><select id="admHwP" aria-label="買った人" style="flex:1;min-width:0"></select><select id="admHwK" aria-label="種類" style="flex:1;min-width:0"><option value="pass">ハロウィンパス 2,000</option><option value="set">ハロウィン限定セット 2,000</option><option value="p5">ハロウィンの小袋 500</option><option value="p10">ハロウィンの大袋 1,000</option></select></div>
 <div class="row supvrow" style="margin-top:8px"><span class="sub" style="flex:none">サポーターランクに</span><input id="admHwV" type="number" inputmode="numeric" min="0" value="2000" aria-label="ランクに足す値" style="flex:1;min-width:0"><span class="sub supunit" style="flex:none"></span></div>
 <button id="admHwGo" style="width:100%;margin-top:8px">付ける</button><div id="admHwMsg" class="sub" style="margin-top:6px;min-height:18px"></div>
 <div id="admHwList" class="sub" style="margin-top:6px"></div>
@@ -8249,8 +8249,8 @@ const hwNightNow=()=>hwOn()&&hwNightAt(now());
 const hwMul=t=>hwNightAt(t)?2:1;
 let hwMemo={k:'',v:{}};
 function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms.length+':'+tcgms.reduce((a,d)=>a+(tcgDone(d)?1:0),0):0)/* (10/18) a friend battle's result arrives as an update, not a new doc */,bunLogs.length,hwT0(),!!window.__hwNight,pid===invFor?JSON.stringify([((inv.tcg||{})[HWK.s]||[]).length,inv[HWK.q]||0,(inv[HWK.d]||[]).length,inv[HWK.dg]||0]):''].join('|');
-  const hpA=typeof hwPassAt==='function'?hwPassAt(pid):0,hsA=typeof hwSetAt==='function'?hwSetAt(pid):0;
-  if(hwMemo.k!==key+'|'+(typeof passes!=='undefined'?Object.keys(passes).length+JSON.stringify([hpA,hsA]):''))hwMemo={k:key+'|'+(typeof passes!=='undefined'?Object.keys(passes).length+JSON.stringify([hpA,hsA]):''),v:{}};if(hwMemo.v[pid]!=null)return hwMemo.v[pid];let c=0;const me_=pid===invFor,add=(n,t)=>{c+=n*hwMul(t)*(me_&&hwBoostAt(t)?2:1)*(1+(hpA&&t>=hpA?HWP_BONUS:0)+(hsA&&t>=hsA?HWS_BONUS:0))};/* (10/19) the set also +10% from when it was given; with the pass too, +20% */
+  const hpA=typeof hwPassAt==='function'?hwPassAt(pid):0,hsA=typeof hwSetAt==='function'?hwSetAt(pid):0,bN=[hwBagN(pid,'p5'),hwBagN(pid,'p10')];
+  if(hwMemo.k!==key+'|'+(typeof passes!=='undefined'?Object.keys(passes).length+JSON.stringify([hpA,hsA,bN]):''))hwMemo={k:key+'|'+(typeof passes!=='undefined'?Object.keys(passes).length+JSON.stringify([hpA,hsA,bN]):''),v:{}};if(hwMemo.v[pid]!=null)return hwMemo.v[pid];let c=0;const me_=pid===invFor,add=(n,t)=>{c+=n*hwMul(t)*(me_&&hwBoostAt(t)?2:1)*(1+(hpA&&t>=hpA?HWP_BONUS:0)+(hsA&&t>=hsA?HWS_BONUS:0))};/* (10/19) the set also +10% from when it was given; with the pass too, +20% */
   for(const m of matches){if(!hwIn(m.t||0))continue;if(m.w===pid)add(HW_C.rw,m.t);else if(m.l===pid)add(HW_C.rl,m.t)}
   if(typeof tcgms!=='undefined')for(const d of tcgms){if(!tcgDone(d)||!hwIn(d.t||0)||(d.a!==pid&&d.b!==pid)||d.wa==='draw')continue;add(d.wa===pid?HW_C.tw:HW_C.tl,d.t)}
   for(const l of bunAtk(pid))if(hwIn(l.t))add(l.w?HW_C.bw:HW_C.bl,l.t);
@@ -8262,6 +8262,7 @@ function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms
   try{const N=nightInfo();N.hits.forEach(h=>{if(h.a===pid&&hwIn(h.t))add(HW_C.nbt,h.t)});if(N.dead&&hwIn(N.killT)&&N.rank.some(x=>x.a===pid))add(HW_C.nbk,N.killT)}catch(e){}
   if(pid===invFor){((inv.tcg||{})[HWK.s]||[]).forEach(t=>{if(hwIn(+t))add(HW_C.cpu,+t)});c+=+inv[HWK.q]||0;try{hdEv(pid).forEach(([n,t])=>add(n,t))}catch(e){}}
   if(hsA&&now()>=hwT0())c+=HWS_CANDY;
+  if(now()>=hwT0())c+=bN[0]*HWB.p5.candy+bN[1]*HWB.p10.candy;/* (10/20) the bags */
   return hwMemo.v[pid]=Math.floor(c)}
 /* ---- 夜のボス (ハロウィンナイト 10/31 17:00〜24:00): everyone hits one boss in 分身 (bunlog d:HW_NB, s:damage), HW_NB_DAY tries each.
    Candy only: every try HW_C.nbt, a kill HW_C.nbk to everyone who hit it (the night doubles both: 40 and 600) ---- */
@@ -8629,6 +8630,11 @@ function hdOpen(opt){opt=opt||{};const me=myPlayer();if(!me)return;document.quer
      pass: お菓子 +10% from when it was given (hwEarn), ranks from the candy collected in the event (150 a rank, 20 ranks):
            150pt (pack-only, like other paid points), TCG ハロウィンパック券, 限定ガチャチケット 2, and at 20 a pass-only 絵違い
      set : お菓子 200 and (10/19) お菓子 +10% from when it was given (hwEarn), the title.  Nothing here gives anything in the お試し版 (HW_PV). ---- */
+/* (10/20) ハロウィンの小袋 (500) / 大袋 (1,000): bought up to HWB_MAX times each in the event, like the set (申し込み, the admin approves).
+   pass/{pid}.b5 / .b10 = [when each was given]. Tickets as grants at once (note carries the number, so a retry adds only what is missing);
+   the candy is worked out in hwEarn from those lists */
+const HWB={p5:{key:'b5',kind:'hwp5',n:'ハロウィンの小袋',en:'TREAT BAG',price:500,ltk:3,tcg:1,candy:60},p10:{key:'b10',kind:'hwp10',n:'ハロウィンの大袋',en:'BIG TREAT BAG',price:1000,ltk:5,tcg:3,candy:120}},HWB_MAX=3;
+const hwBagN=(pid,k)=>{const L=((typeof passes!=='undefined'&&passes[pid])||{})[HWB[k].key];return Array.isArray(L)?L.length:0};
 const HWP_PRICE=2000,HWS_PRICE=2000,HWP_STEP=150,HWP_N=20,HWP_BONUS=.1,HWS_BONUS=.1,HWS_CANDY=200,HWS_LTK=8,HWS_TCG=5;
 /* the pass-only 絵違い (rank 20): set id when the picture is in TCGD.alt; until then the rank shows it as coming soon */
 const HWP_ART={id:null,n:'',g:2};
@@ -8680,7 +8686,11 @@ function hwPassSec(me){const sec=el('div','hlw-sec hwp');const on=!!hwPassAt(me.
   const sl=el('ul','hwp-now');[['限定ガチャチケット',HWS_LTK+'枚'],['TCG ハロウィンパック券',HWS_TCG+'枚'],['お菓子',String(HWS_CANDY)],['ずっと','もらえるお菓子 +'+Math.round(HWS_BONUS*100)+'%(パスと合わせて +'+Math.round((HWP_BONUS+HWS_BONUS)*100)+'%)'],['称号','「'+HWP_TTL.HW_S1.n+'」(セットだけ)']].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));sl.append(li)});st.append(sl);
   if(hwSetAt(me.id)){const id='HW_S1',eq=(me.eq||{}).t===id,eb=el('button','hlw-eq',eq?'装備中':'称号「'+HWP_TTL[id].n+'」にする');eb.onclick=()=>hwPassEquip(id,eb);st.append(eb)}
   else{const ob=hwOrderBox(me,'hwset');if(ob)st.append(ob)}
-  sec.append(st,el('div','sub hwp-note','パスとセットは「申し込む」から。応援値を送って、メッセージに番号を書くと、管理者が確かめてすぐに入ります。'+(HW_PV?' お試し版では、ptとチケットは入りません。':'')));
+  /* (10/20) the bags (500 / 1,000), up to HWB_MAX times each */
+  const bags=['p5','p10'].map(k=>{const B=HWB[k],n=hwBagN(me.id,k),left=Math.max(0,HWB_MAX-n),c=el('div','hwp-set hwp-bag'+(left?'':' on'));const h=el('div','hwp-ht');h.append(el('h3',null,B.n),el('span',null,B.price.toLocaleString()+' '+u+'  ·  '+(left?'あと '+left+'回('+HWB_MAX+'回まで)':HWB_MAX+'回 買いました')));c.append(h);
+    const l=el('ul','hwp-now');[['限定ガチャチケット',B.ltk+'枚'],['TCG ハロウィンパック券',B.tcg+'枚'],['お菓子',String(B.candy)]].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));l.append(li)});c.append(l);
+    if(left){const ob=hwOrderBox(me,B.kind);if(ob)c.append(ob)}return c});
+  sec.append(st,...bags,el('div','sub hwp-note','パス・セット・小袋・大袋は「申し込む」から。応援値を送って、メッセージに番号を書くと、管理者が確かめてすぐに入ります。'+(HW_PV?' お試し版では、ptとチケットは入りません。':'')));
   return sec}
 /* ---- the stamp card (references: paper loyalty cards and ラジオ体操 cards; the press is a rubber stamp that comes down big and
    tilted, overshoots on impact and rests at its own slight angle). Ink is an SVG filter (rough edge + speckle), drawn once. ---- */
@@ -8915,7 +8925,9 @@ function stkReveal(ids,keys){keys=keys||[];if(!ids.length)return;const me=myPlay
 /* ---- (10/18) 申し込み: buy the ハロウィンパス / 限定セット paid outside the app. The player gets a code to write in the transfer memo;
    the admin gets a push (server function pushOrder) and approves from the admin card below. orders/{id} = {pid, pn, kind, code, t, st}
    st: wait → (go) → ok | ng | dup (already owned, nothing given) ---- */
-const HWO={hwpass:{n:'ハロウィンパス',price:()=>HWP_PRICE,has:pid=>!!hwPassAt(pid),k:'pass'},hwset:{n:'ハロウィン限定セット',price:()=>HWS_PRICE,has:pid=>!!hwSetAt(pid),k:'set'}};
+const HWO={hwpass:{n:'ハロウィンパス',price:()=>HWP_PRICE,has:pid=>!!hwPassAt(pid),k:'pass'},hwset:{n:'ハロウィン限定セット',price:()=>HWS_PRICE,has:pid=>!!hwSetAt(pid),k:'set'},
+  /* (10/20) the bags: 'has' = bought the most times */
+  hwp5:{n:HWB.p5.n,price:()=>HWB.p5.price,has:pid=>hwBagN(pid,'p5')>=HWB_MAX,k:'p5'},hwp10:{n:HWB.p10.n,price:()=>HWB.p10.price,has:pid=>hwBagN(pid,'p10')>=HWB_MAX,k:'p10'}};
 let hwOrders=[],hwOrdOn=false,hwPayCfg=null,hwPayOn=false,admOrders=[],admOrdOn=false;
 function hwPayWatch(){if(hwPayOn||!db)return;hwPayOn=true;db.doc('config/pay').onSnapshot(d=>{hwPayCfg=d.exists?d.data():{};queueRender();hwOrdRedraw()},()=>{hwPayOn=false})}
 function hwOrdWatch(){const me=myPlayer();if(hwOrdOn||!db||!me)return;hwOrdOn=true;hwPayWatch();
@@ -8943,7 +8955,19 @@ async function hwOrder(me,kind){if(HW_PV||hwOrders.some(o=>o.kind===kind&&(o.st=
   try{await db.collection('orders').add({pid:me.id,pn:String(me.name||'').slice(0,40),kind,code:hwOrdCode(),t:now(),st:'wait'});toast('申し込みました。送るときのメッセージに番号を書いてください')}
   catch(e){toast('申し込めませんでした('+(e.code||e.message)+')')}}
 /* the admin card's give, also used to approve an order from the app. k: 'pass' | 'set'. Returns {msg, dup} */
-async function hwGiveCore(p,k,v){if(!isAdmin()||!p)return{msg:'管理者だけが使えます'};
+/* (10/20) a bag: the tickets of this purchase (its number in the note), then the purchase is added to pass/{pid}.b5|b10 */
+async function hwBagGive(p,k,v){const B=HWB[k];if(!isAdmin()||!p||!B)return{msg:'付けられませんでした'};
+  if(HW_PV)return{msg:'お試し版では付けられません(本番のアプリから付けてください)'};
+  if(typeof passesLoaded!=='undefined'&&!passesLoaded)return{msg:'読み込み中です。少し待ってからもう一度押してください'};
+  const n=hwBagN(p.id,k);if(n>=HWB_MAX)return{msg:p.name+' はもう'+B.n+'を'+HWB_MAX+'回買っています',dup:true};
+  const no=n+1,need=[['ltk',B.ltk,B.n+' '+no+'回目: 限定ガチャチケット ×'+B.ltk,hwT0()],['tp1_h',B.tcg,B.n+' '+no+'回目: TCG ハロウィンパック券 ×'+B.tcg,null]];
+  const missing=need.filter(([kind,c,note])=>!grants.some(g=>g.pid===p.id&&g.kind===kind&&g.note===note)),t=now();
+  try{for(const [kind,c,note,ev] of missing)await db.collection('grants').add(Object.assign({pid:p.id,pn:p.name,kind,n:c,pt:0,note,t},ev!=null?{ev}:{}));
+    const L=(((passes[p.id]||{})[B.key])||[]).concat([t]);await db.doc('pass/'+p.id).set({[B.key]:L},{merge:true});passes[p.id]=Object.assign({},passes[p.id]||{},{[B.key]:L});
+    if(v>0){await db.collection('suplog').add({pid:p.id,v,note:B.n,t});try{supRecalc()}catch(e){}}
+    return{ok:true,msg:p.name+' に'+B.n+'('+no+'回目)を付けました'+(v>0?'  ランク +'+v.toLocaleString():'')}}
+  catch(e){return{msg:'途中で止まりました('+(e.code||e.message)+')。もう一度押すと、足りないぶんだけ付けます'}}}
+async function hwGiveCore(p,k,v){if(HWB[k])return hwBagGive(p,k,v);if(!isAdmin()||!p)return{msg:'管理者だけが使えます'};
   if(HW_PV)return{msg:'お試し版では付けられません(本番のアプリから付けてください)'};
   if(typeof passesLoaded!=='undefined'&&!passesLoaded)return{msg:'読み込み中です。少し待ってからもう一度押してください'};
   const key=k==='set'?'hs':'hw',name=k==='set'?'ハロウィン限定セット':'ハロウィンパス';
@@ -9008,7 +9032,7 @@ function ptShopDraw(){const me=myPlayer(),o=ptShopEl;if(!me||!o)return;const u=s
   hd.append(el('h2',null,'ショップ'),bal,cl);b.append(hd);
   /* tabs */
   const tabs=el('div','shp-tabs');tabs.setAttribute('role','tablist');[['pt','ポイント'],['pass','パス']].forEach(([k,n])=>{const t=el('button','shp-tab'+(ptShopTab===k?' on':''));t.type='button';t.setAttribute('role','tab');t.setAttribute('aria-selected',ptShopTab===k?'true':'false');t.append(el('span',null,n));
-    const pend=k==='pt'?shopPend('pt'):(shopPend('mpass')||shopPend('hwpass')||shopPend('hwset'));if(pend&&ptShopTab!==k)t.append(el('i','shp-dot'));t.onclick=()=>{ptShopTab=k;ptShopDraw();const bb=o.querySelector('.pts-b');if(bb)bb.scrollTop=0};tabs.append(t)});b.append(tabs);
+    const pend=k==='pt'?shopPend('pt'):(shopPend('mpass')||shopPend('hwpass')||shopPend('hwset')||shopPend('hwp5')||shopPend('hwp10'));if(pend&&ptShopTab!==k)t.append(el('i','shp-dot'));t.onclick=()=>{ptShopTab=k;ptShopDraw();const bb=o.querySelector('.pts-b');if(bb)bb.scrollTop=0};tabs.append(t)});b.append(tabs);
   if(ptShopTab==='pass')shopPassTab(b,me,u);else shopPtTab(b,me,u);
   b.append(el('p','pts-note',HW_PV?'お試し版では申し込めません(本番のアプリから申し込んでください)。':'押すと申し込みになります。'+u+'を送ってメッセージに番号を書くと、管理者が確かめてアプリに届けます。'),el('p','pts-note','購入したポイントとパスのポイントはパック専用で、賭けや予想には使えません。返金・換金はできません。'));
   if(ob&&ptShopEl===o)b.scrollTop=sc}
@@ -9038,13 +9062,21 @@ function shopPassTab(b,me,u){const ks=typeof passLive==='function'?passLive(me.i
   b.append(g,el('p','pts-note','付いた日から30日間。ちがう種類は重ねて持てます。同じパスをもう一度買うと30日のびます。'));
   /* the event's pass and set, while it runs */
   if(hwShopOn()&&typeof HWO!=='undefined'){const eh=el('div','shp-sh');eh.append(el('h3',null,'ハロウィン限定'),el('span','shp-sale on','期間中だけ'));b.append(eh);
-    const items={hwpass:[['すぐ','限定ガチャチケット 1枚'],['ずっと','お菓子 +'+Math.round(HWP_BONUS*100)+'%'],['カード','パスのスタンプカード'],['称号','「'+HWP_TTL.HW_P1.n+'」']],hwset:[['限定ガチャチケット',HWS_LTK+'枚'],['TCG ハロウィンパック券',HWS_TCG+'枚'],['お菓子',String(HWS_CANDY)],['ずっと','お菓子 +'+Math.round(HWS_BONUS*100)+'%'],['称号','「'+HWP_TTL.HW_S1.n+'」']]};
+    const items={hwpass:[['すぐ','限定ガチャチケット 1枚'],['ずっと','お菓子 +'+Math.round(HWP_BONUS*100)+'%'],['カード','パスのスタンプカード'],['称号','「'+HWP_TTL.HW_P1.n+'」']],hwset:[['限定ガチャチケット',HWS_LTK+'枚'],['TCG ハロウィンパック券',HWS_TCG+'枚'],['お菓子',String(HWS_CANDY)],['称号','「'+HWP_TTL.HW_S1.n+'」']]};
     ['hwpass','hwset'].forEach(kind=>{const K=HWO[kind],has=K.has(me.id),pend=shopPend(kind),c=el('div','shp-pass shp-hw'+(has?' own':''));
       const top=el('div','shp-ph');const nm=el('div','shp-pn');nm.append(el('small',null,kind==='hwpass'?'HALLOWEEN PASS':'HALLOWEEN SET'),el('b',null,K.n));top.append(nm,shopPrice(K.price(),u+(kind==='hwset'?' / 1回':'')));c.append(top);
       if(has)c.append(el('div','shp-own','持っています'));
       const li=el('ul','shp-pl');items[kind].forEach(([a,v])=>{const x=el('li');x.append(el('span',null,a),el('b',null,v));li.append(x)});c.append(li);
       if(pend)c.append(shopWait(pend,u));
       else if(!has){const go=el('button','shp-go','申し込む');go.type='button';go.disabled=!!HW_PV;go.onclick=()=>shopAsk(K.n+'を申し込む',K.price(),u,'アプリにすぐ入ります',()=>hwOrder(me,kind));c.append(go)}
+      b.append(c)});
+    /* (10/20) the bags: up to HWB_MAX times each */
+    ['p5','p10'].forEach(k=>{const B=HWB[k],K=HWO[B.kind],n=hwBagN(me.id,k),left=Math.max(0,HWB_MAX-n),pend=shopPend(B.kind),c=el('div','shp-pass shp-hw shp-bag'+(left?'':' own'));
+      const top=el('div','shp-ph');const nm=el('div','shp-pn');nm.append(el('small',null,B.en),el('b',null,B.n));top.append(nm,shopPrice(B.price,u+' / 1回'));c.append(top);
+      c.append(el('div','shp-own shp-left',left?'あと '+left+'回 買えます('+HWB_MAX+'回まで)':HWB_MAX+'回 買いました'));
+      const li=el('ul','shp-pl');[['限定ガチャチケット',B.ltk+'枚'],['TCG ハロウィンパック券',B.tcg+'枚'],['お菓子',String(B.candy)]].forEach(([a,v])=>{const x=el('li');x.append(el('span',null,a),el('b',null,v));li.append(x)});c.append(li);
+      if(pend)c.append(shopWait(pend,u));
+      else if(left){const go=el('button','shp-go','申し込む');go.type='button';go.disabled=!!HW_PV;go.onclick=()=>shopAsk(B.n+'を申し込む',B.price,u,'アプリにすぐ入ります',()=>hwOrder(me,B.kind));c.append(go)}
       b.append(c)})}}
 async function mpOrder(me,k){if(HW_PV||shopPend('mpass')||!PASS[k])return;
   try{await db.collection('orders').add({pid:me.id,pn:String(me.name||'').slice(0,40),kind:'mpass',pl:k,code:'MP-'+String(1000+Math.floor(Math.random()*9000)),t:now(),st:'wait'});toast('申し込みました。送るときのメッセージに番号を書いてください')}
@@ -12134,7 +12166,7 @@ $('admBuyGo').onclick=()=>twoTap($('admBuyGo'),'購入ptを付与',async()=>{
   try{const t=now();await db.collection('grants').add({pid:p.id,pn:p.name,kind:'buy',pt:pl[1],note:'ポイント購入',t});if(v>0)await db.collection('suplog').add({pid:p.id,v,note:'ポイント購入 '+pl[1]+'pt',t});
     $('admBuyMsg').textContent=p.name+'に '+pl[1]+'pt を付与しました'+(v>0?'（ランクに +'+v.toLocaleString()+' '+supUnit()+'）':'');if(v>0)supRecalc()}
   catch(e){$('admBuyMsg').textContent='付与できませんでした'}});
-$('admHwK')&&($('admHwK').onchange=()=>{$('admHwV').value=$('admHwK').value==='set'?HWS_PRICE:HWP_PRICE});
+$('admHwK')&&($('admHwK').onchange=()=>{const k=$('admHwK').value;$('admHwV').value=HWB[k]?HWB[k].price:k==='set'?HWS_PRICE:HWP_PRICE});
 $('admHwGo')&&($('admHwGo').onclick=()=>twoTap($('admHwGo'),'付ける',()=>admHwPassGive()));
 $('admPayGo')&&($('admPayGo').onclick=()=>admPaySave());
 $('admPassK')&&($('admPassK').onchange=()=>{$('admPassV').value=PASS[+$('admPassK').value].yen});
