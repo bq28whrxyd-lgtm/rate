@@ -8796,10 +8796,14 @@ function invCampView(){const me=myPlayer();try{if(me)localStorage.setItem(CAMP_K
   const nt=el('div','camp-note');nt.append(el('b',null,'期間  ·  '+campEnd()+'まで'),el('span',null,'期間中に友達の'+INV_N+'戦目が終わった招待が対象です(登録が期間の前でもOK)。何人招待しても、1人ごとにもらえます。'),el('span',null,'1人1アカウントです。自分のサブアカウントを招待したときは、ポイントを取り消します。'));c.append(nt);
   const bt=el('div','camp-btns'),go=el('button','camp-go','招待リンクを送る'),x=el('button','camp-cl','あとで');go.type=x.type='button';go.onclick=()=>{invShare()};x.onclick=close;bt.append(go,x);c.append(bt);
   document.body.append(o)}
-/* the push, once (from the admin's real app) */
+/* the pushes, once each (from the admin's real app): a notices/{id} doc is made once, the server function pushNotice sends it.
+   on: while that push still makes sense */
+const PUSH_ONCE=[Object.assign({on:()=>invCampOn(),done:'みんなに招待キャンペーンの通知を送ります'},CAMP_PUSH),
+  {id:'cpurk1',title:'TCGのCPU戦でもランクが動くように',body:'対戦 > TCG の「ランク戦」で、CPUと戦ってもTCGのランクが上下します。ふつうか つよいかはランダム。勝つと経験値 +5',on:()=>true,done:'みんなにCPUランク戦の通知を送ります'}];
 let campPushed=false;
-function campPush(){if(campPushed||!db||/\/preview\//.test(location.pathname)||window.__FAKE||typeof isAdmin!=='function'||!isAdmin()||!invCampOn())return;campPushed=true;
-  const ref=db.doc('notices/'+CAMP_PUSH.id);let un=null;un=ref.onSnapshot(d=>{try{un&&un()}catch(e){}if(d.exists)return;ref.set({title:CAMP_PUSH.title,body:CAMP_PUSH.body,go:'home',t:now()}).then(()=>toast('みんなに招待キャンペーンの通知を送ります')).catch(()=>{campPushed=false})},()=>{campPushed=false})}
+function campPush(){if(campPushed||!db||/\/preview\//.test(location.pathname)||window.__FAKE||typeof isAdmin!=='function'||!isAdmin())return;campPushed=true;
+  PUSH_ONCE.forEach(P=>{try{if(!P.on())return}catch(e){return}const ref=db.doc('notices/'+P.id);let un=null;
+    un=ref.onSnapshot(d=>{try{un&&un()}catch(e){}if(d.exists)return;ref.set({title:P.title,body:P.body,go:'home',t:now()}).then(()=>toast(P.done)).catch(()=>{campPushed=false})},()=>{campPushed=false})})}
 setInterval(()=>{try{if(myPlayer())campPush()}catch(e){}},6000);
 /* AUDjs:end */
 /* STKjs:begin */
@@ -10835,10 +10839,10 @@ const WK1_0=Math.floor((Math.floor((Date.UTC(2026,9,10,20)+4*3600000)/864e5)+3)/
 const wkStart=w=>(7*w-3)*864e5-4*36e5;
 function rateAt(S,T){let r=null;for(const x of S){if(x.t>T)break;if(!x.adj)r=x.r}return r}
 const wkMemo={};
-function wkTop(w){const key=matches.length+'|'+(typeof tcgms!=='undefined'?tcgms.length:0)+'|'+players.length;if(wkMemo[w]&&wkMemo[w].k===key)return wkMemo[w].v;
+function wkTop(w){const CE=typeof tcgcEvents==='function'&&typeof MVP_CPU!=='undefined'&&w>=MVP_CPU?tcgcEvents().filter(e=>!e.q):[];const key=matches.length+'|'+(typeof tcgms!=='undefined'?tcgms.length:0)+'|'+players.length+'|'+CE.length;if(wkMemo[w]&&wkMemo[w].k===key)return wkMemo[w].v;
   const t0=wkStart(w),t1=t0+7*864e5,out={},ok=id=>{const p=players.find(x=>x.id===id);return p&&!p.ban};
   const gs=Object.keys(GAMES).concat(typeof tcgms!=='undefined'?['tcg']:[]);
-  gs.forEach(g=>{const ids=new Set();if(g==='tcg')tcgms.forEach(d=>{if(tcgDone(d)&&d.t>=t0&&d.t<t1){ids.add(d.a);ids.add(d.b)}});
+  gs.forEach(g=>{const ids=new Set();if(g==='tcg'){tcgms.forEach(d=>{if(tcgDone(d)&&d.t>=t0&&d.t<t1){ids.add(d.a);ids.add(d.b)}});/* (10/19) CPUランク戦 too, from the week of 10/19 */CE.forEach(e=>{if(e.t>=t0&&e.t<t1)ids.add(e.p)})}
     else matches.forEach(m=>{if(m.g===g&&m.t>=t0&&m.t<t1){ids.add(m.w);ids.add(m.l)}});
     let best=-1e9,top=[];[...ids].filter(ok).forEach(id=>{const r=rateAt(rateSeries(id,g),t1-1);if(r==null)return;if(r>best){best=r;top=[id]}else if(r===best)top.push(id)});
     if(top.length)out[g]={ids:top,r:best}});
@@ -11245,13 +11249,17 @@ const MVPK=[['w','最多勝','勝'],['n','最多対戦','戦'],['p','予想王',
 const mvpK=w=>w>=MVP_NOP?MVPK.filter(([k])=>k!=='p'):MVPK;
 /* TCG friend battles count for 最多勝/最多対戦 from the week of 10/12 (past weeks stay as they were decided) */
 const MVP_TCG=weekNo(Date.UTC(2026,9,13,0));
+/* (10/19) CPUランク戦 also count, from the week of 10/19 (a game that was left halfway does not) */
+const MVP_CPU=weekNo(Date.UTC(2026,9,19,13));
 const mvpMemo={};
 function mvpOf(w){
   const TM=w>=MVP_TCG&&typeof tcgms!=='undefined'&&typeof tcgDone==='function'?tcgms.filter(d=>tcgDone(d)&&weekNo(+d.t||0)===w):[];
-  const key=w+'|'+matches.length+'|'+preds.length+'|'+players.filter(p=>p.ban).length+'|'+TM.map(d=>d.id+(d.wa||'')).join();if(mvpMemo[w]&&mvpMemo[w].k===key)return mvpMemo[w].v;
+  const CM=w>=MVP_CPU&&typeof tcgcEvents==='function'?tcgcEvents().filter(e=>!e.q&&weekNo(e.t)===w):[];
+  const key=w+'|'+matches.length+'|'+preds.length+'|'+players.filter(p=>p.ban).length+'|'+TM.map(d=>d.id+(d.wa||'')).join()+'|'+CM.map(e=>e.id+e.c).join();if(mvpMemo[w]&&mvpMemo[w].k===key)return mvpMemo[w].v;
   const S={},get=id=>S[id]||(S[id]={w:0,n:0,p:0});
   matches.forEach(m=>{if(weekNo(m.t)!==w)return;get(m.w).w++;get(m.w).n++;get(m.l).n++});
   TM.forEach(d=>{if(!d.a||!d.b)return;get(d.a).n++;get(d.b).n++;if(d.wa===d.a||d.wa===d.b)get(d.wa).w++});
+  CM.forEach(e=>{get(e.p).n++;if(e.c==='w')get(e.p).w++});
   preds.forEach(p=>{const m=matches.find(x=>x.id===p.cid);if(!m||weekNo(m.t)!==w)return;get(p.pid).p+=m.w===p.pick?predGain(p):-p.stake});
   const ok=id=>{const p=players.find(x=>x.id===id);return p&&!p.ban},out={};
   MVPK.forEach(([k])=>{let best=0,ids=[];Object.entries(S).forEach(([id,s])=>{if(!ok(id))return;if(s[k]>best){best=s[k];ids=[id]}else if(s[k]===best&&best>0)ids.push(id)});out[k]={v:best,ids:best>0?ids:[]}});
@@ -11276,7 +11284,7 @@ function renderMvp(){
   {const wk=cw-1>=WK1_0?cw-1:cw,T=wkTop(wk),d=el('div','mvp');d.append(el('div','mvph',(wk<cw?'先週':'今週')+'のジャンル別 1位(週の終わりのレート)'));
     const gs=Object.keys(GAMES).concat(['tcg']);gs.forEach(g=>{const x=T[g],r=el('div','mvpr');r.append(el('span','sub',g==='tcg'?'きもオタTCG':gname(g)),x?nms(x.ids,()=>tidx(+x.r||START),'  '+x.r):el('b',null,'—'));d.append(r)});
     d.append(el('div','sub','その週に対戦した人の中でレート1位  ·  好きなガチャのチケット きもオタTCG 5枚 / ほかのジャンル 3枚'));box.append(d)}
-  box.append(card(cw<MVP0?'週間MVPは来週の月曜朝5時から始まります(今はお試し集計)':'今週のトップ(月曜朝5時に確定)',mvpOf(cw),'各部門 500pt  ·  レート戦とTCGの友達戦を合わせて数える'));
+  box.append(card(cw<MVP0?'週間MVPは来週の月曜朝5時から始まります(今はお試し集計)':'今週のトップ(月曜朝5時に確定)',mvpOf(cw),'各部門 500pt  ·  レート戦・TCGの友達戦・CPUランク戦を合わせて数える'));
 }
 
 /* ---- genre week banner ---- */
@@ -13348,7 +13356,7 @@ const NEWS_PREV=(NEWS_HW&&NEWS_V134?NEWS_V134:[]).concat([
  ['勝敗予想',['ほかの人の対戦の勝ち負けを予想してptを賭けられる(対戦が始まってから30秒以内)','オッズはレート差・最近の勝率・2人の対戦成績で決まる。格下が勝つと大きく増える','自分の対戦は予想できない']],
  ['今日のお題',['毎日3つのお題。全部クリアで100pt(毎朝5時に入れ替わり)']],
  ['宝箱がパワーアップ',['20回に1回くらい豪華宝箱に。中身は 200 / 300 / 500pt かパックチケット3枚','下剋上ボーナス: 1ランク上の人に勝つと+50pt、レートが100以上高い人に勝つと+30pt']],
- ['ジャンル週間と週間MVP',['管理者が開催する「○○週間」は、そのジャンルの宝箱のptが1.5倍','毎週月曜の朝5時に「最多勝」「最多対戦」を発表(レート戦とTCGの友達戦を合わせて数える)。各500ptと1週間MVPマーク']],
+ ['ジャンル週間と週間MVP',['管理者が開催する「○○週間」は、そのジャンルの宝箱のptが1.5倍','毎週月曜の朝5時に「最多勝」「最多対戦」を発表(レート戦・TCGの友達戦・CPUランク戦を合わせて数える)。各500ptと1週間MVPマーク']],
  ['ポイント購入',['購入したポイントはガチャ専用。賭けや予想に使えるのは、対戦やお題でもらったポイントだけ']],
  ['ランクごとの見た目',['ランクが上がるほど名前が豪華に。シルバーで光が走り、ゴールドからキラキラ、ダイヤでオーラ、マスターは王冠付き','ランクごとの「ランク称号」(崖っぷちオタク〜オタクの頂点)も付く','ランキング・プロフィール・対戦画面・タイムラインに出る。見本はホームの「ランクの一覧」から']],
  ['対戦開始の演出',['自分の画面には、自分が装備している対戦演出が出るように']],
