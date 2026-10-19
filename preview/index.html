@@ -8633,7 +8633,7 @@ function hdOpen(opt){opt=opt||{};const me=myPlayer();if(!me)return;document.quer
 /* (10/20) ハロウィンの小袋 (500) / 大袋 (1,000): bought up to HWB_MAX times each in the event, like the set (申し込み, the admin approves).
    pass/{pid}.b5 / .b10 = [when each was given]. Tickets as grants at once (note carries the number, so a retry adds only what is missing);
    the candy is worked out in hwEarn from those lists */
-const HWB={p5:{key:'b5',kind:'hwp5',n:'ハロウィンの小袋',en:'TREAT BAG',price:500,ltk:3,tcg:1,candy:60},p10:{key:'b10',kind:'hwp10',n:'ハロウィンの大袋',en:'BIG TREAT BAG',price:1000,ltk:5,tcg:3,candy:120}},HWB_MAX=3;
+const HWB={p5:{key:'b5',kind:'hwp5',n:'ハロウィンの小袋',en:'TREAT BAG',price:500,ltk:4,tcg:1,candy:0},p10:{key:'b10',kind:'hwp10',n:'ハロウィンの大袋',en:'BIG TREAT BAG',price:1000,ltk:6,tcg:4,candy:0}},HWB_MAX=3;
 const hwBagN=(pid,k)=>{const L=((typeof passes!=='undefined'&&passes[pid])||{})[HWB[k].key];return Array.isArray(L)?L.length:0};
 const HWP_PRICE=2000,HWS_PRICE=2000,HWP_STEP=150,HWP_N=20,HWP_BONUS=.1,HWS_BONUS=.1,HWS_CANDY=200,HWS_LTK=8,HWS_TCG=5;
 /* the pass-only 絵違い (rank 20): set id when the picture is in TCGD.alt; until then the rank shows it as coming soon */
@@ -8688,7 +8688,7 @@ function hwPassSec(me){const sec=el('div','hlw-sec hwp');const on=!!hwPassAt(me.
   else{const ob=hwOrderBox(me,'hwset');if(ob)st.append(ob)}
   /* (10/20) the bags (500 / 1,000), up to HWB_MAX times each */
   const bags=['p5','p10'].map(k=>{const B=HWB[k],n=hwBagN(me.id,k),left=Math.max(0,HWB_MAX-n),c=el('div','hwp-set hwp-bag'+(left?'':' on'));const h=el('div','hwp-ht');h.append(el('h3',null,B.n),el('span',null,B.price.toLocaleString()+' '+u+'  ·  '+(left?'あと '+left+'回('+HWB_MAX+'回まで)':HWB_MAX+'回 買いました')));c.append(h);
-    const l=el('ul','hwp-now');[['限定ガチャチケット',B.ltk+'枚'],['TCG ハロウィンパック券',B.tcg+'枚'],['お菓子',String(B.candy)]].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));l.append(li)});c.append(l);
+    const l=el('ul','hwp-now');[['限定ガチャチケット',B.ltk+'枚'],['TCG ハロウィンパック券',B.tcg+'枚']].concat(B.candy?[['お菓子',String(B.candy)]]:[]).forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));l.append(li)});c.append(l);
     if(left){const ob=hwOrderBox(me,B.kind);if(ob)c.append(ob)}return c});
   sec.append(st,...bags,el('div','sub hwp-note','パス・セット・小袋・大袋は「申し込む」から。応援値を送って、メッセージに番号を書くと、管理者が確かめてすぐに入ります。'+(HW_PV?' お試し版では、ptとチケットは入りません。':'')));
   return sec}
@@ -9074,7 +9074,7 @@ function shopPassTab(b,me,u){const ks=typeof passLive==='function'?passLive(me.i
     ['p5','p10'].forEach(k=>{const B=HWB[k],K=HWO[B.kind],n=hwBagN(me.id,k),left=Math.max(0,HWB_MAX-n),pend=shopPend(B.kind),c=el('div','shp-pass shp-hw shp-bag'+(left?'':' own'));
       const top=el('div','shp-ph');const nm=el('div','shp-pn');nm.append(el('small',null,B.en),el('b',null,B.n));top.append(nm,shopPrice(B.price,u+' / 1回'));c.append(top);
       c.append(el('div','shp-own shp-left',left?'あと '+left+'回 買えます('+HWB_MAX+'回まで)':HWB_MAX+'回 買いました'));
-      const li=el('ul','shp-pl');[['限定ガチャチケット',B.ltk+'枚'],['TCG ハロウィンパック券',B.tcg+'枚'],['お菓子',String(B.candy)]].forEach(([a,v])=>{const x=el('li');x.append(el('span',null,a),el('b',null,v));li.append(x)});c.append(li);
+      const li=el('ul','shp-pl');[['限定ガチャチケット',B.ltk+'枚'],['TCG ハロウィンパック券',B.tcg+'枚']].concat(B.candy?[['お菓子',String(B.candy)]]:[]).forEach(([a,v])=>{const x=el('li');x.append(el('span',null,a),el('b',null,v));li.append(x)});c.append(li);
       if(pend)c.append(shopWait(pend,u));
       else if(left){const go=el('button','shp-go','申し込む');go.type='button';go.disabled=!!HW_PV;go.onclick=()=>shopAsk(B.n+'を申し込む',B.price,u,'アプリにすぐ入ります',()=>hwOrder(me,B.kind));c.append(go)}
       b.append(c)})}}
