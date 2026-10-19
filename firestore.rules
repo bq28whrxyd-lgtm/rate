@@ -342,6 +342,29 @@ service cloud.firestore {
     /* ハロウィン (v135): トリック・オア・トリート. The one who asks creates it (3 a day is kept by the app); only the one asked answers, within a day */
     /* ハロウィン (v135): いたずらよけのお守り, public so the one who asks sees it. Only the owner writes */
     // (10/18) TCG CPU「つよい」に勝った数(経験値用・だれでも見える)。1回ずつ、前の記録から15秒以上あけて(回数の上限なし)
+    /* (10/19) CPUランク戦: one list per player. r: '?n:<sec>' when a game starts (n = ふつう, s = つよい), the last entry's '?'
+       becomes w / l / d at the end. Starts are 15 s apart; a win needs 60 s after its start; a result only within 60 minutes. */
+    function tcgcU() { return request.resource.data.u is int && request.resource.data.u <= request.time.toMillis() + 120000 && request.resource.data.u >= request.time.toMillis() - 120000; }
+    function tcgcSec(e) { return int(e.split(':')[1]); }
+    function tcgcNew(e) { return e is string && e.matches('[?][ns]:[0-9]{9,11}') && math.abs(tcgcSec(e) - request.time.toMillis() / 1000) <= 180; }
+    function tcgcFin(o, e) { return o is string && o.matches('[?][ns]:[0-9]{9,11}') && e is string
+      && request.time.toMillis() <= tcgcSec(o) * 1000 + 3600000
+      && (e == o.replace('[?]', 'l') || e == o.replace('[?]', 'd') || (e == o.replace('[?]', 'w') && request.time.toMillis() >= tcgcSec(o) * 1000 + 60000)); }
+    match /tcgc/{pid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['r', 'u']) && tcgcU()
+        && request.resource.data.r is list && request.resource.data.r.size() == 1 && tcgcNew(request.resource.data.r[0]);
+      allow update: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['r', 'u']) && tcgcU()
+        && request.resource.data.r is list && resource.data.r is list && (
+          (request.resource.data.r.size() == resource.data.r.size() + 1 && request.resource.data.r.size() <= 20000
+            && request.resource.data.r[0:resource.data.r.size()] == resource.data.r
+            && tcgcNew(request.resource.data.r[resource.data.r.size()])
+            && request.resource.data.u >= resource.data.u + 15000)
+          || (request.resource.data.r.size() == resource.data.r.size() && resource.data.r.size() > 0
+            && request.resource.data.r[0:resource.data.r.size() - 1] == resource.data.r[0:resource.data.r.size() - 1]
+            && tcgcFin(resource.data.r[resource.data.r.size() - 1], request.resource.data.r[resource.data.r.size() - 1])));
+      allow delete: if isAdmin();
+    }
     match /cpux/{pid} {
       allow read: if signedIn();
       allow create: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['n', 'u', 'dd', 'dn'])
