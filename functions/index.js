@@ -241,7 +241,7 @@ exports.pushMentor = onDocumentWritten('mentor/{id}', async ev => {
 
 /* (10/18) 申し込み (orders/{id}): someone asks to buy (pays outside the app, with the code in the memo).
    Tell the admin on their phone; the admin checks the transfer and approves in the app (管理 → 配布 → 申し込み) */
-const ORDER_N = {hwpass: 'ハロウィンパス', hwset: 'ハロウィン限定セット'};
+const ORDER_N = {hwpass: 'ハロウィンパス', hwset: 'ハロウィン限定セット', hwp5: 'ハロウィンの小袋(500)', hwp10: 'ハロウィンの大袋(1,000)'};
 const PT_PLANS = [[100, 200], [300, 600], [500, 1000], [1000, 2100], [2000, 4300], [3000, 6600], [5000, 11500], [10000, 24000]];/* same as PLANS in the app */
 const MPASS_N = ['', 'ライトパス', 'プレミアムパス', 'ロイヤルパス'];/* PASS in the app */
 const orderName = o => o.kind === 'mpass' ? (MPASS_N[o.pl | 0] || '月額パス') + '(30日)' : o.kind === 'pt' ? 'ポイント ' + ((PT_PLANS[o.pl | 0] || [0, 0])[1]).toLocaleString('ja-JP') + 'pt(' + ((PT_PLANS[o.pl | 0] || [0])[0]).toLocaleString('ja-JP') + ')' : (ORDER_N[o.kind] || '');
