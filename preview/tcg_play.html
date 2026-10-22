@@ -1060,6 +1060,77 @@ body.gkview .scr{display:none!important}
 .tut-end .btn{width:100%}
 @media (prefers-reduced-motion: reduce){.tut-ring.on{animation:none}.tut-cap.in{transition:opacity .2s}}
 
+/* ===== (10/22) 案a: full-art card. The picture fills the card, the name over the top, the text and numbers over a dark shade at the bottom.
+   The frame metal tells the rarity: C bronze, R silver, SR gold + a rainbow inner line, GR / LEADER thick gold. SCR keeps its own finish. ===== */
+.bc.bc.fa{--m1:#4a2a12;--m2:#b97a45;--m3:#f0c79a;--fp:2.8cqw;padding:0;border-radius:6.4cqw/4.6cqw;background:linear-gradient(145deg,var(--m1),var(--m2) 18%,var(--m3) 30%,var(--m2) 42%,var(--m1) 58%,var(--m2) 74%,var(--m3) 86%,var(--m1));box-shadow:0 0 0 .5px #000,0 10px 22px -8px #000}
+.bc.bc.fa.rk-R{--m1:#3a3e46;--m2:#b9c1cd;--m3:#fff}
+.bc.bc.fa.rk-SR,.bc.bc.fa.rk-GR,.bc.bc.fa.ace{--m1:#5a3c0e;--m2:#e9cf8a;--m3:#fff6d8}
+.bc.bc.fa.rk-GR,.bc.bc.fa.ace{--fp:3.4cqw;box-shadow:0 0 0 .5px #000,0 0 10cqw -2cqw #e9cf8a88,0 10px 22px -8px #000}
+.bc.bc.fa:not(.foilc)::before{inset:var(--fp);border:0;border-radius:3.6cqw;z-index:6;box-shadow:inset 0 0 0 1px rgba(0,0,0,.75),inset 0 0 0 1.6px color-mix(in srgb,var(--m3) 50%,transparent)}
+.bc.bc.fa.rk-SR:not(.foilc):not(.ace)::before{padding:.9cqw;box-shadow:none;background:conic-gradient(from 200deg,#ff9ad5,#ffd36b,#7ee08a,#4fd1ff,#c08cff,#ff9ad5);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.bc.bc.fa.foilc{background:#0c0a14}
+/* the picture: the whole card inside the frame */
+.bc.bc.fa>.bart{position:absolute;inset:var(--fp);margin:0;width:auto;height:auto;aspect-ratio:auto;border-radius:3.6cqw;box-shadow:none;overflow:hidden;z-index:1}
+.bc.bc.fa .bart>img,.bc.bc.fa .bart>svg{object-fit:cover}
+.bc.bc.fa.ace .bart>img,.bc.bc.fa.ace .bart>svg{filter:none}
+/* name bar */
+.bc.bc.fa>.bh{position:absolute;left:var(--fp);right:var(--fp);top:var(--fp);margin:0;z-index:3;display:flex;align-items:center;gap:3.6cqw;padding:4.4cqw 5cqw 11cqw 4.4cqw;border-radius:3.6cqw 3.6cqw 0 0;box-shadow:none;background:linear-gradient(180deg,rgba(4,4,8,.8),rgba(4,4,8,.35) 60%,transparent)}
+.bc.bc.fa .gem{position:relative;isolation:isolate;flex:none;width:14.5cqw;height:14.5cqw;display:grid;place-items:center;background:none;box-shadow:none;border:0;font:700 8.4cqw/1 'Shippori Mincho B1','Noto Serif JP',serif;color:var(--m3)}
+.bc.bc.fa .gem::before,.bc.bc.fa .gem::after{content:"";position:absolute;transform:rotate(45deg);z-index:-1}
+.bc.bc.fa .gem::before{inset:1.2cqw;border-radius:1.8cqw;background:linear-gradient(135deg,var(--m3),var(--m2) 35%,var(--m1) 75%,var(--m2));box-shadow:0 1cqw 3cqw #000c}
+.bc.bc.fa .gem::after{inset:3.4cqw;border-radius:1cqw;background:linear-gradient(135deg,#1a1410,#000);box-shadow:inset 0 0 0 .5px var(--m3)}
+.bc.bc.fa.foilc .gem{--m1:#7a5aa0;--m2:#efe3ff;--m3:#fff}
+.bc.bc.fa .bn{font:700 7.3cqw/1.2 'Shippori Mincho B1','Noto Serif JP',serif;letter-spacing:.04em;color:#fff;text-shadow:0 1px 4px #000,0 0 10px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* the shade under the text */
+.bc.bc.fa>.fash{position:absolute;left:var(--fp);right:var(--fp);bottom:var(--fp);height:56%;z-index:2;border-radius:0 0 3.6cqw 3.6cqw;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(5,5,9,.72) 24%,rgba(5,5,9,.92))}
+.bc.bc.fa.mini>.fash{height:32%}
+/* type ・ tribe   rarity */
+.bc.bc.fa>.bt{position:absolute;left:calc(var(--fp) + 5cqw);right:calc(var(--fp) + 5cqw);bottom:45cqw;margin:0;z-index:3;display:flex;justify-content:space-between;align-items:center;padding:0 0 2.2cqw;border-bottom:.5px solid color-mix(in srgb,var(--m2) 60%,transparent);font:700 5cqw/1 var(--body,sans-serif);letter-spacing:.06em;color:var(--dc,#4fd8d0)}
+.bc.bc.fa>.bt .rar{font:700 5cqw/1 'Shippori Mincho B1','Noto Serif JP',serif;letter-spacing:.14em;color:var(--m2)}
+.bc.bc.fa.spell>.bt,.bc.bc.fa.trap>.bt{bottom:34cqw}
+/* effect text: 3 lines, the whole text is in the card sheet */
+.bc.bc.fa>.btx{position:absolute;left:calc(var(--fp) + 5cqw);right:calc(var(--fp) + 5cqw);bottom:20cqw;margin:0;z-index:3;padding:0;background:none;box-shadow:none;border-radius:0;color:#e2dfe9;font-size:4.7cqw;line-height:1.5;max-height:21.2cqw;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;text-shadow:0 1px 2px #000}
+.bc.bc.fa.spell>.btx,.bc.bc.fa.trap>.btx{bottom:9cqw;max-height:21.2cqw}
+/* ATK ◆ DEF */
+.bc.bc.fa>.st2{position:absolute;left:calc(var(--fp) + 5cqw);right:calc(var(--fp) + 5cqw);bottom:7cqw;margin:0;z-index:3;display:flex;gap:0;padding:2.6cqw 0 0;border-top:.5px solid color-mix(in srgb,var(--m2) 45%,transparent);background:none}
+.bc.bc.fa .st2 b{position:relative;flex:1;display:flex;align-items:baseline;justify-content:center;gap:2.6cqw;padding:0;background:none;box-shadow:none;border:0;border-radius:0;font:700 8.8cqw/1 'Shippori Mincho B1','Noto Serif JP',serif;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 1px 3px #000}
+.bc.bc.fa .st2 b small{font:700 4.4cqw/1 var(--body,sans-serif);letter-spacing:.12em}
+.bc.bc.fa .st2 .a small{color:#ff9f86}.bc.bc.fa .st2 .d small{color:#9cc0ff}
+.bc.bc.fa .st2 .a::after{content:"";position:absolute;right:-1.2cqw;top:50%;width:2.4cqw;height:2.4cqw;background:var(--m2);transform:translateY(-50%) rotate(45deg)}
+.bc.bc.fa.mini>.st2{bottom:6cqw;padding-top:2cqw;left:calc(var(--fp) + 3cqw);right:calc(var(--fp) + 3cqw);margin:0}
+.bc.bc.fa.mini .st2 b{font-size:10cqw}.bc.bc.fa.mini .st2 b small{font-size:5cqw}
+.bc.bc.fa.mini>.tyb{position:absolute;left:calc(var(--fp) + 4cqw);right:calc(var(--fp) + 4cqw);bottom:6cqw;margin:0;z-index:3}
+.bc.bc.fa.mini>.bt,.bc.bc.fa.mini>.btx{display:none}
+/* corners: thin double lines in the frame colour */
+.bc.bc.fa .cn{display:block;position:absolute;width:11cqw;height:11cqw;z-index:7;pointer-events:none;border:0 solid var(--m3);filter:drop-shadow(0 0 1px #000)}
+.bc.bc.fa .cn::after{content:"";position:absolute;inset:1.6cqw;border:0 solid var(--m3);opacity:.6}
+.bc.bc.fa .cn.tl{top:1.6cqw;left:1.6cqw;border-top-width:1px;border-left-width:1px;border-top-left-radius:3cqw}
+.bc.bc.fa .cn.tl::after{border-top-width:.5px;border-left-width:.5px;border-top-left-radius:2cqw}
+.bc.bc.fa .cn.tr{top:1.6cqw;right:1.6cqw;border-top-width:1px;border-right-width:1px;border-top-right-radius:3cqw}
+.bc.bc.fa .cn.tr::after{border-top-width:.5px;border-right-width:.5px;border-top-right-radius:2cqw}
+.bc.bc.fa .cn.bl{bottom:1.6cqw;left:1.6cqw;border-bottom-width:1px;border-left-width:1px;border-bottom-left-radius:3cqw}
+.bc.bc.fa .cn.bl::after{border-bottom-width:.5px;border-left-width:.5px;border-bottom-left-radius:2cqw}
+.bc.bc.fa .cn.br{bottom:1.6cqw;right:1.6cqw;border-bottom-width:1px;border-right-width:1px;border-bottom-right-radius:3cqw}
+.bc.bc.fa .cn.br::after{border-bottom-width:.5px;border-right-width:.5px;border-bottom-right-radius:2cqw}
+.bc.bc.fa.mini .cn{display:none}
+/* tribe gem, bottom centre */
+.bc.bc.fa>.fgem{position:absolute;left:50%;bottom:.4cqw;width:6.4cqw;height:6.4cqw;margin-left:-3.2cqw;z-index:8;transform:rotate(45deg);background:radial-gradient(circle at 35% 30%,#fff,var(--dc,#4fd8d0) 45%,color-mix(in srgb,var(--dc,#4fd8d0) 50%,#000));box-shadow:0 0 0 .7cqw var(--m2),0 0 0 1.2cqw #000,0 0 4cqw var(--dc,#4fd8d0);pointer-events:none}
+/* Halloween copies: their pumpkin sticker instead of the gem */
+.bc.bc.fa>.fpk{position:absolute;left:50%;bottom:-3cqw;width:12.5cqw;height:12.5cqw;margin-left:-6.25cqw;z-index:8;pointer-events:none;filter:drop-shadow(0 0 1px rgba(28,8,40,.95)) drop-shadow(0 1px 3px rgba(0,0,0,.75)) drop-shadow(0 0 5px rgba(255,200,90,.6))}
+.bc.bc.fa>.fpk img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.bc.bc.fa>.fpk b,.bc.bc.fa>.fpk u{position:absolute;inset:0;-webkit-mask:var(--pk) center/contain no-repeat;mask:var(--pk) center/contain no-repeat}
+.bc.bc.fa>.fpk b{background:linear-gradient(135deg,rgba(255,120,220,.16),rgba(255,240,150,0) 35%,rgba(120,230,255,.16) 65%,rgba(200,140,255,.16))}
+.bc.bc.fa>.fpk u{background:linear-gradient(115deg,transparent 44%,rgba(255,255,255,.62) 49%,rgba(255,246,200,.45) 51%,transparent 56%) 0 0/300% 100% no-repeat;animation:tcfPk 3.6s ease-in-out infinite}
+@keyframes tcfPk{0%,55%{background-position:100% 0}85%,100%{background-position:0 0}}
+.bc.bc.fa.mini>.fgem,.bc.bc.fa.mini>.fpk{display:none}
+/* SCR: the SEC tag sits where the rarity is */
+.bc.bc.fa.foilc>.bt .rar{visibility:hidden}
+.bc.bc.fa.foilc>.foiltag{left:auto;right:calc(var(--fp) + 5cqw);bottom:45cqw;top:auto;z-index:9}
+.bc.bc.fa.foilc.spell>.foiltag,.bc.bc.fa.foilc.trap>.foiltag{bottom:34cqw}
+.bc.bc.fa.foilc.mini>.foiltag{bottom:20cqw}
+.bc.bc.fa .synchip{top:20cqw;right:calc(var(--fp) + 3cqw)}
+@media (prefers-reduced-motion:reduce){.bc.bc.fa>.fpk u{animation:none}}
+
 /* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
    hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
 :root{--vs-a1:#8b7bff;--vs-a2:#67e8f9;--vs-pink:#ff5fb0;--vs-fg:#f4f1ea;--vs-mut:rgba(244,241,234,.55);--vs-num:"Geist","Inter Tight",-apple-system,system-ui,sans-serif}
@@ -1741,13 +1812,13 @@ PR([
  {id:'p16',n:'意志の目覚め',r:'N',type:'spell',c:1,tgt:'ally',ops:[{op:'giveHard',n:300}]},
  {id:'p17',n:'秘宝 鏡種果',r:'R',type:'spell',c:1,tgt:'allyNoHi',ops:[{op:'hi',k:'mirror'}]},
  {id:'p18',n:'秘宝 錨殻果',r:'N',type:'spell',c:1,tgt:'allyNoHi',ops:[{op:'hi',k:'anchor'}]},
- {id:'p19',n:'秘宝 伸縮果',r:'HR',type:'spell',c:1,tgt:'allyNoHi',ops:[{op:'hi',k:'gum'}]},
+ {id:'p19',n:'秘宝 千鳥の古酒',r:'HR',type:'spell',c:1,tgt:'allyNoHi',ops:[{op:'hi',k:'gum'}]},
 ]);
 /* 秘宝: the name and what each one does (the engine reads R.HI_* for the numbers) */
 const HIDE={mist:{f:'霧蜜果',n:'霧化',t:'1ターンに1回、バトルで倒されるとき、かわりに倒れない(【鋼纏】のキャラには効かない)'},
  mirror:{f:'鏡種果',n:'写し身',t:'元のATKが、相手のキャラで一番高い元のATKと同じになる(最大2200。低くはならない)'},
  anchor:{f:'錨殻果',n:'錨の体',t:'ATK・DEF+400。そのかわり、このキャラを育てる熱量が1多い'},
- gum:{f:'伸縮果',n:'伸びる腕',t:'攻撃する相手を【かばう】に関係なく選べる。反撃で自分のライフにダメージを受けない'}};
+ gum:{f:'千鳥の古酒',n:'千鳥足',t:'攻撃する相手を【かばう】に関係なく選べる。反撃で自分のライフにダメージを受けない'}};
 /* ===== (10/22) 巡生族「魔ノ森の盟約」(set 'rc'): 名付け (the trait: once a turn, 熱量2) names an ally; a card with kw.evo turns into its evolved form
    (a token card that is not collectible, m.base keeps the real card), anything else gets ★+1. Named: ATK・DEF+200 (加護).
    捕食 (kw.devour): a battle kill goes under it (★+1) and copies its 速攻/根性/かばう. 騎乗 (kw.ride): 小鬼族 (kw.gob) allies get ATK+n and 速攻 ===== */
@@ -1939,7 +2010,7 @@ function text(c){const t=[],k=c.kw||{};
   /* (10/22) 海賊族 */
   if(k.role)t.push('【一味:'+k.role+'】'+(k.crew?'':'この試合で仲間になった役割(【一味】)の種類1つにつき、ATK・DEF+'+25));
   if(k.crew)t.push('【船長】この試合で仲間になった役割(【一味】)の種類1つにつき、ATK・DEF+'+k.crew);
-  if(k.birthHi)t.push('【生まれつきの秘宝】出たとき、秘宝「'+HIDE[k.birthHi].f+'」の力「'+HIDE[k.birthHi].n+'」を持つ:'+HIDE[k.birthHi].t);
+  if(k.birthHi)t.push((k.birthHi==='gum'?'【手放せない一杯】':'【生まれつきの秘宝】')+'出たとき、秘宝「'+HIDE[k.birthHi].f+'」の力「'+HIDE[k.birthHi].n+'」を持つ:'+HIDE[k.birthHi].t);
   if(k.hard)t.push('【鋼纏】攻撃するとき、相手の【根性】と秘宝「霧化」が効かない。秘宝持ちとの戦闘ではATK+300');
   if(k.yomi)t.push('【先読み】相手のターンに1回、攻撃されたとき、その戦闘だけDEF+'+k.yomi);
   if(k.tri)t.push('【三刀】自分から攻撃して相手を倒すと、もう1回攻撃できる(1ターンに1回)');
@@ -2525,7 +2596,7 @@ __def('./ai4.js',function(module,exports,require){
 const E=require('./engine4.js'),{BY}=E;
 const val=(g,m)=>E.ATK(g,m)+E.DEF(g,m)*0.6+(E.hasCover(m)?300:0)+(m.star-1)*400;
 function preview(g,pi,m,uid){if(uid==='life')return{kind:'direct',dmg:E.POW(g,m)};let t=E.find(g,uid);
-  /* (10/22) 海賊族: 身代わり changes the target; 先読み, 鋼纏, 正義の追跡, 霧化, 伸びる腕 change the numbers */
+  /* (10/22) 海賊族: 身代わり changes the target; 先読み, 鋼纏, 正義の追跡, 霧化, 千鳥足 change the numbers */
   {const s=E.units(g,1-pi).find(x=>x!==t&&(BY[x.id].kw||{}).decoy&&x.decoyT!==g.turns&&E.DEF(g,x)>E.DEF(g,t));if(s)t=s}
   let A=E.POW(g,m)+(m.oshi===t.uid?1000:0),D=E.DEF(g,t),B=E.ATK(g,t),AD=E.DEF(g,m);const kt=E.KW(t),km=E.KW(m);if(kt.mine)return{kind:'battle',t,kill:true,die:true,over:true,dmg:0,back:0,mine:true};
   const hm=E.isHard(m),ht=E.isHard(t);if(kt.yomi&&t.yomiT!==g.turns)D+=kt.yomi;if(hm&&t.hi)A+=E.R.HARD;if(km.hunt&&t.kills>0){A+=km.hunt;AD+=km.hunt}if(kt.hunt&&m.kills>0){D+=kt.hunt;B+=kt.hunt}
@@ -3261,7 +3332,11 @@ function bigCard(id,mini,foil,ga){ga=CARD_ALT[id]?(ga|0):0;if(ga>=2)foil=true;if
   if(foil){const gw=el('i','glitterw'),gb=el('i','gband');gb.append(el('i','glitter'));gw.append(gb);a.append(el('i','foilsheen'),gw);if(c.hwOf){d.classList.add('hwfoil');const h=el('i','hwholo');h.append(el('b'));a.append(h)}d.prepend(el('i','scrhalo'));if(!ga)d.append(el('i','foiltag','SEC'));
     /* scattered glints: small four-point stars at random spots, each lighting up briefly at its own random moment */
     const gl=el('i','glints');for(let k=0;k<9;k++){const s=el('i');s.style.left=(6+Math.random()*88)+'%';s.style.top=(5+Math.random()*90)+'%';s.style.setProperty('--z',(.55+Math.random()*.75).toFixed(2));s.style.animationDelay=(-Math.random()*6).toFixed(2)+'s';s.style.animationDuration=(4.5+Math.random()*3).toFixed(2)+'s';gl.append(s)}a.append(gl)}
-  d.append(el('div','btx',CD.text(c)));return d}
+  d.append(el('div','btx',CD.text(c)));
+  /* (10/22) full-art layout (案a): rarity class for the frame metal, a shade under the text, the tribe gem (Halloween copies: their pumpkin sticker) */
+  d.classList.add('fa','rk-'+RCODE(c.r));d.append(el('i','fash'));if(c.hwOf){const n=String(hwIx(id)+1).padStart(2,'0'),pk=el('i','fpk');pk.style.setProperty('--pk','url("hwpk/pk'+n+'.webp?v=2")');const im=el('img');im.alt='';im.src='hwpk/pk'+n+'.webp?v=2';pk.append(im,el('b'),el('u'));d.append(pk)}else d.append(el('i','fgem'));
+  return d}
+let HWIX=null;function hwIx(id){if(!HWIX){HWIX={};CD.C.filter(x=>x.hwOf).forEach((x,i)=>HWIX[x.id]=i%20)}return HWIX[id]||0}
 /* (10/18) スリーブ: the back of the cards. Each deck can carry its own (deck.sl, an item id); the app tells us its picture.
    One sleeve goes on one deck (as many decks as copies owned). Without one, the standard KIMOOTA back */
 const SL_STD={id:null,n:'標準(KIMOOTA)',r:0,img:'sl_std.webp',std:1};
@@ -4308,7 +4383,7 @@ $('goDeck').onclick=deckScreen;$('goHelp').onclick=helpSheet;
 const PVP=HOST&&HOST.pvp?HOST.pvp():null;
 if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(CPU_GO)cpuGo(CPU_GO);else if(TUT)tutorial();else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
 clearTimeout(window.__tcgBootTimer);if(document.documentElement.classList.contains('tcg-embedded')&&!HOST&&!(WATCH&&window.parent!==window&&window.parent.TCGWATCH)){const b=$('tcgBoot');b.classList.add('slow');b.querySelector('[role="status"]').textContent='アプリから編成・対戦・観戦を開き直してください。'}else document.documentElement.classList.remove('tcg-booting');
-window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o=>backCard(o),flyCard:(a,b,o,f)=>flyCard(a,b,null,2400,o,f)},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},get rk(){return RK},get lv(){return CPU_LV},finish,endMyTurn,startMatch,E,AI};
+window.__tcg={bigCard,_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o=>backCard(o),flyCard:(a,b,o,f)=>flyCard(a,b,null,2400,o,f)},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},get rk(){return RK},get lv(){return CPU_LV},finish,endMyTurn,startMatch,E,AI};
 
 /* ===== v121 duel v2 (ui5_v2.js, appended after ui5_main.js) =====
    1) drawing is incremental: a lane, a hand card or an avatar is rebuilt only when what it shows has changed. Before, every
