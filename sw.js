@@ -1,5 +1,5 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-const VERSION = 'v136-2026-10-22d';
+const VERSION = 'v136-2026-10-22e';
 const CACHE = 'ladder-' + VERSION;
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'tcg_spectator.js', 'motion_lifecycle.js',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg',
@@ -7,7 +7,7 @@ const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon
   'fx_chest_closed.jpg', 'fx_chest_open.jpg', 'fx_chest_gold_closed.jpg', 'fx_chest_gold_open.jpg'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).catch(() => {}));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).catch(() => {}));
 });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('ladder-') && k !== CACHE).map(k => caches.delete(k))))
