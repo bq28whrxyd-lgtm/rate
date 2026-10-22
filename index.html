@@ -11454,27 +11454,32 @@ const BUN_LOOK={g:'m',hs:0,hc:'茶',ec:'緑'};
 const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0};
 function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0}),pk:d.look&&d.look.pk&&typeof hbSkin==='function'&&hbSkin(p.id)?1:0},eq,al:d.al}}
 function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'}
+let bunBase=0,bunSaveQ=Promise.resolve();const bunSave1=S=>window.BUNSHINHOST._save(S);
 window.BUNSHINHOST={
   ready:()=>{try{bunLoaded()}catch(e){}},
   mentor:()=>mtSheet(),mentorDot:()=>mtDot(),
   thumb:o=>{try{localStorage.setItem('bunThumb',JSON.stringify(o))}catch(e){}},
-  state:()=>bunState(myPlayer().id),
-  save:S=>{const me=myPlayer();if(!me||!db)return Promise.resolve();
+  /* (10/22) the copy the 分身 page started from (its u). A save made from an older start than what is saved now (chests opened on
+     another device meanwhile) is refused, here and again inside the transaction; saves run one after another */
+  state:()=>{const d=bunState(myPlayer().id);bunBase=+d.u||0;return d},
+  save:S=>{const run=()=>bunSave1(S);const p=bunSaveQ.then(run,run);bunSaveQ=p.catch(()=>{});return p},
+  _save:S=>{const me=myPlayer();if(!me||!db)return Promise.resolve();
     /* the page lives in another frame: copy into this frame's plain objects first (Firestore refuses objects from another frame) */
     const o=JSON.parse(JSON.stringify({look:S.look,al:S.al||null,inv:S.inv||[],eq:S.eq,nid:+S.nid||2,qs:+S.qs||0,gp:+S.gp||0,g10:+S.g10||0,copen:+S.copen||0,u:now()}));
     const sv=bunDocs[me.id];
+    const base=bunBase;if(base<0||(sv&&(+sv.u||0)!==base)){toast('別の端末で分身が更新されています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
     if(sv){/* a copy older than what is saved (opened before the data arrived) must not replace it */if((+sv.nid||0)>o.nid){toast('分身のデータを読み直しています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
       for(const k of ['gp','g10','copen'])o[k]=Math.max(o[k],+sv[k]||0);o.qs=Math.min(Math.max(o.qs,+sv.qs||0),(+sv.qs||0)+1)}
     else{o.gp=0;o.g10=0;o.qs=Math.min(o.qs,1);o.copen=Math.min(o.copen,1)}
     /* nothing changed: no write */if(sv){const cj=x=>x&&typeof x==='object'?(Array.isArray(x)?'['+x.map(cj).join(',')+']':'{'+Object.keys(x).filter(k=>k!=='u'&&x[k]!==undefined).sort().map(k=>k+':'+cj(x[k])).join(',')+'}'):JSON.stringify(x);if(cj(sv)===cj(o))return Promise.resolve()}
-    bunDocs[me.id]=JSON.parse(JSON.stringify(o));
+    bunDocs[me.id]=JSON.parse(JSON.stringify(o));bunBase=o.u;
     /* (10/16) checked against the server's copy inside a transaction: an older copy from another phone never overwrites a newer one,
        and the chests opened can only go up */
     const ref=db.doc('bunshin/'+me.id);
     return db.runTransaction(async tx=>{const d=await tx.get(ref),cur=d.exists?d.data():null;
-        if(cur&&(+cur.nid||0)>o.nid){const e=new Error('stale');e.code='stale';throw e}
+        if(cur&&((+cur.nid||0)>o.nid||(+cur.u||0)!==base)){const e=new Error('stale');e.code='stale';throw e}
         if(cur){for(const k of ['gp','g10','copen'])o[k]=Math.max(o[k],+cur[k]||0)}tx.set(ref,o)})
-      .catch(e=>{if(e&&e.code==='stale'){if(bunDocs[me.id]&&bunDocs[me.id].u===o.u)delete bunDocs[me.id];toast('別の端末で分身が更新されています。いったん閉じて開き直してください')}else toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')');throw e})},
+      .catch(e=>{if(e&&e.code==='stale'){bunBase=-1;if(bunDocs[me.id]&&bunDocs[me.id].u===o.u)delete bunDocs[me.id];toast('別の端末で分身が更新されています。いったん閉じて開き直してください')}else toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')');throw e})},
   level:()=>lvOf(myPlayer().id).L,
   points:()=>balance(myPlayer().id),
   friends:()=>{const me=myPlayer();return players.filter(p=>p.id!==me.id&&!p.retired&&p.uid).map(bunFighter).sort((a,b)=>b.lv-a.lv)},
@@ -12666,7 +12671,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=150';
+const TCG_SRC='tcg_play.html?v=151';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -18408,7 +18413,10 @@ const synced=(c,o)=>({onSnapshot:(cb,er)=>{const f=o.f,sf=o.sort||f;let map=new 
   syncVStart();syncSubs.add(onV);start(false);
   return()=>{dead=true;syncSubs.delete(onV);clearTimeout(saveT);if(un)un()}}});
 const db={
-  doc:p=>{const r=doc(FS,p);return{__r:r,set:(d,o)=>W(p,()=>o?setDoc(r,d,o):setDoc(r,d)),update:d=>W(p,()=>updateDoc(r,d)),delete:()=>W(p,()=>deleteDoc(r)),onSnapshot:(cb,er,o)=>LS(p,()=>o&&o.meta?onSnapshot(r,{includeMetadataChanges:true},s=>cb(Object.assign(snap(s),{metadata:{fromCache:!!(s.metadata&&s.metadata.fromCache)}})),er||(()=>{})):onSnapshot(r,s=>cb(snap(s)),er||(()=>{})),er)}},
+  /* (10/22) a whole inventory written in one go says which saved state it was made from (pr = the rv it read) and gets a new rv.
+     The rules refuse it when the server has moved on, so an old copy (another device, or a write left waiting on a PC) never
+     overwrites newer data. The object is changed in place, so the caller's copy (inv = n) carries the new rv for the next write */
+  doc:p=>{const r=doc(FS,p);return{__r:r,set:(d,o)=>W(p,()=>{if(!o&&/^inv\//.test(p)&&d&&typeof d==='object'){d.pr=typeof d.rv==='string'?d.rv:'';d.rv=Date.now().toString(36)+Math.random().toString(36).slice(2,8)}return o?setDoc(r,d,o):setDoc(r,d)}),update:d=>W(p,()=>updateDoc(r,d)),delete:()=>W(p,()=>deleteDoc(r)),onSnapshot:(cb,er,o)=>LS(p,()=>o&&o.meta?onSnapshot(r,{includeMetadataChanges:true},s=>cb(Object.assign(snap(s),{metadata:{fromCache:!!(s.metadata&&s.metadata.fromCache)}})),er||(()=>{})):onSnapshot(r,s=>cb(snap(s)),er||(()=>{})),er)}},
   collection:c=>{const mk=cs=>({orderBy:(f,d)=>mk([...cs,orderBy(f,d||'asc')]),limit:n=>mk([...cs,limit(n)]),where:(f,op,v)=>mk([...cs,where(f,op,v)]),add:d=>W(c+'/+',()=>addDoc(collection(FS,c),d)),
     onSnapshot:(cb,er,o)=>LS(c,()=>o&&o.meta?onSnapshot(query(collection(FS,c),...cs),{includeMetadataChanges:true},s=>cb({docs:s.docs.map(snap),metadata:{fromCache:!!(s.metadata&&s.metadata.fromCache)}}),er||(()=>{})):onSnapshot(query(collection(FS,c),...cs),s=>cb({docs:s.docs.map(snap),metadata:{fromCache:!!(s.metadata&&s.metadata.fromCache)}}),er||(()=>{})),er)});return mk([])},
   /* (10/16) read and write against the server's copy in one step (分身's chests) */
