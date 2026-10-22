@@ -1,5 +1,5 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-const VERSION = 'v136-2026-10-22h';
+const VERSION = 'v136-2026-10-23';
 const CACHE = 'ladder-' + VERSION;
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'tcg_spectator.js', 'motion_lifecycle.js',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg',
@@ -35,6 +35,12 @@ self.addEventListener('fetch', e => {
     })));
     return;
   }
+  /* (10/23) card pictures (ci/ and cardhd/, each with ?h= of its own content): kept on the phone across app versions, so an update
+     never downloads them again; a changed picture has a new ?h= and is fetched once */
+  if (url.origin === location.origin && /\/(ci|cardhd)\//.test(url.pathname)) {
+    e.respondWith(caches.open(CARDS).then(c => c.match(req).then(hit => hit || fetch(req).then(r => { if (r.ok) c.put(req, r.clone()); return r; }))));
+    return;
+  }
   if (req.mode === 'navigate' && !isApp) return;   /* other pages (guide.html) go straight to the network */
   /* (10/16) the app page opens from this phone's saved copy at once (it is about 2MB; fetching it on every open made the
      start wait for the network). The copy belongs to this version only: a new version comes with a new sw.js, whose new cache
@@ -54,6 +60,7 @@ self.addEventListener('fetch', e => {
   }));
 });
 
+const CARDS = 'kcard-v1';         /* card pictures, kept across app versions (see the fetch handler) */
 const FILMS = 'kvideo-v1';           /* kept across app versions: the films only change when their file names do */
 const filling = new Set();
 async function filmResp(req, url) {
