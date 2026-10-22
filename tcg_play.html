@@ -1825,7 +1825,7 @@ const HIDE={mist:{f:'霧蜜果',n:'霧化',t:'1ターンに1回、バトルで�
  gum:{f:'千鳥の古酒',n:'千鳥足',t:'攻撃する相手を【かばう】に関係なく選べる。反撃で自分のライフにダメージを受けない'}};
 /* ===== (10/22) 巡生族「魔ノ森の盟約」(set 'rc'): 名付け (the trait: once a turn, 熱量2) names an ally; a card with kw.evo turns into its evolved form
    (a token card that is not collectible, m.base keeps the real card), anything else gets ★+1. Named: ATK・DEF+200 (加護).
-   捕食 (kw.devour): a battle kill goes under it (★+1) and copies its 速攻/根性/かばう. 騎乗 (kw.ride): 小鬼族 (kw.gob) allies get ATK+n and 速攻 ===== */
+   捕食 (kw.devour): a battle kill goes under it (★+1) and copies its 【】 abilities (engine EAT_SKIP). 騎乗 (kw.ride): 小鬼族 (kw.gob) allies get ATK+n and 速攻 ===== */
 const RC=(L)=>add('reinc',L.map(c=>Object.assign({set:'rc'},c)));
 RC([
  {id:'r1',n:'小鬼の村人',r:'N',type:'chara',c:1,atk:600,def:900,kw:{gob:1,evo:'r1e'}},
@@ -2032,7 +2032,7 @@ function text(c){const t=[],k=c.kw||{};
   if(k.evo&&BY[k.evo])t.push('【進化】真名を授かると「'+BY[k.evo].n+'」(ATK'+BY[k.evo].atk+'・DEF'+BY[k.evo].def+')に進化する');
   if(k.ride)t.push('【騎乗】ほかの味方の熱量1のキャラ(どの族でも)のATK+'+k.ride+'、出たターンから攻撃できる');
   if(k.sage)t.push('【解析】自分のターンの始めに、山札の一番上を見る。キャラでなければ山札の一番下に回す');
-  if(k.devour)t.push('【捕食】バトルで相手を倒すと、そのカードを自分の下に重ねて★+1。相手の【速攻】【根性】【かばう】も写し取る');
+  if(k.devour)t.push('【捕食】バトルで相手を倒すと、そのカードを自分の下に重ねて★+1。相手のカードが持つ【】の能力を写し取る(族・変身・進化に関わるものはのぞく。数字のある能力は大きい方)');
   if(k.sealed)t.push('【封印】自分の場に【捕食】のキャラか真名を授かったキャラがいないと攻撃できない(自分が真名を授かってもよい)');
   if(k.blaze)t.push('【紅炎】自分から攻撃して相手を倒すと、相手のライフに'+k.blaze+'ダメージ');
   if(k.ward)t.push('【祓いの結界】場にいるあいだ、ほかの味方全員のDEF+'+k.ward);
@@ -2172,7 +2172,7 @@ function mk(id,owner,slot){const d=BY[id];return{uid:++UID,id,owner,slot,atk0:d.
 const cid=m=>m.base||m.id;
 const pile=m=>BY[cid(m)].token?[]:[cid(m)];
 /* a unit's keywords: a mech with a pilot also has the pilot's (seat() builds m.pkw) */
-const KW=m=>m.nokw?{}:(m.pkw||BY[m.id].kw||{});
+const KW=m=>m.nokw?{}:(m.ekw?Object.assign({},m.pkw||BY[m.id].kw||{},m.ekw):(m.pkw||BY[m.id].kw||{}));/* (10/22) ekw: 【】 abilities copied by 捕食 */
 const PKW_SKIP=['mech','syn','star2','grad','gradHeal','gradDraw','deadline','mimic','pboy','pred','prival','penh','captain','evo'];
 function pkwOf(mechId,pilotId){const o={},k=BY[pilotId].kw||{};Object.keys(k).forEach(x=>{if(!PKW_SKIP.includes(x))o[x]=k[x]});return Object.assign(o,BY[mechId].kw||{})}
 function units(g,pi){return g.p[pi].slot.filter(Boolean)}
@@ -2538,7 +2538,11 @@ function rcA(g,m){let a=m.named?R.NAME_B:0;a+=rideB(g,m);return a}
 function rcD(g,m){let d=m.named?R.NAME_B:0;units(g,m.owner).forEach(x=>{if(x!==m){const w=(KW(x)).ward;if(w)d+=w}});return d}
 /* a fallen card goes under L (★+1); 捕食 also copies 速攻/根性/かばう */
 function eatCard(g,L,t){const G=g.p[t.orig!=null?t.orig:t.owner].gy,c=cid(t),i=G.lastIndexOf(c);if(i<0||!find(g,L.uid))return;G.splice(i,1);L.under.push(c);ev(g,{t:'note',uid:L.uid,s:'捕食:「'+BY[c].n+'」を取り込んだ'});
-  if((BY[L.id].kw||{}).devour){const k=KW(t);if(k.rush||t.rush){L.rush=true}if(k.guts){L.eatG=1}if(k.cover||hasCover(t)){L.eatC=1}}starUp(g,L,1,'devour')}
+  if((BY[L.id].kw||{}).devour){const k=KW(t);if(k.rush||t.rush){L.rush=true}if(k.guts){L.eatG=1}if(k.cover||hasCover(t)){L.eatC=1}
+    /* (10/22) every 【】 ability of the eaten card is copied (like a pilot's): numbers keep the bigger one. Not copied: tribe / form / setup ones */
+    const base=KW(L),src=BY[c].kw||{},e=Object.assign({},L.ekw||{});Object.keys(src).forEach(x=>{if(EAT_SKIP.includes(x))return;const v=src[x],b=base[x];if(typeof v==='number'){if(typeof b!=='number'||v>b)e[x]=v}else if(b==null)e[x]=v});L.ekw=e}
+  starUp(g,L,1,'devour')}
+const EAT_SKIP=PKW_SKIP.concat(['role','crew','birthHi','sealed','hen','henC','forms3','vessel','shiki','call','form','devour','gob','ride','kaiju','eatName','under','trib']);
 function rcKill(g,m,t){if(g.over||!find(g,m.uid))return;const k=KW(m);if(k.devour)eatCard(g,m,t);if(k.blaze){ev(g,{t:'note',uid:m.uid,s:'紅炎'});damage(g,opp(m.owner),k.blaze,'blaze')}}
 function rcFell(g,m){if(g.over)return;units(g,m.owner).forEach(x=>{const h=(KW(x)).hunger;if(h&&x!==m){x.perm+=h;ev(g,{t:'buff',uid:x.uid,atk:h,def:0,why:'hunger'})}})}
 /* ---- (10/22) 呪術族: 呪い, 祓い, 封じの槍, 器, 会心の火花 ---- */
@@ -4172,7 +4176,7 @@ function unitSheet(m){const c=BY[m.id],uv=WATCH?(m.ga|0||(m.scr?'s':0)):(scrSync
   if(m.charge)k.append(el('div',null,'充填ずみ:次にキャラを攻撃するとき、その相手のDEF-'+E.R.CHARGE));if(m.rec!=null&&g&&E.find(g,m.rec))k.append(el('div',null,'記録している相手:「'+BY[E.find(g,m.rec).id].n+'」'));if(m.part)k.append(el('div',null,'部品を1個とってある'));if(m.mark&&g&&m.mark.u>=g.turns)k.append(el('div',null,'照準を付けられている'));
   /* (10/22) 海賊族 */if(m.hi&&CD.HIDE[m.hi])k.append(el('div',null,'秘宝「'+CD.HIDE[m.hi].f+'」の力「'+CD.HIDE[m.hi].n+'」:'+CD.HIDE[m.hi].t));if(g&&E.bty&&btyOn(m)&&E.bty(m))k.append(el('div',null,'懸賞金Lv'+E.bty(m)+'(この試合で倒した相手 '+m.kills+'体)'+(g.p[m.owner].skill==='pirate'?'。ATK+'+E.R.BTY*E.bty(m):'')));if(m.hard)k.append(el('div',null,'【鋼纏】を身につけている'));
   /* (10/22) 巡生族 */if(m.base&&BY[m.base])k.append(el('div',null,'「'+BY[m.base].n+'」が真名授けで進化した姿。倒れると「'+BY[m.base].n+'」のカードとして捨て札へ'));else if(m.named)k.append(el('div',null,'真名を授かっている'));
-  if(g&&E.sealedNow&&E.sealedNow(g,m))k.append(el('div',null,'封印中:自分の場に【捕食】のキャラか真名を授かったキャラがいると攻撃できる'));if(m.eatG||m.eatC)k.append(el('div',null,'捕食で写し取った力:'+[m.eatG?'【根性】':'',m.eatC?'【かばう】':''].join('')));
+  if(g&&E.sealedNow&&E.sealedNow(g,m))k.append(el('div',null,'封印中:自分の場に【捕食】のキャラか真名を授かったキャラがいると攻撃できる'));if(m.eatG||m.eatC||(Array.isArray(m.under)&&m.under.length&&(BY[m.id].kw||{}).devour))k.append(el('div',null,'捕食で写し取った力:'+((Array.isArray(m.under)?m.under:[]).map(c=>'「'+(BY[c]?BY[c].n:c)+'」').join('')||'')+'の【】の能力'));
   /* (10/22) 呪術族 */if(m.cur)k.append(el('div',null,'呪いが'+m.cur+'つ付いている(DEF-'+E.R.CURSE*m.cur+')'));if(m.relic)k.append(el('div',null,'封じられた遺物を'+m.relic+'つ食べた'));if(m.spear)k.append(el('div',null,'封じの槍を持っている:攻撃する相手の【】の能力をその戦闘だけ消す'));
   if(g&&(c.kw||{}).role){const cr=g.p[m.owner].crew||[];k.append(el('div',null,'この試合で仲間になった役割:'+(cr.length?cr.join('・')+'('+cr.length+'種類)':'まだいない')))}
   s.append(k);
