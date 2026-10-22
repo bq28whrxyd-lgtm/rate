@@ -9187,7 +9187,8 @@ setInterval(()=>{try{if(myPlayer())campPush()}catch(e){}},6000);
    Kinds: おばけ 3, 魔女 3, かぼちゃ 1 (plain), 大将 2 (キラ: おばけ番長 and 夜宴の魔女, rarer).
    Extra copies go to the オークション as kind 's' (c = sticker id). inv.stkd {id: +n received / -n listed} keeps those moves.
    The collection stays after the event; new stickers only drop while hwIn(t). Art: pwa/stk/sN.webp (the user's chibi art, cut out). ---- */
-const STK_RATE=.10,STK_KIRA_W=.4;
+/* (10/22) 30% from 10/22 21:40; earlier games keep 10% (drops are worked out again from the games, so a change would otherwise hand out stickers for old games too) */
+const STK_RATE=.30,STK_RATE0=.10,STK_T30=Date.parse('2026-10-22T21:40:00+09:00'),STK_KIRA_W=.4;
 const STK_G={obk:{n:'おばけ',m:'霊',c1:'#b9a8ff',c2:'#5b4bd1'},maj:{n:'魔女',m:'魔',c1:'#c04cf0',c2:'#5a1680'},kab:{n:'かぼちゃ',m:'瓜',c1:'#ffb03a',c2:'#d9580f'},tai:{n:'大将',m:'将',c1:'#8b6dff',c2:'#ff4dc4',kira:1}};
 const STK=[
   {id:'s1',g:'obk',n:'ふわりん',t:'ハロウィンの夜だけ町に下りてくる、いちばん小さなおばけ。人見知りで、目が合うとシーツの中に隠れてしまう。'},
@@ -9206,13 +9207,13 @@ const stkKira=id=>!!(STKI[id]&&STK_G[STKI[id].g].kira);
 /* which sticker a lucky drop is: kira ones are rarer */
 const STK_W=STK.map(s=>STK_G[s.g].kira?STK_KIRA_W:1),STK_WS=STK_W.reduce((a,b)=>a+b,0);
 function stkPick(h){let x=(h%100000)/100000*STK_WS;for(let i=0;i<STK.length;i++){if(x<STK_W[i])return STK[i].id;x-=STK_W[i]}return STK[0].id}
-function stkRoll(key){const h=hsh(key+'#stk');if((h%1000)>=STK_RATE*1000)return null;return stkPick(hsh(key+'#stkp'))}
+function stkRoll(key,t){const h=hsh(key+'#stk');if((h%1000)>=((+t||0)>=STK_T30?STK_RATE:STK_RATE0)*1000)return null;return stkPick(hsh(key+'#stkp'))}
 /* my drops: [{k key, id, t, src}] from rate matches and TCG friend battles inside the event */
 let stkMemo={k:'',L:[]};
 function stkDrops(pid){if(!pid||typeof hwIn!=='function')return [];const nT=typeof tcgms!=='undefined'?tcgms.length:0,key=pid+'|'+matches.length+'|'+nT+'|'+(window.__hw0||0)+'|'+(window.__stkAll?1:0);if(stkMemo.k===key)return stkMemo.L;
   const L=[],inEv=t=>window.__stkAll||hwIn(t||0);
-  for(const m of matches){if((m.w!==pid&&m.l!==pid)||!inEv(m.t))continue;const k='m'+m.id+':'+pid,id=stkRoll(k);if(id)L.push({k,id,t:m.t||0,src:'rate'})}
-  if(typeof tcgms!=='undefined')for(const d of tcgms){if((d.a!==pid&&d.b!==pid)||!tcgDone(d))continue;const t=typeof tcgConfirmT==='function'?tcgConfirmT(d):d.t;if(!inEv(t))continue;const k='t'+d.id+':'+pid,id=stkRoll(k);if(id)L.push({k,id,t,src:'tcg'})}
+  for(const m of matches){if((m.w!==pid&&m.l!==pid)||!inEv(m.t))continue;const k='m'+m.id+':'+pid,id=stkRoll(k,m.t);if(id)L.push({k,id,t:m.t||0,src:'rate'})}
+  if(typeof tcgms!=='undefined')for(const d of tcgms){if((d.a!==pid&&d.b!==pid)||!tcgDone(d))continue;const t=typeof tcgConfirmT==='function'?tcgConfirmT(d):d.t;if(!inEv(t))continue;const k='t'+d.id+':'+pid,id=stkRoll(k,t);if(id)L.push({k,id,t,src:'tcg'})}
   L.sort((a,b)=>a.t-b.t);stkMemo={k:key,L};return L}
 /* how many of a sticker an inventory copy holds (drops + what came and went through the auction) */
 function stkHave(v,id){const me=myPlayer();if(!me)return 0;const n=stkDrops(me.id).filter(x=>x.id===id).length+(+(((v&&v.stkd)||{})[id])||0);return Math.max(0,n)}
@@ -12665,7 +12666,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=149';
+const TCG_SRC='tcg_play.html?v=150';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
