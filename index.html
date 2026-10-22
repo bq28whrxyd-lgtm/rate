@@ -5296,6 +5296,9 @@ body.ui2 .krk-art.pb-hwgr .bglv video{object-position:center 60%!important}
 body.ui2 .kx-tmode{margin-bottom:10px}
 body.ui2 .kx-tseg button[data-m=rank].on{background:linear-gradient(135deg,rgba(233,185,73,.26),rgba(139,123,255,.08));box-shadow:inset 0 0 0 1.5px rgba(255,227,163,.8)}
 body.ui2 .kx-trkd{margin:2px 2px 0}
+/* (10/22) 遊び方 button: a small gold dot until it has been watched once */
+body.ui2 .kx-ttut{position:relative}
+body.ui2 .kx-ttut.kx-tnew::after{content:'';position:absolute;top:6px;right:8px;width:7px;height:7px;border-radius:50%;background:#ffd36b;box-shadow:0 0 8px rgba(255,211,107,.8)}
 body.ui2 .kvs-lv.rk{color:#fff3d1;background:rgba(233,185,73,.2);box-shadow:inset 0 0 0 .5px rgba(255,227,163,.6)}
 body.ui2 .kx-cta.kx-tcta.rk{box-shadow:inset 0 .5px 0 #fff,0 0 0 .5px rgba(255,255,255,.5),0 16px 36px -12px rgba(233,185,73,.85)}
 /* ===== v121 rating trend (kt). Dark SaaS look: one gradient line (violet to cyan), a soft area under it,
@@ -12200,7 +12203,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=140';
+const TCG_SRC='tcg_play.html?v=143';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -15041,10 +15044,12 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   tCpu.innerHTML='<div class="kx-h"><h2>CPUの設定</h2></div><div class="kx-tseg kx-tmode" role="radiogroup" aria-label="CPU戦の種類"><button type="button" class="kx-tsb" role="radio" data-m="rank"><b>ランク戦</b><small>強さはランダム。勝ち負けでランクが上下。勝つと経験値 +5</small></button><button type="button" class="kx-tsb" role="radio" data-m="free"><b>練習</b><small>強さとデッキを選べる。ランクは変わらない</small></button></div><p class="kx-sub kx-trkd">相手はおまかせのデッキ。ふつうか つよいかは、始まるまでわかりません。勝つとTCGのランクが上がり、負けると下がります(友達戦の半分)。勝つと、ふつうでも つよいでも経験値 +5。途中でやめると負けになります。</p><div class="kx-tfree"><div class="kx-tseg kx-tlv" role="radiogroup" aria-label="CPUの強さ"><button type="button" class="kx-tsb" role="radio" data-v="normal"><b>ふつう</b><small>いつものCPU</small></button><button type="button" class="kx-tsb" role="radio" data-v="strong"><b>つよい</b><small>先の展開を読んで、いちばん勝てる手を選ぶ</small><em class="kx-txp"><span style="white-space:nowrap">「おまかせ」に勝つと</span><span style="white-space:nowrap">経験値 +5</span></em></button></div>'+
     '<div class="kx-topts" role="radiogroup" aria-label="CPUのデッキ"></div><p class="kx-sub kx-toptd"></p></div>';
   tGo.innerHTML='<button type="button" class="kx-cta kx-shine kx-tcta">CPUと対戦</button><p class="kx-foot"></p>';
-  tRow.innerHTML='<button type="button" class="kx-tpack">パックを開ける'+S.right+'</button><button type="button" class="kx-tpack kx-trk">ランキング'+S.right+'</button><span class="kx-trec"></span>';
+  tRow.innerHTML='<button type="button" class="kx-tpack">パックを開ける'+S.right+'</button><button type="button" class="kx-tpack kx-trk">ランキング'+S.right+'</button><button type="button" class="kx-tpack kx-ttut">遊び方'+S.right+'</button><span class="kx-trec"></span>';
   tHero.append(tvs,tOpps,tDk,tCpu,tGo,tRow);
   tDk.querySelector('.kx-link').onclick=()=>{try{kbSeg('deck')}catch(e){}};
   tRow.querySelector('.kx-tpack').onclick=()=>{try{tcgGoPacks()}catch(e){}};
+  /* (10/22) 遊び方: the battle page plays a 1-minute scripted game by itself. A dot until it has been watched once */
+  {const tb=tRow.querySelector('.kx-ttut');let seen=false;try{seen=localStorage.getItem('kotcg_tut_seen')==='1'}catch(e){}if(!seen)tb.classList.add('kx-tnew');tb.onclick=()=>{tb.classList.remove('kx-tnew');sfx('tick');try{tcgPlay('tut')}catch(e){}}}
   tRow.querySelector('.kx-trk').onclick=()=>{rkSet(true);rankSig='';try{setView('rank');scrollTo(0,0)}catch(e){}};
   tCpu.querySelectorAll('.kx-tmode button').forEach(b=>b.onclick=()=>{if(tMode===b.dataset.m)return;tMode=b.dataset.m;LSset('kxtmode',tMode);sfx('tick');tOppSig='';renderTcg2()});
   tCpu.querySelectorAll('.kx-tlv button').forEach(b=>b.onclick=()=>{if(tLv===b.dataset.v)return;tLv=b.dataset.v;LSset('kotcg_cpulv',tLv);sfx('tick');paintTcg()});

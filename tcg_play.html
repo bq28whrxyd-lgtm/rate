@@ -1029,6 +1029,32 @@ body.gkview .scr{display:none!important}
 .cpuopt.rk{border-color:#ffd36bcc;background:linear-gradient(135deg,#ffd36b33,#ffffff08);margin-bottom:4px}
 .cpuh-pr{margin-top:14px}
 .cpurkw{display:grid;flex-shrink:0}.cpurkw .cpuopt{flex-shrink:0}
+/* (10/22) 遊び方チュートリアル */
+.tut{position:fixed;inset:0;z-index:9000;pointer-events:none}
+.tut-top{position:absolute;right:12px;top:calc(env(safe-area-inset-top,0px) + 8px);pointer-events:none}
+.tut-pg{display:block;height:3px;margin-top:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+.tut-pg i{display:block;height:100%;background:linear-gradient(90deg,#ffd36b,#ffefb8);transform-origin:left;transform:scaleX(0);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.tut-skip{pointer-events:auto;height:34px;padding:0 14px;border:0;border-radius:999px;background:rgba(14,13,24,.94);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.28),0 6px 18px rgba(0,0,0,.5);color:#fff;font:700 13px/1 var(--body,system-ui)}
+.tut-ring{position:fixed;border-radius:16px;box-shadow:0 0 0 2px #ffd36b,0 0 22px 4px rgba(255,211,107,.5);opacity:0;transition:opacity .25s,left .45s cubic-bezier(.2,.8,.2,1),top .45s cubic-bezier(.2,.8,.2,1),width .45s cubic-bezier(.2,.8,.2,1),height .45s cubic-bezier(.2,.8,.2,1)}
+.tut-ring.on{opacity:1;animation:tutPulse 1.2s ease-in-out infinite}
+@keyframes tutPulse{50%{box-shadow:0 0 0 3px #ffd36b,0 0 34px 8px rgba(255,211,107,.35)}}
+.tut-fin{position:fixed;left:0;top:0;width:44px;height:52px;margin:-6px 0 0 -14px;opacity:0;transition:opacity .2s;filter:drop-shadow(0 6px 10px rgba(0,0,0,.55))}
+.tut-fin.on{opacity:1}
+.tut-fin svg{width:100%;height:100%;fill:#fff;stroke:#1b1830;stroke-width:2}
+.tut-tap{position:fixed;width:56px;height:56px;border-radius:50%;border:2px solid #ffd36b;opacity:0}
+.tut-cap{position:fixed;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 196px);margin:0 auto;max-width:420px;display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:18px;background:rgba(16,14,28,.98);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2),0 18px 44px rgba(0,0,0,.6);color:#fff;opacity:0;transform:translateY(8px)}
+.tut-cap.up{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 54px)}
+.tut-cap.in{opacity:1;transform:none;transition:opacity .3s,transform .4s cubic-bezier(.2,.8,.2,1)}
+.tut-cap small{font:700 11px/1 var(--body,system-ui);color:#ffd36b;letter-spacing:.04em}
+.tut-cap b{font:800 17px/1.5 var(--body,system-ui);text-wrap:pretty}
+.tut.fin{pointer-events:auto;background:rgba(6,6,14,.72)}
+.tut-end{position:absolute;left:16px;right:16px;top:50%;transform:translateY(-50%);margin:0 auto;max-width:400px;display:flex;flex-direction:column;gap:10px;padding:22px 18px;border-radius:22px;background:rgba(18,16,30,.96);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.2),0 24px 60px rgba(0,0,0,.6);color:#fff}
+.tut-end h2{margin:0 0 4px;font:900 21px/1.3 var(--body,system-ui)}
+.tut-end ul{margin:0 0 6px;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.tut-end li{display:flex;gap:10px;align-items:baseline;font:600 14px/1.5 var(--body,system-ui);color:rgba(255,255,255,.82)}
+.tut-end li b{flex:none;min-width:4.2em;color:#ffd36b;font-weight:800}
+.tut-end .btn{width:100%}
+@media (prefers-reduced-motion: reduce){.tut-ring.on{animation:none}.tut-cap.in{transition:opacity .2s}}
 
 /* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
    hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
@@ -2591,6 +2617,7 @@ const GOKU_VIEW=/^#gokuview=/.test(location.hash)?decodeURIComponent(location.ha
 /* #cpu=<deck index>.<opponent>: the app's 対戦 page already chose your deck and what the CPU plays, so the match starts at once
    (opponent: auto = おまかせ, rand = ランダム構築, rec = おすすめデッキ, mirror = the same deck as yours). The CPU's strength is read from kotcg_cpulv as usual. */
 const CPU_GO=/^#cpu=/.test(location.hash)?decodeURIComponent(location.hash.slice(5)):'';
+const TUT=/^#tut/.test(location.hash);
 const FOIL=id=>HOST&&HOST.foil?((HOST.foil()||{})[id]||0):0;
 const NORM=id=>HOST?((HOST.own()||{})[id]||0):9;
 const OWN=id=>HOST?NORM(id)+FOIL(id)+ALTOWN(id).length:9;
@@ -3097,6 +3124,85 @@ async function gokuView(id){if(!BY[id]||!CARD_ALT[id]){if(HOST)HOST.close();retu
     const again=el('button','btn sec','もう一度');again.onclick=()=>run();const cl=el('button','btn','閉じる');cl.onclick=()=>{if(HOST)HOST.close();else end.remove()};row.append(again,cl);
     end.append(el('div','gkendk','ALT ART  ·  極'),c,row);document.body.append(end)};
   gkGrainFrames();await gkSoft(id);setTimeout(run,250)}
+/* ---------- (10/22) 遊び方: the real table plays a short scripted game by itself (よわい男族 vs 女族, released cards only),
+   with a caption, a ring on the thing being explained and a finger that taps it. Only the スキップ button skips ---------- */
+let TUTSKIP=false,TUTON=false;
+async function tutorial(){TUTSKIP=false;TUTON=true;stopTimer();try{localStorage.setItem('kotcg_tut_seen','1')}catch(e){}
+  myDeck=presetOf('weak');cpuDeck=presetOf('girl');myKey='weak';cpuKey='girl';H=0;RK=false;
+  g=E.newGame(myDeck.cards.slice(),cpuDeck.cards.slice(),7,myDeck.lead,cpuDeck.lead);g.ev=[];
+  const P=g.p[0],O=g.p[1];
+  /* the hands, and the draws in order (the deck's top is its last card) */
+  const stack=(all,hand,draws)=>{const left=all.slice();hand.concat(draws).forEach(id=>{const i=left.indexOf(id);if(i>=0)left.splice(i,1)});return left.concat(draws.slice().reverse())};
+  P.hand=['w1','w5','w2','w7'];P.deck=stack(myDeck.cards.filter(x=>x!==myDeck.lead).concat([myDeck.lead]),P.hand,['w1','w3','w4','w6']);
+  O.hand=['q3','q2','q2','q1'];O.deck=stack(cpuDeck.cards.filter(x=>x!==cpuDeck.lead).concat([cpuDeck.lead]),O.hand,['q4','q5','q6']);
+  done=false;mode=null;LOG=[];busy=true;view=snap();show('s-game');render(view);
+  const ov=el('div','tut');ov.innerHTML='<div class="tut-top"><button type="button" class="tut-skip">スキップ</button></div><div class="tut-ring"></div><div class="tut-fin"><svg viewBox="0 0 48 56" aria-hidden="true"><path d="M17 4.5c2.6 0 4.5 2 4.5 4.6V25l1.3-.3V20c0-2.4 1.9-4.2 4.2-4.2s4.2 1.9 4.2 4.2v5.6l1-.1v-2.6c0-2.3 1.8-4 4-4s4 1.8 4 4v3.6l.6.1c2.1.4 3.7 2.2 3.7 4.4V39c0 7.6-6.1 13.5-13.6 13.5h-4.6c-4.4 0-8.5-2.2-11-5.8L5.9 37.3c-1.4-2-.9-4.7 1.1-6.1 1.8-1.2 4.2-.9 5.6.7l.1.1V9.1c0-2.6 1.8-4.6 4.3-4.6z"/></svg></div><div class="tut-tap"></div><div class="tut-cap" role="status" aria-live="polite"><small></small><b></b><span class="tut-pg"><i></i></span></div>';
+  document.body.append(ov);const ring=ov.querySelector('.tut-ring'),fin=ov.querySelector('.tut-fin'),tapc=ov.querySelector('.tut-tap'),cap=ov.querySelector('.tut-cap'),pg=ov.querySelector('.tut-pg i');
+  const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;let N=0;const TOTAL=11;
+  const skipP=new Promise(r=>{ov.querySelector('.tut-skip').onclick=()=>{TUTSKIP=true;r()}});
+  const W=ms=>Promise.race([wait(ms),skipP]).then(()=>{if(TUTSKIP)throw'skip'});
+  const R=p=>Promise.race([p,skipP]).then(()=>{if(TUTSKIP)throw'skip'});
+  const q=x=>typeof x==='function'?x():typeof x==='string'?document.querySelector(x):x;
+  const hand=id=>()=>{const i=g.p[H].hand.indexOf(id);return i<0?null:document.querySelectorAll('#hand .bc')[i]};
+  const lane=(side,L)=>'#field .lane[data-side="'+side+'"][data-l="'+L+'"]';
+  let fx=innerWidth/2,fy=innerHeight*.8;
+  const aim=(t,show)=>{const e=q(t);if(!e){ring.classList.remove('on');return null}const r=e.getBoundingClientRect();
+    ring.style.cssText='left:'+(r.left-6)+'px;top:'+(r.top-6)+'px;width:'+(r.width+12)+'px;height:'+(r.height+12)+'px';ring.classList.toggle('on',show!==false);
+    /* the caption sits on the other half of the screen from what it is about */
+    cap.classList.toggle('up',r.top+r.height/2>innerHeight*.52);return r};
+  const say=async(text,t,ms)=>{N++;pg.style.transform='scaleX('+Math.min(1,N/TOTAL)+')';cap.querySelector('small').textContent=N+' / '+TOTAL;cap.querySelector('b').textContent=text;
+    aim(t);cap.classList.remove('in');void cap.offsetWidth;cap.classList.add('in');await W(ms||Math.max(2000,1100+text.length*70))};
+  const moveTo=async t=>{const r=aim(t,false);if(!r)return;const x=r.left+r.width*.55,y=r.top+r.height*.6;fin.classList.add('on');
+    fin.animate([{transform:'translate('+fx+'px,'+fy+'px)'},{transform:'translate('+x+'px,'+y+'px)'}],{duration:RM?1:460,easing:'cubic-bezier(.2,.8,.2,1)',fill:'forwards'});fx=x;fy=y;await W(RM?60:480)};
+  const tap=async t=>{await moveTo(t);fin.animate([{scale:1},{scale:.86},{scale:1}],{duration:260,easing:'ease-out',composite:'add'});
+    tapc.style.left=fx+'px';tapc.style.top=fy+'px';tapc.animate([{opacity:.9,transform:'translate(-50%,-50%) scale(.3)'},{opacity:0,transform:'translate(-50%,-50%) scale(1.6)'}],{duration:480,easing:'ease-out'});
+    await W(300)};
+  const hide=()=>{fin.classList.remove('on');ring.classList.remove('on')};
+  const act=async fn=>{g.ev=[];if(fn()===false)console.warn('tut: move refused');const evs=g.ev.splice(0);render(view);await R(step(evs,snap()));render(snap());view=snap()};
+  const turn=async mine=>{g.ev=[];E.startTurn(g);const evs=g.ev.splice(0);await R(banner(mine));await R(step(evs,snap()));render(snap());view=snap()};
+  const end=async()=>{E.endTurn(g);view=snap();render(view);await W(350)};
+  const uidAt=(pi,L)=>g.p[pi].slot[L]&&g.p[pi].slot[L].uid;
+  try{
+    await W(400);
+    await say('相手のライフ4000を0にしたら勝ち','#oppLife');
+    await turn(true);
+    await say('カードは熱量(◆)を使って出す。熱量は毎ターン1つずつ増える','#myBar .energy');
+    await say('手札のキャラを場に出そう',hand('w1'),1700);await tap(hand('w1'));await tap(lane('m',0));hide();
+    await act(()=>E.playChara(g,0,g.p[0].hand.indexOf('w1'),0));
+    await say('出たばかりのキャラは、次のターンから攻撃できる',lane('m',0));
+    await tap('#endb');hide();await end();
+    await turn(false);await act(()=>E.playChara(g,1,g.p[1].hand.indexOf('q3'),0));await W(300);await end();
+    await turn(true);
+    await say('手札を重ねると育つ。★1つにつきATK・DEF+400',hand('w5'));await tap(hand('w5'));await tap(lane('m',0));hide();
+    await act(()=>E.evolve(g,0,g.p[0].hand.indexOf('w5'),uidAt(0,0)));
+    await say('攻撃!ATKが相手のDEFより高ければ倒せる。はみ出した分は相手のライフへ',lane('m',0));await tap(lane('m',0));await tap(lane('o',0));hide();
+    await act(()=>E.attack(g,0,uidAt(0,0),uidAt(1,0),0));
+    await tap('#endb');hide();await end();
+    await turn(false);await act(()=>E.playChara(g,1,g.p[1].hand.indexOf('q2'),0));await W(300);await end();
+    await turn(true);
+    await say('トラップは伏せておくと、相手が動いたときに発動できる',hand('w7'));await tap(hand('w7'));hide();
+    await act(()=>E.setTrap(g,0,g.p[0].hand.indexOf('w7')));
+    await say('同じカードを重ねると★+2。★3で覚醒して、特別な力がつく',hand('w1'));await tap(hand('w1'));await tap(lane('m',0));hide();
+    await act(()=>E.evolve(g,0,g.p[0].hand.indexOf('w1'),uidAt(0,0)));
+    await tap(lane('m',0));await tap(lane('o',0));hide();await act(()=>E.attack(g,0,uidAt(0,0),uidAt(1,0),0));
+    await tap('#endb');hide();await end();
+    await turn(false);await act(()=>E.playChara(g,1,g.p[1].hand.indexOf('q2'),0));await W(200);
+    {const t=g.p[0].st[0];await act(()=>E.attack(g,1,uidAt(1,0),uidAt(0,0),t?t.uid:0))}
+    await say('トラップ発動!相手の攻撃を無効にした','#myST');await end();
+    await turn(true);
+    g.p[0].gauge=E.R.GAUGE;render(snap());view=snap();
+    await say('倒されたり直接攻撃されると推しゲージがたまる。3つで必殺技(今回は満タンにしておくね)','#myAv');await tap('#myAv');hide();
+    await act(()=>E.skill(g,0));
+    await tap(lane('m',0));await tap(lane('o',0));hide();await act(()=>E.attack(g,0,uidAt(0,0),uidAt(1,0),0));
+    await say('これをくり返して、ライフを0にしたら勝ち。8ターンずつで決着しなければ、ライフが多い方の勝ち','#oppLife',3800);
+  }catch(e){if(e!=='skip')console.warn('tut',e)}
+  hide();cap.classList.remove('in');ov.querySelector('.tut-top').remove();
+  const box=el('div','tut-end');box.innerHTML='<h2>これで基本はおしまい</h2><ul><li><b>出す</b>熱量を使って手札のキャラを場に出す</li><li><b>育てる</b>手札を重ねて★を上げる。★3で覚醒</li><li><b>攻撃</b>ATKが相手のDEFより高ければ倒せる</li></ul>';
+  const go=el('button','btn gold','CPUと練習する'),again=el('button','btn sec','もう一度見る'),cl=el('button','btn sec','閉じる');box.append(go,again,cl);ov.append(box);ov.classList.add('fin');
+  const leave=()=>{ov.remove();busy=false;TUTON=false};
+  go.onclick=()=>{leave();CPU_LV='normal';startMatch(presetOf('weak'),presetOf('girl'))};
+  again.onclick=()=>{leave();tutorial()};
+  cl.onclick=()=>{leave();if(HOST&&HOST.close)HOST.close();else deckScreen()}}
 function gokuDemo(){const id=Object.keys(CARD_ALT_MV)[0]||Object.keys(CARD_ALT)[0];if(!id){deckScreen();return}const f=BY[id].f;
   const base=CD.starterDeck(f)||CD.starterDeck('neta'),cards=base.filter(x=>x!==id).slice(0,CD.DECK_SIZE-2).concat([id,id]);
   /* straight in: no coin toss or opening show, you go first */
@@ -3519,8 +3625,8 @@ async function castMine(hi,target){if(NET){if(busy||!g||g.over)return;const u=E.
 async function doAttack(uid,target){mode=null;if(NET){if(busy||!g||g.over)return;const m=E.find(g,uid);if(!m||!E.canAttack(g,H,m))return;const kind=target==='life'?'direct':'attack';const u=E.window(g,kind);const ans=u.length?await netAsk(kind,{uid,target}):0;return act1(()=>X('attack',uid,target,ans))}
   return act1(()=>{const m=E.find(g,uid);if(!m)return false;const kind=target==='life'?'direct':'attack';const u=E.window(g,kind);return E.attack(g,H,uid,target,u.length?AI.answer(g,1-H,kind,{attacker:m,target},u):0)})}
 function useSkill(target){return act1(()=>X('skill',target))}
-let stuckS=0;setInterval(()=>{if(!g||g.over||g.cur!==H||!busy||askRes||qkRes||qaRes||document.querySelector('.sheetw')||(NET&&waitingRemote)){stuckS=0;return}if(++stuckS>=15){stuckS=0;busy=false;try{settle()}catch(_){}render(snap());if(!timer)startTimer();caption('止まっていたので操作できるように戻しました')}},1000);
-function startTimer(){stopTimer();left=TURN_SEC;timer=setInterval(()=>{if(busy||document.querySelector('.sheetw'))return;left--;tickEnd();if(left<=0)endMyTurn(true)},1000)}
+let stuckS=0;setInterval(()=>{if(TUTON||!g||g.over||g.cur!==H||!busy||askRes||qkRes||qaRes||document.querySelector('.sheetw')||(NET&&waitingRemote)){stuckS=0;return}if(++stuckS>=15){stuckS=0;busy=false;try{settle()}catch(_){}render(snap());if(!timer)startTimer();caption('止まっていたので操作できるように戻しました')}},1000);
+function startTimer(){stopTimer();if(TUTON)return;left=TURN_SEC;timer=setInterval(()=>{if(busy||document.querySelector('.sheetw'))return;left--;tickEnd();if(left<=0)endMyTurn(true)},1000)}
 function stopTimer(){if(timer)clearInterval(timer);timer=null}
 async function beginTurn(){if(g.over)return finish();const mine=g.cur===H;busy=true;render(view);
   g.ev=[];E.startTurn(g);const evs=g.ev.splice(0);
@@ -3571,7 +3677,7 @@ function startWatch(){const wh=window.parent!==window&&window.parent.TCGWATCH;if
 
 $('goDeck').onclick=deckScreen;$('goHelp').onclick=helpSheet;
 const PVP=HOST&&HOST.pvp?HOST.pvp():null;
-if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(CPU_GO)cpuGo(CPU_GO);else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
+if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(CPU_GO)cpuGo(CPU_GO);else if(TUT)tutorial();else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
 clearTimeout(window.__tcgBootTimer);if(document.documentElement.classList.contains('tcg-embedded')&&!HOST&&!(WATCH&&window.parent!==window&&window.parent.TCGWATCH)){const b=$('tcgBoot');b.classList.add('slow');b.querySelector('[role="status"]').textContent='アプリから編成・対戦・観戦を開き直してください。'}else document.documentElement.classList.remove('tcg-booting');
 window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o=>backCard(o),flyCard:(a,b,o,f)=>flyCard(a,b,null,2400,o,f)},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},get rk(){return RK},get lv(){return CPU_LV},finish,endMyTurn,startMatch,E,AI};
 
