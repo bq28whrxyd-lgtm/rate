@@ -2777,6 +2777,23 @@ body.nsopen{overflow:hidden}
 .tfc.lock{filter:grayscale(1) brightness(.5)}
 .tfc.altc .tfcgem{display:none}
 .tcgc .tcgchips i{font-size:11px;padding:3px 8px}
+/* (10/22) the Halloween sticker moved out of the picture onto the whole card: give it its own size (the .tcf .tcfpk rules no longer reach it) */
+.tfc>.tcfpk{height:auto;aspect-ratio:1;pointer-events:none;filter:drop-shadow(0 0 1px rgba(28,8,40,.95)) drop-shadow(0 1px 3px rgba(0,0,0,.75)) drop-shadow(0 0 5px rgba(255,200,90,.6))}
+.tfc>.tcfpk img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:contain}
+.tfc>.tcfpk b,.tfc>.tcfpk u{position:absolute;inset:0;-webkit-mask:var(--pk) center/contain no-repeat;mask:var(--pk) center/contain no-repeat}
+.tfc>.tcfpk b{background:linear-gradient(135deg,rgba(255,120,220,.16),rgba(255,240,150,0) 35%,rgba(120,230,255,.16) 65%,rgba(200,140,255,.16))}
+.tfc>.tcfpk u{background:linear-gradient(115deg,transparent 44%,rgba(255,255,255,.62) 49%,rgba(255,246,200,.45) 51%,transparent 56%) 0 0/300% 100% no-repeat}
+.tfc>.tcfpk::after{content:none}
+/* (10/22) scroll: the dex holds ~300 whole cards. Cards off screen are not drawn (content-visibility), and in the grid the costly
+   glows (drop-shadow filters, big box-shadows) are left out */
+.tcggrid>.tcgc{content-visibility:auto;contain-intrinsic-size:auto 180px}
+.tcggrid .tfc{box-shadow:0 0 0 .5px #000}
+.tcggrid .tfc.sec{box-shadow:0 0 0 .5px #fff8}
+.tcggrid .tfcgem{box-shadow:0 0 0 .7cqw var(--m2),0 0 0 1.2cqw #000}
+.tcggrid .tfc>.tcfpk{filter:none}
+.tcggrid .tfccn{filter:none}
+.tcggrid .tfcn,.tcggrid .tfcx,.tcggrid .tfcs span{text-shadow:0 1px 1px #000}
+.tcggrid .tfcg::before{box-shadow:none}
 
 /*TCGCSS-END*/
 /* monthly pass */
@@ -12521,7 +12538,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=146';
+const TCG_SRC='tcg_play.html?v=147';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
