@@ -2768,6 +2768,16 @@ body.nsopen{overflow:hidden}
 /* small cards (slabs, showcase shelves): name, cost and numbers only */
 @container (max-width:150px){.tfcx{display:none}.tfcsh{height:38%}.tfcb{gap:2cqw;bottom:6cqw;left:calc(var(--fp) + 3cqw);right:calc(var(--fp) + 3cqw)}.tfcy{font-size:6cqw}.tfcy em{font-size:6cqw}.tfcs span{font-size:10.5cqw}.tfcs small{font-size:5.4cqw}.tfcn{font-size:9cqw}.tfcg{width:17cqw;height:17cqw}.tfcg b{font-size:10cqw}.tfccn{display:none}}
 
+/* (10/22) TCG 図鑑 as a box: whole cards, 3 columns, count badge; the card page shows the whole card */
+.tdvdex .tcggrid,.tcgdexw .tcggrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 10px}
+.tcgc>.tfc{width:100%}
+.tcgc.lock>.tfc{filter:grayscale(1) brightness(.45)}
+.tcgc .tcgchips{margin-top:6px}
+.tfc.tfbig{width:min(64%,30vh);flex:none;margin:0 auto}
+.tfc.lock{filter:grayscale(1) brightness(.5)}
+.tfc.altc .tfcgem{display:none}
+.tcgc .tcgchips i{font-size:11px;padding:3px 8px}
+
 /*TCGCSS-END*/
 /* monthly pass */
 .passcur{border-radius:16px;padding:14px 16px;margin-bottom:12px;border:1px solid color-mix(in srgb,var(--pc) 55%,transparent);background:radial-gradient(120% 90% at 0 0,color-mix(in srgb,var(--pc) 22%,transparent),transparent 65%),var(--panel2);display:flex;flex-direction:column;gap:4px}
@@ -7072,6 +7082,16 @@ body.ui2 .bnav{-webkit-backdrop-filter:none!important;backdrop-filter:none!impor
 .mkback{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px 0 11px;border:0;border-radius:999px;font-weight:700;font-size:13px;color:inherit;background:rgba(255,255,255,.07)}
 .mkback i{width:7px;height:7px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-right:1px}
 .mkauc2 .mkah{align-items:center;gap:8px}.mkauc2 .mkah .mkseg{flex:1;min-width:0}
+
+/* (10/22) ボックス: dup bar, count badges */
+.boxdup{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 10px;padding:12px 16px;border:0;border-radius:16px;text-align:left;color:inherit;background:linear-gradient(100deg,rgba(255,138,60,.18),rgba(242,213,138,.12));box-shadow:inset 0 0 0 1px rgba(255,170,90,.3)}
+.boxdup>div{flex:1;min-width:0;display:grid;gap:4px}.boxdup b{font-size:14.5px;font-weight:800}.boxdup span{font-size:11.5px;color:var(--mut,#a9a6b8)}
+.boxdup>i{width:8px;height:8px;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(45deg);opacity:.6}
+.boxdup0{display:none}.boxdup.none{background:rgba(255,255,255,.03);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}.boxdup.none>i{display:none}
+.ci{position:relative}
+.ci>.cbx,.tcgc>.cbx{position:absolute;right:6px;top:6px;z-index:5;min-width:24px;height:22px;padding:0 6px;border-radius:999px;display:grid;place-items:center;font:800 12px/1 system-ui,sans-serif;font-style:normal;color:#16120a;background:#f2d58a;box-shadow:0 2px 6px rgba(0,0,0,.6)}
+.ci>.cbx::before,.tcgc>.cbx::before{content:"×";margin-right:1px;font-size:10px}
+.ci>.ceq{position:absolute;left:6px;top:6px;z-index:5;padding:3px 7px;border-radius:999px;font:800 10.5px/1 system-ui,sans-serif;font-style:normal;color:#0b1a12;background:#8affc8;box-shadow:0 2px 6px rgba(0,0,0,.6)}
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
 #login h1{margin:4px 0 0}#login button{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -8407,10 +8427,17 @@ async function dupBulk(kind,L,mode){const me=myPlayer();if(!db||!me||!invLoaded|
   await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg();
   if(mode==='burn'&&!isAdmin())post('b_'+me.id+'_'+now(),'burn',me.id,me.name,me.name+'がダブり'+cnt+'枚を燃やした'+(top?'(いちばん上は '+(kind==='t'?'TCG ':'')+top.rk+'「'+top.nm+'」)':''));
   return {gain,cnt}}
-function dupSheet(kind,res,onChange){document.querySelectorAll('.dps').forEach(x=>x.remove());const o=el('div','dps'),b=el('div','dpsb');o.append(b);
-  const draw=()=>{const L=dupList(kind,res),ex=L.filter(x=>x.extra>0);b.replaceChildren();
-    const hd=el('div','dpsh');hd.append(el('b',null,'かけら・燃やす'),el('span',null,'この'+(kind==='t'?((res||[]).length>((typeof TCGD!=='undefined'&&TCGD.size)||3)?'10連・ボックス':'パック'):'ガチャ')+'で引いたカード'));b.append(hd);
-    if(ex.length){b.append(el('div','dpsk','ダブりの分だけまとめて'));const tsh=ex.reduce((a,x)=>a+x.extra*x.sh,0),tpt=ex.reduce((a,x)=>a+x.extra*x.pt,0),cnt=ex.reduce((a,x)=>a+x.extra,0),all=el('div','dupb'),a1=el('button','sec'),a2=el('button','dupburn');
+
+/* (10/22) ボックス整理: every duplicate in my box at once (gacha items keep 1; TCG keeps what a deck can use + 1 SCR) */
+function boxRes(kind){const R=[];if(kind==='g'){Object.keys(inv.own||{}).forEach(id=>{const it=ITEM(id);if(it&&(+inv.own[id]||0)>1)R.push({c:it})})}
+  else{const T=inv.tcg||{};Object.keys(T.own||{}).forEach(id=>{if((+T.own[id]||0)>0)R.push({c:{v:id},foil:false})});Object.keys(T.foil||{}).forEach(id=>{if((+T.foil[id]||0)>0)R.push({c:{v:id},foil:true})})}return R}
+function boxDupBar(kind,after){let L=[];try{L=dupList(kind,boxRes(kind)).filter(x=>x.extra>0)}catch(e){}const cnt=L.reduce((a,x)=>a+x.extra,0),sh=L.reduce((a,x)=>a+x.extra*x.sh,0),pt=L.reduce((a,x)=>a+x.extra*x.pt,0);
+  if(!cnt)return el('i','boxdup0');const b=el('button','boxdup'+(cnt?'':' none'));b.type='button';const tx=el('div');tx.append(el('b',null,cnt?'ダブり '+cnt+'枚をまとめて整理':'ダブりはありません'),el('span',null,cnt?'全部かけら +'+sh.toLocaleString()+'  /  全部燃やす +'+pt.toLocaleString()+'pt':(kind==='t'?'デッキで使える枚数を超えた分がダブりになります':'2枚目からがダブりになります')));b.append(tx,el('i'));b.disabled=!cnt;
+  b.onclick=()=>dupSheet(kind,[],null,{onClose:()=>after&&after(),all:()=>boxRes(kind),title:'ダブりの整理',sub:kind==='t'?'TCGカード  ·  デッキで使える枚数とシークレット1枚は残します':'スキン  ·  1枚ずつは残します'});return b}
+function dupSheet(kind,res,onChange,opt){opt=opt||{};document.querySelectorAll('.dps').forEach(x=>x.remove());const o=el('div','dps'),b=el('div','dpsb');o.append(b);
+  const draw=()=>{if(opt.all)res=opt.all();const L=dupList(kind,res).filter(x=>!opt.all||x.extra>0),ex=L.filter(x=>x.extra>0);b.replaceChildren();
+    const hd=el('div','dpsh');hd.append(el('b',null,opt.title||'かけら・燃やす'),el('span',null,opt.sub?opt.sub:'この'+(kind==='t'?((res||[]).length>((typeof TCGD!=='undefined'&&TCGD.size)||3)?'10連・ボックス':'パック'):'ガチャ')+'で引いたカード'));b.append(hd);
+    if(opt.all&&!ex.length)b.append(el('div','mkempty','ダブりはありません。整理するものはありません'));if(ex.length){b.append(el('div','dpsk','ダブりの分だけまとめて'));const tsh=ex.reduce((a,x)=>a+x.extra*x.sh,0),tpt=ex.reduce((a,x)=>a+x.extra*x.pt,0),cnt=ex.reduce((a,x)=>a+x.extra,0),all=el('div','dupb'),a1=el('button','sec'),a2=el('button','dupburn');
       a1.innerHTML='全部かけらにする<small>'+cnt+'枚 → +'+tsh+' かけら</small>';a2.innerHTML='全部燃やす<small>'+cnt+'枚 → +'+tpt+'pt</small>';
       const bulk=(mode,btn)=>askSheet({title:mode==='sh'?'ダブりを全部かけらにする':'ダブりを全部燃やす',danger:mode==='burn',ok:mode==='sh'?'かけらにする':'燃やす',
         lines:[cnt+'枚を'+(mode==='sh'?'かけら +'+tsh+' にします。':'燃やして +'+tpt+'pt。タイムラインに流れます。'),kind==='t'?'デッキで使える枚数(2枚、リーダーは3枚)とシークレット1枚は残します。':'それぞれ1枚は残します。','もとに戻せません。'],
@@ -8424,8 +8451,9 @@ function dupSheet(kind,res,onChange){document.querySelectorAll('.dps').forEach(x
       const ask=(mode,btn)=>{if(x.extra>0)return one(mode,btn);const last=(kind==='t'?tcgCopies(inv,x.id):x.n)===1;askSheet({title:(mode==='sh'?'かけらにする':'燃やす')+(last?'(最後の1枚)':''),danger:true,ok:mode==='sh'?'かけらにする':'燃やす',lines:[x.rk+'「'+x.nm+'」はダブりではありません。1枚'+(mode==='sh'?'かけら +'+x.sh+' にします。':'燃やして +'+x.pt+'pt。'),last?'最後の1枚です。なくなると図鑑から消えます'+(kind==='g'?'(装備中ならはずれます)':'')+'。':kind==='t'?'デッキで使える枚数より少なくなります。デッキに入っていると、そのデッキは使えなくなることがあります。':'','もとに戻せません。'].filter(Boolean),run:()=>one(mode,btn)})};
       s1.onclick=()=>ask('sh',s1);s2.onclick=()=>ask('burn',s2);
       r.append(rk,tx,s1,s2);ls.append(r)});b.append(ls,el('div','sub','右の2つのボタンは1枚ずつ。左がかけら、右が燃やす。ダブりではないカードも減らせます(確認が出ます)。'+(ex.length?'上の「全部」はダブりの分だけです':'')));
-    const cl=el('button','sec dpsx','閉じる');cl.onclick=()=>o.remove();b.append(cl)};
-  draw();o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
+    const cl=el('button','sec dpsx','閉じる');cl.onclick=shut;b.append(cl)};
+  const shut=()=>{o.remove();if(opt.onClose)try{opt.onClose()}catch(e){}};
+  draw();o.onclick=e=>{if(e.target===o)shut()};document.body.append(o)}
 /* iOS home-screen app: once the keyboard has been open, WebKit can keep the viewport shrunk (innerHeight / visualViewport stay small)
    until the app is quit, so the bottom bar floats in the middle with black below it. Scrolling does not bring it back (10/16: the
    old scrollTo nudge did nothing). What does: hiding a full-height element and showing it again in the same frame, which makes WebKit
@@ -10222,6 +10250,12 @@ function dupBox(kind,id,rn,done,opt){opt=opt||{};try{newSeen('burn134')}catch(e)
       lines:[rk+'「'+nm+'」を1枚'+(mode==='sh'?'かけら +'+sh+' にします。':'燃やして +'+pt+'pt。燃やしたことはタイムラインに流れます。'),last?'最後の1枚です。なくなると図鑑から消えます'+(kind==='g'?'(装備中ならはずれます)':'(デッキに入っていると、そのデッキは使えなくなります)')+'。':'残りは '+(rn-1)+' 枚になります。','もとに戻せません。'],
       run:async()=>{b.disabled=true;try{const r=await dupAct(kind,id,mode,opt);toast(mode==='sh'?'かけら +'+r.gain:'燃やしました  +'+r.gain+'pt');done&&done(r)}catch(e){b.disabled=false;toast('できませんでした')}}});
     b1.onclick=()=>ask('sh',b1);b2.onclick=()=>ask('burn',b2);row.append(b1,b2);
+    /* (10/22) every extra copy of this card at once */
+    {const fo=!!opt.foil,keep=dupKeep(kind,id,fo),ex=Math.max(0,rn-keep);if(ex>1){const X2=[{id,foil:fo,n:rn,keep,extra:ex,nm,rk,sh,pt}],ra=el('div','dupb dupball'),c1=el('button','sec'),c2=el('button','dupburn');
+      c1.innerHTML='全部かけら<small>ダブり'+ex+'枚 → +'+(ex*sh)+'</small>';c2.innerHTML='全部燃やす<small>ダブり'+ex+'枚 → +'+(ex*pt)+'pt</small>';
+      const all=(mode,btn)=>askSheet({title:mode==='sh'?'ダブりを全部かけらにする':'ダブりを全部燃やす',danger:mode==='burn',ok:mode==='sh'?'かけらにする':'燃やす',lines:[rk+'「'+nm+'」のダブり'+ex+'枚を'+(mode==='sh'?'かけら +'+(ex*sh)+' にします。':'燃やして +'+(ex*pt)+'pt。'),keep+'枚は残します。','もとに戻せません。'],
+        run:async()=>{btn.disabled=true;try{const r=await dupBulk(kind,X2,mode);toast(mode==='sh'?'かけら +'+r.gain:'燃やしました  +'+r.gain+'pt');done&&done({left:rn-r.cnt,gain:r.gain})}catch(e){btn.disabled=false;toast('できませんでした')}}});
+      c1.onclick=()=>all('sh',c1);c2.onclick=()=>all('burn',c2);ra.append(c1,c2);w.append(ra)}}
     /* 取引所: sell it or put it in the pot */
     const row2=el('div','dupb dupb2'),b3=el('button','sec','出品する'),b4=el('button','sec','闇鍋に入れる'),fo=!!opt.foil;
     b3.onclick=()=>listSheet(kind,id,fo,()=>done&&done({left:rn-1,gain:0}));
@@ -10246,7 +10280,7 @@ function oshiCount(){const L=window.__oshiList||[];let n=0;L.forEach(o=>{const k
 function collectionView(inv,eq,h,info){
   /* two modes: コレクション (filter + equip) and 図鑑 (completion, numbered list). Tapping any item opens its detail sheet. */
   const o=el('div','ae col'),box=el('div','aebox'),msg=el('div','sub');
-  let mode='col',cat='all',own='all',rar=-1;
+  let mode='col',cat='all',own='have',rar=-1;
   const DEX=ITEMS.filter(x=>!x.retired&&(x.lim!=='sup'||((inv.own||{})[x.id]>0))),dexNo=it=>DEX.indexOf(it)+1,ownN=it=>(inv.own||{})[it.id]||0;
   const hd=el('div','hd');hd.append(el('div','eyebrow','COLLECTION'),el('h1',null,'コレクション'));
   const stat=el('div','cstat'),seg=el('div','cseg'),tabs=el('div','aetabs'),filt=el('div','cfilt'),body=el('div','cbody');
@@ -10258,10 +10292,10 @@ function collectionView(inv,eq,h,info){
     [['all','すべて'],['have','持っている'],['miss','持っていない']].forEach(([k,n])=>{const b=el('button','cchip'+(own===k?' on':''),n);b.onclick=()=>{own=k;draw()};g1.append(b)});
     const g2=el('div','cfg');[-1,0,1,2,3,4,5].forEach(r=>{const b=el('button','cchip rc'+(rar===r?' on':''),r<0?'全レア':RAR[r].k);if(r>=0)b.style.setProperty('--rc',RAR[r].c);b.onclick=()=>{rar=r;draw()};g2.append(b)});
     filt.append(g1,g2)}
-  const list=()=>DEX.filter(x=>(cat==='all'||x.k===cat)&&(rar<0||x.r===rar)&&(own==='all'||(own==='have'?ownN(x)>0:ownN(x)===0))).sort((a,b)=>b.r-a.r||dexNo(a)-dexNo(b));
+  const list=()=>DEX.filter(x=>(cat==='all'||x.k===cat)&&(rar<0||x.r===rar)&&(own==='all'||(own==='have'?ownN(x)>0:ownN(x)===0))).sort((a,b)=>(eq[b.k]===b.id)-(eq[a.k]===a.id)||(ownN(b)>0)-(ownN(a)>0)||b.r-a.r||dexNo(a)-dexNo(b));
   function cell(it,num){const n=ownN(it),on=eq[it.k]===it.id,c=el('button','ci cbtn'+(n?'':' lock')+(on?' eqd':''));
     if(num)c.append(el('span','cno','No.'+String(dexNo(it)).padStart(3,'0')));
-    c.append(cardFace(it),el('div','cic'+(n?'':' ct'),n?(on?'装備中':'所持 '+n):it.lim==='coin'?'コインガチャ':it.lim?'期間限定':'交換 '+RAR[it.r].cost+'かけら'));c.onclick=()=>detail(it);return c}
+    c.append(cardFace(it));if(n>1)c.append(el('i','cbx',String(n)));c.append(el('div','cic'+(n?'':' ct'),n?(on?'装備中':'所持 '+n):it.lim==='coin'?'コインガチャ':it.lim?'期間限定':'交換 '+RAR[it.r].cost+'かけら'));c.onclick=()=>detail(it);return c}
   function draw(){
     seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));
     const got=DEX.filter(x=>ownN(x)>0).length;
@@ -10270,7 +10304,7 @@ function collectionView(inv,eq,h,info){
     if(mode==='dex'){drawDex(got);return}
     tabs.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.k===cat));drawFilt();
     const L=list(),grid=el('div','cgrid');if(!L.length)grid.append(el('div','empty','条件に合うアイテムがありません'));
-    const tok=draw.tok=(draw.tok||0)+1;L.slice(0,12).forEach(it=>grid.append(cell(it)));let k=12;const more=()=>{if(draw.tok!==tok||!grid.isConnected)return;const f=document.createDocumentFragment();L.slice(k,k+18).forEach(it=>f.append(cell(it)));grid.append(f);k+=18;if(k<L.length)requestAnimationFrame(more)};if(L.length>12)requestAnimationFrame(()=>requestAnimationFrame(more));body.replaceChildren(el('div','sub ccount',L.length+'件  ·  タップで詳しく(装備・プレビュー・交換)'),grid)}
+    const tok=draw.tok=(draw.tok||0)+1;L.slice(0,12).forEach(it=>grid.append(cell(it)));let k=12;const more=()=>{if(draw.tok!==tok||!grid.isConnected)return;const f=document.createDocumentFragment();L.slice(k,k+18).forEach(it=>f.append(cell(it)));grid.append(f);k+=18;if(k<L.length)requestAnimationFrame(more)};if(L.length>12)requestAnimationFrame(()=>requestAnimationFrame(more));const top=[];try{if(h&&h.equip&&typeof boxDupBar==='function')top.push(boxDupBar('g',()=>{o.remove();try{openCollection()}catch(e){}}))}catch(e){}body.replaceChildren(...top,el('div','sub ccount',L.length+'件  ·  タップで詳しく(装備・プレビュー・交換)'),grid)}
   function drawDex(got){
     const pct=Math.floor(got/DEX.length*100),hero=el('div','dexh'),ring=el('div','dexr');
     ring.innerHTML='<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="none" stroke="#ffffff14" stroke-width="7"/><circle cx="40" cy="40" r="34" fill="none" stroke="url(#dxg)" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+(213.6*got/DEX.length).toFixed(1)+' 214" transform="rotate(-90 40 40)"/><defs><linearGradient id="dxg"><stop offset="0" stop-color="#f6e3a6"/><stop offset="1" stop-color="#b678ff"/></linearGradient></defs></svg>';
@@ -12946,7 +12980,7 @@ let tcgTab='all';
 function tcgHeld(id){const own=tcgOwn()[id]||0,fo=tcgFoil()[id]||0,al=tcgAltOwned()[id]||[],hasAlt=!!(TCGD.alt&&TCGD.alt[id]);
   const L=[{v:0,n:'通常',k:own},{v:'s',n:'シークレット',k:fo}];if(hasAlt)[1,2,3].forEach(g=>L.push({v:g,n:'絵違い '+['','ノーマル','キラ','極'][g],k:al.includes(g)?1:0}));return L}
 function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o=el('div','tcgsh'),b=el('div','tcgshb');
-  const first=(pick!=null&&H.find(x=>x.v===pick))||has[0]||H[0];let f=tcgFace(id,'big',first.v==='s',typeof first.v==='number'?first.v:0);if(!first.k)f.classList.add('lock');
+  const first=(pick!=null&&H.find(x=>x.v===pick))||has[0]||H[0];let f=tcgCardFull(id,first.v==='s','tfbig',typeof first.v==='number'?first.v:0);if(!first.k)f.classList.add('lock');
   const t=el('div','tcgsht');t.append(el('div','eyebrow',TCGD.fname[c.f]+'  ·  '+TRN[c.r]),el('h3',null,c.n),
     el('div','tcgshm',(c.ty==='chara'?'キャラ':c.ty==='spell'?'魔法':'トラップ')+'  ·  熱量 '+c.c+(c.ty==='chara'?'  ·  ATK '+c.atk+' / DEF '+c.def:'')),
     el('p','tcgshx',c.tx||'効果なし'));
@@ -12954,7 +12988,7 @@ function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o
   /* the versions you hold, as a list; tap one to see it */
   const lst=el('div','tcghl');lst.append(el('div','tcghlh',has.length?'持っているもの(タップで見た目を切り替え)':'まだ持っていません'));
   H.forEach(h=>{const r=el('button','tcghr'+(h.k?'':' no')+(h===first&&has.length?' on':''));r.disabled=!h.k;r.append(el('span',null,h.n),el('b',null,h.k?h.k+'枚':'—'));
-    r.onclick=()=>{const nf=tcgFace(id,'big',h.v==='s',typeof h.v==='number'?h.v:0);f.replaceWith(nf);f=nf;lst.querySelectorAll('.tcghr').forEach(y=>y.classList.toggle('on',y===r));if(h.v===0||h.v==='s')putBox(h.v)};lst.append(r)});
+    r.onclick=()=>{const nf=tcgCardFull(id,h.v==='s','tfbig',typeof h.v==='number'?h.v:0);f.replaceWith(nf);f=nf;lst.querySelectorAll('.tcghr').forEach(y=>y.classList.toggle('on',y===r));if(h.v===0||h.v==='s')putBox(h.v)};lst.append(r)});
   b.append(lst);
   /* 仲間の○%が所持, and かけら / 燃やす for normal copies */
   /* the box works on the version picked in the list above: 通常 or シークレット (絵違い cannot be burnt) */
@@ -12969,6 +13003,7 @@ const TCG_RORD={GR:0,SR:1,R:2,C:3};
 function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),AO=tcgAltOwned(),all=TCGD.cards.length,held=c=>(own[c.id]||0)+(foil[c.id]||0)+((AO[c.id]||[]).length),have=TCGD.cards.filter(c=>held(c)>0).length,gr=TCGD.cards.filter(c=>c.r==='GR'),grh=gr.filter(c=>held(c)>0).length;
   const scrH=TCGD.cards.filter(c=>(foil[c.id]||0)>0).length;cs.append(el('div','sub',have+' / '+all+' 種類  ·  ガチレア '+grh+' / '+gr.length+'  ·  シークレット '+scrH+' / '+all));
   const bar=el('div','tcgbar');const fill=el('i');fill.style.width=(have/all*100).toFixed(1)+'%';bar.append(fill);cs.append(bar);
+  try{if(typeof boxDupBar==='function'&&tcgHasSt())cs.append(boxDupBar('t',()=>rerender()))}catch(e){}
   const tools=el('div','tcgtools'),q=el('input','tcgq');q.type='search';q.placeholder='カード名・効果で検索';q.value=tcgQ;q.setAttribute('aria-label','図鑑を検索');
   const so=el('select','tcgso');so.setAttribute('aria-label','並び順');[['no','番号順'],['rar','レア度が高い順'],['rarlo','レア度が低い順'],['cost','熱量が少ない順'],['costhi','熱量が多い順'],['name','名前順'],['own','持っている数が多い順']].forEach(([v,n])=>{const op=el('option',null,n);op.value=v;so.append(op)});so.value=tcgSort;
   const mi=el('button','tcgmine'+(tcgDexMine?' on':''),'持っているだけ');mi.setAttribute('aria-pressed',tcgDexMine?'true':'false');
@@ -12983,12 +13018,12 @@ function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),AO=tcgAltOwne
     info.textContent=(s||tcgDexMine||tcgTab!=='all')?L.length+'種類':'';g.replaceChildren();
     if(!L.length){g.append(el('div','sub tcgnone','条件に合うカードがありません'));return}
     /* (10/16) each version has its own square, right after the normal one: 通常 → シークレット → 絵違い (only cards that have them) */
-    L.forEach(c=>{tcgHeld(c.id).forEach(h=>{if(tcgDexMine&&!h.k)return;const v=h.v,scr=v==='s',alt=typeof v==='number'&&v>0,w=el('button','tcgc'+(h.k?'':' lock')+(scr?' scr':alt?' alt':''));
-      w.append(tcgFace(c.id,null,scr,alt?v:0));
+    L.forEach(c=>{const HH=tcgHeld(c.id),any=HH.some(h=>h.k>0);HH.forEach((h,hi)=>{if(tcgDexMine&&!h.k)return;if(!h.k&&(any||hi>0))return;/* (10/22) one square per card unless you own more versions */const v=h.v,scr=v==='s',alt=typeof v==='number'&&v>0,w=el('button','tcgc'+(h.k?'':' lock')+(scr?' scr':alt?' alt':''));
+      w.append(tcgCardFull(c.id,scr,null,alt?v:0));
       const ch=el('div','tcgchips');ch.append(el('i',h.k?(scr?'cs':alt?'ca':'cn'):'cx',(scr?'SCR':alt?h.n.replace('絵違い ','絵違い・'):'通常')+(h.k?(alt?'':' '+h.k):' 未所持')));
       w.append(ch);w.setAttribute('aria-label',c.n+' '+h.n+(h.k?'('+h.k+'枚)':'(未所持)'));w.onclick=()=>tcgSheet(c.id,v);g.append(w)});
       /* keep 通常 / シークレット as a left-right pair in the 4 columns: a card with 絵違い (5 squares) gets one empty square */
-      if(!tcgDexMine&&g.children.length%2)g.append(el('i','tcgc tcgsp'))})};
+      })};
   q.oninput=()=>{tcgQ=q.value;draw()};so.onchange=()=>{tcgSort=so.value;draw()};mi.onclick=()=>{tcgDexMine=!tcgDexMine;mi.classList.toggle('on',tcgDexMine);mi.setAttribute('aria-pressed',tcgDexMine?'true':'false');draw()};
   draw()}
 /* デッキ・図鑑: next to コレクション・図鑑 (パック and プロフィール) */
@@ -13096,9 +13131,9 @@ window.TCGHOST.spectatorSeq=()=>tcgLive?tcgLive.mine.length+tcgLive.delivered:0;
 /* (10/22) the whole card (案a, like in battle) for slabs and the showcase: the picture layer is tcgFace, so SECRET / Halloween finishes stay */
 const TFC_COL={weak:'#7fb2ff',girl:'#ff6fae',gay:'#c08cff',gen:'#ffd36b',gachi:'#ff9a3c',idol:'#ffd54a',vt:'#4fd1ff',cre:'#7ee08a',chu:'#a070ff',neta:'#ff6b6b',sei:'#ff9ad5',hage:'#d8c09a',mecha:'#4fd8d0',pirate:'#7088ff',reinc:'#5cb8ff',jujutsu:'#b07cff',henshin:'#ff6a5a'};
 const TFC_TY={chara:'キャラ',spell:'魔法',trap:'罠'};
-function tcgCardFull(id,foil,cls){const c=TC[id];if(!c)return tcgFace(id,cls,foil);const base=c.hwOf||id,lead=Object.values(TCGD.leaders||{}).includes(base);
+function tcgCardFull(id,foil,cls,ga){const c=TC[id];if(!c)return tcgFace(id,cls,foil);const base=c.hwOf||id,lead=Object.values(TCGD.leaders||{}).includes(base);
   const w=el('div','tfc rk-'+c.r+(foil?' sec':'')+(lead?' ace':'')+(c.ty!=='chara'?' nonch':'')+(c.hwOf?' hwc':'')+(cls?' '+cls:''));w.style.setProperty('--dc',TFC_COL[c.f]||'#4fd8d0');
-  const art=tcgFace(id,'tfa',foil);w.append(art);
+  const art=tcgFace(id,'tfa',foil,ga);{const im=art.querySelector('img');if(im)im.alt=''}w.append(art);if(ga)w.classList.add('altc');try{tcgImgLater(art,id)}catch(e){}
   const top=el('div','tfct');const gem=el('span','tfcg');gem.append(el('b',null,String(c.c)));top.append(gem,el('b','tfcn',c.n));
   const bot=el('div','tfcb');const ty=el('div','tfcy');ty.append(el('span',null,(TFC_TY[c.ty]||'')+' ・ '+((TCGD.fname||{})[c.f]||'')),el('em',null,foil?'SECRET':lead?'LEADER':c.r));
   const tx=String(c.tx||'').split('\n').filter(l=>!/^【(リーダー|ハロウィン版)】/.test(l)).join('\n');
