@@ -3620,13 +3620,16 @@ function pickAttacker(m){const T=E.attackTargets(g,H,m);mode={k:'atk',uid:m.uid,
 function hint(text,buttons){const h=$('hint');h.replaceChildren();if(!text){h.hidden=true;return}h.hidden=false;h.append(el('span','ht',text));(buttons||[]).forEach(b=>h.append(b));
   const v=$('midl');const gm=$('s-game').getBoundingClientRect();if(v){const r=v.getBoundingClientRect();h.style.top=(r.top-gm.top+r.height/2)+'px'}}
 const hbtn=(t,cls,fn)=>{const b=el('button','hb'+(cls?' '+cls:''),t);b.onclick=fn;return b};
+/* (10/22) a unit that can attack opens in attack mode, so its pressable abilities (照準・充填・変形…) get a button here too */
+const ACT_K=[['mark'],['charge'],['share'],['part'],['name'],['henshin'],['bloodw'],['fox'],['kick'],['fc','p'],['fc','s'],['fc','g'],['shiki'],['call'],['stop'],['form','a'],['form','c']];
+function actBtn(a){if(!a||!ACT_K.some(([k,f])=>E.canAct(g,H,a.uid,k,f)))return[];return[hbtn('能力','sec',()=>{mode=null;render(snap());unitSheet(a)})]}
 function renderHint(S){if(!g||S.cur!==H||S.over||busy||!mode)return hint('');
   const cancel=hbtn('やめる','sec',()=>{mode=null;render(snap())});
   if(mode.k==='atk'){const a=E.find(g,mode.uid);if(!a)return hint('');
-    if(mode.target==null)return hint(E.attackTargets(g,H,a).length?'攻撃する相手をタップ':'',[cancel]);
+    if(mode.target==null)return hint(E.attackTargets(g,H,a).length?'攻撃する相手をタップ':'',[...actBtn(a),cancel]);
     const p=AI.preview(g,H,a,mode.target);
     const t=p.kind==='direct'?'ライフに'+p.dmg+'ダメージ':(p.kill?'倒せる'+(p.dmg?'+'+p.dmg+'ダメージ':''):p.over?'根性で耐えられる':'倒せない')+(p.die?'。反撃で倒れる':'。反撃なし');
-    return hint(t,[hbtn('攻撃する','',()=>doAttack(mode.uid,mode.target)),cancel])}
+    return hint(t,[hbtn('攻撃する','',()=>doAttack(mode.uid,mode.target)),...actBtn(a),cancel])}
   if(mode.k==='ltrib')return hint('リーダーの生贄にするキャラをタップ',[cancel]);
   if(mode.k==='slot')return hint('出す場所をタップ',[cancel]);
   if(mode.k==='trib'){const d=BY[g.p[H].hand[mode.hi]];return hint(d.trib>1?(d.same?CD.FNAME[d.f]+'の':'')+'生贄にするキャラを'+d.trib+'体タップ('+mode.sel.length+'/'+d.trib+')':'生贄にするキャラをタップ',[cancel])}
@@ -4173,7 +4176,7 @@ function unitSheet(m){const c=BY[m.id],uv=WATCH?(m.ga|0||(m.scr?'s':0)):(scrSync
   info.append(el('h3',null,c.n+' '+SN(m.star)),el('div','meta',(m.owner===H?'あなたの':'相手の')+'キャラ ・ 今 ATK'+E.ATK(g,m)+' / DEF'+E.DEF(g,m)+'(元 '+c.atk+' / '+c.def+')'),el('div','eff',CD.text(c)));top.append(info);s.append(top);
   const k=el('div','kwx');kwHelp(c).forEach(x=>k.append(el('div',null,x)));if(m.under.length)k.append(el('div',null,'重ねたカード '+m.under.length+'枚。倒れると全部捨て札になる'));if(m.awk)k.append(el('div',null,'覚醒中:'+CD.awText(c.aw)));if(m.gutsUsed)k.append(el('div',null,'根性はもう使った'));
   /* (10/22) 機装族 */if(m.pilot&&BY[m.pilot])k.append(el('div',null,'操縦者「'+BY[m.pilot].n+'」が搭乗中'+(m.pa?'(ATK+'+m.pa+')':'')+(m.pd?'(DEF+'+m.pd+')':'')+'。操縦者の能力(【】の効果と倒れたときの効果)も機体が持っている'));else if(g&&E.isMech(m))k.append(el('div',null,'操縦者がまだ乗っていない'));
-  if(m.charge)k.append(el('div',null,'充填ずみ:次にキャラを攻撃するとき、その相手のDEF-'+E.R.CHARGE));if(m.rec!=null&&g&&E.find(g,m.rec))k.append(el('div',null,'記録している相手:「'+BY[E.find(g,m.rec).id].n+'」'));if(m.part)k.append(el('div',null,'部品を1個とってある'));if(m.mark&&g&&m.mark.u>=g.turns)k.append(el('div',null,'照準を付けられている'));
+  if(m.charge)k.append(el('div',null,'充填ずみ:次にキャラを攻撃するとき、その相手のDEF-'+E.R.CHARGE));if(m.rec!=null&&g&&E.find(g,m.rec))k.append(el('div',null,'記録している相手:「'+BY[E.find(g,m.rec).id].n+'」'));if(m.part)k.append(el('div',null,'部品を1個とってある'));if(m.mark&&g&&m.mark.u>=g.turns)k.append(el('div',null,'照準を付けられている'));if(g&&m.owner===H&&(c.kw||{}).mark&&!m.pilot)k.append(el('div',null,'操縦者を乗せると、照準を付けられるようになる'));
   /* (10/22) 海賊族 */if(m.hi&&CD.HIDE[m.hi])k.append(el('div',null,'秘宝「'+CD.HIDE[m.hi].f+'」の力「'+CD.HIDE[m.hi].n+'」:'+CD.HIDE[m.hi].t));if(g&&E.bty&&btyOn(m)&&E.bty(m))k.append(el('div',null,'懸賞金Lv'+E.bty(m)+'(この試合で倒した相手 '+m.kills+'体)'+(g.p[m.owner].skill==='pirate'?'。ATK+'+E.R.BTY*E.bty(m):'')));if(m.hard)k.append(el('div',null,'【鋼纏】を身につけている'));
   /* (10/22) 巡生族 */if(m.base&&BY[m.base])k.append(el('div',null,'「'+BY[m.base].n+'」が真名授けで進化した姿。倒れると「'+BY[m.base].n+'」のカードとして捨て札へ'));else if(m.named)k.append(el('div',null,'真名を授かっている'));
   if(g&&E.sealedNow&&E.sealedNow(g,m))k.append(el('div',null,'封印中:自分の場に【捕食】のキャラか真名を授かったキャラがいると攻撃できる'));if(m.eatG||m.eatC||(Array.isArray(m.under)&&m.under.length&&(BY[m.id].kw||{}).devour))k.append(el('div',null,'捕食で写し取った力:'+((Array.isArray(m.under)?m.under:[]).map(c=>'「'+(BY[c]?BY[c].n:c)+'」').join('')||'')+'の【】の能力'));
