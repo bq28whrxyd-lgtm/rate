@@ -308,11 +308,12 @@ service cloud.firestore {
     match /own/{pid} {
       allow read: if signedIn();
       allow write: if signedIn() && myPid() == pid
-        && request.resource.data.keys().hasOnly(['g', 't', 'u', 'sl', 'sc', 'bx'])
+        && request.resource.data.keys().hasOnly(['g', 't', 'u', 'sl', 'sc', 'bx', 'ss'])
         && request.resource.data.get('g', {}) is map && request.resource.data.get('t', {}) is map
         && request.resource.data.get('sl', []) is list && request.resource.data.get('sl', []).size() <= 300
         && request.resource.data.get('sc', []) is list && request.resource.data.get('sc', []).size() <= 45
-        && request.resource.data.get('bx', []) is list && request.resource.data.get('bx', []).size() <= 100;
+        && request.resource.data.get('bx', []) is list && request.resource.data.get('bx', []).size() <= 100
+        && request.resource.data.get('ss', []) is list && request.resource.data.get('ss', []).size() <= 5;
     }
 
     // 師匠と弟子 (v134): mentor/{apprentice}_{master}. The apprentice asks (and may take it back), the master answers,
