@@ -532,8 +532,8 @@ svg{display:block}
 .bc.ace .bart>img,.u.ace .pad .pimg img,.u.ace .stand>.panel img,.u.ace .stand>img{filter:url(#relief2)}
 .u.ace .stand>img{filter:url(#relief2) url(#acr) drop-shadow(0 0 6px #ffd36b88)}
 /* ---------- 11 decks ---------- */
-:root{--gachi:#ff9a3c;--idol:#ffd54a;--vt:#4fd1ff;--cre:#7ee08a;--chu:#8c4bff;--neta:#ff6b6b;--sei:#ff9ad5;--hage:#c8b08a;--mecha:#38c5c0;--pirate:#5a74ff;--reinc:#3fa9f5;--jujutsu:#9a5cff}
-.gachi{--dc:var(--gachi)}.idol{--dc:var(--idol)}.vt{--dc:var(--vt)}.cre{--dc:var(--cre)}.chu{--dc:var(--chu)}.neta{--dc:var(--neta)}.sei{--dc:var(--sei)}.hage{--dc:var(--hage)}.mecha{--dc:var(--mecha)}.pirate{--dc:var(--pirate)}.reinc{--dc:var(--reinc)}.jujutsu{--dc:var(--jujutsu)}
+:root{--gachi:#ff9a3c;--idol:#ffd54a;--vt:#4fd1ff;--cre:#7ee08a;--chu:#8c4bff;--neta:#ff6b6b;--sei:#ff9ad5;--hage:#c8b08a;--mecha:#38c5c0;--pirate:#5a74ff;--reinc:#3fa9f5;--jujutsu:#9a5cff;--henshin:#e0453a}
+.gachi{--dc:var(--gachi)}.idol{--dc:var(--idol)}.vt{--dc:var(--vt)}.cre{--dc:var(--cre)}.chu{--dc:var(--chu)}.neta{--dc:var(--neta)}.sei{--dc:var(--sei)}.hage{--dc:var(--hage)}.mecha{--dc:var(--mecha)}.pirate{--dc:var(--pirate)}.reinc{--dc:var(--reinc)}.jujutsu{--dc:var(--jujutsu)}.henshin{--dc:var(--henshin)}
 .dk .sk.trait{color:#e9f6ff;border-color:color-mix(in srgb,var(--dc) 55%,transparent)}
 .dk .sk.trait b{color:var(--dc)}
 .trchip{display:flex;align-items:center;gap:5px;max-width:112px;padding:4px 8px;border-radius:999px;border:1px solid #ffffff1c;background:#ffffff08;color:#8f8ab3;font:700 10px/1.2 var(--body);text-align:left;flex:0 1 auto;min-width:0}
@@ -1805,6 +1805,34 @@ JJ([
 /* tokens: never in a deck, a hand or a pile */
 BY.j2t={id:'j2t',f:'jujutsu',set:'jj',n:'紙の式神',r:'N',type:'chara',c:1,atk:1000,def:800,kw:{},token:1,img:'j2'};
 BY.j9t={id:'j9t',f:'jujutsu',set:'jj',n:'目覚めた禍つ王',r:'HR',type:'chara',c:3,atk:3000,def:2400,kw:{selfBurn:300,spark:1000},token:1,img:'j9',formOf:'j9',aw:{k:'atk',n:600}};
+/* ===== (10/22) 異装族「契約の夜」(set 'hs', a チェンソーマン homage with its own names and looks): 悪魔との契約 (代償: the player pays life, payLife()),
+   人と悪魔のハイブリッド (kw.hen: a token form, act 'henshin'), 魔人, 公安のハンター (kw.antiK vs 【悪魔】 kw.kaiju), 名を喰らう (the leader banishes) ===== */
+const HS=(L)=>add('henshin',L.map(c=>Object.assign({set:'hs'},c)));
+HS([
+ {id:'k1',n:'刃の悪魔と契約した少年',r:'N',type:'chara',c:1,atk:900,def:900,kw:{hen:'k1t',henC:2}},
+ {id:'k2',n:'悪魔祓い課の新人',r:'N',type:'chara',c:2,atk:1200,def:1200,kw:{antiK:400},aw:{k:'atk',n:500}},
+ {id:'k3',n:'血を武器にする魔人',r:'R',type:'chara',c:2,atk:1200,def:1000,kw:{kaiju:1,bloodW:600},aw:{k:'atk',n:600}},
+ {id:'k4',n:'爆ぜる少女',r:'R',type:'chara',c:3,atk:1500,def:1100,kw:{hen:'k4t',henC:2}},
+ {id:'k5',n:'刃を持つ男',r:'R',type:'chara',c:3,atk:1500,def:1400,kw:{hen:'k5t',henC:2}},
+ {id:'k6',n:'悪魔との契約',r:'R',type:'spell',c:1,tgt:'ally',ops:[{op:'pact',n:400,life:600}]},
+ {id:'k7',n:'一秒先を見せる瞳',r:'R',type:'trap',c:1,when:'attack',ops:[{op:'negate'},{op:'payLife',n:200}]},
+ {id:'k8',n:'名を喰らう悪魔',r:'SR',type:'chara',c:4,trib:1,atk:2600,def:2300,kw:{eatName:1},aw:{k:'atk',n:1000}},
+ {id:'k9',n:'恐れられる大悪魔',r:'HR',type:'chara',c:4,atk:2800,def:2300,kw:{kaiju:1},onPlay:[{op:'fearAll',max:1500}],aw:{k:'atk',n:800}},
+ {id:'k10',n:'屍を操る悪魔',r:'N',type:'chara',c:1,atk:700,def:700,kw:{kaiju:1},onPlay:[{op:'grunt',id:'k10t'}]},
+ {id:'k11',n:'妖狐と契約した男',r:'R',type:'chara',c:2,atk:1100,def:1300,kw:{fox:1500},aw:{k:'def',n:600}},
+ {id:'k12',n:'すべてを従える女',r:'HR',type:'chara',c:4,atk:1500,def:2000,onPlay:[{op:'stealLow'}],aw:{k:'def',n:800}},
+ {id:'k13',n:'羽根の悪魔の手',r:'R',type:'spell',c:2,tgt:'enemy',ops:[{op:'drain',n:600,h:300}]},
+ {id:'k14',n:'血を飲む',r:'N',type:'spell',c:1,tgt:'ally',ops:[{op:'drink',n:500,h:500}]},
+ {id:'k15',n:'先を見る瞳の先輩',r:'N',type:'chara',c:2,atk:1200,def:1200,kw:{yomi:600},aw:{k:'atk',n:500}},
+ {id:'k16',n:'終わらない悪魔',r:'R',type:'chara',c:4,atk:2200,def:2600,kw:{kaiju:1,guts:1},aw:{k:'def',n:800}},
+ {id:'k17',n:'ささやかな夢を見る少年',r:'N',type:'chara',c:1,atk:500,def:800,kw:{meal:200},aw:{k:'draw',n:2}},
+ {id:'k18',n:'地獄への扉',r:'R',type:'trap',c:2,when:'attack',ops:[{op:'hellDoor',max:1800}]},
+ {id:'k19',n:'悪魔祓い課の老兵',r:'R',type:'chara',c:3,atk:1700,def:1600,kw:{antiK:600,cover:1},aw:{k:'atk',n:600}},
+]);
+/* the other forms and the 屍 (tokens: never in a deck, a hand or a pile; the unit keeps its real card in m.base) */
+[['k1t','k1','刃の怪人',1700,1200,{}],['k4t','k4','爆ぜる怪人',2400,1500,{revenge:1}],['k5t','k5','刃の侍',2300,1700,{reach:1}],
+ ['k10t',null,'動く屍',600,500,{kaiju:1}]].forEach(([id,b,n,a,d,kw])=>{
+  BY[id]={id,f:'henshin',set:'hs',n,r:b?BY[b].r:'N',type:'chara',c:b?BY[b].c:1,atk:a,def:d,kw,token:1,img:b||'k10',aw:b?BY[b].aw:null,henOf:b,...(id==='k4t'?{onDeath:[{op:'burn',n:600}]}:{})}});
 /* the copy リピート再生 hands back: not a collectible card (not in C), never returns again */
 if(EXP1)BY.x27r={id:'x27r',f:'gen',set:1,n:'リピート再生(2回目)',r:'R',type:'spell',c:1,noReplay:1,token:1,img:'x27',ops:[{op:'gauge',n:1}]};
 const SKILLS={
@@ -1822,6 +1850,7 @@ const SKILLS={
  pirate:{n:'出航の号令',t:'このターン、自分のキャラ全員のATK+500。仲間になった役割が3種類以上なら、出たばかりの味方も攻撃できる'},
  reinc:{n:'まるごと丸のみ',t:'相手のキャラ1体を倒す。そのカードを、自分のキャラで★が一番高い1体の下に重ねる(★+1)',tgt:'enemy'},
  jujutsu:{n:'呪い全開',t:'このターン、自分のキャラ全員のATK+500。相手のキャラ全員に呪いを1つ付ける'},
+ henshin:{n:'地獄送り',t:'相手のキャラ1体を、捨て札ではなくゲームの外へ送る(もう戻ってこない)',tgt:'enemy'},
  mecha:{n:'予測を超える一撃',t:'味方1体を選ぶ。このターン、ATK+800で合計2回まで攻撃できる。アーク・ノードの記録があれば、そのぶんの補正もこの味方に渡す',tgt:'ally'},
 };
 /* each deck has one always-on trait */
@@ -1840,6 +1869,7 @@ const TRAITS={
  pirate:{n:'名を上げろ',t:'自分のキャラがバトルで相手を倒すたびに、そのキャラの懸賞金+1(最大3)。懸賞金1につきATK+200'},
  reinc:{n:'真名授け',t:'自分のターンに1回、熱量2で、真名のない味方1体(リーダーはのぞく)に真名を授けられる。進化先のあるキャラは進化した姿に変わり、ないキャラ(ほかの族のキャラも)は★+1'},
  jujutsu:{n:'祓いの務め',t:'自分のキャラが、呪いの付いた相手をバトルで倒すたびに1枚引く'},
+ henshin:{n:'悪魔との契約',t:'自分がライフを払う(代償)たびに、推しゲージ+1。自分のキャラが変身したとき、出たばかりでもそのターンから攻撃できる'},
  mecha:{n:'環装騎団',t:'自分のターンの最初の搭乗で、熱量を1回復する'},
 };
 const STARTERS={weak:{name:'よわい男デッキ',ids:['w1','w2','w3','w4','w5','w6','w7','w8']},girl:{name:'女デッキ',ids:['q1','q2','q3','q4','q5','q6','q7','q8']},gay:{name:'ゲイデッキ',ids:['y1','y2','y3','y4','y5','y6','y7','y8']},
@@ -1849,10 +1879,11 @@ const STARTERS={weak:{name:'よわい男デッキ',ids:['w1','w2','w3','w4','w5'
  mecha:{name:'機装族デッキ',ids:['m11','m2','m3','m4','m5','m16','m13','m8']},
  pirate:{name:'海賊族デッキ',ids:['p1','p2','p10','p9','p4','p19','p15','p8']},
  reinc:{name:'巡生族デッキ',ids:['r1','r2','r12','r7','r4','r13','r16','r8']},
- jujutsu:{name:'呪術族デッキ',ids:['j1','j2','j3','j9','j10','j11','j14','j8']}};
+ jujutsu:{name:'呪術族デッキ',ids:['j1','j2','j3','j9','j10','j11','j14','j8']},
+ henshin:{name:'異装族デッキ',ids:['k1','k2','k3','k10','k15','k6','k7','k8']}};
 const GEN=['x1','x2','x3','x4'];
-const PFX={weak:'w',girl:'q',gay:'y',gachi:'g',idol:'i',vt:'v',cre:'c',chu:'d',neta:'n',sei:'s',hage:'o',mecha:'m',pirate:'p',reinc:'r',jujutsu:'j'};
-const FNAME={weak:'よわい男族',girl:'女族',gay:'ゲイ族',gachi:'ガチオタ族',idol:'アイドル族',vt:'配信者族',cre:'クリエイター族',chu:'中二病族',neta:'ネタ枠族',sei:'整形女族',hage:'ハゲおじさん族',mecha:'機装族',pirate:'海賊族',reinc:'巡生族',jujutsu:'呪術族',gen:'族なし'};
+const PFX={weak:'w',girl:'q',gay:'y',gachi:'g',idol:'i',vt:'v',cre:'c',chu:'d',neta:'n',sei:'s',hage:'o',mecha:'m',pirate:'p',reinc:'r',jujutsu:'j',henshin:'k'};
+const FNAME={weak:'よわい男族',girl:'女族',gay:'ゲイ族',gachi:'ガチオタ族',idol:'アイドル族',vt:'配信者族',cre:'クリエイター族',chu:'中二病族',neta:'ネタ枠族',sei:'整形女族',hage:'ハゲおじさん族',mecha:'機装族',pirate:'海賊族',reinc:'巡生族',jujutsu:'呪術族',henshin:'異装族',gen:'族なし'};
 const LEADERS={};Object.keys(PFX).forEach(f=>{LEADERS[f]=PFX[f]+'8'});
 /* same-tribe cards: stronger when the leader is the same tribe */
 Object.keys(PFX).forEach(f=>[1,2].forEach(n=>{const c=BY[PFX[f]+n];c.kw=Object.assign({},c.kw||{},{syn:300})}));
@@ -1947,6 +1978,14 @@ function text(c){const t=[],k=c.kw||{};
   if(k.warp)t.push('【形を変える】自分から攻撃した相手のATKとDEFを入れ替える(戦う前に)');
   if(k.under)t.push('【挑戦者】相手の場のキャラが自分の場より多いあいだ、ATK+'+k.under);
   if(k.call)t.push('【怨霊を従える】自分のターンに1回、熱量1で、捨て札から熱量'+k.call+'以下の【怨霊】のキャラ1体を空いた枠に出す(出たターンは攻撃できない)');
+  /* (10/22) 異装族 */
+  if(c.henOf&&BY[c.henOf])t.push('【変身した姿】「'+BY[c.henOf].n+'」が悪魔の力で変わった姿');
+  if(k.hen&&BY[k.hen])t.push('【変身】自分のターンに、熱量'+(k.henC||1)+'で「'+BY[k.hen].n+'」(ATK'+BY[k.hen].atk+'・DEF'+BY[k.hen].def+')に変身する');
+  if(k.antiK)t.push('【悪魔狩り】【悪魔】との戦闘でATK+'+k.antiK);
+  if(k.kaiju)t.push('【悪魔】人の恐怖から生まれた悪魔。【悪魔狩り】に弱い');
+  if(k.bloodW)t.push('【血の武器】自分のターンに1回、ライフ300を払って(代償)、このターンATK+'+k.bloodW);
+  if(k.fox)t.push('【妖狐の牙】自分のターンに1回、ライフ300を払って(代償)、相手のATK'+k.fox+'以下のキャラ1体を倒す');
+  if(k.eatName)t.push('【名を喰らう】バトルで倒した相手のカードを、捨て札ではなくゲームの外へ送る。相手の山札にある同じカードも全部ゲームの外へ送る(この試合、もう出てこない)');
   if(k.buzz)t.push('【バズ】自分が魔法を使うたびに、ATK+'+k.buzz+'(ずっと)');if(k.dotan)t.push('【同担拒否】味方のキャラが全員ちがう族のときしか攻撃できない');if(k.mine)t.push('【地雷】このキャラを攻撃してきたキャラを倒す。このキャラも一緒に倒れる');
   const O=L=>(L||[]).map(op).filter(Boolean).join('。');
   if(c.onPlay)t.push('出たとき:'+O(c.onPlay));if(c.onName)t.push('進化したとき:'+O(c.onName));if(c.onDeath)t.push('倒れたとき:'+O(c.onDeath));
@@ -1974,6 +2013,20 @@ function op(o){switch(o.op){
  case'curseAll':return'相手のキャラ全員に呪いを'+o.n+'つ付ける';case'weakA':return'攻撃してきたキャラのATK-'+o.n+'(このターン)';
  case'mend':return'味方1体のDEF+'+o.n+'(ずっと)';case'domainS':return'このターン、相手は伏せトラップを使えない。相手のキャラ全員のDEF-'+o.n+'(このターン)。自分のキャラは【かばう】に関係なく攻撃する相手を選べる';
  case'vow':return'味方1体のATK+'+o.n+'(このターン)。そのかわり、そのキャラは次の自分のターン攻撃できない';
+ case'pact':return'ライフ'+o.life+'を払って(代償)、味方1体のATK・DEF+'+o.n+'(ずっと)';case'payLife':return'自分のライフ'+o.n+'を払う(代償)';
+ case'fearAll':return'相手のATK'+o.max+'以下のキャラは、次の相手のターン攻撃できない(恐怖)';case'grunt':return'空いた枠に「動く屍」(ATK600・DEF500)を1体出す';
+ case'stealLow':return'相手のATKが一番低いキャラ1体を、自分の場に連れてくる(そのターンは攻撃できない)';case'drain':return'ATK・DEF-'+o.n+'(ずっと)。自分のライフ+'+o.h;
+ case'drink':return'味方1体のDEF+'+o.n+'(ずっと)。ライフ+'+o.h;case'hellDoor':return'攻撃してきたキャラのATKが'+o.max+'以下なら、そのキャラをゲームの外へ送る(捨て札にも行かない)';
+ case'spear':return'味方1体のATK+'+o.n+'(ずっと)。そのキャラは、攻撃する相手の【】の能力をその戦闘だけ消す';
+ case'relic':return'味方1体に食べさせる。【器】のキャラならATK+'+o.n+'(3つで変わる)、ほかのキャラならATK+'+o.m+'(ずっと)';
+ case'curseAll':return'相手のキャラ全員に呪いを'+o.n+'つ付ける';case'weakA':return'攻撃してきたキャラのATK-'+o.n+'(このターン)';
+ case'mend':return'味方1体のDEF+'+o.n+'(ずっと)';case'domainS':return'このターン、相手は伏せトラップを使えない。相手のキャラ全員のDEF-'+o.n+'(このターン)。自分のキャラは【かばう】に関係なく攻撃する相手を選べる';
+ case'vow':return'味方1体のATK+'+o.n+'(このターン)。そのかわり、そのキャラは次の自分のターン攻撃できない';
+ case'belt':return'変身していない味方1体を変身させる:ATK・DEF+'+o.n+'(ずっと)。【必殺技】(1回だけ、熱量1でこのターンATK+1000)も使えるようになる';
+ case'cover2':return'攻撃してきたキャラのATK-'+o.a+'・DEF-'+o.d+'(このターン)';case'rampage':return'相手のキャラ全員のDEF-'+o.n+'。自分のほかの味方全員のDEF-'+o.m+'(巻き込まれる)(ずっと)';
+ case'grunt':return'空いた枠に、もう1体の「戦闘員」(ATK600・DEF600)を出す';case'kickS':return'味方1体:このターン、変身中ならATK+'+o.n+'、そうでなければATK+'+o.m+'。このターンそのキャラが相手を倒すと、相手のライフに'+o.b+'ダメージ';
+ case'henNow':return'【変身】を持つ味方1体を、熱量なしですぐ変身させる';case'suit':return'ほかの味方で一番ATKが高い1体のATK・DEF+'+o.n+'(ずっと)';
+ case'alarm':return'攻撃してきたのが【怪獣】か巨大なキャラ(ATK2500以上)なら、その攻撃を無効にする。ちがえば、そのキャラのATK-'+o.n+'(このターン)';
  case'kanso':return'味方の機体1体を換装する(次の自分のターンの始めまで)。ATKの方が高ければ強襲型 ATK+500・DEF-300、そうでなければ装甲型 DEF+600・ATK-300。換装は1つまで';
  case'armor':return'機体でない味方1体を、場にいるあいだ【搭乗可能】な機体にする(元の族と能力はそのまま)。手札の操縦者1枚をタダで乗せる';
  case'refit':return'生贄のいらない味方の機体を、操縦者ごと手札に戻す。かわりに手札から、戻した機体以下の熱量の別の機体を同じ枠に★1で出す(出たときの効果なし、そのターンは攻撃できない)。自分のターンに1回';
@@ -2035,11 +2088,11 @@ function pureN(g,pi){const U=units(g,pi);if(!U.length)return 0;const f=fam(g,U[0
 function mixedN(g,pi){const U=units(g,pi);const F=new Set(U.map(m=>fam(g,m)));return F.size===U.length?U.length:0}
 const pureB=(g,m)=>{const k=KW(m);return k.pure&&pureN(g,m.owner)>=2?k.pure:0};
 const fxOn=(g,k,pi)=>(g.fx||[]).some(f=>f.k===k&&f.on===pi&&f.turn===g.turns);
-function ATK(g,m){const P=g.p[m.owner],k=KW(m);let a=mechA(g,m)+prA(g,m)+rcA(g,m)+jjA(g,m)+pureB(g,m)+(k.syn&&BY[P.leader.id].f===fam(g,m)?k.syn:0)+m.atk0+m.perm+m.temp+(m.star-1)*R.STAR+(m.awk&&m.aw&&m.aw.k==='atk'?m.aw.n:0);if(k.adv&&P.life<g.p[opp(m.owner)].life)a+=k.adv;if(k.crowd)a+=k.crowd*(units(g,m.owner).length-1);if(k.front&&m.slot===0)a+=k.front;if(k.handAtk)a+=k.handAtk*P.hand.length;if(tr(g,m.owner,'gay')&&units(g,m.owner).length>=R.GAY_N)a+=R.GAY_B;return Math.max(0,a)}
-function DEF(g,m){const k=KW(m);let d=mechD(g,m)+prD(g,m)+rcD(g,m)-(m.cur||0)*R.CURSE+(k.crowd?k.crowd*(units(g,m.owner).length-1):0)+pureB(g,m)+(k.syn&&BY[g.p[m.owner].leader.id].f===fam(g,m)?k.syn:0)+m.def0+m.permD+m.tempD+(m.star-1)*R.STAR+(m.awk&&m.aw&&m.aw.k==='def'?m.aw.n:0);if(tr(g,m.owner,'gay')&&units(g,m.owner).length>=R.GAY_N)d+=R.GAY_B;if(tr(g,m.owner,'hage'))d+=R.HAGE_D;return Math.max(0,d)}
+function ATK(g,m){const P=g.p[m.owner],k=KW(m);let a=mechA(g,m)+prA(g,m)+rcA(g,m)+jjA(g,m)+hsA(g,m)+pureB(g,m)+(k.syn&&BY[P.leader.id].f===fam(g,m)?k.syn:0)+m.atk0+m.perm+m.temp+(m.star-1)*R.STAR+(m.awk&&m.aw&&m.aw.k==='atk'?m.aw.n:0);if(k.adv&&P.life<g.p[opp(m.owner)].life)a+=k.adv;if(k.crowd)a+=k.crowd*(units(g,m.owner).length-1);if(k.front&&m.slot===0)a+=k.front;if(k.handAtk)a+=k.handAtk*P.hand.length;if(tr(g,m.owner,'gay')&&units(g,m.owner).length>=R.GAY_N)a+=R.GAY_B;return Math.max(0,a)}
+function DEF(g,m){const k=KW(m);let d=mechD(g,m)+prD(g,m)+rcD(g,m)+hsD(m)-(m.cur||0)*R.CURSE+(k.crowd?k.crowd*(units(g,m.owner).length-1):0)+pureB(g,m)+(k.syn&&BY[g.p[m.owner].leader.id].f===fam(g,m)?k.syn:0)+m.def0+m.permD+m.tempD+(m.star-1)*R.STAR+(m.awk&&m.aw&&m.aw.k==='def'?m.aw.n:0);if(tr(g,m.owner,'gay')&&units(g,m.owner).length>=R.GAY_N)d+=R.GAY_B;if(tr(g,m.owner,'hage'))d+=R.HAGE_D;return Math.max(0,d)}
 /* the number a character attacks with (ネタ枠 fights with the larger of ATK and DEF) */
 function POW(g,m){return tr(g,m.owner,'neta')?Math.max(ATK(g,m),DEF(g,m)):ATK(g,m)}
-const hasCover=m=>!!(m.eatC||(KW(m)).cover||(m.awk&&m.aw&&m.aw.k==='cover')||(m.pilot&&(m.pk==='cover'||(KW(m)).wall)));
+const hasCover=m=>!!(m.fc==='g'||m.eatC||(KW(m)).cover||(m.awk&&m.aw&&m.aw.k==='cover')||(m.pilot&&(m.pk==='cover'||(KW(m)).wall)));
 function mk(id,owner,slot){const d=BY[id];return{uid:++UID,id,owner,slot,atk0:d.atk,def0:d.def,perm:0,permD:0,temp:0,tempD:0,star:1,under:[],awk:false,aw:d.aw||null,sick:true,attacks:0,evoT:-1,rush:!!(d.kw&&d.kw.rush),gutsUsed:false,pilot:null,mech:!!(d.kw&&d.kw.mech)}}
 const cid=m=>m.base||m.id;
 const pile=m=>BY[cid(m)].token?[]:[cid(m)];
@@ -2050,12 +2103,27 @@ function pkwOf(mechId,pilotId){const o={},k=BY[pilotId].kw||{};Object.keys(k).fo
 function units(g,pi){return g.p[pi].slot.filter(Boolean)}
 function find(g,uid){for(const P of g.p)for(const m of P.slot)if(m&&m.uid===uid)return m;return null}
 function gauge(g,pi,n){const P=g.p[pi];const b=P.gauge;P.gauge=Math.min(R.GAUGE,P.gauge+n);if(P.gauge>b)ev(g,{t:'gauge',who:pi,v:P.gauge})}
-function fall(g,m,why,force){const P=g.p[m.owner];if(P.slot[m.slot]!==m)return false;if(!force&&(KW(m)).touchup&&m.star>=2){starDown(g,m,1);ev(g,{t:'note',uid:m.uid,s:'お直し:★-1して場に残った'});return false}P.slot[m.slot]=null;g.p[m.orig!=null?m.orig:m.owner].fellN++;const G=g.p[m.orig!=null?m.orig:m.owner].gy;if(m.isLeader){G.push(...m.under);P.leader.out=false;P.leader.n++}else G.push(...pile(m),...m.under);ev(g,{t:'die',who:m.owner,id:m.id,uid:m.uid,why,star:m.star});const pl0=m.pilot;if(m.pilot)pilotDown(g,m,G);gauge(g,m.owner,1);run(g,m.owner,BY[m.id].onDeath,{self:m});if(pl0&&BY[pl0].onDeath)run(g,m.owner,BY[pl0].onDeath,{self:m});if(tr(g,m.owner,'chu'))damage(g,opp(m.owner),R.CHU_D,'curse');prFell(g,m,why,G);rcFell(g,m);return true}
+function fall(g,m,why,force){const P=g.p[m.owner];if(P.slot[m.slot]!==m)return false;if(!force&&(KW(m)).touchup&&m.star>=2){starDown(g,m,1);ev(g,{t:'note',uid:m.uid,s:'お直し:★-1して場に残った'});return false}P.slot[m.slot]=null;g.p[m.orig!=null?m.orig:m.owner].fellN++;const G=g.p[m.orig!=null?m.orig:m.owner].gy;if(m.isLeader){G.push(...m.under);P.leader.out=false;P.leader.n++}else G.push(...pile(m),...m.under);ev(g,{t:'die',who:m.owner,id:m.id,uid:m.uid,why,star:m.star});const pl0=m.pilot;if(m.pilot)pilotDown(g,m,G);gauge(g,m.owner,1);run(g,m.owner,BY[m.id].onDeath,{self:m});if(pl0&&BY[pl0].onDeath)run(g,m.owner,BY[pl0].onDeath,{self:m});if(tr(g,m.owner,'chu'))damage(g,opp(m.owner),R.CHU_D,'curse');prFell(g,m,why,G);rcFell(g,m);hsFell(g,m,why,G);return true}
 /* ---- effects ---- */
 function bestEnemy(g,pi){return units(g,opp(pi)).sort((a,b)=>ATK(g,b)-ATK(g,a))[0]||null}
 function run(g,pi,ops,ctx){if(!ops)return;ctx=ctx||{};for(const o of ops){if(g.over)return;const P=g.p[pi];
   switch(o.op){
   case'draw':draw(g,pi,o.n);break;
+  case'pact':{const m=find(g,ctx.target);if(!m||m.owner!==pi)break;payLife(g,pi,o.life);if(g.over)break;m.perm+=o.n;m.permD+=o.n;ev(g,{t:'buff',uid:m.uid,atk:o.n,def:o.n,why:'pact'});ev(g,{t:'note',uid:m.uid,s:'悪魔と契約した'});break}
+  case'payLife':payLife(g,pi,o.n);break;
+  case'fearAll':units(g,opp(pi)).filter(x=>ATK(g,x)<=o.max).forEach(x=>{x.frozen=g.turns+1;ev(g,{t:'note',uid:x.uid,s:'恐怖で動けない'})});break;
+  case'stealLow':{const t=units(g,opp(pi)).filter(x=>!KW(x).noCE&&!x.isLeader).sort((a,b)=>ATK(g,a)-ATK(g,b))[0];if(t)run(g,pi,[{op:'steal'}],{target:t.uid});break}
+  case'drain':{const t=find(g,ctx.target);if(t&&t.owner!==pi){t.perm-=o.n;t.permD-=o.n;ev(g,{t:'buff',uid:t.uid,atk:-o.n,def:-o.n,why:'drain'})}heal(g,pi,o.h);break}
+  case'drink':{const m=find(g,ctx.target);if(m&&m.owner===pi){m.permD+=o.n;ev(g,{t:'buff',uid:m.uid,atk:0,def:o.n,why:'drink'})}heal(g,pi,o.h);break}
+  case'hellDoor':{const m=ctx.attacker;if(!m||!find(g,m.uid))break;if(ATK(g,m)<=o.max){ctx.negated=true;banish(g,m,'地獄への扉')}break}
+  case'belt':{const m=find(g,ctx.target);if(!m||m.owner!==pi||m.hen)break;m.hen=1;m.beltKick=1000;m.perm+=o.n;m.permD+=o.n;ev(g,{t:'buff',uid:m.uid,atk:o.n,def:o.n,why:'belt'});ev(g,{t:'note',uid:m.uid,s:'変身!'});henRush(g,m);break}
+  case'cover2':{const m=ctx.attacker;if(m&&find(g,m.uid)){m.temp-=o.a;m.tempD-=o.d;ev(g,{t:'buff',uid:m.uid,atk:-o.a,def:-o.d,why:'cover2'})}break}
+  case'rampage':{const self=ctx.self;ev(g,{t:'note',uid:self&&self.uid,s:'大暴れ'});units(g,opp(pi)).forEach(m=>{m.permD-=o.n;ev(g,{t:'buff',uid:m.uid,atk:0,def:-o.n})});units(g,pi).forEach(m=>{if(m!==self){m.permD-=o.m;ev(g,{t:'buff',uid:m.uid,atk:0,def:-o.m})}});break}
+  case'grunt':{const L=P.slot.findIndex(x=>!x);if(L<0)break;const n=placeQuiet(g,pi,o.id,L);n.sick=true;ev(g,{t:'note',uid:n.uid,s:'戦闘員が来た'});break}
+  case'kickS':{const m=find(g,ctx.target);if(!m||m.owner!==pi)break;const n=m.hen?o.n:o.m;m.temp+=n;m.kickK=g.turns;m.kickB=o.b;ev(g,{t:'buff',uid:m.uid,atk:n,def:0,why:'kick'});break}
+  case'henNow':{const m=find(g,ctx.target);if(m&&m.owner===pi&&KW(m).hen&&!m.base)doHen(g,m);break}
+  case'suit':{const m=units(g,pi).filter(x=>x!==ctx.self).sort((a,b)=>ATK(g,b)-ATK(g,a))[0];if(m){m.perm+=o.n;m.permD+=o.n;ev(g,{t:'buff',uid:m.uid,atk:o.n,def:o.n,why:'suit'})}break}
+  case'alarm':{const m=ctx.attacker;if(!m||!find(g,m.uid))break;if(KW(m).kaiju||ATK(g,m)>=2500){ctx.negated=true;ev(g,{t:'note',uid:m.uid,s:'怪獣警報:攻撃を止めた'})}else{m.temp-=o.n;ev(g,{t:'buff',uid:m.uid,atk:-o.n,def:0,why:'alarm'})}break}
   case'spear':{const m=find(g,ctx.target);if(!m||m.owner!==pi)break;m.spear=1;m.perm+=o.n;ev(g,{t:'buff',uid:m.uid,atk:o.n,def:0,why:'spear'});ev(g,{t:'note',uid:m.uid,s:'封じの槍を手にした'});break}
   case'relic':{const m=find(g,ctx.target);if(!m||m.owner!==pi)break;const v=KW(m).vessel;if(v){m.relic=(m.relic||0)+1;m.perm+=o.n;ev(g,{t:'buff',uid:m.uid,atk:o.n,def:0,why:'relic'});ev(g,{t:'note',uid:m.uid,s:'遺物を食べた('+m.relic+'つめ)'});if(m.relic>=3&&BY[v]&&!m.base){const d0=BY[m.id],d1=BY[v];m.base=cid(m);m.id=v;m.atk0+=d1.atk-d0.atk;m.def0+=d1.def-d0.def;ev(g,{t:'evo',who:m.owner,uid:m.uid,from:d0.id,to:v});ev(g,{t:'note',uid:m.uid,s:'禍つ王が目覚めた'})}}else{m.perm+=o.m;ev(g,{t:'buff',uid:m.uid,atk:o.m,def:0,why:'relic'})}break}
   case'curseAll':units(g,opp(pi)).forEach(m=>curse(g,m,o.n));break;
@@ -2158,7 +2226,7 @@ function flip(g,pi){const h=g.r()<.5;ev(g,{t:'coin',who:pi,h});if(h&&tr(g,pi,'vt
 function swap(g,m){const a=ATK(g,m),d=DEF(g,m);m.perm+=d-a;m.permD+=a-d;ev(g,{t:'buff',uid:m.uid,atk:d-a,def:a-d,why:'swap'})}
 function starDown(g,m,n){const b=m.star;m.star=Math.max(1,m.star-n);if(m.star===b)return;if(m.awk&&m.star<3)m.awk=false;ev(g,{t:'star',uid:m.uid,from:b,to:m.star,why:'down'})}
 function capE(g,pi){return R.MAXE+(tr(g,pi,'gachi')?1:0)}
-function place(g,pi,id,L,free){const P=g.p[pi];const m=mk(id,pi,L);P.slot[L]=m;P.played[id]=(P.played[id]||0)+1;{const k=BY[id].kw||{};if(k.grad)m.gradT=P.turn+k.grad;if(k.deadline)m.dlT=P.turn+k.deadline}ev(g,{t:'play',who:pi,id,uid:m.uid,slot:L,free:!!free});if(tr(g,pi,'idol'))heal(g,pi,R.IDOL_H);
+function place(g,pi,id,L,free){const P=g.p[pi];const m=mk(id,pi,L);m.bornT=P.turn;P.slot[L]=m;P.played[id]=(P.played[id]||0)+1;{const k=BY[id].kw||{};if(k.grad)m.gradT=P.turn+k.grad;if(k.deadline)m.dlT=P.turn+k.deadline}ev(g,{t:'play',who:pi,id,uid:m.uid,slot:L,free:!!free});if(tr(g,pi,'idol'))heal(g,pi,R.IDOL_H);
   if((BY[id].kw||{}).star2)starUp(g,m,1,'start');(g.fx||[]).forEach(f=>{if(f.k==='dos'&&f.on===pi&&f.turn===g.turns)draw(g,f.by,1)});
   joinCrew(g,pi,id);if((BY[id].kw||{}).birthHi){giveHi(g,m,BY[id].kw.birthHi);m.hiB=1}run(g,pi,BY[id].onPlay,{self:m});
   units(g,pi).forEach(o=>{const k=KW(o);if(o!==m&&k.bond){o.perm+=k.bond;ev(g,{t:'buff',uid:o.uid,atk:k.bond,def:0,why:'bond'})}});return m}
@@ -2198,7 +2266,7 @@ function canPlay(g,pi,hi,L){const P=g.p[pi],id=P.hand[hi];if(!id||g.cur!==pi||g.
   if(d.cond==='pure2'&&pureN(g,pi)<2)return false;if(d.cond==='final'&&P.turn<R.MAXTURN)return false;if(d.cond==='full'&&units(g,pi).length<R.SLOTS)return false;if(d.cond==='ally1'&&!units(g,pi).length)return false;if(d.cond==='ally2'&&units(g,pi).length<2)return false;if(d.cond==='replay'&&!P.lastSpell)return false;if(d.cond==='pure3'&&pureN(g,pi)<3)return false;if(d.cond==='mixed3'&&mixedN(g,pi)<3)return false;if(d.life&&P.life<=d.life)return false;if(d.tgt==='enemyStar'&&!P.slot.some(x=>!x))return false;if(d.tgt&&d.tgt!=='trapOpt'&&!targets(g,pi,id).length)return false;return true}
 function targets(g,pi,id){const d=BY[id];const E=units(g,opp(pi)).filter(m=>!KW(m).noCE);if(d.tgt==='enemy')return E.map(m=>m.uid);if(d.tgt==='enemyLow')return E.filter(m=>ATK(g,m)<=d.max).map(m=>m.uid);if(d.tgt==='enemyStar')return E.filter(m=>m.star<=d.max&&!BY[m.id].trib&&!m.isLeader).map(m=>m.uid);if(d.tgt==='trap'||d.tgt==='trapOpt')return g.p[opp(pi)].st.map(t=>t.uid);
   /* (10/22) 機装族: spells on your own characters */
-  const M=units(g,pi).filter(m=>!KW(m).noCE);if(d.tgt==='allyPiloted')return M.filter(m=>isMech(m)&&m.pilot).map(m=>m.uid);if(d.tgt==='allyMech')return M.filter(isMech).map(m=>m.uid);if(d.tgt==='allyNoMech')return M.filter(m=>!isMech(m)).map(m=>m.uid);if(d.tgt==='allyMechRet')return M.filter(m=>isMech(m)&&!m.isLeader&&!BY[m.id].trib).map(m=>m.uid);if(d.tgt==='ally')return M.map(m=>m.uid);if(d.tgt==='allyNoHi')return M.filter(m=>!m.hi).map(m=>m.uid);if(d.tgt==='allyUnnamed')return M.filter(m=>canName(m)).map(m=>m.uid);return[]}
+  const M=units(g,pi).filter(m=>!KW(m).noCE);if(d.tgt==='allyPiloted')return M.filter(m=>isMech(m)&&m.pilot).map(m=>m.uid);if(d.tgt==='allyMech')return M.filter(isMech).map(m=>m.uid);if(d.tgt==='allyNoMech')return M.filter(m=>!isMech(m)).map(m=>m.uid);if(d.tgt==='allyMechRet')return M.filter(m=>isMech(m)&&!m.isLeader&&!BY[m.id].trib).map(m=>m.uid);if(d.tgt==='ally')return M.map(m=>m.uid);if(d.tgt==='allyNoHi')return M.filter(m=>!m.hi).map(m=>m.uid);if(d.tgt==='allyUnnamed')return M.filter(m=>canName(m)).map(m=>m.uid);if(d.tgt==='allyNoHen')return M.filter(m=>!m.hen&&!KW(m).hen&&!m.base).map(m=>m.uid);if(d.tgt==='allyHen')return M.filter(m=>KW(m).hen&&BY[KW(m).hen]&&!m.base).map(m=>m.uid);return[]}
 function tribPool(g,pi,id){const d=BY[id];return units(g,pi).filter(m=>!d.same||fam(g,m)===d.f)}
 function summonAnswer(g,pi,id,answer){if(!answer)return false;ev(g,{t:'summoning',who:pi,id});const ctx={summon:id};fire(g,opp(pi),answer,ctx);if(ctx.negated){g.p[pi].gy.push(id);ev(g,{t:'negated',who:pi,id});return true}return false}
 function playChara(g,pi,hi,L,tribs,answer){const P=g.p[pi],id=P.hand[hi];if(!id)return false;const d=BY[id];
@@ -2227,7 +2295,7 @@ function summonLeader(g,pi,tribs){if(!canLeader(g,pi))return false;const P=g.p[p
   P.energy-=leaderCost(g,pi);const t=T[0];P.slot[t.slot]=null;P.gy.push(...pile(t),...t.under);ev(g,{t:'tribute',who:pi,uid:t.uid,id:t.id});P.leader.out=true;const m=place(g,pi,P.leader.id,t.slot);m.isLeader=true;return true}
 /* ---- battle ---- */
 const OSHI_B=1000;
-const maxAttacks=m=>Math.min(2,(m.awk&&m.aw&&m.aw.k==='twice'?2:1)+(m.xa||0)+(m.twin?1:0)+((KW(m)).twin2?1:0));
+const maxAttacks=m=>Math.min(2,(m.awk&&m.aw&&m.aw.k==='twice'?2:1)+(m.xa||0)+(m.twin?1:0)+((KW(m)).twin2?1:0)+(m.fc==='s'?1:0));
 function canAttack(g,pi,m){return!!m&&m.owner===pi&&g.cur===pi&&!g.over&&!g.pending&&m.attacks<maxAttacks(m)&&(!m.sick||m.rush||riding(g,m))&&!sealedNow(g,m)&&!(pi===0&&g.p[0].turn===1)&&!(m.frozen>=g.turns)&&m.noAtk!==g.p[pi].turn&&!((KW(m)).dotan&&!mixedN(g,pi))}
 /* legal targets: covers first, else any character, else the life */
 function attackTargets(g,pi,m){const E=units(g,opp(pi));if(!E.length)return['life'];if(m&&m.oshi){const o=E.find(x=>x.uid===m.oshi);if(o)return[o.uid]}const cov=m&&(m.hi==='gum'||KW(m).reach||g.p[m.owner].domT===g.turns)?[]:E.filter(hasCover);return(cov.length?cov:E).map(m=>m.uid)}
@@ -2237,12 +2305,12 @@ function attack(g,pi,uid,target,answer){const m=find(g,uid);if(!canAttack(g,pi,m
   if(ctx.shield&&!direct){const t0=find(g,target);if(t0&&isMech(t0)){t0.tempD+=ctx.shield;ev(g,{t:'buff',uid:t0.uid,atk:0,def:ctx.shield,why:'shield'})}}
   if(!find(g,m.uid))return true;
   if(direct){ev(g,{t:'direct',who:pi,uid:m.uid});gauge(g,opp(pi),1);const dm=POW(g,m);damage(g,opp(pi),dm,'direct');if(ctx.reflect&&!g.over)damage(g,pi,Math.round(dm*ctx.reflect/100),'reflect');return true}
-  const t=find(g,target);if(!t)return true;jjPre(g,m,t);if((KW(t)).mine){t.nokw=0;ev(g,{t:'note',uid:t.uid,s:'地雷を踏んだ'});fall(g,m,'mine',true);fall(g,t,'mine',true);return true}const V=jjClash(g,m,t,prClash(g,m,t,mechClash(g,m,t,{A:POW(g,m)+(m.oshi===t.uid?OSHI_B:0),D:DEF(g,t),B:ATK(g,t),AD:DEF(g,m)}))),A=V.A,D=V.D,B=V.B,AD=V.AD;ev(g,{t:'clash',a:m.uid,b:t.uid,A,D,B,AD});
+  const t=find(g,target);if(!t)return true;jjPre(g,m,t);if((KW(t)).mine){t.nokw=0;ev(g,{t:'note',uid:t.uid,s:'地雷を踏んだ'});fall(g,m,'mine',true);fall(g,t,'mine',true);return true}const V=hsClash(g,m,t,jjClash(g,m,t,prClash(g,m,t,mechClash(g,m,t,{A:POW(g,m)+(m.oshi===t.uid?OSHI_B:0),D:DEF(g,t),B:ATK(g,t),AD:DEF(g,m)})))),A=V.A,D=V.D,B=V.B,AD=V.AD;ev(g,{t:'clash',a:m.uid,b:t.uid,A,D,B,AD});
   const save=(x,y)=>{const k=KW(x);if((k.guts||x.pk==='guts'||x.eatG)&&!x.gutsUsed&&!(x===t&&isHard(m))){x.gutsUsed=true;ev(g,{t:'guts',uid:x.uid});return true}
     if(KW(x).wall2&&y&&ATK(g,y)<ATK(g,x)){ev(g,{t:'note',uid:x.uid,s:'届かぬ壁'});return true}
     if(x.hi==='mist'&&x.mistT!==g.turns&&!isHard(y)){x.mistT=g.turns;ev(g,{t:'note',uid:x.uid,s:'霧化:倒れない'});return true}return escape(g,x)};
   const rev=(x,y)=>{if((KW(x)).revenge&&find(g,y.uid)){ev(g,{t:'revenge',uid:x.uid,on:y.uid});fall(g,y,'revenge')}};
-  if(A>D){if(!save(t,m)){const tc=t.cur>0,tu=KW(t).curseU;if(fall(g,t,'battle')){bounty(g,m);rcKill(g,m,t);jjKill(g,m,tc,tu);rev(t,m);if(R.PIERCE)damage(g,opp(pi),A-D,'pierce');if(!g.over&&tr(g,pi,'girl')&&find(g,m.uid))starUp(g,m,1,'trait')}}}
+  if(A>D){if(!save(t,m)){const tc=t.cur>0,tu=KW(t).curseU;if(fall(g,t,'battle')){bounty(g,m);rcKill(g,m,t);jjKill(g,m,tc,tu);if(KW(m).eatName&&!g.over)eatName(g,m,t);if(m.kickK===g.turns&&!g.over){ev(g,{t:'note',uid:m.uid,s:'必殺キック!'});damage(g,opp(pi),m.kickB||0,'kick')}rev(t,m);if(R.PIERCE)damage(g,opp(pi),A-D,'pierce');if(!g.over&&tr(g,pi,'girl')&&find(g,m.uid))starUp(g,m,1,'trait')}}}
   if(!g.over&&B>AD&&find(g,m.uid)&&m.noCtr!==g.turns&&!t.escaped){if(!save(m,t)){const gum=m.hi==='gum',mc=m.cur>0,mu=KW(m).curseU;if(fall(g,m,'battle')){bounty(g,t);jjKill(g,t,mc,mu);rev(m,t);if(R.PIERCE&&!gum)damage(g,pi,B-AD,'counter')}}}
   [m,t].forEach(x=>{if(find(g,x.uid)){const k=KW(x);if(k.grow){x.perm+=k.grow;ev(g,{t:'buff',uid:x.uid,atk:k.grow,def:0,why:'grow'})}}});
   if(!g.over)mechAfter(g,m,t);
@@ -2250,7 +2318,7 @@ function attack(g,pi,uid,target,answer){const m=find(g,uid);if(!canAttack(g,pi,m
   if(!g.over&&find(g,m.uid)&&!find(g,t.uid)&&!t.escaped&&(KW(m)).tri&&m.triT!==g.p[pi].turn){m.triT=g.p[pi].turn;m.xa=(m.xa||0)+1;ev(g,{t:'note',uid:m.uid,s:'三刀:もう1回攻撃できる'})}
   return true}
 /* ---- skills ---- */
-function canSkill(g,pi){const P=g.p[pi];if(!P.skill||P.skillUsed||P.gauge<R.GAUGE||g.cur!==pi||g.pending||g.over)return false;const need={girl:'enemy',chu:'enemy',neta:'enemy',gachi:'',vt:'',hage:'',idol:'gy',mecha:'ally',pirate:'',reinc:'enemy',jujutsu:''}[P.skill];
+function canSkill(g,pi){const P=g.p[pi];if(!P.skill||P.skillUsed||P.gauge<R.GAUGE||g.cur!==pi||g.pending||g.over)return false;const need={girl:'enemy',chu:'enemy',neta:'enemy',gachi:'',vt:'',hage:'',idol:'gy',mecha:'ally',pirate:'',reinc:'enemy',jujutsu:'',henshin:'enemy'}[P.skill];
   if(need==='enemy')return units(g,opp(pi)).length>0;if(need==='gy')return P.slot.some(x=>!x)&&P.gy.some(id=>BY[id].type==='chara'&&!BY[id].trib);if(need==='')return true;return units(g,pi).length>0}
 function skill(g,pi,target){if(!canSkill(g,pi))return false;const P=g.p[pi],E=g.p[opp(pi)];g.acted=(g.acted||0)+1;P.skillUsed=true;P.gauge=0;ev(g,{t:'skill',who:pi,k:P.skill});
   if(P.skill==='weak'){const behind=P.life<E.life;units(g,pi).forEach(m=>{m.temp+=1000;if(behind){m.rush=true;m.sick=false}ev(g,{t:'buff',uid:m.uid,atk:1000,def:0})})}
@@ -2264,6 +2332,7 @@ function skill(g,pi,target){if(!canSkill(g,pi))return false;const P=g.p[pi],E=g.
   if(P.skill==='neta'){units(g,opp(pi)).forEach(m=>{const a=ATK(g,m),d=DEF(g,m);m.perm+=d-a;m.permD+=a-d;ev(g,{t:'buff',uid:m.uid,atk:d-a,def:a-d,why:'swap'})})}
   if(P.skill==='sei'){units(g,pi).forEach(m=>{m.perm+=600;ev(g,{t:'buff',uid:m.uid,atk:600,def:0})})}
   if(P.skill==='hage')heal(g,pi,2000);
+  if(P.skill==='henshin'){const t=find(g,target)&&find(g,target).owner!==pi?find(g,target):bestEnemy(g,pi);if(t)banish(g,t,'地獄送り')}
   if(P.skill==='jujutsu'){units(g,pi).forEach(m=>{m.temp+=500;ev(g,{t:'buff',uid:m.uid,atk:500,def:0,why:'skill'})});units(g,opp(pi)).forEach(m=>curse(g,m,1))}
   if(P.skill==='reinc'){const t=find(g,target)&&find(g,target).owner!==pi?find(g,target):bestEnemy(g,pi);const L=units(g,pi).slice().sort((a,b)=>b.star-a.star||ATK(g,b)-ATK(g,a))[0];if(t&&fall(g,t,'skill')&&L)eatCard(g,L,t)}
   if(P.skill==='pirate'){const go=roleN(g,pi)>=3;units(g,pi).forEach(m=>{m.temp+=500;if(go&&m.sick){m.rush=true}ev(g,{t:'buff',uid:m.uid,atk:500,def:0,why:'skill'})});if(go)ev(g,{t:'note',who:pi,s:'一味がそろった:全員出航'})}
@@ -2323,6 +2392,11 @@ function canAct(g,pi,uid,kind,target){const P=g.p[pi],m=find(g,uid);if(!m||m.own
   if(kind==='form')return!!k.form&&m.formT!==P.turn&&(target==null||(FORMS[target]&&m.form!==target));
   if(kind==='share')return!!k.learn&&m.awk&&m.rec!=null&&!!find(g,m.rec)&&m.shareT!==P.turn&&A.some(x=>x!==m&&(target==null||x.uid===target));
   if(kind==='part')return!!k.pick&&!!m.part&&A.some(x=>target==null||x.uid===target);
+  if(kind==='bloodw')return!!k.bloodW&&m.bwT!==P.turn&&P.life>300;
+  if(kind==='fox')return!!k.fox&&m.foxT!==P.turn&&P.life>300&&E.some(x=>ATK(g,x)<=k.fox&&!KW(x).noCE&&(target==null||x.uid===target));
+  if(kind==='henshin'){const h=k.hen;return!!h&&!!BY[h]&&!m.base&&P.energy>=(k.henC||1)}
+  if(kind==='kick')return!!(k.kick||m.beltKick)&&!m.kickU&&P.energy>=1;
+  if(kind==='fc')return!!k.forms3&&m.fcT!==P.turn&&(target==null||(['p','s','g'].includes(target)&&m.fc!==target));
   if(kind==='shiki')return!!k.shiki&&m.shikiT!==P.turn&&P.energy>=1&&P.slot.some(x=>!x);
   if(kind==='stop')return!!k.koto&&m.kotoT!==P.turn&&P.energy>=1&&P.life>k.koto&&E.some(x=>!KW(x).noCE&&(target==null||x.uid===target));
   if(kind==='call')return!!k.call&&m.callT!==P.turn&&P.energy>=1&&P.slot.some(x=>!x)&&P.gy.some(id=>BY[id].type==='chara'&&(BY[id].kw||{}).curseU&&BY[id].c<=k.call&&!BY[id].trib);
@@ -2334,6 +2408,11 @@ function act(g,pi,uid,kind,target){if(!canAct(g,pi,uid,kind,target))return false
   if(kind==='charge'){P.energy-=1;m.chargeT=P.turn;m.noAtk=P.turn;m.charge=1;ev(g,{t:'note',uid:m.uid,s:'蓄圧砲:充填'})}
   if(kind==='form'){m.formT=P.turn;setForm(g,m,target||(m.form==='a'?'c':'a'))}
   if(kind==='share'){m.shareT=P.turn;const t=find(g,target)||A.filter(x=>x!==m).sort((a,b)=>ATK(g,b)-ATK(g,a))[0];t.gift={on:m.rec,n:R.REC,u:g.turns+2};m.rec=null;ev(g,{t:'note',uid:t.uid,s:'戦術共有:記録を受け取った'})}
+  if(kind==='bloodw'){m.bwT=P.turn;payLife(g,pi,300);const n=KW(m).bloodW;m.temp+=n;ev(g,{t:'buff',uid:m.uid,atk:n,def:0,why:'blood'});ev(g,{t:'note',uid:m.uid,s:'血の武器'})}
+  if(kind==='fox'){m.foxT=P.turn;payLife(g,pi,300);const t=find(g,target)||units(g,opp(pi)).filter(x=>ATK(g,x)<=KW(m).fox&&!KW(x).noCE).sort((a,b)=>ATK(g,b)-ATK(g,a))[0];if(t){ev(g,{t:'note',uid:t.uid,s:'妖狐の牙'});fall(g,t,'effect')}}
+  if(kind==='henshin'){P.energy-=(KW(m).henC||1);doHen(g,m)}
+  if(kind==='kick'){P.energy-=1;m.kickU=1;const n=KW(m).kick||m.beltKick;m.temp+=n;ev(g,{t:'buff',uid:m.uid,atk:n,def:0,why:'kick'});ev(g,{t:'note',uid:m.uid,s:'必殺技!ATK+'+n})}
+  if(kind==='fc'){m.fcT=P.turn;m.fc=target||'p';ev(g,{t:'note',uid:m.uid,s:{p:'力の姿',s:'速さの姿',g:'守りの姿'}[m.fc]})}
   if(kind==='shiki'){P.energy-=1;m.shikiT=P.turn;const L=P.slot.findIndex(x=>!x);const n=placeQuiet(g,pi,KW(m).shiki,L);n.sick=true;ev(g,{t:'note',uid:n.uid,s:'式神を出した'})}
   if(kind==='stop'){P.energy-=1;m.kotoT=P.turn;damage(g,pi,KW(m).koto,'koto');const t=find(g,target)||units(g,opp(pi)).filter(x=>!KW(x).noCE).sort((a,b)=>ATK(g,b)-ATK(g,a))[0];if(t){t.frozen=g.turns+1;ev(g,{t:'note',uid:t.uid,s:'言霊:次のターン動けない'})}}
   if(kind==='call'){P.energy-=1;m.callT=P.turn;const k2=KW(m).call;const c=P.gy.map((id,i)=>[id,i]).filter(([id])=>BY[id].type==='chara'&&(BY[id].kw||{}).curseU&&BY[id].c<=k2&&!BY[id].trib).sort((a,b)=>BY[b[0]].atk-BY[a[0]].atk)[0];if(c){P.gy.splice(c[1],1);const L=P.slot.findIndex(x=>!x);const n=placeQuiet(g,pi,c[0],L);n.sick=true;ev(g,{t:'note',uid:n.uid,s:'怨霊を呼び戻した'})}}
@@ -2396,6 +2475,27 @@ function jjClash(g,m,t,v){const km=KW(m);if(km.exo&&t.cur>0){v.A+=km.exo;ev(g,{t
 /* the winner of a battle: the trait draws for a cursed victim; an 怨霊 curses the one who beat it */
 function jjKill(g,w,wasCursed,wasCurseU){if(g.over)return;if(wasCursed&&tr(g,w.owner,'jujutsu')&&find(g,w.uid)){ev(g,{t:'note',uid:w.uid,s:'祓いの務め'});draw(g,w.owner,1)}if(wasCurseU&&find(g,w.uid))curse(g,w,1)}
 function jjAfter(g,m,t){t.nokw=0;m.nokw=0;if(g.over)return;const n=KW(m).nail;if(n&&find(g,m.uid)!==undefined){const x=find(g,t.uid)||units(g,opp(m.owner)).slice().sort((a,b)=>ATK(g,b)-ATK(g,a))[0];if(x)curse(g,x,n)}}
+/* ---- (10/22) 異装族: 変身, 活動限界, 巨大化, 怪獣と防衛隊 ---- */
+function transform(g,m,to){const d0=BY[m.id],d1=BY[to];if(!d1)return;if(!m.base)m.base=cid(m);m.id=to;m.atk0+=d1.atk-d0.atk;m.def0+=d1.def-d0.def;if(m.pilot)m.pkw=pkwOf(to,m.pilot);if((d1.kw||{}).rush)m.rush=true;ev(g,{t:'evo',who:m.owner,uid:m.uid,from:d0.id,to})}
+function revert(g,m){if(!m.base)return;const d0=BY[m.id],d1=BY[m.base];m.id=m.base;m.base=null;m.atk0+=d1.atk-d0.atk;m.def0+=d1.def-d0.def;m.hen=0;if(m.pilot)m.pkw=pkwOf(m.id,m.pilot);ev(g,{t:'evo',who:m.owner,uid:m.uid,from:d0.id,to:m.id})}
+function henRush(g,m){if(tr(g,m.owner,'henshin')&&m.sick&&!m.rush){m.rush=true;ev(g,{t:'note',uid:m.uid,s:'変身!すぐ攻撃できる'})}}
+function doHen(g,m){const to=KW(m).hen;if(!to||!BY[to]||m.base)return;transform(g,m,to);m.hen=1;ev(g,{t:'note',uid:m.uid,s:'変身!'});const gi=(BY[to].kw||{}).giant;if(gi)m.gEnd=g.p[m.owner].turn+gi-1;henRush(g,m)}
+function hsA(g,m){const k=KW(m);let a=m.fc==='p'?600:m.fc==='s'?-300:0;
+  if(k.grow2||k.grunt||k.kaiju||k.villain)units(g,m.owner).forEach(x=>{if(x!==m){const b=KW(x).boss;if(b)a+=b}});
+  if(m.hen)units(g,m.owner).forEach(x=>{if(x!==m){const c=KW(x).cheer;if(c)a+=c}});return a}
+function hsD(m){return m.fc==='p'?-300:m.fc==='g'?800:0}
+function hsClash(g,m,t,v){const km=KW(m),kt=KW(t);if(km.antiK&&kt.kaiju){v.A+=km.antiK;ev(g,{t:'note',uid:m.uid,s:'怪獣討伐:ATK+'+km.antiK})}if(kt.antiK&&km.kaiju){v.B+=kt.antiK}return v}
+/* 契約の代償: the player pays life; the 異装族 trait fills the gauge */
+function payLife(g,pi,n){damage(g,pi,n,'pact');if(!g.over&&tr(g,pi,'henshin'))gauge(g,pi,1)}
+/* out of the game: off the field (or out of the pile it just went to), never back */
+function banish(g,m,why){const H=g.p[m.orig!=null?m.orig:m.owner];if(find(g,m.uid)){const P=g.p[m.owner];P.slot[m.slot]=null;H.gy.push(...m.under);if(m.pilot)H.gy.push(m.pilot);ev(g,{t:'die',who:m.owner,id:m.id,uid:m.uid,why:'banish',star:m.star});gauge(g,m.owner,1)}
+  else{const c=cid(m),i=H.gy.lastIndexOf(c);if(i>=0)H.gy.splice(i,1)}(H.out=H.out||[]).push(cid(m));ev(g,{t:'note',who:m.owner,s:why+':「'+BY[cid(m)].n+'」はゲームの外へ'})}
+/* 名を喰らう: the fallen card and every copy left in that deck leave the game */
+function eatName(g,m,t){const H=g.p[t.orig!=null?t.orig:t.owner],c=cid(t);if(BY[c].token)return;const i=H.gy.lastIndexOf(c);if(i>=0)H.gy.splice(i,1);const n0=H.deck.length;H.deck=H.deck.filter(id=>fk(id)!==fk(c));const n=n0-H.deck.length;(H.out=H.out||[]).push(c);
+  ev(g,{t:'note',uid:m.uid,s:'名を喰らった:「'+BY[c].n+'」'+(n?'(相手の山札から'+n+'枚消えた)':'')})}
+/* 怪人 come back giant once */
+function hsFell(g,m,why,G){if(g.over||why!=='battle'||m.g2||m.orig!=null)return;const to=KW(m).grow2,P=g.p[m.owner];if(!to||!BY[to]||P.slot[m.slot])return;const c=cid(m),i=G.lastIndexOf(c);if(i<0)return;G.splice(i,1);
+  const n=placeQuiet(g,m.owner,to,m.slot);n.base=c;n.g2=1;n.sick=true;ev(g,{t:'note',uid:n.uid,s:'巨大化して戻ってきた!'})}
 /* ---- turns ---- */
 function startTurn(g){const pi=g.cur,P=g.p[pi];P.turn++;g.turns++;P.maxE=Math.min(capE(g,pi),P.turn+(pi===1&&P.turn===1&&R.BOOST2?1:0)+(tr(g,pi,'gachi')?1:0)+(P.ramp||0));g.acted=0;P.energy=Math.max(0,P.maxE-(P.debt||0));if(P.debt){ev(g,{t:'energy',who:pi,n:-Math.min(P.maxE,P.debt)});P.debt=0}P.usedN=0;
   units(g,pi).forEach(m=>{m.sick=false;m.attacks=0;m.xa=0;if(m.awk&&m.aw&&m.aw.k==='gutsEvery')m.gutsUsed=false});P.st.forEach(t=>t.ready=true);g.p[opp(pi)].st.forEach(t=>t.ready=true);
@@ -2403,20 +2503,21 @@ function startTurn(g){const pi=g.cur,P=g.p[pi];P.turn++;g.turns++;P.maxE=Math.mi
 /* things on the field that happen at the start of their owner's turn */
 function turnStartFx(g,pi){const P=g.p[pi];for(const m of units(g,pi)){if(g.over)return;const k=KW(m);
   if(k.senior){m.perm+=k.senior;ev(g,{t:'buff',uid:m.uid,atk:k.senior,def:0,why:'senior'})}
+  if(k.growK&&BY[k.growK]&&!m.base&&m.bornT!=null&&P.turn>=m.bornT+2){ev(g,{t:'note',uid:m.uid,s:'成長した'});transform(g,m,k.growK)}
   if(k.sage&&P.deck.length>1){const top=P.deck[P.deck.length-1];if(BY[top].type!=='chara'){P.deck.unshift(P.deck.pop());ev(g,{t:'note',uid:m.uid,s:'解析:キャラではないので山札の下へ'})}else ev(g,{t:'note',uid:m.uid,s:'解析:次はキャラ'})}
   if(k.meal){ev(g,{t:'note',uid:m.uid,s:'まかない'});heal(g,pi,k.meal)}
   if(k.fix){const o=units(g,pi).filter(x=>x!==m).sort((a,b)=>DEF(g,a)-DEF(g,b))[0];if(o){o.permD+=k.fix;ev(g,{t:'buff',uid:o.uid,atk:0,def:k.fix,why:'fix'})}}
   if(m.dlT!=null&&P.turn>=m.dlT&&m.star<3){m.dlT=null;ev(g,{t:'note',uid:m.uid,s:'締切明け!'});starUp(g,m,3,'deadline')}
   if(m.gradT!=null&&P.turn>=m.gradT){m.gradT=null;P.slot[m.slot]=null;P.gy.push(cid(m),...m.under);ev(g,{t:'die',who:pi,id:m.id,uid:m.uid,why:'grad',star:m.star});ev(g,{t:'note',who:pi,s:'「'+BY[m.id].n+'」が卒業した'});heal(g,pi,k.gradHeal||1500);draw(g,pi,k.gradDraw||2)}}}
 function endTurn(g){if(g.over||g.pending)return false;
-  units(g,g.cur).forEach(m=>{if(g.over)return;if(m.odT===g.turns){m.odT=null;if(m.star>1)starDown(g,m,1);else{m.permD-=500;ev(g,{t:'buff',uid:m.uid,atk:0,def:-500,why:'overdrive'})}}if(m.penh&&m.pilot)damage(g,g.cur,300,'penh');{const sb=KW(m).selfBurn;if(sb&&!g.over)damage(g,g.cur,sb,'selfBurn')}});if(g.over)return true;g.p.forEach(P=>P.slot.forEach(m=>{if(m){m.temp=0;m.tempD=0}}));
+  units(g,g.cur).forEach(m=>{if(g.over)return;if(m.gEnd!=null&&m.gEnd<=g.p[g.cur].turn){m.gEnd=null;ev(g,{t:'note',uid:m.uid,s:'活動限界:元の姿に戻った'});revert(g,m)}if(m.odT===g.turns){m.odT=null;if(m.star>1)starDown(g,m,1);else{m.permD-=500;ev(g,{t:'buff',uid:m.uid,atk:0,def:-500,why:'overdrive'})}}if(m.penh&&m.pilot)damage(g,g.cur,300,'penh');{const sb=KW(m).selfBurn;if(sb&&!g.over)damage(g,g.cur,sb,'selfBurn')}});if(g.over)return true;g.p.forEach(P=>P.slot.forEach(m=>{if(m){m.temp=0;m.tempD=0}}));
   if(g.p[0].turn>=R.MAXTURN&&g.p[1].turn>=R.MAXTURN){g.over=true;const a=g.p[0].life,b=g.p[1].life;g.win=a>b?0:b>a?1:-1;ev(g,{t:'end',win:g.win,why:'time'});return true}
   g.cur=opp(g.cur);return true}
 /* a private copy of the game for the strong CPU to think with (no events, its own random numbers).
    The uid counter is put back afterwards so the real game's numbering never changes. */
 function clone(g,seed){const r=g.r,ev=g.ev;g.r=null;g.ev=[];const c=JSON.parse(JSON.stringify(g));g.r=r;g.ev=ev;c.r=rng(seed);return c}
 const uidGet=()=>UID,uidSet=v=>{UID=v};
-module.exports={KW,cid,canName,riding,sealedNow,roleN,isHard,isHiCard,bty,isMech,canBoard,board,canAct,act,pilotOk,sameC,quickWin,clone,uidGet,uidSet,fam,pureN,mixedN,canQuick,castQuick,tribPool,canLeader,summonLeader,leaderCost,POW,evoCost,R,BY,newGame,startTurn,endTurn,playChara,castSpell,setTrap,evolve,canEvolve,attack,attackTargets,canAttack,canPlay,targets,cost,window,fire,canSkill,skill,ATK,DEF,find,units,opp,hasCover,maxAttacks};
+module.exports={doHen,KW,cid,canName,riding,sealedNow,roleN,isHard,isHiCard,bty,isMech,canBoard,board,canAct,act,pilotOk,sameC,quickWin,clone,uidGet,uidSet,fam,pureN,mixedN,canQuick,castQuick,tribPool,canLeader,summonLeader,leaderCost,POW,evoCost,R,BY,newGame,startTurn,endTurn,playChara,castSpell,setTrap,evolve,canEvolve,attack,attackTargets,canAttack,canPlay,targets,cost,window,fire,canSkill,skill,ATK,DEF,find,units,opp,hasCover,maxAttacks};
 
 });
 __def('./ai4.js',function(module,exports,require){
@@ -2455,6 +2556,16 @@ function jjMove(g,pi,mine,theirs){const P=g.p[pi];if(P.energy<1)return null;
   for(const m of mine){if(E.canAct(g,pi,m.uid,'call'))return{type:'act',uid:m.uid,kind:'call'};if(E.canAct(g,pi,m.uid,'shiki')&&P.energy>=2)return{type:'act',uid:m.uid,kind:'shiki'}}
   for(const m of mine){if(E.canAct(g,pi,m.uid,'stop')&&P.life>1500){const t=theirs.filter(x=>!E.KW(x).noCE).sort((a,b)=>E.ATK(g,b)-E.ATK(g,a))[0];if(t&&E.ATK(g,t)>=1600)return{type:'act',uid:m.uid,kind:'stop',target:t.uid}}}
   return null}
+/* (10/22) 異装族: 変身 first, then the three forms, then a finisher when it makes a kill */
+function hsMove(g,pi,mine,theirs){const P=g.p[pi];
+  for(const m of mine){if(E.canAct(g,pi,m.uid,'henshin'))return{type:'act',uid:m.uid,kind:'henshin'}}
+  for(const m of mine){if(E.canAct(g,pi,m.uid,'fox')&&P.life>1200){const t=theirs.filter(x=>E.ATK(g,x)<=E.KW(m).fox&&!E.KW(x).noCE).sort((a,b)=>val(g,b)-val(g,a))[0];if(t&&val(g,t)>=1200)return{type:'act',uid:m.uid,kind:'fox',target:t.uid}}}
+  for(const m of mine){if(!E.canAct(g,pi,m.uid,'bloodw')||!E.canAttack(g,pi,m)||P.life<=1200)continue;const n=E.KW(m).bloodW;const T=E.attackTargets(g,pi,m).map(u=>u==='life'?null:E.find(g,u)).filter(Boolean);
+    if(T.some(t=>E.ATK(g,m)<=E.DEF(g,t)&&E.ATK(g,m)+n>E.DEF(g,t))||(!theirs.length&&g.p[1-pi].life<=E.ATK(g,m)+n))return{type:'act',uid:m.uid,kind:'bloodw'}}
+  for(const m of mine){if(!(E.KW(m).forms3))continue;const rdy=E.canAttack(g,pi,m);const want=!rdy?'g':(theirs.length>=2||(!theirs.length))?'s':'p';if(E.canAct(g,pi,m.uid,'fc',want))return{type:'act',uid:m.uid,kind:'fc',target:want}}
+  for(const m of mine){if(!E.canAct(g,pi,m.uid,'kick')||!E.canAttack(g,pi,m))continue;const n=E.KW(m).kick||m.beltKick||0;const T=E.attackTargets(g,pi,m).map(u=>u==='life'?null:E.find(g,u)).filter(Boolean);
+    if(T.some(t=>E.ATK(g,m)<=E.DEF(g,t)&&E.ATK(g,m)+n>E.DEF(g,t))||(!theirs.length&&g.p[1-pi].life<=E.ATK(g,m)+n))return{type:'act',uid:m.uid,kind:'kick'}}
+  return null}
 function mechMove(g,pi,mine,theirs){const P=g.p[pi];if(!E.board)return null;
   const empty=mine.filter(m=>E.isMech(m)&&!m.pilot).sort((a,b)=>E.ATK(g,b)-E.ATK(g,a));
   if(empty.length&&P.energy>=E.R.BOARD){const c=P.hand.map((id,i)=>[id,i]).filter(([id])=>E.pilotOk(id)).sort((a,b)=>pilotV(b[0])-pilotV(a[0]))[0];
@@ -2469,6 +2580,12 @@ function mechMove(g,pi,mine,theirs){const P=g.p[pi];if(!E.board)return null;
 /* the new spells: return an action, false (skip this card now) or null (let the old rules decide) */
 function spellPick(g,pi,i,mine,theirs){const P=g.p[pi],O=g.p[1-pi],id=P.hand[i],d=BY[id],ops=d.ops.map(o=>o.op);
   const best=L=>L.map(u=>E.find(g,u)).filter(Boolean).sort((a,b)=>val(g,b)-val(g,a))[0];
+  /* (10/22) 異装族 */
+  if(ops.includes('pact')){if(P.life<=1500)return false;const t=E.targets(g,pi,id).map(u=>E.find(g,u)).filter(m=>m&&E.canAttack(g,pi,m)).sort((a,b)=>E.ATK(g,b)-E.ATK(g,a))[0];return t?{type:'spell',hand:i,target:t.uid}:false}
+  if(ops.includes('drink')){if(P.life>2800)return false;const t=E.targets(g,pi,id).map(u=>E.find(g,u)).filter(Boolean).sort((a,b)=>E.DEF(g,a)-E.DEF(g,b))[0];return t?{type:'spell',hand:i,target:t.uid}:false}
+  if(ops.includes('belt')){const t=E.targets(g,pi,id).map(u=>E.find(g,u)).filter(Boolean).sort((a,b)=>(E.canAttack(g,pi,b)?1:0)-(E.canAttack(g,pi,a)?1:0)||val(g,b)-val(g,a))[0];return t?{type:'spell',hand:i,target:t.uid}:false}
+  if(ops.includes('henNow')){const t=E.targets(g,pi,id).map(u=>E.find(g,u)).filter(Boolean)[0];return t?{type:'spell',hand:i,target:t.uid}:false}
+  if(ops.includes('kickS')){const r=mine.filter(m=>E.canAttack(g,pi,m)).sort((a,b)=>(b.hen?1:0)-(a.hen?1:0)||E.ATK(g,b)-E.ATK(g,a));const t=r.find(m=>{const n=m.hen?1500:700;return theirs.some(x=>E.ATK(g,m)<=E.DEF(g,x)&&E.ATK(g,m)+n>E.DEF(g,x))})||(r[0]&&!theirs.length&&O.life<=E.ATK(g,r[0])+(r[0].hen?1500:700)?r[0]:null);return t?{type:'spell',hand:i,target:t.uid}:false}
   /* (10/22) 呪術族 */
   if(ops.includes('relic')){const T=E.targets(g,pi,id).map(u=>E.find(g,u)).filter(Boolean);const v=T.find(m=>E.KW(m).vessel);const t=v||T.filter(m=>E.canAttack(g,pi,m)).sort((a,b)=>E.ATK(g,b)-E.ATK(g,a))[0];return t?{type:'spell',hand:i,target:t.uid}:false}
   if(ops.includes('spear')){const t=E.targets(g,pi,id).map(u=>E.find(g,u)).filter(m=>m&&!m.spear&&E.canAttack(g,pi,m)).sort((a,b)=>E.ATK(g,b)-E.ATK(g,a))[0];return t&&theirs.length?{type:'spell',hand:i,target:t.uid}:false}
@@ -2542,6 +2659,7 @@ function next(g,pi){const P=g.p[pi],O=g.p[1-pi];const mine=E.units(g,pi),theirs=
     if(k==='neta'&&theirs.reduce((t,m)=>t+E.ATK(g,m)-E.DEF(g,m),0)>=600)return{type:'skill'}
     if(k==='sei'&&mine.length>=2)return{type:'skill'}
     if(k==='hage'&&P.life<=2500)return{type:'skill'}
+    if(k==='henshin'){const t=theirs.slice().sort((a,b)=>val(g,b)-val(g,a))[0];if(t&&val(g,t)>=1600)return{type:'skill',target:t.uid}}
     if(k==='jujutsu'){const r=mine.filter(m=>E.canAttack(g,pi,m));if(r.length>=2||(r.length&&theirs.length>=2))return{type:'skill'}}
     if(k==='reinc'){const t=theirs.slice().sort((a,b)=>val(g,b)-val(g,a))[0];if(t&&val(g,t)>=1600)return{type:'skill',target:t.uid}}
     if(k==='pirate'){const go=E.roleN(g,pi)>=3;const ready=mine.filter(m=>E.canAttack(g,pi,m)||(go&&m.sick&&m.attacks===0&&!(pi===0&&P.turn===1)));if(ready.length>=2||(ready.length&&O.life<=ready.length*1500))return{type:'skill'}}
@@ -2549,6 +2667,7 @@ function next(g,pi){const P=g.p[pi],O=g.p[1-pi];const mine=E.units(g,pi),theirs=
   /* 1a0. (10/22) 巡生族: 名付け (an evolution first, then the sealed dragon, then whoever is worth most) */
   {const nm=nameMove(g,pi,mine);if(nm)return nm}
   {const jm=jjMove(g,pi,mine,theirs);if(jm)return jm}
+  {const hm=hsMove(g,pi,mine,theirs);if(hm)return hm}
   /* 1a. (10/22) 機装族: board the mechs, then the pressed abilities */
   {const mk=mechMove(g,pi,mine,theirs);if(mk)return mk}
   /* 1b. a boss that can come out now comes out first (its two sacrifices: the weakest of its tribe) */
@@ -2612,7 +2731,7 @@ const CD=require('./cards4.js');
 const THEMES={trap:{n:'トラップ型',w:c=>c.type==='trap'?2.6:1},quick:{n:'割り込み型',w:c=>c.quick?3:c.type==='spell'?1.3:1},boss:{n:'ボス型',w:c=>c.same?4:c.type==='chara'?1.25:1},
   coin:{n:'運まかせ型',w:c=>JSON.stringify(c.ops||c.onPlay||[]).includes('coin')?2.6:1},star:{n:'育成型',w:c=>c.aw&&c.type==='chara'?1.3:(c.ops||[]).some(o=>/^star/.test(o.op))?2.4:1}};
 /* families whose cards are not in any pack yet: random CPU decks leave them out */
-const NEWF=['mecha','pirate','reinc','jujutsu'];
+const NEWF=['mecha','pirate','reinc','jujutsu','henshin'];
 function makeDeck(r,o){o=o||{};const pick=a=>a[Math.floor(r()*a.length)];const tribes=Object.keys(CD.PFX).filter(f=>!NEWF.includes(f));
   const f=o.f||pick(tribes);const roll=r();const style=o.style||(roll<.35?'pure':roll<.8?'mix':'theme');
   const partner=style==='mix'?pick(tribes.filter(x=>x!==f)):null;const TH=Object.keys(THEMES).filter(k=>k==='boss'?CD.C.some(c=>c.same):k==='quick'?CD.C.some(c=>c.quick):true);const theme=style==='theme'?(o.theme&&TH.includes(o.theme)?o.theme:pick(TH)):null;
@@ -3061,8 +3180,9 @@ const DECK={
   mecha:{line:'操縦者を機体に乗せて戦う。照準・変形・充填など、機体ごとに戦い方がちがう。',face:'m8'},
   pirate:{line:'いろんな役割の仲間を集めるほど強くなる。秘宝で力を足し、相手を倒して懸賞金を上げる。',face:'p8'},
   reinc:{line:'仲間に真名を授けて進化させる。リーダーの粘体は倒した相手を取り込んで強くなる。',face:'r8'},
-  jujutsu:{line:'相手に呪いを付けて弱らせ、祓い師が祓う。式神や言霊、怨霊も使う。',face:'j8'}};
-const FKEYS=['weak','girl','gay','gachi','idol','vt','cre','chu','neta','sei','hage','mecha','pirate','reinc','jujutsu'];
+  jujutsu:{line:'相手に呪いを付けて弱らせ、祓い師が祓う。式神や言霊、怨霊も使う。',face:'j8'},
+  henshin:{line:'悪魔と契約して、ライフを代償に力を得る。悪魔の力で変身し、リーダーは倒した相手の名を喰らう。',face:'k8'}};
+const FKEYS=['weak','girl','gay','gachi','idol','vt','cre','chu','neta','sei','hage','mecha','pirate','reinc','jujutsu','henshin'];
 const FAC=id=>{const f=BY[id].f;return FKEYS.includes(f)?f:'gen'};
 const TYN={chara:'キャラ',spell:'魔法',trap:'トラップ'};
 const show=id=>['s-title','s-deck','s-build','s-toss','s-game'].forEach(s=>$(s).hidden=s!==id);
@@ -3099,7 +3219,7 @@ const CARD_CUT=window.CARD_CUT||{},CARD_POS=window.CARD_POS||{},CARD_PANEL=windo
 const BLOB={};function blobOf(u){if(!u||u.slice(0,5)!=='data:')return u;if(BLOB[u])return BLOB[u];try{const i=u.indexOf(','),m=u.slice(5,u.indexOf(';')),b=atob(u.slice(i+1)),a=new Uint8Array(b.length);for(let k=0;k<b.length;k++)a[k]=b.charCodeAt(k);return BLOB[u]=URL.createObjectURL(new Blob([a],{type:m}))}catch(e){return u}}
 [window.CARD_IMG,window.CARD_CUT,window.CARD_CUTIN].forEach(M=>{if(!M)return;Object.keys(M).forEach(k=>{const v=M[k];let c=null;Object.defineProperty(M,k,{enumerable:true,configurable:true,get(){return c||(c=blobOf(v))}})})});
 /* cards whose illustration has not arrived yet: a quiet placeholder in the tribe's colors with the card's name */
-const PHC={weak:['#7f95bd','#121726'],girl:['#ff8fb8','#1c0d18'],gay:['#b48cff','#120c22'],gachi:['#ff9a3c','#1a0e06'],idol:['#ffd54a','#1a1606'],vt:['#4fd1ff','#06161a'],cre:['#7ee08a','#08160c'],chu:['#8c4bff','#0a0618'],neta:['#ff6b6b','#1a0808'],sei:['#ff9ad5','#1a0816'],hage:['#c8b08a','#16120a'],mecha:['#38c5c0','#061614'],pirate:['#5a74ff','#070a1c'],reinc:['#3fa9f5','#05111c'],jujutsu:['#9a5cff','#0c0616'],gen:['#e2bd62','#16120a']};
+const PHC={weak:['#7f95bd','#121726'],girl:['#ff8fb8','#1c0d18'],gay:['#b48cff','#120c22'],gachi:['#ff9a3c','#1a0e06'],idol:['#ffd54a','#1a1606'],vt:['#4fd1ff','#06161a'],cre:['#7ee08a','#08160c'],chu:['#8c4bff','#0a0618'],neta:['#ff6b6b','#1a0808'],sei:['#ff9ad5','#1a0816'],hage:['#c8b08a','#16120a'],mecha:['#38c5c0','#061614'],pirate:['#5a74ff','#070a1c'],reinc:['#3fa9f5','#05111c'],jujutsu:['#9a5cff','#0c0616'],henshin:['#e0453a','#1a0606'],gen:['#e2bd62','#16120a']};
 const noArt=id=>!CARD_IMG[id]&&!ART.ART[id];
 function phArt(id,fig){const c=BY[id],[a,b]=PHC[c.f]||PHC.gen,n=c.n,L=n.length,fs=Math.min(L<=5?17:L<=8?13:L<=11?10:8.5,fig?66/L:99),k='ph'+id+(fig?'f':'');
   return '<svg viewBox="'+(fig?'24 0 72 100':'0 0 120 100')+'" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="'+k+'" cx="50%" cy="42%" r="78%"><stop offset="0" stop-color="'+a+'" stop-opacity=".55"/><stop offset=".55" stop-color="'+b+'"/><stop offset="1" stop-color="#05050a"/></radialGradient></defs>'
@@ -3160,7 +3280,7 @@ function saveDecks(L){if(HOST){HOST.saveDecks(L);return}try{localStorage.setItem
 /* families whose cards are not in any pack yet: kept out of the preset list and the CPU's おすすめ picks */
 /* 懸賞金 shows only where it counts: the 海賊族 side, or against a 正義の追跡 card */
 const btyOn=m=>!!g&&(g.p[m.owner].skill==='pirate'||E.units(g,1-m.owner).some(x=>(BY[x.id].kw||{}).hunt));
-const NEWF=['mecha','pirate','reinc','jujutsu'],SKEYS=()=>Object.keys(CD.STARTERS).filter(k=>!NEWF.includes(k));
+const NEWF=['mecha','pirate','reinc','jujutsu','henshin'],SKEYS=()=>Object.keys(CD.STARTERS).filter(k=>!NEWF.includes(k));
 const presetOf=k=>({name:CD.STARTERS[k].name,lead:CD.LEADERS[k],cards:CD.starterDeck(k)});
 function deckRow(d,actions){const k=BY[d.lead].f;const t=el('div','dk '+k);t.style.setProperty('--dc','var(--'+k+')');
   const hd=el('div','hd');hd.append(bigCard(d.lead,true));const tx=el('div');tx.append(el('h3',null,d.name),el('p',null,'リーダー:'+BY[d.lead].n+'('+CD.FNAME[k]+')'));
@@ -3273,7 +3393,7 @@ function queueSpectator(events){if(!g||!NET||!HOST||!HOST.publishSpectator||!win
 function snap(){return{cur:g.cur,over:g.over,win:g.win,turns:g.turns,
   p:g.p.map(P=>({deckN:P.deck.length,hand:P.hand.slice(),life:P.life,gy:P.gy.length,gyTop:P.gy.length?P.gy[P.gy.length-1]:null,energy:P.energy,maxE:P.maxE,turn:P.turn,gauge:P.gauge,skill:P.skill,lead:{id:P.leader.id,out:P.leader.out,n:P.leader.n},skillUsed:P.skillUsed,seal:(P.seal||0)>=g.turns,
     st:P.st.map(t=>({uid:t.uid,id:t.id,ready:t.ready})),
-    slot:P.slot.map(m=>m?{uid:m.uid,id:m.id,owner:m.owner,slot:m.slot,A:E.ATK(g,m),D:E.DEF(g,m),sick:m.sick,rush:m.rush,gutsUsed:m.gutsUsed,star:m.star,awk:m.awk,under:m.under.length,cover:E.hasCover(m),frz:m.frozen>=g.turns,oshi:E.units(g,1-m.owner).some(x=>x.oshi===m.uid),gradN:m.gradT!=null?Math.max(0,m.gradT-P.turn):null,dlN:m.dlT!=null?Math.max(0,m.dlT-P.turn):null,pilot:m.pilot||null,mech:E.isMech?E.isMech(m):false,chg:!!m.charge,mk:!!(m.mark&&m.mark.u>=g.turns),form:m.form||null,rec:m.rec!=null,part:!!m.part,twin:!!m.twin,penh:!!(m.penh&&m.pilot),riv:E.units(g,1-m.owner).some(x=>x.rival===m.uid),hi:m.hi||null,bty:E.bty&&btyOn(m)?E.bty(m):0,hard:!!m.hard,named:!!m.named,seal:E.sealedNow?!!E.sealedNow(g,m):false,ride:E.riding?!!E.riding(g,m):false,eat:(m.eatG?'根性':'')+(m.eatC?'かばう':''),cur:m.cur||0,relic:m.relic||0,spear:!!m.spear}:null)}))}}
+    slot:P.slot.map(m=>m?{uid:m.uid,id:m.id,owner:m.owner,slot:m.slot,A:E.ATK(g,m),D:E.DEF(g,m),sick:m.sick,rush:m.rush,gutsUsed:m.gutsUsed,star:m.star,awk:m.awk,under:m.under.length,cover:E.hasCover(m),frz:m.frozen>=g.turns,oshi:E.units(g,1-m.owner).some(x=>x.oshi===m.uid),gradN:m.gradT!=null?Math.max(0,m.gradT-P.turn):null,dlN:m.dlT!=null?Math.max(0,m.dlT-P.turn):null,pilot:m.pilot||null,mech:E.isMech?E.isMech(m):false,chg:!!m.charge,mk:!!(m.mark&&m.mark.u>=g.turns),form:m.form||null,rec:m.rec!=null,part:!!m.part,twin:!!m.twin,penh:!!(m.penh&&m.pilot),riv:E.units(g,1-m.owner).some(x=>x.rival===m.uid),hi:m.hi||null,bty:E.bty&&btyOn(m)?E.bty(m):0,hard:!!m.hard,named:!!m.named,seal:E.sealedNow?!!E.sealedNow(g,m):false,ride:E.riding?!!E.riding(g,m):false,eat:(m.eatG?'根性':'')+(m.eatC?'かばう':''),cur:m.cur||0,relic:m.relic||0,spear:!!m.spear,hen:!!m.hen,fc:m.fc||null}:null)}))}}
 
 /* ---------- layout ---------- */
 function fit(){const gm=$('s-game');if(gm.hidden)return;const W=gm.clientWidth,Hh=gm.clientHeight;
@@ -3328,6 +3448,7 @@ function unitEl(u,S,side){const c=BY[u.id],d=el('div','u '+FAC(u.id)+' r-'+c.r+(
   /* (10/22) 海賊族 */if(u.hi&&CD.HIDE[u.hi])kw.append(el('i','p','秘宝 '+CD.HIDE[u.hi].n));if(u.bty)kw.append(el('i','y','懸賞金Lv'+u.bty));if(u.hard)kw.append(el('i','c','鋼纏'));
   /* (10/22) 巡生族 */if(u.named)kw.append(el('i','y','真名'));if(u.seal)kw.append(el('i','w','封印中'));if(u.ride)kw.append(el('i','p','騎乗'));if(u.eat)kw.append(el('i','c','捕食:'+u.eat));
   /* (10/22) 呪術族 */if(u.cur)kw.append(el('i','w','呪い×'+u.cur));if(u.relic)kw.append(el('i','y','遺物'+u.relic));if(u.spear)kw.append(el('i','c','封じの槍'));
+  /* (10/22) 異装族 */if(u.hen)kw.append(el('i','y','変身中'));if(u.fc)kw.append(el('i','p',{p:'力の姿',s:'速さの姿',g:'守りの姿'}[u.fc]));
   const plate=el('div','plate');plate.append(el('div','nmb',c.n));const st=el('div','ust');
   const A=el('b','a'+(u.A>c.atk?' up':u.A<c.atk?' dn':''));A.append(el('small',null,'ATK'),document.createTextNode(u.A));const Df=el('b','d'+(u.D>c.def?' up':u.D<c.def?' dn':''));Df.append(el('small',null,'DEF'),document.createTextNode(u.D));st.append(A,Df);plate.append(st);
   d.append(pad,el('div','base'),stand,el('div','stars s'+u.star,SN(u.star)),kw,plate);if(u.awk)d.append(el('div','awl','覚醒'));
@@ -3391,7 +3512,7 @@ function bindField(S){const live=liveMine();const T=mode&&mode.k==='atk'?E.attac
     const m=g&&E.find(g,+u.dataset.uid);
     if(side==='m'){
       /* (10/22) choosing one of my own characters: a spell on an ally, an ability, a mech to board, the 機装族 skill */
-      if(mode&&(mode.k==='tgt'||(mode.k==='act'&&mode.kind!=='mark'&&mode.kind!=='stop')||mode.k==='boardTo'||(mode.k==='skill'&&mode.ally))){let ok=false,go=null;
+      if(mode&&(mode.k==='tgt'||(mode.k==='act'&&mode.kind!=='mark'&&mode.kind!=='stop'&&mode.kind!=='fox')||mode.k==='boardTo'||(mode.k==='skill'&&mode.ally))){let ok=false,go=null;
         if(m&&mode.k==='tgt'){ok=E.targets(g,H,g.p[H].hand[mode.hi]).includes(m.uid);go=()=>{const hi=mode.hi;mode=null;castMine(hi,m.uid)}}
         if(m&&mode.k==='act'){ok=E.canAct(g,H,mode.uid,mode.kind,m.uid);go=()=>{const a=mode;mode=null;act1(()=>X('act',a.uid,a.kind,m.uid))}}
         if(m&&mode.k==='boardTo'){ok=E.canBoard(g,H,mode.hi,0,m.uid);go=()=>{const hi=mode.hi;mode=null;act1(()=>X('board',hi,0,m.uid))}}
@@ -3407,7 +3528,7 @@ function bindField(S){const live=liveMine();const T=mode&&mode.k==='atk'?E.attac
       if(mode&&mode.k==='atk')isT=T.includes(+u.dataset.uid);
       if(mode&&mode.k==='tgt'){const id=g.p[H].hand[mode.hi];isT=E.targets(g,H,id).includes(+u.dataset.uid)}
       if(mode&&mode.k==='skill'&&!mode.ally)isT=true;
-      if(mode&&mode.k==='act'&&(mode.kind==='mark'||mode.kind==='stop'))isT=E.canAct(g,H,mode.uid,mode.kind,+u.dataset.uid);
+      if(mode&&mode.k==='act'&&(mode.kind==='mark'||mode.kind==='stop'||mode.kind==='fox'))isT=E.canAct(g,H,mode.uid,mode.kind,+u.dataset.uid);
       if(isT)u.classList.add(mode.k==='atk'&&mode.target===+u.dataset.uid?'aim':'tgt');
       ln.onclick=()=>{if(!m)return;if(isT&&mode.k==='atk'){mode.target=m.uid;render(snap());return}if(isT&&mode.k==='tgt'){const hi=mode.hi;mode=null;return castMine(hi,m.uid)}if(isT&&mode.k==='skill'){mode=null;return useSkill(m.uid)}if(isT&&mode.k==='act'){const a=mode;mode=null;return act1(()=>X('act',a.uid,a.kind,m.uid))}unitSheet(m)}}});
   if(mode&&mode.k==='atk'&&T.includes('life'))$('oppLife').classList.add(mode.target==='life'?'aim':'tgt');
@@ -3428,7 +3549,7 @@ function renderHint(S){if(!g||S.cur!==H||S.over||busy||!mode)return hint('');
   if(mode.k==='trib'){const d=BY[g.p[H].hand[mode.hi]];return hint(d.trib>1?(d.same?CD.FNAME[d.f]+'の':'')+'生贄にするキャラを'+d.trib+'体タップ('+mode.sel.length+'/'+d.trib+')':'生贄にするキャラをタップ',[cancel])}
   if(mode.k==='evo'){return hint('育てるキャラをタップ(熱量'+E.R.EVOC+')',[cancel])}
   if(mode.k==='boardTo')return hint('乗せる機体をタップ(熱量'+E.R.BOARD+')',[cancel]);
-  if(mode.k==='act')return hint({stop:'止める相手をタップ',mark:'照準を付ける相手をタップ',share:'記録を渡す味方をタップ',part:'DEFを上げる味方をタップ'}[mode.kind]||'',[cancel]);
+  if(mode.k==='act')return hint({fox:'妖狐の牙で倒す相手をタップ',stop:'止める相手をタップ',mark:'照準を付ける相手をタップ',share:'記録を渡す味方をタップ',part:'DEFを上げる味方をタップ'}[mode.kind]||'',[cancel]);
   if(mode.k==='skill'&&mode.ally)return hint('必殺技を使う味方をタップ',[cancel]);
   if(mode.k==='tgt'&&/^ally/.test(BY[g.p[H].hand[mode.hi]].tgt||''))return hint('光っている味方をタップ',[cancel]);
   hint(mode.k==='tgt'&&/^trap/.test(BY[g.p[H].hand[mode.hi]].tgt)?'壊す伏せトラップをタップ(中身は見えません)':'赤く光る相手をタップ',[cancel])}
@@ -3499,7 +3620,7 @@ let aimUid=null;
 async function aim(ev){const a=uidEl(ev.uid);if(!a)return;aimUid=ev.uid;a.classList.add('charge');a.style.zIndex=20;
   await anim(a,[{transform:'none'},{transform:'translateY('+(ev.who===H?-10:10)+'px) scale(1.07)'}],{duration:200});
   const t=ev.to?uidEl(ev.to):$(ev.who===H?'oppLife':'myLife');if(t)t.classList.add('aim');await wait(220)}
-const FCOL={weak:'#7fb2ff',girl:'#ff6fae',gay:'#c08cff',gen:'#ffd36b',gachi:'#ff9a3c',idol:'#ffd54a',vt:'#4fd1ff',cre:'#7ee08a',chu:'#a070ff',neta:'#ff6b6b',sei:'#ff9ad5',hage:'#d8c09a',mecha:'#4fd8d0',pirate:'#7088ff',reinc:'#5cb8ff',jujutsu:'#b07cff'};
+const FCOL={weak:'#7fb2ff',girl:'#ff6fae',gay:'#c08cff',gen:'#ffd36b',gachi:'#ff9a3c',idol:'#ffd54a',vt:'#4fd1ff',cre:'#7ee08a',chu:'#a070ff',neta:'#ff6b6b',sei:'#ff9ad5',hage:'#d8c09a',mecha:'#4fd8d0',pirate:'#7088ff',reinc:'#5cb8ff',jujutsu:'#b07cff',henshin:'#ff6a5a'};
 function afterimage(src,dx,dy,k){const r=rectOf(src);if(!r)return;const gh=src.cloneNode(true);gh.querySelectorAll('.refl,.scrholo,.scrglint').forEach(x=>x.remove());gh.classList.add('ghost','after');gh.style.left=r.left+'px';gh.style.top=r.top+'px';gh.style.width=r.width+'px';gh.style.height=r.height+'px';document.body.append(gh);
   anim(gh,[{transform:'translate('+(dx*k)+'px,'+(dy*k)+'px)',opacity:.55},{transform:'translate('+(dx*k)+'px,'+(dy*k)+'px) scale(1.05)',opacity:0}],{duration:300}).then(()=>gh.remove())}
 /* manga-style impact pieces */
@@ -3980,6 +4101,11 @@ function unitSheet(m){const c=BY[m.id],uv=WATCH?(m.ga|0||(m.scr?'s':0)):(scrSync
     if(E.isMech(m)&&!m.pilot){const b=el('button','btn gold','操縦者を乗せる(熱量'+E.R.BOARD+')');b.disabled=!boardCands(m).length;b.onclick=()=>{close();boardPick(m)};acts.append(b)}
     [['mark','照準を付ける(熱量1)'],['charge','充填する(熱量1)'],['share','記録を味方に渡す'],['part','部品を使う']].forEach(([kd,t])=>{if(!E.canAct(g,H,m.uid,kd))return;const b=el('button','btn',t);b.onclick=()=>{close();if(kd==='charge')act1(()=>X('act',m.uid,'charge'));else{mode={k:'act',uid:m.uid,kind:kd};render(snap())}};acts.append(b)});
     /* (10/22) 巡生族: 名付け */if(E.canAct(g,H,m.uid,'name')){const e=(c.kw||{}).evo;const b=el('button','btn gold','真名を授ける(熱量'+E.R.NAMEC+')'+(e&&BY[e]?' → 「'+BY[e].n+'」に進化':' → ★+1'));b.onclick=()=>{close();act1(()=>X('act',m.uid,'name'))};acts.append(b)}
+    /* (10/22) 異装族 */{const k2=c.kw||{};if(E.canAct(g,H,m.uid,'henshin')){const b=el('button','btn gold','変身する(熱量'+(k2.henC||1)+') → 「'+BY[k2.hen].n+'」');b.onclick=()=>{close();act1(()=>X('act',m.uid,'henshin'))};acts.append(b)}
+      if(E.canAct(g,H,m.uid,'bloodw')){const b=el('button','btn','血の武器(ライフ300)');b.onclick=()=>{close();act1(()=>X('act',m.uid,'bloodw'))};acts.append(b)}
+      if(E.canAct(g,H,m.uid,'fox')){const b=el('button','btn','妖狐の牙(ライフ300)');b.onclick=()=>{close();mode={k:'act',uid:m.uid,kind:'fox'};render(snap())};acts.append(b)}
+      if(E.canAct(g,H,m.uid,'kick')){const b=el('button','btn','必殺技(熱量1)');b.onclick=()=>{close();act1(()=>X('act',m.uid,'kick'))};acts.append(b)}
+      [['p','力の姿にする'],['s','速さの姿にする'],['g','守りの姿にする']].forEach(([f,t])=>{if(!E.canAct(g,H,m.uid,'fc',f))return;const b=el('button','btn',t);b.onclick=()=>{close();act1(()=>X('act',m.uid,'fc',f))};acts.append(b)})}
     /* (10/22) 呪術族 */[['shiki','式神を出す(熱量1)'],['call','怨霊を呼び戻す(熱量1)'],['stop','言霊で相手を止める(熱量1・ライフ'+((c.kw||{}).koto||0)+')']].forEach(([kd,t])=>{if(!E.canAct(g,H,m.uid,kd))return;const b=el('button','btn',t);b.onclick=()=>{close();if(kd==='stop'){mode={k:'act',uid:m.uid,kind:'stop'};render(snap())}else act1(()=>X('act',m.uid,kd))};acts.append(b)});
     [['a','突撃形態にする'],['c','巡航形態にする']].forEach(([f,t])=>{if(!E.canAct(g,H,m.uid,'form',f))return;const b=el('button','btn',t);b.onclick=()=>{close();act1(()=>X('act',m.uid,'form',f))};acts.append(b)});
     if(acts.children.length)s.append(acts)}
@@ -4193,7 +4319,7 @@ window.__tcg={_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o=>backCa
 var V2=V2||{av:{},lane:[],hand:'',traps:['','']};
 function v2unitKey(u,S,side){if(!u)return'';let ready=0;try{if(side==='me'&&S.cur===H&&!S.over&&!busy&&g){const m=E.find(g,u.uid);if(m&&E.canAttack(g,H,m)&&!(mode&&mode.k!=='atk'))ready=1}}catch(e){}
   let v=0;try{v=WATCH?(u.scr?1:0)+'/'+(u.ga|0):unitVar(u,S)}catch(e){}
-  return [u.uid,u.id,u.A,u.D,u.star,u.awk?1:0,u.sick?1:0,u.rush?1:0,u.cover?1:0,u.gutsUsed?1:0,u.under|0,ready,v,/* (10/22) 機装族 */u.pilot||'',u.mech?1:0,u.chg?1:0,u.mk?1:0,u.form||'',u.rec?1:0,u.part?1:0,u.twin?1:0,u.penh?1:0,u.riv?1:0,/* 海賊族 */u.hi||'',u.bty|0,u.hard?1:0,/* 巡生族 */u.named?1:0,u.seal?1:0,u.ride?1:0,u.eat||'',/* 呪術族 */u.cur|0,u.relic|0,u.spear?1:0].join('|')}
+  return [u.uid,u.id,u.A,u.D,u.star,u.awk?1:0,u.sick?1:0,u.rush?1:0,u.cover?1:0,u.gutsUsed?1:0,u.under|0,ready,v,/* (10/22) 機装族 */u.pilot||'',u.mech?1:0,u.chg?1:0,u.mk?1:0,u.form||'',u.rec?1:0,u.part?1:0,u.twin?1:0,u.penh?1:0,u.riv?1:0,/* 海賊族 */u.hi||'',u.bty|0,u.hard?1:0,/* 巡生族 */u.named?1:0,u.seal?1:0,u.ride?1:0,u.eat||'',/* 呪術族 */u.cur|0,u.relic|0,u.spear?1:0,/* 異装族 */u.hen?1:0,u.fc||''].join('|')}
 function v2trapKey(P){return [P.st.length,P.seal?1:0,P.st.map(t=>t.uid+(t.ready?'r':'w')).join(','),P.deckN|0,P.gy|0,P.gyTop||''].join('|')}
 function render(S){if(!V2)V2={av:{},lane:[],hand:'',traps:['','']};view=S;queueSpectator();const me=S.p[H],op=S.p[1-H];
   /* the avatars: kept while the gauge and the leader's state are the same (their picture is the heavy part) */
