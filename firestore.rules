@@ -476,7 +476,7 @@ service cloud.firestore {
       allow update: if isAdmin() || (signedIn() && myPid() == pid
         && newV('packs', 0) >= oldV('packs', 0) && newV('lpacks', 0) >= oldV('lpacks', 0)
         && newV('tused', 0) >= oldV('tused', 0) && (!('tix' in resource.data) || 'tix' in request.resource.data)
-        && newV('tpacks', 0) >= oldV('tpacks', 0) && tcgStOk()
+        && newV('tpacks', 0) >= oldV('tpacks', 0) && tcgStOk() && tcgNstOk()
         && newV('xpacks', 0) >= oldV('xpacks', 0) && newV('xpacks', 0) - oldV('xpacks', 0) <= newV('tpacks', 0) - oldV('tpacks', 0)
         && newV('hpacks', 0) >= oldV('hpacks', 0) && newV('hpacks', 0) - oldV('hpacks', 0) <= newV('tpacks', 0) - oldV('tpacks', 0)
         && pspentOk() && missionOk() && loginOk() && passOk(pid)
@@ -517,6 +517,9 @@ service cloud.firestore {
     // きもオタTCG: the starter deck is chosen once and never changes
     function tcgSt(d) { return ('tcg' in d) && ('st' in d.tcg) ? d.tcg.st : ''; }
     function tcgStOk() { return tcgSt(resource.data) == '' || tcgSt(request.resource.data) == tcgSt(resource.data); }
+    // (10/22) the starter of a new tribe: chosen once, never changed
+    function tcgNst(d) { return ('tcg' in d) && ('nst' in d.tcg) ? d.tcg.nst : ''; }
+    function tcgNstOk() { return tcgNst(resource.data) == '' || tcgNst(request.resource.data) == tcgNst(resource.data); }
     // purchased points can only be used up by opening packs
     function pspentOk() {
       return newV('pspent', 0) >= oldV('pspent', 0)
@@ -626,13 +629,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     // ---- (10/18) 申し込み (orders): a player asks to buy (sends the 応援値 outside the app, writes the code in the memo).
-    //      The admin approves from the app (kind: hwpass | hwset | pt (pl = plan 0-7) | mpass (pl = grade 1-3)). Players only create their own, waiting ones,
+    //      The admin approves from the app (kind: hwpass | hwset | hwp5 | hwp10 (10/20 小袋・大袋) | pt (pl = plan 0-7) | mpass (pl = grade 1-3)). Players only create their own, waiting ones,
     //      and may cancel them while they wait ----
     match /orders/{id} {
       allow read: if isAdmin() || (signedIn() && myPid() != '' && resource.data.pid == myPid());
       allow create: if signedIn() && myPid() != '' && request.resource.data.pid == myPid()
         && request.resource.data.keys().hasOnly(['pid', 'pn', 'kind', 'code', 't', 'st', 'pl'])
-        && request.resource.data.st == 'wait' && request.resource.data.kind in ['hwpass', 'hwset', 'pt', 'mpass']
+        && request.resource.data.st == 'wait' && request.resource.data.kind in ['hwpass', 'hwset', 'hwp5', 'hwp10', 'pt', 'mpass']
         && (request.resource.data.kind != 'pt' || (request.resource.data.get('pl', -1) is int && request.resource.data.get('pl', -1) >= 0 && request.resource.data.get('pl', -1) <= 7))
         && (request.resource.data.kind != 'mpass' || (request.resource.data.get('pl', -1) is int && request.resource.data.get('pl', -1) >= 1 && request.resource.data.get('pl', -1) <= 3))
         && request.resource.data.code is string && request.resource.data.code.size() <= 12
