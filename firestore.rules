@@ -474,7 +474,7 @@ service cloud.firestore {
         && (newV('mpts', 0) == 0 || (newV('mpts', 0) == 100 && newV('md', -1) == today()))
         && (newV('lbp', 0) == 0 || (newV('lbp', 0) >= 30 && newV('lbp', 0) <= 50 && newV('lbd', -1) == today()))
         && newV('ppp', 0) == 0);
-      allow update: if isAdmin() || (signedIn() && myPid() == pid
+      allow update: if invRvOk() && (isAdmin() || (signedIn() && myPid() == pid
         && newV('packs', 0) >= oldV('packs', 0) && newV('lpacks', 0) >= oldV('lpacks', 0)
         && newV('tused', 0) >= oldV('tused', 0) && (!('tix' in resource.data) || 'tix' in request.resource.data)
         && newV('tpacks', 0) >= oldV('tpacks', 0) && tcgStOk() && tcgNstOk()
@@ -486,8 +486,14 @@ service cloud.firestore {
         && newV('wused', 0) >= oldV('wused', 0)
         && (newV('wused', 0) == oldV('wused', 0) || newV('wused', 0) * 350 <= newV('lpacks', 0))
         && newV('hwlp', 0) >= oldV('hwlp', 0) && newV('hwwu', 0) >= oldV('hwwu', 0)
-        && (newV('hwwu', 0) == oldV('hwwu', 0) || newV('hwwu', 0) * 350 <= newV('hwlp', 0)));
+        && (newV('hwwu', 0) == oldV('hwwu', 0) || newV('hwwu', 0) * 350 <= newV('hwlp', 0))));
       allow delete: if isAdmin();
+    }
+    // (10/22) a whole inventory written from an old copy is refused, the admin's too: either rv is unchanged (a partial merge)
+    // or the write says it was made from the rv the server has now (pr)
+    function invRvOk() {
+      return request.resource.data.get('rv', '') == resource.data.get('rv', '')
+        || request.resource.data.get('pr', '') == resource.data.get('rv', '');
     }
 
     // daily missions: +100 at most once per day (a day starts at 5:00 JST)
