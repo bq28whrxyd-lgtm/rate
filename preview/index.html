@@ -5371,6 +5371,36 @@ body.ui2 .kx-cta.kx-tcta.rk{box-shadow:inset 0 .5px 0 #fff,0 0 0 .5px rgba(255,2
 /* (10/22) 遊び方 button: a small gold dot until it has been watched once */
 body.ui2 .kx-ttut{position:relative}
 body.ui2 .kx-ttut.kx-tnew::after{content:'';position:absolute;top:6px;right:8px;width:7px;height:7px;border-radius:50%;background:#ffd36b;box-shadow:0 0 8px rgba(255,211,107,.8)}
+/* (10/22) プロフィールを見やすく: the three key numbers, one sorted rating list, only what is equipped, section labels */
+body.ui2 .pcard.kpc.kpc.kpc-full{padding-top:112px!important}
+body.ui2 .kpc-sh{font:700 12px/1 var(--x-f);letter-spacing:.04em;color:rgba(255,255,255,.5);padding:2px 2px 0}
+body.ui2 .kpc-sum{display:grid;grid-template-columns:1.2fr 1fr .8fr;margin:2px 16px 0;border-radius:18px;overflow:hidden;background:rgba(255,255,255,.045);box-shadow:inset 0 .5px 0 rgba(255,255,255,.12),0 0 0 .5px rgba(255,255,255,.06)}
+body.ui2 .kpc-sc{display:grid;gap:5px;padding:12px 12px 11px;min-width:0}
+body.ui2 .kpc-sc+.kpc-sc{box-shadow:inset .5px 0 0 rgba(255,255,255,.08)}
+body.ui2 .kpc-sc span{font:700 11px/1 var(--x-f);color:rgba(255,255,255,.55)}
+body.ui2 .kpc-sc b{font:800 22px/1 var(--x-f);color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:-.01em}
+body.ui2 .kpc-sc small{font:700 11px/1.1 var(--x-f);color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:12px}
+body.ui2 .kpc-sc.best b{font-size:26px;color:var(--mg2,var(--mg,#fff))}
+body.ui2 .kpc-sc.best small{color:var(--mg2,var(--mg,#ccc))}
+body.ui2 .kpc-rlist{display:grid;gap:6px;margin:0 16px}
+body.ui2 .kpc-rr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 14px 11px 12px;border-radius:16px;background:rgba(255,255,255,.035);box-shadow:inset 0 .5px 0 rgba(255,255,255,.08)}
+body.ui2 .kpc-rr.top{background:linear-gradient(90deg,color-mix(in srgb,var(--mg,#888) 22%,transparent),rgba(255,255,255,.03) 70%);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--mg,#888) 40%,transparent)}
+body.ui2 .kpc-rre{display:grid;place-items:center;width:30px;height:30px}
+body.ui2 .kpc-rrn{display:grid;gap:4px;min-width:0}
+body.ui2 .kpc-rrn b{font:800 15px/1.15 var(--x-f);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.ui2 .kpc-rrn small{font:600 11.5px/1.1 var(--x-f);color:rgba(255,255,255,.55);white-space:nowrap}
+body.ui2 .kpc-rrv{display:grid;justify-items:end;gap:4px}
+body.ui2 .kpc-rrv b{font:800 22px/1 var(--x-f);color:#fff;font-variant-numeric:tabular-nums}
+body.ui2 .kpc-rrv em{font:800 10px/1 var(--x-f);font-style:normal;letter-spacing:.08em;color:var(--mg2,var(--mg,#aaa))}
+body.ui2 .kpc .pcol{margin:0 16px!important}
+body.ui2 .kpc .pcolh b{font-size:22px}
+body.ui2 .kpc-eq{display:grid;gap:8px;margin:0 16px}
+body.ui2 .kpc-eql{display:flex;flex-wrap:wrap;gap:6px}
+body.ui2 .kpc-eqi{display:inline-flex;align-items:baseline;gap:7px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1);min-width:0}
+body.ui2 .kpc-eqi span{font:700 11px/1 var(--x-f);color:rgba(255,255,255,.5)}
+body.ui2 .kpc-eqi b{font:800 13px/1 var(--x-f);color:#fff}
+body.ui2 .kpc-eqi.q2 b{color:#c99bff}body.ui2 .kpc-eqi.q3 b{color:#f5c84c}body.ui2 .kpc-eqi.q4 b{color:#ff6b9a}
+body.ui2 .kpc-colw{display:grid;gap:8px;margin:0 16px}body.ui2 .kpc-colw .pcol{margin:0!important}
 /* ===== v121 rating trend (kt). Dark SaaS look: one gradient line (violet to cyan), a soft area under it,
    rank borders as dotted lines, the number on top. Only transform/opacity move. ===== */
 
@@ -15321,16 +15351,23 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const cur=typeof game!=='undefined'?game:null;let L=Object.keys(G).filter(g=>pl(g)||g===cur);if(!L.length)L=Object.keys(G).slice(0,1);
     const rows=L.map(g=>({gn:G[g],r:rG(g),w:p[g+'_wins']||0,l:p[g+'_losses']||0}));
     if(p.id&&typeof tcgRatings==='function'){try{const K=tcgRatings();rows.push({gn:'きもオタTCG',r:tcgRating(p.id),w:K.w[p.id]||0,l:K.l[p.id]||0,tcg:true})}catch(e){}}
-    const rg=mk('div','kpc-rates');rows.forEach(x=>{const t=TI(x.r),box=mk('div','kpc-rt'+(x.tcg?' tcg':''));try{mvars(box,t)}catch(e){}
-      const h=mk('div','kpc-rth');try{h.append(emblem(t,18))}catch(e){}h.append(mk('span',null,esc(x.gn)));
-      let en='';try{en=RE(x.r)}catch(e){}const v=mk('div','kpc-rtv');v.append(mk('b','kx-num',String(x.r)),mk('em',null,esc(en)));
-      box.append(h,v,mk('small',null,x.w+'勝 '+x.l+'敗'));rg.append(box)});
+    /* (10/22) 見やすく: three numbers first (best rating, wins-losses, win rate), then the ratings as one sorted list, then only what is equipped */
+    {const W=rows.reduce((a,x)=>a+x.w,0),Lo=rows.reduce((a,x)=>a+x.l,0),bt=TI(best);let rn='';try{rn=RN(best)}catch(e){}
+      const sm=mk('div','kpc-sum');try{mvars(sm,bt)}catch(e){}
+      const cell=(k,v,s,cl)=>{const d=mk('div','kpc-sc'+(cl?' '+cl:''));d.append(mk('span',null,k),mk('b','kx-num',v),mk('small',null,s||''));return d};
+      sm.append(cell('最高レート',String(best),rn,'best'),cell('通算',W+'勝 '+Lo+'敗',(W+Lo)+'戦'),cell('勝率',W+Lo?Math.round(W*100/(W+Lo))+'%':'-',W+Lo?'':'まだ対戦なし'));c.append(sm)}
+    const rg=mk('div','kpc-rlist');rg.append(mk('div','kpc-sh','レート'));
+    rows.slice().sort((x,y)=>y.r-x.r).forEach((x,i)=>{const t=TI(x.r),box=mk('div','kpc-rr'+(x.tcg?' tcg':'')+(i===0&&x.w+x.l>0?' top':''));try{mvars(box,t)}catch(e){}
+      const e=mk('span','kpc-rre');try{e.append(emblem(t,26))}catch(er){}
+      let en='';try{en=RE(x.r)}catch(er){}
+      const nm=mk('div','kpc-rrn');nm.append(mk('b',null,esc(x.gn)),mk('small',null,x.w+'勝 '+x.l+'敗'+(x.w+x.l?'  ·  勝率'+Math.round(x.w*100/(x.w+x.l))+'%':'')));
+      const v=mk('div','kpc-rrv');v.append(mk('b','kx-num',String(x.r)),mk('em',null,esc(en)));
+      box.append(e,nm,v);rg.append(box)});
     c.append(rg);
-    try{const cb=typeof colBlock==='function'?colBlock(p):null;if(cb)c.append(cb)}catch(e){}
-    const col=mk('div','kpc-col');[['a','アイコン'],['f','フレーム'],['x','対戦演出'],['v','勝利演出'],['b','背景'],['c','コイン']].forEach(([k,n])=>{const i=eq[k]&&ITEM(eq[k]);
-      const d=mk('div','kpc-it'+(i?' r'+(i.r|0):' none'));d.append(mk('span',null,n),mk('b',null,i?esc(i.n):'なし'));col.append(d)});
-    c.append(col);
-    if(stat)c.append(mk('div','kpc-stat',esc(stat)));
+    try{const cb=typeof colBlock==='function'?colBlock(p):null;if(cb){const cw=mk('div','kpc-colw');cw.append(mk('div','kpc-sh','コレクション'),cb);c.append(cw)}}catch(e){}
+    const on=[['a','アイコン'],['f','フレーム'],['x','対戦演出'],['v','勝利演出'],['b','背景'],['c','コイン']].map(([k,n])=>[n,eq[k]&&ITEM(eq[k])]).filter(x=>x[1]);
+    if(on.length){const col=mk('div','kpc-eq');col.append(mk('div','kpc-sh','つけているもの'));const L2=mk('div','kpc-eql');
+      on.forEach(([n,i])=>{const d=mk('div','kpc-eqi q'+(i.r|0));d.append(mk('span',null,n),mk('b',null,esc(i.n)));L2.append(d)});col.append(L2);c.append(col)}
     return c}
   if(typeof profileCard==='function'){const PC0=profileCard;profileCard=function(p,stat){try{return kProfile(p,stat)}catch(e){console.warn('kx profile',e);return PC0.apply(this,arguments)}}}
 
