@@ -1686,7 +1686,7 @@ MK([
  {id:'m13',n:'仮面の宿敵',r:'R',type:'chara',c:2,atk:1300,def:1000,kw:{prival:1}},
  {id:'m14',n:'調整された少年兵',r:'R',type:'chara',c:2,atk:1200,def:700,kw:{penh:1}},
  {id:'m15',n:'叩き上げの艦長',r:'R',type:'chara',c:3,atk:1000,def:1700,kw:{captain:1},onPlay:[{op:'drawIfMech',n:1}]},
- {id:'m16',n:'光刃サーベル',r:'N',type:'spell',c:2,tgt:'allyPiloted',ops:[{op:'saber',n:500}]},
+ {id:'m16',n:'光刃サーベル',r:'N',type:'spell',c:2,tgt:'allyPiloted',ops:[{op:'saber',n:800}]},
  {id:'m17',n:'粒子ライフル',r:'N',type:'spell',c:2,tgt:'enemy',ops:[{op:'rifle',n:800}]},
  {id:'m18',n:'対光線シールド',r:'N',type:'trap',c:1,when:'attack',ops:[{op:'shield',n:1500}]},
  {id:'m19',n:'限界駆動',r:'R',type:'spell',c:2,tgt:'allyPiloted',ops:[{op:'overdrive',n:1000}]},
@@ -1770,7 +1770,7 @@ function text(c){const t=[],k=c.kw||{};
   if(k.grad)t.push('【卒業】出てから'+k.grad+'回目の自分のターンの始めに場を離れる(倒れたことにはならない)。そのとき、ライフ+'+(k.gradHeal||1500)+'、'+(k.gradDraw||2)+'枚引く');if(k.anti)t.push('【アンチは養分】自分のコイントスで裏が出るたびに、ATK・DEF+'+k.anti+'(ずっと)');if(k.deadline)t.push('【締切】出てから'+k.deadline+'回目の自分のターンの始めに★3になる');if(k.assist)t.push('【アシスト】味方のキャラが★3(覚醒)になるたびに、1枚引く');
   if(k.toll)t.push('【代償】攻撃するたびに、自分のライフに'+k.toll+'ダメージ');if(k.touchup)t.push('【お直し】倒れるとき、★が2以上なら、かわりに★-1して場に残る');if(k.senior)t.push('【年功序列】自分のターンが始まるたびに、ATK+'+k.senior+'(ずっと)');if(k.lecture)t.push('【長話】このキャラがいるあいだ、相手は1ターンにカードを'+k.lecture+'枚までしか使えない(キャラを出す・魔法・トラップ・育てるを数える)');
   /* (10/22) 機装族 */
-  if(k.mech)t.push('【搭乗可能】熱量1で、手札か場の熱量3以下のキャラ(リーダー・生贄が必要なキャラはのぞく)を乗せられる。ATKの方が高い操縦者ならATK+400、DEFの方が高いならDEF+400。操縦者の【速攻】【かばう】【根性】のうち1つも得る。1機に1人まで');
+  if(k.mech)t.push('【搭乗可能】熱量1で、手札か場の熱量3以下のキャラ(リーダー・生贄が必要なキャラはのぞく)を乗せられる。ATKの方が高い操縦者ならATK+500、DEFの方が高いならDEF+500。操縦者の【速攻】【かばう】【根性】のうち1つも得る。1機に1人まで');
   if(k.learn)t.push('【交戦学習】自分から攻撃して、どちらも生き残った相手を記録する。その相手との次の戦闘だけATK・DEF+500(使うと記録は消える)\n★3覚醒「戦術共有」:記録を、ほかの味方1体に渡せる(自分のターンに1回)');
   if(k.pick)t.push('【壊れ方を知っている】操縦者が乗った味方の機体が倒れたとき、その操縦者を手札に戻す(自分・相手のターンに1回ずつ)\n★3覚醒「遺された設計図」:戻したとき部品を1個とっておく。部品を使うと、味方1体のDEF+400(次の相手のターンの終わりまで)');
   if(k.wall)t.push('【展開障壁】操縦者が乗っているあいだ【かばう】\n★3覚醒「広域障壁」:攻撃を受けて生き残ると、一番DEFが低いほかの味方のDEF+500(次の相手のターンの終わりまで)');
@@ -1779,7 +1779,7 @@ function text(c){const t=[],k=c.kw||{};
   if(k.charge)t.push('【蓄圧砲】まだ攻撃していない自分のターンに熱量1で充填する(そのターンは攻撃できない)。次にキャラを攻撃するとき、その戦闘だけ相手のDEF-1200\n★3覚醒「貫通照射」:充填した攻撃で倒すと、別の相手1体のDEF-400(このターンだけ)');
   if(k.pboy)t.push('【巻き込まれた少年】機体に乗ると、機体が【速攻】になる。乗っている機体が自分から攻撃して生き残るたびに★+1');
   if(k.pred)t.push('【赤い流星】機体に乗ると、機体のATKがさらに+500、1ターンに2回攻撃できる');
-  if(k.prival)t.push('【宿敵】機体に乗ると、相手のATKが一番高いキャラを宿敵にする。宿敵との戦闘ではATK・DEF+400');
+  if(k.prival)t.push('【宿敵】機体に乗ると、相手のATKが一番高いキャラを宿敵にする。宿敵との戦闘ではATK・DEF+800');
   if(k.penh)t.push('【調整】機体に乗ると、機体のATK+1000。乗っているあいだ、自分のターンの終わりに自分のライフに300ダメージ');
   if(k.captain)t.push('【艦長】場にいるあいだ、自分の機体全員のDEF+300');
   if(k.buzz)t.push('【バズ】自分が魔法を使うたびに、ATK+'+k.buzz+'(ずっと)');if(k.dotan)t.push('【同担拒否】味方のキャラが全員ちがう族のときしか攻撃できない');if(k.mine)t.push('【地雷】このキャラを攻撃してきたキャラを倒す。このキャラも一緒に倒れる');
@@ -1836,7 +1836,7 @@ __def('./engine4.js',function(module,exports,require){
 const {BY,fk}=require('./cards4.js');
 /* (10/19) a ハロウィン版 is the same character as its original: stacking one on the other is 'the same card' (★+2) */
 const sameC=(a,b)=>a===b||(fk?fk(a)===fk(b):false);
-const R={TRAIT:1,GAY_N:3,GAY_B:300,HAGE_D:300,SEI_A:200,CHU_D:300,IDOL_H:200,LIFE:4000,SLOTS:4,ST:3,HAND:7,START:4,START2:0,MAXE:8,MAXTURN:8,GAUGE:3,BOOST2:1,EVOC:1,STAR:400,PIERCE:1,EVO_READY:0,BOARD:1,PILOT:400,REC:500,MARK:600,CHARGE:1200};
+const R={TRAIT:1,GAY_N:3,GAY_B:300,HAGE_D:300,SEI_A:200,CHU_D:300,IDOL_H:200,LIFE:4000,SLOTS:4,ST:3,HAND:7,START:4,START2:0,MAXE:8,MAXTURN:8,GAUGE:3,BOOST2:1,EVOC:1,STAR:400,PIERCE:1,EVO_READY:0,BOARD:1,PILOT:500,REC:500,MARK:600,CHARGE:1200};
 function rng(seed){let a=seed>>>0;return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 let UID=0;const opp=p=>1-p;
 const tr=(g,pi,k)=>R.TRAIT&&g.p[pi].skill===k;
@@ -2090,7 +2090,7 @@ function setForm(g,m,f){const b=FORMS[f];if(!b)return;const da=b[0]-m.atk0,dd=b[
 /* the numbers of one battle, before it is decided (records, aims, a charged shot, an emergency change of form) */
 function mechClash(g,m,t,v){
   if(t.awk&&(BY[t.id].kw||{}).form&&t.form!=='c'&&t.formE!==g.turns){t.formE=g.turns;setForm(g,t,'c');v.D=DEF(g,t);v.B=ATK(g,t)}
-  const rb=(x,y)=>{let n=0;if(x.rival&&x.rival===y.uid)n+=400;if(x.rec===y.uid){n+=R.REC;x.recUse=1}if(x.gift&&x.gift.on===y.uid&&g.turns<=x.gift.u){n+=x.gift.n;x.giftUse=1}return n};
+  const rb=(x,y)=>{let n=0;if(x.rival&&x.rival===y.uid)n+=800;if(x.rec===y.uid){n+=R.REC;x.recUse=1}if(x.gift&&x.gift.on===y.uid&&g.turns<=x.gift.u){n+=x.gift.n;x.giftUse=1}return n};
   const a=rb(m,t),b=rb(t,m);if(a){v.A+=a;v.AD+=a;ev(g,{t:'note',uid:m.uid,s:'交戦学習:ATK・DEF+'+a})}if(b){v.D+=b;v.B+=b;ev(g,{t:'note',uid:t.uid,s:'交戦学習:ATK・DEF+'+b})}
   if(t.mark&&t.mark.by===m.owner&&g.turns<=t.mark.u&&t.mark.src!==m.uid){v.D-=R.MARK;t.mark=null;ev(g,{t:'note',uid:t.uid,s:'照準:DEF-'+R.MARK})}
   if(m.charge){m.charge=0;m.chgHit=1;v.D-=R.CHARGE;ev(g,{t:'note',uid:t.uid,s:'蓄圧砲:DEF-'+R.CHARGE})}
