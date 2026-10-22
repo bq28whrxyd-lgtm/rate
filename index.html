@@ -7191,6 +7191,39 @@ html,body{overscroll-behavior-y:none}
 body.ui2 .bnav{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:linear-gradient(180deg,rgba(40,39,52,.86),rgba(14,14,20,.95))!important;-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 /* (10/20) battery: a block scrolled out of sight pauses its loops (ui2.js puts .koff on it) */
 .koff,.koff *,.koff *::before,.koff *::after{animation-play-state:paused!important}
+/* (10/22) PC: a mouse and a wide screen. The phone column stays as it is; the menu moves to a rail on its left,
+   the TCG / 分身 screens open in a tall frame in the middle instead of being stretched across the whole width */
+body.kpc{--kpc-col:520px}
+body.kpc::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(42% 60% at 18% 30%,rgba(124,92,255,.10),transparent 70%),radial-gradient(40% 55% at 84% 70%,rgba(255,170,60,.07),transparent 70%)}
+/* the menu: a rail to the left of the column */
+body.kpc.ui2 .bnav{left:calc(50% - var(--kpc-col) / 2 - 92px)!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%);
+  width:76px!important;max-width:none!important;height:auto!important;margin:0!important;padding:8px 6px!important;border-radius:26px!important;
+  display:flex!important;flex-direction:column;gap:4px;grid-template-columns:none!important}
+body.kpc.ui2 .bnav>button{width:100%;min-height:62px;flex:none;border-radius:18px!important}
+body.kpc.ui2 .bnav>button::after{content:attr(data-key);position:absolute;top:5px;right:7px;font:700 9px/1 ui-monospace,monospace;opacity:.35}
+body.kpc.ui2 .bnav>button{position:relative}
+body.kpc.ui2 main{padding-bottom:48px!important}
+/* the mouse: a pointer, a light lift on things that can be pressed */
+body.kpc button,body.kpc [role="button"],body.kpc [role="option"],body.kpc a{cursor:pointer}
+body.kpc.ui2 main button:hover:not(:disabled){filter:brightness(1.08)}
+body.kpc.ui2 .bnav>button:hover{background:rgba(255,255,255,.06)}
+/* rows that slide sideways: a thin bar shows there is more, and arrows appear on hover */
+body.kpc .kpc-hs{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.22) transparent}
+body.kpc .kpc-hs::-webkit-scrollbar{display:block!important;height:6px}
+body.kpc .kpc-hs::-webkit-scrollbar-thumb{background:rgba(255,255,255,.22);border-radius:6px}
+body.kpc .kpc-hs.kpc-drag{cursor:grabbing;scroll-snap-type:none!important;scroll-behavior:auto!important}
+body.kpc .kpc-hs.kpc-drag *{pointer-events:none}
+.kpc-arw{position:fixed;z-index:60;width:34px;height:34px;margin:-17px 0 0;border:0;border-radius:50%;display:grid;place-items:center;
+  background:rgba(20,20,26,.82);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.14);opacity:0;pointer-events:none;transition:opacity .15s}
+.kpc-arw.on{opacity:1;pointer-events:auto}
+.kpc-arw svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+/* TCG and 分身: a tall frame in the middle, the rest dimmed */
+body.kpc .tcgw{display:grid;place-items:center;background:radial-gradient(60% 80% at 50% 50%,#14121c,#050507)!important}
+body.kpc .tcgw iframe{width:min(100vw,calc(100vh * .66),720px)!important;height:100%!important;border-radius:0;box-shadow:0 0 0 1px rgba(255,255,255,.06),0 30px 80px rgba(0,0,0,.7)}
+/* a small help line about the keys, under the rail */
+.kpc-keys{position:fixed;z-index:89;left:calc(50% - var(--kpc-col) / 2 - 92px);width:76px;text-align:center;font:600 10px/1.5 system-ui,sans-serif;color:rgba(255,255,255,.38);pointer-events:none}
+@media (prefers-reduced-motion:reduce){.kpc-arw{transition:none}}
 /*UI2-END*/
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
@@ -12671,7 +12704,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=151';
+const TCG_SRC='tcg_play.html?v=152';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -18347,7 +18380,55 @@ window.__tcgOnly=true;/*TCGONLY*/
   try{if(typeof msgPopView==='function'){const f=msgPopView;msgPopView=gate('msg',f)}}catch(e){}
   window.__kpop={get shown(){return shown},reset(){shown=false;pending=[]}};
 })();
-/*KPOPJS-END*/</script>
+/*KPOPJS-END*/
+/* (10/22) PC: a mouse and a wide screen (see kpc.css). Rows that slide sideways get arrows and can be dragged with the mouse,
+   Esc closes the window on top, 1-5 switch the bottom menu */
+(function(){'use strict';
+const MQ=matchMedia('(min-width: 900px) and (pointer: fine)');
+const on=()=>document.body.classList.contains('kpc');
+function apply(){document.body.classList.toggle('kpc',MQ.matches);document.querySelectorAll('.bnav>button').forEach((b,i)=>{if(i<9)b.dataset.key=String(i+1)})}
+if(MQ.addEventListener)MQ.addEventListener('change',apply);else if(MQ.addListener)MQ.addListener(apply);
+if(document.body)apply();else addEventListener('DOMContentLoaded',apply);
+setTimeout(apply,1500);
+
+/* the nearest row that slides sideways */
+function hsOf(t){for(let e=t;e&&e!==document.body&&e.nodeType===1;e=e.parentElement){if(e.scrollWidth>e.clientWidth+8){const ox=getComputedStyle(e).overflowX;if(ox==='auto'||ox==='scroll'){e.classList.add('kpc-hs');return e}}}return null}
+
+/* arrows */
+const mkA=d=>{const b=document.createElement('button');b.type='button';b.className='kpc-arw';b.setAttribute('aria-label',d<0?'左へ':'右へ');
+  b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(d<0?'M15 5l-7 7 7 7':'M9 5l7 7-7 7')+'"/></svg>';
+  b.addEventListener('click',e=>{e.stopPropagation();if(cur)cur.scrollBy({left:d*Math.max(120,cur.clientWidth*.8),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});setTimeout(place,350)});return b};
+let L=null,R=null,cur=null,raf=0;
+function place(){raf=0;if(!L){L=mkA(-1);R=mkA(1);document.body.append(L,R)}
+  if(!on()||!cur||!cur.isConnected){L.classList.remove('on');R.classList.remove('on');return}
+  const r=cur.getBoundingClientRect();if(r.width<120||r.bottom<0||r.top>innerHeight){L.classList.remove('on');R.classList.remove('on');return}
+  const y=r.top+r.height/2;L.style.top=R.style.top=y+'px';L.style.left=(r.left+6)+'px';R.style.left=(r.right-40)+'px';
+  L.classList.toggle('on',cur.scrollLeft>4);R.classList.toggle('on',cur.scrollLeft<cur.scrollWidth-cur.clientWidth-4)}
+document.addEventListener('mousemove',e=>{if(!on())return;if(e.target&&e.target.closest&&e.target.closest('.kpc-arw'))return;const h=hsOf(e.target);if(h!==cur){cur=h}if(!raf)raf=requestAnimationFrame(place)},{passive:true});
+document.addEventListener('scroll',()=>{if(on()&&cur&&!raf)raf=requestAnimationFrame(place)},{passive:true,capture:true});
+
+/* drag with the mouse; a drag is not a click */
+let dg=null,eat=false;
+document.addEventListener('pointerdown',e=>{if(!on()||e.pointerType!=='mouse'||e.button!==0)return;const h=hsOf(e.target);if(!h)return;dg={h,x:e.clientX,s:h.scrollLeft,moved:false}},true);
+document.addEventListener('pointermove',e=>{if(!dg)return;const dx=e.clientX-dg.x;if(!dg.moved&&Math.abs(dx)<6)return;if(!dg.moved){dg.moved=true;dg.h.classList.add('kpc-drag')}dg.h.scrollLeft=dg.s-dx;if(!raf)raf=requestAnimationFrame(place)},true);
+const end=()=>{if(!dg)return;if(dg.moved){eat=true;setTimeout(()=>{eat=false},0)}dg.h.classList.remove('kpc-drag');dg=null};
+document.addEventListener('pointerup',end,true);document.addEventListener('pointercancel',end,true);
+document.addEventListener('click',e=>{if(eat){e.preventDefault();e.stopPropagation();eat=false}},true);
+
+/* the window on top: the last fixed layer over the page */
+const SKIP=/(^|\s)(bnav|kpc-arw|kpc-keys|toast|k-toast)(\s|$)/;
+function topLayer(){const L=[...document.body.children].filter(e=>{if(e.id==='dmp'||e.id==='dmo'||SKIP.test(e.className||''))return false;const cs=getComputedStyle(e);if(cs.position!=='fixed'||cs.display==='none'||cs.visibility==='hidden'||+cs.opacity===0)return false;const r=e.getBoundingClientRect();return r.width>innerWidth*.5&&r.height>innerHeight*.5});return L[L.length-1]||null}
+const CLOSE=['閉じる','やめる','キャンセル','戻す','もどる','戻る','できた','OK'];
+function closeTop(){const o=topLayer();if(!o)return false;if(o.querySelector('iframe'))return false;
+  const bs=[...o.querySelectorAll('button')].filter(b=>b.offsetParent!==null&&!b.disabled);
+  const b=bs.find(b=>(b.getAttribute('aria-label')||'').includes('閉じる'))||bs.find(b=>CLOSE.includes((b.textContent||'').trim()))||bs.find(b=>/^←/.test((b.textContent||'').trim()));
+  if(b){b.click();return true}o.click();return true}
+document.addEventListener('keydown',e=>{if(!on()||e.defaultPrevented||e.altKey||e.ctrlKey||e.metaKey)return;const t=e.target;if(t&&(t.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)))return;
+  if(e.key==='Escape'){if(closeTop())e.preventDefault();return}
+  if(/^[1-9]$/.test(e.key)&&!topLayer()){const b=document.querySelectorAll('.bnav>button')[+e.key-1];if(b){b.click();e.preventDefault()}}});
+window.__kpc={apply,closeTop,topLayer};
+})();
+/*KPCJS-END*/</script>
 <script>
 /* data carried over from the Claude version (imported once by the first person who presses the button) */
 window.MIGRATE={"admin": "3kcrm26nwc6hhos2mgxd", "players": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"eq": {"b": null, "f": null, "t": null, "v": null, "x": "x40"}, "name": "山田", "season": 1}}], "inv": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"own": {"f00": 3, "f01": 1, "f02": 2, "t00": 1, "t10": 1, "t14": 2, "x00": 1, "x10": 1, "x11": 1, "x21": 1, "x40": 1}, "packs": 3, "shards": 6, "since": 0}}]};
