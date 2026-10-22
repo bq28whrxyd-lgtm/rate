@@ -7045,6 +7045,33 @@ body.ui2 .bnav{-webkit-backdrop-filter:none!important;backdrop-filter:none!impor
 .mkyami2 .mkyb{min-height:40px;padding:0 16px;font-size:13.5px;white-space:nowrap}
 .mkyami2 .mkyf{grid-column:1/4;margin:2px 0 0;font-size:11.5px}
 @media (max-width:360px){.mkyami.mkyami2{grid-template-columns:56px minmax(0,1fr)}.mkyami2 .mkyb{grid-column:1/3}}
+
+/* (10/22) 取引所: 2 x 2 tiles */
+.mkhub{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mkt2{position:relative;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;justify-content:flex-end;min-height:178px;padding:14px;border:0;border-radius:22px;text-align:left;color:#fff;cursor:pointer;box-shadow:inset 0 .5px 0 rgba(255,255,255,.18),inset 0 0 0 .5px rgba(255,255,255,.08),0 12px 26px -16px #000}
+.mkt2::before{content:"";position:absolute;inset:0;z-index:-1}
+.mkt2.t-auc{background:radial-gradient(120% 90% at 100% 0%,rgba(242,213,138,.35),transparent 60%),linear-gradient(160deg,#2a2416,#141209)}
+.mkt2.t-yami{background:radial-gradient(110% 90% at 0% 100%,rgba(120,60,200,.55),transparent 65%),linear-gradient(160deg,#1d1430,#0d0916)}
+.mkt2.t-mv{background:radial-gradient(120% 90% at 100% 0%,rgba(90,200,160,.3),transparent 60%),linear-gradient(160deg,#122420,#0a1311)}
+.mkt2.t-me{background:radial-gradient(120% 90% at 0% 0%,rgba(110,160,255,.3),transparent 60%),linear-gradient(160deg,#141c2e,#0a0e18)}
+.mkt2x{position:relative;display:grid;gap:4px;min-width:0}
+.mkt2k{font:800 9.5px/1 var(--x-f,system-ui);letter-spacing:.16em;color:rgba(255,255,255,.55)}
+.mkt2x>b{font-size:16px;font-weight:900;line-height:1.2}
+.mkt2v{margin-top:6px}
+.mkt2n{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}
+.mkt2n b{font-size:30px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.mkt2n span{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.7);margin-right:6px}
+.t-auc .mkt2n b{color:#f2d58a}.t-yami .mkt2n b{color:#d8b8ff}.t-mv .mkt2n b{color:#7ee0b8}.t-mv .mkt2n.dn b{color:#ff9a8a}.t-me .mkt2n b{color:#a8c6ff}
+.mkt2nn b{font-size:24px}
+.mkt2x>small{font-size:11px;line-height:1.4;color:rgba(255,255,255,.6);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:31px}
+.mkt2go{position:absolute;right:16px;top:18px;width:8px;height:8px;border-top:2px solid rgba(255,255,255,.5);border-right:2px solid rgba(255,255,255,.5);transform:rotate(45deg)}
+.mkt2:active{transform:scale(.98)}
+.mkt2pot{position:absolute!important;right:-6px;top:4px;transform:scale(.7);opacity:.95}
+.mkpgh{display:flex;align-items:center;gap:10px;margin:0 0 6px}
+.mkpgh h3{margin:0;font-size:19px}
+.mkback{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px 0 11px;border:0;border-radius:999px;font-weight:700;font-size:13px;color:inherit;background:rgba(255,255,255,.07)}
+.mkback i{width:7px;height:7px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-right:1px}
+.mkauc2 .mkah{align-items:center;gap:8px}.mkauc2 .mkah .mkseg{flex:1;min-width:0}
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
 #login h1{margin:4px 0 0}#login button{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -10105,34 +10132,52 @@ const mktName=pid=>(players.find(p=>p.id===pid)||{}).name||'だれか';
 const mktLeft=end=>{const t=end-now();if(t<=0)return '終了';const h=Math.floor(t/36e5),m=Math.floor(t%36e5/6e4);return h>=24?'残り '+Math.floor(h/24)+'日'+(h%24)+'時間':h?'残り '+h+'時間'+m+'分':'残り '+m+'分'};
 const mktSugg=(k,c,f)=>{const I=cardInfo(k,c,f);if(!I)return 10;if(k==='s')return mkBase('s',c);if(k==='b')return mkBase('b',c);if(k==='g')return [10,30,100,400,1500,3000][ITEM(c).r]||10;return Math.round(({C:10,R:30,SR:100,GR:400}[TC[c].r]||10)*(f?1.5:1))};
 function mktThumb(k,c,f,g){const w=el('div','mkth'+(g?' grd':''));try{const I=cardInfo(k,c,f);if(I)w.append(I.face())}catch(e){}if(k==='t')tcgImgLater(w,c);if(g)w.append(el('i','mkg',String(g)));return w}
+let mktSec='';
 function mktPaint(soft){try{aucSheet.redraw&&aucSheet.redraw()}catch(e){}const box=$('gp-mkt');if(!box||box.hidden)return;if(soft&&document.activeElement&&box.contains(document.activeElement))return;const me=myPlayer();box.replaceChildren();
   if(!me){box.append(el('div','empty','プレイヤーを選ぶと使えます'));return}
-  /* (10/22) 見やすく: my pt on top, the auction first (rows with the price on the right and one line of facts under the name), then 闇鍋 (compact), then 今週の相場.
+  /* (10/22) the exchange is four tiles (2 x 2): オークション / 闇鍋パック / 今週の相場 / 自分の取引. A tile opens its page; ← 取引所 comes back.
      Auctions that have ended are not shown anywhere (wins and returns still arrive by themselves) */
   const held=aucs.filter(a=>a.hp===me.id&&aucOpen(a)).reduce((x,a)=>x+(+a.hb||0),0);
   const hd=el('div','mkhd2');const hb=el('div','mkbal2');hb.append(el('span',null,'所持'),el('b',null,balance(me.id).toLocaleString()),el('small',null,'pt'));hd.append(hb);
-  if(held){const hh=el('div','mkheld');hh.append(el('span',null,'入札で押さえ中'),el('b',null,held.toLocaleString()+'pt'));hd.append(hh)}box.append(hd);
-  /* オークション */
-  const as=el('section','mkauc mkauc2');const ah=el('div','mkah');ah.append(el('h3',null,'オークション'),el('span',null,'終わりが近い順'));as.append(ah);const seg=el('div','mkseg');
+  if(held){const hh=el('div','mkheld');hh.append(el('span',null,'入札で押さえ中'),el('b',null,held.toLocaleString()+'pt'));hd.append(hh)}
   const T={open:['出品中',a=>aucOpen(a)&&a.s!==me.id],bid:['入札中',a=>aucOpen(a)&&a.hp===me.id],mine:['自分の出品',a=>aucOpen(a)&&a.s===me.id]};
-  if(!T[mktTab])mktTab='open';
-  Object.entries(T).forEach(([k,[n,fn]])=>{const c=aucs.filter(fn).length,bt=el('button','kx-mk'+(mktTab===k?' on':''));bt.append(document.createTextNode(n));if(c)bt.append(el('em',null,String(c)));bt.onclick=()=>{mktTab=k;mktPaint()};seg.append(bt)});as.append(seg);
-  const list=aucs.filter(T[mktTab][1]).sort((x,y)=>x.end-y.end).slice(0,40),ls=el('div','mkls');
-  if(!list.length)ls.append(el('div','mkempty',{open:'いま出品されているものはありません。図鑑のカードのページの「出品する」から出せます',mine:'出品中のものはありません',bid:'入札しているものはありません'}[mktTab]));
-  list.forEach(a=>{const I=cardInfo(a.k,a.c,a.f);if(!I)return;const r=el('button','mkr mkr2 kx-mk'),left=a.end-now(),bids=+a.n||0,tx=el('div','mkrt');
-    tx.append(el('b',null,I.nm),el('span',null,I.rk+(+a.g?'  ·  鑑定 '+a.g:'')+(a.k==='b'&&a.bt?'  ·  寝かせて '+bxDays(+a.bt)+'日':'')+'  ·  '+(a.s===me.id?'あなた':mktName(a.s))));
-    const pr=el('div','mkrp');pr.append(el('small',null,bids?'いま':'開始'),el('b',null,(bids?a.hb:a.sp).toLocaleString()),el('i',null,'pt'));
-    const ft=el('div','mkrf');ft.append(el('span','mkt'+(left<36e5?' soon':''),mktLeft(a.end)),el('span',null,'入札 '+bids));if(a.bn)ft.append(el('span','mkbnc','即決 '+a.bn.toLocaleString()+'pt'));
-    if(a.hp===me.id){r.classList.add('top');ft.append(el('span','mkme','あなたが1位'))}
-    r.append(mktThumb(a.k,a.c,a.f,+a.g||0),tx,pr,ft);r.onclick=()=>aucSheet(a.id);ls.append(r)});
-  as.append(ls,el('p','sub mkfoot','売れると手数料10%を引いた額が入ります。入札したptは、ほかの人に抜かれるまで押さえられます。'));box.append(as);
-  /* 闇鍋 */
-  const L=yamiLeft(),hi=L.filter(y=>{const I=cardInfo(y.k,y.c,y.f);return I&&I.r>=2}).length,ys=el('section','mkyami mkyami2'),pot=el('div','mkpot');
-  pot.innerHTML='<i class="b1"></i><i class="b2"></i><i class="b3"></i><span class="lid"></span><span class="bowl"></span>';
-  const yt=el('div','mkyt');yt.append(el('h3',null,'闇鍋パック'),el('div','mkyn',L.length?'鍋の中 '+L.length+'枚'+(hi?'  ·  SR以上 '+hi+'枚':''):'鍋は空っぽ'));
-  const yb=el('button','mkyb kx-mk',L.length?YAMI_PT+'ptで1枚引く':'カードが入るのを待っています');yb.disabled=!L.length;yb.onclick=()=>askSheet({title:'闇鍋パックを引く',ok:'引く',lines:[YAMI_PT+'ptで、鍋の中の'+L.length+'枚から1枚。何が出るかは引くまでわかりません。','入れた人には'+YAMI_BACK+'ptが入ります。'],run:async()=>{yb.disabled=true;try{const y=await yamiTake();yamiReveal(y)}catch(e){toast({pt:'ptが足りません',empty:'鍋は空っぽです'}[e.message]||'引けませんでした');yb.disabled=false}}});
-  ys.append(pot,yt,yb,el('p','sub mkyf','仲間が入れたカードから1枚。入れるときは図鑑のカードのページの「闇鍋に入れる」から(引かれると'+YAMI_BACK+'pt)'));box.append(ys);
-  try{box.append(mkMoversEl())}catch(e){console.warn(e)}}
+  const N=k=>aucs.filter(T[k][1]).length,L=yamiLeft(),hi=L.filter(y=>{const I=cardInfo(y.k,y.c,y.f);return I&&I.r>=2}).length;
+  const go=sec=>{mktSec=sec;mktPaint();try{box.scrollIntoView({block:'start'})}catch(e){}};
+  const back=t=>{const b=el('button','mkback kx-mk');b.type='button';b.append(el('i'),document.createTextNode('取引所'));b.onclick=()=>go('');const h=el('div','mkpgh');h.append(b,el('h3',null,t));return h};
+  if(!mktSec){box.append(hd);const g=el('div','mkhub');
+    const tile=(cls,k,t,big,sub,fn,art)=>{const b=el('button','mkt2 '+cls+' kx-mk');b.type='button';if(art)b.append(art);const tx=el('div','mkt2x');tx.append(el('span','mkt2k',k),el('b',null,t));const bg=el('div','mkt2v');bg.append(big);tx.append(bg,el('small',null,sub));b.append(tx,el('i','mkt2go'));b.onclick=fn;return b};
+    const num=(v,u)=>{const d=el('div','mkt2n');d.append(el('b',null,String(v)),el('span',null,u));return d};
+    const soon=aucs.filter(T.open[1]).sort((x,y)=>x.end-y.end)[0];
+    g.append(tile('t-auc','AUCTION','オークション',num(N('open'),'件 出品中'),soon?'次に終わる: '+((cardInfo(soon.k,soon.c,soon.f)||{}).nm||'')+'  ·  '+mktLeft(soon.end):'いまは出品なし',()=>{mktTab='open';go('auc')}));
+    const pot=el('div','mkpot mkt2pot');pot.innerHTML='<i class="b1"></i><i class="b2"></i><i class="b3"></i><span class="lid"></span><span class="bowl"></span>';
+    g.append(tile('t-yami','MYSTERY','闇鍋パック',num(L.length,'枚 鍋の中'),L.length?(hi?'SR以上が '+hi+'枚  ·  ':'')+YAMI_PT+'ptで1枚':'鍋は空っぽ',()=>go('yami'),pot));
+    let mv=null;try{const M=mkMovers();mv=M.up[0]||M.down[0]||null}catch(e){}
+    const mvI=mv&&cardInfo(mv.k,mv.c,mv.f);
+    g.append(tile('t-mv','MARKET','今週の相場',mvI?(()=>{const d=el('div','mkt2n');d.append(el('b',null,(mv.ch>0?'+':'')+mv.ch),el('span',null,'%'));if(mv.ch<0)d.classList.add('dn');return d})():num('—',''),mvI?mvI.nm+'  ·  '+mv.m.toLocaleString()+'pt':'まだ値動きなし',()=>go('mv')));
+    const nb=N('bid'),nm=N('mine');
+    g.append(tile('t-me','MY TRADES','自分の取引',(()=>{const d=el('div','mkt2n mkt2nn');d.append(el('b',null,String(nb)),el('span',null,'入札中'),el('b',null,String(nm)),el('span',null,'出品中'));return d})(),held?held.toLocaleString()+'pt を押さえ中':'出品は図鑑のカードのページから',()=>{mktTab=nb||!nm?'bid':'mine';go('me')}));
+    box.append(g);return}
+  if(mktSec==='auc'||mktSec==='me'){
+    const as=el('section','mkauc mkauc2');box.append(back(mktSec==='auc'?'オークション':'自分の取引'),hd);
+    const keys=mktSec==='auc'?['open','bid','mine']:['bid','mine'];if(!keys.includes(mktTab))mktTab=keys[0];
+    const seg=el('div','mkseg');keys.forEach(k=>{const c=N(k),bt=el('button','kx-mk'+(mktTab===k?' on':''));bt.append(document.createTextNode(T[k][0]));if(c)bt.append(el('em',null,String(c)));bt.onclick=()=>{mktTab=k;mktPaint()};seg.append(bt)});
+    as.append(seg);
+    const list=aucs.filter(T[mktTab][1]).sort((x,y)=>x.end-y.end).slice(0,40),ls=el('div','mkls');
+    if(!list.length)ls.append(el('div','mkempty',{open:'いま出品されているものはありません。図鑑のカードのページの「出品する」から出せます',mine:'出品中のものはありません。図鑑のカードのページの「出品する」から出せます',bid:'入札しているものはありません'}[mktTab]));
+    list.forEach(a=>{const I=cardInfo(a.k,a.c,a.f);if(!I)return;const r=el('button','mkr mkr2 kx-mk'),left=a.end-now(),bids=+a.n||0,tx=el('div','mkrt');
+      tx.append(el('b',null,I.nm),el('span',null,I.rk+(+a.g?'  ·  鑑定 '+a.g:'')+(a.k==='b'&&a.bt?'  ·  寝かせて '+bxDays(+a.bt)+'日':'')+'  ·  '+(a.s===me.id?'あなた':mktName(a.s))));
+      const pr=el('div','mkrp');pr.append(el('small',null,bids?'いま':'開始'),el('b',null,(bids?a.hb:a.sp).toLocaleString()),el('i',null,'pt'));
+      const ft=el('div','mkrf');ft.append(el('span','mkt'+(left<36e5?' soon':''),mktLeft(a.end)),el('span',null,'入札 '+bids));if(a.bn)ft.append(el('span','mkbnc','即決 '+a.bn.toLocaleString()+'pt'));
+      if(a.hp===me.id){r.classList.add('top');ft.append(el('span','mkme','あなたが1位'))}
+      r.append(mktThumb(a.k,a.c,a.f,+a.g||0),tx,pr,ft);r.onclick=()=>aucSheet(a.id);ls.append(r)});
+    as.append(ls,el('p','sub mkfoot','終わりが近い順に並んでいます。売れると手数料10%を引いた額が入ります。入札したptは、ほかの人に抜かれるまで押さえられます。'));box.append(as);return}
+  if(mktSec==='yami'){box.append(back('闇鍋パック'),hd);
+    const ys=el('section','mkyami'),pot=el('div','mkpot');pot.innerHTML='<i class="b1"></i><i class="b2"></i><i class="b3"></i><span class="lid"></span><span class="bowl"></span>';
+    const yt=el('div','mkyt');yt.append(el('p','sub','仲間が入れたカードから1枚。何が出るかは引くまでわからない'),el('div','mkyn',L.length?'鍋の中 '+L.length+'枚'+(hi?'  ·  SR以上が '+hi+'枚':''):'鍋は空っぽ'));
+    const yb=el('button','mkyb kx-mk',L.length?YAMI_PT+'ptで1枚引く':'カードが入るのを待っています');yb.disabled=!L.length;yb.onclick=()=>askSheet({title:'闇鍋パックを引く',ok:'引く',lines:[YAMI_PT+'ptで、鍋の中の'+L.length+'枚から1枚。','入れた人には'+YAMI_BACK+'ptが入ります。'],run:async()=>{yb.disabled=true;try{const y=await yamiTake();yamiReveal(y)}catch(e){toast({pt:'ptが足りません',empty:'鍋は空っぽです'}[e.message]||'引けませんでした');yb.disabled=false}}});
+    yt.append(yb,el('p','sub','カードを入れるときは、図鑑のカードのページの「闇鍋に入れる」から。自分のカードが引かれると'+YAMI_BACK+'pt'));ys.append(pot,yt);box.append(ys);return}
+  if(mktSec==='mv'){box.append(back('今週の相場'));try{const m=mkMoversEl();const h=m.querySelector('.mkmvh b');if(h)h.remove();box.append(m)}catch(e){console.warn(e)}return}
+  mktSec='';mktPaint()}
 /* one listing: details and bidding */
 function aucSheet(id){document.querySelectorAll('.mks').forEach(x=>x.remove());const o=el('div','mks'),b=el('div','mksb');o.append(b);
   const draw=()=>{const a=aucs.find(x=>x.id===id),me=myPlayer();b.replaceChildren();if(!a||!me){o.remove();return}const I=cardInfo(a.k,a.c,a.f),op=aucOpen(a),cur=(+a.n||0)?a.hb:0;
