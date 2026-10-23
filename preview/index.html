@@ -4184,6 +4184,32 @@ body.ui2 .kbu-full section{background:none!important;box-shadow:none!important;b
 body.ui2 .kbu-full section.kbu-pos{background:rgba(242,213,138,.07)!important;padding:12px 14px!important;border-radius:14px!important}
 .kbu-pos .kbu-kv{grid-template-columns:1fr}
 .kbu-full .kbu-sec{margin-top:22px}
+/* (10/23 audit) holdings that are easy to read, and the order size buttons */
+.kbu-sum{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end;margin-top:4px}
+.kbu-sumr{display:grid;gap:6px;justify-items:end}
+.kbu-sumr>div{display:grid;justify-items:end;gap:0}
+.kbu-sumr span{font-size:10.5px;color:rgba(255,255,255,.5)}
+.kbu-sumr b{font-size:15px;font-weight:800}.kbu-sumr small{font-size:11px;font-weight:700}
+.kbu-sumr .up{color:#7ee0b8}.kbu-sumr .dn{color:#ff8f7c}
+.kbu-alloc{display:flex;gap:2px;height:8px;margin:10px 0 2px;border-radius:999px;overflow:hidden}
+.kbu-alloc i{display:block;min-width:4px;flex-basis:0}
+.kbu-hold{display:grid;gap:8px;margin-top:8px;border-top:0}
+.kbu-hc2{display:grid;gap:4px;width:100%;padding:12px 14px;border:0;border-radius:14px;text-align:left;color:inherit;background:rgba(255,255,255,.045)}
+.kbu-hc2:active{background:rgba(255,255,255,.08)}
+.kbu-h1,.kbu-h2{display:flex;justify-content:space-between;align-items:baseline;gap:10px;min-width:0}
+.kbu-h1>b:first-child{display:flex;align-items:center;gap:8px;font-size:15px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kbu-h1>b:last-child{font-size:16px;font-weight:800;white-space:nowrap}
+.kbu-dot2{flex:none;width:8px;height:8px;border-radius:50%}
+.kbu-h2>span:first-child{font-size:12px;color:rgba(255,255,255,.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.kbu-h2 .kbu-pl{font-size:13px;font-weight:800;white-space:nowrap}
+.kbu-tc{font-style:normal;font-weight:700}.kbu-tc.up{color:#7ee0b8}.kbu-tc.dn{color:#ff8f7c}
+.kbu-h3{font-size:10.5px}
+.kbu-oq{grid-template-columns:auto auto minmax(0,1fr) auto auto;gap:6px;padding:8px}
+.kbu-oq button{width:auto;min-width:44px;padding:0 8px;font-size:15px}
+.kbu-oqn{display:flex;align-items:baseline;justify-content:center;gap:4px}.kbu-oqn b{font-size:26px;font-weight:800}.kbu-oqn i{font-style:normal;font-size:12px;opacity:.6}
+.kbu-oqs{display:flex;gap:6px}
+.kbu-oqs button{flex:1;height:34px;border:0;border-radius:10px;font-size:12px;font-weight:800;color:rgba(255,255,255,.75);background:rgba(255,255,255,.06)}
+.kbu-oqs button.on{color:#0b0c10;background:#f4f1ea}.kbu-oqs button:disabled{opacity:.3}
 /*KBU-CSS-END*/
 
 /* (10/22) ボックス: dup bar, count badges */
@@ -10550,19 +10576,21 @@ const mktSugg=(k,c,f)=>{const I=cardInfo(k,c,f);if(!I)return 10;if(k==='s')retur
 function mktThumb(k,c,f,g){const w=el('div','mkth'+(g?' grd':''));try{const I=cardInfo(k,c,f);if(I)w.append(I.face())}catch(e){}if(k==='t')tcgImgLater(w,c);if(g)w.append(el('i','mkg',String(g)));return w}
 /*KBU-JS*/
 /* ---------- 仲間株 (10/23): every player is a stock ----------
-   kabu/{id}  one trade {p who, s stock (a player id), q shares (+ buy / - sell, 1..10 at a time), x pt paid or received, t}
+   kabu/{id}  one trade {p who, s stock (a player id), q shares (+ buy / - sell, up to 1000 at a time), x pt paid or received, t}
    luck/{pid} {lk:{day:score}, li:{day:first open time}, u}  gacha luck and the days the app was opened, written by the player's own app
    Price = base × (1 + KBU_K × shares held by everyone).
      base moves through the day like a real stock (one point every 15 minutes, a day starts at 5:00):
-       from the day's open (= yesterday's close): a win +3%, a loss -2% (CPU games half), gacha luck up to +10%,
+       from the day's open (= yesterday's close): a win +3%, a loss -2% (CPU games half), gacha luck up to +6%,
        opening the app that day +1% (+1% more on a 7-day run); a day it was never opened -3% at the close.
        A small random wave on top (the same for everyone: it comes from a hash of the stock, the day and the slot).
        One day moves at most ±20% from the open (ストップ高 / ストップ安).
      shares: buying raises the price, selling lowers it. 5% fee each way, so buying and selling back right away loses.
    Every Monday 5:00 each share pays a dividend from that stock's wins of the week.
    Everything is derived from public data on every phone, like the auction: nobody writes into another player's data. */
-const KBU_OPEN_T=Date.UTC(2026,9,22,20,0),KBU_HIST=14,KBU_START=100,KBU_K=.04,KBU_FEE=.05,KBU_MAXQ=10,KBU_CAP=30,KBU_DIVW=.5,KBU_DIVCAP=10;
+const KBU_OPEN_T=Date.UTC(2026,9,22,20,0),KBU_HIST=14,KBU_START=100,KBU_K=.04,KBU_FEE=.05,KBU_MAXQ=1000,KBU_CAP=Infinity,KBU_DIVW=.5,KBU_DIVCAP=10;
 const KBU_ROY=.02,KBU_SLOT=15*60000,KBU_NS=96,KBU_LIM=.2,KBU_WAVE=.008;
+/* (10/23 audit) gacha luck moves a day at most +6%; games against the same friend count 3 a day, CPU games 6 a day; a trade whose pt is more than 20% off the fair price is not counted */
+const KBU_LUCKMAX=.06,KBU_PAIRMAX=3,KBU_CPUMAX=6,KBU_TOL=.2;
 const kbuOpen=()=>dayNo(window.__kbuOpenT||KBU_OPEN_T),kbuDayT=d=>d*864e5-4*3600000;
 let kabus=[],kabuLoaded=false,kbuLucks={},kbuLuckLoaded=false,kbuTab='d';
 /* stocks: players who are not banned */
@@ -10574,9 +10602,13 @@ const kbuHm=t=>{const d=new Date(t+9*3600000);return d.getUTCHours()+':'+String(
 function kbuStats(){const C=typeof tcgcs!=='undefined'?Object.keys(tcgcs).map(k=>((tcgcs[k]||{}).r||[]).length).join(','):'';
   const key=matches.length+'|'+(typeof tcgms!=='undefined'?tcgms.length+':'+tcgms.filter(d=>d.wa).length:0)+'|'+C;if(kbuStats.k===key)return kbuStats.v;
   const S={},E={},add=(p,t,k,v,c)=>{if(!p||!(t>0))return;const d=dayNo(t),a=S[p]||(S[p]={}),b=a[d]||(a[d]={w:0,l:0});b[k]+=v;(E[p]||(E[p]=[])).push({t,k,v,c})};
-  matches.forEach(m=>{const t=+m.t||0;add(m.w,t,'w',1,'r');add(m.l,t,'l',1,'r')});
-  if(typeof tcgms!=='undefined'&&typeof tcgDone==='function')tcgms.forEach(x=>{if(!tcgDone(x)||!x.a||!x.b||(x.wa!==x.a&&x.wa!==x.b))return;const t=+x.t||0;add(x.wa,t,'w',1,'t');add(x.wa===x.a?x.b:x.a,t,'l',1,'t')});
-  if(typeof tcgcEvents==='function')tcgcEvents().forEach(e=>{if(e.q)return;if(e.c==='w')add(e.p,e.t,'w',.5,'c');else if(e.c==='l')add(e.p,e.t,'l',.5,'c')});
+  /* every game in time order; against the same friend only the first KBU_PAIRMAX of a day count, CPU games the first KBU_CPUMAX of a day (no pumping a stock with thrown games) */
+  const G=[];matches.forEach(m=>{if(m.w&&m.l)G.push({t:+m.t||0,w:m.w,l:m.l,c:'r'})});
+  if(typeof tcgms!=='undefined'&&typeof tcgDone==='function')tcgms.forEach(x=>{if(!tcgDone(x)||!x.a||!x.b||(x.wa!==x.a&&x.wa!==x.b))return;G.push({t:+x.t||0,w:x.wa,l:x.wa===x.a?x.b:x.a,c:'t'})});
+  if(typeof tcgcEvents==='function')tcgcEvents().forEach(e=>{if(e.q||(e.c!=='w'&&e.c!=='l'))return;G.push({t:e.t,cpu:e.p,win:e.c==='w',c:'c'})});
+  G.sort((a,b)=>a.t-b.t);const N={};
+  for(const g of G){const d=dayNo(g.t);if(g.c==='c'){const k=g.cpu+'|'+d;if((N[k]=(N[k]||0)+1)>KBU_CPUMAX)continue;add(g.cpu,g.t,g.win?'w':'l',.5,'c');continue}
+    const k=[g.w,g.l].sort().join('|')+'|'+d;if((N[k]=(N[k]||0)+1)>KBU_PAIRMAX)continue;add(g.w,g.t,'w',1,g.c);add(g.l,g.t,'l',1,g.c)}
   Object.values(E).forEach(L=>L.sort((a,b)=>a.t-b.t));kbuStats.k=key;kbuStats.v=S;kbuStats.e=E;return S}
 const kbuEvs=()=>{kbuStats();return kbuStats.e||{}};
 const kbuLi=pid=>((kbuLucks[pid]||{}).li)||{};
@@ -10584,7 +10616,7 @@ const kbuLu=(pid,d)=>+((((kbuLucks[pid]||{}).lk)||{})[d])||0;
 /* the 7-day run that includes day d */
 function kbuRun(pid,d){const li=kbuLi(pid);let n=0;for(let k=0;k<30&&li[d-k];k++)n++;return n}
 /* how far day d has moved from its open, with W wins and L losses so far; end: the day is over */
-function kbuMove(pid,d,W,L,end){const u=kbuLu(pid,d),li=kbuLi(pid);let m=.03*W-.02*L+Math.min(.1,.005*u);
+function kbuMove(pid,d,W,L,end){const u=kbuLu(pid,d),li=kbuLi(pid);let m=.03*W-.02*L+Math.min(KBU_LUCKMAX,.005*u);
   if(d>=kbuOpen()){if(li[d]){m+=.01;if(kbuRun(pid,d)>=7)m+=.01}else if(end)m-=.03}
   else if(end&&!W&&!L&&!u)m-=.02;
   return Math.max(-KBU_LIM,Math.min(KBU_LIM,m))}
@@ -10601,12 +10633,19 @@ function kbuSeries(pid){const T=now(),t=dayNo(T),ks=Math.min(KBU_NS-1,Math.floor
     D.push({d,o,h:hi,l:lo,c:p,P,m});o=p}
   const v={d0,D};M[pid]={k:key,v};return v}
 const kbuBaseNow=pid=>{const D=kbuSeries(pid).D;return D[D.length-1].c};
-/* the trades that count, oldest first: a sale of more than you hold, or holding more than KBU_CAP, is skipped */
-function kbuBook(){const key=kabus.length+'|'+kabus.reduce((a,x)=>a+(+x.t||0),0);if(kbuBook.k===key)return kbuBook.v;
+/* the base price at a moment (the 15-minute point it falls in) */
+function kbuBaseAt(pid,t){const x=kbuSeries(pid),d=dayNo(t),i=d-x.d0;if(i<0)return KBU_START;const y=x.D[Math.min(i,x.D.length-1)];if(i>=x.D.length)return y.c;const k=Math.max(0,Math.min(y.P.length-1,Math.floor((t-kbuDayT(d))/KBU_SLOT)));return y.P[k]}
+let kbuLuckVer=0;
+/* the trades that count, oldest first. Skipped: a sale of more than you hold, and a trade whose pt is more than KBU_TOL off
+   the fair price at its moment (worked out again on every phone, so an app that writes a made-up price gets nothing) */
+function kbuBook(){const key=kabus.length+'|'+kabus.reduce((a,x)=>a+(+x.t||0),0)+'|'+(kbuStats(),kbuStats.k)+'|'+kbuLuckVer;if(kbuBook.k===key)return kbuBook.v;
   const T=kabus.filter(x=>x&&typeof x.p==='string'&&typeof x.s==='string'&&Number.isInteger(x.q)&&x.q&&Math.abs(x.q)<=KBU_MAXQ&&Number.isInteger(x.x)&&x.x>=0&&+x.t>0)
     .sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));
-  const H={},own={},ok=[];for(const x of T){const o=own[x.p]||(own[x.p]={}),h=o[x.s]||0;if(x.q<0&&h+x.q<0)continue;if(x.q>0&&h+x.q>KBU_CAP)continue;o[x.s]=h+x.q;H[x.s]=(H[x.s]||0)+x.q;ok.push(x)}
-  const v={ok,H,own};kbuBook.k=key;kbuBook.v=v;return v}
+  const H={},own={},ok=[],bad=[];for(const x of T){const o=own[x.p]||(own[x.p]={}),h=o[x.s]||0,hs=H[x.s]||0;if(x.q<0&&h+x.q<0){bad.push([x,'have']);continue}if(x.q>0&&h+x.q>KBU_CAP)continue;
+    let fair=0;try{const b=kbuBaseAt(x.s,x.t);fair=x.q>0?kbuCost(b,hs,x.q):kbuGet(b,hs,-x.q)}catch(e){fair=0}
+    if(fair&&(x.q>0?x.x<fair*(1-KBU_TOL):x.x>fair*(1+KBU_TOL))){bad.push([x,'price',fair]);continue}
+    o[x.s]=h+x.q;H[x.s]=hs+x.q;ok.push(x)}
+  const v={ok,H,own,bad};kbuBook.k=key;kbuBook.v=v;return v}
 const kbuHeld=s=>kbuBook().H[s]||0;
 const kbuMine=(pid,s)=>((kbuBook().own[pid]||{})[s])||0;
 const kbuHeldAt=(s,t)=>{let H=0;for(const y of kbuBook().ok){if(y.t>=t)break;if(y.s===s)H+=y.q}return H};
@@ -10629,13 +10668,14 @@ const kbuVol=s=>{const t0=kbuDayT(dayNo(now()));let v=0;for(const y of kbuBook()
 function kbuNews(s){const d=dayNo(now()),t0=kbuDayT(d),out=[],C={r:'レート戦',t:'TCG',c:'CPU戦'};
   for(const e of kbuEvs()[s]||[])if(e.t>=t0)out.push({t:e.t,x:C[e.c]+'で'+(e.k==='w'?'勝ち':'負け'),v:(e.k==='w'?3:-2)*e.v});
   const li=kbuLi(s);if(d>=kbuOpen()&&li[d]){out.push({t:+li[d]||t0,x:'ログイン',v:1});if(kbuRun(s,d)>=7)out.push({t:(+li[d]||t0)+1,x:kbuRun(s,d)+'日連続ログイン',v:1})}
-  const u=kbuLu(s,d);if(u)out.push({t:now(),x:'ガチャの当たり(運 '+u+')',v:Math.min(10,u*.5)});
+  const u=kbuLu(s,d);if(u)out.push({t:now(),x:'ガチャの当たり(運 '+u+')',v:Math.min(KBU_LUCKMAX*100,u*.5)});
   return out.sort((a,b)=>b.t-a.t)}
 /* dividends of finished weeks: per share = wins of that week × 0.5 (at most 10), for the shares held when the week ended */
 function kbuWeekWins(s,w){const P=kbuStats()[s]||{};let n=0;for(let d=7*w-3;d<=7*w+3;d++)n+=(P[d]||{}).w||0;return n}
 function kbuDivs(pid){const cw=weekNo(now()),w0=Math.floor((kbuOpen()+3)/7),bk=kbuBook(),key=bk.ok.length+'|'+kbuStats.k+'|'+cw+'|'+pid+'|'+w0,M=kbuDivs.m||(kbuDivs.m={});if(M[pid]&&M[pid].k===key)return M[pid].v;
-  const out=[];for(let w=w0;w<cw;w++){const end=kbuDayT(7*(w+1)-3),h={};for(const x of bk.ok){if(x.t>=end)break;if(x.p===pid)h[x.s]=(h[x.s]||0)+x.q}
-    Object.keys(h).forEach(s=>{const n=h[s];if(n<=0)return;const per=Math.min(KBU_DIVCAP,KBU_DIVW*kbuWeekWins(s,w)),pt=Math.floor(per*n);if(pt>0)out.push({w,s,n,per,pt})})}
+  /* only the shares held through the whole week count (the fewest held at any moment of it): buying just before Monday 5:00 gets nothing */
+  const out=[];for(let w=w0;w<cw;w++){const start=kbuDayT(7*w-3),end=kbuDayT(7*(w+1)-3),h={},mn={};for(const x of bk.ok){if(x.t>=end)break;if(x.p!==pid)continue;h[x.s]=(h[x.s]||0)+x.q;if(x.t>=start)mn[x.s]=Math.min(mn[x.s]==null?Infinity:mn[x.s],h[x.s],h[x.s]-x.q)}
+    Object.keys(h).forEach(s=>{const n=Math.min(h[s],mn[s]==null?h[s]:mn[s]);if(n<=0)return;const per=Math.min(KBU_DIVCAP,KBU_DIVW*kbuWeekWins(s,w)),pt=Math.floor(per*n);if(pt>0)out.push({w,s,n,per,pt})})}
   M[pid]={k:key,v:out};return out}
 /* the stock's own player gets 2% of every trade of their stock (out of the 5% fee), except their own trades */
 const kbuRoyOf=x=>Math.floor(x.q>0?x.x*KBU_ROY/(1+KBU_FEE):x.x*KBU_ROY/(1-KBU_FEE));
@@ -10646,7 +10686,7 @@ function kbuNet(pid){let t=0;for(const x of kbuBook().ok){if(x.p===pid)t+=x.q>0?
 function kbuBasis(pid,s){let n=0,c=0;for(const x of kbuBook().ok){if(x.p!==pid||x.s!==s)continue;if(x.q>0){n+=x.q;c+=x.x}else{const k=n?c/n:0;n+=x.q;c-=k*(-x.q)}}return{n,c:Math.round(c)}}
 function kbuWatch(){if(!db||kbuWatch.on)return;kbuWatch.on=1;
   db.collection('kabu').onSnapshot(s=>{kabus=s.docs.map(d=>({id:d.id,...d.data()}));kabuLoaded=true;queueRender();kbuPaintAll()},()=>{kabuLoaded=true});
-  db.collection('luck').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});kbuLucks=o;kbuLuckLoaded=true;kbuLuckSync();kbuPaintAll()},()=>{});
+  db.collection('luck').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});kbuLucks=o;kbuLuckLoaded=true;kbuLuckVer++;kbuLuckSync();kbuPaintAll()},()=>{});
   /* the price moves every 15 minutes: keep the open pages fresh, and mark today's login when the day changes while the app is open */
   setInterval(()=>{if(document.hidden)return;kbuLuckSync();if(document.querySelector('.kbu-full')||mktSec==='kabu')kbuPaintAll()},60000)}
 function kbuPaintAll(){try{if(mktSec==='kabu'||!mktSec)mktPaint(true)}catch(e){}try{kbuSheet.redraw&&kbuSheet.redraw()}catch(e){}}
@@ -10655,14 +10695,15 @@ const kbuGachaLuck=cards=>cards.reduce((a,c)=>a+([0,0,1,4,15,30][c&&c.r]||0),0);
 const kbuTcgLuck=(id,f)=>(({SR:1,HR:2,GR:5})[(TC[id]||{}).r]||0)+(f?3:0);
 function kbuLuckAdd(nv,score){if(!(score>0))return;const d=dayNo(now()),L=Object.assign({},nv.lk||{});L[d]=(+L[d]||0)+score;Object.keys(L).forEach(k=>{if(+k<d-14)delete L[k]});nv.lk=L}
 /* my luck doc: gacha luck from the inventory, and today's login (only after the doc has been read, so the old days are kept) */
+/* only today's numbers are written (the rules refuse any other day), old days are dropped */
 function kbuLuckSync(){const me=myPlayer();if(!db||!me||me.ban||!kbuLuckLoaded)return;const cur=kbuLucks[me.id]||{},d=dayNo(now());
-  const lk=Object.assign({},cur.lk||{});if(invLoaded&&invFor===me.id)Object.entries(inv.lk||{}).forEach(([k,v])=>{lk[k]=Math.max(+lk[k]||0,+v||0)});Object.keys(lk).forEach(k=>{if(+k<d-14)delete lk[k]});
+  const lk=Object.assign({},cur.lk||{});if(invLoaded&&invFor===me.id){const v=+(inv.lk||{})[d]||0;if(v>(+lk[d]||0))lk[d]=v}Object.keys(lk).forEach(k=>{if(+k<d-14)delete lk[k]});
   const li=Object.assign({},cur.li||{});if(!li[d])li[d]=now();Object.keys(li).forEach(k=>{if(+k<d-40)delete li[k]});
   const j=JSON.stringify([lk,li]);if(j===JSON.stringify([cur.lk||{},cur.li||{}])||kbuLuckSync.j===j||(kbuLuckSync.bad&&now()-kbuLuckSync.bad<6e5))return;kbuLuckSync.j=j;
   db.doc('luck/'+me.id).set({lk,li,u:now()}).catch(()=>{kbuLuckSync.j='';kbuLuckSync.bad=now()})}
 async function kbuTrade(s,q){const me=myPlayer();if(!db||!me||me.ban||!econReady())throw new Error('me');
   const h=kbuMine(me.id,s),H=kbuHeld(s),b=kbuBaseNow(s);let x;
-  if(q>0){if(h+q>KBU_CAP)throw new Error('cap');x=kbuCost(b,H,q);if(balance(me.id)<x)throw new Error('pt')}else{if(h<-q)throw new Error('have');x=kbuGet(b,H,-q)}
+  if(q>0){x=kbuCost(b,H,q);if(balance(me.id)<x)throw new Error('pt')}else{if(h<-q)throw new Error('have');x=kbuGet(b,H,-q)}
   const id=me.id+'_'+now().toString(36)+Math.random().toString(36).slice(2,6);
   try{await db.doc('kabu/'+id).set({p:me.id,s,q,x,t:now()})}catch(e){throw new Error('rules')}return x}
 /* ---- the screens (10/23 午後): built like a real brokerage app ----
@@ -10727,22 +10768,29 @@ function kbuPage(box,back,hd){const me=myPlayer();box.append(back('仲間株'));
   /* ticker tape */
   if(S.length){const tp=el('div','kbu-tape'),ln=el('div','kbu-tapei');const item=p=>{const c=kbuChange(p.id),i=el('button','kbu-tk kx-mk');i.type='button';i.append(el('span','kbu-cd',kbuCode(p.id)),el('b',null,p.name),el('span','kbu-num',kbuPrice(p.id).toLocaleString()),el('em',c>0?'up':c<0?'dn':'',(c>0?'▲':c<0?'▼':'')+Math.abs(c).toFixed(1)+'%'));i.onclick=()=>kbuDetail(p.id);return i};
     S.forEach(p=>ln.append(item(p)));S.forEach(p=>{const x=item(p);x.setAttribute('aria-hidden','true');x.tabIndex=-1;ln.append(x)});ln.style.setProperty('--dur',Math.max(18,S.length*5)+'s');tp.append(ln);box.append(tp)}
-  /* my holdings */
+  /* my holdings: the total, today's change, a bar of what is in it, then one card a stock */
   const P=kbuPort(me.id),pf=el('section','kbu-pf'),pl=P.val-P.cost,pr=P.cost?pl/P.cost*100:0,ry=kbuRoy(me.id);
-  const ph=el('div','kbu-pfh');ph.append(el('span',null,'保有株式'),el('span','kbu-pfh2','買付余力 '+(econReady()?balance(me.id).toLocaleString():'—')+'pt'));pf.append(ph);
-  if(P.rows.length){const v=el('div','kbu-pfv');v.append(el('b','kbu-num',P.val.toLocaleString()),el('i',null,'pt'));pf.append(el('span','kbu-pfl','評価額'),v);
-    const pm=el('div','kbu-pfm');pm.append(el('span','kbu-pl '+(pl>=0?'up':'dn'),'評価損益 '+(pl>=0?'+':'')+pl.toLocaleString()+'pt('+(pr>=0?'+':'')+pr.toFixed(2)+'%)'));pf.append(pm);
-    const hl=el('div','kbu-hold');P.rows.sort((a,b)=>b.p*b.n-a.p*a.n).forEach(r=>{const p=players.find(x=>x.id===r.s);if(!p)return;const g=r.p*r.n-r.c,row=el('button','kbu-hr kx-mk');row.type='button';
-      const a=el('div');a.append(el('b',null,p.name),el('span','kbu-cd',kbuCode(p.id)+'  ·  '+r.n+'株'));const z=el('div','kbu-hrv');z.append(el('b','kbu-num',(r.p*r.n).toLocaleString()),el('span','kbu-pl '+(g>=0?'up':'dn'),(g>=0?'+':'')+g.toLocaleString()));row.append(a,z);row.onclick=()=>kbuDetail(r.s);hl.append(row)});pf.append(hl)}
+  const ph=el('div','kbu-pfh');ph.append(el('span',null,'保有株式'+(P.rows.length?'  ·  '+P.rows.length+'銘柄':'')),el('span','kbu-pfh2','買付余力 '+(econReady()?balance(me.id).toLocaleString():'—')+'pt'));pf.append(ph);
+  if(P.rows.length){const td=P.rows.reduce((a,r)=>a+r.n*(r.p-kbuPrev(r.s)),0),tdp=P.val-td?td/(P.val-td)*100:0;
+    const sm=el('div','kbu-sum'),l=el('div'),rr=el('div','kbu-sumr');const v=el('div','kbu-pfv');v.append(el('b','kbu-num',P.val.toLocaleString()),el('i',null,'pt'));l.append(el('span','kbu-pfl','評価額'),v);
+    const cell=(k,a,b2)=>{const c=el('div');c.append(el('span',null,k),el('b','kbu-num '+(a>=0?'up':'dn'),(a>=0?'+':'')+Math.round(a).toLocaleString()+'pt'),el('small','kbu-num '+(a>=0?'up':'dn'),'('+(b2>=0?'+':'')+b2.toFixed(2)+'%)'));return c};
+    rr.append(cell('評価損益',pl,pr),cell('本日の損益',td,tdp));sm.append(l,rr);pf.append(sm);
+    const COL=['#7ee0b8','#f2d58a','#9db8ff','#ff9fc8','#c9b3ff','#ffb27a','#7fd6ff','#d6e685'],rows=P.rows.sort((a,b)=>b.p*b.n-a.p*a.n);
+    const bar=el('div','kbu-alloc');rows.forEach((r,i)=>{const seg=el('i');seg.style.flexGrow=String(Math.max(1,r.p*r.n));seg.style.background=COL[i%COL.length];bar.append(seg)});pf.append(bar);
+    const hl=el('div','kbu-hold');rows.forEach((r,i)=>{const p=players.find(x=>x.id===r.s);if(!p)return;const val=r.p*r.n,g=val-r.c,gp=r.c?g/r.c*100:0,c=kbuChange(r.s),card=el('button','kbu-hc2 kx-mk');card.type='button';
+      const a1=el('div','kbu-h1');const nm=el('b');const dot=el('i','kbu-dot2');dot.style.background=COL[i%COL.length];nm.append(dot,document.createTextNode(p.name));a1.append(nm,el('b','kbu-num',val.toLocaleString()+'pt'));
+      const a2=el('div','kbu-h2');const lt=el('span','kbu-num',r.n+'株  ·  '+kbuFmt(r.c/Math.max(1,r.n))+' → '+r.p.toLocaleString());lt.append(el('em','kbu-tc '+(c>=0?'up':'dn'),' '+(c>=0?'+':'')+c.toFixed(1)+'%'));
+      a2.append(lt,el('span','kbu-num kbu-pl '+(g>=0?'up':'dn'),(g>=0?'+':'')+g.toLocaleString()+'('+(gp>=0?'+':'')+gp.toFixed(1)+'%)'));
+      card.append(a1,a2,el('span','kbu-cd kbu-h3',kbuCode(p.id)+'  ·  '+Math.round(val/Math.max(1,P.val)*100)+'%'));card.onclick=()=>kbuDetail(r.s);hl.append(card)});pf.append(hl)}
   else pf.append(el('p','kbu-empty','まだ株を持っていません。勝ちそうな仲間、毎日ログインしている仲間、ガチャ運のいい仲間を買ってみよう。自分の株も買えます。'));
-  const inc=el('div','kbu-inc');inc.append(el('span',null,'配当 +'+P.div.toLocaleString()+'pt'),el('span',null,'自分の株の手数料 +'+ry.toLocaleString()+'pt'));pf.append(inc);box.append(pf);
+  const inc=el('div','kbu-inc');inc.append(el('span',null,'もらった配当 +'+P.div.toLocaleString()+'pt'),el('span',null,'自分の株の手数料 +'+ry.toLocaleString()+'pt'));pf.append(inc);box.append(pf);
   /* お気に入り */
   const F=kbuFavs().map(id=>S.find(p=>p.id===id)).filter(Boolean);if(F.length){const fs=el('section','kbu-sec');fs.append(el('h4',null,'お気に入り'));const ls=el('div','kbu-ls');F.forEach(p=>ls.append(kbuRow(p,me)));fs.append(ls);box.append(fs)}
   /* rankings */
   const rs=el('section','kbu-sec');rs.append(el('h4',null,'ランキング'));const seg=el('div','kbu-seg');[['up','値上がり率'],['dn','値下がり率'],['vol','出来高'],['cap','時価総額']].forEach(([k,lb])=>{const b=el('button','kx-mk'+(kbuRank===k?' on':''),lb);b.type='button';b.onclick=()=>{kbuRank=k;mktPaint()};seg.append(b)});rs.append(seg);
   const key={up:p=>-kbuChange(p.id),dn:p=>kbuChange(p.id),vol:p=>-kbuVol(p.id),cap:p=>-kbuCap(p.id)}[kbuRank];
   const ls=el('div','kbu-ls');S.slice().sort((a,b)=>key(a)-key(b)||kbuPrice(b.id)-kbuPrice(a.id)).forEach((p,i)=>ls.append(kbuRow(p,me,{rank:i+1,sub:kbuRank==='vol'?'出来高 '+kbuVol(p.id)+'株':kbuRank==='cap'?'時価総額 '+kbuCap(p.id).toLocaleString():''})));rs.append(ls);box.append(rs);
-  const how=el('details','kbu-how');how.append(el('summary',null,'仲間株のしくみ'),el('p',null,'値段は15分ごとに動きます(朝5時が1日のはじまり)。勝ち +3%・負け -2%(CPU戦は半分)・ガチャの当たり・その日アプリを開くと +1%(7日連続でさらに +1%)。1回も開かなかった日は朝5時に -3%。1日に動くのは前の日の終わりの値段から ±20% まで(ストップ高・ストップ安)。そのうえで、みんなが買うほど上がり、売るほど下がります。売り買いには手数料5%(そのうち2%はその株の本人に入ります。自分の株を自分で売り買いしたときは入りません)。月曜の朝5時に、先週の勝ち数に応じて1株ごとに配当が入ります。'));box.append(how)}
+  const how=el('details','kbu-how');how.append(el('summary',null,'仲間株のしくみ'),el('p',null,'値段は15分ごとに動きます(朝5時が1日のはじまり)。勝ち +3%・負け -2%(同じ相手との対戦は1日3戦まで、CPU戦は半分で1日6戦まで)・ガチャの当たり(1日最大 +6%)・その日アプリを開くと +1%(7日連続でさらに +1%)。1回も開かなかった日は朝5時に -3%。1日に動くのは前の日の終わりの値段から ±20% まで(ストップ高・ストップ安)。そのうえで、みんなが買うほど上がり、売るほど下がります。持てる株数に上限はありません(1回の注文は1000株まで)。売り買いには手数料5%(そのうち2%はその株の本人に入ります。自分の株を自分で売り買いしたときは入りません)。月曜の朝5時に、先週ずっと持っていた株に、先週の勝ち数に応じた配当が入ります。'));box.append(how)}
 /* the chart: a line (or candles) you can scrub; onPick(point or null) */
 function kbuChart(pts,o){o=o||{};const w=360,h=200,pad=10,wrap=el('div','kbu-chart'),svg=kbuSvgEl('svg',{viewBox:'0 0 '+w+' '+h,'aria-hidden':'true'});wrap.append(svg);if(!pts.length)return wrap;
   const lo0=Math.min(...pts.map(p=>p.l!=null&&o.candle?p.l:p.p).concat(o.base!=null?[o.base]:[])),hi0=Math.max(...pts.map(p=>p.h!=null&&o.candle?p.h:p.p).concat(o.base!=null?[o.base]:[])),m=(hi0-lo0)*.08||1,lo=lo0-m,hi=hi0+m;
@@ -10820,16 +10868,19 @@ function kbuOrder(s,side,after){document.querySelectorAll('.mks.kbu-o').forEach(
     if(done){const rc=el('div','kbu-rcpt');rc.append(el('i','kbu-ok'),el('h3',null,'約定しました'),el('p',null,p.name+'('+kbuCode(s)+')  '+(done.q>0?'買い':'売り')+'  '+Math.abs(done.q)+'株'));
       const kv=el('div','kbu-kv');[['約定代金',kbuFmt(done.gross)+'pt'],['手数料',kbuFmt(done.fee)+'pt'],[done.q>0?'お支払い':'お受け取り',done.x.toLocaleString()+'pt'],['約定時刻',kbuHm(done.t)]].forEach(([k,v])=>{const r=el('div');r.append(el('span',null,k),el('b','kbu-num',v));kv.append(r)});rc.append(kv);
       const ok=el('button','kbu-go kx-mk','OK');ok.type='button';ok.onclick=()=>o.remove();b.append(rc,ok);return}
-    const H=kbuHeld(s),mine=kbuMine(me.id,s),bn=kbuBaseNow(s),max=side>0?Math.min(KBU_MAXQ,KBU_CAP-mine):Math.min(KBU_MAXQ,mine);q=Math.max(1,Math.min(q,Math.max(1,max)));
+    const H=kbuHeld(s),mine=kbuMine(me.id,s),bn=kbuBaseNow(s),bal0=econReady()?balance(me.id):0;
+    /* the most I can buy with my points (binary search, up to KBU_MAXQ a time) / sell (what I hold) */
+    let max;if(side>0){let lo=0,hi=KBU_MAXQ;while(lo<hi){const m=Math.ceil((lo+hi)/2);if(kbuCost(bn,H,m)<=bal0)lo=m;else hi=m-1}max=Math.max(1,lo)}else max=Math.max(1,Math.min(KBU_MAXQ,mine));q=Math.max(1,Math.min(q,max));
     const x=side>0?kbuCost(bn,H,q):kbuGet(bn,H,q),gross=side>0?x/(1+KBU_FEE):x/(1-KBU_FEE),fee=Math.abs(x-gross),bal=econReady()?balance(me.id):0,roy=s===me.id?0:Math.floor(x*KBU_ROY/(side>0?1+KBU_FEE:1-KBU_FEE));
     const hd=el('div','kbu-oh');hd.append(el('b',null,(side>0?'買い注文':'売り注文')+'  ·  成行'),el('span','kbu-cd',p.name+'('+kbuCode(s)+')  現在値 '+kbuPrice(s).toLocaleString()+'pt'));b.append(hd);
-    const qr=el('div','kbu-oq'),mn=el('button','kx-mk','−'),pl=el('button','kx-mk','+'),qv=el('b','kbu-num',String(q));mn.type=pl.type='button';mn.disabled=q<=1;pl.disabled=q>=max;mn.onclick=()=>{q--;draw()};pl.onclick=()=>{q++;draw()};
-    qr.append(el('span',null,'株数'),mn,qv,el('i',null,'株'),pl);b.append(qr);
+    const qr=el('div','kbu-oq'),qv=el('b','kbu-num',String(q)),btn=(lb,d)=>{const x=el('button','kx-mk',lb);x.type='button';x.disabled=d<0?q<=1:q>=max;x.onclick=()=>{q=Math.max(1,Math.min(max,q+d));draw()};return x};
+    const qn=el('div','kbu-oqn');qn.append(qv,el('i',null,'株'));qr.append(btn('−10',-10),btn('−',-1),qn,btn('+',1),btn('+10',10));b.append(qr);
+    const qs=el('div','kbu-oqs');[['1',1],['10',10],['50',50],['最大',max]].forEach(([lb,v])=>{const x=el('button','kx-mk'+(q===v&&lb!=='1'?' on':''),lb==='最大'?'最大 '+max+'株':lb+'株');x.type='button';x.disabled=v>max&&lb!=='最大';x.onclick=()=>{q=Math.max(1,Math.min(max,v));draw()};qs.append(x)});b.append(qs);
     const kv=el('div','kbu-kv');[['概算約定代金',kbuFmt(gross)+'pt'],['手数料(5%)',kbuFmt(fee)+'pt'+(roy?'  うち'+roy+'ptは'+p.name+'へ':'')],[side>0?'お支払い(概算)':'お受け取り(概算)',x.toLocaleString()+'pt'],[side>0?'買付余力':'保有数',side>0?bal.toLocaleString()+'pt':mine+'株']].forEach(([k,v],i)=>{const r=el('div'+(i===2?'':''));r.append(el('span',null,k),el('b','kbu-num',v));kv.append(r)});b.append(kv);
-    const bad=side>0?(mine+q>KBU_CAP?'1人が持てるのは1銘柄'+KBU_CAP+'株までです':bal<x?'ptが足りません':''):(mine<q?'持っている株が足りません':'');
+    const bad=side>0?(bal<x?'ptが足りません':''):(mine<q?'持っている株が足りません':'');
     b.append(el('p','kbu-onote',bad||(side>0?'買うと、その分だけ値段が上がります(1株ごとに +'+Math.round(KBU_K*100)+'%)。':'売ると、その分だけ値段が下がります。')));
     const go=el('button','kbu-go '+(side>0?'b':'s')+' kx-mk',side>0?'買い注文を出す':'売り注文を出す');go.type='button';go.disabled=!!bad;
-    go.onclick=async()=>{go.disabled=true;try{const got=await kbuTrade(s,side*q);done={q:side*q,x:got,gross:side>0?got/(1+KBU_FEE):got/(1-KBU_FEE),fee:Math.abs(got-(side>0?got/(1+KBU_FEE):got/(1-KBU_FEE))),t:now()};try{vib(2)}catch(e){}}catch(e){toast({pt:'ptが足りません',cap:'1人が持てるのは'+KBU_CAP+'株までです',have:'持っている株が足りません',rules:'まだ売り買いできません(準備中)'}[e.message]||'できませんでした')}draw();try{after&&after()}catch(e){}};
+    go.onclick=async()=>{go.disabled=true;try{const got=await kbuTrade(s,side*q);done={q:side*q,x:got,gross:side>0?got/(1+KBU_FEE):got/(1-KBU_FEE),fee:Math.abs(got-(side>0?got/(1+KBU_FEE):got/(1-KBU_FEE))),t:now()};try{vib(2)}catch(e){}}catch(e){toast({pt:'ptが足りません',have:'持っている株が足りません',rules:'まだ売り買いできません(準備中)'}[e.message]||'できませんでした')}draw();try{after&&after()}catch(e){}};
     const cl=el('button','sec','やめる');cl.type='button';cl.onclick=()=>o.remove();b.append(go,cl)};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
 function kbuGo(){mktSec='kabu';setView('gacha');setTimeout(()=>{try{gpageSet('mkt')}catch(e){}try{mktPaint()}catch(e){}},250)}
