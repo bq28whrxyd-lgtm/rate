@@ -411,9 +411,12 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .qs.new{box-shadow:inset 0 0 0 2px #ffd36b}.qs.boss .qfc canvas{box-shadow:0 0 0 2px #ff8a6a}.qs.old{opacity:.6}
 .qnw{background:#ff5a4a!important;color:#fff!important}.qclr{font:800 10.5px/1 var(--jp);font-style:normal;color:#8ff0a4}
 .qsd{display:grid;gap:8px;padding:2px 14px 14px}.qpw{display:flex;justify-content:space-between;margin:0;font:500 11.5px/1 var(--jp);color:var(--mut)}.qpw b{margin-left:4px;font:800 16px/1 var(--jp);color:#fff;font-variant-numeric:tabular-nums}.qpw b.ok{color:#8ff0a4}.qpw b.mid{color:#ffd36b}.qpw b.low{color:#ff8a8a}
-.qhint{margin:0;font:500 11px/1.4 var(--jp);color:#ffd9a0}.qrw{margin:0;font:500 11px/1 var(--jp);color:var(--mut)}.qsd .btn{width:100%;margin:2px 0 0}
+.qhint{margin:0;font:500 11px/1.4 var(--jp);color:#ffd9a0}.qrw{margin:0;font:500 11px/1.5 var(--jp);color:var(--mut)}.qsd .btn{width:100%;margin:2px 0 0}
 .sp[data-s=quest]>.sec:first-child>h2{display:none}
 .qrec{position:relative;display:flex;align-items:baseline;gap:10px;width:100%;margin-top:4px;padding:12px 14px;border:0;border-radius:12px;background:rgba(255,255,255,.04);color:#fff;text-align:left;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}.qrec b{font:800 13px/1 var(--jp)}.qrec small{font:500 11px/1 var(--jp);color:var(--mut)}.qrec.dot:after{content:'';position:absolute;right:12px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#ff5a4a}
+.xqr .qtx b{color:var(--xc,#fff)}.xqr.t1{--xc:#8fe39a}.xqr.t2{--xc:#8cc6ff}.xqr.t3{--xc:#cfa3ff}.xqr.t4{--xc:#ff8a80}.xqr .qrt{display:grid;justify-items:end;gap:4px}
+.xqxp{background:rgba(255,211,107,.14)!important;color:#ffd36b!important}.xqn2,.xqlk{font:500 10px/1.2 var(--jp);color:var(--mut)}
+.sp[data-s=quest] .sec>h2{font:800 13px/1.2 var(--jp)}
 </style>
 
 <div class="wrap">
@@ -2207,7 +2210,7 @@ function xqOpp(t,i){const g=XQ[t],last=i===4,w=QW[(t*2+i)%4],rr=rngOf(t*131+i*17
   const eq=[[w[1]+wr,wr,e],[['yga','sma','tca'][(t+i)%3],ar,e]];if(t>1||last)eq.push([['ygx','smx','tcx'][(t+i)%3],ar,e]);
   return {name:(i+1)+'/5 '+(last?g.boss:QN[w[0]][t-1]),lv:g.lv[i],mul:(g.mul?g.mul[i]:1)*XQHARD,look:{g:'m',hs:0,hc:hc[Math.floor(rr()*hc.length)],ec:ec[Math.floor(rr()*ec.length)]},eq,style:w[2],boss:last,xq:t,xi:i}}
 function xqInfo(){if(HOST&&HOST.xq)return HOST.xq();return {c:S.xqc||{},today:0,day:3}}
-function renderXq(){const box=$('xq');if(!box)return;box.replaceChildren();const inf=xqInfo(),left=Math.max(0,inf.day-inf.today);
+function renderXq0(){const box=$('xq');if(!box)return;box.replaceChildren();const inf=xqInfo(),left=Math.max(0,inf.day-inf.today);
   $('xqn').textContent=HOST?'今日の経験値 あと'+left+'回':'試作では経験値なし';
   const grid=mk('div','xqg');for(let t=1;t<=4;t++){const g=XQ[t],open=t===1||(inf.c[t-1]||0)>0,n=inf.c[t]||0,b=mk('button','xqc t'+t+(open?'':' lock'));b.type='button';b.disabled=!open;
     b.innerHTML='<b>'+g.n+'</b><span>推奨戦力 '+trRec(fighterOpp(xqOpp(t,0))).toLocaleString()+'〜'+trRec(fighterOpp(xqOpp(t,4))).toLocaleString()+' の5人</span><em>'+(open?'クリアで経験値 +'+g.xp:XQ[t-1].n+'をクリアで解放')+'</em><small>'+(n?'クリア '+n+'回':open?'まだクリアなし':'')+'</small>';b.onclick=()=>{if(!playing)xqStart(t)};grid.append(b)}
@@ -2998,7 +3001,22 @@ function qsBody(){const box=$('quest');if(!box)return;box.replaceChildren();cons
 
 /* (10/23) the 対戦 tab opens straight on this screen (no menu of tiles); 記録 sits at the bottom as a small row */
 function renderQuest(){qsBody();const box=$('quest');if(!box)return;const rec=mk('button','qrec');rec.type='button';rec.innerHTML='<b>記録</b><small>攻められた記録・バトルの記録</small>';
-  let seen=0;try{seen=+localStorage.getItem('bunRecSeen')||0}catch(e){}try{if(HOST&&HOST.defenses().some(x=>(x.t||0)>seen))rec.classList.add('dot')}catch(e){}rec.onclick=()=>subSet('rec');box.append(rec)}
+  let seen=0;try{seen=+localStorage.getItem('bunRecSeen')||0}catch(e){}try{if(HOST&&HOST.defenses().some(x=>(x.t||0)>seen))rec.classList.add('dot')}catch(e){}rec.onclick=()=>subSet('rec');rec.id='qrec';const old=document.getElementById('qrec');if(old)old.remove();const xs=$('xq')&&$('xq').closest('.sec');if(QTAB==='dy'&&xs)xs.after(rec);else box.append(rec)}
+/* (10/23) the exp quest in the same plain rows: face of the 5th foe, name, how many people, the reward or what opens it. Tap → open → 挑戦する */
+let XQSEL=null;
+function renderXq(){const box=$('xq');if(!box)return;box.replaceChildren();const inf=xqInfo(),left=Math.max(0,inf.day-inf.today);
+  $('xqn').textContent=HOST?'今日の経験値 あと'+left+'回':'試作では経験値なし';
+  const P=tbParty3(),have=Math.round(trPartyPow(P)),l=mk('div','qss');
+  for(let t=1;t<=4;t++){const g=XQ[t],open=t===1||(inf.c[t-1]||0)>0,n=inf.c[t]||0,sel=XQSEL===t&&open,lo=trRec(fighterOpp(xqOpp(t,0))),hi=trRec(fighterOpp(xqOpp(t,4)));
+    const row=mk('div','qs xqr t'+t+(open?'':' old')+(sel?' open':''));const hd=mk('button','qsh');hd.type='button';hd.disabled=!open;
+    const fc=mk('span','qfc');fc.append(headCv(lookHead(xqOpp(t,4).look),40));
+    const tx=mk('span','qtx');tx.innerHTML='<small>5人 ・ 最後は '+g.boss+'</small><b>'+g.n+'</b>';
+    const rt=mk('span','qrt');rt.innerHTML=open?'<em class="xqxp">経験値 +'+g.xp+'</em>'+(n?'<small class="xqn2">クリア '+n+'回</small>':''):'<small class="xqlk">'+XQ[t-1].n+'をクリアで解放</small>';
+    hd.append(fc,tx,rt);hd.onclick=()=>{XQSEL=sel?null:t;renderXq()};row.append(hd);
+    if(sel){const d=mk('div','qsd'),r=have/hi;d.innerHTML='<p class="qpw"><span>推奨戦力 <b>'+lo.toLocaleString()+'〜'+hi.toLocaleString()+'</b></span><span>いまの'+P.length+'体 <b class="'+(r>=1?'ok':have>=lo?'mid':'low')+'">'+have.toLocaleString()+'</b></span></p><p class="qrw">5人と続けて戦う ・ HPは持ち越し(勝つたびに50%回復) ・ 負けたら最初から ・ 宝箱10%</p>';
+      const go=mk('button','btn main','挑戦する');go.type='button';go.onclick=()=>{if(!playing)xqStart(t)};d.append(go);row.append(d)}
+    l.append(row)}
+  box.append(l);if(HOST)box.append(mk('p','qmore','5人全員に勝つと、アカウントの経験値がもらえます(1日'+inf.day+'回まで。そのあとも遊べます)'))}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
