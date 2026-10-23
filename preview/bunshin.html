@@ -444,6 +444,26 @@ body.exlock{overflow:hidden}
 .tplv{position:absolute;top:6px;right:6px;font:900 12px/1 var(--jp);color:#2a2010;background:#ffe066;border-radius:7px;padding:3px 5px}.tplv:empty{display:none}
 .tphint{margin:4px 0 0;text-align:center;font:600 11px/1.4 var(--jp);color:var(--mut)}.tphint.warn{color:#ff9a8a}
 .tppips i.use{background:#ffe066!important;box-shadow:0 0 8px #ffe066}
+/* (10/23) battle panel v2 */
+.tu .trsp{gap:7px;padding:2px 0 4px}.tu .trsp i{width:19px;height:19px}.tu .trsp i.on{box-shadow:0 0 12px rgba(255,200,80,.85)}.tu .trsp .tucnt{margin-left:auto;font:800 13px/1 var(--jp);font-style:normal;color:#ffe9a8}
+.tu .trparty{align-items:end}.tu .trm{background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 18%,#1a1426),#0e0a16);opacity:.78;transition:transform .12s,opacity .12s}
+.tu .trm.cur{opacity:1;transform:translateY(-6px) scale(1.04);background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 45%,#1a1426),color-mix(in srgb,var(--rc) 12%,#0e0a16));box-shadow:inset 0 0 0 2px var(--rc),0 0 22px color-mix(in srgb,var(--rc) 45%,transparent),0 8px 18px rgba(0,0,0,.45)}
+.tu .trm.cur .trf{width:58px;height:58px}.tu .trm.cur .trf canvas{width:50px;height:50px}.tu .trm .tbhp{height:10px;border-radius:5px}.tu .trm .tbhp span{font-size:9px;line-height:10px;top:0}
+.tu .trcmd{grid-template-columns:1fr 1.25fr;gap:10px;min-height:96px}
+.tu .trb{align-content:start;gap:3px;padding:12px 12px 10px;border-radius:18px;overflow:hidden}
+.tu .trb strong{display:block;margin-top:2px;font:900 30px/1 var(--jp);color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+.tu .trb strong.tufx{font-size:19px;color:#a6ffb0}
+.tu .trb.basic{background:linear-gradient(160deg,#3a3148,#1a1524);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.18),0 4px 0 #0c0912}
+.tu .trb.basic strong{color:#fff3c4}
+.tu .trb .tuic{position:absolute;right:-6px;bottom:-8px;width:58px;height:58px;opacity:.28;transform:rotate(-15deg)}.tu .trb .tuic svg,.tu .trb .tuic img,.tu .trb .tuic canvas{width:100%;height:100%}
+.tu .trb.skill{background:linear-gradient(150deg,color-mix(in srgb,var(--c) 70%,#1a1426),color-mix(in srgb,var(--c) 20%,#120e1a));box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--c) 85%,#fff),0 4px 0 color-mix(in srgb,var(--c) 40%,#000),0 0 18px color-mix(in srgb,var(--c) 35%,transparent)}
+.tu .trb.skill small{color:rgba(255,255,255,.82)}.tu .trb.skill b{font-size:19px}
+.tu .trb.skill i.tucost,.tu .tucost{position:absolute;top:9px;right:10px;font:900 12px/1 var(--jp);font-style:normal;color:#2a2010;background:linear-gradient(135deg,#fff3c4,#ffc84a);border-radius:999px;padding:4px 8px;box-shadow:0 0 10px rgba(255,200,80,.7)}
+.tu .tuch{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.tu .tuch em{font:800 10px/1 var(--jp);font-style:normal;padding:4px 7px;border-radius:999px}.tu .tuch em.g{background:rgba(255,211,107,.18);color:#ffd36b}.tu .tuch em.s{background:rgba(166,228,255,.18);color:#a6e4ff}
+.tu .tuno{display:block;margin-top:4px;font:700 10px/1 var(--jp);color:#ffb0a0}
+.tu .trb.press{transform:translateY(3px) scale(.96);box-shadow:none}
+.tu .trb.tuult{grid-column:1/-1;background:linear-gradient(90deg,#ffb84a,#fff3c4,#ffb84a);background-size:200% 100%;animation:tuult 1.4s linear infinite;box-shadow:0 0 22px rgba(255,200,80,.7),0 4px 0 #6a4a10}.tu .trb.tuult b{color:#2a1a08;font-size:18px}.tu .trb.tuult small{color:#5a3a10}
+@keyframes tuult{to{background-position:-200% 0}}@media (prefers-reduced-motion:reduce){.tu .trb.tuult{animation:none}}
 </style>
 
 <div class="wrap">
@@ -3441,6 +3461,21 @@ function trCut2(f,v,name,C){if(f.boss||(f.look&&f.look.pk))return cutIn(f,v,1,na
       G.fillStyle='#000';for(const [ox,oy] of [[-2,0],[2,0],[0,-2],[0,2],[2,2]])G.fillText(ch,ox,oy);G.fillStyle=col;G.fillText(ch,0,1);G.fillStyle=C[3];G.fillText(ch,0,-1);G.restore()})}
   /* a white flash on the way out */if(v>outT-.04&&v<outT+.08){G.globalAlpha=.7*(1-Math.abs(v-outT-.02)/.06);G.fillStyle='#fff';G.fillRect(0,0,W,H);G.globalAlpha=1}
   G.restore()}
+
+/* ================= (10/23) そそる操作盤と、大きい数字 =================
+   - 数字: これまでは敵が強いぶん「自分の攻撃を小さく割って」いたので、ダメージが3のように小さかった。
+     ボス(みんなのHPを削るもの)以外は、自分の攻撃を割らずに 10倍で数え、そのぶん敵のHPを大きくする(強さの比はまったく同じ)
+   - 操作盤: いまの番の分身を大きく、役職の色で。ボタンは武器のアイコン・大きい予想ダメージ・使うポイントの宝石。必殺がたまったら金の大ボタン */
+{const _s=trSetup;trSetup=function(){_s.apply(this,arguments);if(!TR||!TR.E)return;const sop=TR.o.sop||{};if(sop.turns&&sop.hp1!=null)return;/* the shared boss keeps its real numbers */
+  const f=10/TR.pm;TR.pm=10;const E=TR.E;E.hp=Math.round(E.hp*f);E.max=Math.round(E.max*f);E.hp0=Math.round(E.hp0*f);TR.dscale=f}}
+{const _ui=trUI;trUI=function(){_ui.apply(this,arguments);if(!TR||TR.sim||TR.tpm||TR.end)return;const u=$('tbui');if(!u)return;u.classList.add('tu');
+  const sp=u.querySelector('.trsp');if(sp&&!sp.querySelector('.tucnt'))sp.append(mk('em','tucnt',TR.sp+' / '+TR.spMax));
+  u.querySelectorAll('.trm').forEach(c=>{const i=+c.dataset.i,r=TBROLE[TR.role[i]];c.style.setProperty('--rc',r?r[1]:'#888')});
+  if(TR.phase!=='cmd'||TR.cur<0)return;const i=TR.cur,f=TR.P[i],ro=TR.role[i],w=TR.E.weak.includes(f.wt),R=TBROLE[ro];
+  const bb=u.querySelector('.trb.basic');if(bb){const n=f.wt==='fist'?2:1,est=trEst(i,n>1?.6:1)*n;bb.innerHTML='<span class="tuic">'+icon(f.wt)+'</span><b>通常攻撃</b><strong>'+est.toLocaleString()+'</strong><span class="tuch"><em class="g">●+1</em>'+(w||TR.pas[i].smx?'<em class="s">シールド−1</em>':'')+'</span>'}
+  const sb=u.querySelector('.trb.skill');if(sb){const q=TQSK[ro],est=q?trEst(i,q[0])*q[1]:0,cut=w&&q?(ro==='sword'||ro==='warrior'||ro==='monk'?2:q[1]>1?q[1]:1):0;sb.style.setProperty('--c',R[1]);
+    sb.innerHTML='<i class="tucost">●1</i><b>'+TRSK[ro][0]+'</b><small>'+TRSK[ro][1]+'</small>'+(q?'<strong>'+est.toLocaleString()+'</strong>':'<strong class="tufx">'+(ro==='priest'?'みんな回復':ro==='cheer'?'みんな強化':'')+'</strong>')+(cut?'<span class="tuch"><em class="s">シールド−'+cut+'</em></span>':'')+(TR.sp<1?'<span class="tuno">推しポイントが足りない</span>':'')}
+  if(TR.en[i]>=100&&!u.querySelector('.tuult')){const cmd=u.querySelector('.trcmd'),b=mk('button','trb tuult');b.type='button';b.innerHTML='<b>必殺「'+spOf(f.wt,f.wr).sp+'」</b><small>'+f.name+'の必殺がたまった! 押すとすぐ出せる(番は使わない)</small>';b.onclick=()=>trUlt(i);if(cmd)cmd.prepend(b)}}}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
