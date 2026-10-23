@@ -2801,7 +2801,7 @@ function stAl(i,cfg){if(!i)return S.al;return sjd(cfg[i-1]).al}
 function stUsed(i,cfg){return usedPts(stAl(i,cfg))}
 function renderStat(){const cfg=tbCfg(),i=(PTSEL>=jbCount(cfg)?0:PTSEL),n=ptsOf(avLv(i,cfg));PTSEL=i;if(!STP||STP.i!==i)STP={i,add:ST0()};
   for(let k=0;k<jbCount(cfg);k++){const al=stAl(k,cfg);if(usedPts(al)>ptsOf(avLv(k,cfg))){const a2=k?ST0():autoAlloc(S.lv,'atk');if(k)sjd(cfg[k-1]).al=a2;else S.al=a2}}
-  $('lv').value=S.lv;$('lvv').textContent='Lv '+avLv(i,cfg);$('lv').hidden=i>0;{const h=$('p-stat').querySelector('.sec h2');if(h&&h.firstChild){h.firstChild.textContent=i?'レベル ':'アカウントレベル ';h.querySelectorAll('small').forEach(x=>x.style.visibility=i?'hidden':'')}}let xb=$('subxp');if(!xb){xb=mk('div','subxpbar');xb.id='subxp';$('pts').before(xb)}xb.hidden=!i;if(i){const x=subXpInfo(cfg[i-1]);xb.innerHTML='<div class="xb"><i style="width:'+(100*x.into/x.need).toFixed(0)+'%"></i></div><small>'+(x.capped?'メインと同じLv'+x.lv+'で止まっています。ためた経験値 '+x.held+'(メインが上がると一気に上がる)':'次のLvまで '+(x.need-x.into)+'(勝つと+'+SUBWIN*SUBCU+'、負けても+'+SUBLOSE*SUBCU+'。メインのLvに追いつくまで3倍)')+'</small>'}
+  $('lv').value=S.lv;$('lvv').textContent='Lv '+avLv(i,cfg);$('lv').hidden=i>0;{const h=$('p-stat').querySelector('.sec h2');if(h&&h.firstChild){h.firstChild.textContent=i?'レベル ':'アカウントレベル ';h.querySelectorAll('small').forEach(x=>x.style.visibility=i?'hidden':'')}}let xb=$('subxp');if(!xb){xb=mk('div','subxpbar');xb.id='subxp';$('pts').before(xb)}xb.hidden=!i;if(i){const x=subXpInfo(cfg[i-1]);xb.innerHTML='<div class="xb"><i style="width:'+(100*x.into/x.need).toFixed(0)+'%"></i></div><small>'+(x.capped?'メインと同じLv'+x.lv+'で止まっています。ためた経験値 '+x.held+'(メインが上がると一気に上がる)':'次のLvまで '+(x.need-x.into)+(subCu(cfg[i-1])?'(勝つと+'+SUBWIN*SUBCU+'、負けても+'+SUBLOSE*SUBCU+'。Lv'+subCuLv()+'(メインの6割)までは3倍)':'(勝つと+'+SUBWIN+'、負けても+'+SUBLOSE+')'))+'</small>'}
   const al=stAl(i,cfg),pend=usedPts(STP.add),left=n-usedPts(al)-pend;$('pts').innerHTML='残りポイント <b>'+left+'</b> / '+n+(pend?' <em>(仮に'+pend+'振っています)</em>':'');
   /* who */let wh=$('stwho');if(!wh){wh=mk('div','stwho');wh.id='stwho';$('stl').before(wh)}wh.replaceChildren();const fs=mk('div','ptfaces');
   for(let k=0;k<jbCount(cfg);k++){const fk=ptFighter(k,cfg),rk=TBROLE[tbRole(fk)],b=mk('button','ptface'+(k===i?' on':''));b.type='button';b.style.setProperty('--c',rk[1]);b.append(headCv(lookHead(fk.look),40));const lk=ptsOf(avLv(k,cfg))-stUsed(k,cfg);if(lk>0)b.append(mk('i','stdot',String(lk)));b.onclick=()=>{PTSEL=k;STP=null;refresh()};fs.append(b)}
@@ -2854,7 +2854,8 @@ function renderLook(){const cfg=tbCfg(),n=jbCount(cfg);if(PTSEL>=n)PTSEL=0;const
 /* ================= (10/23) 2体目・3体目のレベル: ターン制バトルの経験値で上がる。上限はメインのレベル =================
    経験値はずっとたまる(xp)。レベル = min(経験値から出るレベル, メインのレベル)。上限で止まっている間の経験値はたまり続け、メインが上がると一気に上がる */
 const SUBXP=L=>20+L*10;/* Lv L → L+1 に要る経験値 */
-const SUBWIN=80,SUBLOSE=25,SUBCU=3;/* (10/23) メインのレベルに追いつくまでは経験値3倍 */
+const SUBWIN=80,SUBLOSE=25,SUBCU=3,SUBCUR=.6;/* (10/23) メインのレベルの6割までは経験値3倍 */
+const subCuLv=()=>Math.floor(S.lv*SUBCUR),subCu=m=>subLvRaw(sjd(m).xp||0)<subCuLv();
 /* (10/23) 役職ごとに経験値と振り分けが別: m.jobs[job]={xp,al}。前の m.xp・m.al はいまの役職の分として引っこす */
 function sjd(m){if(!m.jobs)m.jobs={};const j=m.job||'sword';if(!m.jobs[j]){m.jobs[j]={xp:0,al:{hp:0,atk:0,def:0,spd:0,mag:0}};if(m.xp!=null||m.al){m.jobs[j].xp=m.xp||0;if(m.al)m.jobs[j].al=m.al;delete m.xp;delete m.al}}return m.jobs[j]}
 const sjLv=(m,j)=>Math.min(S.lv,subLvRaw(((m.jobs||{})[j]||{}).xp||0));
@@ -2863,7 +2864,7 @@ function subLvOf(m){return Math.min(S.lv,subLvRaw(sjd(m).xp||0))}
 function avLv(i,cfg){return i?subLvOf(cfg[i-1]):S.lv}
 function subXpInfo(m){let xp=sjd(m).xp||0,L=1;while(xp>=SUBXP(L)&&L<300){xp-=SUBXP(L);L++}const lv=Math.min(S.lv,L),capped=L>S.lv;let held=0;if(capped){let t=sjd(m).xp||0;for(let k=1;k<S.lv;k++)t-=SUBXP(k);held=t}return {lv,raw:L,into:capped?SUBXP(lv):xp,need:SUBXP(lv),capped,held}}
 /* after a turn battle: experience for the sub avatars that took part */
-function subGiveXp(win){const cfg=tbCfg(),n=jbCount(cfg),out=[];for(let k=1;k<n;k++){const m=cfg[k-1],before=subLvOf(m),cu=subLvRaw(sjd(m).xp||0)<S.lv,v=(win?SUBWIN:SUBLOSE)*(cu?SUBCU:1);sjd(m).xp=(sjd(m).xp||0)+v;const after=subLvOf(m);out.push({name:m.name||('分身'+(k+1)),v,cu,before,after,capped:subXpInfo(m).capped})}tbSaveCfg(cfg);setTimeout(refresh,0);return out}
+function subGiveXp(win){const cfg=tbCfg(),n=jbCount(cfg),out=[];for(let k=1;k<n;k++){const m=cfg[k-1],before=subLvOf(m),cu=subCu(m),v=(win?SUBWIN:SUBLOSE)*(cu?SUBCU:1);sjd(m).xp=(sjd(m).xp||0)+v;const after=subLvOf(m);out.push({name:m.name||('分身'+(k+1)),v,cu,before,after,capped:subXpInfo(m).capped})}tbSaveCfg(cfg);setTimeout(refresh,0);return out}
 
 /* ================= (10/23) 見た目は2回まで変えられる =================
    髪型・髪の色・目の色は、選ぶと上の舞台で試せる(まだ決まっていない)。「この見た目にする」で決めると1回使う。
