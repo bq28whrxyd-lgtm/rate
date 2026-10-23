@@ -467,17 +467,27 @@ service cloud.firestore {
       allow create: if signedIn() && myPid() != '' && request.resource.data.p == myPid()
         && request.resource.data.keys().hasOnly(['p', 's', 'q', 'x', 't'])
         && request.resource.data.s is string && request.resource.data.s.size() > 0 && request.resource.data.s.size() <= 64
-        && request.resource.data.q is int && request.resource.data.q != 0 && request.resource.data.q >= -10 && request.resource.data.q <= 10
-        && request.resource.data.x is int && request.resource.data.x >= 0 && request.resource.data.x <= 100000
-        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000;
+        && request.resource.data.q is int && request.resource.data.q != 0 && request.resource.data.q >= -1000 && request.resource.data.q <= 1000
+        && request.resource.data.x is int && request.resource.data.x >= 0 && request.resource.data.x <= 100000000
+        && request.resource.data.t is int && request.resource.data.t > request.time.toMillis() - 120000 && request.resource.data.t < request.time.toMillis() + 60000;
       allow update: if false;
       allow delete: if isAdmin();
     }
     // ---- 仲間株: each player's gacha luck per day and the days they opened the app (the stock price uses both). Written by that player's app ----
     match /luck/{pid} {
       allow read: if signedIn();
-      allow write: if signedIn() && myPid() == pid
-        && request.resource.data.keys().hasOnly(['lk', 'li', 'u'])
+      // (10/23 audit) only today's luck and today's login can be added or changed; old days can only be dropped
+      allow create: if signedIn() && myPid() == pid && luckShape()
+        && request.resource.data.lk.keys().hasOnly([string(today())])
+        && request.resource.data.get('li', {}).keys().hasOnly([string(today())]);
+      allow update: if signedIn() && myPid() == pid && luckShape()
+        && request.resource.data.lk.diff(resource.data.get('lk', {})).addedKeys().hasOnly([string(today())])
+        && request.resource.data.lk.diff(resource.data.get('lk', {})).changedKeys().hasOnly([string(today())])
+        && request.resource.data.get('li', {}).diff(resource.data.get('li', {})).addedKeys().hasOnly([string(today())])
+        && request.resource.data.get('li', {}).diff(resource.data.get('li', {})).changedKeys().hasOnly([string(today())]);
+    }
+    function luckShape() {
+      return request.resource.data.keys().hasOnly(['lk', 'li', 'u'])
         && request.resource.data.lk is map && request.resource.data.lk.size() <= 20
         && request.resource.data.get('li', {}) is map && request.resource.data.get('li', {}).size() <= 45
         && request.resource.data.u is int;
