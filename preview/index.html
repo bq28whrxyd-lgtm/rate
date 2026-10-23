@@ -7886,6 +7886,10 @@ function cheerMark(cid,p){try{const K=cheerK(p);if(!K||!cid||!db||!invLoaded)ret
   inv=Object.assign({},inv,{chp:Object.assign({},inv.chp||{},{[cid]:ki})});db.doc('inv/'+me.id).set({chp:{[cid]:ki}},{merge:true}).catch(()=>{})}catch(e){}}
 window.__cheerN=n=>{const ki=KMRS.findIndex(K=>K.n===n);return ki<0?0:cheerN(ki)};window.__oshiNeed=OSHI_NEED;
 function cheerK(p){const e=p&&p.eq||{},x=e.x&&ITEM(e.x),v=e.v&&ITEM(e.v);return x&&v&&x.K&&x.K===v.K?x.K:null}
+/* (10/24) the cheer KMR also shows up in 分身バトル and TCG (推しの応援). Plain data for the game frames; window.__oshiDemo = a KMR index for the demo */
+function oshiInfo(K){if(!K)return null;return {n:K.n,img:K.img,vid:K.vid||'',w:K.w,h:K.h,fx:K.fx,fy:K.fy,z:K.z||1,c:(K.c||[]).slice(),dark:!!K.dark,whole:!!K.whole,cheers:(K.cheers||[]).slice()}}
+function myOshi(){try{if(window.__oshiDemo!=null)return oshiInfo(KMRS[window.__oshiDemo]);const me=typeof myPlayer==='function'&&myPlayer();return oshiInfo(cheerK(me))}catch(e){return null}}
+function oshiByName(n){try{return oshiInfo(KMRS.find(K=>K.n===n))}catch(e){return null}}
 const CHEERS=['がんばれ!','ファイト!','いけるよ!','応援してる!','負けないで!','信じてる!','がんばれー!!','ここからだよ!'];
 function cheerLayer(p,side){
   const K=cheerK(p);if(!K)return null;
@@ -11979,7 +11983,7 @@ const admInv={};
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
 const BUN_GIRL=false;/* 分身の女の子(一旦お休み)。bunshin の GIRL_ON と合わせる */
-const BUN_SRC='bunshin.html?v=71',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=72',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -12048,6 +12052,7 @@ function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今'
 let bunBase=0,bunSaveQ=Promise.resolve();const bunSave1=S=>window.BUNSHINHOST._save(S);
 window.BUNSHINHOST={
   ready:()=>{try{bunLoaded()}catch(e){}},
+  oshi:()=>myOshi(),
   mentor:()=>mtSheet(),mentorDot:()=>mtDot(),
   thumb:o=>{try{localStorage.setItem('bunThumb',JSON.stringify(o))}catch(e){}},
   /* (10/22) the copy the 分身 page started from (its u). A save made from an older start than what is saved now (chests opened on
@@ -13264,7 +13269,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=156';
+const TCG_SRC='tcg_play.html?v=157';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -13870,6 +13875,8 @@ window.TCGHOST.publishSpectator=payload=>{try{payload=JSON.parse(JSON.stringify(
   const d=tcgms.find(x=>x.id===L.id);if(!d||(me.id!==d.a&&me.id!==d.b))return Promise.resolve();
   const record=TCGSpectator.makeRecord(payload.state,d,L.first,payload.seq,now(),payload.frames,tcgPublicCoins(d,L.first));return db.doc('tcgwatch/'+L.id).set(record).catch(()=>{});
 };
+/* (10/24) 推しの応援: my cheer KMR, and one by name (the other side's, from its deck) */
+window.TCGHOST.oshi=()=>{try{return typeof myOshi==='function'?myOshi():null}catch(e){return null}};window.TCGHOST.oshiOppDemo=()=>{try{return window.__oshiOppDemo!=null&&typeof oshiInfo==='function'?oshiInfo(KMRS[window.__oshiOppDemo]):null}catch(e){return null}};window.TCGHOST.oshiN=n=>{try{return typeof oshiByName==='function'?oshiByName(n):null}catch(e){return null}};
 window.TCGHOST.spectatorSeq=()=>tcgLive?tcgLive.mine.length+tcgLive.delivered:0;
 /* (10/22) the whole card (案a, like in battle) for slabs and the showcase: the picture layer is tcgFace, so SECRET / Halloween finishes stay */
 const TFC_COL={weak:'#7fb2ff',girl:'#ff6fae',gay:'#c08cff',gen:'#ffd36b',gachi:'#ff9a3c',idol:'#ffd54a',vt:'#4fd1ff',cre:'#7ee08a',chu:'#a070ff',neta:'#ff6b6b',sei:'#ff9ad5',hage:'#d8c09a',mecha:'#4fd8d0',pirate:'#7088ff',reinc:'#5cb8ff',jujutsu:'#b07cff',henshin:'#ff6a5a'};
@@ -13924,7 +13931,9 @@ function tcgPlainDeck(d){const cards=tcgFlatCards(d.cards),o={name:String(d.name
   /* the deck's alternate-art copies (owned only): the other phone shows those copies with the new picture too */
   {const al=tcgAltMap(d.alt,cards);if(Object.keys(al).length)o.alt=al}
   /* (10/18) the deck's sleeve (or the usual one): the other phone shows it on this side's card backs */
-  {const sl=tcgSlOk(d.sl);if(sl)o.sl=sl}return o}
+  {const sl=tcgSlOk(d.sl);if(sl)o.sl=sl}
+  /* (10/24) my cheer KMR (推し): the other phone shows her cheering for this side */
+  try{const K=typeof myOshi==='function'&&myOshi();if(K&&K.n)o.os=String(K.n).slice(0,24)}catch(e){}return o}
 function tcgDeckPicker(box,onPick){const L=(tcgOf(inv).decks||[]).filter(tcgDeckOk);
   if(!L.length){box.append(el('p','sub','使えるデッキがありません。「デッキ・図鑑」でデッキを組んでください。'));return}
   L.forEach(d=>{const r=el('button','tcgdp');r.append(tcgFace(d.lead),el('b',null,d.name),el('span',null,TC[d.lead].n));r.onclick=()=>onPick(tcgPlainDeck(d));box.append(r)})}

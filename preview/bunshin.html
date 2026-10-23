@@ -504,6 +504,14 @@ canvas.tcsil{filter:brightness(0) invert(.32)}
 .tcok{min-width:160px}
 .dq .trm.dqhit{animation:dqhit .35s ease-out}@keyframes dqhit{0%{transform:translateX(0);box-shadow:inset 0 0 0 2px #ff5a5a,0 0 18px rgba(255,80,80,.6)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
 @media (prefers-reduced-motion:reduce){.tcback,.tcfront{animation-duration:.01s!important;animation-delay:0s!important}}
+/* (10/24) 推しの応援(to.js): comments flowing over the battlefield */
+.tocm{position:absolute;left:0;z-index:6;display:flex;align-items:center;gap:5px;white-space:nowrap;pointer-events:none;will-change:transform;font:900 13px/1.2 var(--jp);color:#fff;opacity:.96;
+  text-shadow:0 1px 0 rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.9),0 0 10px color-mix(in srgb,var(--k1) 85%,transparent)}
+.tocm.big{font-size:15.5px}
+.tocm.lead{padding:2px 9px 2px 2px;border-radius:999px;background:rgba(12,8,20,.42);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--k1) 55%,transparent)}
+.tocm small{font:800 10px/1 var(--jp);color:color-mix(in srgb,var(--k1) 45%,#fff);text-shadow:none}
+.tocf{position:relative;display:block;width:22px;height:22px;border-radius:50%;overflow:hidden;flex:0 0 auto;box-shadow:0 0 0 1.5px var(--k1);background:#140e1e}
+.tocf img{position:absolute;max-width:none}
 /* (10/24) パズドラ・モンスト風の画面 */
 .tabs.tnold{display:none!important}
 body.tnon .wrap{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
@@ -4045,6 +4053,35 @@ function tkReveal(g0,done){const C=tcC(g0.id),f=tcFighter(g0.id,Math.max(1,S.lv)
   const loop=()=>{const t=skip?99:performance.now()/1000-t0;render(Math.min(t,D+30));raf=requestAnimationFrame(loop)};loop();
   ov.addEventListener('pointerdown',()=>{const t=performance.now()/1000-t0;if(t<D&&!skip){skip=true;return}end()})}
 {const _sh=tcShow;tcShow=function(got){const best=got.slice().sort((a,b)=>b.r-a.r)[0];if(best&&best.r>=6&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){tkReveal(best,()=>_sh.call(this,got));return}return _sh.apply(this,arguments)}}
+
+/* ================= (10/24) 推しの応援: スキンガチャのKMR(応援演出をそろえたキャラ)が分身バトルに出てくる =================
+   参考(まねはしない): ハースストーンのヒーローの「ひとこと」、格闘ゲームの勝利画面に出る相棒。強さは変えない(見た目だけ)
+   - 絵の四角は出さない。戦場の上を、配信のコメントのように応援が流れる(1つ目は推しの顔と名前つき)
+   - バトルの最初「がんばって!」、味方の必殺のあと「いっけー!」、味方が倒れた「負けないで!」、勝った「やったね!」(多め)
+   推しの情報は親のアプリから(HOST.oshi)。デモは window.__toDemo に同じ形を入れる */
+const TOL={start:['がんばって!','応援してるよ!','いっしょに勝とう!','見てるよー!','ファイト!'],ult:['いっけー!','決めちゃえ!','かっこいい!!','今だよ!','待ってました!'],ko:['負けないで!','まだいける!','信じてる!','ここからだよ!'],win:['やったね!','おめでとう!','さすが!','最高だった!','GG!','かっこよかった!']};
+let TOK=null,TOT=0,TOQ=null;
+function toOshi(){try{if(window.__toDemo)return window.__toDemo;if(TOK!==null&&performance.now()-TOT<4000)return TOK;TOT=performance.now();TOK=HOST&&HOST.oshi?HOST.oshi():null;return TOK}catch(e){return null}}
+function toLines(kind,K,n){const L=(TOL[kind]||TOL.start).slice();if(K&&K.cheers&&K.cheers.length&&kind!=='win')L.push(...K.cheers.slice(0,4));for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]]}return L.slice(0,n)}
+function toFace(K){const f=document.createElement('i');f.className='tocf';const im=document.createElement('img');im.alt='';im.src=K.img;const s=Math.min(K.w,K.h)/(K.z||1)/1.15,wp=K.w/s*100,hp=K.h/s*100;im.style.cssText='width:'+wp+'%;height:'+hp+'%;left:'+(50-K.fx/100*wp)+'%;top:'+(50-K.fy/100*hp)+'%';f.append(im);return f}
+/* one cheer: comments flow right to left across the battlefield (inside the stage, under the HUD) */
+function toPop(kind,o){if(!TR||TR.sim)return;const K=toOshi();if(!K)return;const st=$('stage');if(!st)return;
+  /* two lanes near the bottom of the battlefield (under the HUD, the numbers and the win text). Every comment moves at the
+     same speed, and a lane takes the next one only after the one before has moved its width + a gap */
+  const win=kind==='win',n=win?4:kind==='start'?2:3,ls=toLines(kind,K,n),Wd=st.clientWidth,Hd=st.clientHeight,sp=Math.min(1.6,Math.max(1,TR.speed||1)),me=TR,
+    LY=[Hd*.69,Hd*.83],v=Wd/(2600/sp),LF=(TR.toLF=TR.toLF||[0,0]);
+  ls.forEach((txt,k)=>{const m=document.createElement('div');m.className='tocm'+(k===0?' lead':'')+((kind==='ult'||win)&&k===1?' big':'');m.style.setProperty('--k1',K.c[0]||'#ff8fd0');
+    if(k===0){const nm=document.createElement('small');nm.textContent=K.n;m.append(toFace(K),nm)}
+    const b=document.createElement('b');b.textContent=txt;m.append(b);st.append(m);
+    const w=m.offsetWidth,now=performance.now(),ln=LF[0]<=LF[1]?0:1;let dl=Math.max(0,LF[ln]-now,k*90/sp);LF[ln]=now+dl+(w+36)/v;
+    m.style.top=Math.round(LY[ln]-m.offsetHeight/2)+'px';const d=(Wd+w+18)/v;
+    const an=m.animate([{transform:'translateX('+(Wd+6)+'px)'},{transform:'translateX('+(-w-12)+'px)'}],{duration:d,delay:dl,easing:'linear',fill:'both'});an.onfinish=()=>m.remove();
+    const chk=setInterval(()=>{if(!m.isConnected){clearInterval(chk);return}if(TR!==me){m.remove();clearInterval(chk)}},300)})}
+/* hooks */
+{const _s=trStart;trStart=function(o){const r=_s.apply(this,arguments);if(TR&&!(o&&o.sim)&&!TR.sim){const me=TR;setTimeout(()=>{if(TR===me&&!TR.end)toPop('start')},900)}return r}}
+{const _u=trUlt;trUlt=function(i){const was=TR&&TR.ultBy;const r=_u.apply(this,arguments);if(TR&&!TR.sim&&TR.ultBy===i&&was!==i){const me=TR,sp=Math.max(1,TR.speed||1);setTimeout(()=>{if(TR===me&&!TR.end)toPop('ult')},1000/Math.min(sp,1.6))}return r}}
+{const _h=trHurt;trHurt=function(j){const a=TR&&trAlive(j);const r=_h.apply(this,arguments);if(TR&&!TR.sim&&a&&!trAlive(j)&&!TR.end&&!TR.toKo){TR.toKo=1;const me=TR;setTimeout(()=>{if(TR===me&&!TR.end)toPop('ko')},500)}return r}}
+{const _e=trEnd;trEnd=function(win){const first=TR&&!TR.end;const r=_e.apply(this,arguments);if(TR&&!TR.sim&&first&&win){const me=TR;setTimeout(()=>{if(TR===me)toPop('win')},TR.dq?900:500)}return r}}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
