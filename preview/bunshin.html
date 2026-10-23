@@ -383,6 +383,7 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .jbc.on{background:linear-gradient(180deg,color-mix(in srgb,var(--c) 26%,var(--s1)),var(--s1));box-shadow:inset 0 0 0 2px var(--c)}
 .plv{font:700 11px/1 var(--px);color:var(--gold2);margin-right:2px}.subxpbar{display:grid;gap:5px;margin:4px 0 6px}.subxpbar .xb{height:8px;border-radius:4px;background:var(--s2);overflow:hidden}.subxpbar .xb i{display:block;height:100%;background:linear-gradient(90deg,#3a8ae0,#9fd8ff)}.subxpbar small{font:500 11px/1.4 var(--jp);color:var(--mut)}
 .subxp{display:grid;gap:4px;padding:8px 10px;border-radius:10px;background:rgba(0,0,0,.25);text-align:left}.subxp p{margin:0;font:600 12px/1.4 var(--jp);color:var(--fg)}.subxp em{font-style:normal;color:#6ee09a;font-weight:800}.subxp small{color:var(--mut);font-size:10.5px}
+.lkbar .row2{margin:0}.lkmsg{margin:8px 0 0;font:500 11.5px/1.5 var(--jp);color:var(--mut)}#p-look .sw:disabled{opacity:.35}
 </style>
 
 <div class="wrap">
@@ -1394,7 +1395,7 @@ function scene(T){G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;
      const e=BT.res.ev.find(e=>e.special&&e.wt==='hammer'&&T>=e.t0+.85&&T<e.t0+1.3);if(e){const k=1-(T-e.t0-.85)/.45;shx=Math.round((Math.floor(T*60)%2?1:-1)*5*k);shy=Math.round((Math.floor(T*60+1)%2?1:-1)*3*k)}}
   G.setTransform(SC,0,0,SC,shx*SC,shy*SC);if(!BT)bqBack(T,0);
   if(!BT&&!$('p-gear').hidden){$('stage').classList.add('ptv');ptStage(T);bqFrontDraw(T,0);trail[0].length=trail[1].length=0;return}
-  $('stage').classList.remove('ptv');if(!BT&&PTSEL>0&&(!$('p-look').hidden||!$('p-stat').hidden)){$('stage').classList.add('ptv2');ptStage(T);bqFrontDraw(T,0);trail[0].length=trail[1].length=0;return}$('stage').classList.remove('ptv2');
+  $('stage').classList.remove('ptv');if(!BT&&(!$('p-look').hidden||PTSEL>0&&!$('p-stat').hidden)){$('stage').classList.add('ptv2');ptStage(T);bqFrontDraw(T,0);trail[0].length=trail[1].length=0;return}$('stage').classList.remove('ptv2');
   if(!BT){/* idle: just you, in the middle */const me=fighterMe(),tt=T,km=me.wr==='KMR'&&me.wt!=='spear';shadow(190,GY,30);if(km){swirl(190,tt,false,0,1,me.wt==='staff'?'ECL':me.wt==='spear'?'CRIM':me.wt==='bow'?'AZ':'KMR');drawTwin(me,190+TWX(me.wt),(me.wt==='sword'?GY-126:GY-118)+Math.round(Math.sin(step(tt)*2.2)*2),tt,1)}drawFighter(me,190,GY,{pose:'p1',flip:true,breath:Math.sin(tt*2.4)*.5+.5,blink:(tt%3.4)<.12,t:tt});if(km)swirl(190,tt,true,0,1);bqFrontDraw(T,0);trail[0].length=trail[1].length=0;return}
   const R=BT.res,F=BT.F,base=[AX,BX],dir=[1,-1];const pos=[{x:AX,y:GY},{x:BX,y:GY}],fx={sq:[0,0],flash:[0,0],alpha:[1,1],sink:[0,0],pose:['p1','p1'],burn:[0,0],hot:[0,0]};const has=(k,p)=>sprKey(F[k].look,p)!==sprKey(F[k].look);
   /* intro: both slide in */
@@ -1814,14 +1815,14 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.que
 
 /* look */
 function swatch(col3){return 'radial-gradient(circle at 35% 30%,'+col3[2]+','+col3[1]+' 55%,'+col3[0]+')'}
-function renderLook0(){const L=S.look;const gs=$('gsel');gs.replaceChildren();[['m','男'],['f','女']].forEach(([k,n])=>{const b=mk('button','chip'+(L.g===k?' on':''),n);b.type='button';b.onclick=()=>{L.g=k;L.hs=0;changed()};gs.append(b)});
-  const hs=$('hsel');hs.replaceChildren();(L.g==='f'?FHSTY:HSTY).forEach((n,i)=>{const b=mk('button','chip'+(L.hs===i?' on':''),n);b.type='button';b.disabled=L.g==='m'?BETA_MASH&&i>0:i>=FHS_ON;b.onclick=()=>{L.hs=i;changed()};hs.append(b)});
+function renderLook0(){const L=lkDraft(0,tbCfg()),LOCK=lkLocked(0,tbCfg());const gs=$('gsel');gs.replaceChildren();[['m','男'],['f','女']].forEach(([k,n])=>{const b=mk('button','chip'+(L.g===k?' on':''),n);b.type='button';b.onclick=()=>{L.g=k;L.hs=0;lkTouch()};gs.append(b)});
+  const hs=$('hsel');hs.replaceChildren();(L.g==='f'?FHSTY:HSTY).forEach((n,i)=>{const b=mk('button','chip'+(L.hs===i?' on':''),n);b.type='button';b.disabled=L.g==='m'?BETA_MASH&&i>0:i>=FHS_ON;b.onclick=()=>{L.hs=i;lkTouch()};hs.append(b)});
   $('hsnote').textContent=L.g==='f'?'ツインテール・ボブ・ショートは動く絵ができたら選べます':'マッシュ以外は動く絵ができたら選べます';
   $('looknote').textContent=L.g==='f'?'女の子の髪の色は今は茶色だけです(色替えはあとで)。見た目は強さに関係しません。':'見た目は強さに関係しません。';
   $('hcsel').closest('.sec').hidden=L.g==='f';$('gsel').closest('.sec').hidden=!GIRL_ON;
-  const hc=$('hcsel');hc.replaceChildren();for(const k in HAIRC){const b=mk('button','sw'+(L.hc===k?' on':''));b.type='button';const i=mk('i');i.style.background=swatch(HAIRC[k]||HAIRSW[k]);b.append(i,k);b.onclick=()=>{L.hc=k;changed()};hc.append(b)}
-  {const ok=hbSkinMe(),ps=$('pksel');$('pksec').hidden=!ok&&!L.pk;ps.replaceChildren();[[0,'いつもの姿'],[1,'かぼちゃ頭の騎士']].forEach(([v,n])=>{const b=mk('button','chip'+((L.pk?1:0)===v?' on':''),n);b.type='button';b.disabled=v&&!ok;b.onclick=()=>{L.pk=v;changed()};ps.append(b)})}
-  const ec=$('ecsel');ec.replaceChildren();for(const k in EYEC){const b=mk('button','sw'+(L.ec===k?' on':''));b.type='button';const i=mk('i');i.style.background=swatch(EYEC[k]||EYESW[k]);b.append(i,k);b.onclick=()=>{L.ec=k;changed()};ec.append(b)}}
+  const hc=$('hcsel');hc.replaceChildren();for(const k in HAIRC){const b=mk('button','sw'+(L.hc===k?' on':''));b.type='button';const i=mk('i');i.style.background=swatch(HAIRC[k]||HAIRSW[k]);b.append(i,k);b.onclick=()=>{L.hc=k;lkTouch()};hc.append(b)}
+  {const ok=hbSkinMe(),ps=$('pksel');$('pksec').hidden=!ok&&!L.pk;ps.replaceChildren();[[0,'いつもの姿'],[1,'かぼちゃ頭の騎士']].forEach(([v,n])=>{const b=mk('button','chip'+((L.pk?1:0)===v?' on':''),n);b.type='button';b.disabled=v&&!ok;b.onclick=()=>{L.pk=v;S.look.pk=v;changed()};ps.append(b)})}
+  const ec=$('ecsel');ec.replaceChildren();for(const k in EYEC){const b=mk('button','sw'+(L.ec===k?' on':''));b.type='button';const i=mk('i');i.style.background=swatch(EYEC[k]||EYESW[k]);b.append(i,k);b.onclick=()=>{L.ec=k;lkTouch()};ec.append(b)}}
 
 /* stats */
 function renderStat0(){const n=ptsOf(S.lv);let used=usedPts(S.al);if(used>n){S.al=autoAlloc(S.lv,'atk');used=n}
@@ -2693,7 +2694,7 @@ function trPicker(i,s,cfg){const box=mk('div','tbit trpick'),used=new Set([...(i
 let PTSEL=0,PTIT=null;
 const PTST=[['hp','HP'],['atk','攻撃'],['def','防御'],['spd','素早さ'],['mag','魔力']];
 function ptEq(i,cfg){return i?cfg[i-1].eq:S.eq}
-function ptFighter(i,cfg){if(!i){const f=fighterMe();f.name='あなた';f.job=jbMain()||jbDerive(f);return f}return tbFighterOf(cfg[i-1])}
+function ptFighter(i,cfg){let f;if(!i){f=fighterMe();f.name='あなた';f.job=jbMain()||jbDerive(f)}else f=tbFighterOf(cfg[i-1]);if(typeof LKD!=='undefined'&&LKD&&LKD.i===i&&!$('p-look').hidden)f.look=Object.assign({},f.look,LKD.look);return f}
 function ptStats(i,cfg,swap){const eq=Object.assign({},ptEq(i,cfg),swap||{}),items=['w','a','x'].map(s=>itemOf(eq[s])).filter(Boolean);return statsOf(avLv(i,cfg),i?(cfg[i-1].al||{hp:0,atk:0,def:0,spd:0,mag:0}):S.al,items).s}
 function ptWhoHas(id,cfg){if(!id)return -1;if(Object.values(S.eq).includes(id))return 0;for(let k=0;k<cfg.length;k++)if(cfg[k].made&&Object.values(cfg[k].eq).includes(id))return k+1;return -1}
 function ptName(i,cfg){return i?(cfg[i-1].name||('分身'+(i+1))):'あなた'}
@@ -2779,10 +2780,11 @@ function renderLook(){const cfg=tbCfg(),n=jbCount(cfg);if(PTSEL>=n)PTSEL=0;const
   if(n<3)top.append(mk('p','note','「+」で分身を作れます(あと'+(3-n)+'体)。作った分身は編成で装備し、3体で戦えます。'));
   const mainSecs=[...$('p-look').querySelectorAll(':scope>.sec:not(.lkwho):not(.lksub):not(.lkjob)')];
   let sub=$('lksub');if(!sub){sub=mk('div','lksub');sub.id='lksub';top.after(sub)}sub.replaceChildren();
-  if(i===0){mainSecs.forEach(s=>s.style.display='');renderLook0()}
+  if(LKD&&LKD.i!==i)LKD=null;if(i===0){mainSecs.forEach(s=>s.style.display='');renderLook0();if(lkLocked(0,cfg))['gsel','hsel','hcsel','ecsel'].forEach(id=>$(id).querySelectorAll('button').forEach(b=>b.disabled=true))}
   else{mainSecs.forEach(s=>s.style.display='none');const m=cfg[i-1];
     const nm=mk('div','sec');nm.innerHTML='<h2>名前<small>8文字まで</small></h2>';const inp=document.createElement('input');inp.className='lkname';inp.maxLength=8;inp.value=m.name||'';inp.oninput=()=>{m.name=(inp.value.trim()||('分身'+(i+1))).slice(0,8);tbSaveCfg(cfg)};inp.onchange=()=>setTimeout(refresh,0);nm.append(inp);sub.append(nm);
-    for(const [key,obj,t] of [['hc',HAIRC,'髪の色'],['ec',EYEC,'目の色']]){const s=mk('div','sec');s.append(mk('h2',null,t));const w=mk('div','seg');for(const k in obj){const b=mk('button','sw'+(m.look[key]===k?' on':''));b.type='button';const ic=mk('i');ic.style.background=swatch(obj[k]||(key==='hc'?HAIRSW[k]:EYESW[k]));b.append(ic,k);b.onclick=()=>{m.look[key]=k;tbSaveCfg(cfg);refresh()};w.append(b)}s.append(w);sub.append(s)}}
+    for(const [key,obj,t] of [['hc',HAIRC,'髪の色'],['ec',EYEC,'目の色']]){const s=mk('div','sec');s.append(mk('h2',null,t));const w=mk('div','seg');for(const k in obj){const b=mk('button','sw'+(lkDraft(i,cfg)[key]===k?' on':''));b.disabled=lkLocked(i,cfg);b.type='button';const ic=mk('i');ic.style.background=swatch(obj[k]||(key==='hc'?HAIRSW[k]:EYESW[k]));b.append(ic,k);b.onclick=()=>{lkDraft(i,cfg)[key]=k;lkTouch()};w.append(b)}s.append(w);sub.append(s)}}
+  {const ob=$('lkbar');if(ob)ob.remove();const bar=lkBar(i,cfg);(i?sub:$('ecsel').closest('.sec')).after(bar)}
   /* job */let jb=$('lkjob');if(!jb){jb=mk('div','sec lkjob');jb.id='lkjob';$('looknote').before(jb)}jb.replaceChildren();jb.append(mk('h2',null,'役職<small>得意武器なら与えるダメージ+15%</small>'));
   const cur=tbRole(f),g=mk('div','jbgrid');for(const j of JOBS){const R=TBROLE[j],b=mk('button','jbc'+(cur===j?' on':''));b.type='button';b.style.setProperty('--c',R[1]);
     b.innerHTML='<b>'+R[0]+'</b><small>'+R[2]+'</small><span class="jw">'+JOBW[j].map(w=>icon(w)).join('')+'</span><em>'+TRSK[j][0]+'</em>';b.onclick=()=>{if(i===0)jbSetMain(j);else{cfg[i-1].job=j;tbSaveCfg(cfg)}refresh()};g.append(b)}jb.append(g);
@@ -2798,6 +2800,27 @@ function avLv(i,cfg){return i?subLvOf(cfg[i-1]):S.lv}
 function subXpInfo(m){let xp=m.xp||0,L=1;while(xp>=SUBXP(L)&&L<300){xp-=SUBXP(L);L++}const lv=Math.min(S.lv,L),capped=L>S.lv;let held=0;if(capped){let t=m.xp||0;for(let k=1;k<S.lv;k++)t-=SUBXP(k);held=t}return {lv,raw:L,into:capped?SUBXP(lv):xp,need:SUBXP(lv),capped,held}}
 /* after a turn battle: experience for the sub avatars that took part */
 function subGiveXp(win){const cfg=tbCfg(),n=jbCount(cfg),out=[];for(let k=1;k<n;k++){const m=cfg[k-1],before=subLvOf(m),v=win?SUBWIN:SUBLOSE;m.xp=(m.xp||0)+v;const after=subLvOf(m);out.push({name:m.name||('分身'+(k+1)),v,before,after,capped:subXpInfo(m).capped})}tbSaveCfg(cfg);setTimeout(refresh,0);return out}
+
+/* ================= (10/23) 見た目は2回まで変えられる =================
+   髪型・髪の色・目の色は、選ぶと上の舞台で試せる(まだ決まっていない)。「この見た目にする」で決めると1回使う。
+   作ったばかりの分身の最初の1回は数えない。名前・役職・ハロウィンの姿は数えない */
+const LKMAX=2;let LKD=null;
+function lkUsed(i,cfg){if(i){return cfg[i-1].lookN||0}let n=0;try{n=+localStorage.getItem('bunLookN0')||0}catch(e){}return n}
+function lkFree(i,cfg){return i>0&&!cfg[i-1].lookSet}
+function lkCur(i,cfg){return i?cfg[i-1].look:S.look}
+function lkDraft(i,cfg){if(!LKD||LKD.i!==i)LKD={i,look:JSON.parse(JSON.stringify(lkCur(i,cfg)))};return LKD.look}
+function lkDirty(i,cfg){if(!LKD||LKD.i!==i)return false;const a=LKD.look,b=lkCur(i,cfg);return ['g','hs','hc','ec'].some(k=>(a[k]||0)!==(b[k]||0))}
+function lkLeft(i,cfg){return lkFree(i,cfg)?LKMAX:Math.max(0,LKMAX-lkUsed(i,cfg))}
+function lkLocked(i,cfg){return !lkFree(i,cfg)&&lkLeft(i,cfg)<=0}
+function lkTouch(){renderLook()}
+function lkCommit(){const cfg=tbCfg(),i=LKD?LKD.i:PTSEL;if(!lkDirty(i,cfg)&&!lkFree(i,cfg))return;const L=LKD?LKD.look:lkCur(i,cfg),free=lkFree(i,cfg);
+  if(i){const m=cfg[i-1];for(const k of ['g','hs','hc','ec'])if(L[k]!=null)m.look[k]=L[k];if(free)m.lookSet=1;else m.lookN=(m.lookN||0)+1;tbSaveCfg(cfg);LKD=null;refresh()}
+  else{for(const k of ['g','hs','hc','ec'])if(L[k]!=null)S.look[k]=L[k];try{localStorage.setItem('bunLookN0',String(lkUsed(0,cfg)+1))}catch(e){}LKD=null;changed()}}
+function lkBar(i,cfg){const box=mk('div','sec lkbar');box.id='lkbar';const free=lkFree(i,cfg),left=lkLeft(i,cfg),dirty=lkDirty(i,cfg);
+  if(lkLocked(i,cfg)){box.innerHTML='<p class="lkmsg">見た目はもう変えられません(2回とも使いました)</p>';return box}
+  const b=mk('button','btn main',free?'この見た目で決定(1回目は数えません)':'この見た目にする');b.type='button';b.disabled=!dirty&&!free;b.onclick=lkCommit;
+  const r=mk('button','btn','もとに戻す');r.type='button';r.disabled=!dirty;r.onclick=()=>{LKD=null;renderLook()};const row=mk('div','row2');row.append(b,r);box.append(row);
+  box.append(mk('p','lkmsg',(free?'作ったばかりなので、最初の1回は数えません。そのあと ':'')+'見た目を変えられるのは あと'+left+'回 です。選ぶと上で試せて、決めるまでは何回でも選び直せます。'));return box}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
