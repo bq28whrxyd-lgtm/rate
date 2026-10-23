@@ -422,6 +422,7 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .exhint{margin:0;padding:8px 14px calc(10px + env(safe-area-inset-bottom,0px));font:600 11.5px/1.45 var(--jp);color:#cfc6dc;text-align:center}
 body.exlock{overflow:hidden}
 .trb{transition:transform .06s ease-out}.trb.press{transform:translateY(2px) scale(.96)}.trb small em{font-style:normal;color:#ffe066}
+.ptskill .ps.set i{background:color-mix(in srgb,var(--sc) 30%,transparent);color:var(--sc)}.ptskill .ps.set span{display:grid;gap:2px}.ptskill .ps.set em{font-style:normal;color:var(--mut)}.ptskill .ps.set em.on{color:var(--sc)}
 .qrec{position:relative;display:flex;align-items:baseline;gap:10px;width:100%;margin-top:4px;padding:12px 14px;border:0;border-radius:12px;background:rgba(255,255,255,.04);color:#fff;text-align:left;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}.qrec b{font:800 13px/1 var(--jp)}.qrec small{font:500 11px/1 var(--jp);color:var(--mut)}.qrec.dot:after{content:'';position:absolute;right:12px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#ff5a4a}
 .xqr .qtx b{color:var(--xc,#fff)}.xqr.t1{--xc:#8fe39a}.xqr.t2{--xc:#8cc6ff}.xqr.t3{--xc:#cfa3ff}.xqr.t4{--xc:#ff8a80}.xqr .qrt{display:grid;justify-items:end;gap:4px}
 .xqxp{background:rgba(255,211,107,.14)!important;color:#ffd36b!important}.xqn2,.xqlk{font:500 10px/1.2 var(--jp);color:var(--mut)}
@@ -2597,8 +2598,8 @@ const TRW={sword:'剣',staff:'杖',bow:'弓',spear:'槍',fist:'拳',hammer:'槌'
 const TRWC={sword:'#ff6a6a',staff:'#b48cff',bow:'#5ac8ff',spear:'#ffd34a',fist:'#ffa860',hammer:'#ffa860',penlight:'#ff8ad0'};
 const TRSK={sword:['斬り込み','強い1撃(弱点ならシールド2削る)'],knight:['盾撃ち','攻撃+2回、仲間の代わりに受ける・受けるダメージ40%減'],guard:['盾撃ち','攻撃+2回、仲間の代わりに受ける・受けるダメージ40%減'],lancer:['なぎ払い','攻撃+敵の防御ダウン2回'],
   mage:['魔法弾','3回攻撃(弱点なら1発ごとに削る)'],priest:['いやしの光','みんなHP22%回復'],hunter:['影縫い','攻撃+敵の行動を遅らせる'],monk:['連打','4回攻撃'],warrior:['叩きつけ','強い1撃'],cheer:['声援','攻撃+みんなの必殺+25・攻撃UP']};
-const TRPAS={yga:['罠封じ','最初に受ける攻撃を1回無効'],sma:['盾','受けるダメージ20%減'],tca:['推しグッズ','自分の番ごとにHP6%回復'],ygx:['先攻の指輪','会心率+20%'],smx:['ふっとばし','通常攻撃は弱点でなくてもシールドを削る'],tcx:['推しうちわ','必殺ゲージのたまり+30%']};
-const trRar=r=>1+({SR:.1,UR:.2,GR:.3,KMR:.4}[r]||0);
+const TRPAS={yga:['罠封じ','最初に受ける攻撃を無効(UR以上は2回)'],sma:['盾','受けるダメージ20%減'],tca:['推しグッズ','自分の番ごとにHP6%回復'],ygx:['先攻の指輪','最初の番がすぐ来て、その1回目の攻撃はかならず会心'],smx:['ふっとばし','通常攻撃は弱点でなくてもシールドを削る'],tcx:['推しうちわ','必殺ゲージのたまり+30%']};
+const trRar=r=>({N:.8,R:1,SR:1.2,UR:1.45,GR:1.7,KMR:2}[r]||1);
 const trNow=()=>performance.now()/1000;
 function trPas(f){const o={};if(f.ak&&TRPAS[f.ak])o[f.ak]=trRar(f.ar);if(f.xk&&TRPAS[f.xk])o[f.xk]=trRar(f.xr);return o}
 /* o: {B (the enemy fighter), party, sop {hp0,hp1,turns}, ctx (what finish() needs: quest/xq/raid/sa/opp/seed/opt), th (background)}. Without o: a practice fight */
@@ -2618,13 +2619,13 @@ function trDefEnemy(P){const m=P[0],q=fighterOpp(questOpp(Math.max(1,Math.min(10
 function trSetup(){const P=TR.P,o=TR.o,Bf=o.B||trDefEnemy(P),ws=[...new Set(P.map(f=>f.wt))],all=Object.keys(TRW).filter(w=>w!=='hammer'&&w!=='penlight'),r=Math.random;
   const w1=ws[Math.floor(r()*ws.length)],rest=all.filter(w=>w!==w1),w2=rest[Math.floor(r()*rest.length)],pw=P.map(f=>power(f.st)),k=TRK?Math.max(1,pw.reduce((a,v)=>a+v,0)/Math.max(1,pw[0])):1;
   const sop=o.sop||{},rt=trRate(P,sop,Bf),mx=Bf.st.hp,hp1=sop.hp1!=null?Math.max(1,Math.min(mx,Math.round(sop.hp1))):mx;
-  Object.assign(TR,{Bf,k,pm:1/(TRH0*rt*k*(o.sc||1)),ed:TRD0*rt*k*(o.sc||1),tune:o.sc||1,role:P.map(tbRole),pas:P.map(trPas),ab:P.map(f=>abOf({wt:f.wt,wr:f.wr})),mh:P.map(f=>f.st.hp),mmax:P.map(f=>f.st.hp),en:P.map(()=>0),sp:3,spMax:5,taunt:-1,tauntN:0,nul:P.map(f=>f.ak==='yga'?1:0),atkUp:0,defDown:0,hurt:P.map(()=>-9),dmg:P.map(()=>0),turnsMax:sop.turns||0,brk:0,
+  Object.assign(TR,{Bf,k,pm:1/(TRH0*rt*k*(o.sc||1)),ed:TRD0*rt*k*(o.sc||1),tune:o.sc||1,role:P.map(tbRole),pas:P.map(trPas),ab:P.map(f=>abOf({wt:f.wt,wr:f.wr})),mh:P.map(f=>f.st.hp),mmax:P.map(f=>f.st.hp),en:P.map(()=>0),sp:3,spMax:5,taunt:-1,tauntN:0,nul:P.map(f=>f.ak==='yga'?(['UR','GR','KMR'].includes(f.ar)?2:1):0),atkUp:0,defDown:0,hurt:P.map(()=>-9),dmg:P.map(()=>0),turnsMax:sop.turns||0,brk:0,
     E:Object.assign(TR.E,{hp:hp1,max:mx,hp0:hp1,sh:5,shMax:5,weak:[w1,w2],broken:false,hitC:-9,atkC:-9,n:0,rage:false,name:Bf.name,boss:!!Bf.boss,s:Bf.boss?.76:.6})});
   if(sop.hp0!=null){const pm=TR.mmax.reduce((a,v)=>a+v,0),f=clamp(sop.hp0/Math.max(1,P[0].st.hp),.02,1);TR.mh=TR.mmax.map(v=>Math.max(1,Math.round(v*f)));void pm}
   TR.php0=TR.mh.reduce((a,v)=>a+v,0);TR.spd=[...P.map(f=>Math.max(10,f.st.spd)),Math.max(10,Bf.st.spd)];TR.next=TR.spd.map(s=>10000/s)}
 /* the same hit as the auto battle: evasion, defence, a random spread, crits */
 function trHit(a,d,pow,o){o=o||{};const r=Math.random;if(!o.sure){const ev=clamp(.07+(d.spd-a.spd)*.003,.03,.25);if(r()<ev)return {miss:1}}
-  const def=d.def*(1-(o.pierce||0));let v=pow*.7*(.6+r()*.8)*60/(60+def);const cr=o.crit||r()<.07+.12*a.spd/(a.spd+d.spd)+(o.critUp||0);if(cr)v*=1.8;return {dmg:Math.max(1,Math.round(v)),crit:cr}}
+  const def=d.def*(1-(o.pierce||0));let v=pow*.7*(.6+r()*.8)*60/(60+def);const cr=o.crit||r()<.07+.12*a.spd/(a.spd+d.spd)+(o.critUp||0);if(cr)v*=(o.cm||1.8);return {dmg:Math.max(1,Math.round(v)),crit:cr}}
 const trPow=f=>f.wt==='staff'?f.st.mag*.9:f.wt==='penlight'?(f.st.atk+f.st.mag)/2:f.st.atk;
 function trQuit(){if(TR&&TR.o&&TR.o.ctx&&!TR.end)return;TR=null;$('plA').hidden=false;$('stage').classList.remove('tm');const u=$('tbui');if(u)u.remove();changed()}
 const trAlive=i=>TR.mh[i]>0;
@@ -2639,8 +2640,8 @@ function trAdvance(){if(TR.end)return;let b=-1;for(let i=0;i<=TR.P.length;i++){i
 /* ---------- actions ---------- */
 function trActAnim(i,o){const f=TR.P[i],me=tbMelee(f),n=o.n||1,hitAt=me?.22:.3,gap=o.gap||.12;TR.an.push({i,t0:TR.c,dur:hitAt+(n-1)*gap+.45,me,n,hitAt,gap,col:TRWC[f.wt]||'#fff'});
   for(let k=0;k<n;k++)trAt(hitAt+k*gap,()=>o.hit(k));trAt(hitAt+(n-1)*gap+.5,o.done)}
-function trDamage(i,mul,o){o=o||{};const f=TR.P[i],E=TR.E,Bf=TR.Bf,weak=E.weak.includes(f.wt),cu=(TR.pas[i].ygx?.2*TR.pas[i].ygx:0)+(TR.ab[i]&&f.wt==='bow'?TR.ab[i].val:0);
-  const h=trHit(f.st,Bf.st,trPow(f)*mul*(TR.atkUp>0?1.3:1)*(E.broken?1.5:1)*(weak?1.15:1)*((JOBW[TR.role[i]]||[]).includes(f.wt)?1.15:1)*TR.pm,{sure:o.sure||o.big,crit:o.crit,critUp:cu,pierce:(TR.defDown>0?.3:0)+(o.pierce||0)});
+function trDamage(i,mul,o){o=o||{};const f=TR.P[i],E=TR.E,Bf=TR.Bf,weak=E.weak.includes(f.wt),cu=(TR.sets&&TR.sets[i].ygo>=2?.1:0)+(TR.ab[i]&&f.wt==='bow'?TR.ab[i].val:0);
+  const h=trHit(f.st,Bf.st,trPow(f)*mul*(TR.atkUp>0?1.3:1)*(E.broken?1.5:1)*(weak?1.15:1)*((JOBW[TR.role[i]]||[]).includes(f.wt)?1.15:1)*TR.pm,{sure:o.sure||o.big,crit:o.crit||(TR.fc&&TR.fc[i]),cm:TR.sets&&TR.sets[i].ygo>=3?2.2:1.8,critUp:cu,pierce:(TR.defDown>0?.3:0)+(o.pierce||0)});
   if(h.miss){TR.nums.push({v:'MISS',x:E.x-20,y:E.y-TR.ey-44,c:TR.c,col:'#c9d4ff'});return 0}
   const d=h.dmg,crit=h.crit;E.hp=Math.max(0,E.hp-d);E.hitC=TR.c;TR.dmg[i]+=d;{const ab=TR.ab[i];if(ab&&f.wt==='staff'&&TR.mh[i]>0)TR.mh[i]=Math.min(TR.mmax[i],TR.mh[i]+Math.max(1,Math.round(d*ab.val)));if(ab&&f.wt==='hammer'&&Math.random()<ab.val)TR.next[TR.P.length]+=10000/TR.spd[TR.P.length]*.3}const big=o.big||crit;
   if(!TR.sim){TR.nums.push({v:String(d),x:E.x-20+(Math.random()-.5)*28,y:E.y-TR.ey-44+(Math.random()-.5)*10,c:TR.c,col:o.big?'#ffe066':crit?'#ffe066':weak?'#ffb0b0':'#ffffff',big});
@@ -2686,8 +2687,8 @@ function trEnemyAct(){if(!TR||TR.end)return;const E=TR.E,Bf=TR.Bf;if(E.broken){E
 /* (10/23) the enemy decides its next single target ahead of time (the knight still draws more), so it can be shown */
 function trPickTarget(){const al=TR.P.map((_,k)=>k).filter(trAlive);if(!al.length)return -1;const w=al.map(i=>['knight','guard'].includes(TR.role[i])?3:1),s2=w.reduce((a,v)=>a+v,0);let r=Math.random()*s2;for(let k=0;k<al.length;k++){r-=w[k];if(r<0)return al[k]}return al[0]}
 function trHurt(j,h,tank){if(!trAlive(j)||TR.end)return;const [x,y]=TR.home[j];if(h.miss){if(!TR.sim)TR.nums.push({v:'MISS',x,y:y-TR.hd-12,c:TR.c,col:'#c9d4ff'});return}
-  if(TR.nul[j]){TR.nul[j]=0;if(!TR.sim){TR.nums.push({v:'0',x,y:y-TR.hd-12,c:TR.c,col:'#a6e4ff'});TR.fx.push({k:'txt',c:TR.c,s:'無効',x,y:y-TR.hd-26,col:'#a6e4ff',sz:9,d:.8})}return}
-  const red=(TR.pas[j].sma?1-.2*TR.pas[j].sma:1)*(tank?.6:1);const d=Math.max(1,Math.round(h.dmg*red));TR.mh[j]=Math.max(0,TR.mh[j]-d);TR.hurt[j]=TR.c;trGain(j,10);
+  if(TR.nul[j]){TR.nul[j]--;if(!TR.sim){TR.nums.push({v:'0',x,y:y-TR.hd-12,c:TR.c,col:'#a6e4ff'});TR.fx.push({k:'txt',c:TR.c,s:'無効',x,y:y-TR.hd-26,col:'#a6e4ff',sz:9,d:.8})}return}
+  const red=(TR.pas[j].sma?1-.2*TR.pas[j].sma:1)*(tank?.6:1);const d=Math.max(1,Math.round(h.dmg*red));TR.mh[j]=Math.max(0,TR.mh[j]-d);if(TR.mh[j]<=0&&TR.guts&&TR.guts[j]){TR.guts[j]=0;TR.mh[j]=1;if(!TR.sim)trLabel(TR.P[j].name+'がふんばった!','#a6ffb0',11)}TR.hurt[j]=TR.c;trGain(j,10);
   if(!TR.sim){TR.nums.push({v:String(d),x,y:y-TR.hd-12,c:TR.c,col:'#ff8a8a',big:h.crit});TR.shake=Math.max(TR.shake,h.crit?8:4);if(TR.mh[j]<=0)TR.fx.push({k:'txt',c:TR.c,s:'戦闘不能',x,y:y-TR.hd-28,col:'#c9d4ff',sz:8,d:1.1})}if(TR.mh[j]<=0&&TR.taunt===j)TR.taunt=-1;
   if(TR.mh.every(v=>v<=0))trEnd(false);trUI()}
 function trEnd(win,timeUp){if(TR.end)return;TR.end={win,rt:trNow()+.5,timeUp};TR.phase='end';if(TR.sim)return;TR.xpRes=subGiveXp(win);trUI();
@@ -2805,7 +2806,7 @@ function trRecRow(B){const P=tbParty3(),need=trRec(B),have=Math.round(trPartyPow
 function trSkillCard(){const el=$('skill');if(!el)return;const cfg=tbCfg(),i=(typeof PTSEL==='number'&&PTSEL<jbCount(cfg))?PTSEL:0,f=ptFighter(i,cfg),ro=tbRole(f),so=spOf(f.wt,f.wr),ab=abOf({wt:f.wt,wr:f.wr}),R=TBROLE[ro];
   const base=f.wt==='staff'?'魔力':f.wt==='penlight'?'攻撃と魔力の平均':'攻撃';
   const what=ro==='priest'?'みんなのHPを50%回復する。倒れた仲間も起き上がる':ro==='knight'||ro==='guard'?'強い1撃('+base+'×3)と、みんなに守りの光(次に受ける攻撃を1回0にする)':'とても強い1撃('+base+'×4.2、かならず会心)。弱点の武器ならシールドを3削る';
-  el.innerHTML=icon(f.wt)+'<div><b>必殺技 '+so.sp+'</b><p>'+what+'。</p><p>行動するたび・攻撃を受けるたびにゲージがたまり、顔が金色に光ったら押せます。中身は役職('+R[0]+')で決まり、武器で変わるのは名前だけです。</p>'+(ab?'<p class="ab"><span class="r r'+f.wr+'">能力「'+ab.n+'」</span>'+ab.d+'</p>':(f.wt!=='fist'?'<p class="ab0">URとKMRの武器には能力が付きます</p>':''))+'</div>'}
+  el.innerHTML=icon(f.wt)+'<div><b>必殺技 '+so.sp+'</b><p>'+what+'。</p><p>行動するたび・攻撃を受けるたびにゲージがたまり、顔が金色に光ったら押せます。中身は役職('+R[0]+')で決まり、武器で変わるのは名前だけです。</p>'+(ab?'<p class="ab"><span class="r r'+f.wr+'">能力「'+ab.n+'」</span>'+ab.d+'</p>':'')+'</div>'}
 
 /* ================= (10/23) 編成タブ v2: 見やすく =================
    参考にした考え方(まねはしない): ドラクエウォークのそうび画面のように「キャラの両脇に装備の枠」「持ち物はアイコンの格子」「選ぶと前後の数字を並べて比べる」
@@ -2832,7 +2833,7 @@ function renderParty(){const box=$('pt');if(!box)return;box.replaceChildren();co
   /* who: three round faces, the chosen one larger */const head=mk('div','pthead');const fs=jbFaces(cfg,k=>{PTSEL=k;PTIT=null;renderGear()},true);
   const who=mk('div','ptwho');who.innerHTML='<b><small class="plv">Lv'+avLv(i,cfg)+'</small> '+ptName(i,cfg)+'</b><span class="ptjob" style="--c:'+r[1]+'">'+r[0]+'<small>'+r[2]+'</small></span>';head.append(fs,who);box.append(head);
   /* numbers */const sg=mk('div','ptnum');PTST.forEach(([k,n])=>{const d=mk('div');d.innerHTML='<small>'+n+'</small><b>'+st[k]+'</b>';sg.append(d)});const pw=mk('div','pw');pw.innerHTML='<small>戦闘力</small><b>'+power(st)+'</b>';sg.append(pw);box.append(sg);
-  /* what this job does */const sk=mk('div','ptskill');sk.innerHTML='<div><i>スキル</i><b>'+TRSK[ro][0]+'</b><span>'+TRSK[ro][1]+'</span></div>'+Object.keys(trPas(f)).map(k=>'<div class="ps"><i>ずっと</i><b>'+TRPAS[k][0]+'</b><span>'+TRPAS[k][1]+'</span></div>').join('');box.append(sk);
+  /* what this job does */const sk=mk('div','ptskill');sk.innerHTML='<div><i>スキル</i><b>'+TRSK[ro][0]+'</b><span>'+TRSK[ro][1]+'</span></div>'+Object.keys(trPas(f)).map(k=>'<div class="ps"><i>ずっと</i><b>'+TRPAS[k][0]+'</b><span>'+TRPAS[k][1]+'</span></div>').join('')+trSetLines(f);box.append(sk);
   /* (10/23) 髪と目の色は見た目タブだけで変える(見た目の変更は2回までの決まりがあるため) */}
 /* 持ち物: a grid of squares; a picked one opens the comparison above the grid */
 function renderInv(){const inv=$('inv');if(!inv)return;inv.replaceChildren();const cfg=tbCfg(),cnt={all:S.inv.length,w:0,a:0,x:0};S.inv.forEach(it=>cnt[ITEMS[it.k].s]++);const n=$('invn');if(n)n.textContent=S.inv.length+'個';
@@ -3355,6 +3356,29 @@ const TQSK={sword:[2.2,1],mage:[.75,3],monk:[.5,4],lancer:[1.8,1],hunter:[1.1,1]
   const bs=u.querySelector('.trb.basic small');if(bs){const n=f.wt==='fist'?2:1;bs.innerHTML='推しポイント +1 ・ 約'+(trEst(i,n>1?.6:1)*n).toLocaleString()+(w||TR.pas[i].smx?' ・ <em>シールド−1</em>':'')}
   const ss=u.querySelector('.trb.skill small');if(ss&&TQSK[ro]){const [m,n]=TQSK[ro];ss.innerHTML=TRSK[ro][1]+'<br><em>約'+(trEst(i,m)*n).toLocaleString()+(w?' ・ シールド−'+(ro==='sword'||ro==='warrior'?2:ro==='monk'?2:n>1?n:1):'')+'</em>'}
   u.querySelectorAll('.trb').forEach(b=>{b.addEventListener('pointerdown',()=>{b.classList.add('press');SFX.tap()});['pointerup','pointercancel','pointerleave'].forEach(ev=>b.addEventListener(ev,()=>b.classList.remove('press')))})}}
+
+/* ================= (10/23) 装備の見直し: シリーズ効果・RとSRの武器にも能力・先攻の指輪 =================
+   A シリーズ効果: 武器・防具・アクセは「決闘者」「空中」「アクスタ」のどれかのシリーズ。同じシリーズを2つで小、3つで大
+   B RとSRの武器にも能力(URとKMRより弱め)。防具とアクセの効果もレアで大きく変わる(N 0.8倍 〜 KMR 2倍)
+   C 先攻の指輪: 名前どおり「最初の番がすぐ来る、その1回目の攻撃はかならず会心」(会心率は決闘者シリーズへ)
+   参考: 崩壊スターレイルの遺物(2セット・4セット)、ドラクエウォークの役割ごとの装備 */
+const TRSET={ygo:{n:'決闘者',col:'#ff9a5a',t2:'会心率+10%',t3:'会心の威力 1.8倍→2.2倍、ブレイクさせると必殺ゲージ+30'},
+  smb:{n:'空中',col:'#7fd3ff',t2:'素早さ+10%',t3:'バトルの最初に推しポイント+2'},
+  tcg:{n:'アクスタ',col:'#8ff0a4',t2:'受ける回復+20%',t3:'倒れる攻撃を1回だけHP1でふんばる'}};
+function trSets(f){const o={ygo:0,smb:0,tcg:0};for(const k of [f.wk,f.ak,f.xk]){const c=k&&ITEMS[k]&&ITEMS[k].c;if(c&&o[c]!=null)o[c]++}return o}
+/* B: abilities for R and SR weapons (smaller than UR and KMR) */
+{const add={sword:[.06,.1],staff:[.02,.04],bow:[.03,.05],spear:[.06,.1],hammer:[.05,.08],penlight:[.01,.015]};for(const w in add)if(ABIL[w]){ABIL[w].v.R=add[w][0];ABIL[w].v.SR=add[w][1]}}
+{const _s=trSetup;trSetup=function(){_s.apply(this,arguments);if(!TR)return;const P=TR.P,n=P.length;TR.sets=P.map(trSets);TR.fc=P.map(()=>false);TR.guts=P.map(()=>0);
+  for(let i=0;i<n;i++){const st=TR.sets[i];if(st.smb>=2){TR.spd[i]*=1.1;TR.next[i]=10000/TR.spd[i]}if(st.smb>=3)TR.sp=Math.min(TR.spMax,TR.sp+2);if(st.tcg>=3)TR.guts[i]=1;
+    if(P[i].xk==='ygx'){TR.next[i]=Math.min(...TR.next)*.05;TR.fc[i]=true}}}}
+{const _d=trDamage;trDamage=function(i){if(TR)TR.lastAtk=i;return _d.apply(this,arguments)}}
+{const _b=trBreak;trBreak=function(){_b.apply(this,arguments);const i=TR&&TR.lastAtk;if(TR&&TR.sets&&i!=null&&TR.sets[i]&&TR.sets[i].ygo>=3){trGain(i,30);if(!TR.sim)trLabel('決闘者シリーズ 必殺ゲージ+30','#ff9a5a',10)}}}
+{const _hl=trHeal;trHeal=function(j,v){return _hl.call(this,j,v*(TR&&TR.sets&&TR.sets[j]&&TR.sets[j].tcg>=2?1.2:1))}}
+{const _a=trAfter;trAfter=function(){if(TR&&TR.fc&&TR.cur>=0)TR.fc[TR.cur]=false;return _a.apply(this,arguments)}}
+/* the series lines for the 編成 tab */
+function trSetLines(f){const st=trSets(f);return Object.keys(TRSET).filter(c=>st[c]>0).map(c=>{const S=TRSET[c],n=st[c];return '<div class="ps set'+(n>=2?' on':'')+'" style="--sc:'+S.col+'"><i>シリーズ</i><b>'+S.n+' '+n+'/3</b><span><em class="'+(n>=2?'on':'')+'">2つ: '+S.t2+'</em><em class="'+(n>=3?'on':'')+'">3つ: '+S.t3+'</em></span></div>'}).join('')}
+/* the series name on every item's line (the item details and lists) */
+if(typeof statLine==='function'){const _sl=statLine;statLine=function(it){const s=_sl.apply(this,arguments),c=it&&ITEMS[it.k]&&ITEMS[it.k].c;return s+(c&&TRSET[c]?'・'+TRSET[c].n+'シリーズ':'')}}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
