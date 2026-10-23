@@ -384,6 +384,7 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .plv{font:700 11px/1 var(--px);color:var(--gold2);margin-right:2px}.subxpbar{display:grid;gap:5px;margin:4px 0 6px}.subxpbar .xb{height:8px;border-radius:4px;background:var(--s2);overflow:hidden}.subxpbar .xb i{display:block;height:100%;background:linear-gradient(90deg,#3a8ae0,#9fd8ff)}.subxpbar small{font:500 11px/1.4 var(--jp);color:var(--mut)}
 .subxp{display:grid;gap:4px;padding:8px 10px;border-radius:10px;background:rgba(0,0,0,.25);text-align:left}.subxp p{margin:0;font:600 12px/1.4 var(--jp);color:var(--fg)}.subxp em{font-style:normal;color:#6ee09a;font-weight:800}.subxp small{color:var(--mut);font-size:10.5px}
 .lkbar .row2{margin:0}.lkmsg{margin:8px 0 0;font:500 11.5px/1.5 var(--jp);color:var(--mut)}#p-look .sw:disabled{opacity:.35}
+.jbc{position:relative}.jbc .jl{position:absolute;top:4px;right:5px;font:700 9px/1 var(--px);font-style:normal;color:var(--gold2)}
 </style>
 
 <div class="wrap">
@@ -2466,7 +2467,7 @@ function tbDefaultCfg(){const used=new Set(Object.values(S.eq).filter(Boolean)),
     if(!eq.w){const w=best(i=>ITEMS[i.k].s==='w'&&!out.some(o=>o.eq.w===i.id));if(w)eq.w=w.id}
     const a=best(i=>ITEMS[i.k].s==='a'&&!out.some(o=>o.eq.a===i.id));if(a)eq.a=a.id;const x=best(i=>ITEMS[i.k].s==='x'&&!out.some(o=>o.eq.x===i.id));if(x)eq.x=x.id;
     out.push({name:nm,look:{g:'m',hs:0,hc,ec},eq})}return out}
-function tbFighterOf(m){const items=['w','a','x'].map(s=>itemOf(m.eq[s])).filter(Boolean),{s}=statsOf(subLvOf(m),m.al||{hp:0,atk:0,def:0,spd:0,mag:0},items),w=itemOf(m.eq.w);
+function tbFighterOf(m){const items=['w','a','x'].map(s=>itemOf(m.eq[s])).filter(Boolean),{s}=statsOf(subLvOf(m),sjd(m).al,items),w=itemOf(m.eq.w);
   return {name:m.name,lv:subLvOf(m),look:m.look,st:s,wt:w?ITEMS[w.k].wt:'fist',k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null,...bqWear(items),job:m.job}}
 function tbParty3(){const c=tbCfg();return [ptFighter(0,c),...c.slice(0,jbCount(c)-1).map(tbFighterOf)]}
 function tbPrepAbs(){TB.ab=TB.P.map(tbSkills);TB.ct=TB.P.map(f=>[0,0,0]);TB.buff=TB.P.map(()=>0);TB.mh=TB.P.map(f=>f.st.hp);TB.mmax=TB.mh.slice();TB.hurtM=TB.P.map(()=>-9);TB.g=TB.P.map(()=>0);TB.php=TB.mh.reduce((a,v)=>a+v,0);TB.pmax=TB.php;TB.avg=TB.P.reduce((a,f)=>a+tbD(f),0)/TB.P.length;TB.en.max=TB.en.hp=Math.round(TB.avg*40)}
@@ -2695,7 +2696,7 @@ let PTSEL=0,PTIT=null;
 const PTST=[['hp','HP'],['atk','攻撃'],['def','防御'],['spd','素早さ'],['mag','魔力']];
 function ptEq(i,cfg){return i?cfg[i-1].eq:S.eq}
 function ptFighter(i,cfg){let f;if(!i){f=fighterMe();f.name='あなた';f.job=jbMain()||jbDerive(f)}else f=tbFighterOf(cfg[i-1]);if(typeof LKD!=='undefined'&&LKD&&LKD.i===i&&!$('p-look').hidden)f.look=Object.assign({},f.look,LKD.look);return f}
-function ptStats(i,cfg,swap){const eq=Object.assign({},ptEq(i,cfg),swap||{}),items=['w','a','x'].map(s=>itemOf(eq[s])).filter(Boolean);return statsOf(avLv(i,cfg),i?(cfg[i-1].al||{hp:0,atk:0,def:0,spd:0,mag:0}):S.al,items).s}
+function ptStats(i,cfg,swap){const eq=Object.assign({},ptEq(i,cfg),swap||{}),items=['w','a','x'].map(s=>itemOf(eq[s])).filter(Boolean);return statsOf(avLv(i,cfg),i?sjd(cfg[i-1]).al:S.al,items).s}
 function ptWhoHas(id,cfg){if(!id)return -1;if(Object.values(S.eq).includes(id))return 0;for(let k=0;k<cfg.length;k++)if(cfg[k].made&&Object.values(cfg[k].eq).includes(id))return k+1;return -1}
 function ptName(i,cfg){return i?(cfg[i-1].name||('分身'+(i+1))):'あなた'}
 function ptEquip(i,s,id,cfg){const who=ptWhoHas(id,cfg);if(who>=0&&who!==i){if(who===0)S.eq[s]=0;else cfg[who-1].eq[s]=0}
@@ -2737,10 +2738,10 @@ function ptStage(T){const cfg=tbCfg(),f=ptFighter(PTSEL,cfg);shadow(190,GY,30);d
    振り直しはなし: +で仮に振って「決定」で確定。決定したポイントは戻せない(決定前なら−で戻せる) */
 let STP=null;/* {i, add:{hp,atk,...}} 決定前の仮の振り分け */
 const ST0=()=>({hp:0,atk:0,def:0,spd:0,mag:0});
-function stAl(i,cfg){if(!i)return S.al;const m=cfg[i-1];if(!m.al)m.al=ST0();return m.al}
+function stAl(i,cfg){if(!i)return S.al;return sjd(cfg[i-1]).al}
 function stUsed(i,cfg){return usedPts(stAl(i,cfg))}
 function renderStat(){const cfg=tbCfg(),i=(PTSEL>=jbCount(cfg)?0:PTSEL),n=ptsOf(avLv(i,cfg));PTSEL=i;if(!STP||STP.i!==i)STP={i,add:ST0()};
-  for(let k=0;k<jbCount(cfg);k++){const al=stAl(k,cfg);if(usedPts(al)>ptsOf(avLv(k,cfg))){const a2=k?ST0():autoAlloc(S.lv,'atk');if(k)cfg[k-1].al=a2;else S.al=a2}}
+  for(let k=0;k<jbCount(cfg);k++){const al=stAl(k,cfg);if(usedPts(al)>ptsOf(avLv(k,cfg))){const a2=k?ST0():autoAlloc(S.lv,'atk');if(k)sjd(cfg[k-1]).al=a2;else S.al=a2}}
   $('lv').value=S.lv;$('lvv').textContent='Lv '+avLv(i,cfg);$('lv').hidden=i>0;{const h=$('p-stat').querySelector('.sec h2');if(h&&h.firstChild){h.firstChild.textContent=i?'レベル ':'アカウントレベル ';h.querySelectorAll('small').forEach(x=>x.style.visibility=i?'hidden':'')}}let xb=$('subxp');if(!xb){xb=mk('div','subxpbar');xb.id='subxp';$('pts').before(xb)}xb.hidden=!i;if(i){const x=subXpInfo(cfg[i-1]);xb.innerHTML='<div class="xb"><i style="width:'+(100*x.into/x.need).toFixed(0)+'%"></i></div><small>'+(x.capped?'メインと同じLv'+x.lv+'で止まっています。ためた経験値 '+x.held+'(メインが上がると一気に上がる)':'次のLvまで '+(x.need-x.into)+'(ターン制で勝つと+'+SUBWIN+'、負けても+'+SUBLOSE+')')+'</small>'}
   const al=stAl(i,cfg),pend=usedPts(STP.add),left=n-usedPts(al)-pend;$('pts').innerHTML='残りポイント <b>'+left+'</b> / '+n+(pend?' <em>(仮に'+pend+'振っています)</em>':'');
   /* who */let wh=$('stwho');if(!wh){wh=mk('div','stwho');wh.id='stwho';$('stl').before(wh)}wh.replaceChildren();const fs=mk('div','ptfaces');
@@ -2766,10 +2767,11 @@ const JOBS=['sword','knight','lancer','mage','priest','hunter','monk','cheer'];
 const JOBW={sword:['sword'],knight:['sword','spear'],lancer:['spear'],mage:['staff'],priest:['staff','penlight'],hunter:['bow'],monk:['fist','hammer'],cheer:['penlight','bow'],guard:['spear'],warrior:['hammer']};
 function jbDerive(f){const sh=f.ak==='sma',soft=f.ak==='tca'||f.ak==='yga';return f.wt==='sword'?(sh?'knight':'sword'):f.wt==='spear'?(sh?'knight':'lancer'):f.wt==='staff'?(soft?'priest':'mage'):f.wt==='bow'?'hunter':f.wt==='penlight'?'cheer':'monk'}
 function jbMain(){let j=null;try{j=localStorage.getItem('bunJob0')}catch(e){}return JOBS.includes(j)?j:null}
-function jbSetMain(j){try{localStorage.setItem('bunJob0',j)}catch(e){}}
+function jbSetMain(j){const cur=jbMain()||jbDerive(fighterMe());if(cur===j)return;let map={};try{map=JSON.parse(localStorage.getItem('bunJobAl0')||'{}')||{}}catch(e){}
+  map[cur]=Object.assign({},S.al);S.al=Object.assign({hp:0,atk:0,def:0,spd:0,mag:0},map[j]||{});try{localStorage.setItem('bunJobAl0',JSON.stringify(map));localStorage.setItem('bunJob0',j)}catch(e){}STP=null;changed()}
 function jbCount(cfg){let n=1;for(const m of cfg){if(m.made)n++;else break}return n}
 const jbGood=(f)=>(JOBW[tbRole(f)]||[]).includes(f.wt);
-function jbMake(cfg){const k=jbCount(cfg)-1;if(k>=2)return;const m=cfg[k];m.made=true;m.name=m.name&&!/^分身\d$/.test(m.name)?m.name:'分身'+(k+2);m.xp=0;m.al={hp:0,atk:0,def:0,spd:0,mag:0};if(!m.job)m.job=jbDerive(tbFighterOf(m));tbSaveCfg(cfg);PTSEL=k+1;STP=null;refresh()}
+function jbMake(cfg){const k=jbCount(cfg)-1;if(k>=2)return;const m=cfg[k];m.made=true;m.name=m.name&&!/^分身\d$/.test(m.name)?m.name:'分身'+(k+2);m.jobs={};delete m.xp;delete m.al;if(!m.job)m.job=jbDerive(tbFighterOf(m));tbSaveCfg(cfg);PTSEL=k+1;STP=null;refresh()}
 /* the round faces with a "+" for the next empty slot (used by 見た目・ステータス・編成) */
 function jbFaces(cfg,onPick,plus){const fs=mk('div','ptfaces'),n=jbCount(cfg);for(let k=0;k<n;k++){const fk=ptFighter(k,cfg),rk=TBROLE[tbRole(fk)],b=mk('button','ptface'+(k===PTSEL?' on':''));b.type='button';b.style.setProperty('--c',rk[1]);b.append(headCv(lookHead(fk.look),40));b.onclick=()=>onPick(k);fs.append(b)}
   if(plus&&n<3){const b=mk('button','ptface plus');b.type='button';b.innerHTML='<span>+</span>';b.title='分身を作る';b.onclick=()=>jbMake(cfg);fs.append(b)}return fs}
@@ -2785,21 +2787,24 @@ function renderLook(){const cfg=tbCfg(),n=jbCount(cfg);if(PTSEL>=n)PTSEL=0;const
     const nm=mk('div','sec');nm.innerHTML='<h2>名前<small>8文字まで</small></h2>';const inp=document.createElement('input');inp.className='lkname';inp.maxLength=8;inp.value=m.name||'';inp.oninput=()=>{m.name=(inp.value.trim()||('分身'+(i+1))).slice(0,8);tbSaveCfg(cfg)};inp.onchange=()=>setTimeout(refresh,0);nm.append(inp);sub.append(nm);
     for(const [key,obj,t] of [['hc',HAIRC,'髪の色'],['ec',EYEC,'目の色']]){const s=mk('div','sec');s.append(mk('h2',null,t));const w=mk('div','seg');for(const k in obj){const b=mk('button','sw'+(lkDraft(i,cfg)[key]===k?' on':''));b.disabled=lkLocked(i,cfg);b.type='button';const ic=mk('i');ic.style.background=swatch(obj[k]||(key==='hc'?HAIRSW[k]:EYESW[k]));b.append(ic,k);b.onclick=()=>{lkDraft(i,cfg)[key]=k;lkTouch()};w.append(b)}s.append(w);sub.append(s)}}
   {const ob=$('lkbar');if(ob)ob.remove();const bar=lkBar(i,cfg);(i?sub:$('ecsel').closest('.sec')).after(bar)}
-  /* job */let jb=$('lkjob');if(!jb){jb=mk('div','sec lkjob');jb.id='lkjob';$('looknote').before(jb)}jb.replaceChildren();jb.append(mk('h2',null,'役職<small>得意武器なら与えるダメージ+15%</small>'));
+  /* job */let jb=$('lkjob');if(!jb){jb=mk('div','sec lkjob');jb.id='lkjob';$('looknote').before(jb)}jb.replaceChildren();jb.append(mk('h2',null,'役職<small>'+(i?'役職ごとにレベルと振り分けが別':'主人公は役職ごとに振り分けが別(レベルは共通)')+'</small>'));
   const cur=tbRole(f),g=mk('div','jbgrid');for(const j of JOBS){const R=TBROLE[j],b=mk('button','jbc'+(cur===j?' on':''));b.type='button';b.style.setProperty('--c',R[1]);
-    b.innerHTML='<b>'+R[0]+'</b><small>'+R[2]+'</small><span class="jw">'+JOBW[j].map(w=>icon(w)).join('')+'</span><em>'+TRSK[j][0]+'</em>';b.onclick=()=>{if(i===0)jbSetMain(j);else{cfg[i-1].job=j;tbSaveCfg(cfg)}refresh()};g.append(b)}jb.append(g);
-  const sk=TRSK[cur];jb.append(mk('p','note','スキル「'+sk[0]+'」'+sk[1]+(jbGood(f)?'。いまの武器は得意武器です。':'。いまの武器は得意武器ではありません(編成で変えられます)。')))}
+    b.innerHTML='<b>'+R[0]+'</b><small>'+R[2]+'</small><span class="jw">'+JOBW[j].map(w=>icon(w)).join('')+'</span><em>'+TRSK[j][0]+'</em>'+(i?'<i class="jl">Lv'+sjLv(cfg[i-1],j)+'</i>':'');b.onclick=()=>{if(i===0)jbSetMain(j);else{cfg[i-1].job=j;sjd(cfg[i-1]);tbSaveCfg(cfg);STP=null;refresh()}};g.append(b)}jb.append(g);
+  const sk=TRSK[cur];jb.append(mk('p','note','スキル「'+sk[0]+'」'+sk[1]+(jbGood(f)?'。いまの武器は得意武器です(ダメージ+15%)。':'。いまの武器は得意武器ではありません(得意武器ならダメージ+15%、編成で変えられます)。')))}
 
 /* ================= (10/23) 2体目・3体目のレベル: ターン制バトルの経験値で上がる。上限はメインのレベル =================
    経験値はずっとたまる(xp)。レベル = min(経験値から出るレベル, メインのレベル)。上限で止まっている間の経験値はたまり続け、メインが上がると一気に上がる */
 const SUBXP=L=>20+L*10;/* Lv L → L+1 に要る経験値 */
 const SUBWIN=80,SUBLOSE=25;
+/* (10/23) 役職ごとに経験値と振り分けが別: m.jobs[job]={xp,al}。前の m.xp・m.al はいまの役職の分として引っこす */
+function sjd(m){if(!m.jobs)m.jobs={};const j=m.job||'sword';if(!m.jobs[j]){m.jobs[j]={xp:0,al:{hp:0,atk:0,def:0,spd:0,mag:0}};if(m.xp!=null||m.al){m.jobs[j].xp=m.xp||0;if(m.al)m.jobs[j].al=m.al;delete m.xp;delete m.al}}return m.jobs[j]}
+const sjLv=(m,j)=>Math.min(S.lv,subLvRaw(((m.jobs||{})[j]||{}).xp||0));
 function subLvRaw(xp){let L=1;while(xp>=SUBXP(L)&&L<300){xp-=SUBXP(L);L++}return L}
-function subLvOf(m){return Math.min(S.lv,subLvRaw(m.xp||0))}
+function subLvOf(m){return Math.min(S.lv,subLvRaw(sjd(m).xp||0))}
 function avLv(i,cfg){return i?subLvOf(cfg[i-1]):S.lv}
-function subXpInfo(m){let xp=m.xp||0,L=1;while(xp>=SUBXP(L)&&L<300){xp-=SUBXP(L);L++}const lv=Math.min(S.lv,L),capped=L>S.lv;let held=0;if(capped){let t=m.xp||0;for(let k=1;k<S.lv;k++)t-=SUBXP(k);held=t}return {lv,raw:L,into:capped?SUBXP(lv):xp,need:SUBXP(lv),capped,held}}
+function subXpInfo(m){let xp=sjd(m).xp||0,L=1;while(xp>=SUBXP(L)&&L<300){xp-=SUBXP(L);L++}const lv=Math.min(S.lv,L),capped=L>S.lv;let held=0;if(capped){let t=sjd(m).xp||0;for(let k=1;k<S.lv;k++)t-=SUBXP(k);held=t}return {lv,raw:L,into:capped?SUBXP(lv):xp,need:SUBXP(lv),capped,held}}
 /* after a turn battle: experience for the sub avatars that took part */
-function subGiveXp(win){const cfg=tbCfg(),n=jbCount(cfg),out=[];for(let k=1;k<n;k++){const m=cfg[k-1],before=subLvOf(m),v=win?SUBWIN:SUBLOSE;m.xp=(m.xp||0)+v;const after=subLvOf(m);out.push({name:m.name||('分身'+(k+1)),v,before,after,capped:subXpInfo(m).capped})}tbSaveCfg(cfg);setTimeout(refresh,0);return out}
+function subGiveXp(win){const cfg=tbCfg(),n=jbCount(cfg),out=[];for(let k=1;k<n;k++){const m=cfg[k-1],before=subLvOf(m),v=win?SUBWIN:SUBLOSE;sjd(m).xp=(sjd(m).xp||0)+v;const after=subLvOf(m);out.push({name:m.name||('分身'+(k+1)),v,before,after,capped:subXpInfo(m).capped})}tbSaveCfg(cfg);setTimeout(refresh,0);return out}
 
 /* ================= (10/23) 見た目は2回まで変えられる =================
    髪型・髪の色・目の色は、選ぶと上の舞台で試せる(まだ決まっていない)。「この見た目にする」で決めると1回使う。
@@ -2818,7 +2823,7 @@ function lkCommit(){const cfg=tbCfg(),i=LKD?LKD.i:PTSEL;if(!lkDirty(i,cfg)&&!lkF
   else{for(const k of ['g','hs','hc','ec'])if(L[k]!=null)S.look[k]=L[k];try{localStorage.setItem('bunLookN0',String(lkUsed(0,cfg)+1))}catch(e){}LKD=null;changed()}}
 function lkBar(i,cfg){const box=mk('div','sec lkbar');box.id='lkbar';const free=lkFree(i,cfg),left=lkLeft(i,cfg),dirty=lkDirty(i,cfg);
   if(lkLocked(i,cfg)){box.innerHTML='<p class="lkmsg">見た目はもう変えられません(2回とも使いました)</p>';return box}
-  const b=mk('button','btn main',free?'この見た目で決定(1回目は数えません)':'この見た目にする');b.type='button';b.disabled=!dirty&&!free;b.onclick=lkCommit;
+  const b=mk('button','btn main',free?'決定(1回目は無料)':'この見た目にする');b.type='button';b.disabled=!dirty&&!free;b.onclick=lkCommit;
   const r=mk('button','btn','もとに戻す');r.type='button';r.disabled=!dirty;r.onclick=()=>{LKD=null;renderLook()};const row=mk('div','row2');row.append(b,r);box.append(row);
   box.append(mk('p','lkmsg',(free?'作ったばかりなので、最初の1回は数えません。そのあと ':'')+'見た目を変えられるのは あと'+left+'回 です。選ぶと上で試せて、決めるまでは何回でも選び直せます。'));return box}
 
