@@ -423,6 +423,7 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 body.exlock{overflow:hidden}
 .trb{transition:transform .06s ease-out}.trb.press{transform:translateY(2px) scale(.96)}.trb small em{font-style:normal;color:#ffe066}
 .ptskill .ps.set i{background:color-mix(in srgb,var(--sc) 30%,transparent);color:var(--sc)}.ptskill .ps.set span{display:grid;gap:2px}.ptskill .ps.set em{font-style:normal;color:var(--mut)}.ptskill .ps.set em.on{color:var(--sc)}
+.trb.trchase{grid-column:1/-1;background:linear-gradient(90deg,#ffd36b,#fff3c4,#ffd36b);color:#2a2010;box-shadow:0 0 18px rgba(255,200,80,.55)}.trb.trchase b{color:#2a2010}.trb.trchase small{color:#5a4a20}
 .qrec{position:relative;display:flex;align-items:baseline;gap:10px;width:100%;margin-top:4px;padding:12px 14px;border:0;border-radius:12px;background:rgba(255,255,255,.04);color:#fff;text-align:left;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}.qrec b{font:800 13px/1 var(--jp)}.qrec small{font:500 11px/1 var(--jp);color:var(--mut)}.qrec.dot:after{content:'';position:absolute;right:12px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#ff5a4a}
 .xqr .qtx b{color:var(--xc,#fff)}.xqr.t1{--xc:#8fe39a}.xqr.t2{--xc:#8cc6ff}.xqr.t3{--xc:#cfa3ff}.xqr.t4{--xc:#ff8a80}.xqr .qrt{display:grid;justify-items:end;gap:4px}
 .xqxp{background:rgba(255,211,107,.14)!important;color:#ffd36b!important}.xqn2,.xqlk{font:500 10px/1.2 var(--jp);color:var(--mut)}
@@ -2669,7 +2670,7 @@ function trSkill(){if(TR.phase!=='cmd'||TR.sp<1)return;const i=TR.cur,f=TR.P[i],
   else if(ro==='cheer')trActAnim(i,{n:1,hit:k=>{trDamage(i,1,{k,shield:w?1:0});for(let j=0;j<TR.P.length;j++)if(trAlive(j)){trGain(j,25);TR.fx.push({k:'gold',c:TR.c,x:TR.home[j][0],y:TR.home[j][1],seed:j+5,d:.9})}TR.atkUp=2},done:trAfter});
   else trActAnim(i,{n:1,hit:k=>trDamage(i,1.8,{k,shield:w?1:0}),done:trAfter})}
 function trUlt(i){if(!TR||TR.end||TR.en[i]<100||!trAlive(i)||(TR.phase!=='cmd'&&TR.phase!=='enemyWait'))return;const f=TR.P[i],ro=TR.role[i],back=TR.phase;TR.en[i]=0;TR.phase='anim';TR.ultBy=i;trUI();
-  TR.ov.push({k:'cut',f,name:spOf(f.wt,f.wr).sp,C:['#1a0f06','#6a3a10','#ffd36b','#ffffff'],rt0:trNow(),d:.85});TR.stop=Math.max(TR.stop,.82);
+  TR.ov.push({k:'cut',f,name:spOf(f.wt,f.wr).sp,C:['#1a0f06','#6a3a10','#ffd36b','#ffffff'],rt0:trNow(),d:1.06});TR.stop=Math.max(TR.stop,1.02);
   const fin=()=>{TR.ultBy=-1;if(back==='cmd'){TR.phase='cmd';trUI()}else trAfter()};
   if(ro==='priest'){TR.an.push({i,t0:TR.c,dur:.7,buff:true,col:'#7affb8'});trAt(.3,()=>{for(let j=0;j<TR.P.length;j++){if(!trAlive(j)){TR.mh[j]=1}trHeal(j,.5)}trLabel('みんな回復!','#a6ffb0',12)});trAt(.9,fin);return}
   if(ro==='knight'||ro==='guard'){TR.nul=TR.nul.map((v,j)=>trAlive(j)?1:v);trLabel('みんなに守りの光(次の1回を無効)','#a6e4ff',11);trActAnim(i,{n:1,hit:k=>trDamage(i,3,{k,big:true,crit:true,shield:TR.E.weak.includes(f.wt)?3:1}),done:fin});return}
@@ -2730,7 +2731,7 @@ function trHud(){const E=TR.E;
   const st=[];if(TR.defDown>0)st.push('防御↓');if(E.rage)st.push('怒り');if(TR.atkUp>0)st.push('味方攻撃↑');st.forEach((s,k)=>tbTxt(s,372,62+k*10,6.5,'#ffb0a0','right'))}
 function trFrame(){trTick();const r=trNow();G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;TR.shake*=.86;const sx=TR.shake>.4?(Math.floor(r*60)%2?1:-1)*TR.shake:0;{const sy=(TR.shake>.4?(Math.floor(r*60+1)%2?1:-1)*TR.shake*.4:0),zm=TR.zoom,zk=zm&&r<zm.t0+zm.d?Math.sin(Math.min(1,(r-zm.t0)/zm.d)*Math.PI):0,z=1+(zm?zm.a:0)*zk,cx=zm?zm.x:0,cy=zm?zm.y:0;G.setTransform(SC*z,0,0,SC*z,(sx+cx*(1-z))*SC,(sy+cy*(1-z))*SC)}
   bqBack(TR.c,0);trDraw();bqFrontDraw(TR.c,0);trFx();G.setTransform(SC,0,0,SC,0,0);if(TR.phase!=='prep')trHud();
-  TR.ov=TR.ov.filter(o=>r-o.rt0<o.d);for(const o of TR.ov){const v=r-o.rt0;if(o.k==='cut')cutIn(o.f,v,o.D||1,o.name,o.C);if(o.k==='break'){const k=v<.12?eo(v/.12):v>.7?1-(v-.7)/.2:1;G.save();G.globalAlpha=k*.35;G.fillStyle='#fff';G.fillRect(0,0,W,H);G.restore();tbTxt('BREAK!',TR.E.x-20,120,26*(v<.12?1.4-.4*eo(v/.12):1),'#ffe066',null,k)}}
+  TR.ov=TR.ov.filter(o=>r-o.rt0<o.d);for(const o of TR.ov){const v=r-o.rt0;if(o.k==='cut'){if((o.D||1)>0)trCut2(o.f,v,o.name,o.C);else cutIn(o.f,v,o.D||1,o.name,o.C)}if(o.k==='break'){const k=v<.12?eo(v/.12):v>.7?1-(v-.7)/.2:1;G.save();G.globalAlpha=k*.35;G.fillStyle='#fff';G.fillRect(0,0,W,H);G.restore();tbTxt('BREAK!',TR.E.x-20,120,26*(v<.12?1.4-.4*eo(v/.12):1),'#ffe066',null,k)}}
   if(TR.end){const v=r-TR.end.rt;if(v>0&&!(TR.o.ctx&&BT)){G.save();G.globalAlpha=clamp(v/.3,0,1)*.55;G.fillStyle='#000';G.fillRect(0,0,W,H);G.restore();const k=eo(clamp((v-.1)/.35,0,1));tbTxt(TR.end.win?'CLEAR!':'まけ…',190,112-(1-k)*10,28,TR.end.win?'#ffe066':'#c9d4ff',null,k)}}
   trUIUpdate()}
 /* ---------- the panel ---------- */
@@ -3343,9 +3344,13 @@ const tqZoom=(x,y,a,d)=>{if(!TR)return;TR.zoom={t0:trNow(),d:d||.6,a:a||.12,x,y}
 /* the enemy's next move, above it */
 {const _h=trHud;trHud=function(){_h.apply(this,arguments);if(!TR||TR.tpm||TR.end||TR.phase==='prep')return;const E=TR.E,big=(E.n+1)%(E.rage?2:3)===0,x=E.x-20,y=74;
   G.save();G.fillStyle='rgba(10,8,16,.82)';G.fillRect(x-60,y-12,120,24);G.strokeStyle=big?'#ff5a4a':'rgba(255,255,255,.3)';G.lineWidth=1;G.strokeRect(x-60+.5,y-12+.5,119,23);G.restore();
-  if(big)tbTxt('次: 全体攻撃!',x,y+.5,10,'#ff8a80');
-  else{const j=TR.taunt>=0&&trAlive(TR.taunt)?TR.taunt:E.int;if(j!=null&&j>=0&&TR.P[j]){tbTxt('次',x-44,y+.5,9,'#c9d4ff');G.save();G.imageSmoothingEnabled=false;G.drawImage(trFace(j),x-34,y-9,18,18);G.restore();tbTxt('をねらう',x+14,y+.5,10,'#ffe9c0');
-    if(TR.home[j]){const [hx,hy]=TR.home[j],k=.5+.5*Math.sin(TR.c*7);G.save();G.globalAlpha=.5+.4*k;G.fillStyle='#ff5a4a';G.beginPath();G.moveTo(hx,hy-TR.hd-20);G.lineTo(hx-5,hy-TR.hd-28);G.lineTo(hx+5,hy-TR.hd-28);G.closePath();G.fill();G.restore()}}}}}
+  const mv=E.mv||{k:big?'big':'atk',j:E.int},bad=['big','release','poison'].includes(mv.k);
+  if(mv.k!=='atk'&&mv.k!=='release'){const T={big:['次: 全体攻撃!','#ff8a80'],charge:['次: 力をためる','#ffb070'],poison:['次: 毒の霧(全員)','#c89cff'],guard:['次: 守りを固める','#a6c8ff'],volley:['次: 連射(3回)','#ffd36b']}[mv.k]||['次: ?','#fff'];tbTxt(T[0],x,y+.5,10,T[1])}
+  else{const j=TR.taunt>=0&&trAlive(TR.taunt)?TR.taunt:mv.j!=null?mv.j:E.int;if(j!=null&&j>=0&&TR.P[j]){tbTxt(mv.k==='release'?'大技':'次',x-44,y+.5,9,mv.k==='release'?'#ff8a80':'#c9d4ff');G.save();G.imageSmoothingEnabled=false;G.drawImage(trFace(j),x-34,y-9,18,18);G.restore();tbTxt('をねらう',x+14,y+.5,10,mv.k==='release'?'#ff8a80':'#ffe9c0');
+    if(TR.home[j]){const [hx,hy]=TR.home[j],k=.5+.5*Math.sin(TR.c*7);G.save();G.globalAlpha=.5+.4*k;G.fillStyle='#ff5a4a';G.beginPath();G.moveTo(hx,hy-TR.hd-20);G.lineTo(hx-5,hy-TR.hd-28);G.lineTo(hx+5,hy-TR.hd-28);G.closePath();G.fill();G.restore()}}}
+  if(E.charging&&!TR.sim){const k=.5+.5*Math.sin(TR.c*9);G.save();G.globalAlpha=.25+.25*k;glow(E.x-20,E.y-TR.ey,70,'rgba(255,120,60,1)',.6);G.restore()}
+  if(E.guardN>0)tbTxt('守り',E.x+30,E.y-TR.ey-40,9,'#a6c8ff');
+  (TR.psn||[]).forEach((n,j)=>{if(n>0&&trAlive(j))tbTxt('毒'+n,TR.home[j][0]+16,TR.home[j][1]-TR.hd+4,8,'#c89cff')})}}
 /* about how much a press will do */
 function trEst(i,mul){const f=TR.P[i],E=TR.E,Bf=TR.Bf,weak=E.weak.includes(f.wt),good=(JOBW[TR.role[i]]||[]).includes(f.wt),pierce=TR.defDown>0?.3:0;
   return Math.max(1,Math.round(trPow(f)*mul*(TR.atkUp>0?1.3:1)*(E.broken?1.5:1)*(weak?1.15:1)*(good?1.15:1)*TR.pm*.7*60/(60+Bf.st.def*(1-pierce))))}
@@ -3379,6 +3384,63 @@ function trSets(f){const o={ygo:0,smb:0,tcg:0};for(const k of [f.wk,f.ak,f.xk]){
 function trSetLines(f){const st=trSets(f);return Object.keys(TRSET).filter(c=>st[c]>0).map(c=>{const S=TRSET[c],n=st[c];return '<div class="ps set'+(n>=2?' on':'')+'" style="--sc:'+S.col+'"><i>シリーズ</i><b>'+S.n+' '+n+'/3</b><span><em class="'+(n>=2?'on':'')+'">2つ: '+S.t2+'</em><em class="'+(n>=3?'on':'')+'">3つ: '+S.t3+'</em></span></div>'}).join('')}
 /* the series name on every item's line (the item details and lists) */
 if(typeof statLine==='function'){const _sl=statLine;statLine=function(it){const s=_sl.apply(this,arguments),c=it&&ITEMS[it.k]&&ITEMS[it.k].c;return s+(c&&TRSET[c]?'・'+TRSET[c].n+'シリーズ':'')}}
+
+/* ================= (10/23) ターン制の質を上げる(2回目) =================
+   1 必殺のカットイン: 暗転 → 武器の色の光の筋 → 分身の全身が大きく横から入る(残像つき) → 技の名前が1文字ずつ落ちてくる → 白く光って抜ける
+   2 敵ごとの技(次に何をするかは上に出る):
+     剣 = 力をためる → 次の番に大技(ブレイクすると止められる) / 杖 = 毒の霧(全員、3回のあいだ自分の番にHP−5%)
+     槍 = 守りを固める(2回のあいだ受けるダメージ0.7倍) / 弓 = 連射(ランダムに3回) / ボスはためる大技も使う
+   3 ブレイク中の追撃: 敵がブレイクしている間、1回だけ「みんなで追撃!」(いまの番の分身の行動を使って、全員で叩く)
+   参考: ペルソナ5(ダウン→総攻撃)、オクトパストラベラー(ブレイクで敵が止まる)、Slay the Spire(敵の行動の予告) */
+function trPickMove(){const E=TR.E,Bf=TR.Bf,n=E.n+1,r=Math.random(),wt=Bf.wt;
+  if(E.charging)return {k:'release',j:trPickTarget()};
+  if(n%(E.rage?2:3)===0)return {k:'big'};
+  if((wt==='sword'||Bf.boss)&&r<.28)return {k:'charge'};
+  if(wt==='staff'&&r<.3&&!(TR.psn||[]).some(v=>v>0))return {k:'poison'};
+  if(wt==='spear'&&r<.3&&!(E.guardN>0))return {k:'guard'};
+  if(wt==='bow'&&r<.32)return {k:'volley'};
+  return {k:'atk',j:trPickTarget()}}
+{const _s=trSetup;trSetup=function(){_s.apply(this,arguments);if(!TR||!TR.E)return;TR.psn=TR.P.map(()=>0);TR.E.mv=trPickMove();if(TR.E.mv.j!=null)TR.E.int=TR.E.mv.j}}
+function trTauntOr(j){if(TR.taunt>=0&&trAlive(TR.taunt)){const t=TR.taunt;TR.tauntN--;if(TR.tauntN<=0)TR.taunt=-1;return [t,true]}return [j!=null&&trAlive(j)?j:trPickTarget(),false]}
+trEnemyAct=function(){if(!TR||TR.end)return;const E=TR.E,Bf=TR.Bf;if(E.broken){E.broken=false;E.sh=E.shMax;E.chased=false;trLabel('敵が立て直した','#c9d4ff',10)}E.n++;TR.acts++;if(TR.defDown>0)TR.defDown--;if(TR.atkUp>0)TR.atkUp--;if(E.guardN>0)E.guardN--;
+  const mv=E.mv||{k:'atk',j:trPickTarget()},al=TR.P.map((_,k)=>k).filter(trAlive);E.atkC=TR.c;const pow=trPow(Bf)*TR.ed,sim=TR.sim;
+  const after=()=>{if(!TR||TR.end)return;E.mv=trPickMove();if(E.mv.j!=null)E.int=E.mv.j;if(TR.turnsMax&&E.n>=Math.ceil(TR.turnsMax/2)){trEnd(TR.mh.reduce((a,v)=>a+v,0)/TR.mmax.reduce((a,v)=>a+v,0)>=E.hp/E.max,true);return}trAdvance()};
+  const slashAt=(j,tier)=>{if(!sim)TR.fx.push({k:'slash',c:TR.c,x:TR.home[j][0]+10,y:TR.home[j][1]-TR.hd*.5,tier:tier||'R',R:tier==='UR'?44:40,kk:j})};
+  if(mv.k==='big'){if(!sim){TR.ov.push({k:'cut',f:Bf,name:spOf(Bf.wt,Bf.wr).sp,C:['#1a0604','#6a1a08','#ff8a3a','#ffffff'],rt0:trNow(),d:.85,D:-1});TR.stop=Math.max(TR.stop,.82)}E.big=true;
+    trAt(.45,()=>{for(const j of al){slashAt(j,'UR');trHurt(j,trHit(Bf.st,TR.P[j].st,pow*(E.rage?1:.85)/Math.max(1,TR.P.length),{sure:1}))}});trAt(1.2,()=>{E.big=false;after()});return}
+  if(mv.k==='charge'){E.charging=true;if(!sim){trLabel(E.name+'は力をためている… 次に大技!','#ff8a5a',11);TR.fx.push({k:'gold',c:TR.c,x:E.x-20,y:E.y,seed:9,d:1})}trAt(.9,after);return}
+  if(mv.k==='release'){E.charging=false;const [j,tk]=trTauntOr(mv.j);if(!sim){TR.ov.push({k:'cut',f:Bf,name:'ためた一撃',C:['#1a0604','#7a1008','#ff5a3a','#ffffff'],rt0:trNow(),d:.85,D:-1});TR.stop=Math.max(TR.stop,.82)}E.big=true;
+    trAt(.45,()=>{slashAt(j,'UR');if(!sim)TR.shake=Math.max(TR.shake,10);trHurt(j,trHit(Bf.st,TR.P[j].st,pow*2.4,{sure:1}),tk)});trAt(1.2,()=>{E.big=false;after()});return}
+  if(mv.k==='poison'){if(!sim)trLabel('毒の霧! 3回のあいだ、自分の番にHP−5%','#c89cff',11);for(const j of al){TR.psn[j]=3;if(!sim)TR.fx.push({k:'heal',c:TR.c,x:TR.home[j][0],y:TR.home[j][1],seed:j+11,d:.9,poison:1})}trAt(.9,after);return}
+  if(mv.k==='guard'){E.guardN=2;if(!sim)trLabel(E.name+'は守りを固めた(受けるダメージ0.7倍)','#a6c8ff',11);trAt(.8,after);return}
+  if(mv.k==='volley'){if(!sim)trLabel('連射!','#ffd36b',11);for(let h=0;h<3;h++)trAt(.25+h*.22,()=>{const a2=TR.P.map((_,k)=>k).filter(trAlive);if(!a2.length||TR.end)return;const [j,tk]=trTauntOr(a2[Math.floor(Math.random()*a2.length)]);slashAt(j);trHurt(j,trHit(Bf.st,TR.P[j].st,pow*.55),tk)});trAt(1.3,after);return}
+  const [j,tk]=trTauntOr(mv.j);trAt(.3,()=>{slashAt(j);trHurt(j,trHit(Bf.st,TR.P[j].st,pow*(E.rage?1.2:1.1)),tk)});trAt(1,after)};
+/* break stops a charge; the guard lowers damage; poison bites at the start of the poisoned one's turn */
+{const _b=trBreak;trBreak=function(){_b.apply(this,arguments);if(!TR)return;const E=TR.E;E.chased=false;if(E.charging||(E.mv&&E.mv.k==='release')){E.charging=false;E.mv={k:'atk',j:trPickTarget()};if(!TR.sim)trLabel('ブレイク! ため攻撃を止めた','#ffe066',12)}}}
+{const _d=trDamage;trDamage=function(i,mul,o){if(TR&&TR.E&&TR.E.guardN>0)mul*=.7;return _d.call(this,i,mul,o)}}
+{const _ad=trAdvance;trAdvance=function(){_ad.apply(this,arguments);if(!TR||TR.end||TR.tpm||TR.phase!=='cmd'||TR.cur<0||!TR.psn||!(TR.psn[TR.cur]>0))return;const j=TR.cur,d=Math.max(1,Math.round(TR.mmax[j]*.05));TR.psn[j]--;TR.mh[j]=Math.max(1,TR.mh[j]-d);
+  if(!TR.sim){TR.nums.push({v:String(d),x:TR.home[j][0],y:TR.home[j][1]-TR.hd-12,c:TR.c,col:'#c89cff'});TR.fx.push({k:'txt',c:TR.c,s:'毒',x:TR.home[j][0],y:TR.home[j][1]-TR.hd-26,col:'#c89cff',sz:9,d:.8});trUI()}}}
+/* 3: everyone chases a broken enemy, once per break, using the current avatar's turn */
+function trChase(){if(!TR||TR.phase!=='cmd'||TR.end||!TR.E.broken||TR.E.chased)return;const E=TR.E;E.chased=true;TR.phase='anim';trUI();if(!TR.sim){trLabel('みんなで追撃!','#ffe066',14);TR.shake=Math.max(TR.shake,5);if(typeof SFX!=='undefined')SFX.swish()}
+  const al=TR.P.map((_,k)=>k).filter(trAlive);al.forEach((k,n)=>trAt(n*.16,()=>{if(!TR||TR.end)return;trActAnim(k,{n:1,hit:()=>trDamage(k,.85,{shield:0}),done:n===al.length-1?trAfter:()=>{}});trGain(k,10)}))}
+{const _am=trAutoMove;trAutoMove=function(){if(TR&&!TR.tpm&&TR.phase==='cmd'&&TR.E.broken&&!TR.E.chased&&!TR.P.some((_,i)=>trAlive(i)&&TR.en[i]>=100)){trChase();return}return _am.apply(this,arguments)}}
+{const _ui=trUI;trUI=function(){_ui.apply(this,arguments);if(!TR||TR.sim||TR.tpm||TR.end||TR.phase!=='cmd'||TR.cur<0)return;const u=$('tbui'),cmd=u&&u.querySelector('.trcmd');if(!cmd||!TR.E.broken||TR.E.chased)return;
+  const b=mk('button','trb trchase');b.type='button';b.innerHTML='<b>みんなで追撃!</b><small>ブレイク中に1回だけ。'+TR.P[TR.cur].name+'の番を使って、全員で叩く</small>';b.onclick=trChase;cmd.prepend(b)}}
+/* 1: the party's special-move cut-in */
+function trCut2(f,v,name,C){if(f.boss||(f.look&&f.look.pk))return cutIn(f,v,1,name,C);const inT=.1,outT=.86,p=v<inT?eo(v/inT):v>outT?1-ei(Math.min(1,(v-outT)/.16)):1;if(p<=0)return;const col=TRWC[f.wt]||C[2];
+  G.save();G.setTransform(SC,0,0,SC,0,0);G.globalAlpha=.62*p;G.fillStyle='#07040c';G.fillRect(0,0,W,H);G.globalAlpha=1;
+  /* light beams from the lower left, turning slowly */G.save();G.translate(40,H+20);G.rotate(v*.5);for(let k=0;k<12;k++){G.rotate(Math.PI*2/12);G.globalAlpha=(k%2?.1:.22)*p;G.fillStyle=k%3?col:'#ffffff';G.beginPath();G.moveTo(0,0);G.lineTo(-18,-420);G.lineTo(18,-420);G.closePath();G.fill()}G.restore();
+  /* the slanted band */const cy=H/2+6,hb=110*p,sl=30;G.save();G.beginPath();G.moveTo(-10,cy-hb/2+sl);G.lineTo(W+10,cy-hb/2-sl);G.lineTo(W+10,cy+hb/2-sl);G.lineTo(-10,cy+hb/2+sl);G.closePath();G.clip();
+  const gr=G.createLinearGradient(0,cy-60,0,cy+60);gr.addColorStop(0,C[0]);gr.addColorStop(.5,C[1]);gr.addColorStop(1,C[0]);G.fillStyle=gr;G.fillRect(0,0,W,H);
+  const rr=rngOf(Math.floor(v*40)+3);for(let n=0;n<34;n++){const y=cy-60+rr()*120,L=30+rr()*140,x=((rr()*W+v*1400*(n%2?1:1.7))%(W+L))-L;G.globalAlpha=.5+rr()*.5;G.fillStyle=n%3?col:'#ffffff';G.fillRect(Math.round(x),Math.round(y),Math.round(L),1)}G.globalAlpha=1;
+  /* the whole avatar, big, sliding in with after-images */const s=sprite(f.look,poseOf(f,'p6'),f)||sprite(f.look,undefined,f);if(s){const sk=1.3,X=lerp(-120,96,eo(Math.min(1,v/.22)))+(v>.22?(v-.22)*14:0),Y=cy+s.d.foot*sk-48;
+    for(let a=3;a>=0;a--){G.save();G.globalAlpha=a?.14*(4-a)/4:1;G.imageSmoothingEnabled=false;G.translate(X-a*16*(1-Math.min(1,v/.3)),Y);G.scale(-sk,sk);G.drawImage(s.base,-Math.round(s.cx),-s.d.foot);G.restore()}}
+  G.restore();G.fillStyle=C[3];for(const e of [-1,1]){G.beginPath();G.moveTo(-10,cy+e*hb/2+sl);G.lineTo(W+10,cy+e*hb/2-sl);G.lineTo(W+10,cy+e*hb/2-sl+e*2.5);G.lineTo(-10,cy+e*hb/2+sl+e*2.5);G.closePath();G.fill()}
+  /* who, then the move's name one letter at a time */const tv=v-.16;if(tv>0&&p>.4){tbTxt((f.name||'')+' の必殺',262,cy-30,9,'#fff3c4',null,Math.min(1,tv/.1));
+    const L=[...name],sz=L.length>7?20:24,w=sz*.92,x0=262-(L.length-1)*w/2;L.forEach((ch,k)=>{const u=tv-.05-k*.035;if(u<=0)return;const sc=u<.07?2-(u/.07):1,yy=cy+6-(u<.07?(1-u/.07)*16:0);G.save();G.translate(x0+k*w,yy);G.scale(sc,sc);G.rotate(-.05);G.font="400 "+sz+"px DotGothic16,'Hiragino Sans','Noto Sans JP',sans-serif";G.textAlign='center';G.textBaseline='middle';
+      G.fillStyle='#000';for(const [ox,oy] of [[-2,0],[2,0],[0,-2],[0,2],[2,2]])G.fillText(ch,ox,oy);G.fillStyle=col;G.fillText(ch,0,1);G.fillStyle=C[3];G.fillText(ch,0,-1);G.restore()})}
+  /* a white flash on the way out */if(v>outT-.04&&v<outT+.08){G.globalAlpha=.7*(1-Math.abs(v-outT-.02)/.06);G.fillStyle='#fff';G.fillRect(0,0,W,H);G.globalAlpha=1}
+  G.restore()}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
