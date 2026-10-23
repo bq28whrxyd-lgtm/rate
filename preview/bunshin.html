@@ -375,6 +375,12 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .ptacts{display:flex;gap:8px}.ptacts .btn{min-height:44px}
 .stwho{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.ptface{position:relative}.stdot{position:absolute;right:-4px;top:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;display:grid;place-items:center;background:#ff4f6a;color:#fff;font:800 10px/1 var(--jp);font-style:normal}
 .bar{display:flex}.bar i.pend{background:repeating-linear-gradient(135deg,#ffd36b 0 3px,#c89a30 3px 6px)!important;opacity:.9}.st.pend output{color:#ffd36b}.st output small.up{color:#6ee09a}.pts em{font-style:normal;color:#ffd36b;font-size:.9em}.pts b{color:var(--gold2)}
+.stage.ptv2 #plA{visibility:hidden}.lksub{display:grid;gap:14px;margin-bottom:14px}
+.ptface.plus{background:transparent;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25);border:0}.ptface.plus span{font:300 26px/1 var(--jp);color:var(--mut)}
+.lkwho .stwho{margin-bottom:6px}.lkname{width:100%;min-height:44px;padding:0 12px;border-radius:12px;background:var(--s1);border:0;box-shadow:inset 0 0 0 1px var(--line2);color:var(--fg);font:600 16px/1 var(--jp)}
+.jbgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.jbc{display:grid;justify-items:center;gap:3px;padding:9px 4px 8px;border-radius:12px;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);min-width:0}
+.jbc b{font:800 13px/1.1 var(--jp);color:var(--c)}.jbc small{font:600 9px/1 var(--jp);color:var(--mut)}.jbc .jw{display:flex;gap:2px}.jbc .jw .ico{width:16px;height:16px}.jbc em{font:600 9.5px/1.2 var(--jp);font-style:normal;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.jbc.on{background:linear-gradient(180deg,color-mix(in srgb,var(--c) 26%,var(--s1)),var(--s1));box-shadow:inset 0 0 0 2px var(--c)}
 </style>
 
 <div class="wrap">
@@ -1386,7 +1392,7 @@ function scene(T){G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;
      const e=BT.res.ev.find(e=>e.special&&e.wt==='hammer'&&T>=e.t0+.85&&T<e.t0+1.3);if(e){const k=1-(T-e.t0-.85)/.45;shx=Math.round((Math.floor(T*60)%2?1:-1)*5*k);shy=Math.round((Math.floor(T*60+1)%2?1:-1)*3*k)}}
   G.setTransform(SC,0,0,SC,shx*SC,shy*SC);if(!BT)bqBack(T,0);
   if(!BT&&!$('p-gear').hidden){$('stage').classList.add('ptv');ptStage(T);bqFrontDraw(T,0);trail[0].length=trail[1].length=0;return}
-  $('stage').classList.remove('ptv');
+  $('stage').classList.remove('ptv');if(!BT&&PTSEL>0&&(!$('p-look').hidden||!$('p-stat').hidden)){$('stage').classList.add('ptv2');ptStage(T);bqFrontDraw(T,0);trail[0].length=trail[1].length=0;return}$('stage').classList.remove('ptv2');
   if(!BT){/* idle: just you, in the middle */const me=fighterMe(),tt=T,km=me.wr==='KMR'&&me.wt!=='spear';shadow(190,GY,30);if(km){swirl(190,tt,false,0,1,me.wt==='staff'?'ECL':me.wt==='spear'?'CRIM':me.wt==='bow'?'AZ':'KMR');drawTwin(me,190+TWX(me.wt),(me.wt==='sword'?GY-126:GY-118)+Math.round(Math.sin(step(tt)*2.2)*2),tt,1)}drawFighter(me,190,GY,{pose:'p1',flip:true,breath:Math.sin(tt*2.4)*.5+.5,blink:(tt%3.4)<.12,t:tt});if(km)swirl(190,tt,true,0,1);bqFrontDraw(T,0);trail[0].length=trail[1].length=0;return}
   const R=BT.res,F=BT.F,base=[AX,BX],dir=[1,-1];const pos=[{x:AX,y:GY},{x:BX,y:GY}],fx={sq:[0,0],flash:[0,0],alpha:[1,1],sink:[0,0],pose:['p1','p1'],burn:[0,0],hot:[0,0]};const has=(k,p)=>sprKey(F[k].look,p)!==sprKey(F[k].look);
   /* intro: both slide in */
@@ -1806,7 +1812,7 @@ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.que
 
 /* look */
 function swatch(col3){return 'radial-gradient(circle at 35% 30%,'+col3[2]+','+col3[1]+' 55%,'+col3[0]+')'}
-function renderLook(){const L=S.look;const gs=$('gsel');gs.replaceChildren();[['m','男'],['f','女']].forEach(([k,n])=>{const b=mk('button','chip'+(L.g===k?' on':''),n);b.type='button';b.onclick=()=>{L.g=k;L.hs=0;changed()};gs.append(b)});
+function renderLook0(){const L=S.look;const gs=$('gsel');gs.replaceChildren();[['m','男'],['f','女']].forEach(([k,n])=>{const b=mk('button','chip'+(L.g===k?' on':''),n);b.type='button';b.onclick=()=>{L.g=k;L.hs=0;changed()};gs.append(b)});
   const hs=$('hsel');hs.replaceChildren();(L.g==='f'?FHSTY:HSTY).forEach((n,i)=>{const b=mk('button','chip'+(L.hs===i?' on':''),n);b.type='button';b.disabled=L.g==='m'?BETA_MASH&&i>0:i>=FHS_ON;b.onclick=()=>{L.hs=i;changed()};hs.append(b)});
   $('hsnote').textContent=L.g==='f'?'ツインテール・ボブ・ショートは動く絵ができたら選べます':'マッシュ以外は動く絵ができたら選べます';
   $('looknote').textContent=L.g==='f'?'女の子の髪の色は今は茶色だけです(色替えはあとで)。見た目は強さに関係しません。':'見た目は強さに関係しません。';
@@ -2440,7 +2446,7 @@ function tbRunCards(){const P=TB.pick,first=P[0].t,same=P.every(c=>c.t===first&&
 /* ---------- 3. ターン制: 自分の分身3体。役職は武器と防具で決まり、技は役職・防具・アクセから ---------- */
 const tbAlive=i=>TB.mh[i]>0;
 const TBROLE={knight:['騎士','#7fc8ff','タンク'],guard:['守護者','#7fc8ff','タンク'],sword:['剣士','#ff6a6a','アタッカー'],lancer:['槍兵','#ffd34a','アタッカー'],priest:['僧侶','#7affb8','回復'],mage:['魔導士','#b48cff','魔法'],hunter:['狩人','#5ac8ff','サポート'],monk:['格闘家','#ffa860','アタッカー'],warrior:['戦士','#ffa860','アタッカー'],cheer:['応援団','#ff8ad0','サポート']};
-function tbRole(f){const sh=f.ak==='sma',soft=f.ak==='tca'||f.ak==='yga';return f.wt==='sword'?(sh?'knight':'sword'):f.wt==='spear'?(sh?'guard':'lancer'):f.wt==='staff'?(soft?'priest':'mage'):f.wt==='bow'?'hunter':f.wt==='penlight'?'cheer':f.wt==='hammer'?'warrior':'monk'}
+function tbRole(f){if(f&&f.job&&TBROLE[f.job])return f.job;const sh=f.ak==='sma',soft=f.ak==='tca'||f.ak==='yga';return f.wt==='sword'?(sh?'knight':'sword'):f.wt==='spear'?(sh?'guard':'lancer'):f.wt==='staff'?(soft?'priest':'mage'):f.wt==='bow'?'hunter':f.wt==='penlight'?'cheer':f.wt==='hammer'?'warrior':'monk'}
 const TBRAB={knight:['cover','かばう','仲間の代わりに受ける・30%減',3],guard:['cover','かばう','仲間の代わりに受ける・30%減',3],sword:['strike','斬り込み','強い1撃',3],lancer:['pierce','なぎ払い','攻撃+敵の防御ダウン',3],priest:['healall','いやしの光','みんなHP25%回復',3],mage:['mbolt','魔法弾','強い魔法の1撃',3],hunter:['bind','影縫い','敵のチャージ-1',4],monk:['rush','連打','3回攻撃',3],warrior:['strike','叩きつけ','強い1撃',3],cheer:['cheerall','声援','みんなの必殺+30',4]};
 const TBAAB={yga:['nullall','罠封じ','次の敵の攻撃を無効',5],sma:['bash','シールドバッシュ','攻撃+自分の守り',4],tca:['supply','推しグッズ補給','いちばん減った仲間を30%回復',4],'':['guard','ガード','自分への攻撃を半分',3]};
 const TBXAB={ygx:['sure','先攻の構え','次の攻撃は必ず会心',3],smx:['blow','ふっとばし','攻撃+敵のチャージ-1',5],tcx:['cheer1','推しの声援','みんなの必殺+20',4],'':['charge','ためる','自分の必殺+25',3]};
@@ -2458,8 +2464,8 @@ function tbDefaultCfg(){const used=new Set(Object.values(S.eq).filter(Boolean)),
     const a=best(i=>ITEMS[i.k].s==='a'&&!out.some(o=>o.eq.a===i.id));if(a)eq.a=a.id;const x=best(i=>ITEMS[i.k].s==='x'&&!out.some(o=>o.eq.x===i.id));if(x)eq.x=x.id;
     out.push({name:nm,look:{g:'m',hs:0,hc,ec},eq})}return out}
 function tbFighterOf(m){const items=['w','a','x'].map(s=>itemOf(m.eq[s])).filter(Boolean),{s}=statsOf(S.lv,m.al||{hp:0,atk:0,def:0,spd:0,mag:0},items),w=itemOf(m.eq.w);
-  return {name:m.name,lv:S.lv,look:m.look,st:s,wt:w?ITEMS[w.k].wt:'fist',k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null,...bqWear(items)}}
-function tbParty3(){const me=fighterMe();me.name='あなた';return [me,...tbCfg().map(tbFighterOf)]}
+  return {name:m.name,lv:S.lv,look:m.look,st:s,wt:w?ITEMS[w.k].wt:'fist',k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null,...bqWear(items),job:m.job}}
+function tbParty3(){const c=tbCfg();return [ptFighter(0,c),...c.slice(0,jbCount(c)-1).map(tbFighterOf)]}
 function tbPrepAbs(){TB.ab=TB.P.map(tbSkills);TB.ct=TB.P.map(f=>[0,0,0]);TB.buff=TB.P.map(()=>0);TB.mh=TB.P.map(f=>f.st.hp);TB.mmax=TB.mh.slice();TB.hurtM=TB.P.map(()=>-9);TB.g=TB.P.map(()=>0);TB.php=TB.mh.reduce((a,v)=>a+v,0);TB.pmax=TB.php;TB.avg=TB.P.reduce((a,f)=>a+tbD(f),0)/TB.P.length;TB.en.max=TB.en.hp=Math.round(TB.avg*40)}
 function tbRoleTag(f){const r=TBROLE[tbRole(f)];return '<span class="tbrole" style="--rc:'+r[1]+'">'+r[0]+'<small>'+r[2]+'</small></span>'}
 /* 編成: the three avatars, two of them editable here */
@@ -2535,12 +2541,12 @@ const trRar=r=>1+({SR:.1,UR:.2,GR:.3,KMR:.4}[r]||0);
 const trNow=()=>performance.now()/1000;
 function trPas(f){const o={};if(f.ak&&TRPAS[f.ak])o[f.ak]=trRar(f.ar);if(f.xk&&TRPAS[f.xk])o[f.xk]=trRar(f.xr);return o}
 function trStart(){if(playing)return;BT=null;HS=null;TB=null;const P=tbParty3();
-  TR={P,c:0,rt:trNow(),stop:0,q:[],an:[],fx:[],nums:[],ov:[],shake:0,phase:'prep',edit:null,end:null,turn:0,home:[[150,244],[58,240],[104,212]],sc:.55,hd:117,E:{x:290,y:236,s:.76},ey:94};
+  TR={P,c:0,rt:trNow(),stop:0,q:[],an:[],fx:[],nums:[],ov:[],shake:0,phase:'prep',edit:null,end:null,turn:0,home:[[150,244],[58,240],[104,212]].slice(0,P.length).map((h,k,a)=>a.length===1?[130,242]:a.length===2?[[146,244],[76,236]][k]:h),sc:.55,hd:117,E:{x:290,y:236,s:.76},ey:94};
   trSetup();$('plA').hidden=true;$('plB').hidden=true;$('ctl').hidden=true;$('result').className='result';$('stage').classList.add('tm');trUI();$('stage').scrollIntoView({behavior:'smooth',block:'start'})}
 function trSetup(){const P=TR.P,avg=P.reduce((a,f)=>a+tbD(f),0)/P.length,ws=[...new Set(P.map(f=>f.wt))],all=Object.keys(TRW).filter(w=>w!=='hammer'&&w!=='penlight');
   const w1=ws[Math.floor(Math.random()*ws.length)],rest=all.filter(w=>w!==w1),w2=rest[Math.floor(Math.random()*rest.length)];
   Object.assign(TR,{role:P.map(tbRole),pas:P.map(trPas),mh:P.map(f=>f.st.hp),mmax:P.map(f=>f.st.hp),en:P.map(()=>0),sp:3,spMax:5,taunt:-1,tauntN:0,nul:P.map(f=>f.ak==='yga'?1:0),atkUp:0,defDown:0,hurt:P.map(()=>-9),dmg:P.map(()=>0),
-    E:Object.assign(TR.E,{hp:Math.round(avg*28),max:Math.round(avg*28),sh:5,shMax:5,weak:[w1,w2],broken:false,hitC:-9,atkC:-9,n:0,rage:false}),avg});
+    E:Object.assign(TR.E,{hp:Math.round(avg*28*Math.max(.5,P.length/3)),max:Math.round(avg*28*Math.max(.5,P.length/3)),sh:5,shMax:5,weak:[w1,w2],broken:false,hitC:-9,atkC:-9,n:0,rage:false}),avg});
   const espd=P.reduce((a,f)=>a+f.st.spd,0)/P.length*1.25;TR.spd=[...P.map(f=>Math.max(10,f.st.spd)),Math.max(10,espd)];TR.next=TR.spd.map(s=>10000/s)}
 function trQuit(){TR=null;$('plA').hidden=false;$('stage').classList.remove('tm');const u=$('tbui');if(u)u.remove();changed()}
 const trAlive=i=>TR.mh[i]>0;
@@ -2548,15 +2554,15 @@ const trAlive=i=>TR.mh[i]>0;
 function trAt(dt,f){TR.q.push({t:TR.c+dt,f})}
 function trTick(){const r=trNow(),dt=Math.min(.05,r-TR.rt);TR.rt=r;if(TR.stop>0){TR.stop-=dt;return}TR.c+=dt;const due=TR.q.filter(x=>x.t<=TR.c);TR.q=TR.q.filter(x=>x.t>TR.c);for(const x of due){try{x.f()}catch(e){console.error(e)}}TR.an=TR.an.filter(a=>TR.c<a.t0+a.dur)}
 /* ---------- turn order ---------- */
-function trOrder(n){const nx=TR.next.slice(),out=[];for(let k=0;k<n;k++){let b=-1;for(let i=0;i<nx.length;i++){if(i<3&&!trAlive(i))continue;if(b<0||nx[i]<nx[b])b=i}if(b<0)break;out.push(b===3?-1:b);nx[b]+=10000/TR.spd[b]}return out}
-function trAdvance(){if(TR.end)return;let b=-1;for(let i=0;i<4;i++){if(i<3&&!trAlive(i))continue;if(b<0||TR.next[i]<TR.next[b])b=i}const t=TR.next[b];for(let i=0;i<4;i++)TR.next[i]-=t;TR.next[b]+=10000/TR.spd[b];
-  if(b===3){TR.cur=-1;TR.phase='enemy';trUI();trAt(.35,trEnemyAct);return}
+function trOrder(n){const nx=TR.next.slice(),out=[];for(let k=0;k<n;k++){let b=-1;for(let i=0;i<nx.length;i++){if(i<TR.P.length&&!trAlive(i))continue;if(b<0||nx[i]<nx[b])b=i}if(b<0)break;out.push(b===TR.P.length?-1:b);nx[b]+=10000/TR.spd[b]}return out}
+function trAdvance(){if(TR.end)return;let b=-1;for(let i=0;i<=TR.P.length;i++){if(i<TR.P.length&&!trAlive(i))continue;if(b<0||TR.next[i]<TR.next[b])b=i}const t=TR.next[b];for(let i=0;i<=TR.P.length;i++)TR.next[i]-=t;TR.next[b]+=10000/TR.spd[b];
+  if(b===TR.P.length){TR.cur=-1;TR.phase='enemy';trUI();trAt(.35,trEnemyAct);return}
   TR.cur=b;TR.turn++;TR.phase='cmd';if(TR.pas[b].tca){trHeal(b,.06*TR.pas[b].tca)}trUI()}
 /* ---------- actions ---------- */
 function trActAnim(i,o){const f=TR.P[i],me=tbMelee(f),n=o.n||1,hitAt=me?.22:.3,gap=o.gap||.12;TR.an.push({i,t0:TR.c,dur:hitAt+(n-1)*gap+.45,me,n,hitAt,gap,col:TRWC[f.wt]||'#fff'});
   for(let k=0;k<n;k++)trAt(hitAt+k*gap,()=>o.hit(k));trAt(hitAt+(n-1)*gap+.5,o.done)}
 function trDamage(i,mul,o){o=o||{};const f=TR.P[i],E=TR.E,crit=o.crit||Math.random()<(.1+(TR.pas[i].ygx?.2*TR.pas[i].ygx:0)),weak=E.weak.includes(f.wt);
-  let d=tbD(f)*mul*(crit?1.5:1)*(TR.atkUp>0?1.3:1)*(TR.defDown>0?1.2:1)*(E.broken?1.5:1)*(weak?1.15:1)*(.92+Math.random()*.16);d=Math.max(1,Math.round(d));
+  let d=tbD(f)*mul*(crit?1.5:1)*(TR.atkUp>0?1.3:1)*(TR.defDown>0?1.2:1)*(E.broken?1.5:1)*(weak?1.15:1)*((JOBW[TR.role[i]]||[]).includes(f.wt)?1.15:1)*(.92+Math.random()*.16);d=Math.max(1,Math.round(d));
   E.hp=Math.max(0,E.hp-d);E.hitC=TR.c;TR.dmg[i]+=d;const big=o.big||crit;
   TR.nums.push({v:String(d),x:E.x-20+(Math.random()-.5)*28,y:E.y-TR.ey-44+(Math.random()-.5)*10,c:TR.c,col:o.big?'#ffe066':crit?'#ffe066':weak?'#ffb0b0':'#ffffff',big});
   TR.fx.push({k:'slash',c:TR.c,x:E.x-14+(Math.random()-.5)*10,y:E.y-TR.ey+(Math.random()-.5)*16,tier:o.big?'UR':f.wr||'R',R:o.big?62:42,kk:o.k||0});TR.fx.push({k:'spark',c:TR.c,x:E.x-14,y:E.y-TR.ey,tier:o.big?'UR':'R'});
@@ -2564,7 +2570,7 @@ function trDamage(i,mul,o){o=o||{};const f=TR.P[i],E=TR.E,crit=o.crit||Math.rand
   const cut=o.shield!=null?o.shield:(weak?1:0);if(cut&&!E.broken){E.sh=Math.max(0,E.sh-cut);TR.fx.push({k:'shield',c:TR.c});if(E.sh<=0)trBreak()}
   if(!E.rage&&E.hp>0&&E.hp<E.max/2){E.rage=true;trAt(.3,()=>trLabel('怒り状態! 大技が早くなる','#ff6a5a',11))}
   if(E.hp<=0)trEnd(true);return d}
-function trBreak(){const E=TR.E;E.broken=true;TR.next[3]+=10000/TR.spd[3]*.5;TR.ov.push({k:'break',rt0:trNow(),d:.9});TR.stop=Math.max(TR.stop,.5);TR.shake=8}
+function trBreak(){const E=TR.E;E.broken=true;TR.next[TR.P.length]+=10000/TR.spd[TR.P.length]*.5;TR.ov.push({k:'break',rt0:trNow(),d:.9});TR.stop=Math.max(TR.stop,.5);TR.shake=8}
 function trLabel(s,col,sz){TR.fx.push({k:'txt',c:TR.c,s,x:190,y:98,col:col||'#ffe066',sz:sz||12,d:1.1})}
 function trHeal(j,v){const h=Math.round(TR.mmax[j]*v);TR.mh[j]=Math.min(TR.mmax[j],TR.mh[j]+h);TR.nums.push({v:'+'+h,x:TR.home[j][0],y:TR.home[j][1]-TR.hd-12,c:TR.c,col:'#a6ffb0'});TR.fx.push({k:'heal',c:TR.c,x:TR.home[j][0],y:TR.home[j][1],seed:j+3,d:.9})}
 function trGain(i,v){TR.en[i]=Math.min(100,TR.en[i]+v*(TR.pas[i].tcx?1+.3*TR.pas[i].tcx:1))}
@@ -2577,21 +2583,21 @@ function trSkill(){if(TR.phase!=='cmd'||TR.sp<1)return;const i=TR.cur,f=TR.P[i],
   else if(ro==='mage')trActAnim(i,{n:3,gap:.16,hit:k=>trDamage(i,.75,{k,shield:w?1:0}),done:trAfter});
   else if(ro==='monk')trActAnim(i,{n:4,gap:.1,hit:k=>trDamage(i,.5,{k,shield:w&&k%2===0?1:0}),done:trAfter});
   else if(ro==='lancer')trActAnim(i,{n:1,hit:k=>{trDamage(i,1.5,{k,shield:w?1:0});TR.defDown=2;trLabel('敵の防御ダウン','#a6e4ff',10)},done:trAfter});
-  else if(ro==='hunter')trActAnim(i,{n:1,hit:k=>{trDamage(i,1.1,{k,shield:w?1:0});TR.next[3]+=10000/TR.spd[3]*.3;trLabel('影縫い 敵の行動が遅れる','#c9a0ff',10)},done:trAfter});
+  else if(ro==='hunter')trActAnim(i,{n:1,hit:k=>{trDamage(i,1.1,{k,shield:w?1:0});TR.next[TR.P.length]+=10000/TR.spd[TR.P.length]*.3;trLabel('影縫い 敵の行動が遅れる','#c9a0ff',10)},done:trAfter});
   else if(ro==='knight'||ro==='guard')buff(()=>{TR.taunt=i;TR.tauntN=2;trLabel(f.name+'が仲間をかばう','#a6e4ff',10)});
-  else if(ro==='priest')buff(()=>{for(let j=0;j<3;j++)if(trAlive(j))trHeal(j,.22)});
-  else if(ro==='cheer')buff(()=>{for(let j=0;j<3;j++)if(trAlive(j)){trGain(j,25);TR.fx.push({k:'gold',c:TR.c,x:TR.home[j][0],y:TR.home[j][1],seed:j+5,d:.9})}TR.atkUp=2});
+  else if(ro==='priest')buff(()=>{for(let j=0;j<TR.P.length;j++)if(trAlive(j))trHeal(j,.22)});
+  else if(ro==='cheer')buff(()=>{for(let j=0;j<TR.P.length;j++)if(trAlive(j)){trGain(j,25);TR.fx.push({k:'gold',c:TR.c,x:TR.home[j][0],y:TR.home[j][1],seed:j+5,d:.9})}TR.atkUp=2});
   else trActAnim(i,{n:1,hit:k=>trDamage(i,1.8,{k,shield:w?1:0}),done:trAfter})}
 function trUlt(i){if(!TR||TR.end||TR.en[i]<100||!trAlive(i)||(TR.phase!=='cmd'&&TR.phase!=='enemyWait'))return;const f=TR.P[i],ro=TR.role[i],back=TR.phase;TR.en[i]=0;TR.phase='anim';TR.ultBy=i;trUI();
   TR.ov.push({k:'cut',f,name:spOf(f.wt,f.wr).sp,C:['#1a0f06','#6a3a10','#ffd36b','#ffffff'],rt0:trNow(),d:.85});TR.stop=Math.max(TR.stop,.82);
   const fin=()=>{TR.ultBy=-1;if(back==='cmd'){TR.phase='cmd';trUI()}else trAfter()};
-  if(ro==='priest'){TR.an.push({i,t0:TR.c,dur:.7,buff:true,col:'#7affb8'});trAt(.3,()=>{for(let j=0;j<3;j++){if(!trAlive(j)){TR.mh[j]=1}trHeal(j,.5)}trLabel('みんな回復!','#a6ffb0',12)});trAt(.9,fin);return}
+  if(ro==='priest'){TR.an.push({i,t0:TR.c,dur:.7,buff:true,col:'#7affb8'});trAt(.3,()=>{for(let j=0;j<TR.P.length;j++){if(!trAlive(j)){TR.mh[j]=1}trHeal(j,.5)}trLabel('みんな回復!','#a6ffb0',12)});trAt(.9,fin);return}
   if(ro==='knight'||ro==='guard'){TR.an.push({i,t0:TR.c,dur:.7,buff:true,col:'#7fc8ff'});trAt(.3,()=>{TR.nul=TR.nul.map((v,j)=>trAlive(j)?1:v);trLabel('みんなに守りの光(次の1回を無効)','#a6e4ff',11)});trAt(.9,fin);return}
   trActAnim(i,{n:1,hit:k=>trDamage(i,4.2,{k,big:true,crit:true,shield:TR.E.weak.includes(f.wt)?3:1}),done:fin})}
 function trAfter(){if(!TR||TR.end)return;TR.atkUp=Math.max(0,TR.atkUp-(TR.cur>=0?0:0));trAdvance()}
 /* ---------- the enemy ---------- */
 function trEnemyAct(){if(!TR||TR.end)return;const E=TR.E;if(E.broken){E.broken=false;E.sh=E.shMax;trLabel('敵が立て直した','#c9d4ff',10)}E.n++;if(TR.defDown>0)TR.defDown--;if(TR.atkUp>0)TR.atkUp--;
-  const big=E.n%(E.rage?2:3)===0,al=[0,1,2].filter(trAlive);E.atkC=TR.c;
+  const big=E.n%(E.rage?2:3)===0,al=TR.P.map((_,k)=>k).filter(trAlive);E.atkC=TR.c;
   if(big){TR.ov.push({k:'cut',f:{boss:RAIDHW[0],name:'かぼちゃ頭の騎士'},name:E.rage?'真夜中の大鎌':'パンプキン・ブレイク',C:['#1a0604','#6a1a08','#ff8a3a','#ffffff'],rt0:trNow(),d:.85,D:-1});TR.stop=Math.max(TR.stop,.82);E.big=true;
     trAt(.45,()=>{for(const j of al){TR.fx.push({k:'slash',c:TR.c,x:TR.home[j][0]+8,y:TR.home[j][1]-TR.hd*.5,tier:'UR',R:44,kk:j});trHurt(j,E.rage?.38:.3)}});trAt(1.2,()=>{E.big=false;trAdvance()});return}
   let j;if(TR.taunt>=0&&trAlive(TR.taunt)){j=TR.taunt;TR.tauntN--;if(TR.tauntN<=0)TR.taunt=-1}else{const w=al.map(i=>['knight','guard'].includes(TR.role[i])?3:1),s=w.reduce((a,v)=>a+v,0);let r=Math.random()*s;j=al[0];for(let k=0;k<al.length;k++){r-=w[k];if(r<0){j=al[k];break}}}
@@ -2606,7 +2612,7 @@ function trPos(i){const [hx,hy]=TR.home[i],act=TR.cur===i&&(TR.phase==='cmd'||TR
   if(!a||a.buff)return {x:fx,y:hy,pose:a?'p5':'p1'};const u=TR.c-a.t0,end=a.hitAt+(a.n-1)*a.gap,tx=TR.E.x-82;
   if(!a.me)return {x:fx,y:hy,pose:u<end+.12?'p6':'p1'};if(u<a.hitAt-.05)return {x:lerp(fx,tx,eio(u/(a.hitAt-.05))),y:hy,pose:'p2'};if(u<end+.14)return {x:tx,y:hy,pose:'p6'};const k=eio(clamp((u-end-.14)/.26,0,1));return {x:lerp(tx,fx,k),y:hy,pose:k<1?'p2':'p1'}}
 function trDraw(){const E=TR.E;
-  /* party */const order=[0,1,2].sort((a,b)=>TR.home[a][1]-TR.home[b][1]);
+  /* party */const order=TR.P.map((_,k)=>k).sort((a,b)=>TR.home[a][1]-TR.home[b][1]);
   for(const i of order){const p=trPos(i),down=!trAlive(i),act=TR.cur===i&&TR.phase==='cmd';tbShadow(p.x,p.y,25);
     if(act){G.save();G.imageSmoothingEnabled=true;const k=.5+.5*Math.sin(TR.c*5);G.strokeStyle=TRWC[TR.P[i].wt]||'#fff';G.globalAlpha=.55+.3*k;G.lineWidth=1.5;G.beginPath();G.ellipse(p.x,p.y+1,22+k*2,6,0,0,Math.PI*2);G.stroke();G.restore()}
     if(TR.taunt===i){G.save();G.imageSmoothingEnabled=true;G.globalAlpha=.6+.2*Math.sin(TR.c*4);G.strokeStyle='#9fd8ff';G.lineWidth=1.2;G.beginPath();G.ellipse(p.x,p.y-TR.hd*.48,TR.hd*.34,TR.hd*.56,0,0,Math.PI*2);G.stroke();G.restore()}
@@ -2685,9 +2691,9 @@ function trPicker(i,s,cfg){const box=mk('div','tbit trpick'),used=new Set([...(i
 let PTSEL=0,PTIT=null;
 const PTST=[['hp','HP'],['atk','攻撃'],['def','防御'],['spd','素早さ'],['mag','魔力']];
 function ptEq(i,cfg){return i?cfg[i-1].eq:S.eq}
-function ptFighter(i,cfg){if(!i){const f=fighterMe();f.name='あなた';return f}return tbFighterOf(cfg[i-1])}
+function ptFighter(i,cfg){if(!i){const f=fighterMe();f.name='あなた';f.job=jbMain()||jbDerive(f);return f}return tbFighterOf(cfg[i-1])}
 function ptStats(i,cfg,swap){const eq=Object.assign({},ptEq(i,cfg),swap||{}),items=['w','a','x'].map(s=>itemOf(eq[s])).filter(Boolean);return statsOf(S.lv,i?(cfg[i-1].al||{hp:0,atk:0,def:0,spd:0,mag:0}):S.al,items).s}
-function ptWhoHas(id,cfg){if(!id)return -1;if(Object.values(S.eq).includes(id))return 0;for(let k=0;k<cfg.length;k++)if(Object.values(cfg[k].eq).includes(id))return k+1;return -1}
+function ptWhoHas(id,cfg){if(!id)return -1;if(Object.values(S.eq).includes(id))return 0;for(let k=0;k<cfg.length;k++)if(cfg[k].made&&Object.values(cfg[k].eq).includes(id))return k+1;return -1}
 function ptName(i,cfg){return i?(cfg[i-1].name||('分身'+(i+1))):'あなた'}
 function ptEquip(i,s,id,cfg){const who=ptWhoHas(id,cfg);if(who>=0&&who!==i){if(who===0)S.eq[s]=0;else cfg[who-1].eq[s]=0}
   if(i===0)S.eq[s]=id;else cfg[i-1].eq[s]=id;tbSaveCfg(cfg);if(i===0||who===0)changed();else refresh()}
@@ -2696,9 +2702,9 @@ function ptRoleAfter(i,cfg,s,id){const it=itemOf(id),f=Object.assign({},ptFighte
 function ptTile(it,cfg,o){o=o||{};const b=mk('button','pttile'+(o.on?' on':'')+(it?'':' empty'));b.type='button';b.style.setProperty('--rc',it?RCOL[it.r]:'#4a4458');const s=o.slot;
   b.innerHTML=(it?iconOf(it):icon(s==='w'?'fist':s,'#4a4458'))+(it&&it.e?'<i class="lv">+'+it.e+'</i>':'')+(it?'<i class="rr">'+rarOf(it).l+'</i>':'');
   if(it){const who=ptWhoHas(it.id,cfg);if(who===PTSEL)b.append(mk('i','eq','E'));else if(who>=0){const fc=headCv(lookHead(ptFighter(who,cfg).look),16);fc.className='who';b.append(fc)}}return b}
-function renderParty(){const box=$('pt');if(!box)return;box.replaceChildren();const cfg=tbCfg();if(PTSEL>2)PTSEL=0;const i=PTSEL,f=ptFighter(i,cfg),ro=tbRole(f),r=TBROLE[ro],st=ptStats(i,cfg);
+function renderParty(){const box=$('pt');if(!box)return;box.replaceChildren();const cfg=tbCfg();if(PTSEL>=jbCount(cfg))PTSEL=0;const i=PTSEL,f=ptFighter(i,cfg),ro=tbRole(f),r=TBROLE[ro],st=ptStats(i,cfg);
   /* the slots on the stage */const ov=$('ptov');if(ov){ov.replaceChildren();const eq=ptEq(i,cfg);for(const [s,t,side] of [['w','武器','l'],['a','防具','r'],['x','アクセ','r']]){const w=mk('div','ptos '+side+' s-'+s);w.append(mk('small',null,t));const tl=ptTile(itemOf(eq[s]),cfg,{slot:s,on:INVF===s});tl.onclick=()=>{INVF=s;PTIT=eq[s]||('none:'+s);renderInv();const sec=$('inv');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'})};w.append(tl);ov.append(w)}}
-  /* who: three round faces, the chosen one larger */const head=mk('div','pthead');const fs=mk('div','ptfaces');for(let k=0;k<3;k++){const fk=ptFighter(k,cfg),rk=TBROLE[tbRole(fk)],b=mk('button','ptface'+(k===i?' on':''));b.type='button';b.style.setProperty('--c',rk[1]);b.title=ptName(k,cfg);b.append(headCv(lookHead(fk.look),40));b.onclick=()=>{PTSEL=k;PTIT=null;renderGear()};fs.append(b)}
+  /* who: three round faces, the chosen one larger */const head=mk('div','pthead');const fs=jbFaces(cfg,k=>{PTSEL=k;PTIT=null;renderGear()},true);
   const who=mk('div','ptwho');who.innerHTML='<b>'+ptName(i,cfg)+'</b><span class="ptjob" style="--c:'+r[1]+'">'+r[0]+'<small>'+r[2]+'</small></span>';head.append(fs,who);box.append(head);
   /* numbers */const sg=mk('div','ptnum');PTST.forEach(([k,n])=>{const d=mk('div');d.innerHTML='<small>'+n+'</small><b>'+st[k]+'</b>';sg.append(d)});const pw=mk('div','pw');pw.innerHTML='<small>戦闘力</small><b>'+power(st)+'</b>';sg.append(pw);box.append(sg);
   /* what this job does */const sk=mk('div','ptskill');sk.innerHTML='<div><i>スキル</i><b>'+TRSK[ro][0]+'</b><span>'+TRSK[ro][1]+'</span></div>'+Object.keys(trPas(f)).map(k=>'<div class="ps"><i>ずっと</i><b>'+TRPAS[k][0]+'</b><span>'+TRPAS[k][1]+'</span></div>').join('');box.append(sk);
@@ -2730,12 +2736,12 @@ let STP=null;/* {i, add:{hp,atk,...}} 決定前の仮の振り分け */
 const ST0=()=>({hp:0,atk:0,def:0,spd:0,mag:0});
 function stAl(i,cfg){if(!i)return S.al;const m=cfg[i-1];if(!m.al)m.al=ST0();return m.al}
 function stUsed(i,cfg){return usedPts(stAl(i,cfg))}
-function renderStat(){const cfg=tbCfg(),i=PTSEL>2?0:PTSEL,n=ptsOf(S.lv);if(!STP||STP.i!==i)STP={i,add:ST0()};
-  for(let k=0;k<3;k++){const al=stAl(k,cfg);if(usedPts(al)>n){const a2=autoAlloc(S.lv,'atk');if(k)cfg[k-1].al=a2;else S.al=a2}}
+function renderStat(){const cfg=tbCfg(),i=(PTSEL>=jbCount(cfg)?0:PTSEL),n=ptsOf(S.lv);PTSEL=i;if(!STP||STP.i!==i)STP={i,add:ST0()};
+  for(let k=0;k<jbCount(cfg);k++){const al=stAl(k,cfg);if(usedPts(al)>n){const a2=autoAlloc(S.lv,'atk');if(k)cfg[k-1].al=a2;else S.al=a2}}
   $('lv').value=S.lv;$('lvv').textContent='Lv '+S.lv;
   const al=stAl(i,cfg),pend=usedPts(STP.add),left=n-usedPts(al)-pend;$('pts').innerHTML='残りポイント <b>'+left+'</b> / '+n+(pend?' <em>(仮に'+pend+'振っています)</em>':'');
   /* who */let wh=$('stwho');if(!wh){wh=mk('div','stwho');wh.id='stwho';$('stl').before(wh)}wh.replaceChildren();const fs=mk('div','ptfaces');
-  for(let k=0;k<3;k++){const fk=ptFighter(k,cfg),rk=TBROLE[tbRole(fk)],b=mk('button','ptface'+(k===i?' on':''));b.type='button';b.style.setProperty('--c',rk[1]);b.append(headCv(lookHead(fk.look),40));const lk=n-stUsed(k,cfg);if(lk>0)b.append(mk('i','stdot',String(lk)));b.onclick=()=>{PTSEL=k;STP=null;refresh()};fs.append(b)}
+  for(let k=0;k<jbCount(cfg);k++){const fk=ptFighter(k,cfg),rk=TBROLE[tbRole(fk)],b=mk('button','ptface'+(k===i?' on':''));b.type='button';b.style.setProperty('--c',rk[1]);b.append(headCv(lookHead(fk.look),40));const lk=n-stUsed(k,cfg);if(lk>0)b.append(mk('i','stdot',String(lk)));b.onclick=()=>{PTSEL=k;STP=null;refresh()};fs.append(b)}
   const f=ptFighter(i,cfg),r=TBROLE[tbRole(f)],who=mk('div','ptwho');who.innerHTML='<b>'+ptName(i,cfg)+'</b><span class="ptjob" style="--c:'+r[1]+'">'+r[0]+'<small>'+r[2]+'</small></span>';wh.append(fs,who);
   /* rows */const items=['w','a','x'].map(s=>itemOf(ptEq(i,cfg)[s])).filter(Boolean),tot={};for(const k in al)tot[k]=al[k]+STP.add[k];const now=statsOf(S.lv,al,items).s,{s,add}=statsOf(S.lv,tot,items);
   const box=$('stl');box.replaceChildren();const maxOf={hp:900,atk:150,def:150,spd:150,mag:150};
@@ -2745,9 +2751,40 @@ function renderStat(){const cfg=tbCfg(),i=PTSEL>2?0:PTSEL,n=ptsOf(S.lv);if(!STP|
     const out=mk('output',null,s[k]+(s[k]>now[k]?'<small class="up">▲'+(s[k]-now[k])+'</small>':add[k]?'<small>+'+add[k]+'</small>':''));row.append(m,p,out);box.append(row)}
   $('auto').disabled=left<=0;$('reset').textContent='決定';$('reset').className='btn main';$('reset').disabled=pend<=0}
 function stCommit(){const cfg=tbCfg(),i=STP.i,al=stAl(i,cfg);for(const k in STP.add)al[k]+=STP.add[k];if(i)tbSaveCfg(cfg);STP={i,add:ST0()};if(i)refresh();else changed()}
-function stAuto(){const cfg=tbCfg(),i=PTSEL>2?0:PTSEL,f=ptFighter(i,cfg),ro=tbRole(f),left=ptsOf(S.lv)-stUsed(i,cfg)-usedPts(STP.add);if(left<=0)return;
+function stAuto(){const cfg=tbCfg(),i=(PTSEL>=jbCount(cfg)?0:PTSEL),f=ptFighter(i,cfg),ro=tbRole(f),left=ptsOf(S.lv)-stUsed(i,cfg)-usedPts(STP.add);if(left<=0)return;
   const W={knight:{hp:4,def:4,atk:2},guard:{hp:4,def:4,atk:2},sword:{atk:5,spd:3,hp:2},lancer:{atk:5,hp:3,def:2},warrior:{atk:5,hp:3,def:2},monk:{atk:4,spd:4,hp:2},mage:{mag:6,spd:2,hp:2},priest:{mag:4,hp:4,def:2},hunter:{atk:4,spd:4,hp:2},cheer:{spd:4,mag:3,hp:3}}[ro]||{atk:4,hp:3,def:3};
   const sum=Object.values(W).reduce((a,v)=>a+v,0);let rest=left;const ks=Object.keys(W);for(const k of ks){const v=Math.floor(left*W[k]/sum);STP.add[k]+=v;rest-=v}for(let j=0;rest>0;j++,rest--)STP.add[ks[j%ks.length]]++;renderStat()}
+
+/* ================= (10/23) 分身を作る・役職は自分で決める =================
+   - 見た目タブの上に丸い顔。空いている枠の「+」で分身を作る(最大3体)。作った分身は名前・髪・目・役職を決める
+   - 役職は自分で選ぶ(装備では変わらない)。役職ごとに得意武器があり、得意武器なら与えるダメージ+15%
+   - まだお試し: 2体目・3体目と、メインの役職はこのスマホに保存 */
+const JOBS=['sword','knight','lancer','mage','priest','hunter','monk','cheer'];
+const JOBW={sword:['sword'],knight:['sword','spear'],lancer:['spear'],mage:['staff'],priest:['staff','penlight'],hunter:['bow'],monk:['fist','hammer'],cheer:['penlight','bow'],guard:['spear'],warrior:['hammer']};
+function jbDerive(f){const sh=f.ak==='sma',soft=f.ak==='tca'||f.ak==='yga';return f.wt==='sword'?(sh?'knight':'sword'):f.wt==='spear'?(sh?'knight':'lancer'):f.wt==='staff'?(soft?'priest':'mage'):f.wt==='bow'?'hunter':f.wt==='penlight'?'cheer':'monk'}
+function jbMain(){let j=null;try{j=localStorage.getItem('bunJob0')}catch(e){}return JOBS.includes(j)?j:null}
+function jbSetMain(j){try{localStorage.setItem('bunJob0',j)}catch(e){}}
+function jbCount(cfg){let n=1;for(const m of cfg){if(m.made)n++;else break}return n}
+const jbGood=(f)=>(JOBW[tbRole(f)]||[]).includes(f.wt);
+function jbMake(cfg){const k=jbCount(cfg)-1;if(k>=2)return;const m=cfg[k];m.made=true;m.name=m.name&&!/^分身\d$/.test(m.name)?m.name:'分身'+(k+2);if(!m.job)m.job=jbDerive(tbFighterOf(m));tbSaveCfg(cfg);PTSEL=k+1;STP=null;refresh()}
+/* the round faces with a "+" for the next empty slot (used by 見た目・ステータス・編成) */
+function jbFaces(cfg,onPick,plus){const fs=mk('div','ptfaces'),n=jbCount(cfg);for(let k=0;k<n;k++){const fk=ptFighter(k,cfg),rk=TBROLE[tbRole(fk)],b=mk('button','ptface'+(k===PTSEL?' on':''));b.type='button';b.style.setProperty('--c',rk[1]);b.append(headCv(lookHead(fk.look),40));b.onclick=()=>onPick(k);fs.append(b)}
+  if(plus&&n<3){const b=mk('button','ptface plus');b.type='button';b.innerHTML='<span>+</span>';b.title='分身を作る';b.onclick=()=>jbMake(cfg);fs.append(b)}return fs}
+/* the 見た目 tab */
+function renderLook(){const cfg=tbCfg(),n=jbCount(cfg);if(PTSEL>=n)PTSEL=0;const i=PTSEL;
+  let top=$('lkwho');if(!top){top=mk('div','sec lkwho');top.id='lkwho';$('p-look').prepend(top)}top.replaceChildren();
+  const h=mk('div','stwho');h.append(jbFaces(cfg,k=>{PTSEL=k;STP=null;refresh()},true));const f=ptFighter(i,cfg),r=TBROLE[tbRole(f)],who=mk('div','ptwho');who.innerHTML='<b>'+ptName(i,cfg)+'</b><span class="ptjob" style="--c:'+r[1]+'">'+r[0]+'<small>'+r[2]+'</small></span>';h.append(who);top.append(h);
+  if(n<3)top.append(mk('p','note','「+」で分身を作れます(あと'+(3-n)+'体)。作った分身は編成で装備し、3体で戦えます。'));
+  const mainSecs=[...$('p-look').querySelectorAll(':scope>.sec:not(.lkwho):not(.lksub):not(.lkjob)')];
+  let sub=$('lksub');if(!sub){sub=mk('div','lksub');sub.id='lksub';top.after(sub)}sub.replaceChildren();
+  if(i===0){mainSecs.forEach(s=>s.style.display='');renderLook0()}
+  else{mainSecs.forEach(s=>s.style.display='none');const m=cfg[i-1];
+    const nm=mk('div','sec');nm.innerHTML='<h2>名前<small>8文字まで</small></h2>';const inp=document.createElement('input');inp.className='lkname';inp.maxLength=8;inp.value=m.name||'';inp.oninput=()=>{m.name=(inp.value.trim()||('分身'+(i+1))).slice(0,8);tbSaveCfg(cfg)};inp.onchange=()=>setTimeout(refresh,0);nm.append(inp);sub.append(nm);
+    for(const [key,obj,t] of [['hc',HAIRC,'髪の色'],['ec',EYEC,'目の色']]){const s=mk('div','sec');s.append(mk('h2',null,t));const w=mk('div','seg');for(const k in obj){const b=mk('button','sw'+(m.look[key]===k?' on':''));b.type='button';const ic=mk('i');ic.style.background=swatch(obj[k]||(key==='hc'?HAIRSW[k]:EYESW[k]));b.append(ic,k);b.onclick=()=>{m.look[key]=k;tbSaveCfg(cfg);refresh()};w.append(b)}s.append(w);sub.append(s)}}
+  /* job */let jb=$('lkjob');if(!jb){jb=mk('div','sec lkjob');jb.id='lkjob';$('looknote').before(jb)}jb.replaceChildren();jb.append(mk('h2',null,'役職<small>得意武器なら与えるダメージ+15%</small>'));
+  const cur=tbRole(f),g=mk('div','jbgrid');for(const j of JOBS){const R=TBROLE[j],b=mk('button','jbc'+(cur===j?' on':''));b.type='button';b.style.setProperty('--c',R[1]);
+    b.innerHTML='<b>'+R[0]+'</b><small>'+R[2]+'</small><span class="jw">'+JOBW[j].map(w=>icon(w)).join('')+'</span><em>'+TRSK[j][0]+'</em>';b.onclick=()=>{if(i===0)jbSetMain(j);else{cfg[i-1].job=j;tbSaveCfg(cfg)}refresh()};g.append(b)}jb.append(g);
+  const sk=TRSK[cur];jb.append(mk('p','note','スキル「'+sk[0]+'」'+sk[1]+(jbGood(f)?'。いまの武器は得意武器です。':'。いまの武器は得意武器ではありません(編成で変えられます)。')))}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
