@@ -461,6 +461,28 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---- 仲間株 (10/23): one trade per document. Only your own trades; never changed afterwards. Points are worked out from these in the app ----
+    match /kabu/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.p == myPid()
+        && request.resource.data.keys().hasOnly(['p', 's', 'q', 'x', 't'])
+        && request.resource.data.s is string && request.resource.data.s.size() > 0 && request.resource.data.s.size() <= 64
+        && request.resource.data.q is int && request.resource.data.q != 0 && request.resource.data.q >= -10 && request.resource.data.q <= 10
+        && request.resource.data.x is int && request.resource.data.x >= 0 && request.resource.data.x <= 100000
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+    // ---- 仲間株: each player's gacha luck per day and the days they opened the app (the stock price uses both). Written by that player's app ----
+    match /luck/{pid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && myPid() == pid
+        && request.resource.data.keys().hasOnly(['lk', 'li', 'u'])
+        && request.resource.data.lk is map && request.resource.data.lk.size() <= 20
+        && request.resource.data.get('li', {}) is map && request.resource.data.get('li', {}).size() <= 45
+        && request.resource.data.u is int;
+    }
+
     match /inv/{pid} {
       allow read: if isAdmin() || (signedIn() && myPid() == pid);
       allow create: if isAdmin() || (signedIn() && myPid() == pid
