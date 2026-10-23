@@ -389,6 +389,8 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .mtm{display:none!important}
 .trrec{display:grid;gap:4px;margin:8px 0 4px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);font:500 11px/1.4 var(--jp);color:var(--mut)}.trrec>span{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.trrec b{font:800 15px/1 var(--jp);color:#fff;font-variant-numeric:tabular-nums}.trrec small{margin-left:4px}.trrec.ok>span:last-of-type b{color:#8ff0a4}.trrec.mid>span:last-of-type b{color:#ffd36b}.trrec.low>span:last-of-type b{color:#ff8a8a}.trrec p{margin:2px 0 0;color:#ffd9a0}
 /* (10/23) quest areas and events */
+.qtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:0 0 12px;padding:4px;border-radius:14px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}.qtab{position:relative;height:38px;border:0;border-radius:10px;background:none;color:var(--mut);font:800 13px/1 var(--jp)}.qtab.on{background:linear-gradient(180deg,#f6e3a6,#e2bf72);color:#2a2010;box-shadow:0 2px 0 #8a6a2a}.qtab i{display:inline-block;margin-left:5px;vertical-align:1px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#ff5a4a;color:#fff;font:800 10px/16px var(--jp);font-style:normal}
+.qev.pv{--ec:#3a2a12}
 .qh{margin:4px 2px 8px;font:800 13px/1.2 var(--jp);color:#fff;display:flex;align-items:baseline;gap:8px}.qh small{font:500 11px/1 var(--jp);color:var(--mut)}
 .qevs,.qas,.qss{display:grid;gap:8px;margin-bottom:14px}
 .qev{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:8px 12px 8px 8px;border:0;border-radius:14px;text-align:left;color:#fff;background:linear-gradient(90deg,var(--ec,#2a2236),#1c1826 75%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
@@ -2947,12 +2949,14 @@ function startBattle(qo,opt){const cpu=!!(qo&&(qo.stage||qo.xq||qo.raid||qo.sa))
 /* difficulty check: the old auto battle against the new turn battle with the same avatar and enemy */
 function trCompare(qo,n,party,tune){let o=0,w=0,om=0,nm=0,sc=qo&&qo.raid?TRRB:1;const A0=party?party[0]:fighterMe();if(tune){const {B,sop}=trMakeFoe(qo,null,A0);sc=trTune(A0,B,party||[A0],sop)}for(let k=0;k<n;k++){const A=A0,{B,sop}=trMakeFoe(qo,null,A);const R=simulate(A,B,(k*7919+101)&0xffffff,sop);if(R.win===0)o++;om+=Math.max(0,R.hs[1]-Math.max(0,R.hp[1]))/R.max[1];const {B:B2,sop:s2}=trMakeFoe(qo,null,A);const r=trSimRun({B:B2,party:party||[A],sop:s2,sc});if(r.win)w++;nm+=r.dealt/r.max}return {old:o/n,neu:w/n,sc,oldDealt:om/n,neuDealt:nm/n}}
 /* ================= (10/23) クエストの選び方(パズドラ・モンストのように、エリア一覧 → ステージ一覧)と、イベント欄 =================
-   - 上に「イベント」: いま開いているイベント(ハロウィンのボス・夜の大ボス・週末レイド・スコアアタック・経験値クエスト)を帯で並べる。押すとその画面へ
+   - 上にタブ「イベント・ノーマル・毎日」(モンスト・パズドラのように切り替え。最後に開いたタブを覚える)
+   - イベント: いま開いているイベント(ハロウィンのボス・夜の大ボス・週末レイド・スコアアタック)を帯で並べる。押すとその画面へ
+   - 毎日: 経験値クエストと仲間と戦う
    - 下に「エリア」: 10ステージで1エリア。帯に背景の絵、右にエリアのボスの顔。制覇・いまここ・まだ(前のボスを倒すと出る)
    - エリアを押すとステージ一覧(新しい順)。押すとその行が開いて推奨戦力・ご褒美・挑戦ボタン
    - 遊べるのは いまのステージ と 一番新しいクリア済み(前と同じ決まり) */
 const QAREA=['ひだまりの草原','風の丘','光の森','たそがれの丘','夕焼けの峠','赤い荒れ野','月夜の平原','星降る谷','夜霧の古戦場','最果ての夜'];
-let QA=null,QSEL=null;/* QA: いま開いているエリア(0から)。null ならエリア一覧 */
+let QA=null,QSEL=null,QTAB=null;try{QTAB=localStorage.getItem('bunQTab')}catch(e){}if(!['ev','nm','dy'].includes(QTAB))QTAB='nm';/* QA: いま開いているエリア(0から)。null ならエリア一覧 */
 const qaTheme=a=>a<3?'day':a<6?'dusk':'night';
 const qaOf=s=>Math.floor((s-1)/10);
 function qsIcon(b,sz){const c=document.createElement('canvas');c.width=c.height=sz;const pic=()=>{const V=bossV(b),I=bossIc(b);if(!V)return false;const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(V.c,I[0],I[1],I[2],I[2],0,0,sz,sz);return true};if(!pic())bossImg(b).addEventListener('load',pic,{once:true});return c}
@@ -2963,15 +2967,18 @@ function qsEvents(){const out=[],now=Date.now();
     const n=HOST.night&&HOST.night();if(n&&(n.open||n.soon)){out.push({cls:'nt',art:qsIcon(RAIDNIGHT,48),t:'ハロウィンナイト限定 '+RAIDNIGHT.n,s:n.open?(n.dead?'討伐成功!':'みんなで削る ・ あと'+n.left+'回'):'10/31 17:00に出現',tag:n.open?'開催中':'もうすぐ',left:n.open?'残り '+fmtLeft(n.end-now):'あと '+fmtLeft(n.start-now),go:()=>subSet('boss')})}
     if(!H&&HOST.raid){const r=HOST.raid();if(r&&r.open){const b=raidBoss(r);out.push({cls:'rd',art:qsIcon(b,48),t:'週末レイド '+b.n,s:r.dead?'討伐成功!':'みんなで削る ・ 今日あと'+r.left+'回',tag:'開催中',left:'残り '+fmtLeft(r.end-now),go:()=>subSet('boss')})}}
     if(HOST.sa){const r=HOST.sa();if(r&&(r.open||r.closed)){const op=SA_OPP[((r.wk%4)+4)%4];out.push({cls:'sa',art:headCv(lookHead(saOpp(r).look),48),t:'スコアアタック',s:'今週の挑戦者 '+op[2]+(r.open?' ・ 今日あと'+r.left+'回':''),tag:r.open?'開催中':'結果発表',left:r.open?'締め切りまで '+fmtLeft(r.end-now):'次は月曜朝5時から',go:()=>subSet('sa')})}}}
-  {const inf=xqInfo(),left=Math.max(0,inf.day-inf.today);out.push({cls:'xq',art:headCv(lookHead(xqOpp(1,4).look),48),t:'経験値クエスト',s:'5人と続けて戦う ・ 勝つとアカウントの経験値',tag:'毎日',left:HOST?'今日あと'+left+'回':'',go:()=>{const x=$('xq');if(x)x.closest('.sec').scrollIntoView({behavior:'smooth',block:'start'})}})}
   return out}
 function qsEvRow(e){const b=mk('button','qev '+e.cls);b.type='button';const a=mk('span','qart');a.append(e.art);
   const tx=mk('span','qtx');tx.innerHTML='<b>'+e.t+'</b><small>'+e.s+'</small>';const r=mk('span','qrt');r.innerHTML='<em>'+e.tag+'</em><small>'+e.left+'</small>';b.append(a,tx,r);b.onclick=e.go;return b}
+/* the daily things: the exp quest (its own section below, shown on this tab) and battles with friends */
+function qsDaily(){const out=[];if(HOST&&HOST.left){const n=HOST.left();out.push({cls:'pv',art:headCv(lookHead(myLook()),48),t:'仲間と戦う',s:'仲間の分身と3体で戦う ・ 朝5時に戻る',tag:'毎日',left:'今日あと'+n+'回',go:()=>subSet('pvp')})}return out}
+function qsTabs(box,evN){const t=mk('div','qtabs');t.setAttribute('role','tablist');for(const [k,n] of [['ev','イベント'],['nm','ノーマル'],['dy','毎日']]){const b=mk('button','qtab'+(QTAB===k?' on':''));b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',QTAB===k?'true':'false');b.innerHTML=n+(k==='ev'&&evN?'<i>'+evN+'</i>':'');b.onclick=()=>{QTAB=k;QA=null;try{localStorage.setItem('bunQTab',k)}catch(e){}renderQuest()};t.append(b)}box.append(t)}
 function renderQuest(){const box=$('quest');if(!box)return;box.replaceChildren();const cur=Math.min(QMAX,S.qs+1),ca=qaOf(cur),nA=Math.ceil(QMAX/10);
-  if(QA!=null&&QA>ca)QA=null;
+  if(QA!=null&&QA>ca)QA=null;const ev=qsEvents(),xs=$('xq')&&$('xq').closest('.sec');qsTabs(box,ev.filter(e=>e.tag==='開催中').length);if(xs)xs.hidden=QTAB!=='dy';
+  if(QTAB==='ev'){const l=mk('div','qevs');ev.forEach(e=>l.append(qsEvRow(e)));if(!ev.length)l.append(mk('p','note','いま開いているイベントはありません。'));box.append(l);return}
+  if(QTAB==='dy'){const d=qsDaily();if(d.length){const l=mk('div','qevs');d.forEach(e=>l.append(qsEvRow(e)));box.append(l)}return}
   if(QA==null){
-    const ev=qsEvents();if(ev.length){box.append(mk('h3','qh','イベント'));const l=mk('div','qevs');ev.forEach(e=>l.append(qsEvRow(e)));box.append(l)}
-    const h=mk('h3','qh');h.innerHTML='エリア<small>クリア '+S.qs+' / '+QMAX+'</small>';box.append(h);
+    const h=mk('h3','qh');h.innerHTML='クリア '+S.qs+' / '+QMAX;box.append(h);
     const l=mk('div','qas');for(let a=0;a<nA;a++){const s0=a*10+1,s1=Math.min(QMAX,a*10+10),done=Math.max(0,Math.min(10,S.qs-a*10)),lock=a>ca,all=done>=s1-s0+1,th=qaTheme(a);
       const b=mk('button','qa'+(lock?' lock':'')+(all?' done':'')+(a===ca?' cur':''));b.type='button';const bg=BQIMG[th]&&BQIMG[th].f;if(bg)b.style.backgroundImage='url('+bg+')';
       const tx=mk('span','qtx');tx.innerHTML='<b>エリア'+(a+1)+' '+QAREA[a]+'</b><small>'+(lock?'エリア'+a+'のボスを倒すと出る':'ステージ'+s0+'〜'+s1+' ・ クリア '+done+'/'+(s1-s0+1))+'</small><span class="qbar2"><i style="width:'+(done/(s1-s0+1)*100)+'%"></i></span>';b.append(tx);
