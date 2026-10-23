@@ -417,6 +417,22 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .xqr .qtx b{color:var(--xc,#fff)}.xqr.t1{--xc:#8fe39a}.xqr.t2{--xc:#8cc6ff}.xqr.t3{--xc:#cfa3ff}.xqr.t4{--xc:#ff8a80}.xqr .qrt{display:grid;justify-items:end;gap:4px}
 .xqxp{background:rgba(255,211,107,.14)!important;color:#ffd36b!important}.xqn2,.xqlk{font:500 10px/1.2 var(--jp);color:var(--mut)}
 .sp[data-s=quest] .sec>h2{font:800 13px/1.2 var(--jp)}
+/* (10/23) new controls: face cards */
+.tprow{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:8px;margin:8px 0 6px}
+.tpc{position:relative;display:grid;justify-items:center;gap:4px;padding:10px 4px 8px;border-radius:16px;background:linear-gradient(180deg,#2a2236,#1a1522);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.1),0 3px 0 #0c0912;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .06s ease-out,box-shadow .06s,opacity .15s;cursor:pointer}
+.tpc.press{transform:translateY(3px) scale(.94);box-shadow:inset 0 0 0 2px var(--c),0 0 0 #0c0912}
+.tpc.off{opacity:.45}.tpc.down{opacity:.3;filter:grayscale(1)}
+.tpc.gold{opacity:1;box-shadow:inset 0 0 0 2px #ffd36b,0 0 18px rgba(255,200,80,.55),0 3px 0 #6a4a10;animation:tpgold 1.2s ease-in-out infinite}
+@keyframes tpgold{50%{box-shadow:inset 0 0 0 2px #fff3c4,0 0 26px rgba(255,214,90,.8),0 3px 0 #6a4a10}}
+@media (prefers-reduced-motion:reduce){.tpc.gold{animation:none}}
+.tpc.hold{box-shadow:inset 0 0 0 2.5px #ffe066,0 0 20px rgba(255,224,102,.6)}
+.tpf{position:relative;width:60px;height:60px;display:grid;place-items:center}.tpf canvas{width:52px;height:52px;border-radius:50%;image-rendering:pixelated;background:#0b0712}
+.tpring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(#ffd36b var(--e),rgba(255,255,255,.12) 0);-webkit-mask:radial-gradient(circle,transparent 27px,#000 28px);mask:radial-gradient(circle,transparent 27px,#000 28px)}
+.tpn{font:800 11.5px/1.1 var(--jp);color:#fff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tphp{width:88%}.tpst{min-height:12px;font:700 9.5px/1.2 var(--jp);font-style:normal;color:#ffd36b}.tpc.done .tpst{color:var(--mut)}
+.tplv{position:absolute;top:6px;right:6px;font:900 12px/1 var(--jp);color:#2a2010;background:#ffe066;border-radius:7px;padding:3px 5px}.tplv:empty{display:none}
+.tphint{margin:4px 0 0;text-align:center;font:600 11px/1.4 var(--jp);color:var(--mut)}.tphint.warn{color:#ff9a8a}
+.tppips i.use{background:#ffe066!important;box-shadow:0 0 8px #ffe066}
 </style>
 
 <div class="wrap">
@@ -2691,8 +2707,8 @@ function trFx(){TR.fx=TR.fx.filter(f=>TR.c-f.c<(f.d||.45));for(const f of TR.fx)
 const TRFACE={};function trFace(i){const k=i<0?'E'+(TR.Bf.name||'')+JSON.stringify(TR.Bf.look||{}):i+JSON.stringify(TR.P[i].look);if(TRFACE[k])return TRFACE[k];const c=document.createElement('canvas');c.width=c.height=30;const g=c.getContext('2d');g.imageSmoothingEnabled=false;
   try{if(i<0){const B2=TR.Bf;if(B2.boss){const V=bossV(B2.boss),I=bossIc(B2.boss);if(V)g.drawImage(V.c,I[0],I[1],I[2],I[2],0,0,30,30)}else lookHead(B2.look)(g,30)}else lookHead(TR.P[i].look)(g,30)}catch(e){}return TRFACE[k]=c}
 function trHud(){const E=TR.E;
-  /* turn order: the next actors as faces, the current one bigger */const ord=TR.cur!=null&&TR.phase!=='prep'?[TR.cur,...trOrder(5)]:trOrder(6);G.save();G.fillStyle='rgba(10,8,16,.6)';G.fillRect(4,4,16+ord.length*17,26);G.restore();
-  let en=TR.cur===-1?-1:0;ord.forEach((who,k)=>{const s=k?14:20,x=8+(k?10+k*17:0),y=k?10:6;if(who<0)en++;const big=who<0&&(E.n+en)%(E.rage?2:3)===0;G.save();G.fillStyle=who<0?(big?'#ff3a3a':'#8a2a2a'):(TRWC[TR.P[who].wt]||'#fff');G.fillRect(x-1,y-1,s+2,s+2);G.imageSmoothingEnabled=false;G.drawImage(trFace(who),x,y,s,s);if(who>=0&&!trAlive(who)){G.globalAlpha=.6;G.fillStyle='#000';G.fillRect(x,y,s,s)}G.restore();if(big)tbTxt('!',x+s-2,y+2,8,'#ffe066')});
+  if(TR.tpm)tpHud();else{/* turn order: the next actors as faces, the current one bigger */const ord=TR.cur!=null&&TR.phase!=='prep'?[TR.cur,...trOrder(5)]:trOrder(6);G.save();G.fillStyle='rgba(10,8,16,.6)';G.fillRect(4,4,16+ord.length*17,26);G.restore();
+  let en=TR.cur===-1?-1:0;ord.forEach((who,k)=>{const s=k?14:20,x=8+(k?10+k*17:0),y=k?10:6;if(who<0)en++;const big=who<0&&(E.n+en)%(E.rage?2:3)===0;G.save();G.fillStyle=who<0?(big?'#ff3a3a':'#8a2a2a'):(TRWC[TR.P[who].wt]||'#fff');G.fillRect(x-1,y-1,s+2,s+2);G.imageSmoothingEnabled=false;G.drawImage(trFace(who),x,y,s,s);if(who>=0&&!trAlive(who)){G.globalAlpha=.6;G.fillStyle='#000';G.fillRect(x,y,s,s)}G.restore();if(big)tbTxt('!',x+s-2,y+2,8,'#ffe066')});}
   
   /* enemy: HP, shield, weaknesses */G.save();G.fillStyle='rgba(10,8,16,.72)';G.fillRect(216,6,158,9);G.fillStyle='#3a1a24';G.fillRect(218,8,154,5);G.fillStyle='#ff5a6a';G.fillRect(218,8,Math.round(154*E.hp/E.max),5);G.restore();
   tbTxt(E.name+(TR.turnsMax?'  あと'+Math.max(0,Math.ceil(TR.turnsMax/2)-E.n)+'回':''),372,22,7,'#ffe9c0','right');
@@ -2950,7 +2966,7 @@ function startBattle(qo,opt){const cpu=!!(qo&&(qo.stage||qo.xq||qo.raid||qo.sa))
   const ctx={quest:qo&&qo.stage?qo:null,xq:qo&&qo.xq?qo:null,raid:qo&&qo.raid?qo.raid:null,sa:qo&&qo.sa?qo.sa:null,seed,opp:cpu?null:OPP[S.opp],opt:opt&&opt.hp0!=null?{hp0:opt.hp0}:{}};
   /* fixed difficulty: the enemy gets stronger by a set rate (and by how strong the party is compared to the main avatar); the boss has its own rate */
   const sc=qo&&qo.raid?TRRB:1;
-  trStart({B,party,sop,ctx,th,title,sc})}
+  trStart({B,party,sop,ctx,th,title,sc,pm:TPON})}
 /* difficulty check: the old auto battle against the new turn battle with the same avatar and enemy */
 function trCompare(qo,n,party,tune){let o=0,w=0,om=0,nm=0,sc=qo&&qo.raid?TRRB:1;const A0=party?party[0]:fighterMe();if(tune){const {B,sop}=trMakeFoe(qo,null,A0);sc=trTune(A0,B,party||[A0],sop)}for(let k=0;k<n;k++){const A=A0,{B,sop}=trMakeFoe(qo,null,A);const R=simulate(A,B,(k*7919+101)&0xffffff,sop);if(R.win===0)o++;om+=Math.max(0,R.hs[1]-Math.max(0,R.hp[1]))/R.max[1];const {B:B2,sop:s2}=trMakeFoe(qo,null,A);const r=trSimRun({B:B2,party:party||[A],sop:s2,sc});if(r.win)w++;nm+=r.dealt/r.max}return {old:o/n,neu:w/n,sc,oldDealt:om/n,neuDealt:nm/n}}
 /* ================= (10/23) クエストの選び方(パズドラ・モンストのように、エリア一覧 → ステージ一覧)と、イベント欄 =================
@@ -3026,6 +3042,117 @@ function renderXq(){const box=$('xq');if(!box)return;box.replaceChildren();const
 
 /* (10/23) after the gear tab is drawn, the 必殺技 card is rewritten for the turn battle */
 if(typeof renderGear==='function'){const _rg=renderGear;renderGear=function(){_rg.apply(this,arguments);try{trSkillCard()}catch(e){console.error(e)}}}
+
+/* ================= (10/23) 効果音: 素材ファイルなし、Web Audio でその場で作る =================
+   - 最初は消音。バトルの「音」ボタンでオン(この端末に覚える: localStorage bunSfx)
+   - iPhone の Web アプリは振動が使えないので、手ごたえは音と画面で出す */
+const SFX=(()=>{let ctx=null,out=null,on=false,noiseBuf=null;try{on=localStorage.getItem('bunSfx')==='1'}catch(e){}
+  const ok=()=>{if(!on)return false;try{if(!ctx){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ctx=new AC();out=ctx.createGain();out.gain.value=.55;
+      const comp=ctx.createDynamicsCompressor();out.connect(comp);comp.connect(ctx.destination);
+      noiseBuf=ctx.createBuffer(1,ctx.sampleRate*.6,ctx.sampleRate);const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+    if(ctx.state==='suspended')ctx.resume();return true}catch(e){return false}};
+  /* one tone: type, start freq → end freq, length, volume */
+  const tone=(type,f0,f1,len,vol,delay)=>{const t=ctx.currentTime+(delay||0),o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+len);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+len);o.connect(g);g.connect(out);o.start(t);o.stop(t+len+.02)};
+  /* a burst of noise through a filter */
+  const noise=(ftype,f0,f1,len,vol,delay,q)=>{const t=ctx.currentTime+(delay||0),s=ctx.createBufferSource(),fl=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=noiseBuf;fl.type=ftype;fl.Q.value=q||1;fl.frequency.setValueAtTime(f0,t);if(f1!==f0)fl.frequency.exponentialRampToValueAtTime(f1,t+len);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.004);g.gain.exponentialRampToValueAtTime(.0001,t+len);s.connect(fl);fl.connect(g);g.connect(out);s.start(t);s.stop(t+len+.02)};
+  const PENTA=[0,2,4,7,9,12,14,16,19,21,24];const note=n=>523.25*Math.pow(2,n/12);
+  const S={
+    get on(){return on},set(v){on=!!v;try{localStorage.setItem('bunSfx',on?'1':'0')}catch(e){}if(on)ok()},
+    tap(){if(!ok())return;tone('triangle',1500,900,.035,.18)},
+    swish(){if(!ok())return;noise('highpass',1200,5000,.16,.22)},
+    hit(big){if(!ok())return;noise('bandpass',1800,700,.07,.5,0,1.2);tone('sine',150,55,.09,.6);if(big){tone('square',1900,1600,.16,.08,.01);tone('sine',2600,2500,.22,.07,.02)}},
+    miss(){if(!ok())return;noise('highpass',3000,6000,.08,.12)},
+    chain(n){if(!ok())return;const k=PENTA[Math.min(PENTA.length-1,Math.max(0,n-2))];tone('triangle',note(k),note(k),.12,.16);tone('sine',note(k+12),note(k+12),.1,.06,.01)},
+    charge(lv){if(!ok())return;tone('sawtooth',300+lv*120,520+lv*200,.14,.07);tone('sine',700+lv*220,700+lv*220,.09,.1,.05)},
+    brk(){if(!ok())return;noise('highpass',2500,1200,.3,.45);[1800,2400,3150,4200].forEach((f,k)=>tone('sine',f,f*.98,.5-k*.06,.09,k*.035));tone('sine',90,40,.35,.6)},
+    ult(){if(!ok())return;noise('lowpass',300,5000,.5,.3);tone('sine',90,38,.7,.7,.42);noise('bandpass',900,200,.5,.35,.42)},
+    hurt(){if(!ok())return;tone('sine',110,50,.14,.5);noise('lowpass',900,300,.1,.3)},
+    guard(){if(!ok())return;tone('square',800,800,.05,.08);tone('sine',1200,1150,.12,.1,.02)},
+    no(){if(!ok())return;tone('square',220,180,.08,.07)},
+    turn(){if(!ok())return;tone('triangle',note(7),note(7),.08,.12);tone('triangle',note(12),note(12),.12,.12,.07)},
+    win(){if(!ok())return;[0,4,7,12].forEach((n,k)=>tone('triangle',note(n),note(n),.22,.16,k*.09));tone('sine',note(24),note(24),.4,.06,.36)},
+    lose(){if(!ok())return;[7,4,0].forEach((n,k)=>tone('triangle',note(n-12),note(n-12),.26,.14,k*.14))}};
+  return S})();
+
+/* ================= (10/23) 新しい操作(試し): 顔を直接さわって動かす =================
+   何を押すと何が起きるか: 自分の番に、下の顔を
+     タップ = 通常攻撃 / 上にはらう = スキル(推しポイント1) / 長押し = ためて攻撃(推しポイント1〜3、段ごとに音) /
+     金色に光った顔を長押し = 必殺(行動の回数を使わない)
+   気持ちいいところ: 4人を続けてタップすると「連携」がつながってダメージが上がる。弱点でブレイクすると敵は次の番に動けず、
+     そのあいだにためた攻撃を叩き込める(オクトパストラベラーのブレイク→ブーストを参考、ブレイブフロンティアの顔タップとチェインを参考)
+   - TR.tpm が立っているバトルだけこの動きになる(ほかは今までどおり)。決まった速さ順ではなく、自分の番に全員が1回ずつ動き、そのあと敵 */
+const TPCH=.6;/* 連携がつながる時間(バトルの時計で) */
+let TPON=false;try{TPON=localStorage.getItem('bunTp')==='1'}catch(e){}
+const tpMul=()=>1+Math.min(.5,.06*Math.max(0,(TR.chain||0)-1));
+/* ---- the engine hooks (only when TR.tpm) ---- */
+{const _adv=trAdvance;trAdvance=function(){if(TR&&TR.o&&TR.o.pm&&!TR.sim)TR.tpm=1;if(TR&&TR.tpm)return tpRound();return _adv.apply(this,arguments)}}
+{const _af=trAfter;trAfter=function(){if(TR&&TR.tpm){TR.busy=Math.max(0,(TR.busy||0)-1);tpCheck();return}return _af.apply(this,arguments)}}
+{const _ui=trUI;trUI=function(){if(TR&&TR.tpm&&!TR.end&&!TR.sim)return tpSync();return _ui.apply(this,arguments)}}
+{const _am=trAutoMove;trAutoMove=function(){if(TR&&TR.tpm)return tpAuto();return _am.apply(this,arguments)}}
+{const _d=trDamage;trDamage=function(i,mul,o){if(!TR||!TR.tpm)return _d.apply(this,arguments);
+  if(TR.c-(TR.lastHit==null?-9:TR.lastHit)<=TPCH)TR.chain=(TR.chain||0)+1;else TR.chain=1;TR.lastHit=TR.c;TR.chainAt=TR.c;
+  const n0=TR.nums.length,d=_d.call(this,i,mul*tpMul(),o),nn=TR.nums.length>n0?TR.nums[TR.nums.length-1]:null;
+  if(d>0){SFX.hit(nn&&nn.big);if(TR.chain>=2)SFX.chain(TR.chain)}else{SFX.miss();TR.chain=0}return d}}
+{const _b=trBreak;trBreak=function(){_b.apply(this,arguments);if(TR&&TR.tpm){TR.brSkip=true;SFX.brk()}}}
+{const _h=trHurt;trHurt=function(j,h,tank){const before=TR&&TR.mh?TR.mh[j]:0;_h.apply(this,arguments);if(TR&&TR.tpm&&!TR.sim&&TR.mh[j]<before)SFX.hurt()}}
+{const _u=trUlt;trUlt=function(i){const can=TR&&TR.en[i]>=100;_u.apply(this,arguments);if(TR&&TR.tpm&&can&&TR.ultBy===i)SFX.ult()}}
+{const _e=trEnd;trEnd=function(win,timeUp){const first=TR&&!TR.end;_e.apply(this,arguments);if(TR&&TR.tpm&&first&&!TR.sim){if(win){SFX.win();const k=TR.speed;TR.speed=.25;TR.shake=Math.max(TR.shake,6);setTimeout(()=>{if(TR)TR.speed=k},650)}else SFX.lose()}}}
+/* a new round: everyone can act once */
+function tpRound(){if(TR.end)return;TR.acted=TR.P.map(()=>0);TR.busy=0;TR.chain=0;TR.lastHit=null;TR.round=(TR.round||0)+1;TR.cur=-1;TR.phase='cmd';
+  for(let b=0;b<TR.P.length;b++){if(!trAlive(b))continue;if(TR.pas[b].tca)trHeal(b,.06*TR.pas[b].tca);if(TR.ab[b]&&TR.P[b].wt==='penlight')trHeal(b,TR.ab[b].val)}
+  if(TR.round>1)SFX.turn();tpSync()}
+/* everyone done (and nothing still moving) → the enemy, or a free round if it is broken */
+function tpCheck(){if(!TR||TR.end||TR.phase==='enemy')return;if((TR.busy||0)>0||TR.ultBy>=0)return;if(!TR.P.every((_,i)=>!trAlive(i)||TR.acted[i]))return;
+  TR.phase='wait';tpSync();trAt(.3,()=>{if(!TR||TR.end)return;if(TR.brSkip){TR.brSkip=false;trLabel('ブレイク中! 敵は動けない','#ffe066',12);trAt(.5,tpRound);return}TR.phase='enemy';TR.cur=-1;tpSync();trAt(.3,trEnemyAct)})}
+const tpCan=i=>TR&&TR.tpm&&!TR.end&&TR.phase==='cmd'&&!(TR.ultBy>=0)&&trAlive(i);
+function tpStartAct(i){TR.acted[i]=1;TR.busy=(TR.busy||0)+1;TR.cur=i;TR.turn++;TR.phase='cmd'}
+function tpBasic(i){if(!tpCan(i)||TR.acted[i])return;tpStartAct(i);trBasic();TR.phase='cmd';tpSync()}
+function tpSkill(i){if(!tpCan(i)||TR.acted[i])return;if(TR.sp<1){SFX.no();tpHint('推しポイントが足りない(通常攻撃でたまる)');return}SFX.swish();tpStartAct(i);trSkill();TR.phase='cmd';tpSync()}
+function tpBoost(i,lv){if(!tpCan(i)||TR.acted[i])return;lv=Math.max(1,Math.min(3,lv,TR.sp));const f=TR.P[i],w=TR.E.weak.includes(f.wt);tpStartAct(i);TR.sp-=lv;trGain(i,20+10*lv);
+  if(!TR.sim)TR.fx.push({k:'txt',c:TR.c,s:'ため'+lv,x:TR.home[i][0],y:TR.home[i][1]-TR.hd-24,col:'#ffe066',sz:10+lv,d:.9});
+  trActAnim(i,{n:1+lv,gap:.1,hit:k=>trDamage(i,.9+.05*lv,{k,shield:w?1:0,crit:lv>=3&&k===lv}),done:trAfter});tpSync()}
+function tpUlt(i){if(!tpCan(i)||TR.en[i]<100)return;trUlt(i);tpSync()}
+/* the auto player: one member at a time, a little apart so the chain still links */
+function tpAuto(){if(!TR||TR.phase!=='cmd'||TR.end||TR.ultBy>=0)return;const u=TR.P.map((_,i)=>i).find(i=>trAlive(i)&&TR.en[i]>=100);if(u!=null){tpUlt(u);return}
+  const i=TR.P.map((_,k)=>k).find(k=>trAlive(k)&&!TR.acted[k]);if(i==null)return;const ro=TR.role[i],low=TR.mh.some((v,j)=>v>0&&v<TR.mmax[j]*.5);
+  if(TR.sp>=1&&((ro==='priest'&&low)||(ro==='cheer'&&TR.atkUp<=0)||((ro==='knight'||ro==='guard')&&TR.taunt<0)||(!['priest','cheer','knight','guard'].includes(ro)&&!TR.E.broken)))tpSkill(i);
+  else if(TR.E.broken&&TR.sp>=2)tpBoost(i,Math.min(3,TR.sp));else tpBasic(i)}
+/* ---- the top-left of the stage: whose turn, and the chain ---- */
+function tpHud(){const my=TR.phase==='cmd'||TR.phase==='wait';G.save();G.fillStyle='rgba(10,8,16,.66)';G.fillRect(4,4,74,18);G.restore();tbTxt(my?'あなたの番':TR.phase==='enemy'?'敵の番':'',41,13.5,8,my?'#ffe9a8':'#ff9a8a');
+  if((TR.chain||0)>=2&&TR.c-TR.chainAt<1.1){const v=TR.c-TR.chainAt,k=v<.08?1.35-.35*(v/.08):1,a=1-clamp((v-.8)/.3,0,1);tbTxt(TR.chain+' 連携',112,58,18*k,'#ffe066',null,a);tbTxt('ダメージ ×'+tpMul().toFixed(2),112,74,8,'#fff3c4',null,a)}}
+/* ---- the panel: built once per battle and updated in place, so a finger on a face is never cut off ---- */
+let TPHOLD=null;
+function tpHint(s){const h=document.querySelector('#tbui .tphint');if(h){h.textContent=s;h.classList.add('warn');clearTimeout(tpHint.t);tpHint.t=setTimeout(()=>{h.classList.remove('warn');tpSync()},1400)}}
+function tpBuild(){let u=$('tbui');if(!u){u=document.createElement('div');u.id='tbui';$('stage').after(u)}u.replaceChildren();u.className='tbui trui tpui';TR.tpBuilt=1;
+  const top=mk('div','tbtop');top.append(mk('b',null,TR.o.title||'ターン制'));const tg=mk('div','trtg');
+  const so=mk('button','tbq tpsnd');so.type='button';so.onclick=()=>{SFX.set(!SFX.on);SFX.tap();tpSync()};
+  const au=mk('button','tbq tpau');au.type='button';au.onclick=()=>{TR.auto=TRAUTO=!TR.auto;try{localStorage.setItem('trAuto',TRAUTO?'1':'0')}catch(e){}tpSync()};
+  const spb=mk('button','tbq tpsp');spb.type='button';spb.onclick=()=>{TR.speed=TRSPD=TR.speed>1?1:2;try{localStorage.setItem('trSpd',String(TRSPD))}catch(e){}tpSync()};tg.append(so,au,spb);
+  if(!TR.o.ctx){const q=mk('button','tbq','やめる');q.type='button';q.onclick=trQuit;tg.append(q)}top.append(tg);u.append(top);
+  u.append(mk('div','trsp tppips'));
+  const row=mk('div','tprow');row.style.setProperty('--n',TR.P.length);TR.P.forEach((f,i)=>{const c=mk('div','tpc');c.dataset.i=i;c.style.setProperty('--c',TRWC[f.wt]||'#fff');c.setAttribute('role','button');c.setAttribute('aria-label',f.name);
+    const fc=mk('div','tpf');fc.append(tbFace(f,52));const ring=mk('i','tpring');fc.append(ring);c.append(fc,mk('b','tpn',f.name),Object.assign(mk('div','tbhp tphp'),{innerHTML:'<i></i><span></span>'}),mk('em','tpst'),mk('span','tplv'));tpBind(c,i);row.append(c)});u.append(row);
+  u.append(mk('p','tphint'));tpSync()}
+function tpSync(){if(!TR||!TR.tpm||TR.sim)return;if(TR.end){trUI.call(null);return}if(!TR.tpBuilt||!document.querySelector('#tbui.tpui'))return tpBuild();const u=$('tbui');
+  u.querySelector('.tpsnd').textContent=SFX.on?'音 オン':'音 オフ';u.querySelector('.tpsnd').classList.toggle('on',SFX.on);u.querySelector('.tpau').textContent='オート';u.querySelector('.tpau').classList.toggle('on',!!TR.auto);u.querySelector('.tpsp').textContent=TR.speed>1?'×2':'×1';u.querySelector('.tpsp').classList.toggle('on',TR.speed>1);
+  u.querySelector('.tppips').innerHTML='<span>推しポイント</span>'+Array.from({length:TR.spMax},(_,k)=>'<i class="'+(k<TR.sp?'on':'')+(TPHOLD&&k<TR.sp&&k>=TR.sp-TPHOLD.lv?' use':'')+'"></i>').join('');
+  const my=TR.phase==='cmd';u.querySelectorAll('.tpc').forEach(c=>{const i=+c.dataset.i,al=trAlive(i),done=TR.acted&&TR.acted[i],gold=al&&TR.en[i]>=100;
+    c.classList.toggle('down',!al);c.classList.toggle('done',!!done&&!gold);c.classList.toggle('gold',gold);c.classList.toggle('off',!my||!al||(done&&!gold));
+    c.querySelector('.tpring').style.setProperty('--e',TR.en[i]+'%');c.querySelector('.tphp i').style.width=(100*TR.mh[i]/TR.mmax[i]).toFixed(0)+'%';c.querySelector('.tphp span').textContent=TR.mh[i];
+    c.querySelector('.tpst').textContent=!al?'戦闘不能':gold?'長押しで必殺':done?'済':'';const hv=TPHOLD&&TPHOLD.i===i&&TPHOLD.lv>0;c.classList.toggle('hold',!!hv);c.querySelector('.tplv').textContent=hv?'ため'+TPHOLD.lv:''});
+  const h=u.querySelector('.tphint');if(!h.classList.contains('warn'))h.textContent=TR.phase==='enemy'?E2name()+'の番':TR.phase==='wait'?'':'タップ 攻撃 ・ 上にはらう スキル(●1) ・ 長押し ためる(●1〜3)';if(my&&!(TR.ultBy>=0))tpCheck()}
+/* one face: tap / flick up / hold */
+function tpBind(c,i){let st=null;const stop=()=>{if(st&&st.tm)clearInterval(st.tm);c.classList.remove('press')};
+  c.addEventListener('pointerdown',e=>{if(!tpCan(i)||(TR.acted[i]&&TR.en[i]<100))return;e.preventDefault();try{c.setPointerCapture(e.pointerId)}catch(_){}c.classList.add('press');SFX.tap();
+    st={x:e.clientX,y:e.clientY,t:performance.now(),lv:0,done:false,gold:TR.en[i]>=100};
+    st.tm=setInterval(()=>{if(!st||st.done||!TR)return;const h=(performance.now()-st.t)/1000;if(h<.28)return;
+      if(st.gold){st.done=true;stop();tpUlt(i);return}if(TR.acted[i])return;const lv=Math.min(3,1+Math.floor((h-.28)/.32),TR.sp);
+      if(lv<=0){if(!st.warned){st.warned=1;SFX.no();tpHint('推しポイントが足りない(通常攻撃でたまる)')}return}if(lv>st.lv){st.lv=lv;TPHOLD={i,lv};SFX.charge(lv);tpSync()}},30)});
+  c.addEventListener('pointermove',e=>{if(!st||st.done)return;if(st.y-e.clientY>26&&Math.abs(e.clientX-st.x)<70&&st.lv===0){st.done=true;stop();tpSkill(i)}});
+  c.addEventListener('pointerup',()=>{if(!st)return;const s=st;stop();st=null;TPHOLD=null;if(s.done){tpSync();return}if(s.lv>0)tpBoost(i,s.lv);else if(s.gold&&TR.acted[i])tpSync();else tpBasic(i)});
+  c.addEventListener('pointercancel',()=>{stop();st=null;TPHOLD=null;tpSync()})}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
