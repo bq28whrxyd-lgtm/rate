@@ -657,16 +657,16 @@ const bladeRamp=f=>!f?null:f.wt==='sword'?(f.wk==='wood'?WOOD:(BLADE[f.wr]||BLAD
 function recolorBlade(px,idx,ramp){if(!ramp||!idx)return;const R=ramp.map(hex);
   for(const i of idx){const o=i*4,l=(px[o]+px[o+1]+px[o+2])/3/255;if(l<.27)continue;const t=clamp((l-.3)/.62,0,1);const [a,b]=t<.5?[R[0],R[1]]:[R[1],R[2]];const u=t<.5?t/.5:(t-.5)/.5;for(let k=0;k<3;k++)px[o+k]=Math.round(a[k]+(b[k]-a[k])*u)}}
 const CACHE={};
-function sprite(l,p,f){let sk=sprKey(l,p);if(!RAW[sk]){const b0=String(sk).replace(/p\w*$/,'');sk=RAW[b0]?b0:'m0'}/* (10/16) a picture that did not load falls back to the plain one */const br=SP[sk]&&SP[sk].blade?bladeRamp(f):null,key=sk+'|'+l.hc+'|'+l.ec+'|'+(br?br.join():'')+'|'+(f?f.wt+f.wr:'');if(CACHE[key])return CACHE[key];const d=SP[sk],B=RAW[sk];if(!B)return null;
+function sprite(l,p,f){let sk=sprKey(l,p);if(!RAW[sk]){const b0=String(sk).replace(/p\w*$/,'');sk=RAW[b0]?b0:'m0'}/* (10/16) a picture that did not load falls back to the plain one */const br=SP[sk]&&SP[sk].blade?bladeRamp(f):null,key=sk+'|'+l.hc+'|'+l.ec+'|'+(br?br.join():'')+'|'+(f?f.wt+f.wr:'')+bqGearKey(f);if(CACHE[key])return CACHE[key];const d=SP[sk],B=RAW[sk];if(!B)return null;
   const mkc=img=>{const c=document.createElement('canvas');c.width=d.w;c.height=d.h;c.getContext('2d').putImageData(img,0,0);return c};
-  const img=new ImageData(new Uint8ClampedArray(B.data),d.w,d.h);recolor(img.data,d.hair,HAIRC[l.hc],.06,.6);recolor(img.data,d.eye,EYEC[l.ec],.1,.7);recolorBlade(img.data,d.blade,br);if(f&&d.bow&&f.wt==='bow'){for(const i of d.blade)img.data[i*4+3]=0}else if(f&&d.hilt){if(SPD(f)){recolorBlade(img.data,d.hilt,SPEARSH[f.wr]);for(const i of d.blade)img.data[i*4+3]=0}else if(SWD(f)){recolorBlade(img.data,d.hilt,GRIPC[f.wr]);for(const i of d.blade)img.data[i*4+3]=0}else if(f.wt==='staff'&&SHAFT[f.wr]){recolorBlade(img.data,d.hilt,SHAFT[f.wr]);for(const i of d.blade)img.data[i*4+3]=0}else if(f.wr==='KMR')recolorBlade(img.data,d.hilt,['#000000','#0d0c11','#2a2731'])}if(br===BLADE.KMR&&d.blade&&!SWD(f)){const set=new Set(d.blade);for(const i of d.blade){const up=i-d.w,o=i*4;if(!set.has(up)&&B.data[up*4+3]===0&&B.data[o]+B.data[o+1]+B.data[o+2]>330){img.data[o]=44;img.data[o+1]=41;img.data[o+2]=51}}}
+  const img=new ImageData(new Uint8ClampedArray(B.data),d.w,d.h);recolor(img.data,d.hair,HAIRC[l.hc],.06,.6);recolor(img.data,d.eye,EYEC[l.ec],.1,.7);recolorBlade(img.data,d.blade,br);bqGearPx(img.data,sk,f);if(f&&d.bow&&f.wt==='bow'){for(const i of d.blade)img.data[i*4+3]=0}else if(f&&d.hilt){if(SPD(f)){recolorBlade(img.data,d.hilt,SPEARSH[f.wr]);for(const i of d.blade)img.data[i*4+3]=0}else if(SWD(f)){recolorBlade(img.data,d.hilt,GRIPC[f.wr]);for(const i of d.blade)img.data[i*4+3]=0}else if(f.wt==='staff'&&SHAFT[f.wr]){recolorBlade(img.data,d.hilt,SHAFT[f.wr]);for(const i of d.blade)img.data[i*4+3]=0}else if(f.wr==='KMR')recolorBlade(img.data,d.hilt,['#000000','#0d0c11','#2a2731'])}if(br===BLADE.KMR&&d.blade&&!SWD(f)){const set=new Set(d.blade);for(const i of d.blade){const up=i-d.w,o=i*4;if(!set.has(up)&&B.data[up*4+3]===0&&B.data[o]+B.data[o+1]+B.data[o+2]>330){img.data[o]=44;img.data[o+1]=41;img.data[o+2]=51}}}
   const base=mkc(img);
   /* blink: eyes become skin, with a thin dark line */
   const bl=new ImageData(new Uint8ClampedArray(img.data),d.w,d.h);let ys=[];for(const i of d.eye){const o=i*4;bl.data[o]=232;bl.data[o+1]=176;bl.data[o+2]=150;ys.push(Math.floor(i/d.w))}
   if(ys.length){const mid=Math.round(ys.reduce((a,b)=>a+b,0)/ys.length);for(const i of d.eye){const x=i%d.w,o=(mid*d.w+x)*4;bl.data[o]=40;bl.data[o+1]=22;bl.data[o+2]=28}}
   const blink=mkc(bl);
   const white=document.createElement('canvas');white.width=d.w;white.height=d.h;{const g=white.getContext('2d');g.drawImage(base,0,0);g.globalCompositeOperation='source-in';g.fillStyle='#fff';g.fillRect(0,0,d.w,d.h)}
-  const s={base,blink,white,d,cx:d.cx!=null?d.cx:(d.x0+d.x1)/2,waist:Math.round(d.top+(d.foot-d.top)*.5)};return CACHE[key]=s}
+  const s={base,blink,white,d,sk,cx:d.cx!=null?d.cx:(d.x0+d.x1)/2,waist:Math.round(d.top+(d.foot-d.top)*.5)};return CACHE[key]=s}
 
 /* ---------- the field (drawn once, pixel by pixel) ---------- */
 const W=380,H=250,GY=236,SC=3;/* drawn at 3x so things can move by a third of an art pixel (smooth), while the art itself stays crisp */
@@ -679,6 +679,198 @@ function field(){const c=document.createElement('canvas');c.width=W;c.height=H;c
   for(let tx=-10;tx<W+20;tx+=26){const ty=46+Math.floor(r()*12)-6;for(let y=0;y<ty+32;y++)for(let x=tx-18;x<tx+19;x++){if(x<0||x>=W)continue;if(((x-tx)/18)**2+((y-ty)/28)**2<=1){const sh=(x-tx)+(y-ty)*.6;const col=sh>6?[26,58,34]:sh>-6?[34,74,42]:[50,98,56];const o=(y*W+x)*4;p[o]=col[0];p[o+1]=col[1];p[o+2]=col[2]}}}
   g.putImageData(im,0,0);return c}
 let FIELD=null;
+/* ================= (10/23) 分身のクオリティ: ステージの背景・防具とアクセの見た目・当たった感 ================= */
+/* ---------- the stage: soft far layer (sky, mountains, sun/moon), crisp middle (trees / wall), crisp ground, soft foreground grass.
+   Like HD-2D: the pixel fighters stay sharp, the far and the near layers are blurred. Layers slide a little with the fight (parallax) ---------- */
+const BQW=W+48,BQO=24,BQHZ=104;
+const BQS={
+  day:{sky:['#4c9fe6','#8ccaf6','#d4edfb'],mt:['#7fa3c6','#9dbbd6'],hz:'#cfe5f3',
+    tr:[[22,58,36],[34,84,46],[58,116,60],[96,150,78]],g:[[58,108,56],[66,120,60]],gh:[[92,140,90],[160,196,180]],path:[[142,114,78],[116,92,62],[166,138,98]],
+    fl:[[250,226,130],[255,176,196],[240,244,255],[160,206,255]],sh:'#0c2410',dust:['#e9dcb8','#c8b48a'],mote:['#fff6c0','#ffffff'],cl:['#ffffff','#d6e8f6'],ray:'255,246,210',rayA:.2,vig:'8,24,20',vigA:.42},
+  dusk:{sky:['#2b1d4d','#a33f62','#ff9e62'],mt:['#5b3261','#7a4064'],hz:'#ffb98a',
+    tr:[[22,18,34],[34,26,46],[56,40,60],[255,150,90]],g:[[84,88,52],[94,98,58]],gh:[[112,100,60],[214,150,96]],path:[[156,106,76],[124,82,60],[198,140,96]],
+    fl:[[255,214,120],[255,150,120],[255,236,200],[240,170,200]],sh:'#24120e',dust:['#f2c79a','#c08a62'],mote:['#ffd28a','#ff9a5a'],cl:['#ffc2a0','#c8607a'],ray:'255,190,130',rayA:.24,vig:'40,10,30',vigA:.5},
+  night:{sky:['#05061a','#121540','#2c2858'],mt:['#1a1838','#232048'],hz:'#3a3270',
+    tr:[[10,10,22],[16,16,32],[28,26,48],[120,110,190]],g:[[30,44,58],[34,50,66]],gh:[[44,62,80],[96,116,150]],path:[[66,66,88],[52,52,72],[86,86,112]],
+    fl:[[200,190,255],[150,170,255],[255,200,120],[180,220,255]],sh:'#04050c',dust:['#9aa0c8','#6a6e98'],mote:['#d8ff7a','#fff3a0'],cl:['#2a2c5c','#1a1a40'],ray:'190,200,255',rayA:.14,vig:'4,4,18',vigA:.6},
+  arena:{sky:['#5aa8e8','#9ad0f4','#e4f2fb'],mt:['#9fb8cc','#b8cad8'],hz:'#e6d8bc',
+    tr:[[86,64,44],[120,92,62],[160,128,90],[196,166,120]],g:[[196,164,112],[204,172,120]],gh:[[176,144,98],[226,200,150]],path:[[0,0,0],[0,0,0],[0,0,0]],
+    fl:[],sh:'#4a3418',dust:['#f0dcb0','#c8a670'],mote:['#fff2d0','#ffe2a0'],cl:['#ffffff','#d6e8f6'],ray:'255,240,200',rayA:.22,vig:'40,24,8',vigA:.42}};
+const bqHex=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+const bqMix=(a,b,t)=>[0,1,2].map(k=>Math.round(a[k]+(b[k]-a[k])*t));
+const BQB4=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+function bqNoise(seed,n){const r=rngOf(seed),v=[];n=n||128;for(let i=0;i<n;i++)v.push(r());return x=>{const i=Math.floor(x),f=x-i,a=v[((i%n)+n)%n],b=v[(((i+1)%n)+n)%n],s=f*f*(3-2*f);return a+(b-a)*s}}
+const bqHash=(x,y,s)=>{let h=(x*374761393+y*668265263+(s||0)*982451653)|0;h=Math.imul(h^h>>>13,1274126177);return ((h^h>>>16)>>>0)/4294967296};
+/* a small box blur (alpha too), used once per stage on the low-resolution soft layers */
+function bqBlur(c,r,pass){const g=c.getContext('2d'),w=c.width,h=c.height,im=g.getImageData(0,0,w,h),d=im.data,t=new Float32Array(d.length);
+  for(let p=0;p<(pass||2);p++){for(let y=0;y<h;y++)for(let x=0;x<w;x++){const s=[0,0,0,0];let n=0;for(let k=-r;k<=r;k++){const xx=Math.min(w-1,Math.max(0,x+k)),o=(y*w+xx)*4;s[0]+=d[o]*d[o+3];s[1]+=d[o+1]*d[o+3];s[2]+=d[o+2]*d[o+3];s[3]+=d[o+3];n++}const o=(y*w+x)*4;t[o+3]=s[3]/n;const a=s[3]||1;t[o]=s[0]/a;t[o+1]=s[1]/a;t[o+2]=s[2]/a}
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){const s=[0,0,0,0];let n=0;for(let k=-r;k<=r;k++){const yy=Math.min(h-1,Math.max(0,y+k)),o=(yy*w+x)*4;s[0]+=t[o]*t[o+3];s[1]+=t[o+1]*t[o+3];s[2]+=t[o+2]*t[o+3];s[3]+=t[o+3];n++}const o=(y*w+x)*4;d[o+3]=s[3]/n;const a=s[3]||1;d[o]=s[0]/a;d[o+1]=s[1]/a;d[o+2]=s[2]/a}}
+  g.putImageData(im,0,0);return c}
+function bqCanvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c}
+/* far: sky, sun or moon, mountains / castle. Drawn at art pixels, blurred, then shown smoothly scaled (soft) */
+function bqFar(th){const P=BQS[th],w=BQW,h=BQHZ+12,c=bqCanvas(w,h),g=c.getContext('2d'),im=g.createImageData(w,h),d=im.data,S=P.sky.map(bqHex),hz=bqHex(P.hz);
+  const put=(x,y,col,a)=>{if(x<0||y<0||x>=w||y>=h)return;const o=(y*w+x)*4,k=a==null?1:a;d[o]=Math.round(d[o]+(col[0]-d[o])*k);d[o+1]=Math.round(d[o+1]+(col[1]-d[o+1])*k);d[o+2]=Math.round(d[o+2]+(col[2]-d[o+2])*k);d[o+3]=255};
+  for(let y=0;y<h;y++){const t=y/(h-1),col=t<.55?bqMix(S[0],S[1],t/.55):bqMix(S[1],S[2],(t-.55)/.45);for(let x=0;x<w;x++)put(x,y,col)}
+  const r=rngOf(th.length*31+7);
+  if(th==='night'){for(let n=0;n<140;n++){const x=Math.floor(r()*w),y=Math.floor(r()*(h*.7)),b=r();put(x,y,[255,255,255],b*.9+.1);if(b>.85){put(x+1,y,[200,210,255],.5);put(x-1,y,[200,210,255],.5);put(x,y+1,[200,210,255],.5);put(x,y-1,[200,210,255],.5)}}
+    const mx=86,my=30,R=13;for(let y=-R*3;y<=R*3;y++)for(let x=-R*3;x<=R*3;x++){const dd=Math.hypot(x,y);if(dd<=R){const cr=bqHash(Math.floor((x+20)/4),Math.floor((y+20)/4),3)>.8;put(mx+x,my+y,cr?[214,208,184]:dd>R-1.5?[236,230,200]:[250,246,224])}else put(mx+x,my+y,[180,170,255],Math.max(0,.35*(1-(dd-R)/(R*2))))}}
+  if(th==='dusk'){const sx=316,sy=BQHZ-4,R=17;for(let y=-R*4;y<=R*2;y++)for(let x=-R*4;x<=R*4;x++){const dd=Math.hypot(x,y);if(dd<=R)put(sx+x,sy+y,dd<R-3?[255,240,196]:[255,214,150]);else put(sx+x,sy+y,[255,170,110],Math.max(0,.55*(1-(dd-R)/(R*3))))}}
+  if(th==='day'){const sx=40,sy=-6;for(let y=0;y<40;y++)for(let x=0;x<80;x++){const dd=Math.hypot(x-sx,y-sy);put(x,y,[255,252,232],Math.max(0,.6*(1-dd/48)))}}
+  /* two mountain ridges (the far one paler) */
+  const ridge=(seed,base,amp,fq,col,hazeK)=>{const n1=bqNoise(seed),n2=bqNoise(seed+5);for(let x=0;x<w;x++){const top=Math.round(base-amp*(n1(x/fq)*.75+n2(x/(fq/3.3))*.25));for(let y=Math.max(0,top);y<h;y++){const k=(y-top)/(h-top+1);put(x,y,bqMix(col,hz,hazeK*(1-k*.6)))}}};
+  if(th!=='arena'){const M=P.mt.map(bqHex);ridge(th.length*3+1,BQHZ-18,34,46,M[1],.5);ridge(th.length*3+9,BQHZ-4,26,34,M[0],.25)}
+  if(th==='night'){/* a castle on the far hill, its windows lit */const cx=268,by=BQHZ-14,col=[22,20,44];const rect=(x0,y0,x1,y1)=>{for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)put(x,y,col)};
+    rect(cx-34,by-20,cx+34,by+8);rect(cx-44,by-34,cx-30,by+8);rect(cx+30,by-38,cx+44,by+8);rect(cx-8,by-50,cx+8,by+8);
+    for(const [x0,y0,x1] of [[cx-44,by-34,cx-30],[cx+30,by-38,cx+44],[cx-8,by-50,cx+8]])for(let k=0;k<=x1-x0;k++){const hh=Math.round((x1-x0)/2-Math.abs(k-(x1-x0)/2));for(let y=y0-hh;y<y0;y++)put(x0+k,y,col)}
+    for(let k=cx-34;k<=cx+34;k+=4)put(k,by-21,col),put(k+1,by-21,col);
+    for(const [x,y] of [[cx-38,by-24],[cx+36,by-28],[cx-2,by-40],[cx+2,by-40],[cx-20,by-10],[cx+14,by-10],[cx-2,by-20]]){put(x,y,[255,190,90]);put(x,y+1,[255,160,70])}}
+  if(th==='arena'){/* only a strip of sky shows above the wall: a few far towers */const col=[150,170,190];for(const tx of [60,180,330])for(let y=4;y<26;y++)for(let x=tx-6;x<=tx+6;x++)put(x,y,col,.6)}
+  g.putImageData(im,0,0);return bqBlur(c,1,1)}
+/* clouds: a few soft puffs that drift */
+function bqClouds(th){const P=BQS[th];if(th==='night'||th==='arena')return [];const out=[],r=rngOf(th.length*13+3);
+  for(let n=0;n<4;n++){const w=40+Math.floor(r()*36),h=16+Math.floor(r()*8),c=bqCanvas(w,h),g=c.getContext('2d'),im=g.createImageData(w,h),d=im.data,A=bqHex(P.cl[0]),B=bqHex(P.cl[1]);
+    const blobs=[];for(let k=0;k<5;k++)blobs.push([6+r()*(w-12),h*.55+r()*h*.25,4+r()*(h*.42)]);
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){let v=0;for(const [bx,by,br] of blobs)v=Math.max(v,1-Math.hypot(x-bx,(y-by)*1.3)/br);if(v<=0||y>h*.82)continue;const col=bqMix(A,B,clamp((y-h*.35)/(h*.45),0,1));const o=(y*w+x)*4;d[o]=col[0];d[o+1]=col[1];d[o+2]=col[2];d[o+3]=Math.round(255*Math.min(1,v*3)*.92)}
+    g.putImageData(im,0,0);out.push({c:bqBlur(c,1,1),x:r()*BQW,y:6+r()*(BQHZ*.45),sp:1.2+r()*1.8})}return out}
+/* middle: the tree line (or hills, graves, the arena wall), crisp pixels */
+function bqMid(th){const P=BQS[th],w=BQW,h=BQHZ+16,c=bqCanvas(w,h),g=c.getContext('2d'),im=g.createImageData(w,h),d=im.data,TR=P.tr,hz=bqHex(P.hz);
+  const put=(x,y,col)=>{if(x<0||y<0||x>=w||y>=h)return;const o=(y*w+x)*4;d[o]=col[0];d[o+1]=col[1];d[o+2]=col[2];d[o+3]=255};
+  const r=rngOf(th.length*7+11);
+  if(th==='arena'){/* the colosseum wall: crenellations, an upper tier of arches with the crowd, banners and torches below */
+    const st=[[150,120,86],[164,132,94],[140,110,78],[172,142,104]],mo=[104,80,56];
+    for(let y=8;y<h;y++)for(let x=0;x<w;x++){const row=Math.floor((y-8)/7),bx=Math.floor((x+(row%2)*8)/16);let col=st[Math.floor(bqHash(bx,row,4)*4)];if((y-8)%7===6||(x+(row%2)*8)%16===15)col=mo;const k=clamp((y-8)/(h-8),0,1);col=bqMix(col,[90,70,50],k*.35);put(x,y,col)}
+    for(let x=0;x<w;x++)if(Math.floor(x/8)%2===0)for(let y=2;y<8;y++)put(x,y,bqMix(st[1],[200,180,150],.2));
+    for(let ax=10;ax<w;ax+=28){for(let y=12;y<40;y++)for(let x=ax;x<ax+20;x++){const cx=ax+10,top=12+Math.round(10-Math.sqrt(Math.max(0,100-(x+.5-cx)**2)));if(y<top)continue;put(x,y,[40,30,42])}
+      for(let k=0;k<6;k++){const hx=ax+2+Math.floor(r()*16),hy=26+Math.floor(r()*8),hc=[[230,180,140],[200,140,100],[120,80,60]][Math.floor(r()*3)],cc=[[200,60,60],[60,110,200],[230,200,80],[90,170,90],[240,240,240]][Math.floor(r()*5)];
+        for(let y=-2;y<=2;y++)for(let x=-2;x<=2;x++)if(x*x+y*y<=4)put(hx+x,hy+y,hc);for(let y=3;y<9;y++)for(let x=-3;x<=3;x++)put(hx+x,hy+y,cc)}}
+    for(let y=40;y<43;y++)for(let x=0;x<w;x++)put(x,y,[110,84,60]);
+    for(let bx=24;bx<w;bx+=56){for(let y=44;y<84;y++)for(let x=bx-7;x<=bx+7;x++){const tail=y>78&&Math.abs(x-bx)<(y-78);if(tail)continue;const edge=Math.abs(x-bx)>=6;put(x,y,edge?[232,184,74]:y<47?[232,184,74]:[168,34,44]);}
+      for(let y=56;y<68;y++)for(let x=bx-4;x<=bx+4;x++)if(Math.abs(x-bx)+Math.abs(y-62)<=4)put(x,y,[244,206,110])}
+    for(let tx=52;tx<w;tx+=56){for(let y=58;y<66;y++)put(tx,y,[70,50,36]),put(tx+1,y,[90,66,46]);for(let x=tx-2;x<=tx+3;x++)put(x,57,[110,84,60])}
+    for(let y=h-10;y<h;y++)for(let x=0;x<w;x++)put(x,y,bqMix([120,94,66],[92,70,50],(y-(h-10))/10));
+  }else{
+    /* two rows of trees: the back row hazier */
+    for(const [row,y0,haze,step] of [[0,BQHZ-34,.45,22],[1,BQHZ-20,0,26]]){for(let tx=-14+row*11;tx<w+20;tx+=step+Math.floor(r()*6)){const ty=y0+Math.floor(r()*10)-5,rx=13+r()*7,ry=20+r()*10,dead=th==='night'&&r()<.35;
+      if(dead){/* a bare tree */let x=tx,y=BQHZ+4;for(let k=0;k<ry*1.8;k++){put(Math.round(x),Math.round(y),TR[0]);put(Math.round(x)+1,Math.round(y),TR[0]);y-=1;x+=(bqHash(k,tx,1)-.5)*.8;if(k%7===6){let bx=x,by=y;const s=bqHash(k,tx,2)<.5?-1:1;for(let m=0;m<8;m++){bx+=s;by-=.6;put(Math.round(bx),Math.round(by),TR[0])}}}continue}
+      for(let y=Math.floor(ty-ry-2);y<BQHZ+8;y++)for(let x=Math.floor(tx-rx-2);x<tx+rx+2;x++){const e=((x-tx)/rx)**2+((y-ty)/ry)**2,jag=(bqHash(x>>1,y>>1,row+3)-.5)*.35;const trunk=Math.abs(x-tx)<2&&y>ty;if(e>1+jag&&!trunk)continue;
+        const sh=(x-tx)/rx+(y-ty)/ry*.7;let col=trunk&&e>1+jag?bqMix(TR[0],[60,40,30],.4):sh>.45?TR[0]:sh>-.15?TR[1]:TR[2];if(th==='day'&&sh<-.7&&bqHash(x,y,9)>.55)col=TR[3];
+        if(th==='dusk'&&(x-tx)/rx>.4&&e>.82&&e<=1+jag&&(y-ty)<-ry*.15)col=bqMix(col,TR[3],.6);/* the setting sun rims the right edges */
+        put(x,y,bqMix(col,hz,haze))}}}
+    if(th==='night'){/* graves at the edge of the field */for(const gx of [30,64,318,350]){const gy=BQHZ+6,col=[70,72,96],dk=[40,40,60];for(let y=gy-12;y<gy;y++)for(let x=gx-4;x<=gx+4;x++){if(y<gy-9&&Math.hypot(x-gx,y-(gy-9))>4.5)continue;put(x,y,x<gx-2?[96,98,124]:x>gx+2?dk:col)}for(let y=gy-9;y<gy-5;y++)put(gx,y,dk);put(gx-1,gy-8,dk);put(gx+1,gy-8,dk)}}
+  }
+  g.putImageData(im,0,0);return c}
+/* ground: grass (or sand) from the horizon down, the path, flowers and tufts; crisp, drawn once */
+function bqGround(th){const P=BQS[th],c=bqCanvas(W,H),g=c.getContext('2d'),im=g.createImageData(W,H),p=im.data,r=rngOf(9),Gc=P.g,hz=bqHex(P.hz),gf=bqMix(Gc[0],hz,.35);
+  const put=(x,y,col)=>{if(x<0||y<0||x>=W||y>=H)return;const o=(y*W+x)*4;p[o]=col[0];p[o+1]=col[1];p[o+2]=col[2];p[o+3]=255};
+  for(let y=BQHZ;y<H;y++){const dep=clamp((y-BQHZ)/(GY-BQHZ),0,1),cs=10+dep*14;for(let x=0;x<W;x++){let col;
+    if(th==='arena'){const v=bqHash(x,y,7);col=v>.93?P.gh[1]:v<.06?P.gh[0]:Gc[(x+y)%2?0:1];const ring=Math.abs(Math.hypot((x-190)/1,(y-(GY-4))*5.4)-176);if(ring<1.6&&y>BQHZ+20)col=bqMix(col,[244,232,200],.7)}
+    else{const u=x/(cs*2)+(y-BQHZ)/cs,v=(y-BQHZ)/cs-x/(cs*2);col=Gc[((Math.floor(u)+Math.floor(v))%2+2)%2];const pw=4+(y-BQHZ)*.1,dd=Math.abs((y-182)-(x-190)*.3);if(dd<pw)col=dd<pw-3?(bqHash(x,y,5)>.9?P.path[2]:P.path[0]):P.path[1]}
+    col=bqMix(col,gf,(1-dep)*.4);put(x,y,col)}}
+  if(th!=='arena'){for(let n=0;n<520;n++){const x=Math.floor(r()*W),y=BQHZ+6+Math.floor(r()*(H-BQHZ-6));if(Math.abs((y-182)-(x-190)*.3)<6+(y-BQHZ)*.1)continue;const dep=(y-BQHZ)/(GY-BQHZ);
+      if(r()<.72){/* a tuft: a little v of grass */const col=r()<.5?P.gh[0]:bqMix(P.gh[0],P.gh[1],.5),s=dep>.6?2:1;put(x,y,col);put(x-1,y-s,col);put(x+1,y-s,col);if(s>1){put(x,y-1,col);put(x-1,y-2,P.gh[1])}}
+      else{const col=P.fl[Math.floor(r()*P.fl.length)];put(x,y,col);if(dep>.5){put(x+1,y,col);put(x,y-1,col);put(x+1,y-1,[255,255,255])}}}}
+  else{for(let n=0;n<70;n++){const x=Math.floor(r()*W),y=BQHZ+10+Math.floor(r()*(H-BQHZ-10)),col=[[150,120,84],[220,196,150]][n%2];put(x,y,col);put(x+1,y,col)}}
+  g.putImageData(im,0,0);return c}
+/* foreground: tall grass / stones in the bottom corners, in shadow and blurred (closer than the fighters) */
+function bqFront(th){const P=BQS[th],w=BQW,c=bqCanvas(w,H),g=c.getContext('2d'),im=g.createImageData(w,H),d=im.data,r=rngOf(th.length*5+2),dk=bqMix(P.tr[0],[0,0,0],.25),md=P.tr[1];
+  const put=(x,y,col)=>{if(x<0||y<0||x>=w||y>=H)return;const o=(y*w+x)*4;d[o]=col[0];d[o+1]=col[1];d[o+2]=col[2];d[o+3]=255};
+  const blade=(x0,h,lean,col)=>{let x=x0;for(let k=0;k<h;k++){put(Math.round(x),H-1-k,col);if(k<h*.5)put(Math.round(x)+1,H-1-k,col);x+=lean*(k/h)*1.6}};
+  for(const [cx,span] of [[BQO+8,62],[BQO+W-8,62]]){for(let n=0;n<38;n++){const x=cx+(r()-.5)*span,hh=8+r()*30*(1-Math.abs(x-cx)/span),lean=(x<cx?-1:1)*(.3+r()*.8);blade(x,hh,lean,r()<.6?dk:md)}
+    if(th==='arena'||th==='night')for(let y=H-10;y<H;y++)for(let x=cx-16;x<cx+16;x++)if(((x-cx)/16)**2+((y-H)/10)**2<1)put(x,y,dk)}
+  g.putImageData(im,0,0);return bqBlur(c,1,2)}
+/* light: soft beams and a vignette, at a quarter size, scaled up smooth */
+function bqLight(th){const P=BQS[th],c=bqCanvas(W,H),g=c.getContext('2d');g.globalCompositeOperation='lighter';
+  const beam=(x0,y0,ang,len,wid,a)=>{const gr=g.createLinearGradient(x0,y0,x0+Math.cos(ang)*len,y0+Math.sin(ang)*len);gr.addColorStop(0,'rgba('+P.ray+','+a+')');gr.addColorStop(1,'rgba('+P.ray+',0)');g.fillStyle=gr;const nx=-Math.sin(ang),ny=Math.cos(ang);g.beginPath();g.moveTo(x0+nx*wid*.3,y0+ny*wid*.3);g.lineTo(x0-nx*wid*.3,y0-ny*wid*.3);g.lineTo(x0+Math.cos(ang)*len-nx*wid,y0+Math.sin(ang)*len-ny*wid);g.lineTo(x0+Math.cos(ang)*len+nx*wid,y0+Math.sin(ang)*len+ny*wid);g.closePath();g.fill()};
+  if(th==='day')[[0,.55,40],[30,.62,26],[70,.5,34],[110,.58,22]].forEach(([x,a,wd])=>beam(x-30,-20,a,330,wd,P.rayA));
+  if(th==='dusk')for(let n=0;n<7;n++)beam(316,BQHZ-4,Math.PI+.15+n*.11,360,14+n%3*8,P.rayA*(n%2?.6:1));
+  if(th==='night')beam(86,30,1.2,300,60,P.rayA);
+  if(th==='arena')[[120,1.2,30],[260,1.9,26]].forEach(([x,a,wd])=>beam(x,-10,a,280,wd,P.rayA));
+  return c}
+function bqVig(th){const P=BQS[th],c=bqCanvas(W,H),g=c.getContext('2d'),gr=g.createRadialGradient(W/2,H*.55,H*.35,W/2,H*.55,W*.68);gr.addColorStop(0,'rgba('+P.vig+',0)');gr.addColorStop(1,'rgba('+P.vig+','+P.vigA+')');g.fillStyle=gr;g.fillRect(0,0,W,H);return c}
+let BQL=null;/* the layers of the stage being shown (only one stage is kept) */
+function bqTheme(){if(!BT)return 'day';if(BT.raid)return 'night';if(BT.sa)return 'arena';if(BT.xq)return 'dusk';if(BT.quest){const n=BT.quest.stage||1;return n<=30?'day':n<=60?'dusk':'night'}return 'arena'}
+function bqLayers(th){if(BQL&&BQL.th===th)return BQL;BQL={th,far:bqFar(th),cl:bqClouds(th),mid:bqMid(th),gr:bqGround(th),fr:bqFront(th),li:bqLight(th),vg:bqVig(th),P:BQS[th]};return BQL}
+/* back part: far, clouds, middle, ground, and the moving bits that are behind the fighters. camX: how far the fight's centre is from the middle */
+function bqBack(T,camX){const L=bqLayers(bqTheme()),cx=clamp(camX,-90,90);
+  G.save();G.imageSmoothingEnabled=true;G.drawImage(L.far,-BQO-cx*.12,0);
+  for(const k of L.cl){const x=((k.x+T*k.sp)%(BQW+k.c.width))-k.c.width-BQO-cx*.12;G.drawImage(k.c,x,k.y)}
+  G.imageSmoothingEnabled=false;G.drawImage(L.mid,q(-BQO-cx*.3),0);G.drawImage(L.gr,0,0);
+  const th=L.th,P=L.P;
+  if(th==='arena'){/* torches flicker */for(let tx=52;tx<BQW;tx+=56){const x=tx-BQO-cx*.3,f=Math.floor(T*10+tx)%3;G.fillStyle='#ffcf5a';G.fillRect(q(x-1),54-f%2,3,4);G.fillStyle='#ff7a2a';G.fillRect(q(x-1),56,3,2);G.fillStyle='#fff3c0';G.fillRect(q(x),55,1,2);G.save();G.globalAlpha=.25+.08*f;G.imageSmoothingEnabled=true;glow(x,56,14,'rgba(255,170,80,1)',1);G.restore()}}
+  if(th==='night'){/* a slow fog over the horizon; pumpkins with candles */G.globalAlpha=.22;for(let n=0;n<3;n++){const y=BQHZ-6+n*7,x=((T*(4+n*2)+n*90)%(W+120))-120;G.fillStyle='#8a8ac8';G.fillRect(x,y,120,3);G.fillRect(x+20,y-1,70,1);G.fillRect(x-60+W*.6,y+2,90,2)}G.globalAlpha=1;
+    for(const [px,py] of [[22,GY+6],[352,GY+4]]){const fl=.75+.25*Math.sin(T*9+px);G.save();G.globalAlpha=.45*fl;G.imageSmoothingEnabled=true;glow(px,py-4,18,'rgba(255,150,50,1)',1);G.restore();
+      G.fillStyle='#c8641c';G.fillRect(px-5,py-7,11,7);G.fillRect(px-4,py-8,9,9);G.fillStyle='#e8892a';G.fillRect(px-3,py-7,3,6);G.fillStyle='#4a6a20';G.fillRect(px,py-10,2,2);G.fillStyle=fl>.85?'#fff0a0':'#ffc040';G.fillRect(px-3,py-5,2,2);G.fillRect(px+2,py-5,2,2);G.fillRect(px-2,py-2,5,1)}}
+  G.restore()}
+/* front part: foreground grass, light, vignette and the floating bits (pollen, embers, fireflies, dust) */
+function bqFrontDraw(T,camX){const L=bqLayers(bqTheme()),cx=clamp(camX,-90,90),P=L.P,th=L.th;
+  const r=rngOf(th.length*17+1),n=th==='night'?14:18;
+  for(let k=0;k<n;k++){const sx=r()*W,sy=BQHZ*.4+r()*(H-BQHZ*.4),sp=4+r()*8,ph=r()*6.28,layer=r()<.3?1.6:1;
+    let x=sx+Math.sin(T*.6+ph)*10+(th==='dusk'?T*sp:th==='night'?Math.sin(T*.9+ph*2)*14:T*sp*.4),y=sy-(th==='night'?Math.sin(T*.7+ph)*8:T*sp*(th==='dusk'?.9:.5));
+    x=((x-cx*.2*layer)%W+W)%W;y=((y-30)%(H-30)+(H-30))%(H-30)+30;const tw=th==='night'?Math.max(0,Math.sin(T*2.2+ph*3)):(.55+.45*Math.sin(T*3+ph));if(tw<.05)continue;
+    G.save();G.globalAlpha=tw*(layer>1?.9:.6);G.fillStyle=P.mote[k%2];const s=layer>1?2:1;G.fillRect(q(x),q(y),s,s);if(th==='night'&&tw>.6){G.globalAlpha=tw*.35;G.imageSmoothingEnabled=true;glow(x+.5,y+.5,5,'rgba(216,255,122,1)',1)}G.restore()}
+  G.save();G.imageSmoothingEnabled=true;G.drawImage(L.fr,-BQO+cx*.45,0);
+  G.globalCompositeOperation='lighter';G.globalAlpha=.75+.25*Math.sin(T*.5);G.drawImage(L.li,0,0);G.globalCompositeOperation='source-over';G.globalAlpha=1;G.drawImage(L.vg,0,0);G.restore()}
+
+/* ---------- 防具とアクセの見た目: the vest and the gloves of each picture are found once (the brown patches; the vest is the biggest one on the chest) ---------- */
+const BQM={};
+function bqMask(sk){if(BQM[sk]!==undefined)return BQM[sk];const d=SP[sk],B=RAW[sk];if(!d||!B)return null;const w=d.w,h=d.h,px=B.data,hair=new Set(d.hair||[]),wp=new Set([...(d.blade||[]),...(d.hilt||[])]);
+  const brown=i=>{const o=i*4;if(px[o+3]<200||hair.has(i)||wp.has(i))return false;const r=px[o],g=px[o+1],b=px[o+2],l=(r+g+b)/3;return r>=40&&r<135&&r>g+10&&r>=b+6&&l>=30&&l<112};
+  const seen=new Uint8Array(w*h),C=[];
+  for(let i=0;i<w*h;i++){if(seen[i]||!brown(i))continue;const st=[i],c=[];seen[i]=1;while(st.length){const k=st.pop();c.push(k);const x=k%w,y=(k-x)/w;if(x+1<w&&!seen[k+1]&&brown(k+1)){seen[k+1]=1;st.push(k+1)}if(x>0&&!seen[k-1]&&brown(k-1)){seen[k-1]=1;st.push(k-1)}if(y+1<h&&!seen[k+w]&&brown(k+w)){seen[k+w]=1;st.push(k+w)}if(y>0&&!seen[k-w]&&brown(k-w)){seen[k-w]=1;st.push(k-w)}}
+    if(c.length<6)continue;let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,sx=0,sy=0;for(const k of c){const x=k%w,y=(k-x)/w;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;sx+=x;sy+=y}C.push({c,x0,x1,y0,y1,mx:sx/c.length,my:sy/c.length})}
+  const top=d.top,Hh=d.foot-d.top,vest=C.filter(o=>o.my>top+Hh*.12&&o.my<top+Hh*.5).sort((a,b)=>b.c.length-a.c.length)[0]||null;
+  /* pieces of the vest cut off by a fold or a button belong to it too */
+  if(vest)for(const o of C)if(o!==vest&&o.mx>=vest.x0&&o.mx<=vest.x1&&o.my>=vest.y0&&o.my<=vest.y1&&o.c.length<vest.c.length){o.in=1;for(const k of o.c)vest.c.push(k)}
+  const gloves=vest?C.filter(o=>o!==vest&&!o.in&&o.my>top+Hh*.18&&o.my<top+Hh*.62&&o.c.length<vest.c.length*.6&&o.c.length<500):[];
+  /* the vest's outline pixels (next to something that is not vest) get the trim colour */
+  let edge=[];if(vest){const set=new Set(vest.c);edge=vest.c.filter(k=>!set.has(k-1)||!set.has(k+1)||!set.has(k-w)||!set.has(k+w))}
+  return BQM[sk]={vest,gloves,edge,w}}
+const BQCOAT={N:{r:['#272b37','#465063','#76819a']},R:{r:['#0f2648','#225293','#4f93e0']},SR:{r:['#22113f','#4c2c90','#8b66e0'],t:'#e8dcff'},UR:{r:['#7a6e58','#d7ccb2','#fffaee'],t:'#f2c14e'},GR:{r:['#3e0c26','#a8325f','#ef84b2'],t:'#ffe3ef'},KMR:{r:['#050408','#15121c','#2c2836'],t:'#ffffff'}};
+const BQGLOVE={N:['#3a2c2c','#76584e','#b08a7a'],R:['#4a0c0c','#b82a24','#ff6a4a'],SR:['#24104a','#6434b8','#b08cff'],UR:['#5a3a08','#d29a24','#ffe27a'],GR:['#4a0c2a','#d0407a','#ff9cc4'],KMR:['#000000','#1a1820','#e8e8f0']};
+function bqRecolor(px,idx,ramp){if(!ramp||!idx.length)return;const R=ramp.map(bqHex);let lo=1,hi=0;for(const i of idx){const o=i*4,l=(px[o]+px[o+1]+px[o+2])/765;if(l<lo)lo=l;if(l>hi)hi=l}const sp=Math.max(.05,hi-lo);
+  for(const i of idx){const o=i*4,t=((px[o]+px[o+1]+px[o+2])/765-lo)/sp,[a,b]=t<.5?[R[0],R[1]]:[R[1],R[2]],u=t<.5?t/.5:(t-.5)/.5;for(let k=0;k<3;k++)px[o+k]=Math.round(a[k]+(b[k]-a[k])*u)}}
+/* called from sprite(): the coat recolours the vest, the glove recolours the gloves */
+function bqGearPx(px,sk,f){if(!f||(f.ak!=='yga'&&f.xk!=='smx'))return;const m=bqMask(sk);if(!m)return;
+  if(f.ak==='yga'&&m.vest){const C=BQCOAT[f.ar]||BQCOAT.N;bqRecolor(px,m.vest.c,C.r);if(C.t){const T=bqHex(C.t);for(const i of m.edge){const y=Math.floor(i/m.w);if(y>m.vest.y1-2)continue;const o=i*4;px[o]=T[0];px[o+1]=T[1];px[o+2]=T[2]}}}
+  if(f.xk==='smx')for(const gl of m.gloves)bqRecolor(px,gl.c,BQGLOVE[f.xr]||BQGLOVE.N)}
+const bqGearKey=f=>f?'|'+(f.ak||'')+(f.ar||'')+(f.xk||'')+(f.xr||''):'';
+/* small pictures: the shield (on the back), the 痛バッグ (at the hip), the 推しうちわ (floating by the shoulder) */
+const BQART={},BQRIM={N:['#3a3e4a','#8a909e','#c8ccd6'],R:['#3a3e4a','#8a909e','#d6dae2'],SR:['#2a2040','#9a8ab8','#e6dcff'],UR:['#5a3a08','#d6a23a','#fff0b0'],GR:['#4a0c2a','#c8a0b4','#fff0f6'],KMR:['#000000','#2a2830','#ffffff']};
+function bqArt(kind,r){const key=kind+r;if(BQART[key])return BQART[key];const R=RCOL[r]||'#a3a9b4',rim=BQRIM[r]||BQRIM.N;let c;
+  if(kind==='shield'){const w=22,h=27;c=bqCanvas(w,h);const g=c.getContext('2d'),face=bqHex(r==='KMR'?'#17151b':R),fd=bqMix(face,[0,0,0],.35),fh=bqMix(face,[255,255,255],.35);
+    for(let y=0;y<h;y++){const half=y<12?10.5:10.5*Math.sqrt(Math.max(0,1-((y-12)/14.6)**2));for(let x=0;x<w;x++){const dx=x+.5-11,ax=Math.abs(dx);if(ax>half)continue;
+      let col;if(ax>half-1.2||y<1)col=bqHex(rim[0]);else if(ax>half-3||y<3)col=bqHex(dx<0&&y<14?rim[2]:rim[1]);else{const s=dx+(y-8)*.3;col=s<-3?fh:s>3.5?fd:face}g.fillStyle='rgb('+col+')';g.fillRect(x,y,1,1)}}
+    g.fillStyle=rim[2];g.fillRect(10,6,2,13);g.fillRect(6,10,10,2);g.fillStyle=rim[1];g.fillRect(12,7,1,12);g.fillRect(7,12,9,1)}
+  if(kind==='bag'){const w=17,h=19;c=bqCanvas(w,h);const g=c.getContext('2d'),body=r==='KMR'?'#1a1820':R,dk=r==='KMR'?'#000000':'rgb('+bqMix(bqHex(R),[0,0,0],.45)+')';
+    g.fillStyle=dk;g.fillRect(4,0,9,1);g.fillRect(3,1,1,4);g.fillRect(13,1,1,4);g.fillRect(0,4,17,15);g.fillStyle=body;g.fillRect(1,5,15,13);g.fillStyle='#e8f4ff';g.fillRect(2,7,13,9);
+    const B=['#ff7aa8','#7ac8ff','#ffe066','#b48cff','#7affb8','#ff9a5a'];for(let k=0;k<6;k++){const bx=3+(k%3)*4,by=8+Math.floor(k/3)*4;g.fillStyle=B[(k+(r.length))%6];g.fillRect(bx,by,3,3);g.fillStyle='#ffffff';g.fillRect(bx,by,1,1)}
+    g.fillStyle='rgba(255,255,255,.55)';g.fillRect(2,7,13,1);g.fillStyle=rim[2];g.fillRect(1,5,15,1)}
+  if(kind==='fan'){const w=17,h=24;c=bqCanvas(w,h);const g=c.getContext('2d'),col=bqHex(r==='KMR'?'#ffffff':R);
+    for(let y=0;y<16;y++)for(let x=0;x<17;x++){const d=Math.hypot(x+.5-8.5,y+.5-8);if(d>8)continue;g.fillStyle=d>6.8?'rgb('+bqMix(col,[0,0,0],.4)+')':d>5.6?'rgb('+col+')':'#fff8fb';g.fillRect(x,y,1,1)}
+    g.fillStyle=r==='KMR'?'#000000':'#ff4f8b';for(const [x,y] of [[6,5],[7,5],[10,5],[11,5],[5,6],[6,6],[7,6],[8,6],[9,6],[10,6],[11,6],[12,6],[5,7],[6,7],[7,7],[8,7],[9,7],[10,7],[11,7],[12,7],[6,8],[7,8],[8,8],[9,8],[10,8],[11,8],[7,9],[8,9],[9,9],[10,9],[8,10],[9,10]])g.fillRect(x,y,1,1);
+    g.fillStyle='#5a3a2a';g.fillRect(8,15,2,9);g.fillStyle='#8a5a3a';g.fillRect(8,15,1,9)}
+  return BQART[key]=c}
+/* the parts drawn with the fighter. local: in the picture's own pixels (the fighter faces left in the picture); back=true is drawn behind the body */
+function bqGearDraw(f,sk,dx,dy,b,wst,T,back){if(!f||(!f.ak&&!f.xk))return;const m=bqMask(sk);if(!m||!m.vest)return;const v=m.vest,Y=y=>y<wst?b:0,t=T||0;
+  if(back){if(f.ak==='sma'){const a=bqArt('shield',f.ar||'N');G.drawImage(a,dx+v.x1-3,dy+v.y0+1+Y(v.y0))}
+    if(f.xk==='tcx'){const a=bqArt('fan',f.xr||'N'),bob=Math.round(Math.sin(t*2.6)*2);G.save();G.translate(dx+v.x1+9,dy+v.y0-16+bob+Y(v.y0));G.rotate(Math.sin(t*1.7)*.12);G.drawImage(a,-8,-8);G.restore()}
+    return}
+  if(f.ak==='tca'){const a=bqArt('bag',f.ar||'N'),bx=dx+v.x1-12,by=dy+v.y1-6;G.save();G.fillStyle='#2a2030';const sx=dx+v.x0+4,sy=dy+v.y0+2+Y(v.y0),ex=bx+8,ey=by+1;const L=Math.max(1,Math.round(Math.hypot(ex-sx,ey-sy)));for(let k=0;k<=L;k++){const x=Math.round(sx+(ex-sx)*k/L),y=Math.round(sy+(ey-sy)*k/L);G.fillRect(x,y,1,2)}G.restore();G.drawImage(a,bx,by)}
+  if(f.ak==='yga'&&(f.ar==='UR'||f.ar==='GR'||f.ar==='KMR')){/* a light runs across the coat now and then */const ph=(t*.55)%1.8;if(ph<1){const p=v.x0-12+ph*(v.x1-v.x0+30);G.save();G.fillStyle='#ffffff';G.globalAlpha=.55;for(const i of v.c){const x=i%m.w,y=(i-x)/m.w,s=x+(y-v.y0)*.5-p;if(s>-1.5&&s<1.5)G.fillRect(dx+x,dy+y+Y(y),1,1)}G.restore()}}
+  if(f.xk==='ygx'){/* the ring: little stars twinkle around the front hand */const gl=m.gloves.slice().sort((a,b)=>a.mx-b.mx)[0],hx=gl?gl.mx:v.x0,hy=gl?gl.my:v.my,col=RCOL[f.xr]||'#a3a9b4';
+    for(let n=0;n<3;n++){const cyc=t*1.1+n/3,k=Math.floor(cyc),ph=cyc-k;if(ph>.4)continue;const rr=rngOf(k*31+n*7+3),x=Math.round(dx+hx+(rr()-.5)*22),y=Math.round(dy+hy+(rr()-.5)*22+Y(hy)),s=Math.sin(ph/.4*Math.PI);
+      G.save();G.globalAlpha=s;G.fillStyle='#ffffff';G.fillRect(x,y,1,1);G.fillStyle=col;if(s>.4){G.fillRect(x-1,y,1,1);G.fillRect(x+1,y,1,1);G.fillRect(x,y-1,1,1);G.fillRect(x,y+1,1,1)}if(s>.8){G.fillRect(x-2,y,1,1);G.fillRect(x+2,y,1,1);G.fillRect(x,y-2,1,1);G.fillRect(x,y+2,1,1)}G.restore()}}}
+/* what the fighter wears (for the picture): armour and accessory kinds and rarities */
+function bqWear(items){const a=items.find(i=>ITEMS[i.k]&&ITEMS[i.k].s==='a'),x=items.find(i=>ITEMS[i.k]&&ITEMS[i.k].s==='x');return {ak:a?a.k:null,ar:a?a.r:null,xk:x?x.k:null,xr:x?x.r:null}}
+
+/* ---------- 当たった感: dust at the feet, a squash on the hit, a zoom on the big hits ---------- */
+function bqDust(x,y,v,dir,seed,big){const L=BQL||bqLayers(bqTheme()),cols=L.P.dust,rr=rngOf(seed),n=big?7:4;if(v<0||v>.5)return;const k=v/.5;
+  for(let m=0;m<n;m++){const a=rr(),sp=(14+rr()*22)*(big?1.4:1),r=Math.max(1,Math.round((3+rr()*3)*(1-k*.3)+k*4)),px=Math.round(x-dir*(4+sp*Math.sqrt(k))*(.4+a)),py=Math.round(y-2-rr()*4-k*(6+rr()*6));
+    G.save();G.globalAlpha=(1-k)*.85;G.fillStyle=cols[m%2];for(let yy=-r;yy<=r;yy++)for(let xx=-r;xx<=r;xx++)if(xx*xx+yy*yy*1.6<=r*r)G.fillRect(px+xx,py+yy,1,1);G.restore()}}
+let BQZ='';function bqZoom(Tr){if(!BT||RM){if(BQZ){cv.style.transform='';BQZ=''}return}let z=1,ox=50,oy=50;
+  if(HS&&HS.s.imp){const st=HS.s,k=1-HS.e/st.d,hq=st.h&&BT.res.hitsAt.find(q=>q.h===st.h),j=hq?hq.j:1-BT.res.win;z=1+(st.ko?.09:.055)*Math.min(1,k*1.6);ox=((j?BX:AX)/W*100);oy=((GY-110)/H*100)}
+  const s=z>1.001?'scale('+z.toFixed(3)+')':'';if(s!==BQZ){cv.style.transformOrigin=ox.toFixed(1)+'% '+oy.toFixed(1)+'%';cv.style.transform=s;BQZ=s}}
+
 
 /* ---------- pixel digits and letters (3x5) ---------- */
 const GL={'0':'111101101101111','1':'010110010010111','2':'111001111100111','3':'111001111001111','4':'101101111001001','5':'111100111001111','6':'111100111101111','7':'111001010010010','8':'111101111101111','9':'111101111001111','+':'000010111010000',
@@ -702,8 +894,8 @@ function myItems(){return ['w','a','x'].map(s=>itemOf(S.eq[s])).filter(Boolean)}
 function power(st){return Math.round(st.hp*.35+st.atk*3+st.def*2.4+st.spd*2.2+st.mag*2.6)}
 const hbSkinMe=()=>{try{return !!(HOST&&HOST.hbSkin&&HOST.hbSkin())}catch(e){return false}};
 const myLook=()=>S.look.pk&&!hbSkinMe()?Object.assign({},S.look,{pk:0}):S.look;
-function fighterMe(){const {s}=statsOf(S.lv,S.al,myItems());const w=itemOf(S.eq.w);return {name:'あなた',lv:S.lv,look:myLook(),st:s,wt:myWeapon(),k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null}}
-function fighterOpp(o){const items=o.eq.filter(x=>ITEMS[x[0]]).map(([k,r,e],i)=>({id:-1-i,k,r,e:e||0}));const al=o.al&&usedPts(o.al)<=ptsOf(o.lv)?o.al:autoAlloc(o.lv,o.style||'atk');const {s}=statsOf(o.lv,al,items);if(o.mul)for(const k in s)s[k]=Math.max(1,Math.round(s[k]*(k==='spd'?Math.sqrt(o.mul):o.mul)));const w=items.find(i=>ITEMS[i.k].s==='w');return {name:o.name,lv:o.lv,look:o.look,st:s,wt:w?ITEMS[w.k].wt:'fist',k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null}}
+function fighterMe(){const {s}=statsOf(S.lv,S.al,myItems());const w=itemOf(S.eq.w);return {name:'あなた',lv:S.lv,look:myLook(),st:s,wt:myWeapon(),k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null,...bqWear(myItems())}}
+function fighterOpp(o){const items=o.eq.filter(x=>ITEMS[x[0]]).map(([k,r,e],i)=>({id:-1-i,k,r,e:e||0}));const al=o.al&&usedPts(o.al)<=ptsOf(o.lv)?o.al:autoAlloc(o.lv,o.style||'atk');const {s}=statsOf(o.lv,al,items);if(o.mul)for(const k in s)s[k]=Math.max(1,Math.round(s[k]*(k==='spd'?Math.sqrt(o.mul):o.mul)));const w=items.find(i=>ITEMS[i.k].s==='w');return {name:o.name,lv:o.lv,look:o.look,st:s,wt:w?ITEMS[w.k].wt:'fist',k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null,...bqWear(items)}}
 
 /* ---------- the battle: decided first, then played as a timeline ---------- */
 /* the timed taps (v128 trial) are off; the special-move clash gauge replaces them */
@@ -775,7 +967,7 @@ function timeline(res){let t=.7;const hitsAt=[];for(const e of res.ev){const two
 /* real time -> timeline time; during a stop the timeline holds still */
 function mapT(res,Tr){let acc=0;for(const s of res.stops){if(Tr<s.t+acc)return {T:Tr-acc};if(Tr<s.t+acc+s.d)return {T:s.t,stop:s,e:Tr-(s.t+acc)};acc+=s.d}return {T:Tr-acc}}
 let HS=null;/* the stop being held right now: {s, e (seconds into it)} */
-let TRL=0;function view(Tr){TRL=Tr;if(!BT){HS=null;scene(Tr);hud(Tr);return}const m=mapT(BT.res,Tr);HS=m.stop?{s:m.stop,e:m.e}:null;scene(m.T);hud(m.T)}
+let TRL=0;function view(Tr){TRL=Tr;if(!BT){HS=null;scene(Tr);hud(Tr);bqZoom(Tr);return}const m=mapT(BT.res,Tr);HS=m.stop?{s:m.stop,e:m.e}:null;scene(m.T);hud(m.T);bqZoom(Tr)}
 function hpAt(res,T,j){let v=res.hs?res.hs[j]:res.max[j];for(const e of res.ev){for(const h of e.hits){if(1-e.who===j&&h.t<=T&&!h.miss)v=h.hp}if(e.heal&&e.who===j&&e.healT<=T)v=e.healTo}return v}
 function spAt(res,T,j){let v=0;for(const e of res.ev){if(e.t0<=T)v=(e.special&&e.who===j)?0:e.sp[j]}return v}
 
@@ -1002,15 +1194,17 @@ const SHAFT={SR:['#14142a','#2e2e58','#7a7aa8'],UR:['#8a6216','#e2bf72','#fff2c4
 /* attack colours by tier */
 const RFX={SR:'#d4bcff',UR:'#ffe08a',KMR:'#2a2730'};
 const slashCol=(f,wt)=>RFX[f.wr]||WCOL[wt];
-function drawFighter(f,x,y,o){if(f.boss&&drawBoss(f,x,y,o))return;if(f.look&&f.look.pk&&drawBoss({boss:PKSKIN},x,y,Object.assign({},o,{t:null})))return;const pk=poseOf(f,o.pose),s=sprite(f.look,pk,f);if(!s)return;const d=s.d;G.save();G.globalAlpha=o.alpha==null?1:o.alpha;G.translate(q(x),0);if(o.flip)G.scale(-1,1);
+function drawFighter(f,x,y,o){if(f.boss&&drawBoss(f,x,y,o))return;if(f.look&&f.look.pk&&drawBoss({boss:PKSKIN},x,y,Object.assign({},o,{t:null})))return;const pk=poseOf(f,o.pose),s=sprite(f.look,pk,f);if(!s)return;const d=s.d;G.save();G.globalAlpha=o.alpha==null?1:o.alpha;G.translate(q(x),0);if(o.flip)G.scale(-1,1);if(o.sq){G.translate(0,q(y));G.scale(1+o.sq,1-o.sq);G.translate(0,-q(y))}
   const src=o.blink?s.blink:s.base,dx=-Math.round(s.cx),dy=q(y-d.foot+(o.sink||0)),b=q(o.breath||0),wst=s.waist;
   const wl=pk===o.pose&&sprKey(f.look,o.pose)!==sprKey(f.look)?weaponLayer(f,o.pose,d):null,wy=wl&&wl.gy<wst?b:0;
   if(o.t!=null&&(f.wr==='UR'||f.wr==='KMR')&&(f.wt==='sword'||f.wt==='staff')){const sk2=sprKey(f.look,pk),sa=SP[sk2].blade&&sk2!==sprKey(f.look)?spriteAura(sk2):null,R=f.wt==='staff'?(f.wr==='KMR'?7:5):f.wt==='spear'?(f.wr==='KMR'?4:3):f.wr==='KMR'?7:4;
     const fp=f.wt==='staff'&&f.wr==='KMR'?'ECL':f.wt==='spear'&&f.wr==='KMR'?'CRIM':f.wr;if(sa)drawFlame(sa,fp,dx,dy+b,o.t,o.seed||0,R);else if(wl)drawFlame(layerAura(wl),fp,dx-wl.M,dy+wy-wl.M,o.t,o.seed||0,R)}
   if(o.burn){const BA=bodyAura(sprKey(f.look,pk));if(BA)drawFlame(BA,o.burnPal||'AZ',dx,dy+b,o.t||0,(o.seed||0)+.2,Math.round(o.burn))}
   if(o.t!=null&&BOWD(f)&&(f.wr==='UR'||f.wr==='KMR')&&SP[sprKey(f.look,pk)].bow){const bl=bowLayer(sprKey(f.look,pk),f.wr);if(bl)drawFlame(layerAura(bl),f.wr==='KMR'?'AZ':'UR',dx-bl.M,dy+(bl.oy<wst?b:0)-bl.M,o.t,o.seed||0,f.wr==='KMR'?(o.hot?11:8):5)}
+  if(!(o.flash>=1))bqGearDraw(f,s.sk,dx,dy,b,wst,o.t,true);
   if(wl&&!wl.front)G.drawImage(wl.c,dx-wl.M,dy+wy-wl.M);
   G.drawImage(src,0,0,d.w,wst,dx,dy+b,d.w,wst);G.drawImage(src,0,wst,d.w,d.h-wst,dx,dy+wst,d.w,d.h-wst);
+  if(!(o.flash>=1))bqGearDraw(f,s.sk,dx,dy,b,wst,o.t,false);
   if(wl&&wl.front)G.drawImage(wl.c,dx-wl.M,dy+wy-wl.M);
   if(SPD(f)&&SP[sprKey(f.look,pk)].hilt&&sprKey(f.look,pk)!==sprKey(f.look)){const sl=swordLayer(sprKey(f.look,pk),f.wr,spearBig,1.45);if(sl)G.drawImage(sl.c,dx-sl.M,dy+(sl.oy<wst?b:0)-sl.M)}
   if(BOWD(f)&&SP[sprKey(f.look,pk)].bow){const bl=bowLayer(sprKey(f.look,pk),f.wr||'R');if(bl)G.drawImage(bl.c,dx-bl.M,dy+(bl.oy<wst?b:0)-bl.M)}
@@ -1020,7 +1214,7 @@ function drawFighter(f,x,y,o){if(f.boss&&drawBoss(f,x,y,o))return;if(f.look&&f.l
     if(sa)drawAura(sa,f.wr,dx,dy,b,wst,o.t,o.seed||0);else if(wl)drawAura(layerAura(wl),f.wr,dx-wl.M,dy+wy-wl.M,0,-1e9,o.t,o.seed||0)}
   if(o.flash){G.globalAlpha=(o.alpha==null?1:o.alpha)*o.flash;G.drawImage(s.white,0,0,d.w,wst,dx,dy+b,d.w,wst);G.drawImage(s.white,0,wst,d.w,d.h-wst,dx,dy+wst,d.w,d.h-wst)}
   G.restore()}
-function shadow(x,y,w,a){G.save();G.globalAlpha=a==null?.45:a;G.fillStyle='#0a1e0c';G.beginPath();G.ellipse(q(x),q(y)+1,w,5,0,0,Math.PI*2);G.fill();G.restore()}
+function shadow(x,y,w,a){G.save();G.globalAlpha=a==null?.45:a;G.fillStyle=BQL?BQL.P.sh:'#0a1e0c';G.beginPath();G.ellipse(q(x),q(y)+1,w,5,0,0,Math.PI*2);G.fill();G.restore()}
 function glow(x,y,r,col,a){if(r<=0)return;G.save();G.globalAlpha=clamp(a==null?1:a,0,1);const gr=G.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,col);gr.addColorStop(1,'rgba(0,0,0,0)');G.fillStyle=gr;G.fillRect(x-r,y-r,r*2,r*2);G.restore()}
 function pxRect(x,y,w,h,col,a){G.save();G.globalAlpha=a==null?1:a;G.fillStyle=col;G.fillRect(q(x),q(y),q(w),q(h));G.restore()}
 function slash(x,y,r,k,a,col){if(col==='rainbow'){const s=k%2?-1:1;G.save();G.globalAlpha=a;G.lineWidth=3;PASTEL.slice(0,5).forEach((c,n)=>{G.strokeStyle=c;G.beginPath();G.arc(x,y,r+4-n*2.6,-1.1*s-.6+n*.05,-1.1*s+1.4-n*.05,false);G.stroke()});G.lineWidth=1;G.strokeStyle='#fff';G.beginPath();G.arc(x,y,r-10,-1.1*s-.4,-1.1*s+1.2,false);G.stroke();G.restore();return}
@@ -1073,9 +1267,9 @@ function scene(T){G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;
     else for(const q of BT.res.hitsAt){const u=T-q.t;if(u>0&&u<.08&&!q.h.miss){shx=Math.floor(T*60)%2?1:-1;shy=0}}
     const eb=BT.res.ev.find(e=>e.special&&e.wt==='bow'&&e.wr==='KMR'&&T>=e.t0+1.0&&T<e.t0+2.95);if(eb){const v=T-eb.t0,a=v<1.62?1:v<2.0?4*(1-(v-1.62)/.38)+1:v>=2.6?7*(1-(v-2.6)/.35):1;shx=Math.round((Math.floor(T*60)%2?1:-1)*a);shy=Math.round((Math.floor(T*60+1)%2?1:-1)*a*.6)}
      const e=BT.res.ev.find(e=>e.special&&e.wt==='hammer'&&T>=e.t0+.85&&T<e.t0+1.3);if(e){const k=1-(T-e.t0-.85)/.45;shx=Math.round((Math.floor(T*60)%2?1:-1)*5*k);shy=Math.round((Math.floor(T*60+1)%2?1:-1)*3*k)}}
-  G.setTransform(SC,0,0,SC,shx*SC,shy*SC);G.drawImage(FIELD,0,0);
-  if(!BT){/* idle: just you, in the middle */const me=fighterMe(),tt=T,km=me.wr==='KMR'&&me.wt!=='spear';shadow(190,GY,30);if(km){swirl(190,tt,false,0,1,me.wt==='staff'?'ECL':me.wt==='spear'?'CRIM':me.wt==='bow'?'AZ':'KMR');drawTwin(me,190+TWX(me.wt),(me.wt==='sword'?GY-126:GY-118)+Math.round(Math.sin(step(tt)*2.2)*2),tt,1)}drawFighter(me,190,GY,{pose:'p1',flip:true,breath:Math.sin(tt*2.4)*.5+.5,blink:(tt%3.4)<.12,t:tt});if(km)swirl(190,tt,true,0,1);trail[0].length=trail[1].length=0;return}
-  const R=BT.res,F=BT.F,base=[AX,BX],dir=[1,-1];const pos=[{x:AX,y:GY},{x:BX,y:GY}],fx={flash:[0,0],alpha:[1,1],sink:[0,0],pose:['p1','p1'],burn:[0,0],hot:[0,0]};const has=(k,p)=>sprKey(F[k].look,p)!==sprKey(F[k].look);
+  G.setTransform(SC,0,0,SC,shx*SC,shy*SC);if(!BT)bqBack(T,0);
+  if(!BT){/* idle: just you, in the middle */const me=fighterMe(),tt=T,km=me.wr==='KMR'&&me.wt!=='spear';shadow(190,GY,30);if(km){swirl(190,tt,false,0,1,me.wt==='staff'?'ECL':me.wt==='spear'?'CRIM':me.wt==='bow'?'AZ':'KMR');drawTwin(me,190+TWX(me.wt),(me.wt==='sword'?GY-126:GY-118)+Math.round(Math.sin(step(tt)*2.2)*2),tt,1)}drawFighter(me,190,GY,{pose:'p1',flip:true,breath:Math.sin(tt*2.4)*.5+.5,blink:(tt%3.4)<.12,t:tt});if(km)swirl(190,tt,true,0,1);bqFrontDraw(T,0);trail[0].length=trail[1].length=0;return}
+  const R=BT.res,F=BT.F,base=[AX,BX],dir=[1,-1];const pos=[{x:AX,y:GY},{x:BX,y:GY}],fx={sq:[0,0],flash:[0,0],alpha:[1,1],sink:[0,0],pose:['p1','p1'],burn:[0,0],hot:[0,0]};const has=(k,p)=>sprKey(F[k].look,p)!==sprKey(F[k].look);
   /* intro: both slide in */
   if(T<.7){const k=eo(T/.7);pos[0].x=lerp(AX-80,AX,k);pos[1].x=lerp(BX+80,BX,k);if(T<.6)fx.pose=['p2','p2']}
   const e=R.ev.find(e=>T>=e.t0&&T<e.t1);let top=0;const after=[],pre=[];
@@ -1115,11 +1309,13 @@ function scene(T){G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;
     if(!e.special){if(u>=.2&&u<.31)fx.pose[i]='p7';else if(u>=.31&&u<.46)fx.pose[i]='p8';else if(e.hits.length>1){if(u>=.46&&u<.57)fx.pose[i]='p7';else if(u>=.57&&u<.72)fx.pose[i]='p8'}}
 }
   /* target reactions */
-  for(const q of R.hitsAt){const v=T-q.t;if(v<0||v>.5)continue;const j=q.j,i=1-j;if(q.h.miss){if(v<.3)pos[j].x+=dir[i]*Math.sin(v/.3*Math.PI)*14}else{if(HS&&HS.s.h===q.h){fx.flash[j]=HS.e<Math.min(.034,HS.s.d*.5)?1:0;pos[j].x+=(Math.floor(HS.e*60)%2?1:-1)*1.5}pos[j].x+=dir[i]*10*Math.exp(-v*9);if(v<.34)fx.pose[j]='p3'}}
+  for(const q of R.hitsAt){const v=T-q.t;if(v<0||v>.5)continue;const j=q.j,i=1-j;if(q.h.miss){if(v<.3)pos[j].x+=dir[i]*Math.sin(v/.3*Math.PI)*14}else{if(HS&&HS.s.h===q.h){fx.flash[j]=HS.e<Math.min(.034,HS.s.d*.5)?1:0;pos[j].x+=(Math.floor(HS.e*60)%2?1:-1)*1.5}pos[j].x+=dir[i]*10*Math.exp(-v*9);if(v<.34)fx.pose[j]='p3';if(v<.12)fx.sq[j]=Math.max(fx.sq[j],.07*(1-v/.12));pre.push(()=>bqDust(pos[j].x,GY,v,-dir[i],q.t*1000|0,q.h.crit))}}
   /* KO */
   const loser=1-R.win;if(T>=R.koT&&!R.demo){const v=T-R.koT;if(v<.25){fx.flash[loser]=Math.floor(v*20)%2;fx.pose[loser]='p3'}else if(has(loser,'p4')){fx.pose[loser]='p4';const w=(v-.25)/.22;if(w<1)pos[loser].y=GY-Math.abs(Math.cos(w*Math.PI*1.5))*6*(1-w)}else{fx.alpha[loser]=1-clamp((v-.25)/.6,0,1)*.75;fx.sink[loser]=Math.round(clamp((v-.25)/.6,0,1)*6)}
     if(v>.3){fx.pose[R.win]='p5';if(v<.9)pos[R.win].y=GY-Math.sin((v-.3)/.6*Math.PI)*16}}
   /* draw */
+  if(e&&!e.special&&MELEE[e.wt]){const u=T-e.t0-.07;if(u>=0&&u<.5)pre.push(()=>bqDust(base[e.who],GY,u,dir[e.who],e.t0*1000|0,false))}
+  const bqcx=(pos[0].x+pos[1].x)/2-190;bqBack(T,bqcx);
   for(const f of pre)f();
   for(const k of [0,1])shadow(pos[k].x,GY,28,.45*fx.alpha[k]);
   /* afterimages while dashing (a short trail of where the fighter just was) */
@@ -1135,7 +1331,8 @@ function scene(T){G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;
     if(e){const u=T-e.t0,tx=base[1-k],hx=x,hy=y;for(const h of SPHIT[e.wt]){if(u>=h-.18&&u<h-.06){const p=eo((u-h+.18)/.12);x=lerp(hx,tx,p);y=lerp(hy,GY-200,p)}else if(u>=h-.06&&u<h){x=tx;y=lerp(GY-200,GY-128,ei((u-h+.06)/.06))}else if(u>=h&&u<h+.07){x=tx;y=GY-128}else if(u>=h+.07&&u<h+.3){const p=eio((u-h-.07)/.23);x=lerp(tx,hx,p);y=lerp(GY-128,hy,p)}}}
     return {x,y}};
   const twinA=k=>T>=R.koT&&k!==R.win?1-clamp((T-R.koT)/.4,0,1):1;
-  for(const k of order){const tt=T+k*.5;const ps=fx.pose[k],still=ps==='p1'||ps==='p5';const km=F[k].wr==='KMR'&&F[k].wt!=='spear';if(km){swirl(pos[k].x,T,false,k*1.3,twinA(k),F[k].wt==='staff'?'ECL':F[k].wt==='spear'?'CRIM':F[k].wt==='bow'?'AZ':'KMR');const tp=twinAt(k);drawTwin(F[k],tp.x,tp.y,T,twinA(k),tp.hot,k===1)}drawFighter(F[k],pos[k].x,pos[k].y,{pose:ps,flip:k===0,breath:still?Math.sin(tt*2.8)*.5+.5:0,blink:still&&(tt%3.1)<.12,flash:fx.flash[k],alpha:fx.alpha[k],sink:fx.sink[k],t:T,seed:k*.5,burn:fx.burn[k],hot:fx.hot[k]});if(km)swirl(pos[k].x,T,true,k*1.3,twinA(k))}
+  for(const k of order){const tt=T+k*.5;const ps=fx.pose[k],still=ps==='p1'||ps==='p5';const km=F[k].wr==='KMR'&&F[k].wt!=='spear';if(km){swirl(pos[k].x,T,false,k*1.3,twinA(k),F[k].wt==='staff'?'ECL':F[k].wt==='spear'?'CRIM':F[k].wt==='bow'?'AZ':'KMR');const tp=twinAt(k);drawTwin(F[k],tp.x,tp.y,T,twinA(k),tp.hot,k===1)}drawFighter(F[k],pos[k].x,pos[k].y,{pose:ps,flip:k===0,breath:still?Math.sin(tt*2.8)*.5+.5:0,blink:still&&(tt%3.1)<.12,flash:fx.flash[k],alpha:fx.alpha[k],sink:fx.sink[k],t:T,seed:k*.5,burn:fx.burn[k],hot:fx.hot[k],sq:fx.sq[k]});if(km)swirl(pos[k].x,T,true,k*1.3,twinA(k))}
+  bqFrontDraw(T,bqcx);
   for(const f of after)f();
   /* hit sparks: a drawn star burst on every hit (15 frames a second), plus a few bits by the attacker's tier */
   for(const q of R.hitsAt){const v=T-q.t;if(v<0||v>.45||q.h.miss)continue;const j=q.j,wr=F[1-j].wr||'R',rr=rngOf(q.t*1000|0),cx=Math.round(pos[j].x+(rr()-.5)*14),cy=GY-112+Math.round((rr()-.5)*14);
@@ -1150,8 +1347,9 @@ function scene(T){G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;
   tapFx(pos);
   clashFx();
   /* numbers */
-  for(const q of R.hitsAt){const v=T-q.t;if(v<0||v>.95)continue;const x=pos[q.j].x+(q.j?20:-20),y=GY-176-eo(v/.4)*14+(v<.08?-3:0),a=1-clamp((v-.6)/.35,0,1);
-    if(q.h.miss)ptext(G,'MISS',x,y,'#c9d4ff',3,a);else{ptext(G,String(q.h.dmg),x,y,q.h.crit?'#ffe066':'#ffffff',q.h.crit?4:3,a);if(q.h.crit)ptext(G,'CRITICAL',x,y+24,'#ffb347',2,a)}}
+  for(const q of R.hitsAt){const v=T-q.t;if(v<0||v>.95)continue;const rr=rngOf(q.t*997|0),side=q.j?1:-1,pop=v<.04?(q.h.crit?2:1):v<.09?1:0,hold=HS&&HS.s.h===q.h;
+    const x=pos[q.j].x+side*(20+eo(v/.6)*10)+Math.round((rr()-.5)*10)+(hold&&q.h.crit?(Math.floor(HS.e*60)%2?1:-1):0),y=Math.round(GY-150-16*eo(v/.16)+8*eio(clamp((v-.16)/.22,0,1))-8*clamp((v-.5)/.45,0,1)),a=1-clamp((v-.6)/.35,0,1);
+    if(q.h.miss)ptext(G,'MISS',x,y,'#c9d4ff',3,a);else{const sz=(q.h.crit?4:3)+pop;ptext(G,String(q.h.dmg),x,y-pop*3,v<.035?'#ffffff':q.h.crit?'#ffe066':'#ffffff',sz,a);if(q.h.crit)ptext(G,'CRITICAL',x,y+24+pop*2,'#ffb347',2,a*clamp(v/.06,0,1))}}
   if(!R.demo&&T>=R.koT+.2&&T<R.koT+1.4){const v=T-R.koT-.2;ptext(G,'KO',190,92,'#ffe9a0',5,v<.1?v/.1:1)}
 }
 
