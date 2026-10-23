@@ -308,7 +308,10 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .tbab{display:grid;gap:2px;text-align:left;padding:7px 9px;border-radius:9px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}.tbab b{font:700 12px/1.2 var(--jp);color:var(--c)}.tbab small{font:500 10px/1.3 var(--jp);color:var(--mut)}.tbab:disabled{opacity:.4}.tbab:active{transform:scale(.97)}
 .tbgo{min-height:54px;font:800 18px/1 var(--jp);flex:none}.tbgo:disabled{opacity:.5}
 .tbnote{font:500 11px/1.5 var(--jp);color:var(--mut)}
-.tbend{display:grid;gap:10px;text-align:center}.tbend b{font:800 20px/1.2 var(--jp);color:var(--gold2)}
+.tbend{display:grid;gap:10px;text-align:center}.tbsum{display:flex;justify-content:center;gap:14px;font:600 12px/1.3 var(--jp);color:var(--mut)}
+.tbmvp{display:flex;align-items:center;gap:10px;justify-content:center;padding:8px;border-radius:12px;background:linear-gradient(90deg,transparent,rgba(255,214,110,.15),transparent)}.tbmvp canvas{width:40px;height:40px;border-radius:10px;image-rendering:pixelated}.tbmvp div{display:grid;text-align:left}.tbmvp small{font:800 10px/1 var(--jp);color:#ffd36b;letter-spacing:.08em}.tbmvp b{font:700 14px/1.3 var(--jp);color:#fff}.tbmvp em{font:500 11px/1.2 var(--jp);color:var(--mut);font-style:normal}
+.tbhp{position:relative;height:8px;border-radius:4px;background:#14301c;overflow:hidden}.tbhp i{display:block;height:100%;background:linear-gradient(90deg,#3ab070,#7affb8)}.tbhp span{position:absolute;right:3px;top:-2px;font:700 8px/12px var(--jp);color:#fff;text-shadow:0 1px 0 #000}
+.tbmem.down{filter:grayscale(1);opacity:.55}.tbend b{font:800 20px/1.2 var(--jp);color:var(--gold2)}
 </style>
 
 <div class="wrap">
@@ -2249,8 +2252,8 @@ const TBC={sword:'#ff6a6a',staff:'#b48cff',bow:'#5ac8ff',spear:'#ffd34a',fist:'#
 const TBHOME=[[96,190],[150,206],[74,224],[130,240]];
 const TBEN={x:292,y:236,s:.6};
 const TBSK={sword:['連続斬り',4],staff:['星の雨',5],bow:['三連射',3],spear:['突進',4],fist:['乱れ打ち',3],hammer:['大振り',5],penlight:['応援',3]};
-const TBAB={sword:[['斬り込み','強い1撃',3],['構え','2ターン攻撃1.5倍',4]],staff:[['ヒール','みんな15%回復',3],['魔力解放','みんなの必殺+30',4]],bow:[['狙い撃ち','敵の防御ダウン',3],['影縫い','敵のチャージ-1',5]],
-  spear:[['なぎ払い','強い1撃',3],['守りの陣','次の敵の技を半分に',4]],fist:[['正拳','強い1撃',3],['気合','必殺+40',4]],hammer:[['叩きつけ','強い1撃',3],['構え','2ターン攻撃1.5倍',4]],penlight:[['応援歌','みんな15%回復',3],['声援','みんなの必殺+30',4]]};
+const TBAB={sword:[['斬り込み','強い1撃',3],['構え','2ターン攻撃1.5倍',4]],staff:[['ヒール','みんな20%回復',3],['魔力解放','みんなの必殺+30',4]],bow:[['狙い撃ち','敵の防御ダウン',3],['影縫い','敵のチャージ-1',5]],
+  spear:[['なぎ払い','強い1撃',3],['守りの陣','次の敵の攻撃を半分に',4]],fist:[['正拳','強い1撃',3],['気合','必殺+40',4]],hammer:[['叩きつけ','強い1撃',3],['構え','2ターン攻撃1.5倍',4]],penlight:[['応援歌','みんな20%回復',3],['声援','みんなの必殺+30',4]]};
 const tbRT=()=>performance.now()/1000;
 const tbLater=(fn,ms)=>{const M=TB;setTimeout(()=>{if(TB&&TB===M)fn()},ms)};/* a later step only runs if the same battle is still on */
 const tbD=f=>Math.max(f.st.atk,f.st.mag);
@@ -2259,10 +2262,11 @@ function tbParty(){const me=fighterMe(),al=[];for(const o of OPP){if(al.length>=
 function tbTxt(s,x,y,sz,col,al,a){G.save();G.globalAlpha=a==null?1:a;G.font='900 '+sz+'px "Hiragino Sans","Noto Sans JP",sans-serif';G.textAlign=al||'center';G.textBaseline='middle';G.lineJoin='round';G.lineWidth=Math.max(2,sz*.28);G.strokeStyle='#160d14';G.strokeText(s,x,y);G.fillStyle=col;G.fillText(s,x,y);G.restore()}
 function tbStart(mode){if(playing)return;BT=null;HS=null;const P=tbParty(),avg=P.reduce((a,f)=>a+tbD(f),0)/4,hp=P.reduce((a,f)=>a+f.st.hp,0);
   TB={mode,P,avg,c:0,rt:tbRT(),stop:0,an:[],fx:[],ov:[],nums:[],shake:0,end:null,th:{skill:'arena',card:'night',turn:'day'}[mode],
-    en:{hp:0,max:Math.round(avg*{skill:60,card:15,turn:24}[mode]),hitC:-9,dn:0},php:hp,pmax:hp,g:[0,0,0,0],busy:false,label:null};TB.en.hp=TB.en.max;
+    en:{hp:0,max:Math.round(avg*{skill:60,card:15,turn:40}[mode]),hitC:-9,dn:0},php:hp,pmax:hp,g:[0,0,0,0],busy:false,label:null};TB.en.hp=TB.en.max;
   if(mode==='skill'){TB.cost=3;TB.nx=P.map((f,i)=>.9+i*.45);TB.ent=3.2;TB.ecount=0;TB.warn=-9}
   if(mode==='card'){TB.cd=3;TB.stars=0;TB.hand=[];TB.pick=[];tbDeal()}
-  if(mode==='turn'){TB.ct=P.map(()=>[0,0]);TB.buff=P.map(()=>0);TB.ch=0;TB.chMax=3;TB.guard=0;TB.def=0;TB.turnN=1}
+  if(mode==='turn'){TB.ct=P.map(()=>[0,0]);TB.buff=P.map(()=>0);TB.ch=0;TB.chMax=3;TB.guard=0;TB.def=0;TB.turnN=1;TB.mh=P.map(f=>f.st.hp);TB.mmax=TB.mh.slice();TB.hurtM=[-9,-9,-9,-9];TB.rage=false;TB.banner=0}
+  TB.dmgBy=[0,0,0,0];TB.t0=tbRT();if(mode==='turn')TB.banner=.01;
   $('plA').hidden=true;$('plB').hidden=true;$('ctl').hidden=true;$('result').className='result';$('stage').classList.add('tm');tbUI();$('stage').scrollIntoView({behavior:'smooth',block:'start'})}
 function tbQuit(){TB=null;$('plA').hidden=false;$('stage').classList.remove('tm');const u=$('tbui');if(u)u.remove();changed()}
 /* ---------- time: the battle clock stops during hit-stops and cut-ins ---------- */
@@ -2277,14 +2281,15 @@ function tbAct(i,kind,o){o=o||{};const f=TB.P[i],t0=TB.c,me=tbMelee(f),col=TBC[f
   if(kind==='sp'||(kind==='skill'&&o.cut!==false))TB.ov.push({k:'cut',f,name:o.name||(kind==='sp'?spOf(f.wt,f.wr).sp:(TBSK[f.wt]||['スキル'])[0]),C:kind==='sp'?['#1a0f06','#6a3a10','#ffd36b','#ffffff']:['#08101e','#1e3a6a',col,'#ffffff'],rt0:tbRT(),d:kind==='sp'?.82:.55}),TB.stop=Math.max(TB.stop,kind==='sp'?.8:.52);
   if(kind==='buff'){TB.an.push({i,k:'buff',t0,dur:.55,col,hits:o.f?[{t:.2,f:o.f}]:[]});return}
   const hits=[];for(let k=0;k<n;k++)hits.push({t:pre+hitAt+k*gap,f:()=>{const crit=o.crit!=null?o.crit:Math.random()<.12,m=(o.mul||1)*(crit?1.5:1)*(TB.mode==='turn'&&TB.buff[i]>0?1.5:1)*(TB.mode==='turn'&&TB.def>0?1.25:1);
-    tbHit(tbD(f)*m*(.9+Math.random()*.2),{crit,big:kind==='sp',col:kind==='sp'?'#ffe066':crit?'#ffe066':'#ffffff',tier,flip:false,k});if(TB.g&&kind!=='sp')TB.g[i]=Math.min(100,TB.g[i]+(o.gain!=null?o.gain:kind==='skill'?9:12))}});
+    TB.dmgBy[i]+=tbHit(tbD(f)*m*(.9+Math.random()*.2),{crit,big:kind==='sp',col:kind==='sp'?'#ffe066':crit?'#ffe066':'#ffffff',tier,flip:false,k})||0;if(TB.g&&kind!=='sp')TB.g[i]=Math.min(100,TB.g[i]+(o.gain!=null?o.gain:kind==='skill'?9:12))}});
   if(o.after)hits.push({t:pre+hitAt+(n-1)*gap+.05,f:o.after});
   TB.an.push({i,k:kind,t0,dur:pre+hitAt+(n-1)*gap+.42,me,col,pre,hitAt,n,gap,hits})}
-function tbHit(d,o){if(!TB||TB.end)return;d=Math.max(1,Math.round(d));const E=TBEN;TB.en.hp=Math.max(0,TB.en.hp-d);TB.en.hitC=TB.c;
+function tbHit(d,o){if(!TB||TB.end)return 0;d=Math.max(1,Math.round(d));const E=TBEN;TB.en.hp=Math.max(0,TB.en.hp-d);TB.en.hitC=TB.c;
   TB.nums.push({v:String(d),x:E.x-20+(Math.random()-.5)*26,y:E.y-118+(Math.random()-.5)*10,c:TB.c,col:o.col,big:o.big||o.crit});
   TB.fx.push({k:'slash',c:TB.c,x:E.x-14+(Math.random()-.5)*10,y:E.y-74+(Math.random()-.5)*16,tier:o.big?'UR':o.tier,R:o.big?60:40,kk:o.k||0});TB.fx.push({k:'spark',c:TB.c,x:E.x-14,y:E.y-74,tier:o.big?'UR':'R'});
   TB.stop=Math.max(TB.stop,o.big?.16:o.crit?.09:.045);if(o.big||o.crit)TB.shake=Math.max(TB.shake,o.big?7:3);if(o.crit)TB.fx.push({k:'txt',c:TB.c,s:'CRITICAL',x:E.x-20,y:E.y-140,col:'#ffb347',sz:8,d:.6});
-  if(TB.en.hp<=0)tbEnd(true)}
+  if(TB.mode==='turn'&&!TB.rage&&TB.en.hp>0&&TB.en.hp<TB.en.max/2){TB.rage=true;TB.chMax=2;TB.ch=Math.min(TB.ch,1);tbLater(()=>tbLabel('怒り状態! チャージが早くなる','#ff6a5a',11),300)}
+  if(TB.en.hp<=0)tbEnd(true);return d}
 function tbHurt(share,label){if(!TB||TB.end)return;const d=Math.round(TB.pmax*share);TB.php=Math.max(0,TB.php-d);TB.hurtC=TB.c;TB.shake=Math.max(TB.shake,share>.15?8:4);TB.nums.push({v:String(d),x:110,y:150,c:TB.c,col:'#ff8a8a',big:share>.15});if(label)TB.fx.push({k:'txt',c:TB.c,s:label,x:110,y:120,col:'#ff8a8a',sz:10,d:.9});if(TB.php<=0)tbEnd(false)}
 function tbHeal(share){TB.php=Math.min(TB.pmax,TB.php+Math.round(TB.pmax*share));TB.nums.push({v:'+'+Math.round(TB.pmax*share),x:110,y:150,c:TB.c,col:'#a6ffb0'})}
 function tbEnemyAtk(share,label,big){TB.an.push({i:-1,k:'eatk',t0:TB.c,dur:.7,big,hits:[{t:big?.45:.3,f:()=>tbHurt(share,label)}]})}
@@ -2299,14 +2304,19 @@ function tbShadow(x,y,w){G.save();G.globalAlpha=.38;G.fillStyle=BQL?BQL.P.sh:'#0
 function tbDrawEnemy(){const E=TBEN,a=tbAnimOf(-1),u=a?TB.c-a.t0:9,lunge=a?(u<.25?-eo(u/.25)*(a.big?60:36):u<.45?-(a.big?60:36):-(a.big?60:36)*(1-eio((u-.45)/.25))):0,h=TB.c-TB.en.hitC,kb=h>=0&&h<.25?(1-h/.25)*6:0;
   const o={breath:Math.sin(TB.c*2.2)*.5+.5,flash:h>=0&&h<.06?1:0,pose:a&&u<.45?'p6':'p1',t:TB.c,alpha:TB.end&&TB.end.win?Math.max(0,1-(tbRT()-TB.end.rt+.5)/.8):1};
   tbShadow(E.x,E.y,46);G.save();G.translate(E.x+lunge+kb,E.y);G.scale(E.s,E.s);if(!drawBoss({name:'かぼちゃ頭の騎士',boss:RAIDHW[0]},0,0,o))drawFighter(fighterOpp(questOpp(30)),0,0,o);G.restore();
+  if(TB.mode==='turn'&&!TB.end){if(TB.rage){G.save();G.imageSmoothingEnabled=true;glow(E.x,E.y-60,70+6*Math.sin(TB.c*6),'rgba(255,60,40,1)',.22);G.restore()}const st=[];if(TB.def>0)st.push(['防御↓'+TB.def,'#7fc8ff']);if(TB.rage)st.push(['怒り','#ff6a5a']);st.forEach(([s2,c2],k)=>tbTxt(s2,E.x-40+k*40,E.y-150,7.5,c2))}
   if(TB.mode==='skill'&&TB.c-TB.warn<1.4&&!TB.end){tbTxt('!!',E.x-10,E.y-150,16,'#ff4a5a',null,Math.floor(TB.c*8)%2?1:.4)}}
-function tbDrawParty(){const order=[0,1,2,3].sort((a,b)=>TBHOME[a][1]-TBHOME[b][1]);for(const i of order){const f=TB.P[i],p=tbPos(i),a=tbAnimOf(i),hurt=TB.hurtC!=null&&TB.c-TB.hurtC<.12;
+function tbDrawParty(){const T2=TB.mode==='turn';if(T2&&TB.guard){G.save();G.imageSmoothingEnabled=true;G.globalAlpha=.22+.06*Math.sin(TB.c*3);G.fillStyle='#7fc8ff';G.beginPath();G.ellipse(112,214,92,70,0,Math.PI,0);G.fill();G.globalAlpha=.6;G.strokeStyle='#cfe8ff';G.lineWidth=1.2;G.stroke();G.restore()}
+  const order=[0,1,2,3].sort((a,b)=>TBHOME[a][1]-TBHOME[b][1]);for(const i of order){const f=TB.P[i],p=tbPos(i),a=tbAnimOf(i),down=T2&&TB.mh[i]<=0,hurt=T2?TB.c-TB.hurtM[i]<.12:TB.hurtC!=null&&TB.c-TB.hurtC<.12;
+    if(T2&&TB.buff[i]>0&&!down){G.save();G.imageSmoothingEnabled=true;glow(p.x,p.y-36,24+2*Math.sin(TB.c*5+i),'rgba(255,90,80,1)',.32);G.restore()}
     tbShadow(p.x,p.y,18);if(a&&a.k==='buff'){G.save();G.imageSmoothingEnabled=true;glow(p.x,p.y-40,30,a.col,.5);G.restore()}
-    if(TB.g[i]>=100&&!TB.end){const k=.5+.5*Math.sin(TB.c*6+i);G.save();G.imageSmoothingEnabled=true;glow(p.x,p.y-40,26+k*6,'rgba(255,214,90,1)',.45);G.restore()}
-    G.save();G.translate(p.x,p.y);G.scale(.42,.42);drawFighter(f,0,0,{pose:p.pose,flip:true,breath:Math.sin(TB.c*2.6+i)*.5+.5,t:TB.c,seed:i*.3,flash:hurt?1:0});G.restore()}}
+    if(TB.g[i]>=100&&!TB.end&&!down){const k=.5+.5*Math.sin(TB.c*6+i);G.save();G.imageSmoothingEnabled=true;glow(p.x,p.y-40,26+k*6,'rgba(255,214,90,1)',.45);G.restore()}
+    G.save();G.translate(p.x,p.y);G.scale(.42,.42);if(down){G.globalAlpha=.55;G.filter='grayscale(1)'}drawFighter(f,0,0,{pose:down?'p4':p.pose,flip:true,breath:down?0:Math.sin(TB.c*2.6+i)*.5+.5,t:down?null:TB.c,seed:i*.3,flash:hurt?1:0});G.restore();
+    if(T2&&!TB.end){const r=TB.mh[i]/TB.mmax[i],bx=p.x-12,by=p.y-98;G.save();G.fillStyle='rgba(10,8,16,.75)';G.fillRect(bx-1,by-1,26,4);G.fillStyle=r<.3?'#ff6a5a':'#5ad98a';G.fillRect(bx,by,Math.round(24*r),2);G.restore()}}}
 function tbDrawProj(){for(const a of TB.an){if(a.i<0||a.me)continue;const u=TB.c-a.t0-a.pre;for(let k=0;k<a.n;k++){const s=a.hitAt-.2+k*a.gap,v=(u-s)/.2;if(v<0||v>1)continue;const [hx,hy]=TBHOME[a.i],x0=hx+14,y0=hy-58,x1=TBEN.x-20,y1=TBEN.y-74,x=lerp(x0,x1,v),y=lerp(y0,y1,v)-Math.sin(v*Math.PI)*10;
     G.save();G.imageSmoothingEnabled=true;glow(x,y,10,a.col,.8);G.fillStyle='#ffffff';G.beginPath();G.arc(x,y,2.5,0,Math.PI*2);G.fill();G.globalAlpha=.6;G.strokeStyle=a.col;G.lineWidth=2;G.beginPath();G.moveTo(lerp(x0,x1,Math.max(0,v-.25)),lerp(y0,y1,Math.max(0,v-.25)));G.lineTo(x,y);G.stroke();G.restore()}}}
 function tbDrawFx(){TB.fx=TB.fx.filter(f=>TB.c-f.c<(f.d||.45));for(const f of TB.fx){const v=TB.c-f.c;if(f.k==='slash')pslashFx(f.x,f.y,f.R,Math.floor(v/.045),f.kk%2,f.tier,false);if(f.k==='spark')drawSpark(f.x,f.y,Math.floor(v/.066),f.tier);
+    if(f.k==='heal'||f.k==='gold'){const rr=rngOf(f.seed||7);G.save();for(let n=0;n<10;n++){const x=f.x+(rr()-.5)*30,y=f.y-10-v*70-rr()*40,a2=1-v/(f.d||.9);G.globalAlpha=Math.max(0,a2);G.fillStyle=f.k==='heal'?(n%2?'#a6ffb0':'#ffffff'):(n%2?'#ffd36b':'#fff3c4');G.fillRect(Math.round(x),Math.round(y),n%3?1:2,n%3?1:2)}G.restore()}
     if(f.k==='txt')tbTxt(f.s,f.x,f.y-eo(v/.25)*8,f.sz||10,f.col,null,1-clamp((v-(f.d||.8)*.65)/((f.d||.8)*.35),0,1))}
   TB.nums=TB.nums.filter(n=>TB.c-n.c<1);for(const n of TB.nums){const v=TB.c-n.c,pop=v<.05?1:0,y=Math.round(n.y-16*eo(v/.16)+7*eio(clamp((v-.16)/.2,0,1))-6*clamp((v-.5)/.5,0,1));ptext(G,n.v,n.x,y,v<.04?'#ffffff':n.col,(n.big?4:3)+pop,1-clamp((v-.6)/.4,0,1))}}
 function tbHud(){const e=TB.en;G.save();G.fillStyle='rgba(10,8,16,.72)';G.fillRect(196,8,178,10);G.fillStyle='#3a1a24';G.fillRect(198,10,174,6);G.fillStyle='#ff5a6a';G.fillRect(198,10,Math.round(174*e.hp/e.max),6);G.restore();tbTxt('かぼちゃ頭の騎士',372,26,7.5,'#ffe9c0','right');
@@ -2316,13 +2326,14 @@ function tbHud(){const e=TB.en;G.save();G.fillStyle='rgba(10,8,16,.72)';G.fillRe
 function tbFrame(){tbTick();const r=tbRT();G.setTransform(SC,0,0,SC,0,0);G.imageSmoothingEnabled=false;TB.shake*=.86;const sx=TB.shake>.4?(Math.floor(r*60)%2?1:-1)*TB.shake:0;G.setTransform(SC,0,0,SC,sx*SC,(TB.shake>.4?(Math.floor(r*60+1)%2?1:-1)*TB.shake*.4:0)*SC);
   bqBack(TB.c,0);tbDrawEnemy();tbDrawParty();tbDrawProj();bqFrontDraw(TB.c,0);tbDrawFx();G.setTransform(SC,0,0,SC,0,0);
   if(TB.hurtC!=null&&TB.c-TB.hurtC<.2){G.save();G.globalAlpha=(1-(TB.c-TB.hurtC)/.2)*.3;G.fillStyle='#ff2a3a';G.fillRect(0,0,W,H);G.restore()}
-  tbHud();TB.ov=TB.ov.filter(o=>r-o.rt0<o.d);for(const o of TB.ov)if(o.k==='cut')cutIn(o.f,r-o.rt0,1,o.name,o.C);
+  if(TB.mode==='turn'&&TB.banner&&!TB.end){const v=TB.c-TB.banner;if(v>=0&&v<.9){const k=v<.2?eo(v/.2):v>.7?1-(v-.7)/.2:1;G.save();G.globalAlpha=k*.55;G.fillStyle='#000';G.fillRect(0,104,W,30);G.restore();tbTxt('TURN '+TB.turnN,190+(1-eo(clamp(v/.2,0,1)))*-60,119,16,'#ffe9a0',null,k)}}
+  tbHud();TB.ov=TB.ov.filter(o=>r-o.rt0<o.d);for(const o of TB.ov)if(o.k==='cut')cutIn(o.f,r-o.rt0,o.D||1,o.name,o.C);
   if(TB.end){const v=r-TB.end.rt;if(v>0){G.save();G.globalAlpha=clamp(v/.3,0,1)*.55;G.fillStyle='#000';G.fillRect(0,0,W,H);G.restore();const k=eo(clamp((v-.1)/.35,0,1));tbTxt(TB.end.win?'CLEAR!':'まけ…',190,112-(1-k)*10,28,TB.end.win?'#ffe066':'#c9d4ff',null,k)}}
   tbUIUpdate()}
 /* ---------- the panel under the stage ---------- */
 function tbFace(f,sz){return headCv(lookHead(f.look),sz||40)}
 function tbUI(){let u=$('tbui');if(!u){u=document.createElement('div');u.id='tbui';$('stage').after(u)}u.replaceChildren();u.className='tbui m-'+TB.mode;
-  if(TB.end){const b=mk('div','tbend');b.innerHTML='<b>'+(TB.end.win?'クリア!':'まけてしまった')+'</b>';const r=mk('button','btn main','もう一回');r.type='button';r.onclick=()=>{const m=TB.mode;TB=null;tbStart(m)};const q=mk('button','btn','やめる');q.type='button';q.onclick=tbQuit;const row=mk('div','row2');row.append(r,q);b.append(row);u.append(b);return}
+  if(TB.end){const b=mk('div','tbend');b.innerHTML='<b>'+(TB.end.win?'クリア!':'まけてしまった')+'</b>';const tot=TB.en.max-TB.en.hp,mv=TB.dmgBy.indexOf(Math.max(...TB.dmgBy)),sm=mk('div','tbsum');sm.innerHTML='<span>'+(TB.mode==='turn'?TB.turnN+'ターン':Math.round(tbRT()-TB.t0)+'秒')+'</span><span>与えたダメージ '+tot.toLocaleString()+'</span>';b.append(sm);if(tot>0){const m=mk('div','tbmvp');m.append(tbFace(TB.P[mv],40));const tx=mk('div');tx.innerHTML='<small>MVP</small><b>'+(mv?TB.P[mv].name:'あなた')+'</b><em>'+TB.dmgBy[mv].toLocaleString()+'ダメージ</em>';m.append(tx);b.append(m)}const r=mk('button','btn main','もう一回');r.type='button';r.onclick=()=>{const m=TB.mode;TB=null;tbStart(m)};const q=mk('button','btn','やめる');q.type='button';q.onclick=tbQuit;const row=mk('div','row2');row.append(r,q);b.append(row);u.append(b);return}
   const top=mk('div','tbtop');const ti=mk('b',null,{skill:'スキル打ち',card:'カード選び',turn:'ターン制'}[TB.mode]);const q=mk('button','tbq','やめる');q.type='button';q.onclick=tbQuit;top.append(ti,q);u.append(top);
   if(TB.mode==='skill'){const cb=mk('div','tbcost');cb.innerHTML='<span>コスト</span><div class="tbcb">'+'<i></i>'.repeat(10)+'</div><em id="tbcn">0</em>';u.append(cb);const row=mk('div','tbsk');
     TB.P.forEach((f,i)=>{const [nm,c]=TBSK[f.wt]||['スキル',3],b=mk('button','tbsb');b.type='button';b.style.setProperty('--c',TBC[f.wt]||'#fff');b.dataset.i=i;const g=mk('div','tbg');g.innerHTML='<i></i>';b.append(tbFace(f),mk('b',null,nm),mk('em',null,String(c)),g,mk('span','tbsp','必殺'));b.onclick=()=>tbSkillTap(i);row.append(b)});u.append(row);
@@ -2332,9 +2343,9 @@ function tbUI(){let u=$('tbui');if(!u){u=document.createElement('div');u.id='tbu
     const row=mk('div','tbcards');TB.hand.forEach(c=>row.append(tbCardEl(c)));u.append(row);
     const gg=mk('div','tbgs');TB.P.forEach((f,i)=>{const d=mk('div','tbgm');d.append(tbFace(f,26));const g=mk('div','tbg'+(TB.g[i]>=100?' full':''));g.innerHTML='<i style="width:'+TB.g[i]+'%"></i>';d.append(g);gg.append(d)});u.append(gg);
     u.append(mk('p','tbnote','3枚選ぶと順に攻撃。同じ種類3枚でチェイン、同じ仲間3枚で追撃。1枚目の種類で全体にボーナス。連が出ると次のターン会心が出やすい。必殺ゲージ満タンの仲間は金のカードが出る。'))}
-  if(TB.mode==='turn'){const L=mk('div','tblab');L.id='tblab';L.textContent='ターン '+TB.turnN;u.append(L);const g=mk('div','tbturn');
-    TB.P.forEach((f,i)=>{const c=mk('div','tbmem');c.style.setProperty('--c',TBC[f.wt]||'#fff');const hd=mk('div','tbmh');hd.append(tbFace(f,34));const nm=mk('div','tbmn');nm.innerHTML='<b>'+(i?f.name:'あなた')+'</b>'+(TB.buff[i]>0?'<small>攻撃UP '+TB.buff[i]+'</small>':'');const gb=mk('div','tbg'+(TB.g[i]>=100?' full':''));gb.innerHTML='<i style="width:'+TB.g[i]+'%"></i>';nm.append(gb);hd.append(nm);c.append(hd);
-      const ab=TBAB[f.wt]||TBAB.sword;ab.forEach((a,k)=>{const b=mk('button','tbab');b.type='button';const ct=TB.ct[i][k];b.disabled=ct>0||TB.busy;b.innerHTML='<b>'+a[0]+'</b><small>'+(ct>0?'あと'+ct+'ターン':a[1])+'</small>';b.onclick=()=>tbAbility(i,k);c.append(b)});g.append(c)});u.append(g);
+  if(TB.mode==='turn'){const L=mk('div','tblab');L.id='tblab';L.textContent='ターン '+TB.turnN+(TB.guard?'  ・ 守りの陣':'')+(TB.def?'  ・ 敵の防御↓'+TB.def:'');u.append(L);const g=mk('div','tbturn');
+    TB.P.forEach((f,i)=>{const down=TB.mh[i]<=0,c=mk('div','tbmem'+(down?' down':''));c.style.setProperty('--c',TBC[f.wt]||'#fff');const hd=mk('div','tbmh');hd.append(tbFace(f,34));const nm=mk('div','tbmn');nm.innerHTML='<b>'+(i?f.name:'あなた')+(down?' <small>戦闘不能</small>':'')+'</b>'+(TB.buff[i]>0?'<small>攻撃UP あと'+TB.buff[i]+'</small>':'');const hb=mk('div','tbhp');hb.innerHTML='<i style="width:'+(100*TB.mh[i]/TB.mmax[i]).toFixed(0)+'%"></i><span>'+TB.mh[i]+'</span>';const gb=mk('div','tbg'+(TB.g[i]>=100?' full':''));gb.innerHTML='<i style="width:'+TB.g[i]+'%"></i>';nm.append(hb,gb);hd.append(nm);c.append(hd);
+      const ab=TBAB[f.wt]||TBAB.sword;ab.forEach((a,k)=>{const b=mk('button','tbab');b.type='button';const ct=TB.ct[i][k];b.disabled=ct>0||TB.busy||down;b.innerHTML='<b>'+a[0]+'</b><small>'+(ct>0?'あと'+ct+'ターン':a[1])+'</small>';b.onclick=()=>tbAbility(i,k);c.append(b)});g.append(c)});u.append(g);
     const go=mk('button','btn main tbgo','攻撃');go.type='button';go.disabled=TB.busy;go.onclick=tbAttack;u.append(go);
     u.append(mk('p','tbnote','技を使ってから「攻撃」。必殺ゲージ満タンの仲間は攻撃で必殺技、2人以上なら連携。敵のチャージ◆が満タンになると大技。'))}}
 function tbUIUpdate(){if(!TB||TB.end)return;if(TB.mode==='skill'){const n=Math.floor(TB.cost);const segs=document.querySelectorAll('#tbui .tbcb i');segs.forEach((s,k)=>{s.className=k<n?'on':k===n?'half':'';if(k===n)s.style.setProperty('--p',((TB.cost-n)*100).toFixed(0)+'%')});const cn=$('tbcn');if(cn)cn.textContent=n;
@@ -2365,21 +2376,29 @@ function tbRunCards(){const P=TB.pick,first=P[0].t,same=P.every(c=>c.t===first&&
     else tbAct(c.i,'atk',{mul:1.2*bon,crit:Math.random()<crit,gain:8})},t*1000);t+=c.t==='sp'?1.9:c.t==='q'?.85:.75});
   tbLater(()=>{if(!TB||TB.end)return;TB.cd--;if(TB.cd<=0){TB.cd=3;tbEnemyAtk(.16,'敵の攻撃')}tbLater(()=>{if(!TB||TB.end)return;TB.busy=false;tbDeal();tbUI()},TB.cd===3?900:200)},t*1000+300)}
 /* ---------- 3. ターン制 ---------- */
-function tbAbility(i,k){if(TB.busy||TB.end||TB.ct[i][k]>0)return;const f=TB.P[i],a=(TBAB[f.wt]||TBAB.sword)[k],nm=a[0];TB.ct[i][k]=a[2];TB.fx.push({k:'txt',c:TB.c,s:nm,x:TBHOME[i][0],y:TBHOME[i][1]-96,col:TBC[f.wt]||'#fff',sz:9,d:.9});
+const tbAlive=i=>TB.mh[i]>0;
+function tbHurtM(j,share){if(!TB||TB.end||!tbAlive(j))return;const d=Math.max(1,Math.round(TB.mmax[j]*share*(TB.guard?.5:1)));TB.mh[j]=Math.max(0,TB.mh[j]-d);TB.hurtM[j]=TB.c;TB.php=TB.mh.reduce((a,v)=>a+v,0);
+  const [x,y]=TBHOME[j];TB.nums.push({v:String(d),x,y:y-104,c:TB.c,col:'#ff8a8a',big:share>.25});TB.shake=Math.max(TB.shake,share>.25?7:4);
+  if(TB.mh[j]<=0)TB.fx.push({k:'txt',c:TB.c,s:'戦闘不能',x,y:y-120,col:'#c9d4ff',sz:8,d:1.1});if(TB.mh.every(v=>v<=0))tbEnd(false)}
+function tbEnemyMove(big){const al=[0,1,2,3].filter(tbAlive);if(!al.length)return 0;
+  if(!big){const j=al[Math.floor(Math.random()*al.length)];TB.an.push({i:-1,k:'eatk',t0:TB.c,dur:.7,hits:[{t:.3,f:()=>{TB.fx.push({k:'slash',c:TB.c,x:TBHOME[j][0]+6,y:TBHOME[j][1]-40,tier:'R',R:30,kk:1});tbHurtM(j,TB.rage?.24:.18);if(TB.guard){TB.guard=0}}}]});return .9}
+  TB.ov.push({k:'cut',f:{boss:RAIDHW[0],name:'かぼちゃ頭の騎士'},name:TB.rage?'真夜中の大鎌':'パンプキン・ブレイク',C:['#1a0604','#6a1a08','#ff8a3a','#ffffff'],rt0:tbRT(),d:.85,D:-1});TB.stop=Math.max(TB.stop,.82);
+  TB.an.push({i:-1,k:'eatk',t0:TB.c,dur:.8,big:true,hits:[{t:.45,f:()=>{const g=TB.guard;for(const j of al){TB.fx.push({k:'slash',c:TB.c,x:TBHOME[j][0]+6,y:TBHOME[j][1]-40,tier:'UR',R:36,kk:j});tbHurtM(j,TB.rage?.36:.3)}if(g){tbLabel('守りの陣で半分!','#a6e4ff',11);TB.guard=0}}}]});return 1.9}
+function tbAbility(i,k){if(TB.busy||TB.end||TB.ct[i][k]>0||!tbAlive(i))return;const f=TB.P[i],a=(TBAB[f.wt]||TBAB.sword)[k],nm=a[0],[hx,hy]=TBHOME[i];TB.ct[i][k]=a[2];TB.fx.push({k:'txt',c:TB.c,s:nm,x:hx,y:hy-112,col:TBC[f.wt]||'#fff',sz:9,d:.9});
   if(a[1]==='強い1撃')tbAct(i,'atk',{mul:1.8,gain:15});
-  else if(nm==='狙い撃ち'){tbAct(i,'atk',{mul:1.2,gain:10,after:()=>{TB.def=2;tbLabel('敵の防御ダウン','#a6e4ff',10)}})}
-  else if(nm==='影縫い')tbAct(i,'buff',{f:()=>{TB.ch=Math.max(0,TB.ch-1);tbLabel('チャージ-1','#a6e4ff',10)}});
-  else if(a[1]==='2ターン攻撃1.5倍')tbAct(i,'buff',{f:()=>{TB.buff[i]=2}});
-  else if(a[1]==='みんな15%回復')tbAct(i,'buff',{f:()=>tbHeal(.15)});
-  else if(a[1]==='みんなの必殺+30')tbAct(i,'buff',{f:()=>{TB.g=TB.g.map(g=>Math.min(100,g+30))}});
-  else if(a[1]==='必殺+40')tbAct(i,'buff',{f:()=>{TB.g[i]=Math.min(100,TB.g[i]+40)}});
-  else if(nm==='守りの陣')tbAct(i,'buff',{f:()=>{TB.guard=1;tbLabel('守りの陣','#a6e4ff',10)}});
+  else if(nm==='狙い撃ち')tbAct(i,'atk',{mul:1.2,gain:10,after:()=>{TB.def=2;tbLabel('敵の防御ダウン(2ターン)','#a6e4ff',10);tbUI()}});
+  else if(nm==='影縫い')tbAct(i,'buff',{f:()=>{TB.ch=Math.max(0,TB.ch-1);tbLabel('チャージ -1','#c9a0ff',10);TB.fx.push({k:'gold',c:TB.c,x:TBEN.x,y:TBEN.y-40,seed:9,d:.9});tbUI()}});
+  else if(a[1]==='2ターン攻撃1.5倍')tbAct(i,'buff',{f:()=>{TB.buff[i]=2;tbUI()}});
+  else if(a[1]==='みんな20%回復')tbAct(i,'buff',{f:()=>{[0,1,2,3].filter(tbAlive).forEach(j=>{const v=Math.round(TB.mmax[j]*.2);TB.mh[j]=Math.min(TB.mmax[j],TB.mh[j]+v);TB.nums.push({v:'+'+v,x:TBHOME[j][0],y:TBHOME[j][1]-104,c:TB.c,col:'#a6ffb0'});TB.fx.push({k:'heal',c:TB.c,x:TBHOME[j][0],y:TBHOME[j][1],seed:j+3,d:.9})});TB.php=TB.mh.reduce((a2,v)=>a2+v,0);tbUI()}});
+  else if(a[1]==='みんなの必殺+30')tbAct(i,'buff',{f:()=>{TB.g=TB.g.map((g,j)=>tbAlive(j)?Math.min(100,g+30):g);[0,1,2,3].filter(tbAlive).forEach(j=>TB.fx.push({k:'gold',c:TB.c,x:TBHOME[j][0],y:TBHOME[j][1],seed:j+5,d:.9}));tbUI()}});
+  else if(a[1]==='必殺+40')tbAct(i,'buff',{f:()=>{TB.g[i]=Math.min(100,TB.g[i]+40);TB.fx.push({k:'gold',c:TB.c,x:hx,y:hy,seed:2,d:.9});tbUI()}});
+  else if(nm==='守りの陣')tbAct(i,'buff',{f:()=>{TB.guard=1;tbLabel('守りの陣 次の敵の攻撃を半分に','#a6e4ff',10);tbUI()}});
   else tbAct(i,'atk',{mul:1.5,gain:15});tbLater(()=>TB&&tbUI(),600);tbUI()}
 function tbAttack(){if(TB.busy||TB.end)return;TB.busy=true;tbUI();let t=0,sps=0,sum=0;
-  TB.P.forEach((f,i)=>{const sp=TB.g[i]>=100;if(sp)sps++;sum+=tbD(f);tbLater(()=>{if(!TB||TB.end)return;if(sp){TB.g[i]=0;tbAct(i,'sp',{mul:3.2,n:1,crit:true})}else tbAct(i,'atk',{mul:1,gain:15+Math.floor(Math.random()*11)})},t*1000);t+=sp?1.85:.6});
-  if(sps>=2)tbLater(()=>{if(!TB||TB.end)return;TB.ov.push({k:'cut',f:TB.P[0],name:sps+'人連携!',C:['#200818','#8a1a4a','#ff8ad0','#ffffff'],rt0:tbRT(),d:.8});TB.stop=Math.max(TB.stop,.78);tbLater(()=>{if(!TB||TB.end)return;tbHit(sum*(.35*sps),{big:true,col:'#ff8ad0',tier:'UR'})},850)},t*1000+150),t+=1.8;
-  tbLater(()=>{if(!TB||TB.end)return;TB.ch++;let d=.07,lab=null,big=false;if(TB.ch>=TB.chMax){TB.ch=0;d=TB.guard?.12:.24;lab=TB.guard?'大技(守りの陣で半分)':'大技!';big=true;TB.guard=0}tbEnemyAtk(d,lab,big);
-    tbLater(()=>{if(!TB||TB.end)return;TB.ct=TB.ct.map(c=>c.map(x=>Math.max(0,x-1)));TB.buff=TB.buff.map(b=>Math.max(0,b-1));TB.def=Math.max(0,TB.def-1);TB.turnN++;TB.busy=false;tbUI()},900)},t*1000+300)}
+  TB.P.forEach((f,i)=>{if(!tbAlive(i))return;const sp=TB.g[i]>=100;if(sp)sps++;sum+=tbD(f);tbLater(()=>{if(!TB||TB.end)return;if(sp){TB.g[i]=0;tbAct(i,'sp',{mul:3.2,n:1,crit:true})}else tbAct(i,'atk',{mul:1,gain:15+Math.floor(Math.random()*11)})},t*1000);t+=sp?1.85:.5});
+  if(sps>=2)tbLater(()=>{if(!TB||TB.end)return;TB.ov.push({k:'cut',f:TB.P[0],name:sps+'人連携!',C:['#200818','#8a1a4a','#ff8ad0','#ffffff'],rt0:tbRT(),d:.8});TB.stop=Math.max(TB.stop,.78);tbLater(()=>{if(!TB||TB.end)return;const d=tbHit(sum*(.35*sps),{big:true,col:'#ff8ad0',tier:'UR'})||0;TB.dmgBy=TB.dmgBy.map(v=>v+d/4)},850)},t*1000+150),t+=1.8;
+  tbLater(()=>{if(!TB||TB.end)return;TB.ch++;let big=false;if(TB.ch>=TB.chMax){TB.ch=0;big=true}else if(TB.ch===TB.chMax-1)tbLabel('敵がチャージ中! 次のターンに大技','#ff8a8a',10);const w=tbEnemyMove(big);
+    tbLater(()=>{if(!TB||TB.end)return;TB.ct=TB.ct.map(c=>c.map(x=>Math.max(0,x-1)));TB.buff=TB.buff.map(b=>Math.max(0,b-1));TB.def=Math.max(0,TB.def-1);TB.turnN++;TB.banner=TB.c;TB.busy=false;tbUI()},w*1000+300)},t*1000+300)}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
