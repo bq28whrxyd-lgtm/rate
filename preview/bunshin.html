@@ -412,6 +412,8 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .qnw{background:#ff5a4a!important;color:#fff!important}.qclr{font:800 10.5px/1 var(--jp);font-style:normal;color:#8ff0a4}
 .qsd{display:grid;gap:8px;padding:2px 14px 14px}.qpw{display:flex;justify-content:space-between;margin:0;font:500 11.5px/1 var(--jp);color:var(--mut)}.qpw b{margin-left:4px;font:800 16px/1 var(--jp);color:#fff;font-variant-numeric:tabular-nums}.qpw b.ok{color:#8ff0a4}.qpw b.mid{color:#ffd36b}.qpw b.low{color:#ff8a8a}
 .qhint{margin:0;font:500 11px/1.4 var(--jp);color:#ffd9a0}.qrw{margin:0;font:500 11px/1 var(--jp);color:var(--mut)}.qsd .btn{width:100%;margin:2px 0 0}
+.sp[data-s=quest]>.sec:first-child>h2{display:none}
+.qrec{position:relative;display:flex;align-items:baseline;gap:10px;width:100%;margin-top:4px;padding:12px 14px;border:0;border-radius:12px;background:rgba(255,255,255,.04);color:#fff;text-align:left;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}.qrec b{font:800 13px/1 var(--jp)}.qrec small{font:500 11px/1 var(--jp);color:var(--mut)}.qrec.dot:after{content:'';position:absolute;right:12px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:#ff5a4a}
 </style>
 
 <div class="wrap">
@@ -480,7 +482,7 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 
   <section class="pane" id="p-fight" hidden>
     <div class="modes" id="modes"></div>
-    <button type="button" class="spback" id="spback" hidden>‹ 対戦メニュー</button>
+    <button type="button" class="spback" id="spback" hidden>‹ もどる</button>
     <div class="sp" data-s="pvp" hidden>
     <div class="sec"><h2>仲間と戦う</h2><div class="opps" id="opps"></div></div>
     <button type="button" class="btn main" id="go" style="flex:none">選んだ仲間と対戦する</button>
@@ -2225,7 +2227,7 @@ function oppCard(o,i){const f=fighterOpp(o);const b=mk('button','op'+(S.opp===i?
   const w=f.wt;b.append(c);b.insertAdjacentHTML('beforeend','<div><b>'+o.name+'</b><small>'+WT[w].n+'・必殺技 '+spOf(w,f.wr).sp+'</small></div><em>Lv'+o.lv+(i>=0?'  ・  ':'<br>')+'戦闘力 '+power(f.st)+'</em>');b.onclick=()=>{S.opp=i;save();renderFight()};return b}
 /* the 対戦 tab opens on a menu of four big tiles (ボス / クエスト / スコアアタック / 仲間) plus 記録; a tile opens its part, ‹ goes back */
 let SUB=null;
-function subSet(k){SUB=k;$('modes').hidden=!!k;$('spback').hidden=!k;document.querySelectorAll('#p-fight .sp').forEach(p=>p.hidden=p.dataset.s!==k);if(k==='rec'){try{localStorage.setItem('bunRecSeen',String(Date.now()))}catch(e){}}if(!k)renderModes();if(k)window.scrollTo(0,$('p-fight').offsetTop-70)}
+function subSet(k){const home=!k;if(!k)k='quest';SUB=k;$('modes').hidden=true;$('spback').hidden=k==='quest';document.querySelectorAll('#p-fight .sp').forEach(p=>p.hidden=p.dataset.s!==k);if(k==='rec'){try{localStorage.setItem('bunRecSeen',String(Date.now()))}catch(e){}}if(k==='quest')renderQuest();if(!home&&k!=='quest')window.scrollTo(0,$('p-fight').offsetTop-70)}
 $('spback').onclick=()=>subSet(null);
 document.querySelectorAll('.tmb').forEach(b=>b.onclick=()=>b.dataset.m==='turn'?trStart():tbStart(b.dataset.m));
 function headCv(draw,sz){const c=document.createElement('canvas');c.width=sz;c.height=sz;ready.then(()=>{const g=c.getContext('2d');g.imageSmoothingEnabled=false;try{draw(g,sz)}catch(e){}});return c}
@@ -2967,7 +2969,7 @@ function qsEvRow(e){const b=mk('button','qev '+e.cls);b.type='button';const a=mk
 /* the daily things: the exp quest (its own section below, shown on this tab) and battles with friends */
 function qsDaily(){const out=[];if(HOST&&HOST.left){const n=HOST.left();out.push({cls:'pv',art:headCv(lookHead(myLook()),48),t:'仲間と戦う',s:'仲間の分身と3体で戦う ・ 朝5時に戻る',tag:'毎日',left:'今日あと'+n+'回',go:()=>subSet('pvp')})}return out}
 function qsTabs(box,evN){const t=mk('div','qtabs');t.setAttribute('role','tablist');for(const [k,n] of [['ev','イベント'],['nm','ノーマル'],['dy','毎日']]){const b=mk('button','qtab'+(QTAB===k?' on':''));b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',QTAB===k?'true':'false');b.innerHTML=n+(k==='ev'&&evN?'<i>'+evN+'</i>':'');b.onclick=()=>{QTAB=k;QA=null;try{localStorage.setItem('bunQTab',k)}catch(e){}renderQuest()};t.append(b)}box.append(t)}
-function renderQuest(){const box=$('quest');if(!box)return;box.replaceChildren();const cur=Math.min(QMAX,S.qs+1),ca=qaOf(cur),nA=Math.ceil(QMAX/10);
+function qsBody(){const box=$('quest');if(!box)return;box.replaceChildren();const cur=Math.min(QMAX,S.qs+1),ca=qaOf(cur),nA=Math.ceil(QMAX/10);
   if(QA!=null&&QA>ca)QA=null;const ev=qsEvents(),xs=$('xq')&&$('xq').closest('.sec');qsTabs(box,ev.filter(e=>e.tag==='開催中').length);if(xs)xs.hidden=QTAB!=='dy';
   if(QTAB==='ev'){const l=mk('div','qevs');ev.forEach(e=>l.append(qsEvRow(e)));if(!ev.length)l.append(mk('p','note','いま開いているイベントはありません。'));box.append(l);return}
   if(QTAB==='dy'){const d=qsDaily();if(d.length){const l=mk('div','qevs');d.forEach(e=>l.append(qsEvRow(e)));box.append(l)}return}
@@ -2993,6 +2995,10 @@ function renderQuest(){const box=$('quest');if(!box)return;box.replaceChildren()
       const go=mk('button','btn main',isCur?'挑戦する':'もう一度挑戦する');go.type='button';go.onclick=()=>startBattle(o);d.append(go);row.append(d)}
     l.append(row)}
   box.append(l)}
+
+/* (10/23) the 対戦 tab opens straight on this screen (no menu of tiles); 記録 sits at the bottom as a small row */
+function renderQuest(){qsBody();const box=$('quest');if(!box)return;const rec=mk('button','qrec');rec.type='button';rec.innerHTML='<b>記録</b><small>攻められた記録・バトルの記録</small>';
+  let seen=0;try{seen=+localStorage.getItem('bunRecSeen')||0}catch(e){}try{if(HOST&&HOST.defenses().some(x=>(x.t||0)>seen))rec.classList.add('dot')}catch(e){}rec.onclick=()=>subSet('rec');box.append(rec)}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
