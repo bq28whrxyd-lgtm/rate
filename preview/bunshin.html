@@ -2540,8 +2540,8 @@ function tbAttack(){if(TB.busy||TB.end)return;TB.busy=true;tbUI();let t=0,sps=0,
 let TR=null;
 const TRW={sword:'剣',staff:'杖',bow:'弓',spear:'槍',fist:'拳',hammer:'槌',penlight:'光'};
 const TRWC={sword:'#ff6a6a',staff:'#b48cff',bow:'#5ac8ff',spear:'#ffd34a',fist:'#ffa860',hammer:'#ffa860',penlight:'#ff8ad0'};
-const TRSK={sword:['斬り込み','強い1撃(弱点ならシールド2削る)'],knight:['かばう','2回、仲間の代わりに受ける・自分は40%減'],guard:['かばう','2回、仲間の代わりに受ける・自分は40%減'],lancer:['なぎ払い','攻撃+敵の防御ダウン2回'],
-  mage:['魔法弾','3回攻撃(弱点なら1発ごとに削る)'],priest:['いやしの光','みんなHP22%回復'],hunter:['影縫い','攻撃+敵の行動を遅らせる'],monk:['連打','4回攻撃'],warrior:['叩きつけ','強い1撃'],cheer:['声援','みんなの必殺+25・攻撃UP']};
+const TRSK={sword:['斬り込み','強い1撃(弱点ならシールド2削る)'],knight:['盾撃ち','攻撃+2回、仲間の代わりに受ける・受けるダメージ40%減'],guard:['盾撃ち','攻撃+2回、仲間の代わりに受ける・受けるダメージ40%減'],lancer:['なぎ払い','攻撃+敵の防御ダウン2回'],
+  mage:['魔法弾','3回攻撃(弱点なら1発ごとに削る)'],priest:['いやしの光','みんなHP22%回復'],hunter:['影縫い','攻撃+敵の行動を遅らせる'],monk:['連打','4回攻撃'],warrior:['叩きつけ','強い1撃'],cheer:['声援','攻撃+みんなの必殺+25・攻撃UP']};
 const TRPAS={yga:['罠封じ','最初に受ける攻撃を1回無効'],sma:['盾','受けるダメージ20%減'],tca:['推しグッズ','自分の番ごとにHP6%回復'],ygx:['先攻の指輪','会心率+20%'],smx:['ふっとばし','通常攻撃は弱点でなくてもシールドを削る'],tcx:['推しうちわ','必殺ゲージのたまり+30%']};
 const trRar=r=>1+({SR:.1,UR:.2,GR:.3,KMR:.4}[r]||0);
 const trNow=()=>performance.now()/1000;
@@ -2552,12 +2552,14 @@ function trStart(o){if(playing)return;o=o||{};BT=null;HS=null;TB=null;const P=o.
   trSetup();if(o.sim)return;$('plA').hidden=true;$('plB').hidden=true;$('ctl').hidden=true;$('result').className='result';$('stage').classList.add('tm');TR.cur=-1;TR.phase='cmd';trAdvance();trUI();$('stage').scrollIntoView({behavior:'smooth',block:'start'})}
 let TRSPD=1,TRAUTO=false;try{TRSPD=+localStorage.getItem('trSpd')||1;TRAUTO=localStorage.getItem('trAuto')==='1'}catch(e){}
 /* difficulty: the enemy is scaled by how strong the party is compared to the main avatar alone (so 1 avatar = the same fight as before) */
-var TRH0=1.0,TRD0=1.0;
+var TRH0=2.5,TRD0=2.5,TRRB=1.05,TRPQ=[1,1,1.17,1.35],TRPR=[1,1,1.15,1.3];
+/* the set rate: base x level (a little stronger as you go up) x party size (2 or 3 avatars: a bit stronger; the boss more, since 3 avatars last much longer) */
+function trRate(P,sop){const n=P.length,raid=!!(sop&&sop.turns&&sop.hp1!=null);return (.9+.003*(P[0].lv||1))*(n<=1?1:(raid?TRPR:TRPQ)[Math.min(3,n)])}
 function trDefEnemy(P){const m=P[0],q=fighterOpp(questOpp(Math.max(1,Math.min(100,Math.round(m.lv*1.1)))));q.boss={tint:RAIDHW[0].tint,pal:RAIDHW[0].pal,img:RAIDHW[0].img};q.name='かぼちゃ頭の騎士';return q}
 function trSetup(){const P=TR.P,o=TR.o,Bf=o.B||trDefEnemy(P),ws=[...new Set(P.map(f=>f.wt))],all=Object.keys(TRW).filter(w=>w!=='hammer'&&w!=='penlight'),r=Math.random;
   const w1=ws[Math.floor(r()*ws.length)],rest=all.filter(w=>w!==w1),w2=rest[Math.floor(r()*rest.length)],pw=P.map(f=>power(f.st)),k=Math.max(1,pw.reduce((a,v)=>a+v,0)/Math.max(1,pw[0]));
-  const sop=o.sop||{},mx=Bf.st.hp,hp1=sop.hp1!=null?Math.max(1,Math.min(mx,Math.round(sop.hp1))):mx;
-  Object.assign(TR,{Bf,k,pm:1/(TRH0*k*(o.sc||1)),ed:TRD0*k*(o.sc||1),tune:o.sc||1,role:P.map(tbRole),pas:P.map(trPas),mh:P.map(f=>f.st.hp),mmax:P.map(f=>f.st.hp),en:P.map(()=>0),sp:3,spMax:5,taunt:-1,tauntN:0,nul:P.map(f=>f.ak==='yga'?1:0),atkUp:0,defDown:0,hurt:P.map(()=>-9),dmg:P.map(()=>0),turnsMax:sop.turns||0,brk:0,
+  const sop=o.sop||{},rt=trRate(P,sop),mx=Bf.st.hp,hp1=sop.hp1!=null?Math.max(1,Math.min(mx,Math.round(sop.hp1))):mx;
+  Object.assign(TR,{Bf,k,pm:1/(TRH0*rt*k*(o.sc||1)),ed:TRD0*rt*k*(o.sc||1),tune:o.sc||1,role:P.map(tbRole),pas:P.map(trPas),mh:P.map(f=>f.st.hp),mmax:P.map(f=>f.st.hp),en:P.map(()=>0),sp:3,spMax:5,taunt:-1,tauntN:0,nul:P.map(f=>f.ak==='yga'?1:0),atkUp:0,defDown:0,hurt:P.map(()=>-9),dmg:P.map(()=>0),turnsMax:sop.turns||0,brk:0,
     E:Object.assign(TR.E,{hp:hp1,max:mx,hp0:hp1,sh:5,shMax:5,weak:[w1,w2],broken:false,hitC:-9,atkC:-9,n:0,rage:false,name:Bf.name,boss:!!Bf.boss,s:Bf.boss?.76:.6})});
   if(sop.hp0!=null){const pm=TR.mmax.reduce((a,v)=>a+v,0),f=clamp(sop.hp0/Math.max(1,P[0].st.hp),.02,1);TR.mh=TR.mmax.map(v=>Math.max(1,Math.round(v*f)));void pm}
   TR.php0=TR.mh.reduce((a,v)=>a+v,0);TR.spd=[...P.map(f=>Math.max(10,f.st.spd)),Math.max(10,Bf.st.spd)];TR.next=TR.spd.map(s=>10000/s)}
@@ -2600,17 +2602,17 @@ function trSkill(){if(TR.phase!=='cmd'||TR.sp<1)return;const i=TR.cur,f=TR.P[i],
   if(ro==='sword'||ro==='warrior')trActAnim(i,{n:1,hit:k=>trDamage(i,2.2,{k,shield:w?2:0}),done:trAfter});
   else if(ro==='mage')trActAnim(i,{n:3,gap:.16,hit:k=>trDamage(i,.75,{k,shield:w?1:0}),done:trAfter});
   else if(ro==='monk')trActAnim(i,{n:4,gap:.1,hit:k=>trDamage(i,.5,{k,shield:w&&k%2===0?1:0}),done:trAfter});
-  else if(ro==='lancer')trActAnim(i,{n:1,hit:k=>{trDamage(i,1.5,{k,shield:w?1:0});TR.defDown=2;trLabel('敵の防御ダウン','#a6e4ff',10)},done:trAfter});
+  else if(ro==='lancer')trActAnim(i,{n:1,hit:k=>{trDamage(i,1.8,{k,shield:w?1:0});TR.defDown=2;trLabel('敵の防御ダウン','#a6e4ff',10)},done:trAfter});
   else if(ro==='hunter')trActAnim(i,{n:1,hit:k=>{trDamage(i,1.1,{k,shield:w?1:0});TR.next[TR.P.length]+=10000/TR.spd[TR.P.length]*.3;trLabel('影縫い 敵の行動が遅れる','#c9a0ff',10)},done:trAfter});
-  else if(ro==='knight'||ro==='guard')buff(()=>{TR.taunt=i;TR.tauntN=2;trLabel(f.name+'が仲間をかばう','#a6e4ff',10)});
+  else if(ro==='knight'||ro==='guard')trActAnim(i,{n:1,hit:k=>{trDamage(i,1.6,{k,shield:w?1:0});TR.taunt=i;TR.tauntN=2;trLabel(TR.P.length>1?f.name+'が仲間をかばう':'守りを固めた','#a6e4ff',10)},done:trAfter});
   else if(ro==='priest')buff(()=>{for(let j=0;j<TR.P.length;j++)if(trAlive(j))trHeal(j,.22)});
-  else if(ro==='cheer')buff(()=>{for(let j=0;j<TR.P.length;j++)if(trAlive(j)){trGain(j,25);TR.fx.push({k:'gold',c:TR.c,x:TR.home[j][0],y:TR.home[j][1],seed:j+5,d:.9})}TR.atkUp=2});
+  else if(ro==='cheer')trActAnim(i,{n:1,hit:k=>{trDamage(i,1,{k,shield:w?1:0});for(let j=0;j<TR.P.length;j++)if(trAlive(j)){trGain(j,25);TR.fx.push({k:'gold',c:TR.c,x:TR.home[j][0],y:TR.home[j][1],seed:j+5,d:.9})}TR.atkUp=2},done:trAfter});
   else trActAnim(i,{n:1,hit:k=>trDamage(i,1.8,{k,shield:w?1:0}),done:trAfter})}
 function trUlt(i){if(!TR||TR.end||TR.en[i]<100||!trAlive(i)||(TR.phase!=='cmd'&&TR.phase!=='enemyWait'))return;const f=TR.P[i],ro=TR.role[i],back=TR.phase;TR.en[i]=0;TR.phase='anim';TR.ultBy=i;trUI();
   TR.ov.push({k:'cut',f,name:spOf(f.wt,f.wr).sp,C:['#1a0f06','#6a3a10','#ffd36b','#ffffff'],rt0:trNow(),d:.85});TR.stop=Math.max(TR.stop,.82);
   const fin=()=>{TR.ultBy=-1;if(back==='cmd'){TR.phase='cmd';trUI()}else trAfter()};
   if(ro==='priest'){TR.an.push({i,t0:TR.c,dur:.7,buff:true,col:'#7affb8'});trAt(.3,()=>{for(let j=0;j<TR.P.length;j++){if(!trAlive(j)){TR.mh[j]=1}trHeal(j,.5)}trLabel('みんな回復!','#a6ffb0',12)});trAt(.9,fin);return}
-  if(ro==='knight'||ro==='guard'){TR.an.push({i,t0:TR.c,dur:.7,buff:true,col:'#7fc8ff'});trAt(.3,()=>{TR.nul=TR.nul.map((v,j)=>trAlive(j)?1:v);trLabel('みんなに守りの光(次の1回を無効)','#a6e4ff',11)});trAt(.9,fin);return}
+  if(ro==='knight'||ro==='guard'){TR.nul=TR.nul.map((v,j)=>trAlive(j)?1:v);trLabel('みんなに守りの光(次の1回を無効)','#a6e4ff',11);trActAnim(i,{n:1,hit:k=>trDamage(i,3,{k,big:true,crit:true,shield:TR.E.weak.includes(f.wt)?3:1}),done:fin});return}
   trActAnim(i,{n:1,hit:k=>trDamage(i,4.2,{k,big:true,crit:true,shield:TR.E.weak.includes(f.wt)?3:1}),done:fin})}
 function trAfter(){if(!TR||TR.end)return;TR.atkUp=Math.max(0,TR.atkUp-(TR.cur>=0?0:0));trAdvance()}
 /* ---------- the enemy ---------- */
@@ -2618,9 +2620,9 @@ function trEnemyAct(){if(!TR||TR.end)return;const E=TR.E,Bf=TR.Bf;if(E.broken){E
   const big=E.n%(E.rage?2:3)===0,al=TR.P.map((_,k)=>k).filter(trAlive);E.atkC=TR.c;const pow=trPow(Bf)*TR.ed;
   const after=()=>{if(TR&&!TR.end&&TR.turnsMax&&E.n>=Math.ceil(TR.turnsMax/2)){trEnd(TR.mh.reduce((a,v)=>a+v,0)/TR.mmax.reduce((a,v)=>a+v,0)>=E.hp/E.max,true);return}trAdvance()};
   if(big){if(!TR.sim){TR.ov.push({k:'cut',f:Bf,name:spOf(Bf.wt,Bf.wr).sp,C:['#1a0604','#6a1a08','#ff8a3a','#ffffff'],rt0:trNow(),d:.85,D:-1});TR.stop=Math.max(TR.stop,.82)}E.big=true;
-    trAt(.45,()=>{for(const j of al){if(!TR.sim)TR.fx.push({k:'slash',c:TR.c,x:TR.home[j][0]+8,y:TR.home[j][1]-TR.hd*.5,tier:'UR',R:44,kk:j});trHurt(j,trHit(Bf.st,TR.P[j].st,pow*(E.rage?1:.85),{sure:1}))}});trAt(1.2,()=>{E.big=false;after()});return}
-  let j;if(TR.taunt>=0&&trAlive(TR.taunt)){j=TR.taunt;TR.tauntN--;if(TR.tauntN<=0)TR.taunt=-1}else{const w=al.map(i=>['knight','guard'].includes(TR.role[i])?3:1),s2=w.reduce((a,v)=>a+v,0);let r=Math.random()*s2;j=al[0];for(let k=0;k<al.length;k++){r-=w[k];if(r<0){j=al[k];break}}}
-  const tank=TR.taunt===j||['knight','guard'].includes(TR.role[j])&&TR.tauntN>0;
+    trAt(.45,()=>{for(const j of al){if(!TR.sim)TR.fx.push({k:'slash',c:TR.c,x:TR.home[j][0]+8,y:TR.home[j][1]-TR.hd*.5,tier:'UR',R:44,kk:j});trHurt(j,trHit(Bf.st,TR.P[j].st,pow*(E.rage?1:.85)/Math.max(1,TR.P.length),{sure:1}))}});trAt(1.2,()=>{E.big=false;after()});return}
+  let j,tk=false;if(TR.taunt>=0&&trAlive(TR.taunt)){j=TR.taunt;tk=true;TR.tauntN--;if(TR.tauntN<=0)TR.taunt=-1}else{const w=al.map(i=>['knight','guard'].includes(TR.role[i])?3:1),s2=w.reduce((a,v)=>a+v,0);let r=Math.random()*s2;j=al[0];for(let k=0;k<al.length;k++){r-=w[k];if(r<0){j=al[k];break}}}
+  const tank=tk;
   trAt(.3,()=>{if(!TR.sim)TR.fx.push({k:'slash',c:TR.c,x:TR.home[j][0]+10,y:TR.home[j][1]-TR.hd*.5,tier:'R',R:40,kk:1});trHurt(j,trHit(Bf.st,TR.P[j].st,pow*(E.rage?1.2:1.1)),tank)});trAt(1,after)}
 function trHurt(j,h,tank){if(!trAlive(j)||TR.end)return;const [x,y]=TR.home[j];if(h.miss){if(!TR.sim)TR.nums.push({v:'MISS',x,y:y-TR.hd-12,c:TR.c,col:'#c9d4ff'});return}
   if(TR.nul[j]){TR.nul[j]=0;if(!TR.sim){TR.nums.push({v:'0',x,y:y-TR.hd-12,c:TR.c,col:'#a6e4ff'});TR.fx.push({k:'txt',c:TR.c,s:'無効',x,y:y-TR.hd-26,col:'#a6e4ff',sz:9,d:.8})}return}
@@ -2713,7 +2715,7 @@ function trPicker(i,s,cfg){const box=mk('div','tbit trpick'),used=new Set([...(i
 /* ---------- auto play (the オート button, and the difficulty check) ---------- */
 function trAutoMove(){if(!TR||TR.phase!=='cmd'||TR.end)return;const u=TR.P.map((_,i)=>i).find(i=>trAlive(i)&&TR.en[i]>=100);if(u!=null){trUlt(u);return}
   const i=TR.cur,ro=TR.role[i],low=TR.mh.some((v,j)=>v>0&&v<TR.mmax[j]*.5);
-  if(TR.sp>=1&&((ro==='priest'&&low)||(ro!=='priest'&&ro!=='knight'&&ro!=='guard'&&ro!=='cheer')||((ro==='knight'||ro==='guard')&&TR.taunt<0&&TR.P.length>1)||(ro==='cheer'&&TR.atkUp<=0)))trSkill();else trBasic()}
+  if(TR.sp>=1&&((ro==='priest'&&low)||(ro!=='priest'&&ro!=='knight'&&ro!=='guard'&&ro!=='cheer')||((ro==='knight'||ro==='guard')&&TR.taunt<0)||(ro==='cheer'&&TR.atkUp<=0)))trSkill();else trBasic()}
 /* run a whole battle at once with no drawing (used only to check the difficulty) */
 function trSimRun(o){const keep={BT,TR};TR=null;trStart(Object.assign({sim:1},o));TR.sim=1;TR.cur=-1;TR.phase='cmd';trAdvance();let guard=0;
   while(!TR.end&&guard++<4000){if(TR.phase==='cmd'){trAutoMove();continue}if(!TR.q.length)break;TR.q.sort((a,b)=>a.t-b.t);const x=TR.q.shift();TR.c=Math.max(TR.c,x.t);TR.stop=0;x.f()}
@@ -2901,9 +2903,10 @@ function startBattle(qo,opt){const cpu=!!(qo&&(qo.stage||qo.xq||qo.raid||qo.sa))
   const th=qo&&qo.raid?'night':qo&&qo.sa?'arena':qo&&qo.xq?'dusk':qo&&qo.stage?(qo.stage<=30?'day':qo.stage<=60?'dusk':'night'):'arena';
   const title=qo&&qo.raid?'ボス':qo&&qo.sa?'スコアアタック':qo&&qo.xq?'経験値クエスト':qo&&qo.stage?'ステージ'+qo.stage:'仲間と対戦';
   const ctx={quest:qo&&qo.stage?qo:null,xq:qo&&qo.xq?qo:null,raid:qo&&qo.raid?qo.raid:null,sa:qo&&qo.sa?qo.sa:null,seed,opp:cpu?null:OPP[S.opp],opt:opt&&opt.hp0!=null?{hp0:opt.hp0}:{}};
-  let sc=1;try{sc=trTune(A,B,party,sop)}catch(e){console.error(e)}
+  /* fixed difficulty: the enemy gets stronger by a set rate (and by how strong the party is compared to the main avatar); the boss has its own rate */
+  const sc=qo&&qo.raid?TRRB:1;
   trStart({B,party,sop,ctx,th,title,sc})}
 /* difficulty check: the old auto battle against the new turn battle with the same avatar and enemy */
-function trCompare(qo,n,party,tune){let o=0,w=0,om=0,nm=0,sc=1;const A0=party?party[0]:fighterMe();if(tune){const {B,sop}=trMakeFoe(qo,null,A0);sc=trTune(A0,B,party||[A0],sop)}for(let k=0;k<n;k++){const A=A0,{B,sop}=trMakeFoe(qo,null,A);const R=simulate(A,B,(k*7919+101)&0xffffff,sop);if(R.win===0)o++;om+=Math.max(0,R.hs[1]-Math.max(0,R.hp[1]))/R.max[1];const {B:B2,sop:s2}=trMakeFoe(qo,null,A);const r=trSimRun({B:B2,party:party||[A],sop:s2,sc});if(r.win)w++;nm+=r.dealt/r.max}return {old:o/n,neu:w/n,sc,oldDealt:om/n,neuDealt:nm/n}}
+function trCompare(qo,n,party,tune){let o=0,w=0,om=0,nm=0,sc=qo&&qo.raid?TRRB:1;const A0=party?party[0]:fighterMe();if(tune){const {B,sop}=trMakeFoe(qo,null,A0);sc=trTune(A0,B,party||[A0],sop)}for(let k=0;k<n;k++){const A=A0,{B,sop}=trMakeFoe(qo,null,A);const R=simulate(A,B,(k*7919+101)&0xffffff,sop);if(R.win===0)o++;om+=Math.max(0,R.hs[1]-Math.max(0,R.hp[1]))/R.max[1];const {B:B2,sop:s2}=trMakeFoe(qo,null,A);const r=trSimRun({B:B2,party:party||[A],sop:s2,sc});if(r.win)w++;nm+=r.dealt/r.max}return {old:o/n,neu:w/n,sc,oldDealt:om/n,neuDealt:nm/n}}
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
