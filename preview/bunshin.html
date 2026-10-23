@@ -373,6 +373,8 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .ptcmp .row{display:flex;align-items:baseline;gap:8px;font:600 12.5px/1.5 var(--jp);color:var(--fg)}.ptcmp .row span{width:4.2em;flex:none;color:var(--mut);font-size:11px}.ptcmp .row b{font:700 15px/1 var(--px);font-variant-numeric:tabular-nums}.ptcmp .row i{font-style:normal;color:var(--mut)}
 .ptcmp .row em{font:800 11px/1 var(--jp);font-style:normal}.ptcmp .up{color:#6ee09a}.ptcmp .dn{color:#ff8a8a}.ptcmp .same{display:block;color:var(--mut);font-size:11.5px}.ptcmp .job b{font:800 13px/1 var(--jp)}
 .ptacts{display:flex;gap:8px}.ptacts .btn{min-height:44px}
+.stwho{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.ptface{position:relative}.stdot{position:absolute;right:-4px;top:-4px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;display:grid;place-items:center;background:#ff4f6a;color:#fff;font:800 10px/1 var(--jp);font-style:normal}
+.bar{display:flex}.bar i.pend{background:repeating-linear-gradient(135deg,#ffd36b 0 3px,#c89a30 3px 6px)!important;opacity:.9}.st.pend output{color:#ffd36b}.st output small.up{color:#6ee09a}.pts em{font-style:normal;color:#ffd36b;font-size:.9em}.pts b{color:var(--gold2)}
 </style>
 
 <div class="wrap">
@@ -413,9 +415,9 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
     <div class="sec"><h2>アカウントレベル<small class="protoonly">試しに動かせます</small><small class="hostonly">アプリのレベルと同じ。対戦で上がります</small></h2>
       <div class="lvrow"><b id="lvv">Lv 10</b><input type="range" id="lv" min="1" max="50" value="10" aria-label="アカウントレベル"></div>
       <div class="pts" id="pts"></div></div>
-    <div class="sec"><h2>振り分け<small>レベル1つにつき3ポイント</small></h2><div id="stl"></div></div>
+    <div class="sec"><h2>振り分け<small>3体それぞれ・レベル1つにつき3ポイント</small></h2><div id="stl"></div></div>
     <div class="row2"><button type="button" class="btn" id="auto">おまかせで振る</button><button type="button" class="btn" id="reset">振り直す</button></div>
-    <p class="note">1ポイントでHP+3、攻撃・防御・魔力+0.5、素早さ+0.4。1つの能力に12ポイントより多く振った分は伸びがゆるやかになります。右の小さい金色の数字は装備で増えた分。素早さが高いほど先に動けて、会心(大ダメージ)と回避も少し増えます。魔力は杖の技の強さです。</p>
+    <p class="note">+で仮に振って「決定」で確定します。決定したポイントは戻せません。1ポイントでHP+3、攻撃・防御・魔力+0.5、素早さ+0.4。1つの能力に12ポイントより多く振った分は伸びがゆるやかになります。右の小さい金色の数字は装備で増えた分。素早さが高いほど先に動けて、会心(大ダメージ)と回避も少し増えます。魔力は杖の技の強さです。</p>
   </section>
 
   <section class="pane" id="p-gear" hidden>
@@ -1814,7 +1816,7 @@ function renderLook(){const L=S.look;const gs=$('gsel');gs.replaceChildren();[['
   const ec=$('ecsel');ec.replaceChildren();for(const k in EYEC){const b=mk('button','sw'+(L.ec===k?' on':''));b.type='button';const i=mk('i');i.style.background=swatch(EYEC[k]||EYESW[k]);b.append(i,k);b.onclick=()=>{L.ec=k;changed()};ec.append(b)}}
 
 /* stats */
-function renderStat(){const n=ptsOf(S.lv);let used=usedPts(S.al);if(used>n){S.al=autoAlloc(S.lv,'atk');used=n}
+function renderStat0(){const n=ptsOf(S.lv);let used=usedPts(S.al);if(used>n){S.al=autoAlloc(S.lv,'atk');used=n}
   $('lv').value=S.lv;$('lvv').textContent='Lv '+S.lv;$('pts').textContent='残りポイント '+(n-used)+' / '+n;
   const {s,add}=statsOf(S.lv,S.al,myItems());const box=$('stl');box.replaceChildren();
   const maxOf={hp:900,atk:150,def:150,spd:150,mag:150};
@@ -1823,8 +1825,8 @@ function renderStat(){const n=ptsOf(S.lv);let used=usedPts(S.al);if(used>n){S.al
     const p=mk('button',null,'+');p.type='button';p.setAttribute('aria-label',lab+'を1増やす');p.disabled=used>=n;p.onclick=()=>{S.al[k]++;changed()};
     const out=mk('output',null,s[k]+(add[k]?'<small>+'+add[k]+'</small>':''));row.append(m,p,out);box.append(row)}}
 $('lv').oninput=e=>{S.lv=+e.target.value;const n=ptsOf(S.lv);if(usedPts(S.al)>n)S.al=autoAlloc(S.lv,'atk');changed()};
-$('auto').onclick=()=>{const w=myWeapon();S.al=autoAlloc(S.lv,w==='staff'?'mag':w==='hammer'?'tank':w==='bow'||w==='penlight'?'spd':'atk');changed()};
-$('reset').onclick=()=>{S.al={hp:0,atk:0,def:0,spd:0,mag:0};changed()};
+$('auto').onclick=stAuto;
+$('reset').onclick=stCommit;
 
 /* gear: pixel icons */
 const ICON={
@@ -2455,7 +2457,7 @@ function tbDefaultCfg(){const used=new Set(Object.values(S.eq).filter(Boolean)),
     if(!eq.w){const w=best(i=>ITEMS[i.k].s==='w'&&!out.some(o=>o.eq.w===i.id));if(w)eq.w=w.id}
     const a=best(i=>ITEMS[i.k].s==='a'&&!out.some(o=>o.eq.a===i.id));if(a)eq.a=a.id;const x=best(i=>ITEMS[i.k].s==='x'&&!out.some(o=>o.eq.x===i.id));if(x)eq.x=x.id;
     out.push({name:nm,look:{g:'m',hs:0,hc,ec},eq})}return out}
-function tbFighterOf(m){const items=['w','a','x'].map(s=>itemOf(m.eq[s])).filter(Boolean),{s}=statsOf(S.lv,S.al,items),w=itemOf(m.eq.w);
+function tbFighterOf(m){const items=['w','a','x'].map(s=>itemOf(m.eq[s])).filter(Boolean),{s}=statsOf(S.lv,m.al||{hp:0,atk:0,def:0,spd:0,mag:0},items),w=itemOf(m.eq.w);
   return {name:m.name,lv:S.lv,look:m.look,st:s,wt:w?ITEMS[w.k].wt:'fist',k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null,...bqWear(items)}}
 function tbParty3(){const me=fighterMe();me.name='あなた';return [me,...tbCfg().map(tbFighterOf)]}
 function tbPrepAbs(){TB.ab=TB.P.map(tbSkills);TB.ct=TB.P.map(f=>[0,0,0]);TB.buff=TB.P.map(()=>0);TB.mh=TB.P.map(f=>f.st.hp);TB.mmax=TB.mh.slice();TB.hurtM=TB.P.map(()=>-9);TB.g=TB.P.map(()=>0);TB.php=TB.mh.reduce((a,v)=>a+v,0);TB.pmax=TB.php;TB.avg=TB.P.reduce((a,f)=>a+tbD(f),0)/TB.P.length;TB.en.max=TB.en.hp=Math.round(TB.avg*40)}
@@ -2684,7 +2686,7 @@ let PTSEL=0,PTIT=null;
 const PTST=[['hp','HP'],['atk','攻撃'],['def','防御'],['spd','素早さ'],['mag','魔力']];
 function ptEq(i,cfg){return i?cfg[i-1].eq:S.eq}
 function ptFighter(i,cfg){if(!i){const f=fighterMe();f.name='あなた';return f}return tbFighterOf(cfg[i-1])}
-function ptStats(i,cfg,swap){const eq=Object.assign({},ptEq(i,cfg),swap||{}),items=['w','a','x'].map(s=>itemOf(eq[s])).filter(Boolean);return statsOf(S.lv,S.al,items).s}
+function ptStats(i,cfg,swap){const eq=Object.assign({},ptEq(i,cfg),swap||{}),items=['w','a','x'].map(s=>itemOf(eq[s])).filter(Boolean);return statsOf(S.lv,i?(cfg[i-1].al||{hp:0,atk:0,def:0,spd:0,mag:0}):S.al,items).s}
 function ptWhoHas(id,cfg){if(!id)return -1;if(Object.values(S.eq).includes(id))return 0;for(let k=0;k<cfg.length;k++)if(Object.values(cfg[k].eq).includes(id))return k+1;return -1}
 function ptName(i,cfg){return i?(cfg[i-1].name||('分身'+(i+1))):'あなた'}
 function ptEquip(i,s,id,cfg){const who=ptWhoHas(id,cfg);if(who>=0&&who!==i){if(who===0)S.eq[s]=0;else cfg[who-1].eq[s]=0}
@@ -2721,6 +2723,31 @@ function ptDetail(cfg){const i=PTSEL,none=typeof PTIT==='string',s=none?PTIT.sli
   if(HOST&&it){const e=mk('button','btn',it.e>=50?'強化MAX':'強化');e.type='button';e.disabled=it.e>=50;e.onclick=()=>{ENHT=it.id;ENHP=null;renderEnh()};acts.append(e)}d.append(acts);return d}
 /* the stage while 編成 is open: only the chosen avatar, in the middle (the slots sit on both sides) */
 function ptStage(T){const cfg=tbCfg(),f=ptFighter(PTSEL,cfg);shadow(190,GY,30);drawFighter(f,190,GY,{pose:'p1',flip:true,breath:Math.sin(T*2.4)*.5+.5,blink:(T%3.4)<.12,t:T})}
+
+/* ================= (10/23) ステータス振り分け: 3体それぞれ。レベルは共通(アプリのレベル)、ポイントはレベル×3を1体ずつ =================
+   振り直しはなし: +で仮に振って「決定」で確定。決定したポイントは戻せない(決定前なら−で戻せる) */
+let STP=null;/* {i, add:{hp,atk,...}} 決定前の仮の振り分け */
+const ST0=()=>({hp:0,atk:0,def:0,spd:0,mag:0});
+function stAl(i,cfg){if(!i)return S.al;const m=cfg[i-1];if(!m.al)m.al=ST0();return m.al}
+function stUsed(i,cfg){return usedPts(stAl(i,cfg))}
+function renderStat(){const cfg=tbCfg(),i=PTSEL>2?0:PTSEL,n=ptsOf(S.lv);if(!STP||STP.i!==i)STP={i,add:ST0()};
+  for(let k=0;k<3;k++){const al=stAl(k,cfg);if(usedPts(al)>n){const a2=autoAlloc(S.lv,'atk');if(k)cfg[k-1].al=a2;else S.al=a2}}
+  $('lv').value=S.lv;$('lvv').textContent='Lv '+S.lv;
+  const al=stAl(i,cfg),pend=usedPts(STP.add),left=n-usedPts(al)-pend;$('pts').innerHTML='残りポイント <b>'+left+'</b> / '+n+(pend?' <em>(仮に'+pend+'振っています)</em>':'');
+  /* who */let wh=$('stwho');if(!wh){wh=mk('div','stwho');wh.id='stwho';$('stl').before(wh)}wh.replaceChildren();const fs=mk('div','ptfaces');
+  for(let k=0;k<3;k++){const fk=ptFighter(k,cfg),rk=TBROLE[tbRole(fk)],b=mk('button','ptface'+(k===i?' on':''));b.type='button';b.style.setProperty('--c',rk[1]);b.append(headCv(lookHead(fk.look),40));const lk=n-stUsed(k,cfg);if(lk>0)b.append(mk('i','stdot',String(lk)));b.onclick=()=>{PTSEL=k;STP=null;refresh()};fs.append(b)}
+  const f=ptFighter(i,cfg),r=TBROLE[tbRole(f)],who=mk('div','ptwho');who.innerHTML='<b>'+ptName(i,cfg)+'</b><span class="ptjob" style="--c:'+r[1]+'">'+r[0]+'<small>'+r[2]+'</small></span>';wh.append(fs,who);
+  /* rows */const items=['w','a','x'].map(s=>itemOf(ptEq(i,cfg)[s])).filter(Boolean),tot={};for(const k in al)tot[k]=al[k]+STP.add[k];const now=statsOf(S.lv,al,items).s,{s,add}=statsOf(S.lv,tot,items);
+  const box=$('stl');box.replaceChildren();const maxOf={hp:900,atk:150,def:150,spd:150,mag:150};
+  for(const [k,lab] of STN){const row=mk('div','st'+(STP.add[k]?' pend':''));row.append(mk('span',null,lab));const bar=mk('div','bar');const b0=mk('i');b0.style.width=clamp(now[k]/maxOf[k]*100,2,100)+'%';bar.append(b0);if(s[k]>now[k]){const b1=mk('i','pend');b1.style.width=clamp((s[k]-now[k])/maxOf[k]*100,0,100)+'%';bar.append(b1)}row.append(bar);
+    const m=mk('button',null,'−');m.type='button';m.setAttribute('aria-label',lab+'の仮の振り分けを1戻す');m.disabled=STP.add[k]<=0;m.onclick=()=>{STP.add[k]--;renderStat()};
+    const p=mk('button',null,'+');p.type='button';p.setAttribute('aria-label',lab+'に1振る');p.disabled=left<=0;p.onclick=()=>{STP.add[k]++;renderStat()};
+    const out=mk('output',null,s[k]+(s[k]>now[k]?'<small class="up">▲'+(s[k]-now[k])+'</small>':add[k]?'<small>+'+add[k]+'</small>':''));row.append(m,p,out);box.append(row)}
+  $('auto').disabled=left<=0;$('reset').textContent='決定';$('reset').className='btn main';$('reset').disabled=pend<=0}
+function stCommit(){const cfg=tbCfg(),i=STP.i,al=stAl(i,cfg);for(const k in STP.add)al[k]+=STP.add[k];if(i)tbSaveCfg(cfg);STP={i,add:ST0()};if(i)refresh();else changed()}
+function stAuto(){const cfg=tbCfg(),i=PTSEL>2?0:PTSEL,f=ptFighter(i,cfg),ro=tbRole(f),left=ptsOf(S.lv)-stUsed(i,cfg)-usedPts(STP.add);if(left<=0)return;
+  const W={knight:{hp:4,def:4,atk:2},guard:{hp:4,def:4,atk:2},sword:{atk:5,spd:3,hp:2},lancer:{atk:5,hp:3,def:2},warrior:{atk:5,hp:3,def:2},monk:{atk:4,spd:4,hp:2},mage:{mag:6,spd:2,hp:2},priest:{mag:4,hp:4,def:2},hunter:{atk:4,spd:4,hp:2},cheer:{spd:4,mag:3,hp:3}}[ro]||{atk:4,hp:3,def:3};
+  const sum=Object.values(W).reduce((a,v)=>a+v,0);let rest=left;const ks=Object.keys(W);for(const k of ks){const v=Math.floor(left*W[k]/sum);STP.add[k]+=v;rest-=v}for(let j=0;rest>0;j++,rest--)STP.add[ks[j%ks.length]]++;renderStat()}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
