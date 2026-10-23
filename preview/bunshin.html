@@ -502,6 +502,7 @@ canvas.tcsil{filter:brightness(0) invert(.32)}
 @keyframes tcgold{0%{box-shadow:inset 0 0 0 2px var(--rc),0 0 0 0 rgba(255,216,74,.9)}100%{box-shadow:inset 0 0 0 2px var(--rc),0 0 0 26px rgba(255,216,74,0)}}
 .tcov.all .tcback,.tcov.all .tcfront{animation-delay:0s!important;animation-duration:.01s!important}
 .tcok{min-width:160px}
+.dq .trm.dqhit{animation:dqhit .35s ease-out}@keyframes dqhit{0%{transform:translateX(0);box-shadow:inset 0 0 0 2px #ff5a5a,0 0 18px rgba(255,80,80,.6)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
 @media (prefers-reduced-motion:reduce){.tcback,.tcfront{animation-duration:.01s!important;animation-delay:0s!important}}
 </style>
 
@@ -2772,7 +2773,7 @@ function trPos(i){const [hx,hy]=TR.home[i],act=TR.cur===i&&(TR.phase==='cmd'||TR
   if(!a.me)return {x:fx,y:hy,pose:u<end+.12?'p6':'p1'};if(u<a.hitAt-.05)return {x:lerp(fx,tx,eio(u/(a.hitAt-.05))),y:hy,pose:'p2'};if(u<end+.14)return {x:tx,y:hy,pose:'p6'};const k=eio(clamp((u-end-.14)/.26,0,1));return {x:lerp(tx,fx,k),y:hy,pose:k<1?'p2':'p1'}}
 function trDraw(){const E=TR.E;
   /* party */const order=TR.P.map((_,k)=>k).sort((a,b)=>TR.home[a][1]-TR.home[b][1]);
-  for(const i of order){const p=trPos(i),down=!trAlive(i),act=TR.cur===i&&TR.phase==='cmd';tbShadow(p.x,p.y,25);
+  if(!TR.dq)for(const i of order){const p=trPos(i),down=!trAlive(i),act=TR.cur===i&&TR.phase==='cmd';tbShadow(p.x,p.y,25);
     if(act){G.save();G.imageSmoothingEnabled=true;const k=.5+.5*Math.sin(TR.c*5);G.strokeStyle=TRWC[TR.P[i].wt]||'#fff';G.globalAlpha=.55+.3*k;G.lineWidth=1.5;G.beginPath();G.ellipse(p.x,p.y+1,22+k*2,6,0,0,Math.PI*2);G.stroke();G.restore()}
     if(TR.taunt===i){G.save();G.imageSmoothingEnabled=true;G.globalAlpha=.6+.2*Math.sin(TR.c*4);G.strokeStyle='#9fd8ff';G.lineWidth=1.2;G.beginPath();G.ellipse(p.x,p.y-TR.hd*.48,TR.hd*.34,TR.hd*.56,0,0,Math.PI*2);G.stroke();G.restore()}
     if(TR.en[i]>=100&&!down){G.save();G.imageSmoothingEnabled=true;glow(p.x,p.y-TR.hd*.45,34+4*Math.sin(TR.c*6+i),'rgba(255,214,90,1)',.4);G.restore()}
@@ -2781,7 +2782,7 @@ function trDraw(){const E=TR.E;
   /* projectiles for staff and bow */for(const a of TR.an){if(a.me||a.buff)continue;const u=TR.c-a.t0;for(let k=0;k<a.n;k++){const s=a.hitAt-.2+k*a.gap,v=(u-s)/.2;if(v<0||v>1)continue;const [hx,hy]=TR.home[a.i],x0=hx+18,y0=hy-TR.hd*.62,x1=E.x-20,y1=E.y-TR.ey,x=lerp(x0,x1,v),y=lerp(y0,y1,v)-Math.sin(v*Math.PI)*10;G.save();G.imageSmoothingEnabled=true;glow(x,y,10,a.col,.85);G.fillStyle='#fff';G.beginPath();G.arc(x,y,2.6,0,Math.PI*2);G.fill();G.restore()}}
   /* the enemies (back ones first) */for(const E of [...TR.ES].sort((a,b)=>a.y-b.y)){if((E.dead&&TR.c-E.deadC>.6)||(E.gone&&TR.c-(E.goneC||0)>.5))continue;const at=TR.c-E.atkC,lunge=at>=0&&at<.6?-Math.sin(clamp(at/.5,0,1)*Math.PI)*(E.big?60:40):0,h=TR.c-E.hitC,kb=h>=0&&h<.25?(1-h/.25)*6:0;
   tbShadow(E.x,E.y,46*E.s/.6);if(E.rage){G.save();G.imageSmoothingEnabled=true;glow(E.x,E.y-TR.ey*.8,90+6*Math.sin(TR.c*6),'rgba(255,60,40,1)',.22);G.restore()}
-  G.save();G.translate(E.x+lunge+kb+(E.gone?(TR.c-(E.goneC||0))*260:0),E.y+(E.dead?(TR.c-E.deadC)*14:0));G.scale(E.s,E.s);if(E.broken){G.translate(0,4);G.rotate(.06)}{const oo={breath:E.broken?0:Math.sin(TR.c*2.2)*.5+.5,flash:h>=0&&h<.06?1:0,pose:at>=0&&at<.45?'p6':'p1',t:TR.c,alpha:(TR.end&&TR.end.win?Math.max(0,1-(trNow()-TR.end.rt+.5)/.8):1)*(E.dead?Math.max(0,1-(TR.c-E.deadC)/.6):1)*(E.gone?Math.max(0,1-(TR.c-(E.goneC||0))/.5):1)};if(!(E.Bf.boss&&drawBoss(E.Bf,0,0,oo)))drawFighter(E.Bf,0,0,oo)}G.restore();
+  G.save();G.translate(E.x+(TR.dq?0:lunge)+kb+(E.gone?(TR.c-(E.goneC||0))*260:0),E.y+(TR.dq?-lunge*.35:0)+(E.dead?(TR.c-E.deadC)*14:0));G.scale(E.s,E.s);if(E.broken){G.translate(0,4);G.rotate(.06)}{const oo={breath:E.broken?0:Math.sin(TR.c*2.2)*.5+.5,flash:h>=0&&h<.06?1:0,pose:at>=0&&at<.45?'p6':'p1',t:TR.c,alpha:(TR.end&&TR.end.win?Math.max(0,1-(trNow()-TR.end.rt+.5)/.8):1)*(E.dead?Math.max(0,1-(TR.c-E.deadC)/.6):1)*(E.gone?Math.max(0,1-(TR.c-(E.goneC||0))/.5):1)};if(!(E.Bf.boss&&drawBoss(E.Bf,0,0,oo)))drawFighter(E.Bf,0,0,oo)}G.restore();
   if(E.broken){for(let k=0;k<3;k++){const a=TR.c*3+k*2.1;G.save();G.fillStyle='#ffe066';G.fillRect(Math.round(E.x-6+Math.cos(a)*16),Math.round(E.y-TR.ey*1.9+Math.sin(a)*4),2,2);G.restore()}}}}
 function trFx(){TR.fx=TR.fx.filter(f=>TR.c-f.c<(f.d||.45));for(const f of TR.fx){const v=TR.c-f.c;if(f.k==='slash')pslashFx(f.x,f.y,f.R,Math.floor(v/.045),f.kk%2,f.tier,false);if(f.k==='spark')drawSpark(f.x,f.y,Math.floor(v/.066),f.tier);
     if(f.k==='heal'||f.k==='gold'){const rr=rngOf(f.seed||7);G.save();for(let n=0;n<12;n++){const x=f.x+(rr()-.5)*34,y=f.y-10-v*80-rr()*50;G.globalAlpha=Math.max(0,1-v/(f.d||.9));G.fillStyle=f.k==='heal'?(n%2?'#a6ffb0':'#fff'):(n%2?'#ffd36b':'#fff3c4');G.fillRect(Math.round(x),Math.round(y),n%3?1:2,n%3?1:2)}G.restore()}
@@ -3759,6 +3760,36 @@ const TCMEL={tg_box:'wood',tg_plush:'light',tg_bomb:'fire',tg_acryl:'water',tg_c
   if(TR.E&&TR.E.el)dot(TR.E.el,208,11,6.5);if(TR.ES.length>1)for(const E of TR.ES){if(!trELive(E)||!E.el)continue;const x=typeof tgX==='function'?tgX(E):E.x-20,top=E.y-E.ey*1.38;dot(E.el,x-27,top-12,4.5)}}}
 /* turn-order faces for characters (their own hair colour, or their picture) */
 {const _f=trFace;trFace=function(i){if(i>=0&&TR&&TR.P[i]&&TR.P[i].ch){const k='C'+TR.P[i].ch;if(TRFACE[k])return TRFACE[k];const c=document.createElement('canvas');c.width=c.height=30;const g=c.getContext('2d');g.imageSmoothingEnabled=false;try{tcHeadDraw(TR.P[i])(g,30)}catch(e){}return TRFACE[k]=c}return _f.apply(this,arguments)}}
+
+/* ================= (10/24) ドラクエのような向き: 敵を真ん中に大きく並べ、味方は下の欄だけ =================
+   参考(まねはしない): ドラクエの正面から見たバトル。味方の姿は戦場に出さず、攻撃は敵の上の斬撃・光、受けたダメージは下の欄が揺れて数字。必殺のカットインでは味方が大きく出る
+   - 上の「向き」ボタンで、横から見る前の形にも戻せる(このスマホに覚える) */
+let TRVIEW='dq';try{TRVIEW=localStorage.getItem('trView')||'dq'}catch(e){}
+const TDSLOT={1:[[214,210]],2:[[160,210],[262,206]],3:[[118,212],[212,206],[300,212]],4:[[86,214],[166,204],[248,210],[326,204]]};
+{const _s=trSetup;trSetup=function(){_s.apply(this,arguments);if(!TR)return;TR.dq=TRVIEW==='dq'&&!TR.tpm;if(!TR.dq)return;const n=TR.P.length;
+  /* the party lives along the bottom (where its numbers and sparkles appear) */TR.home=TR.P.map((_,k)=>[Math.round(380*(k+.5)/n),252]);TR.hd=34;
+  /* the enemies stand in one row, a little bigger; the leader in the middle */const L=TR.ES.length,sl=TDSLOT[Math.min(4,L)],ord=L===3?[1,0,2]:L===4?[1,2,0,3]:L===2?[1,0]:[0];
+  TR.ES.forEach((E,k)=>{const p=sl[ord[k]];E.x=p[0]+(E.mon?0:20);E.y=p[1];const big=E.role==='lead'||L===1;if(E.mon&&typeof TGMON!=='undefined'&&TGMON[E.mon]){const M=TGMON[E.mon];E.s=(big?(L===1?150:122):92)/M.h;E.ey=Math.round(M.h*E.s*.72)}else{E.s=L===1?(E.boss?.86:.74):big?.62:.5;E.ey=Math.round(94*E.s/.66)}});trSetE(TR.tgt||TR.ES[0])}}
+/* the party card shakes and flashes red when hit */
+{const _ui=trUI;trUI=function(){_ui.apply(this,arguments);if(!TR||TR.sim||!TR.dq)return;const u=$('tbui');if(!u)return;u.classList.add('dq');u.querySelectorAll('.trm').forEach(c=>{const i=+c.dataset.i;if(TR.c-TR.hurt[i]<.35){c.classList.remove('dqhit');void c.offsetWidth;c.classList.add('dqhit')}})}}
+{const _h=trHurt;trHurt=function(j){const r=_h.apply(this,arguments);if(TR&&TR.dq&&!TR.sim)trUI();return r}}
+/* the view switch on the top bar */
+{const _ui=trUI;trUI=function(){_ui.apply(this,arguments);if(!TR||TR.sim||TR.tpm)return;const u=$('tbui'),tg=u&&u.querySelector('.trtg');if(!tg||tg.querySelector('.tdv'))return;const b=mk('button','tbq tdv',TR.dq?'向き 正面':'向き 横');b.type='button';
+  b.onclick=()=>{TRVIEW=TR.dq?'side':'dq';try{localStorage.setItem('trView',TRVIEW)}catch(e){}toastB(TRVIEW==='dq'?'次のバトルから正面の向きになります':'次のバトルから横の向きになります');b.textContent=TRVIEW==='dq'?'向き 正面':'向き 横'};tg.append(b)}}
+/* (10/24) in the front view, whoever acts comes up from the bottom: a melee attacker dashes to the enemy (with after-images), strikes and goes back;
+   staff and bow come up a little and shoot from there; a buff or heal rises in place with its glow */
+function tdActor(a){const i=a.i,f=TR.P[i];if(!f)return null;const u=TR.c-a.t0,hx=TR.home[i][0],E=TR.E,ex=(typeof tgX==='function'?tgX(E):E.x-20),ey=E.y+12;
+  if(a.buff){const k=Math.min(1,u/.15)*(1-Math.max(0,(u-a.dur+.18)/.18));return {x:hx,y:lerp(300,238,eo(k)),s:.56,pose:'p5',al:Math.min(1,k*1.5)}}
+  const end=a.hitAt+(a.n-1)*a.gap;
+  if(!a.me){const k=u<.15?eo(u/.15):u<end+.12?1:1-eio(Math.min(1,(u-end-.12)/.22));return {x:hx,y:lerp(300,236,k),s:.58,pose:u<end+.12?'p6':'p1',al:Math.min(1,k*1.4)}}
+  const go=a.hitAt-.05,tx=ex-34,sx=hx,sy=300;
+  if(u<go){const k=eio(u/go);return {x:lerp(sx,tx,k),y:lerp(sy,ey,k),s:lerp(.64,.5,k),pose:'p2',al:1,trail:k<.95}}
+  if(u<end+.14)return {x:tx,y:ey,s:.5,pose:'p6',al:1};
+  const k=eio(Math.min(1,(u-end-.14)/.26));return {x:lerp(tx,sx,k),y:lerp(ey,sy,k),s:lerp(.5,.64,k),pose:'p2',al:1-k*.6}}
+{const _d=trDraw;trDraw=function(){_d.apply(this,arguments);if(!TR||!TR.dq)return;
+  for(const a of TR.an){if(a.i==null||a.i<0||!TR.P[a.i])continue;const p=tdActor(a);if(!p)continue;const f=TR.P[a.i],dr=(x,y,al)=>{G.save();G.translate(x,y);G.scale(p.s,p.s);drawFighter(f,0,0,{pose:p.pose,flip:true,t:TR.c,seed:a.i*.3,alpha:al});G.restore()};
+    if(p.trail){const b=Math.min(1,(TR.c-a.t0)/(a.hitAt-.05));for(const [d,al] of [[.12,.18],[.06,.32]]){const q=tdActor(Object.assign({},a,{t0:a.t0+d}));if(q&&q.trail)dr(q.x,q.y,al*b)}}
+    tbShadow(p.x,p.y,20*p.s/.5);dr(p.x,p.y,p.al)}}}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
