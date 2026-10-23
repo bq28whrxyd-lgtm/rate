@@ -8593,7 +8593,7 @@ function openPackView(res,onMore,label,theme,opt){
    one copy at a time: かけらにする (the same amount as before) or 燃やす (points by rarity). The last copy can go too.
    Every player publishes how many copies of each card they hold (own/{pid}: g = gacha items, t = TCG cards incl. SCR), so the app
    can say "仲間の14%が所持 / 全部で3枚" and announce burns on the timeline. Burn points are kept in inv.bpt (counted like mpts/lbp). */
-const BURN_PT=[5,15,50,150,400,800],TBURN_PT={C:5,R:15,SR:50,GR:150},SCR_X=1.5;/* a secret (SCR) TCG copy gives 1.5 times */
+const BURN_PT=[1,3,10,40,150,400],TBURN_PT={C:2,R:5,SR:20,GR:60},SCR_X=1.5;/* (10/23) lowered: a skin pack burned whole gave back about 91 of its 100pt (endless pulls); now about 21%, a TCG pack about 17% (was 46%) *//* a secret (SCR) TCG copy gives 1.5 times */
 let ownAll={},ownReady=false;
 const invNow=()=>inv;
 function ownWatch(){if(!db||ownWatch.on)return;ownWatch.on=1;db.collection('own').onSnapshot(s=>{const o={};s.docs.forEach(d=>{o[d.id]=d.data()});ownAll=o;ownReady=true},()=>{})}
@@ -12988,7 +12988,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=154';
+const TCG_SRC='tcg_play.html?v=155';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
