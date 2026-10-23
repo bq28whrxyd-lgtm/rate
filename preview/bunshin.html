@@ -387,6 +387,7 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .jbc{position:relative}.jbc .jl{position:absolute;top:4px;right:5px;font:700 9px/1 var(--px);font-style:normal;color:var(--gold2)}
 .ptos.s-w{top:12%}.ptos.s-c{top:56%}.pttile.ou canvas{width:72%;height:72%;border-radius:8px;image-rendering:pixelated}
 .mtm{display:none!important}
+.trrec{display:grid;gap:4px;margin:8px 0 4px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);font:500 11px/1.4 var(--jp);color:var(--mut)}.trrec>span{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.trrec b{font:800 15px/1 var(--jp);color:#fff;font-variant-numeric:tabular-nums}.trrec small{margin-left:4px}.trrec.ok>span:last-of-type b{color:#8ff0a4}.trrec.mid>span:last-of-type b{color:#ffd36b}.trrec.low>span:last-of-type b{color:#ff8a8a}.trrec p{margin:2px 0 0;color:#ffd9a0}
 </style>
 
 <div class="wrap">
@@ -1990,7 +1991,7 @@ function qMul(n){for(let i=1;i<QMK.length;i++)if(n<=QMK[i][0]){const a=QMK[i-1],
 function renderQuest(){const box=$('quest');if(!box)return;const n=Math.min(QMAX,S.qs+1),o=questOpp(n);box.replaceChildren();
   const bar=mk('div','qbar');bar.innerHTML='<span>クリア '+S.qs+' / '+QMAX+'</span><i style="width:'+(S.qs/QMAX*100).toFixed(1)+'%"></i>';box.append(bar);
   const card=oppCard(o,-1);card.classList.add('on');if(o.boss)card.classList.add('boss');card.querySelector('b').textContent=(o.boss?'BOSS ':'')+'ステージ'+n+' '+o.name;card.onclick=null;box.append(card);
-  const nx=mk('p','note','次のボス:ステージ'+(Math.ceil((n)/10)*10)+'。初めてクリアすると +'+(o.boss?100:30)+'pt。宝箱は勝ち負けに関係なく10%。');box.append(nx);
+  const nx=mk('p','note','次のボス:ステージ'+(Math.ceil((n)/10)*10)+'。初めてクリアすると +'+(o.boss?100:30)+'pt。宝箱は勝ち負けに関係なく10%。');box.append(trRecRow(fighterOpp(o)),nx);
   const b=mk('button','btn main','ステージ'+n+'に挑戦する');b.type='button';b.onclick=()=>startBattle(o);box.append(b);
   if(S.qs>=1){const p0=questOpp(Math.min(QMAX,S.qs)),b2=mk('button','btn','ステージ'+p0.stage+'(クリア済み)にもう一度挑戦');b2.type='button';b2.onclick=()=>startBattle(p0);box.append(b2,mk('p','note','クリア済みのステージは報酬なし・宝箱10%。何回でも挑戦できます。クエストのバトルはスキップできません。'))}}
 /* ---------- 週末レイド: one shared boss a week (Fri 5:00 - Mon 5:00), everyone chips at the same HP, 3 tries a day.
@@ -2183,7 +2184,7 @@ function xqInfo(){if(HOST&&HOST.xq)return HOST.xq();return {c:S.xqc||{},today:0,
 function renderXq(){const box=$('xq');if(!box)return;box.replaceChildren();const inf=xqInfo(),left=Math.max(0,inf.day-inf.today);
   $('xqn').textContent=HOST?'今日の経験値 あと'+left+'回':'試作では経験値なし';
   const grid=mk('div','xqg');for(let t=1;t<=4;t++){const g=XQ[t],open=t===1||(inf.c[t-1]||0)>0,n=inf.c[t]||0,b=mk('button','xqc t'+t+(open?'':' lock'));b.type='button';b.disabled=!open;
-    b.innerHTML='<b>'+g.n+'</b><span>戦闘力 '+power(fighterOpp(xqOpp(t,0)).st)+'〜'+power(fighterOpp(xqOpp(t,4)).st)+' の5人</span><em>'+(open?'クリアで経験値 +'+g.xp:XQ[t-1].n+'をクリアで解放')+'</em><small>'+(n?'クリア '+n+'回':open?'まだクリアなし':'')+'</small>';b.onclick=()=>{if(!playing)xqStart(t)};grid.append(b)}
+    b.innerHTML='<b>'+g.n+'</b><span>推奨戦力 '+trRec(fighterOpp(xqOpp(t,0))).toLocaleString()+'〜'+trRec(fighterOpp(xqOpp(t,4))).toLocaleString()+' の5人</span><em>'+(open?'クリアで経験値 +'+g.xp:XQ[t-1].n+'をクリアで解放')+'</em><small>'+(n?'クリア '+n+'回':open?'まだクリアなし':'')+'</small>';b.onclick=()=>{if(!playing)xqStart(t)};grid.append(b)}
   box.append(grid,mk('p','note','5人と続けて戦います。HPは次の相手に持ち越し(勝つたびに最大HPの50%回復)。1人でも負けたら最初から。5人全員に勝つとアカウントの経験値がもらえます('+(HOST?'1日'+inf.day+'回まで。それ以降も遊べます':'')+')。宝箱は10%。スキップはできません。'))}
 function xqStart(t){XR={t,i:0,hp:null,go:0};xqNext()}
 function xqNext(){if(!XR)return;startBattle(xqOpp(XR.t,XR.i),{hp0:XR.hp})}
@@ -2552,13 +2553,17 @@ function trStart(o){if(playing)return;o=o||{};BT=null;HS=null;TB=null;const P=o.
   trSetup();if(o.sim)return;$('plA').hidden=true;$('plB').hidden=true;$('ctl').hidden=true;$('result').className='result';$('stage').classList.add('tm');TR.cur=-1;TR.phase='cmd';trAdvance();trUI();$('stage').scrollIntoView({behavior:'smooth',block:'start'})}
 let TRSPD=1,TRAUTO=false;try{TRSPD=+localStorage.getItem('trSpd')||1;TRAUTO=localStorage.getItem('trAuto')==='1'}catch(e){}
 /* difficulty: the enemy is scaled by how strong the party is compared to the main avatar alone (so 1 avatar = the same fight as before) */
-var TRH0=2.5,TRD0=2.5,TRRB=1.05,TRPQ=[1,1,1.17,1.35],TRPR=[1,1,1.15,1.3];
-/* the set rate: base x level (a little stronger as you go up) x party size (2 or 3 avatars: a bit stronger; the boss more, since 3 avatars last much longer) */
-function trRate(P,sop){const n=P.length,raid=!!(sop&&sop.turns&&sop.hp1!=null);return (.9+.003*(P[0].lv||1))*(n<=1?1:(raid?TRPR:TRPQ)[Math.min(3,n)])}
+var TRK=false,TRH0=7.5,TRD0=7.5,TRRB=1.05,TRPQ=[1,1,1.17,1.35],TRPR=[1,1,1.15,1.3];
+/* (10/23) fixed enemies, made for a party of 3 (like other games: the enemy does not change with you; you get stronger by raising your 3 avatars).
+   rate = base (TRH0, about 3 times the old auto battle's enemy) x the enemy's level (a little stronger higher up). TRK=true brings back the old "stronger with more avatars" way (only for checks) */
+function trRate(P,sop,Bf){const n=P.length,raid=!!(sop&&sop.turns&&sop.hp1!=null);return (.9+.003*((Bf&&Bf.lv)||P[0].lv||1))*(n<=1||!TRK?1:(raid?TRPR:TRPQ)[Math.min(3,n)])}
+/* the recommended power shown on a stage: the total power of 3 avatars that wins about half the time */
+var TRREC=2.6;function trRec(B){return Math.round(power(B.st)*TRREC*(.9+.003*(B.lv||1))/10)*10}
+const trPartyPow=P=>P.reduce((a,f)=>a+power(f.st),0);
 function trDefEnemy(P){const m=P[0],q=fighterOpp(questOpp(Math.max(1,Math.min(100,Math.round(m.lv*1.1)))));q.boss={tint:RAIDHW[0].tint,pal:RAIDHW[0].pal,img:RAIDHW[0].img};q.name='かぼちゃ頭の騎士';return q}
 function trSetup(){const P=TR.P,o=TR.o,Bf=o.B||trDefEnemy(P),ws=[...new Set(P.map(f=>f.wt))],all=Object.keys(TRW).filter(w=>w!=='hammer'&&w!=='penlight'),r=Math.random;
-  const w1=ws[Math.floor(r()*ws.length)],rest=all.filter(w=>w!==w1),w2=rest[Math.floor(r()*rest.length)],pw=P.map(f=>power(f.st)),k=Math.max(1,pw.reduce((a,v)=>a+v,0)/Math.max(1,pw[0]));
-  const sop=o.sop||{},rt=trRate(P,sop),mx=Bf.st.hp,hp1=sop.hp1!=null?Math.max(1,Math.min(mx,Math.round(sop.hp1))):mx;
+  const w1=ws[Math.floor(r()*ws.length)],rest=all.filter(w=>w!==w1),w2=rest[Math.floor(r()*rest.length)],pw=P.map(f=>power(f.st)),k=TRK?Math.max(1,pw.reduce((a,v)=>a+v,0)/Math.max(1,pw[0])):1;
+  const sop=o.sop||{},rt=trRate(P,sop,Bf),mx=Bf.st.hp,hp1=sop.hp1!=null?Math.max(1,Math.min(mx,Math.round(sop.hp1))):mx;
   Object.assign(TR,{Bf,k,pm:1/(TRH0*rt*k*(o.sc||1)),ed:TRD0*rt*k*(o.sc||1),tune:o.sc||1,role:P.map(tbRole),pas:P.map(trPas),mh:P.map(f=>f.st.hp),mmax:P.map(f=>f.st.hp),en:P.map(()=>0),sp:3,spMax:5,taunt:-1,tauntN:0,nul:P.map(f=>f.ak==='yga'?1:0),atkUp:0,defDown:0,hurt:P.map(()=>-9),dmg:P.map(()=>0),turnsMax:sop.turns||0,brk:0,
     E:Object.assign(TR.E,{hp:hp1,max:mx,hp0:hp1,sh:5,shMax:5,weak:[w1,w2],broken:false,hitC:-9,atkC:-9,n:0,rage:false,name:Bf.name,boss:!!Bf.boss,s:Bf.boss?.76:.6})});
   if(sop.hp0!=null){const pm=TR.mmax.reduce((a,v)=>a+v,0),f=clamp(sop.hp0/Math.max(1,P[0].st.hp),.02,1);TR.mh=TR.mmax.map(v=>Math.max(1,Math.round(v*f)));void pm}
@@ -2678,7 +2683,7 @@ function trUI(){if(TR&&TR.sim)return;let u=$('tbui');if(!u){u=document.createEle
   const spb=mk('button','tbq'+(TR.speed>1?' on':''),TR.speed>1?'×2':'×1');spb.type='button';spb.onclick=()=>{TR.speed=TRSPD=TR.speed>1?1:2;try{localStorage.setItem('trSpd',String(TRSPD))}catch(e){}trUI()};tg.append(au,spb);
   if(!TR.o.ctx){const q=mk('button','tbq','やめる');q.type='button';q.onclick=trQuit;tg.append(q)}top.append(tg);u.append(top);
   if(TR.phase==='prep'){trPrepUI(u);return}
-  if(TR.end){const b=mk('div','tbend');const tot=TR.E.hp0-TR.E.hp,mv=TR.dmg.indexOf(Math.max(...TR.dmg));b.innerHTML='<b>'+(TR.end.win?'クリア!':TR.o.ctx&&(TR.o.ctx.raid||TR.o.ctx.sa)?(TR.end.timeUp?'時間切れ':'ここまで'):'まけてしまった')+'</b><div class="tbsum"><span>'+TR.turn+'手</span><span>与えたダメージ '+tot.toLocaleString()+'</span></div>'+(TR.xpRes&&TR.xpRes.length?'<div class="subxp">'+TR.xpRes.map(x=>'<p><b>'+x.name+'</b> 経験値+'+x.v+(x.after>x.before?' <em>Lv'+x.before+'→Lv'+x.after+'!</em>':x.capped?' <small>メインと同じLvで止まっています(経験値はたまります)</small>':'')+'</p>').join('')+'</div>':'');
+  if(TR.end){const b=mk('div','tbend');const tot=TR.E.hp0-TR.E.hp,mv=TR.dmg.indexOf(Math.max(...TR.dmg));b.innerHTML='<b>'+(TR.end.win?'クリア!':TR.o.ctx&&(TR.o.ctx.raid||TR.o.ctx.sa)?(TR.end.timeUp?'時間切れ':'ここまで'):'まけてしまった')+'</b><div class="tbsum"><span>'+TR.turn+'手</span><span>与えたダメージ '+tot.toLocaleString()+'</span></div>'+(TR.xpRes&&TR.xpRes.length?'<div class="subxp">'+TR.xpRes.map(x=>'<p><b>'+x.name+'</b> 経験値+'+x.v+(x.cu?'<small>(追いつき3倍)</small>':'')+(x.after>x.before?' <em>Lv'+x.before+'→Lv'+x.after+'!</em>':x.capped?' <small>メインと同じLvで止まっています(経験値はたまります)</small>':'')+'</p>').join('')+'</div>':'');
     if(tot>0){const m=mk('div','tbmvp');m.append(tbFace(TR.P[mv],40));const tx=mk('div');tx.innerHTML='<small>MVP</small><b>'+TR.P[mv].name+'</b><em>'+TR.dmg[mv].toLocaleString()+'ダメージ</em>';m.append(tx);b.append(m)}
     if(!TR.o.ctx){const row=mk('div','row2'),r=mk('button','btn main','もう一回'),qq=mk('button','btn','やめる');r.type=qq.type='button';r.onclick=()=>{trQuit();trStart()};qq.onclick=()=>trQuit();row.append(r,qq);b.append(row)}u.append(b);return}
   const sp=mk('div','trsp');sp.innerHTML='<span>推しポイント</span>'+Array.from({length:TR.spMax},(_,k)=>'<i class="'+(k<TR.sp?'on':'')+'"></i>').join('');u.append(sp);
@@ -2735,6 +2740,10 @@ function trTune(A,B,party,sop){const key=JSON.stringify([party.map(f=>[f.st,f.wt
   const nw=sc=>{let m=0;const N=byWin?40:16;for(let k=0;k<N;k++){const v=mNew(trSimRun({B,party,sop,sc}));m+=mode==='win'?(byWin?v[0]:v[1]):v}return m/N};
   let lo=Math.log(.3),hi=Math.log(8);for(let it=0;it<9;it++){const mid=(lo+hi)/2;if(nw(Math.exp(mid))>target)lo=mid;else hi=mid}
   const sc=Math.exp((lo+hi)/2);TRTUNE[key]=sc;return sc}
+/* the "recommended power" line under a stage: the enemy's recommended total for 3 avatars, and your 3 avatars' total */
+function trRecRow(B){const P=tbParty3(),need=trRec(B),have=Math.round(trPartyPow(P)),r=have/need,el=mk('div','trrec '+(r>=1?'ok':r>=.85?'mid':'low'));
+  el.innerHTML='<span>推奨戦力 <b>'+need.toLocaleString()+'</b><small>(3体の合計)</small></span><span>いまの'+P.length+'体 <b>'+have.toLocaleString()+'</b></span>';
+  if(P.length<3)el.append(mk('p',null,'敵は3体で戦う強さです。見た目タブの「+」で分身を作ると戦力が上がります(あと'+(3-P.length)+'体)。'));return el}
 
 /* ================= (10/23) 編成タブ v2: 見やすく =================
    参考にした考え方(まねはしない): ドラクエウォークのそうび画面のように「キャラの両脇に装備の枠」「持ち物はアイコンの格子」「選ぶと前後の数字を並べて比べる」
@@ -2792,7 +2801,7 @@ function stAl(i,cfg){if(!i)return S.al;return sjd(cfg[i-1]).al}
 function stUsed(i,cfg){return usedPts(stAl(i,cfg))}
 function renderStat(){const cfg=tbCfg(),i=(PTSEL>=jbCount(cfg)?0:PTSEL),n=ptsOf(avLv(i,cfg));PTSEL=i;if(!STP||STP.i!==i)STP={i,add:ST0()};
   for(let k=0;k<jbCount(cfg);k++){const al=stAl(k,cfg);if(usedPts(al)>ptsOf(avLv(k,cfg))){const a2=k?ST0():autoAlloc(S.lv,'atk');if(k)sjd(cfg[k-1]).al=a2;else S.al=a2}}
-  $('lv').value=S.lv;$('lvv').textContent='Lv '+avLv(i,cfg);$('lv').hidden=i>0;{const h=$('p-stat').querySelector('.sec h2');if(h&&h.firstChild){h.firstChild.textContent=i?'レベル ':'アカウントレベル ';h.querySelectorAll('small').forEach(x=>x.style.visibility=i?'hidden':'')}}let xb=$('subxp');if(!xb){xb=mk('div','subxpbar');xb.id='subxp';$('pts').before(xb)}xb.hidden=!i;if(i){const x=subXpInfo(cfg[i-1]);xb.innerHTML='<div class="xb"><i style="width:'+(100*x.into/x.need).toFixed(0)+'%"></i></div><small>'+(x.capped?'メインと同じLv'+x.lv+'で止まっています。ためた経験値 '+x.held+'(メインが上がると一気に上がる)':'次のLvまで '+(x.need-x.into)+'(ターン制で勝つと+'+SUBWIN+'、負けても+'+SUBLOSE+')')+'</small>'}
+  $('lv').value=S.lv;$('lvv').textContent='Lv '+avLv(i,cfg);$('lv').hidden=i>0;{const h=$('p-stat').querySelector('.sec h2');if(h&&h.firstChild){h.firstChild.textContent=i?'レベル ':'アカウントレベル ';h.querySelectorAll('small').forEach(x=>x.style.visibility=i?'hidden':'')}}let xb=$('subxp');if(!xb){xb=mk('div','subxpbar');xb.id='subxp';$('pts').before(xb)}xb.hidden=!i;if(i){const x=subXpInfo(cfg[i-1]);xb.innerHTML='<div class="xb"><i style="width:'+(100*x.into/x.need).toFixed(0)+'%"></i></div><small>'+(x.capped?'メインと同じLv'+x.lv+'で止まっています。ためた経験値 '+x.held+'(メインが上がると一気に上がる)':'次のLvまで '+(x.need-x.into)+'(勝つと+'+SUBWIN*SUBCU+'、負けても+'+SUBLOSE*SUBCU+'。メインのLvに追いつくまで3倍)')+'</small>'}
   const al=stAl(i,cfg),pend=usedPts(STP.add),left=n-usedPts(al)-pend;$('pts').innerHTML='残りポイント <b>'+left+'</b> / '+n+(pend?' <em>(仮に'+pend+'振っています)</em>':'');
   /* who */let wh=$('stwho');if(!wh){wh=mk('div','stwho');wh.id='stwho';$('stl').before(wh)}wh.replaceChildren();const fs=mk('div','ptfaces');
   for(let k=0;k<jbCount(cfg);k++){const fk=ptFighter(k,cfg),rk=TBROLE[tbRole(fk)],b=mk('button','ptface'+(k===i?' on':''));b.type='button';b.style.setProperty('--c',rk[1]);b.append(headCv(lookHead(fk.look),40));const lk=ptsOf(avLv(k,cfg))-stUsed(k,cfg);if(lk>0)b.append(mk('i','stdot',String(lk)));b.onclick=()=>{PTSEL=k;STP=null;refresh()};fs.append(b)}
@@ -2845,7 +2854,7 @@ function renderLook(){const cfg=tbCfg(),n=jbCount(cfg);if(PTSEL>=n)PTSEL=0;const
 /* ================= (10/23) 2体目・3体目のレベル: ターン制バトルの経験値で上がる。上限はメインのレベル =================
    経験値はずっとたまる(xp)。レベル = min(経験値から出るレベル, メインのレベル)。上限で止まっている間の経験値はたまり続け、メインが上がると一気に上がる */
 const SUBXP=L=>20+L*10;/* Lv L → L+1 に要る経験値 */
-const SUBWIN=80,SUBLOSE=25;
+const SUBWIN=80,SUBLOSE=25,SUBCU=3;/* (10/23) メインのレベルに追いつくまでは経験値3倍 */
 /* (10/23) 役職ごとに経験値と振り分けが別: m.jobs[job]={xp,al}。前の m.xp・m.al はいまの役職の分として引っこす */
 function sjd(m){if(!m.jobs)m.jobs={};const j=m.job||'sword';if(!m.jobs[j]){m.jobs[j]={xp:0,al:{hp:0,atk:0,def:0,spd:0,mag:0}};if(m.xp!=null||m.al){m.jobs[j].xp=m.xp||0;if(m.al)m.jobs[j].al=m.al;delete m.xp;delete m.al}}return m.jobs[j]}
 const sjLv=(m,j)=>Math.min(S.lv,subLvRaw(((m.jobs||{})[j]||{}).xp||0));
@@ -2854,7 +2863,7 @@ function subLvOf(m){return Math.min(S.lv,subLvRaw(sjd(m).xp||0))}
 function avLv(i,cfg){return i?subLvOf(cfg[i-1]):S.lv}
 function subXpInfo(m){let xp=sjd(m).xp||0,L=1;while(xp>=SUBXP(L)&&L<300){xp-=SUBXP(L);L++}const lv=Math.min(S.lv,L),capped=L>S.lv;let held=0;if(capped){let t=sjd(m).xp||0;for(let k=1;k<S.lv;k++)t-=SUBXP(k);held=t}return {lv,raw:L,into:capped?SUBXP(lv):xp,need:SUBXP(lv),capped,held}}
 /* after a turn battle: experience for the sub avatars that took part */
-function subGiveXp(win){const cfg=tbCfg(),n=jbCount(cfg),out=[];for(let k=1;k<n;k++){const m=cfg[k-1],before=subLvOf(m),v=win?SUBWIN:SUBLOSE;sjd(m).xp=(sjd(m).xp||0)+v;const after=subLvOf(m);out.push({name:m.name||('分身'+(k+1)),v,before,after,capped:subXpInfo(m).capped})}tbSaveCfg(cfg);setTimeout(refresh,0);return out}
+function subGiveXp(win){const cfg=tbCfg(),n=jbCount(cfg),out=[];for(let k=1;k<n;k++){const m=cfg[k-1],before=subLvOf(m),cu=subLvRaw(sjd(m).xp||0)<S.lv,v=(win?SUBWIN:SUBLOSE)*(cu?SUBCU:1);sjd(m).xp=(sjd(m).xp||0)+v;const after=subLvOf(m);out.push({name:m.name||('分身'+(k+1)),v,cu,before,after,capped:subXpInfo(m).capped})}tbSaveCfg(cfg);setTimeout(refresh,0);return out}
 
 /* ================= (10/23) 見た目は2回まで変えられる =================
    髪型・髪の色・目の色は、選ぶと上の舞台で試せる(まだ決まっていない)。「この見た目にする」で決めると1回使う。
