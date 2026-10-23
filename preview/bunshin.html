@@ -385,6 +385,7 @@ html:not(.inapp) .subt{grid-template-columns:repeat(3,1fr)}
 .subxp{display:grid;gap:4px;padding:8px 10px;border-radius:10px;background:rgba(0,0,0,.25);text-align:left}.subxp p{margin:0;font:600 12px/1.4 var(--jp);color:var(--fg)}.subxp em{font-style:normal;color:#6ee09a;font-weight:800}.subxp small{color:var(--mut);font-size:10.5px}
 .lkbar .row2{margin:0}.lkmsg{margin:8px 0 0;font:500 11.5px/1.5 var(--jp);color:var(--mut)}#p-look .sw:disabled{opacity:.35}
 .jbc{position:relative}.jbc .jl{position:absolute;top:4px;right:5px;font:700 9px/1 var(--px);font-style:normal;color:var(--gold2)}
+.ptos.s-w{top:12%}.ptos.s-c{top:56%}.pttile.ou canvas{width:72%;height:72%;border-radius:8px;image-rendering:pixelated}
 </style>
 
 <div class="wrap">
@@ -1020,7 +1021,7 @@ function myWeapon(){const it=itemOf(S.eq.w);return it?ITEMS[it.k].wt:'fist'}
 function myItems(){return ['w','a','x'].map(s=>itemOf(S.eq[s])).filter(Boolean)}
 function power(st){return Math.round(st.hp*.35+st.atk*3+st.def*2.4+st.spd*2.2+st.mag*2.6)}
 const hbSkinMe=()=>{try{return !!(HOST&&HOST.hbSkin&&HOST.hbSkin())}catch(e){return false}};
-const myLook=()=>S.look.pk&&!hbSkinMe()?Object.assign({},S.look,{pk:0}):S.look;
+const myLook=()=>S.look.pk&&!hbSkinMe()&&!OU_ALL?Object.assign({},S.look,{pk:0}):S.look;
 function fighterMe(){const {s}=statsOf(S.lv,S.al,myItems());const w=itemOf(S.eq.w);return {name:'あなた',lv:S.lv,look:myLook(),st:s,wt:myWeapon(),k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null,...bqWear(myItems())}}
 function fighterOpp(o){const items=o.eq.filter(x=>ITEMS[x[0]]).map(([k,r,e],i)=>({id:-1-i,k,r,e:e||0}));const al=o.al&&usedPts(o.al)<=ptsOf(o.lv)?o.al:autoAlloc(o.lv,o.style||'atk');const {s}=statsOf(o.lv,al,items);if(o.mul)for(const k in s)s[k]=Math.max(1,Math.round(s[k]*(k==='spd'?Math.sqrt(o.mul):o.mul)));const w=items.find(i=>ITEMS[i.k].s==='w');return {name:o.name,lv:o.lv,look:o.look,st:s,wt:w?ITEMS[w.k].wt:'fist',k:w?rarOf(w).k:1,wk:w?w.k:null,wr:w?w.r:null,...bqWear(items)}}
 
@@ -2707,7 +2708,7 @@ function ptTile(it,cfg,o){o=o||{};const b=mk('button','pttile'+(o.on?' on':'')+(
   b.innerHTML=(it?iconOf(it):icon(s==='w'?'fist':s,'#4a4458'))+(it&&it.e?'<i class="lv">+'+it.e+'</i>':'')+(it?'<i class="rr">'+rarOf(it).l+'</i>':'');
   if(it){const who=ptWhoHas(it.id,cfg);if(who===PTSEL)b.append(mk('i','eq','E'));else if(who>=0){const fc=headCv(lookHead(ptFighter(who,cfg).look),16);fc.className='who';b.append(fc)}}return b}
 function renderParty(){const box=$('pt');if(!box)return;box.replaceChildren();const cfg=tbCfg();if(PTSEL>=jbCount(cfg))PTSEL=0;const i=PTSEL,f=ptFighter(i,cfg),ro=tbRole(f),r=TBROLE[ro],st=ptStats(i,cfg);
-  /* the slots on the stage */const ov=$('ptov');if(ov){ov.replaceChildren();const eq=ptEq(i,cfg);for(const [s,t,side] of [['w','武器','l'],['a','防具','r'],['x','アクセ','r']]){const w=mk('div','ptos '+side+' s-'+s);w.append(mk('small',null,t));const tl=ptTile(itemOf(eq[s]),cfg,{slot:s,on:INVF===s});tl.onclick=()=>{INVF=s;PTIT=eq[s]||('none:'+s);renderInv();const sec=$('inv');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'})};w.append(tl);ov.append(w)}}
+  /* the slots on the stage */const ov=$('ptov');if(ov){ov.replaceChildren();const eq=ptEq(i,cfg);for(const [s,t,side] of [['w','武器','l'],['a','防具','r'],['x','アクセ','r']]){const w=mk('div','ptos '+side+' s-'+s);w.append(mk('small',null,t));const tl=ptTile(itemOf(eq[s]),cfg,{slot:s,on:INVF===s});tl.onclick=()=>{INVF=s;PTIT=eq[s]||('none:'+s);renderInv();const sec=$('inv');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'})};w.append(tl);ov.append(w)}{const w=mk('div','ptos l s-c');w.append(mk('small',null,'服装'));const o=OUTFITS[ouCur(i,cfg)],tl=ouTile(o,i,cfg,INVF==='c');tl.querySelector('.eq')&&tl.querySelector('.eq').remove();tl.onclick=()=>{INVF='c';OUSEL=null;renderInv();renderParty();const sec=$('inv');if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'})};w.append(tl);ov.append(w)}}
   /* who: three round faces, the chosen one larger */const head=mk('div','pthead');const fs=jbFaces(cfg,k=>{PTSEL=k;PTIT=null;renderGear()},true);
   const who=mk('div','ptwho');who.innerHTML='<b><small class="plv">Lv'+avLv(i,cfg)+'</small> '+ptName(i,cfg)+'</b><span class="ptjob" style="--c:'+r[1]+'">'+r[0]+'<small>'+r[2]+'</small></span>';head.append(fs,who);box.append(head);
   /* numbers */const sg=mk('div','ptnum');PTST.forEach(([k,n])=>{const d=mk('div');d.innerHTML='<small>'+n+'</small><b>'+st[k]+'</b>';sg.append(d)});const pw=mk('div','pw');pw.innerHTML='<small>戦闘力</small><b>'+power(st)+'</b>';sg.append(pw);box.append(sg);
@@ -2715,7 +2716,7 @@ function renderParty(){const box=$('pt');if(!box)return;box.replaceChildren();co
   if(i){const lk=mk('div','ptlook');for(const [key,obj,n] of [['hc',HAIRC,'髪'],['ec',EYEC,'目']]){const w=mk('div','tbch');w.append(mk('span',null,n));Object.keys(obj).forEach(k=>{const b=mk('button','tbsw'+(cfg[i-1].look[key]===k?' on':''));b.type='button';b.style.background=swatch(obj[k]||(key==='hc'?['#3a2010','#7a4a28','#c08a5a']:['#0a3a1a','#2aa060','#a0ffc0']));b.onclick=()=>{cfg[i-1].look[key]=k;tbSaveCfg(cfg);refresh()};w.append(b)});lk.append(w)}box.append(lk)}}
 /* 持ち物: a grid of squares; a picked one opens the comparison above the grid */
 function renderInv(){const inv=$('inv');if(!inv)return;inv.replaceChildren();const cfg=tbCfg(),cnt={all:S.inv.length,w:0,a:0,x:0};S.inv.forEach(it=>cnt[ITEMS[it.k].s]++);const n=$('invn');if(n)n.textContent=S.inv.length+'個';
-  const tb=mk('div','invf');[['all','すべて'],['w','武器'],['a','防具'],['x','アクセ']].forEach(([k,nm])=>{const c=mk('button','chip'+(INVF===k?' on':''),nm+'<span>'+cnt[k]+'</span>');c.type='button';c.onclick=()=>{INVF=k;PTIT=null;renderInv();renderParty()};tb.append(c)});inv.append(tb);
+  const tb=mk('div','invf');cnt.c=OUTFITS.filter(o=>o.have()).length;[['all','すべて'],['w','武器'],['a','防具'],['x','アクセ'],['c','服装']].forEach(([k,nm])=>{const c=mk('button','chip'+(INVF===k?' on':''),nm+'<span>'+cnt[k]+'</span>');c.type='button';c.onclick=()=>{INVF=k;PTIT=null;OUSEL=null;renderInv();renderParty()};tb.append(c)});inv.append(tb);if(INVF==='c'){ouRender(inv,cfg);return}
   if(PTIT!=null)inv.append(ptDetail(cfg));
   const g=mk('div','ptgrid'),order=['w','a','x'].filter(s=>INVF==='all'||INVF===s),seen=new Map();
   for(const s of order){const L=S.inv.filter(it=>ITEMS[it.k].s===s).sort((a,b)=>(ptWhoHas(b.id,cfg)===PTSEL)-(ptWhoHas(a.id,cfg)===PTSEL)||IORD[a.r]-IORD[b.r]||(b.e||0)-(a.e||0)||(s==='w'?WTO.indexOf(ITEMS[a.k].wt)-WTO.indexOf(ITEMS[b.k].wt):0));
@@ -2782,7 +2783,7 @@ function renderLook(){const cfg=tbCfg(),n=jbCount(cfg);if(PTSEL>=n)PTSEL=0;const
   if(n<3)top.append(mk('p','note','「+」で分身を作れます(あと'+(3-n)+'体)。作った分身は編成で装備し、3体で戦えます。'));
   const mainSecs=[...$('p-look').querySelectorAll(':scope>.sec:not(.lkwho):not(.lksub):not(.lkjob)')];
   let sub=$('lksub');if(!sub){sub=mk('div','lksub');sub.id='lksub';top.after(sub)}sub.replaceChildren();
-  if(LKD&&LKD.i!==i)LKD=null;if(i===0){mainSecs.forEach(s=>s.style.display='');renderLook0();if(lkLocked(0,cfg))['gsel','hsel','hcsel','ecsel'].forEach(id=>$(id).querySelectorAll('button').forEach(b=>b.disabled=true))}
+  if(LKD&&LKD.i!==i)LKD=null;if(i===0){mainSecs.forEach(s=>s.style.display='');renderLook0();$('pksec').hidden=true;if(lkLocked(0,cfg))['gsel','hsel','hcsel','ecsel'].forEach(id=>$(id).querySelectorAll('button').forEach(b=>b.disabled=true))}
   else{mainSecs.forEach(s=>s.style.display='none');const m=cfg[i-1];
     const nm=mk('div','sec');nm.innerHTML='<h2>名前<small>8文字まで</small></h2>';const inp=document.createElement('input');inp.className='lkname';inp.maxLength=8;inp.value=m.name||'';inp.oninput=()=>{m.name=(inp.value.trim()||('分身'+(i+1))).slice(0,8);tbSaveCfg(cfg)};inp.onchange=()=>setTimeout(refresh,0);nm.append(inp);sub.append(nm);
     for(const [key,obj,t] of [['hc',HAIRC,'髪の色'],['ec',EYEC,'目の色']]){const s=mk('div','sec');s.append(mk('h2',null,t));const w=mk('div','seg');for(const k in obj){const b=mk('button','sw'+(lkDraft(i,cfg)[key]===k?' on':''));b.disabled=lkLocked(i,cfg);b.type='button';const ic=mk('i');ic.style.background=swatch(obj[k]||(key==='hc'?HAIRSW[k]:EYESW[k]));b.append(ic,k);b.onclick=()=>{lkDraft(i,cfg)[key]=k;lkTouch()};w.append(b)}s.append(w);sub.append(s)}}
@@ -2826,6 +2827,23 @@ function lkBar(i,cfg){const box=mk('div','sec lkbar');box.id='lkbar';const free=
   const b=mk('button','btn main',free?'決定(1回目は無料)':'この見た目にする');b.type='button';b.disabled=!dirty&&!free;b.onclick=lkCommit;
   const r=mk('button','btn','もとに戻す');r.type='button';r.disabled=!dirty;r.onclick=()=>{LKD=null;renderLook()};const row=mk('div','row2');row.append(b,r);box.append(row);
   box.append(mk('p','lkmsg',(free?'作ったばかりなので、最初の1回は数えません。そのあと ':'')+'見た目を変えられるのは あと'+left+'回 です。選ぶと上で試せて、決めるまでは何回でも選び直せます。'));return box}
+
+/* ================= (10/23) 服装: 見た目だけが変わる枠(強さは変わらない)。イベントの報酬やスキンはここに入る =================
+   いまは「いつもの服」と「かぼちゃ頭の騎士」(ハロウィンの12体目の魔女のごほうび)。3体それぞれに着せられる */
+var OU_ALL=0;/* デモ用: 持っていなくても全部見せる */
+const OUTFITS=[{id:0,n:'いつもの服',from:'はじめから',have:()=>true},{id:1,n:'かぼちゃ頭の騎士',from:'ハロウィンの12体目の魔女のごほうび',have:()=>OU_ALL||hbSkinMe()||!!S.look.pk}];
+function ouCur(i,cfg){const L=i?cfg[i-1].look:S.look;return L.pk?1:0}
+function ouSet(i,cfg,id){if(i){cfg[i-1].look.pk=id?1:0;tbSaveCfg(cfg);refresh()}else{S.look.pk=id?1:0;changed()}}
+function ouPic(o,i,cfg,sz){const c=document.createElement('canvas');c.width=c.height=sz;const g=c.getContext('2d');g.imageSmoothingEnabled=false;
+  const draw=()=>{g.clearRect(0,0,sz,sz);if(o.id===1){const V=bossV(PKSKIN),I=bossIc(PKSKIN);if(V){g.drawImage(V.c,I[0],I[1],I[2],I[2],0,0,sz,sz);return true}return false}const L=Object.assign({},(i?cfg[i-1].look:S.look),{pk:0});lookHead(L)(g,sz);return true};
+  ready.then(()=>{if(!draw()&&o.id===1)bossImg(PKSKIN).addEventListener('load',draw,{once:true})});return c}
+function ouTile(o,i,cfg,on){const b=mk('button','pttile ou'+(on?' on':''));b.type='button';b.style.setProperty('--rc',o.id?'#ff8a3a':'#a3a9b4');b.append(ouPic(o,i,cfg,64));if(ouCur(i,cfg)===o.id)b.append(mk('i','eq','E'));return b}
+let OUSEL=null;
+function ouRender(inv,cfg){const i=PTSEL,own=OUTFITS.filter(o=>o.have());const cur=ouCur(i,cfg),sel=OUSEL!=null?OUTFITS[OUSEL]:null;
+  if(sel){const d=mk('div','ptdet');d.style.setProperty('--rc',sel.id?'#ff8a3a':'#a3a9b4');const top=mk('div','ptdtop');top.append(ouTile(sel,i,cfg,false));const t=mk('div');t.innerHTML='<b>'+sel.n+'</b><small>見た目だけ変わります(強さは変わりません)</small><small>手に入れ方: '+sel.from+'</small>';top.append(t);d.append(top);
+    const acts=mk('div','ptacts');if(cur!==sel.id){const b=mk('button','btn main',ptName(i,cfg)+'が着る');b.type='button';b.onclick=()=>{OUSEL=null;ouSet(i,cfg,sel.id)};acts.append(b)}else acts.append(mk('p','note','いま着ています'));d.append(acts);inv.append(d)}
+  const g=mk('div','ptgrid');own.forEach(o=>{const t=ouTile(o,i,cfg,OUSEL===o.id);t.onclick=()=>{OUSEL=OUSEL===o.id?null:o.id;renderInv()};g.append(t)});inv.append(g);
+  inv.append(mk('p','note','服装は見た目専用です。イベントの報酬やスキンはここに増えていきます。見た目の回数(2回まで)には数えません。'))}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
