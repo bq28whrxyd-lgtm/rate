@@ -2910,6 +2910,15 @@ body.nsopen{overflow:hidden}
 /* the cut-out character over the sparkle (only the background shines); the sparkle then covers the whole picture */
 .tcf.foil.hascut .scut{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%;z-index:6;pointer-events:none;border-radius:inherit}
 .tcf.foil.hascut .sgl.s1{-webkit-mask:none!important;mask:none!important}
+/* KMR: the app mark in gold glitter behind the effect text (10/25); grid-area makes it sit on the text row */
+.tfc.kmrx .kx-wm{position:absolute;grid-area:2/1/3/2;left:50%;top:50%;width:58cqw;aspect-ratio:929/677;transform:translate(-50%,-50%);z-index:-1;pointer-events:none;overflow:hidden;opacity:.68;filter:saturate(1.7) contrast(1.15);
+  background:url("tcgk/mark.png") center/contain no-repeat;-webkit-mask:url("tcgk/mark.png") center/contain no-repeat;mask:url("tcgk/mark.png") center/contain no-repeat}
+.kx-wm b{position:absolute;inset:-40%;background:linear-gradient(105deg,transparent 40%,rgba(255,226,140,.75) 50%,transparent 60%);animation:kxwm 5s ease-in-out infinite;will-change:transform}
+@keyframes kxwm{0%{transform:translateX(-55%)}60%,100%{transform:translateX(55%)}}
+@container (max-width:150px){.tfc.kmrx .kx-wm{display:none}}
+.tcggrid .kx-wm,.tdvdex .kx-wm{display:none}
+@media(prefers-reduced-motion:reduce){.kx-wm b{animation:none;opacity:0}}
+.tfc.kmrx.nonch .kx-wm{top:auto;bottom:-1cqw;transform:translateX(-50%)}
 
 /*TCGCSS-END*/
 /* monthly pass */
@@ -14081,6 +14090,7 @@ function tcgCardFull(id,foil,cls,ga){const c=TC[id];if(!c)return tcgFace(id,cls,
   const bot=el('div','tfcb');const ty=el('div','tfcy');ty.append(el('span',null,(TFC_TY[c.ty]||'')+' ・ '+((TCGD.fname||{})[c.f]||'')),el('em',null,km?'KMR':foil?'SECRET':lead?'LEADER':c.r));
   const tx=String(c.tx||'').split('\n').filter(l=>!/^【(リーダー|ハロウィン版)】/.test(l)).join('\n');
   bot.append(ty,el('p','tfcx',tx));
+  if(km){const wm=el('i','kx-wm');wm.append(el('b'));bot.prepend(wm)} // 10/25 the app mark in gold behind the effect text
   if(c.ty==='chara'){const st=el('div','tfcs'),a=el('span','a'),d=el('span','d');a.append(el('small',null,'ATK'),document.createTextNode(c.atk));d.append(el('small',null,'DEF'),document.createTextNode(c.def));st.append(a,el('i'),d);bot.append(st)}
   w.append(el('i','tfcsh'),top,bot);if(!c.hwOf)w.append(el('i','tfcgem'));else{const pk=art.querySelector('.tcfpk');if(pk)w.append(pk)}['k1','k2','k3','k4'].forEach(k=>w.append(el('i','tfccn '+k)));
   /* KMR: the character steps over the top of the frame, gold streaks cross in front of her, a sheen crosses the whole card */

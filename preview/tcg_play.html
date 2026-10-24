@@ -1627,6 +1627,13 @@ body:not(.gkview){background:
 /* the cut-out character over the sparkle (only the background shines); the sparkle then covers the whole picture */
 .bc.foilc .bart.hascut .scut{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%;z-index:6;pointer-events:none;border-radius:inherit}
 .bc.foilc .bart.hascut .sgl.s1{-webkit-mask:none!important;mask:none!important}
+/* KMR: the app mark in gold behind the effect text (10/25); centered on the text box (bottom 20cqw, up to 21.2cqw tall) */
+.bc.kmrc>.kx-wm{position:absolute;left:50%;bottom:30.6cqw;width:56cqw;aspect-ratio:929/677;transform:translate(-50%,50%);z-index:5;pointer-events:none;overflow:hidden;opacity:.62;filter:saturate(1.7) contrast(1.15);
+  background:url("tcgk/mark.png") center/contain no-repeat;-webkit-mask:url("tcgk/mark.png") center/contain no-repeat;mask:url("tcgk/mark.png") center/contain no-repeat}
+.bc.kmrc.spell>.kx-wm,.bc.kmrc.trap>.kx-wm{bottom:22cqw}
+.bc.kmrc>.kx-wm b{position:absolute;inset:-40%;background:linear-gradient(105deg,transparent 40%,rgba(255,226,140,.75) 50%,transparent 60%);animation:kxwm 5s ease-in-out infinite;will-change:transform}
+@keyframes kxwm{0%{transform:translateX(-55%)}60%,100%{transform:translateX(55%)}}
+@media(prefers-reduced-motion:reduce){.bc.kmrc>.kx-wm b{animation:none;opacity:0}}
 
 </style>
 
@@ -3550,6 +3557,7 @@ function bigCard(id,mini,foil,ga){ga=CARD_ALT[id]?(ga|0):0;const km=foil==='k'&&
     if(!cut){const lt=el('img','kx-lt kx-ltn');lt.alt='';lt.src='tcgk/letters.png';a.append(lt)}
     if(cut){const lt=el('img','kx-lt');lt.alt='';lt.src='tcgk/letters.png';a.append(lt);const p=el('div','kx-pop'),pi=el('img');pi.alt='';pi.src='tcgk/'+id+'_c.webp';p.append(pi);d.append(p,el('i','kx-sw'))}
     const al=el('i','kx-all');al.append(el('b'));d.append(al);if(mini)d.append(el('i','foiltag kmrt','KMR'))}
+  if(km&&!mini){const wm=el('i','kx-wm');wm.append(el('b'));d.append(wm)} // 10/25 the app mark in gold behind the effect text
   d.append(el('div','btx',CD.text(c)));
   /* (10/22) full-art layout (案a): rarity class for the frame metal, a shade under the text, the tribe gem (Halloween copies: their pumpkin sticker) */
   d.classList.add('fa','rk-'+RCODE(c.r));d.append(el('i','fash'));if(c.hwOf){const n=String(hwIx(id)+1).padStart(2,'0'),pk=el('i','fpk');pk.style.setProperty('--pk','url("hwpk/pk'+n+'.webp?v=2")');const im=el('img');im.alt='';im.src='hwpk/pk'+n+'.webp?v=2';pk.append(im,el('b'),el('u'));d.append(pk)}else d.append(el('i','fgem'));
