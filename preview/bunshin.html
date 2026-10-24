@@ -505,7 +505,8 @@ canvas.tcsil{filter:brightness(0) invert(.32)}
 .dq .trm.dqhit{animation:dqhit .35s ease-out}@keyframes dqhit{0%{transform:translateX(0);box-shadow:inset 0 0 0 2px #ff5a5a,0 0 18px rgba(255,80,80,.6)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
 @media (prefers-reduced-motion:reduce){.tcback,.tcfront{animation-duration:.01s!important;animation-delay:0s!important}}
 /* (10/24) 推しスキン(tks.js) */
-.tkseg{display:flex;flex-wrap:wrap;gap:6px}#kmsec h2{flex-wrap:wrap;row-gap:4px}#kmsec h2 small{flex-basis:100%;margin:0;font-weight:600}
+.tkseg{display:flex;flex-wrap:wrap;gap:6px}.pttile.ou.kmr{background:linear-gradient(160deg,color-mix(in srgb,#ff6ad5 30%,#1a1426),#0e0a16 75%)}.pttile.ou.lock canvas{opacity:.35;filter:grayscale(1)}
+.pttile.ou.lock::after{content:"";position:absolute;right:6px;bottom:6px;width:10px;height:12px;background:#d8d0e8;-webkit-mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat;mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat}#kmsec h2{flex-wrap:wrap;row-gap:4px}#kmsec h2 small{flex-basis:100%;margin:0;font-weight:600}
 .tksc{display:inline-flex;align-items:center;gap:6px;padding-left:4px!important}.tksc.on{box-shadow:inset 0 0 0 2px var(--k1)!important}
 .tksc.lock{opacity:.45}.tksc.lock::after{content:"";width:9px;height:11px;margin-left:2px;border-radius:2px;background:currentColor;-webkit-mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat;mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat}
 .tksf{position:relative;display:block;width:22px;height:22px;border-radius:50%;overflow:hidden;flex:0 0 auto;background:#140e1e;box-shadow:0 0 0 1.5px var(--k1)}.tksf img{position:absolute;max-width:none}
@@ -4061,14 +4062,14 @@ function tkReveal(g0,done){const C=tcC(g0.id),f=tcFighter(g0.id,Math.max(1,S.lv)
 {const _sh=tcShow;tcShow=function(got){const best=got.slice().sort((a,b)=>b.r-a.r)[0];if(best&&best.r>=6&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){tkReveal(best,()=>_sh.call(this,got));return}return _sh.apply(this,arguments)}}
 
 /* ================= (10/24) 推しスキン: 応援演出(同じKMRの対戦演出と勝利演出)を持っていると、自分の分身をその子の姿にできる =================
-   - 自分 > 見た目 の「推しスキン」。持っていないKMRも鍵つきで並べる(何がもらえるか見えるように)
+   - 自分 > 装備 > 服装 に並ぶ(いつもの服・かぼちゃ頭の騎士と同じ所。ユーザー: 装備の服装のとこに)。持っていないKMRも鍵つきで並べる
+   - ためいきは一旦なし(ユーザー: 一旦無くす)。前の版(見た目の欄に置いていた)は tks.v1-look.js
    - 全身の絵(ユーザーがGPTで描く。ch/src → cut_ch.py で k_*.png)があればその絵、まだなら髪と服の色をその子に合わせた仮の姿
    - 強さは変わらない。保存は look.km(KMRの名前)。友達の画面でも同じ姿になる
    - 前の版の「流れる応援の文字」(to.js)はやめた(ユーザー: 分身ではスキンに) */
 /* hand: where the equipped weapon is held in the picture [x, y, angle] (picture facing left, before the 0.64 scale) */
 const TKS={'オーバーサイズ':{img:'k_hood',hand:[91,52,-72],g:'f',ec:'青',hair:['#7a88a8','#dfe6f5','#ffffff'],vest:['#10163a','#232c66','#4656a8']},
   'ふくれっつら':{img:'k_chibi',noW:1,/* arms crossed: no weapon (ユーザー: 飛ばす) */g:'f',ec:'金',hair:['#6e6e78','#cfd0d8','#f6f6fa'],vest:['#55555e','#a8a8b2','#e2e2e8']},
-  'ためいき':{img:'k_hoodie2',g:'f',ec:'紫',hair:['#1e1a18','#463e38','#7a7068'],vest:['#808086','#c4c4ca','#f0f0f4']},
   'ひだまりニット':{img:'k_vt1',noW:1,/* chin and pocket */g:'m',ec:'青',hair:['#080c18','#1a2440','#4a7ad8'],vest:['#5a7aa8','#a4c0e6','#e2eeff']},
   'はなかんむり':{img:'k_vt2',noW:1,/* both hands on the flower crown */g:'f',ec:'金',hair:['#5e5638','#b4a67c','#eae2c4'],vest:['#b0a8a0','#eeeae4','#ffffff']},
   '堕ちた天使':{img:'k_vt3',hand:[57,97,115],g:'m',ec:'緑',hair:['#520a10','#cc262e','#ff806e'],vest:['#08080c','#1c1c24','#3a3a48']},
@@ -4090,21 +4091,27 @@ function tksDress(f){const n=f&&f.look&&f.look.km,d=n&&TKS[n];if(!d||f.ch||f.bos
 function tksWeapon(f,x,y,o){const V=bossV(f.boss),d=TKS[f.km];if(!V||!d||d.noW||!f.wt||f.wt==='fist')return;const h=d.hand||[V.w*.85,V.h*.3,-72],cx=bossCX(f.boss);
   const wl=weaponLayer(Object.assign({},f,{boss:null}),'p1',{w:1,h:1,gp:[0,0,h[2],1]});if(!wl)return;const fl=o.flip?-1:1,px=x+(h[0]-cx)*TCART*fl,py=y-(V.h-h[1])*TCART+(o.sink||0)*TCART;
   G.save();G.globalAlpha=o.alpha==null?1:o.alpha;G.translate(Math.round(px),Math.round(py));if(o.flip)G.scale(-1,1);G.drawImage(wl.c,-wl.M,-wl.M);G.restore()}
-/* 自分 > 見た目: the 推しスキン row */
-function tksFace(K){const c=document.createElement('i');c.className='tksf';const im=document.createElement('img');im.alt='';im.src=K.img;const s=Math.min(K.w,K.h)/(K.z||1)/1.15,wp=K.w/s*100,hp=K.h/s*100;im.style.cssText='width:'+wp+'%;height:'+hp+'%;left:'+(50-K.fx/100*wp)+'%;top:'+(50-K.fy/100*hp)+'%';c.append(im);return c}
-function tksRender(){const sec=$('kmsec'),box=$('kmsel');if(!sec||!box)return;const {set,all}=tksLists();if(!all.length){sec.hidden=true;return}sec.hidden=false;box.replaceChildren();const cur=S.look.km&&tksOwn(S.look.km)?S.look.km:'';
-  const b0=mk('button','chip'+(cur?'':' on'),'いつもの姿');b0.type='button';b0.onclick=()=>{S.look.km='';changed()};box.append(b0);
-  all.filter(K=>TKS[K.n]).forEach(K=>{const own=set.some(k=>k.n===K.n),b=mk('button','chip tksc'+(cur===K.n?' on':'')+(own?'':' lock'));b.type='button';b.style.setProperty('--k1',K.c[0]||'#ff8fd0');b.append(tksFace(K),document.createTextNode(K.n));
-    b.onclick=()=>{if(!own){toast('スキンガチャで「'+K.n+'」の対戦演出と勝利演出をそろえると使えます');return}S.look.km=K.n;S.look.pk=0;changed()};box.append(b)});
-  const n=$('kmnote');if(n)n.textContent=set.length?(tksArt(cur)||!cur?'強さは変わりません。友達の画面でもこの姿です':'全身の絵ができるまでは、髪と服の色だけその子に合わせた仮の姿です'):'スキンガチャのKMRで、対戦演出と勝利演出をそろえると使えます'}
-{const _rl=renderLook;renderLook=function(){const r=_rl.apply(this,arguments);try{if(typeof PTSEL==='undefined'||PTSEL===0)tksRender();else{const s=$('kmsec');if(s)s.hidden=true}}catch(e){}return r}}
-/* choosing the pumpkin knight takes the skin off */
-document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#pksel button');if(b&&S.look.km){S.look.km='';setTimeout(()=>{try{changed()}catch(_){}},0)}},true);
-/* the first drawing of the page ran before this file: draw the row once now, and whenever the 自分 tab opens */
-{const _ts=tnShow;tnShow=function(k){const r=_ts.apply(this,arguments);if(k==='self')try{tksRender()}catch(e){}return r}}
-setTimeout(()=>{try{tksRender()}catch(e){}},0);
+/* 装備 > 服装: the 推しスキン join the outfits (いつもの服 = 0, かぼちゃ頭の騎士 = 1, then these). Only the main avatar wears them */
+const TKSO=Object.keys(TKS).map((n,k)=>({id:2+k,n,km:n,from:'スキンガチャの「'+n+'」の対戦演出と勝利演出をそろえる',have:()=>!!OU_ALL||tksOwn(n)}));
+OUTFITS.push(...TKSO);
+{const _c=ouCur;ouCur=function(i,cfg){if(!i&&S.look.km&&tksOwn(S.look.km)){const o=TKSO.find(x=>x.km===S.look.km);if(o)return o.id}return _c.apply(this,arguments)}}
+{const _s=ouSet;ouSet=function(i,cfg,id){const o=OUTFITS[id];if(o&&o.km){if(i||!o.have())return;S.look.km=o.km;S.look.pk=0;changed();return}if(!i)S.look.km='';return _s.apply(this,arguments)}}
+{const _p=ouPic;ouPic=function(o,i,cfg,sz){if(!o||!o.km)return _p.apply(this,arguments);const c=document.createElement('canvas');c.width=c.height=sz;const g=c.getContext('2d');g.imageSmoothingEnabled=false;const b={img:TKS[o.km].img};
+  const draw=()=>{if(!tksArt(o.km))return false;const V=bossV(b),I=bossIc(b);if(!V)return false;g.clearRect(0,0,sz,sz);g.drawImage(V.c,I[0],I[1],I[2],I[2],0,0,sz,sz);return true};
+  if(!draw()){const im=HWB[b.img]&&HWB[b.img].I;if(im)im.addEventListener('load',()=>draw(),{once:true})}return c}}
+{const _t=ouTile;ouTile=function(o,i,cfg,on){const b=_t.apply(this,arguments);if(o&&o.km){b.style.setProperty('--rc','#ff6ad5');b.classList.add('kmr');if(!o.have())b.classList.add('lock')}return b}}
+ouRender=function(inv,cfg){const i=PTSEL,list=OUTFITS.filter(o=>o.km?!i:o.have());const cur=ouCur(i,cfg),sel=OUSEL!=null?OUTFITS[OUSEL]:null;
+  if(sel){const own=sel.have(),d=mk('div','ptdet');d.style.setProperty('--rc',sel.km?'#ff6ad5':sel.id?'#ff8a3a':'#a3a9b4');const top=mk('div','ptdtop');top.append(ouTile(sel,i,cfg,false));const t=mk('div');
+    t.innerHTML='<b>'+sel.n+'</b><small>見た目だけ変わります(強さは変わりません)</small>'+(sel.km?'<small>'+(TKS[sel.km].noW?'手がふさがっているので、武器は持ちません':'装備している武器を手に持ちます')+'</small>':'')+'<small>手に入れ方: '+sel.from+'</small>';top.append(t);d.append(top);
+    const acts=mk('div','ptacts');if(!own)acts.append(mk('p','note','まだ持っていません'));else if(cur!==sel.id){const b=mk('button','btn main',ptName(i,cfg)+'が着る');b.type='button';b.onclick=()=>{OUSEL=null;ouSet(i,cfg,sel.id)};acts.append(b)}else acts.append(mk('p','note','いま着ています'));d.append(acts);inv.append(d)}
+  const g=mk('div','ptgrid');list.forEach(o=>{const t=ouTile(o,i,cfg,OUSEL===o.id);t.onclick=()=>{OUSEL=OUSEL===o.id?null:o.id;renderInv()};g.append(t)});inv.append(g);
+  inv.append(mk('p','note','服装は見た目専用です。推しスキンは、スキンガチャのKMRの対戦演出と勝利演出をそろえると着られます(鍵の付いたものはまだ持っていません)。見た目の回数(2回まで)には数えません。'))};
+/* the old row in 見た目 is not used any more */
+function tksRender(){const s=$('kmsec');if(s)s.hidden=true}
 /* the look editor lays its draft over my look: put the skin back on top of it */
 {const _pf=ptFighter;ptFighter=function(i){let f=_pf.apply(this,arguments);if(!i&&f&&f.look&&f.look.km&&!f.boss&&tksOwn(f.look.km)){f=Object.assign({},f,{km:null});f=tksDress(f)}return f}}
+/* choosing the pumpkin knight in 見た目 takes the skin off */
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#pksel button');if(b&&S.look.km){S.look.km='';setTimeout(()=>{try{changed()}catch(_){}},0)}},true);
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
