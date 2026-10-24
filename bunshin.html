@@ -4142,7 +4142,8 @@ function tcPull(n){if(!HOST){const o=tcLoad();if(o.tix<n){toastB('お試しで�
   if(free)S.cfree=1;else if(n===10)S.c10=(+S.c10||0)+1;else S.cp=(+S.cp||0)+1;tcRoll(o,n,cost)}
 function tcRoll(o,n,cost){const got=[];
   for(let k=0;k<n;k++){/* N 40% R 33% SR 18% UR 6% GR 2.5% KMR .5%; ten pulls: at least one SR or better */const r=Math.random()*100;let st=r<.5?7:r<3?6:r<9?5:r<27?4:r<60?3:2;if(n===10&&k===9&&!got.some(g=>g.r>=4))st=4;const L=TCH.filter(c=>c.r===st),C=L[Math.floor(Math.random()*L.length)],own=o.own[C.id],nw=!own;
-    if(nw)o.own[C.id]={n:1,xp:tcStartXp()};else own.n=Math.min(99,(own.n||1)+1);got.push({id:C.id,r:C.r,nw,n:o.own[C.id].n})}
+    /* (10/24) ユーザー「Lv1から育てる」: a new character starts at Lv1 (the 3 starters still start at 6割 of yours) */
+    if(nw)o.own[C.id]={n:1,xp:0};else own.n=Math.min(99,(own.n||1)+1);got.push({id:C.id,r:C.r,nw,n:o.own[C.id].n})}
   tcSave(o);if(HOST&&cost!=null)tcPay(cost,saveNow());tcShow(got);refresh()}
 /* the ガチャ tab: the free 10連 first, then the prices */
 function renderGachaTab(){const p=$('p-gacha');if(!p)return;const eg=p.querySelector('.tneg');[...p.children].forEach(c=>{if(c!==eg)c.remove()});const o=tcLoad(),pt=HOST?tcPts():0;
