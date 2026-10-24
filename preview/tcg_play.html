@@ -1593,6 +1593,16 @@ body:not(.gkview){background:
 /* the glitter is lit all the time; its colours drift slowly */
 @keyframes secC{0%,100%{transform:translateX(-10%)}50%{transform:translateX(10%)}}
 
+/* (10/24) シークレット: 粒が光ったり消えたりする。3組の粒が、それぞれちがう時に ふわっと光って消える(色はゆっくり動く虹) */
+.bc.foilc .bart .foilsheen{display:none!important}
+.bc.foilc .bart .sgl{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:inherit;overflow:hidden;mix-blend-mode:color-dodge;opacity:0;animation:sgTw 2.4s ease-in-out infinite}
+.bc.foilc .bart .sgl::before{content:"";position:absolute;top:-20%;bottom:-20%;left:-70%;width:240%;background:repeating-linear-gradient(105deg,#ff7ad9 0,#ffe07a 8%,#8dffd0 16%,#7ab8ff 24%,#d79bff 32%,#ff7ad9 40%);animation:secC 10s ease-in-out infinite}
+.bc.foilc .bart .sgl.s1{-webkit-mask:url("tcgk/tw1.png") 0 0/30% auto repeat;mask:url("tcgk/tw1.png") 0 0/30% auto repeat}
+.bc.foilc .bart .sgl.s2{-webkit-mask:url("tcgk/tw2.png") 0 0/30% auto repeat;mask:url("tcgk/tw2.png") 0 0/30% auto repeat;animation-delay:-.8s}
+.bc.foilc .bart .sgl.s3{-webkit-mask:url("tcgk/tw3.png") 0 0/30% auto repeat;mask:url("tcgk/tw3.png") 0 0/30% auto repeat;animation-delay:-1.6s}
+@keyframes sgTw{0%,100%{opacity:0}35%,55%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.bc.foilc .bart .sgl{animation:none;opacity:.6}}
+
 </style>
 
 <div id="tcgBoot"><b>きもオタTCG</b><span role="status">読み込んでいます…</span><div class="bootActions"><button class="btn" onclick="location.reload()">もう一度読み込む</button><button class="btn sec" onclick="try{(parent.TCGWATCH||parent.TCGHOST).close()}catch(e){history.back()}">アプリに戻る</button></div></div>
@@ -3506,7 +3516,7 @@ function bigCard(id,mini,foil,ga){ga=CARD_ALT[id]?(ga|0):0;const km=foil==='k'&&
   if(c.type==='chara')d.append(stats(c.atk,c.def));else if(mini)d.append(el('div','tyb '+(c.type==='spell'?'s':'t'),TYN[c.type]));
   if((c.kw||{}).syn)d.append(el('div','synchip','同族'));
   d.append(el('i','cn tl'),el('i','cn tr'),el('i','cn bl'),el('i','cn br'));
-  if(foil){const gw=el('i','glitterw'),gb=el('i','gband');gb.append(el('i','glitter'));gw.append(gb);a.append(el('i','foilsheen'),el('i','foilspark'),gw);if(c.hwOf){d.classList.add('hwfoil');const h=el('i','hwholo');h.append(el('b'));a.append(h)}d.prepend(el('i','scrhalo'));if(!ga)d.append(el('i','foiltag','SEC'));
+  if(foil){const gw=el('i','glitterw'),gb=el('i','gband');gb.append(el('i','glitter'));gw.append(gb);a.append(el('i','foilsheen'),el('i','foilspark'),el('i','sgl s1'),el('i','sgl s2'),el('i','sgl s3'),gw);if(c.hwOf){d.classList.add('hwfoil');const h=el('i','hwholo');h.append(el('b'));a.append(h)}d.prepend(el('i','scrhalo'));if(!ga)d.append(el('i','foiltag','SEC'));
     /* scattered glints: small four-point stars at random spots, each lighting up briefly at its own random moment */
     const gl=el('i','glints');for(let k=0;k<9;k++){const s=el('i');s.style.left=(6+Math.random()*88)+'%';s.style.top=(5+Math.random()*90)+'%';s.style.setProperty('--z',(.55+Math.random()*.75).toFixed(2));s.style.animationDelay=(-Math.random()*6).toFixed(2)+'s';s.style.animationDuration=(4.5+Math.random()*3).toFixed(2)+'s';gl.append(s)}a.append(gl)}
   /* (10/24) KMR: the background without the character, holo layers, the gold KMR; the character steps over the top of the frame */
