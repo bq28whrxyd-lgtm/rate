@@ -1098,6 +1098,10 @@ button:not(:disabled):active{transform:scale(.97);opacity:.88}
 /* while a popup covers the screen, the screen's own motion pauses (the class is put on the screen itself by ui2.js) */
 .kpz,.kpz::before,.kpz::after,.kpz *,.kpz *::before,.kpz *::after,.kpd *,.kpd *::before,.kpd *::after{animation-play-state:paused!important}
 body.ovl main video{visibility:hidden}
+/* (10/25) while a full-screen screen covers the app, the hidden home stops moving (it kept drawing behind the showcase) */
+body.ovl main *,body.ovl main *::before,body.ovl main *::after,body.cov main *,body.cov main *::before,body.cov main *::after{animation-play-state:paused!important}
+/* cards scrolled out of sight stop their shine (lists, the dex, showcase) */
+.offv,.offv *,.offv *::before,.offv *::after{animation-play-state:paused!important}
 /* ---- timeline, daily missions, predictions, genre week, MVP ---- */
 .gwban{background:linear-gradient(120deg,color-mix(in srgb,var(--gold) 22%,var(--panel)),var(--panel));border:1px solid color-mix(in srgb,var(--gold) 50%,var(--line));border-radius:14px;padding:14px 16px}
 .gwk{font:700 10px/1 var(--display);letter-spacing:.3em;color:var(--gold)}.gwt{font-weight:900;font-size:19px;margin:6px 0 4px}
@@ -2931,6 +2935,15 @@ body.nsopen{overflow:hidden}
 .tcf.foil .sgl.s1::before{display:none!important}
 @keyframes sgMove{0%,100%{background-position:0% 8%}50%{background-position:100% 92%}}
 @media(prefers-reduced-motion:reduce){.tcf.foil .sgl.s1{animation:none!important;background-position:30% 30%!important}}
+/* (10/25) lightness: shines move with transform (the phone moves a ready picture) instead of background-position (repainted every frame) */
+.tcf.r-GR::after{inset:0 auto 0 -200%!important;width:300%!important;background:linear-gradient(105deg,transparent 37%,#fff4 50%,transparent 63%)!important;background-size:100% 100%!important;animation:sweepT 3.2s linear infinite!important;will-change:transform}
+@keyframes sweepT{from{transform:translateX(0)}to{transform:translateX(66.7%)}}
+.tcf.foil .sgl.s1,.tcf.foil.hascut .sgl.s1{background:none!important;animation:none!important;overflow:hidden}
+.tcf.foil .sgl.s1::after{content:"";position:absolute;left:-90%;top:-90%;width:280%;height:280%;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,1) 0%,rgba(244,247,255,.95) 4.3%,rgba(220,228,248,.66) 9.3%,rgba(214,222,244,.42) 14.3%,rgba(214,222,244,.42) 100%);
+  animation:sgMoveT 6.5s ease-in-out infinite;will-change:transform}
+@keyframes sgMoveT{0%,100%{transform:translate(32%,27%)}50%{transform:translate(-32%,-27%)}}
+@media(prefers-reduced-motion:reduce){.tcf.r-GR::after{animation:none!important;opacity:0}.tcf.foil .sgl.s1::after{animation:none;transform:translate(12%,10%)}}
 
 /*TCGCSS-END*/
 /* monthly pass */
@@ -7631,6 +7644,14 @@ body.kpc .tcgw iframe{width:min(100vw,calc(100vh * .66),720px)!important;height:
 .kpc-keys{position:fixed;z-index:89;left:calc(50% - var(--kpc-col) / 2 - 92px);width:76px;text-align:center;font:600 10px/1.5 system-ui,sans-serif;color:rgba(255,255,255,.38);pointer-events:none}
 @media (prefers-reduced-motion:reduce){.kpc-arw{transition:none}}
 /*UI2-END*/
+
+/* (10/25) lightness: the slab label's holo seal and sheen move by rotate / translate (no repaint every frame) */
+.slab .slho{animation:sllSpin 5s linear infinite!important}
+@keyframes sllSpin{to{transform:rotate(360deg)}}
+.slab .sll{position:relative;overflow:hidden}
+.slab .sll::after{inset:0 auto 0 -200%!important;width:300%!important;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.14) 50%,transparent 60%)!important;background-size:100% 100%!important;animation:sllSheenT 6s ease-in-out infinite!important;will-change:transform}
+@keyframes sllSheenT{0%,60%{transform:translateX(0)}100%{transform:translateX(66.7%)}}
+@media(prefers-reduced-motion:reduce){.slab .slho,.slab .sll::after{animation:none!important}}
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
 #login h1{margin:4px 0 0}#login button{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -14834,7 +14855,22 @@ window.addEventListener('resize',moveNavInk);
 (function(){const sp=document.getElementById('splash');if(!sp)return;let done=false;
   const end=()=>{if(done)return;done=true;sp.classList.add('out');setTimeout(()=>sp.remove(),500)};
   setTimeout(end,matchMedia('(prefers-reduced-motion: reduce)').matches?500:2100);})();
-new MutationObserver(()=>{const on=!!document.querySelector('body>.ae,body>.pk,body>.news,body>.bo,body>.vic,body>.chest,body>.tkv,body>.pvw,body>.cut,body>.kc,body>.ru,body>.vtcut,body>.tcgboxresult,body>.tcgboxcinema,body>#splash');document.body.classList.toggle('ovl',on)}).observe(document.body,{childList:true});
+/* (10/25) lightness: (1) when a screen covers the whole app (a sheet, the dex, the showcase, slabs...), body gets 'cov' and the
+   hidden home stops moving and drawing; (2) cards out of sight pause their shine (class offv, IntersectionObserver) */
+(function(){
+  const SKIP=new Set(['dmp','dmo']);
+  const covered=()=>{const vw=innerWidth,vh=innerHeight;for(const e of document.body.children){if(SKIP.has(e.id)||e.tagName==='SCRIPT'||e.tagName==='STYLE')continue;
+    const cs=getComputedStyle(e);if(cs.position!=='fixed'||cs.display==='none'||cs.visibility==='hidden'||+cs.opacity<.5||!(+cs.zIndex>=50))continue;
+    const r=e.getBoundingClientRect();if(r.width>=vw*.9&&r.height>=vh*.8)return true}return false};
+  let t1=0,t2=0;const upd=()=>{const on=covered();if(document.body.classList.contains('cov')!==on)document.body.classList.toggle('cov',on)};
+  new MutationObserver(()=>{clearTimeout(t1);clearTimeout(t2);t1=setTimeout(upd,60);t2=setTimeout(upd,650)}).observe(document.body,{childList:true});
+  if(!('IntersectionObserver' in window))return;
+  const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('offv',!e.isIntersecting)),{rootMargin:'80px'});
+  const SEL='.tfc,.tcf,.slab,.sci';const seen=new WeakSet();
+  const watch=n=>{if(n.nodeType!==1)return;if(n.matches&&n.matches(SEL)&&!seen.has(n)){seen.add(n);io.observe(n)}if(n.querySelectorAll)n.querySelectorAll(SEL).forEach(x=>{if(!seen.has(x)){seen.add(x);io.observe(x)}})};
+  let q=[],qt=0;new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)q.push(n);if(!qt)qt=setTimeout(()=>{qt=0;const L=q;q=[];L.forEach(watch)},100)}).observe(document.body,{childList:true,subtree:true});
+})();
+new MutationObserver(()=>{const on=!!document.querySelector('body>.ae,body>.pk,body>.news,body>.bo,body>.vic,body>.chest,body>.tkv,body>.pvw,body>.cut,body>.kc,body>.ru,body>.vtcut,body>.tcgboxresult,body>.tcgboxcinema,body>#splash,body>.scv,body>.kpromo');document.body.classList.toggle('ovl',on)}).observe(document.body,{childList:true});
 
 document.querySelectorAll('.bnav button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 (function(){
@@ -15694,7 +15730,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     stage.draw(t,geo.c,window.__kmT!=null?0:now);
     /* gentle life: the emblem floats; the oshi breathes; a gloss band crosses the emblem every 6s */
     /* the emblem floats by the CSS animation (lobfl) and its gloss is an SVG animation: nothing is written here each frame */}
-  const active=()=>{const c=document.body.classList;if(!c.contains('lobhome')||document.hidden||c.contains('tcgon')||window.__kfFT||c.contains('kidle')||c.contains('ovl')||c.contains('lobsheet'))return false;return window.__kmRevealed||!document.querySelector('body>.km-splash')};
+  const active=()=>{const c=document.body.classList;if(!c.contains('lobhome')||document.hidden||c.contains('tcgon')||window.__kfFT||c.contains('kidle')||c.contains('ovl')||c.contains('cov')||c.contains('lobsheet'))return false;return window.__kmRevealed||!document.querySelector('body>.km-splash')};
   const ovd=q('.losh video');ovd.addEventListener('playing',()=>ovd.classList.add('on'));
   /* play only while the lobby is on screen; if this phone cannot play it, the still picture simply stays */
   function vidCtl(a){const src=ovd.getAttribute('src');if(!oshiOn||!src||ovd.__bad===src){if(!ovd.paused)ovd.pause();return}
