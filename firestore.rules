@@ -281,13 +281,15 @@ service cloud.firestore {
     // ---- 分身アバターバトル (beta): your avatar, readable by everyone signed in so friends can fight it.
     //      The quest stage moves up one at a time; gacha pulls and opened chests only go up ----
     function bunOk() {
-      return request.resource.data.keys().hasOnly(['look', 'al', 'inv', 'eq', 'nid', 'qs', 'gp', 'g10', 'copen', 'u', 'ch', 'cs', 'cfree', 'cp', 'c10'])
+      return request.resource.data.keys().hasOnly(['look', 'al', 'inv', 'eq', 'nid', 'qs', 'gp', 'g10', 'copen', 'u', 'ch', 'cs', 'cfree', 'cp', 'c10', 'crf'])
         && request.resource.data.get('inv', []).size() <= 600 && newV('qs', 0) <= 100 && newV('qs', 0) >= 0
         // (10/24) characters: at most 64, 3 party slots, one free 10-pull
         && request.resource.data.get('ch', {}).size() <= 64 && request.resource.data.get('cs', []).size() <= 3
         && newV('cfree', 0) >= 0 && newV('cfree', 0) <= 1
         && request.resource.data.get('ch', {}) is map && request.resource.data.get('cs', []) is list
-        && newV('cfree', 0) is int && newV('cp', 0) is int && newV('c10', 0) is int;
+        && newV('cfree', 0) is int && newV('cp', 0) is int && newV('c10', 0) is int
+        // (10/24) pt paid back for characters beyond 5重ね: never more than 400 a pull
+        && newV('crf', 0) is int && newV('crf', 0) >= 0 && newV('crf', 0) <= (newV('cp', 0) + newV('c10', 0) * 10 + newV('cfree', 0) * 10) * 400;
     }
     function bunMine(pid) { return myPid() == pid || get(/databases/$(database)/documents/players/$(pid)).data.get('uid', '') == me(); }
     match /bunshin/{pid} {
@@ -297,7 +299,7 @@ service cloud.firestore {
       allow update: if signedIn() && bunMine(pid) && bunOk()
         && newV('qs', 0) >= oldV('qs', 0) && newV('qs', 0) <= oldV('qs', 0) + 1
         && newV('gp', 0) >= oldV('gp', 0) && newV('g10', 0) >= oldV('g10', 0) && newV('copen', 0) >= oldV('copen', 0)
-        && newV('cfree', 0) >= oldV('cfree', 0) && newV('cp', 0) >= oldV('cp', 0) && newV('c10', 0) >= oldV('c10', 0);
+        && newV('cfree', 0) >= oldV('cfree', 0) && newV('cp', 0) >= oldV('cp', 0) && newV('c10', 0) >= oldV('c10', 0) && newV('crf', 0) >= oldV('crf', 0);
       allow delete: if isAdmin();
     }
     // ---- one record per avatar battle, written by the attacker, never changed ----
