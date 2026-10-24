@@ -2859,6 +2859,11 @@ body.nsopen{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.tcf.foil .foilsheen::before,.tfc.sec .tfcn,.tfc.sec .tfcs span{animation:none}}
 /* small faces: no big letters (only the big card carries them) */
 .tcf.kmr .kx-lt{display:none}
+.tcgkmrtry{display:flex;flex-direction:column;gap:8px;margin-top:12px;padding:12px;border-radius:12px;background:rgba(233,200,115,.1);box-shadow:inset 0 0 0 1px rgba(233,200,115,.35)}
+.tcgkmrtry small{color:#e9c873;font-size:12px}
+/* many KMR cards in a list (図鑑): keep them still so the list stays smooth; the card page moves */
+.tcggrid .kx-rb b,.tcggrid .kx-gs b,.tcggrid .kx-fl b,.tcggrid .tfc.kmrx>.kx-all b,.tcggrid .tfc.kmrx .tfcn,.tcggrid .tfc.kmrx .tfcs span,.tdvdex .kx-rb b,.tdvdex .kx-gs b,.tdvdex .kx-fl b,.tdvdex .tfc.kmrx>.kx-all b{animation:none!important}
+.tcgchips .ck{background:linear-gradient(135deg,#fff3c4,#e3b950 50%,#9a6a1a)!important;color:#2a1a04!important}
 
 /*TCGCSS-END*/
 /* monthly pass */
@@ -13365,7 +13370,9 @@ const TCG_FOIL=0.01;
 /* (10/24) KMR: the top version of any card, 1 in 1000 per pulled card (packs and boxes alike). Same strength; its own bag inv.tcg.kmr.
    It cannot be burnt, turned into かけら or sold: it stays with you. In a deck its copies are deck.kmr = {id: n} */
 const TCG_KMR=0.001;
-const tcgKmr=()=>tcgOf(inv).kmr||{};
+/* お試し版(/preview/)の管理者は、全部のカードのKMRを1枚ずつ持っている扱い(アプリの中で試せるように。保存はしない) */
+const tcgKmrTry=()=>typeof tcgAdmin==='function'&&tcgAdmin()&&/\/preview\//.test(location.pathname);
+const tcgKmr=()=>{if(tcgKmrTry()){const o={};TCGD.cards.forEach(c=>o[c.id]=1);return o}return tcgOf(inv).kmr||{}};
 /* a pulled card for the feed: a KMR counts as the top tier there */
 const tcgFeedC=x=>x&&x.foil==='k'?Object.assign({},x.c,{r:5}):x.c;
 const TCG_BOX_PACKS=15,TCG_BOX_PRICE=1500,TCG_BOX_DOUBLE=0.05,TCG_HW_SCR=0.3;
@@ -13856,6 +13863,11 @@ function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o
   /* the box works on the version picked in the list above: 通常 or シークレット (絵違い cannot be burnt) */
   let dw=null;const putBox=v=>{if(typeof dupBox!=='function')return;const T=tcgOf(inv),foil=v==='s',n=+((foil?T.foil:T.own)||{})[id]||0,nb=dupBox('t',id,n,()=>{o.remove();tcgSheet(id,v)},{foil});if(dw)dw.remove();dw=nb;if(dw)lst.after(dw)};
   if(first.v==='k'){dw=el('p','sub tcgkmrn','KMRは燃やしたり、かけらにしたり、出品したりできません。ずっとあなたの手元に残ります。');lst.after(dw)}else putBox(first.v==='s'?'s':0);
+  /* お試し版の管理者: KMRが出たときの演出をここから見られる(何も保存しない) */
+  if(tcgKmrTry()){const kb=el('div','tcgkmrtry');const b1=el('button','sec','KMRが出る演出を見る'),b2=el('button','sec','パックから出るところを見る');
+    b1.onclick=()=>{o.remove();tcgBoxCinematic(Object.keys(TCGD.packs)[0],[{c:tcgItem(id),isNew:true,sh:0,foil:'k'}],()=>{},()=>{},{revealed:true})};
+    b2.onclick=()=>{o.remove();const pk=Object.keys(TCGD.packs)[0],pool=tcgPool(pk),pick=r=>(pool.find(c=>c.r===r&&c.id!==id)||pool[0]).id;const res=[pick('C'),id,pick('R')].map((cid,i)=>({c:tcgItem(cid),isNew:false,sh:0,note:'お試し',foil:i===1?'k':false}));tcgPackView(pk,res,null,{onSecret:(x,resume)=>x.foil==='k'?tcgBoxCinematic(pk,[x],resume,resume,{revealed:true}):resume()})};
+    kb.append(el('small',null,'お試し版(管理者だけ): 全部のカードのKMRを持っている扱いです'),b1,b2);b.append(kb)}
   /* 極 owned: watch the premiere it gets when played */
   if((tcgAltOwned()[id]||[]).includes(3)&&tcgHasSt()){const gv=el('button','sec tcgshgk','極の演出を見る');gv.onclick=()=>{o.remove();tcgPlay('gokuview='+encodeURIComponent(id))};b.append(gv)}
   b.append(x);o.append(b);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
@@ -13880,9 +13892,9 @@ function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),KM=tcgKmr(),A
     info.textContent=(s||tcgDexMine||tcgTab!=='all')?L.length+'種類':'';g.replaceChildren();
     if(!L.length){g.append(el('div','sub tcgnone','条件に合うカードがありません'));return}
     /* (10/16) each version has its own square, right after the normal one: 通常 → シークレット → 絵違い (only cards that have them) */
-    L.forEach(c=>{const HH=tcgHeld(c.id),any=HH.some(h=>h.k>0);HH.forEach((h,hi)=>{if(tcgDexMine&&!h.k)return;if(!h.k&&(any||hi>0))return;/* (10/22) one square per card unless you own more versions */const v=h.v,scr=v==='s',alt=typeof v==='number'&&v>0,w=el('button','tcgc'+(h.k?'':' lock')+(scr?' scr':alt?' alt':''));
-      w.append(tcgCardFull(c.id,scr,null,alt?v:0));
-      const ch=el('div','tcgchips');ch.append(el('i',h.k?(scr?'cs':alt?'ca':'cn'):'cx',(scr?'SCR':alt?h.n.replace('絵違い ','絵違い・'):'通常')+(h.k?(alt?'':' '+h.k):' 未所持')));
+    L.forEach(c=>{const HH=tcgHeld(c.id),any=HH.some(h=>h.k>0);HH.forEach((h,hi)=>{if(tcgDexMine&&!h.k)return;if(!h.k&&(any||hi>0))return;/* (10/22) one square per card unless you own more versions */const v=h.v,km=v==='k',scr=v==='s',alt=typeof v==='number'&&v>0,w=el('button','tcgc'+(h.k?'':' lock')+(km?' kmr':scr?' scr':alt?' alt':''));
+      w.append(tcgCardFull(c.id,km?'k':scr,null,alt?v:0));
+      const ch=el('div','tcgchips');ch.append(el('i',h.k?(km?'cs ck':scr?'cs':alt?'ca':'cn'):'cx',(km?'KMR':scr?'SCR':alt?h.n.replace('絵違い ','絵違い・'):'通常')+(h.k?(alt?'':' '+h.k):' 未所持')));
       w.append(ch);w.setAttribute('aria-label',c.n+' '+h.n+(h.k?'('+h.k+'枚)':'(未所持)'));w.onclick=()=>tcgSheet(c.id,v);g.append(w)});
       /* keep 通常 / シークレット as a left-right pair in the 4 columns: a card with 絵違い (5 squares) gets one empty square */
       })};
@@ -14010,7 +14022,7 @@ function tcgFaceK(id,cls){const c=TC[id],f=el('div','tcf kmr r-'+c.r+(cls?' '+cl
   if(cut){const ch=el('div','kx-ch'),ci=el('img');ci.alt='';ci.loading='lazy';ci.decoding='async';ci.src='tcgk/'+id+'_c.webp';ch.append(ci);f.append(ch)}
   f.append(el('i','kmrtag','KMR'));if(c.hwOf)f.append(tcgHwPk(id));return f}
 /* the picture box of a big KMR card */
-function tcgFullArtK(id){const c=TC[id],f=el('div','tcf tfa r-'+c.r),im=el('img');im.alt='';im.decoding='async';if(tcgKmrCut(id))im.src='tcgk/'+id+'_b.webp';else{const s=tcgImg(id);if(s)im.src=s;if(window.KHD)KHD.watch(im,id)}f.append(im);tcgKmrLayers(f,id);return f}
+function tcgFullArtK(id){const c=TC[id],f=el('div','tcf tfa r-'+c.r),im=el('img');im.alt='';im.decoding='async';im.loading='lazy';if(tcgKmrCut(id))im.src='tcgk/'+id+'_b.webp';else{const s=tcgImg(id);if(s)im.src=s;if(window.KHD)KHD.watch(im,id)}f.append(im);tcgKmrLayers(f,id);return f}
 function tcgCardFull(id,foil,cls,ga){const c=TC[id];if(!c)return tcgFace(id,cls,foil);const base=c.hwOf||id,lead=Object.values(TCGD.leaders||{}).includes(base);
   const km=foil==='k'&&!ga;const w=el('div','tfc rk-'+c.r+(km?' kmrx':foil?' sec':'')+(lead?' ace':'')+(c.ty!=='chara'?' nonch':'')+(c.hwOf?' hwc':'')+(cls?' '+cls:''));w.style.setProperty('--dc',TFC_COL[c.f]||'#4fd8d0');
   const art=km?tcgFullArtK(id):tcgFace(id,'tfa',foil,ga);{const im=art.querySelector('img');if(im)im.alt=''}w.append(art);if(ga)w.classList.add('altc');if(!km)try{tcgImgLater(art,id)}catch(e){}
@@ -14021,7 +14033,7 @@ function tcgCardFull(id,foil,cls,ga){const c=TC[id];if(!c)return tcgFace(id,cls,
   if(c.ty==='chara'){const st=el('div','tfcs'),a=el('span','a'),d=el('span','d');a.append(el('small',null,'ATK'),document.createTextNode(c.atk));d.append(el('small',null,'DEF'),document.createTextNode(c.def));st.append(a,el('i'),d);bot.append(st)}
   w.append(el('i','tfcsh'),top,bot);if(!c.hwOf)w.append(el('i','tfcgem'));else{const pk=art.querySelector('.tcfpk');if(pk)w.append(pk)}['k1','k2','k3','k4'].forEach(k=>w.append(el('i','tfccn '+k)));
   /* KMR: the character steps over the top of the frame, gold streaks cross in front of her, a sheen crosses the whole card */
-  if(km){if(tcgKmrCut(id)){const p=el('div','kx-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.src='tcgk/'+id+'_c.webp';p.append(pi);art.after(p);p.after(el('i','kx-sw'))}const al=el('i','kx-all');al.append(el('b'));w.append(al)}return w}
+  if(km){if(tcgKmrCut(id)){const p=el('div','kx-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_c.webp';p.append(pi);art.after(p);p.after(el('i','kx-sw'))}const al=el('i','kx-all');al.append(el('b'));w.append(al)}return w}
 
 /* ===== friend battles: tcgm/{id} = {a,b,an,bn,t,u,st:'wait'|'go'|'end'|'decline'|'cancel',da,db,seed,sb,ma,mb (each player's own moves),wa,wb,ta,tb,ca,cb}
    Both phones run the same game from the same seed; only the moves travel. Each player writes their own result (wa / wb);
