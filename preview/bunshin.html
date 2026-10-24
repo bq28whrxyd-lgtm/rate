@@ -4140,11 +4140,15 @@ function tcPay(cost,p){TCPEND+=cost;const fin=()=>{TCPEND=Math.max(0,TCPEND-cost
 function tcPull(n){if(!HOST){const o=tcLoad();if(o.tix<n){toastB('お試しで引ける回数が足りません(のこり'+o.tix+'回)');return}o.tix-=n;o.pulls+=n;tcRoll(o,n);return}
   const o=tcLoad(),free=n===10&&o.free,cost=free?0:TCPRICE[n];if(!free&&tcPts()<cost){toastB('ポイントが足りません('+cost+'pt 必要)');return}
   if(free)S.cfree=1;else if(n===10)S.c10=(+S.c10||0)+1;else S.cp=(+S.cp||0)+1;tcRoll(o,n,cost)}
-function tcRoll(o,n,cost){const got=[];
+/* (10/24) ユーザー「pt」: a character already at the 5重ね limit pays back pt when she comes again (about 19% of a pull on average if every one were capped) */
+const TCRF={2:5,3:10,4:25,5:60,6:150,7:400};
+function tcRoll(o,n,cost){const got=[];let rf=0;
   for(let k=0;k<n;k++){/* N 40% R 33% SR 18% UR 6% GR 2.5% KMR .5%; ten pulls: at least one SR or better */const r=Math.random()*100;let st=r<.5?7:r<3?6:r<9?5:r<27?4:r<60?3:2;if(n===10&&k===9&&!got.some(g=>g.r>=4))st=4;const L=TCH.filter(c=>c.r===st),C=L[Math.floor(Math.random()*L.length)],own=o.own[C.id],nw=!own;
     /* (10/24) ユーザー「Lv1から育てる」: a new character starts at Lv1 (the 3 starters still start at 6割 of yours) */
-    if(nw)o.own[C.id]={n:1,xp:0};else own.n=Math.min(99,(own.n||1)+1);got.push({id:C.id,r:C.r,nw,n:o.own[C.id].n})}
-  tcSave(o);if(HOST&&cost!=null)tcPay(cost,saveNow());tcShow(got);refresh()}
+    const capped=!nw&&(own.n||1)>=6;if(capped&&HOST)rf+=TCRF[C.r]||0;
+    if(nw)o.own[C.id]={n:1,xp:0};else own.n=Math.min(99,(own.n||1)+1);got.push({id:C.id,r:C.r,nw,n:o.own[C.id].n,rf:capped?TCRF[C.r]:0})}
+  if(rf)S.crf=(+S.crf||0)+rf;
+  tcSave(o);if(HOST&&cost!=null)tcPay(cost,saveNow());tcShow(got);refresh();if(rf)setTimeout(()=>toastB('重ねが上限のキャラが'+got.filter(g=>g.rf).length+'人出たので +'+rf+'pt'),900)}
 /* the ガチャ tab: the free 10連 first, then the prices */
 function renderGachaTab(){const p=$('p-gacha');if(!p)return;const eg=p.querySelector('.tneg');[...p.children].forEach(c=>{if(c!==eg)c.remove()});const o=tcLoad(),pt=HOST?tcPts():0;
   const bn=mk('div','tnban');bn.innerHTML='<div class="tnbt"><small>推し活ガチャ</small><b><i class="tnkmr">KMR</i> セイラ・ジン 登場</b><span>20人のキャラが出る。10連はSR以上が1人以上</span></div>'+(HOST?(o.free?'<div class="tntix">はじめの10連<b>無料</b></div>':'<div class="tntix">所持<b>'+pt.toLocaleString()+'</b>pt</div>'):'<div class="tntix">お試し<b>'+o.tix+'</b>回</div>');p.insertBefore(bn,eg||null);
@@ -4152,7 +4156,7 @@ function renderGachaTab(){const p=$('p-gacha');if(!p)return;const eg=p.querySele
   for(const k of [1,10]){const free=HOST&&k===10&&o.free,cost=TCPRICE[k],b=mk('button','tnpb'+(k===10?' ten':'')+(free?' free':''));b.type='button';
     b.disabled=HOST?(!free&&pt<cost):o.tix<k;b.innerHTML='<b>'+(k===10?'10連':'1回引く')+'</b><small>'+(HOST?(free?'無料':cost+'pt'):'お試し'+k+'回')+'</small>';b.onclick=()=>tcPull(k);bt.append(b)}
   p.insertBefore(bt,eg||null);
-  const d=document.createElement('details');d.className='tnrate';d.innerHTML='<summary>出る確率と「重ね」</summary><p>KMR 0.5%・GR 2.5%・UR 6%・SR 18%・R 33%・N 40%。10連はSR以上が1人以上。同じキャラが出ると「重ね」で全部の数字が4%上がります(5回まで)。はじめの10連は無料、そのあとは1回100pt・10連900pt。キャラはアカウントに保存されるので、ほかのスマホでも使えます。</p>';p.insertBefore(d,eg||null);
+  const d=document.createElement('details');d.className='tnrate';d.innerHTML='<summary>出る確率と「重ね」</summary><p>KMR 0.5%・GR 2.5%・UR 6%・SR 18%・R 33%・N 40%。10連はSR以上が1人以上。同じキャラが出ると「重ね」で全部の数字が4%上がります(5回まで)。上限のあとにまた出たら pt が返ります(N5・R10・SR25・UR60・GR150・KMR400)。はじめの10連は無料、そのあとは1回100pt・10連900pt。キャラはアカウントに保存されるので、ほかのスマホでも使えます。</p>';p.insertBefore(d,eg||null);
   if(eg&&!eg.querySelector('.tnegh')){const h=eg.querySelector('h2');if(h)h.classList.add('tnegh')}}
 /* (10/24) the party, the BOX and the gacha stage draw the fighters every frame: build them again only when something they show has changed */
 {const _tp=tbParty3;let key='',val=null,at=0;tbParty3=function(){if(TR&&!TR.end)return _tp.apply(this,arguments);const k=JSON.stringify([S.lv,S.look,S.eq,S.cs,S.ch,S.al,S.nid,typeof LKD!=='undefined'?LKD:null,typeof PTSEL!=='undefined'?PTSEL:0]),n=performance.now();
