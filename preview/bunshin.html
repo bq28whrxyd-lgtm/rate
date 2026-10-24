@@ -504,6 +504,11 @@ canvas.tcsil{filter:brightness(0) invert(.32)}
 .tcok{min-width:160px}
 .dq .trm.dqhit{animation:dqhit .35s ease-out}@keyframes dqhit{0%{transform:translateX(0);box-shadow:inset 0 0 0 2px #ff5a5a,0 0 18px rgba(255,80,80,.6)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
 @media (prefers-reduced-motion:reduce){.tcback,.tcfront{animation-duration:.01s!important;animation-delay:0s!important}}
+/* (10/24) 推しスキン(tks.js) */
+.tkseg{display:flex;flex-wrap:wrap;gap:6px}#kmsec h2{flex-wrap:wrap;row-gap:4px}#kmsec h2 small{flex-basis:100%;margin:0;font-weight:600}
+.tksc{display:inline-flex;align-items:center;gap:6px;padding-left:4px!important}.tksc.on{box-shadow:inset 0 0 0 2px var(--k1)!important}
+.tksc.lock{opacity:.45}.tksc.lock::after{content:"";width:9px;height:11px;margin-left:2px;border-radius:2px;background:currentColor;-webkit-mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat;mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat}
+.tksf{position:relative;display:block;width:22px;height:22px;border-radius:50%;overflow:hidden;flex:0 0 auto;background:#140e1e;box-shadow:0 0 0 1.5px var(--k1)}.tksf img{position:absolute;max-width:none}
 /* (10/24) 推しの応援(to.js): comments flowing over the battlefield */
 .tocm{position:absolute;left:0;z-index:6;display:flex;align-items:center;gap:5px;white-space:nowrap;pointer-events:none;will-change:transform;font:900 13px/1.2 var(--jp);color:#fff;opacity:.96;
   text-shadow:0 1px 0 rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.9),0 0 10px color-mix(in srgb,var(--k1) 85%,transparent)}
@@ -599,6 +604,7 @@ body:has(#stage.tm) .tnnav{display:none}
     <div class="sec"><h2>髪型<small id="hsnote">ガチャで増える予定</small></h2><div class="seg" id="hsel"></div></div>
     <div class="sec"><h2>髪の色</h2><div class="seg" id="hcsel"></div></div>
     <div class="sec"><h2>目の色</h2><div class="seg" id="ecsel"></div></div>
+    <div class="sec" id="kmsec" hidden><h2>推しスキン<small id="kmnote"></small></h2><div class="seg tkseg" id="kmsel"></div></div>
     <div class="sec" id="pksec" hidden><h2>ハロウィン<small>12体目の魔女のごほうび</small></h2><div class="seg" id="pksel"></div></div>
     <p class="note" id="looknote">見た目は強さに関係しません。</p>
   </section>
@@ -4054,34 +4060,46 @@ function tkReveal(g0,done){const C=tcC(g0.id),f=tcFighter(g0.id,Math.max(1,S.lv)
   ov.addEventListener('pointerdown',()=>{const t=performance.now()/1000-t0;if(t<D&&!skip){skip=true;return}end()})}
 {const _sh=tcShow;tcShow=function(got){const best=got.slice().sort((a,b)=>b.r-a.r)[0];if(best&&best.r>=6&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){tkReveal(best,()=>_sh.call(this,got));return}return _sh.apply(this,arguments)}}
 
-/* ================= (10/24) 推しの応援: スキンガチャのKMR(応援演出をそろえたキャラ)が分身バトルに出てくる =================
-   参考(まねはしない): ハースストーンのヒーローの「ひとこと」、格闘ゲームの勝利画面に出る相棒。強さは変えない(見た目だけ)
-   - 絵の四角は出さない。戦場の上を、配信のコメントのように応援が流れる(1つ目は推しの顔と名前つき)
-   - バトルの最初「がんばって!」、味方の必殺のあと「いっけー!」、味方が倒れた「負けないで!」、勝った「やったね!」(多め)
-   推しの情報は親のアプリから(HOST.oshi)。デモは window.__toDemo に同じ形を入れる */
-const TOL={start:['がんばって!','応援してるよ!','いっしょに勝とう!','見てるよー!','ファイト!'],ult:['いっけー!','決めちゃえ!','かっこいい!!','今だよ!','待ってました!'],ko:['負けないで!','まだいける!','信じてる!','ここからだよ!'],win:['やったね!','おめでとう!','さすが!','最高だった!','GG!','かっこよかった!']};
-let TOK=null,TOT=0,TOQ=null;
-function toOshi(){try{if(window.__toDemo)return window.__toDemo;if(TOK!==null&&performance.now()-TOT<4000)return TOK;TOT=performance.now();TOK=HOST&&HOST.oshi?HOST.oshi():null;return TOK}catch(e){return null}}
-function toLines(kind,K,n){const L=(TOL[kind]||TOL.start).slice();if(K&&K.cheers&&K.cheers.length&&kind!=='win')L.push(...K.cheers.slice(0,4));for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]]}return L.slice(0,n)}
-function toFace(K){const f=document.createElement('i');f.className='tocf';const im=document.createElement('img');im.alt='';im.src=K.img;const s=Math.min(K.w,K.h)/(K.z||1)/1.15,wp=K.w/s*100,hp=K.h/s*100;im.style.cssText='width:'+wp+'%;height:'+hp+'%;left:'+(50-K.fx/100*wp)+'%;top:'+(50-K.fy/100*hp)+'%';f.append(im);return f}
-/* one cheer: comments flow right to left across the battlefield (inside the stage, under the HUD) */
-function toPop(kind,o){if(!TR||TR.sim)return;const K=toOshi();if(!K)return;const st=$('stage');if(!st)return;
-  /* two lanes near the bottom of the battlefield (under the HUD, the numbers and the win text). Every comment moves at the
-     same speed, and a lane takes the next one only after the one before has moved its width + a gap */
-  const win=kind==='win',n=win?4:kind==='start'?2:3,ls=toLines(kind,K,n),Wd=st.clientWidth,Hd=st.clientHeight,sp=Math.min(1.6,Math.max(1,TR.speed||1)),me=TR,
-    LY=[Hd*.69,Hd*.83],v=Wd/(2600/sp),LF=(TR.toLF=TR.toLF||[0,0]);
-  ls.forEach((txt,k)=>{const m=document.createElement('div');m.className='tocm'+(k===0?' lead':'')+((kind==='ult'||win)&&k===1?' big':'');m.style.setProperty('--k1',K.c[0]||'#ff8fd0');
-    if(k===0){const nm=document.createElement('small');nm.textContent=K.n;m.append(toFace(K),nm)}
-    const b=document.createElement('b');b.textContent=txt;m.append(b);st.append(m);
-    const w=m.offsetWidth,now=performance.now(),ln=LF[0]<=LF[1]?0:1;let dl=Math.max(0,LF[ln]-now,k*90/sp);LF[ln]=now+dl+(w+36)/v;
-    m.style.top=Math.round(LY[ln]-m.offsetHeight/2)+'px';const d=(Wd+w+18)/v;
-    const an=m.animate([{transform:'translateX('+(Wd+6)+'px)'},{transform:'translateX('+(-w-12)+'px)'}],{duration:d,delay:dl,easing:'linear',fill:'both'});an.onfinish=()=>m.remove();
-    const chk=setInterval(()=>{if(!m.isConnected){clearInterval(chk);return}if(TR!==me){m.remove();clearInterval(chk)}},300)})}
-/* hooks */
-{const _s=trStart;trStart=function(o){const r=_s.apply(this,arguments);if(TR&&!(o&&o.sim)&&!TR.sim){const me=TR;setTimeout(()=>{if(TR===me&&!TR.end)toPop('start')},900)}return r}}
-{const _u=trUlt;trUlt=function(i){const was=TR&&TR.ultBy;const r=_u.apply(this,arguments);if(TR&&!TR.sim&&TR.ultBy===i&&was!==i){const me=TR,sp=Math.max(1,TR.speed||1);setTimeout(()=>{if(TR===me&&!TR.end)toPop('ult')},1000/Math.min(sp,1.6))}return r}}
-{const _h=trHurt;trHurt=function(j){const a=TR&&trAlive(j);const r=_h.apply(this,arguments);if(TR&&!TR.sim&&a&&!trAlive(j)&&!TR.end&&!TR.toKo){TR.toKo=1;const me=TR;setTimeout(()=>{if(TR===me&&!TR.end)toPop('ko')},500)}return r}}
-{const _e=trEnd;trEnd=function(win){const first=TR&&!TR.end;const r=_e.apply(this,arguments);if(TR&&!TR.sim&&first&&win){const me=TR;setTimeout(()=>{if(TR===me)toPop('win')},TR.dq?900:500)}return r}}
+/* ================= (10/24) 推しスキン: 応援演出(同じKMRの対戦演出と勝利演出)を持っていると、自分の分身をその子の姿にできる =================
+   - 自分 > 見た目 の「推しスキン」。持っていないKMRも鍵つきで並べる(何がもらえるか見えるように)
+   - 全身の絵(ユーザーがGPTで描く。ch/src → cut_ch.py で k_*.png)があればその絵、まだなら髪と服の色をその子に合わせた仮の姿
+   - 強さは変わらない。保存は look.km(KMRの名前)。友達の画面でも同じ姿になる
+   - 前の版の「流れる応援の文字」(to.js)はやめた(ユーザー: 分身ではスキンに) */
+const TKS={'オーバーサイズ':{img:'k_hood',g:'f',ec:'青',hair:['#7a88a8','#dfe6f5','#ffffff'],vest:['#10163a','#232c66','#4656a8']},
+  'ふくれっつら':{img:'k_chibi',g:'f',ec:'金',hair:['#6e6e78','#cfd0d8','#f6f6fa'],vest:['#55555e','#a8a8b2','#e2e2e8']},
+  'ためいき':{img:'k_hoodie2',g:'f',ec:'紫',hair:['#1e1a18','#463e38','#7a7068'],vest:['#808086','#c4c4ca','#f0f0f4']},
+  'ひだまりニット':{img:'k_vt1',g:'m',ec:'青',hair:['#080c18','#1a2440','#4a7ad8'],vest:['#5a7aa8','#a4c0e6','#e2eeff']},
+  'はなかんむり':{img:'k_vt2',g:'f',ec:'金',hair:['#5e5638','#b4a67c','#eae2c4'],vest:['#b0a8a0','#eeeae4','#ffffff']},
+  '堕ちた天使':{img:'k_vt3',g:'m',ec:'緑',hair:['#520a10','#cc262e','#ff806e'],vest:['#08080c','#1c1c24','#3a3a48']},
+  '夜宴の小悪魔':{img:'k_hw',g:'f',ec:'紫',hair:['#5e5e7e','#c6c6e0','#f6f2ff'],vest:['#180a22','#4a1a6a','#9a5ad8']}};
+let TKSC={t:0,set:[],all:[]};
+/* asked each time (a few items): a short cache only, so a cheer just bought shows at once */
+function tksLists(){const n=performance.now();if(n-TKSC.t>400){TKSC.t=n;try{TKSC.set=HOST&&HOST.oshiSet?HOST.oshiSet()||[]:[];TKSC.all=HOST&&HOST.oshiAll?HOST.oshiAll()||[]:[]}catch(e){}}return TKSC}
+const tksOwn=n=>!!n&&tksLists().set.some(k=>k.n===n);
+const tksArt=n=>{const d=TKS[n];return d&&HWB[d.img]&&HWB[d.img].I&&HWB[d.img].I.complete?d.img:null};
+/* a fighter wearing a skin: the drawing is the picture, or the parts in her colors */
+function tksDress(f){const n=f&&f.look&&f.look.km,d=n&&TKS[n];if(!d||f.ch||f.boss)return f;const a=tksArt(n);
+  if(a)return Object.assign({},f,{boss:{img:a,pal:null,tint:0},km:n});
+  return Object.assign({},f,{look:Object.assign({},f.look,{g:d.g,hs:0,ec:d.ec,pk:0,chf:d.g==='f'?1:0}),chc:d.hair,cv:d.vest,km:n})}
+/* my own fighter: a skin I no longer have is dropped (like the pumpkin knight) */
+{const _fm=fighterMe;fighterMe=function(){const f=_fm.apply(this,arguments);if(f&&f.look&&f.look.km&&!tksOwn(f.look.km))f.look=Object.assign({},f.look,{km:''});return tksDress(f)}}
+{const _df=drawFighter;drawFighter=function(f,x,y,o){if(f&&!f.km&&f.look&&f.look.km&&TKS[f.look.km])f=tksDress(f);
+  if(f&&f.km&&f.boss){G.save();G.translate(x,y);G.scale(TCART,TCART);const r=_df.call(this,f,0,0,o);G.restore();return r}return _df.call(this,f,x,y,o)}}
+/* 自分 > 見た目: the 推しスキン row */
+function tksFace(K){const c=document.createElement('i');c.className='tksf';const im=document.createElement('img');im.alt='';im.src=K.img;const s=Math.min(K.w,K.h)/(K.z||1)/1.15,wp=K.w/s*100,hp=K.h/s*100;im.style.cssText='width:'+wp+'%;height:'+hp+'%;left:'+(50-K.fx/100*wp)+'%;top:'+(50-K.fy/100*hp)+'%';c.append(im);return c}
+function tksRender(){const sec=$('kmsec'),box=$('kmsel');if(!sec||!box)return;const {set,all}=tksLists();if(!all.length){sec.hidden=true;return}sec.hidden=false;box.replaceChildren();const cur=S.look.km&&tksOwn(S.look.km)?S.look.km:'';
+  const b0=mk('button','chip'+(cur?'':' on'),'いつもの姿');b0.type='button';b0.onclick=()=>{S.look.km='';changed()};box.append(b0);
+  all.filter(K=>TKS[K.n]).forEach(K=>{const own=set.some(k=>k.n===K.n),b=mk('button','chip tksc'+(cur===K.n?' on':'')+(own?'':' lock'));b.type='button';b.style.setProperty('--k1',K.c[0]||'#ff8fd0');b.append(tksFace(K),document.createTextNode(K.n));
+    b.onclick=()=>{if(!own){toast('スキンガチャで「'+K.n+'」の対戦演出と勝利演出をそろえると使えます');return}S.look.km=K.n;S.look.pk=0;changed()};box.append(b)});
+  const n=$('kmnote');if(n)n.textContent=set.length?(tksArt(cur)||!cur?'強さは変わりません。友達の画面でもこの姿です':'全身の絵ができるまでは、髪と服の色だけその子に合わせた仮の姿です'):'スキンガチャのKMRで、対戦演出と勝利演出をそろえると使えます'}
+{const _rl=renderLook;renderLook=function(){const r=_rl.apply(this,arguments);try{if(typeof PTSEL==='undefined'||PTSEL===0)tksRender();else{const s=$('kmsec');if(s)s.hidden=true}}catch(e){}return r}}
+/* choosing the pumpkin knight takes the skin off */
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#pksel button');if(b&&S.look.km){S.look.km='';setTimeout(()=>{try{changed()}catch(_){}},0)}},true);
+/* the first drawing of the page ran before this file: draw the row once now, and whenever the 自分 tab opens */
+{const _ts=tnShow;tnShow=function(k){const r=_ts.apply(this,arguments);if(k==='self')try{tksRender()}catch(e){}return r}}
+setTimeout(()=>{try{tksRender()}catch(e){}},0);
+/* the look editor lays its draft over my look: put the skin back on top of it */
+{const _pf=ptFighter;ptFighter=function(i){let f=_pf.apply(this,arguments);if(!i&&f&&f.look&&f.look.km&&!f.boss&&tksOwn(f.look.km)){f=Object.assign({},f,{km:null});f=tksDress(f)}return f}}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>

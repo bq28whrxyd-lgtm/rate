@@ -7890,6 +7890,9 @@ function cheerK(p){const e=p&&p.eq||{},x=e.x&&ITEM(e.x),v=e.v&&ITEM(e.v);return 
 function oshiInfo(K){if(!K)return null;return {n:K.n,img:K.img,vid:K.vid||'',w:K.w,h:K.h,fx:K.fx,fy:K.fy,z:K.z||1,c:(K.c||[]).slice(),dark:!!K.dark,whole:!!K.whole,cheers:(K.cheers||[]).slice()}}
 function myOshi(){try{if(window.__oshiDemo!=null)return oshiInfo(KMRS[window.__oshiDemo]);const me=typeof myPlayer==='function'&&myPlayer();return oshiInfo(cheerK(me))}catch(e){return null}}
 function oshiByName(n){try{return oshiInfo(KMRS.find(K=>K.n===n))}catch(e){return null}}
+/* (10/24) the KMRs whose cheer (対戦演出+勝利演出) you own: TCG stamps and 分身 skins. window.__oshiSetDemo = [KMR index…] for the demo */
+function myOshiSet(){try{if(window.__oshiSetDemo)return window.__oshiSetDemo.map(i=>oshiInfo(KMRS[i])).filter(Boolean);const own=(typeof inv!=='undefined'&&inv&&inv.own)||{},adm=typeof isAdmin==='function'&&isAdmin()&&window.__oshiAllAdmin;
+  return KMRS.map((K,i)=>adm||((own['kx'+i]||0)>0&&(own['kv'+i]||0)>0)?oshiInfo(K):null).filter(Boolean)}catch(e){return []}}
 const CHEERS=['がんばれ!','ファイト!','いけるよ!','応援してる!','負けないで!','信じてる!','がんばれー!!','ここからだよ!'];
 function cheerLayer(p,side){
   const K=cheerK(p);if(!K)return null;
@@ -12052,7 +12055,7 @@ function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今'
 let bunBase=0,bunSaveQ=Promise.resolve();const bunSave1=S=>window.BUNSHINHOST._save(S);
 window.BUNSHINHOST={
   ready:()=>{try{bunLoaded()}catch(e){}},
-  oshi:()=>myOshi(),
+  oshi:()=>myOshi(),oshiSet:()=>myOshiSet(),oshiN:n=>oshiByName(n),oshiAll:()=>KMRS.map(oshiInfo).filter(Boolean),
   mentor:()=>mtSheet(),mentorDot:()=>mtDot(),
   thumb:o=>{try{localStorage.setItem('bunThumb',JSON.stringify(o))}catch(e){}},
   /* (10/22) the copy the 分身 page started from (its u). A save made from an older start than what is saved now (chests opened on
@@ -13876,7 +13879,7 @@ window.TCGHOST.publishSpectator=payload=>{try{payload=JSON.parse(JSON.stringify(
   const record=TCGSpectator.makeRecord(payload.state,d,L.first,payload.seq,now(),payload.frames,tcgPublicCoins(d,L.first));return db.doc('tcgwatch/'+L.id).set(record).catch(()=>{});
 };
 /* (10/24) 推しの応援: my cheer KMR, and one by name (the other side's, from its deck) */
-window.TCGHOST.oshi=()=>{try{return typeof myOshi==='function'?myOshi():null}catch(e){return null}};window.TCGHOST.oshiOppDemo=()=>{try{return window.__oshiOppDemo!=null&&typeof oshiInfo==='function'?oshiInfo(KMRS[window.__oshiOppDemo]):null}catch(e){return null}};window.TCGHOST.oshiN=n=>{try{return typeof oshiByName==='function'?oshiByName(n):null}catch(e){return null}};
+window.TCGHOST.oshi=()=>{try{return typeof myOshi==='function'?myOshi():null}catch(e){return null}};window.TCGHOST.oshiSet=()=>{try{return typeof myOshiSet==='function'?myOshiSet():[]}catch(e){return []}};window.TCGHOST.oshiOppDemo=()=>{try{return window.__oshiOppDemo!=null&&typeof oshiInfo==='function'?oshiInfo(KMRS[window.__oshiOppDemo]):null}catch(e){return null}};window.TCGHOST.oshiN=n=>{try{return typeof oshiByName==='function'?oshiByName(n):null}catch(e){return null}};
 window.TCGHOST.spectatorSeq=()=>tcgLive?tcgLive.mine.length+tcgLive.delivered:0;
 /* (10/22) the whole card (案a, like in battle) for slabs and the showcase: the picture layer is tcgFace, so SECRET / Halloween finishes stay */
 const TFC_COL={weak:'#7fb2ff',girl:'#ff6fae',gay:'#c08cff',gen:'#ffd36b',gachi:'#ff9a3c',idol:'#ffd54a',vt:'#4fd1ff',cre:'#7ee08a',chu:'#a070ff',neta:'#ff6b6b',sei:'#ff9ad5',hage:'#d8c09a',mecha:'#4fd8d0',pirate:'#7088ff',reinc:'#5cb8ff',jujutsu:'#b07cff',henshin:'#ff6a5a'};
@@ -13933,7 +13936,7 @@ function tcgPlainDeck(d){const cards=tcgFlatCards(d.cards),o={name:String(d.name
   /* (10/18) the deck's sleeve (or the usual one): the other phone shows it on this side's card backs */
   {const sl=tcgSlOk(d.sl);if(sl)o.sl=sl}
   /* (10/24) my cheer KMR (推し): the other phone shows her cheering for this side */
-  try{const K=typeof myOshi==='function'&&myOshi();if(K&&K.n)o.os=String(K.n).slice(0,24)}catch(e){}return o}
+  try{const K=typeof myOshi==='function'&&myOshi(),L=typeof myOshiSet==='function'?myOshiSet():[],k=K&&L.some(x=>x.n===K.n)?K:L[0];if(k&&k.n)o.os=String(k.n).slice(0,24)}catch(e){}return o}
 function tcgDeckPicker(box,onPick){const L=(tcgOf(inv).decks||[]).filter(tcgDeckOk);
   if(!L.length){box.append(el('p','sub','使えるデッキがありません。「デッキ・図鑑」でデッキを組んでください。'));return}
   L.forEach(d=>{const r=el('button','tcgdp');r.append(tcgFace(d.lead),el('b',null,d.name),el('span',null,TC[d.lead].n));r.onclick=()=>onPick(tcgPlainDeck(d));box.append(r)})}
