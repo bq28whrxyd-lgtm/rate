@@ -1521,6 +1521,11 @@ body:not(.gkview){background:
 .oskout.bye{animation:oskbye .26s ease-in both}
 @keyframes oskpop{0%{opacity:0;transform:scale(.3) translateY(14px)}60%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes oskbye{to{opacity:0;transform:scale(.85) translateY(-8px)}}
+/* die-cut: the cut-out with a white edge (a static drop-shadow ring), no frame */
+.osks.cut .oskf{border-radius:0;background:none;box-shadow:none;overflow:visible;width:96px;height:80px}
+.osks.cut .oskf img{position:static;width:100%;height:100%;object-fit:contain;object-position:50% 100%;filter:drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 4px 6px rgba(0,0,0,.45))}
+.osks.cut{width:96px}.osks.cut .oskt{margin-top:-8px}
+.osks.sm.cut,.osks.sm.cut .oskf{width:70px}.osks.sm.cut .oskf{height:58px}
 /* the list */
 .osksh h3{margin:0 0 8px}
 .osktabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px}.osktabs[hidden]{display:none}
@@ -4649,6 +4654,8 @@ function oskPalette(){const L=OSK.set.length?OSK.set:[OSK.K[H]].filter(Boolean);
       grid.replaceChildren(...OSKS.map((S,i)=>{const b=el('button','oskpick');b.style.setProperty('--k1',K.c[0]);b.append(oskSticker(K,i,true));b.onclick=()=>{close();oskSend(K,i)};return b}))};
     const left=30-OSK.n;s.append(el('h3',null,'推しスタンプ'),tabs,grid,el('p','oskn2',left>0?'この試合 あと'+left+'回送れます':'この試合ではもう送れません'));draw()})}
 function oskSticker(K,i,small){const S=OSKS[i]||OSKS[0],w=el('div','osks'+(small?' sm':''));w.style.setProperty('--k1',K.c[0]||'#ff8fd0');w.style.setProperty('--r',S.r+'deg');
+  /* a cut-out of her skin picture makes a real die-cut sticker; until then, a framed crop of the illustration */
+  if(K.st){w.classList.add('cut');const f=el('div','oskf'),im=el('img');im.alt='';im.src=K.st;f.append(im);w.append(f,el('b','oskt',S.t));return w}
   const f=el('div','oskf');f.append(oskImg(K,true));w.append(f,el('b','oskt',S.t));return w}
 function oskSend(K,i){const t=performance.now();if(t-OSK.last<2500){caption('少し待ってから送れます');return}if(OSK.n>=30){caption('この試合ではもう送れません');return}
   OSK.last=t;OSK.n++;if(OSK.K[H]!==K){OSK.K[H]=K;if(OSK.chip[H])OSK.chip[H].remove();OSK.chip[H]=null;try{oskAfter(view||snap())}catch(e){}}
