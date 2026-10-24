@@ -2891,10 +2891,13 @@ body.nsopen{overflow:hidden}
    虹の位置がゆっくり動く(カードを傾けたように粒の色が流れて、光る粒が入れかわる)。指でなぞると光が指についてくる */
 .tcf.foil .sgl.s2,.tcf.foil .sgl.s3{display:none}
 .tcf.foil .sgl.s1{-webkit-mask:none!important;mask:none!important;opacity:1;animation:none;z-index:5;mix-blend-mode:color-dodge;
-  background-image:url("tcgk/glitter_c.png"),radial-gradient(farthest-corner circle at var(--gx,30%) var(--gy,25%),#fff 0%,#ddd 30%,#777 60%,#333 90%);
-  background-size:34% auto,100% 100%;background-blend-mode:multiply;
-  background-position:0 0,0 0;
-  filter:brightness(1.7) contrast(1.7) saturate(1.3);opacity:1;animation:sgShift 7s ease-in-out infinite}
+  background-image:url("tcgk/mirror.png"),radial-gradient(farthest-corner circle at var(--gx,30%) var(--gy,25%),#fff 0%,#e8e8e8 35%,#9a9a9a 70%,#777 100%);
+  background-size:100% 100%,100% 100%;background-blend-mode:multiply;
+  background-position:0 0,0 0;mix-blend-mode:screen!important;
+  filter:brightness(1.25) contrast(1.35);opacity:1;
+  /* like a reverse holo: the picture's middle stays clear, the sparkle is round the edges and under the text */
+  -webkit-mask:radial-gradient(ellipse 40% 30% at 50% 36%,transparent 50%,#000 92%),linear-gradient(to bottom,transparent 58%,#000 70%)!important;-webkit-mask-composite:source-over;
+  mask:radial-gradient(ellipse 40% 30% at 50% 36%,transparent 50%,#000 92%),linear-gradient(to bottom,transparent 58%,#000 70%)!important;mask-composite:add;animation:sgShift 7s ease-in-out infinite}
 .tcf.foil .sgl.s1::before{content:"";position:absolute;inset:0;top:auto;bottom:auto;left:auto;width:auto;height:auto;animation:none;
   background:radial-gradient(farthest-corner circle at var(--gx,30%) var(--gy,25%),rgba(255,255,255,1) 0%,rgba(255,255,255,.3) 30%,rgba(0,0,0,0) 62%);mix-blend-mode:overlay}
 @keyframes sgShift{0%,100%{--sx:15%;--sy:30%;--gx:20%;--gy:20%}50%{--sx:85%;--sy:70%;--gx:80%;--gy:75%}}
@@ -2903,6 +2906,10 @@ body.nsopen{overflow:hidden}
 @property --gx{syntax:'<percentage>';inherits:true;initial-value:30%}
 @property --gy{syntax:'<percentage>';inherits:true;initial-value:25%}
 @media(prefers-reduced-motion:reduce){.tcf.foil .sgl.s1{animation:none}}
+
+/* the cut-out character over the sparkle (only the background shines); the sparkle then covers the whole picture */
+.tcf.foil.hascut .scut{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%;z-index:6;pointer-events:none;border-radius:inherit}
+.tcf.foil.hascut .sgl.s1{-webkit-mask:none!important;mask:none!important}
 
 /*TCGCSS-END*/
 /* monthly pass */
@@ -13441,7 +13448,9 @@ function tcgAltMvOn(f,id,im){try{if(matchMedia('(prefers-reduced-motion: reduce)
     const drop=()=>{if(!ok)v.remove()};v.addEventListener('error',drop,{once:true});
     v.addEventListener('loadeddata',()=>{try{if(v.duration>0)v.currentTime=(performance.now()/1000)%v.duration}catch(e){}const r=v.play();if(r&&r.catch)r.catch(()=>setTimeout(drop,300))},{once:true});
     setTimeout(()=>{if(!ok&&v.paused)drop()},3000);im.after(v)})}
-function tcgFace(id,cls,foil,ga){const c=TC[id];if(foil==='k'&&!ga)return tcgFaceK(id,cls);ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;foil=!!foil;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;if(!ga&&window.KHD)KHD.watch(im,id);f.append(im);if(foil)f.append(el('i','foilsheen'),el('i','foilspark'),el('i','sgl s1'),el('i','sgl s2'),el('i','sgl s3'));if(foil&&c.hwOf){f.classList.add('hwfoil');const h=el('i','hwholo');h.append(el('b'));f.append(h)}if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));else if(c.hwOf)f.append(tcgHwPk(id));return f}
+function tcgFace(id,cls,foil,ga){const c=TC[id];if(foil==='k'&&!ga)return tcgFaceK(id,cls);ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;foil=!!foil;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;if(!ga&&window.KHD)KHD.watch(im,id);f.append(im);if(foil){f.append(el('i','foilsheen'),el('i','foilspark'),el('i','sgl s1'),el('i','sgl s2'),el('i','sgl s3'));
+    /* (10/24) like a reverse holo: when the character can be cut out, she sits on top and only the background sparkles */
+    if(!ga&&typeof tcgKmrCut==='function'&&tcgKmrCut(id)){/* the picture and the cut-out must come from the same file to line up: use the large picture when there is one */const HDm=window.CARD_HD||{};if(HDm[id]){im.dataset.hd='-';im.src='cardhd/'+id+'.webp?v='+HDm[id]}const cu=el('img','scut');cu.alt='';cu.loading='lazy';cu.decoding='async';cu.src='tcgk/'+id+'_c.webp';f.classList.add('hascut');f.append(cu)}}if(foil&&c.hwOf){f.classList.add('hwfoil');const h=el('i','hwholo');h.append(el('b'));f.append(h)}if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));else if(c.hwOf)f.append(tcgHwPk(id));return f}
 /* (10/17) the Halloween versions wear a small shiny pumpkin instead of a label; each of the 20 has its own face */
 let tcgHwIx=null;function tcgHwPk(id){if(!tcgHwIx){tcgHwIx={};TCGD.cards.filter(x=>x.hwOf).forEach((x,i)=>tcgHwIx[x.id]=i%20)}const n=String((tcgHwIx[id]||0)+1).padStart(2,'0'),u='url("hwpk/pk'+n+'.webp?v=2")';
   const i=el('i','tcfpk');i.setAttribute('aria-label','ハロウィン版');i.style.setProperty('--pk',u);i.style.setProperty('--pd',(-((tcgHwIx[id]||0)*0.37)%3.6).toFixed(2)+'s');const im=el('img');im.alt='';im.decoding='async';im.src='hwpk/pk'+n+'.webp?v=2';i.append(im,el('b'),el('u'));return i}
