@@ -2864,6 +2864,8 @@ body.nsopen{overflow:hidden}
 /* many KMR cards in a list (図鑑): keep them still so the list stays smooth; the card page moves */
 .tcggrid .kx-rb b,.tcggrid .kx-gs b,.tcggrid .kx-fl b,.tcggrid .tfc.kmrx>.kx-all b,.tcggrid .tfc.kmrx .tfcn,.tcggrid .tfc.kmrx .tfcs span,.tdvdex .kx-rb b,.tdvdex .kx-gs b,.tdvdex .kx-fl b,.tdvdex .tfc.kmrx>.kx-all b{animation:none!important}
 .tcgchips .ck{background:linear-gradient(135deg,#fff3c4,#e3b950 50%,#9a6a1a)!important;color:#2a1a04!important}
+/* no cut-out: the picture stays as it is; a lighter sheen */
+.kx-nocut .kx-fl{opacity:.6}
 
 /*TCGCSS-END*/
 /* monthly pass */
@@ -14014,7 +14016,10 @@ const tcgKmrCut=id=>!TCG_KMR_NOCUT.has(id);
 /* load a KMR's pictures early (a pack that holds one starts this when it opens, so the turn-over never shows an empty card) */
 const TCGK_PRE={};function tcgKmrPreload(id){if(!id||TCGK_PRE[id])return;TCGK_PRE[id]=1;const L=['tcgk/letters.png','tcgk/gold.webp','tcgk/swoosh.webp','tcgk/glit.png','tcgk/lines.png'];if(tcgKmrCut(id))L.push('tcgk/'+id+'_b.webp','tcgk/'+id+'_c.webp');L.forEach(u=>{try{const i=new Image();i.decoding='async';i.src=u}catch(e){}})}
 /* the holo layers over a KMR picture: rainbow in the etched lines, the light that makes the glitter shine, a white sheen, the gold KMR */
-function tcgKmrLayers(host,id){const rb=el('i','kx-rb'),gs=el('i','kx-gs'),fl=el('i','kx-fl');rb.append(el('b'));gs.append(el('b'));fl.append(el('b'));host.append(rb,gs,fl);
+function tcgKmrLayers(host,id){const fl=el('i','kx-fl');fl.append(el('b'));
+  /* a card without a cut-out keeps its own picture: only the soft sheen goes over it (the rainbow and the glitter would wash the character out) */
+  if(!tcgKmrCut(id)){host.classList.add('kx-nocut');host.append(fl);return}
+  const rb=el('i','kx-rb'),gs=el('i','kx-gs');rb.append(el('b'));gs.append(el('b'));host.append(rb,gs,fl);
   if(tcgKmrCut(id)){const lt=el('img','kx-lt');lt.alt='';lt.decoding='async';lt.src='tcgk/letters.png';host.append(lt)}}
 /* KMR on a small face (lists, packs, the deck) */
 function tcgFaceK(id,cls){const c=TC[id],f=el('div','tcf kmr r-'+c.r+(cls?' '+cls:''));const cut=tcgKmrCut(id),im=el('img');im.alt=c.n;im.loading='lazy';im.decoding='async';
