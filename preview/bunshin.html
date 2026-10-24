@@ -4065,7 +4065,8 @@ function tkReveal(g0,done){const C=tcC(g0.id),f=tcFighter(g0.id,Math.max(1,S.lv)
    - 全身の絵(ユーザーがGPTで描く。ch/src → cut_ch.py で k_*.png)があればその絵、まだなら髪と服の色をその子に合わせた仮の姿
    - 強さは変わらない。保存は look.km(KMRの名前)。友達の画面でも同じ姿になる
    - 前の版の「流れる応援の文字」(to.js)はやめた(ユーザー: 分身ではスキンに) */
-const TKS={'オーバーサイズ':{img:'k_hood',g:'f',ec:'青',hair:['#7a88a8','#dfe6f5','#ffffff'],vest:['#10163a','#232c66','#4656a8']},
+/* hand: where the equipped weapon is held in the picture [x, y, angle] (picture facing left, before the 0.64 scale) */
+const TKS={'オーバーサイズ':{img:'k_hood',hand:[97,54,-72],g:'f',ec:'青',hair:['#7a88a8','#dfe6f5','#ffffff'],vest:['#10163a','#232c66','#4656a8']},
   'ふくれっつら':{img:'k_chibi',g:'f',ec:'金',hair:['#6e6e78','#cfd0d8','#f6f6fa'],vest:['#55555e','#a8a8b2','#e2e2e8']},
   'ためいき':{img:'k_hoodie2',g:'f',ec:'紫',hair:['#1e1a18','#463e38','#7a7068'],vest:['#808086','#c4c4ca','#f0f0f4']},
   'ひだまりニット':{img:'k_vt1',g:'m',ec:'青',hair:['#080c18','#1a2440','#4a7ad8'],vest:['#5a7aa8','#a4c0e6','#e2eeff']},
@@ -4084,7 +4085,11 @@ function tksDress(f){const n=f&&f.look&&f.look.km,d=n&&TKS[n];if(!d||f.ch||f.bos
 /* my own fighter: a skin I no longer have is dropped (like the pumpkin knight) */
 {const _fm=fighterMe;fighterMe=function(){const f=_fm.apply(this,arguments);if(f&&f.look&&f.look.km&&!tksOwn(f.look.km))f.look=Object.assign({},f.look,{km:''});return tksDress(f)}}
 {const _df=drawFighter;drawFighter=function(f,x,y,o){if(f&&!f.km&&f.look&&f.look.km&&TKS[f.look.km])f=tksDress(f);
-  if(f&&f.km&&f.boss){G.save();G.translate(x,y);G.scale(TCART,TCART);const r=_df.call(this,f,0,0,o);G.restore();return r}return _df.call(this,f,x,y,o)}}
+  if(f&&f.km&&f.boss){G.save();G.translate(x,y);G.scale(TCART,TCART);const r=_df.call(this,f,0,0,o);G.restore();if(r!==false)try{tksWeapon(f,x,y,o||{})}catch(e){}return r}return _df.call(this,f,x,y,o)}}
+/* the equipped weapon in her hand: the same weapon drawing as the parts avatar, at its usual size (not shrunk with the picture) */
+function tksWeapon(f,x,y,o){const V=bossV(f.boss),d=TKS[f.km];if(!V||!d||!f.wt||f.wt==='fist')return;const h=d.hand||[V.w*.85,V.h*.3,-72],cx=bossCX(f.boss);
+  const wl=weaponLayer(Object.assign({},f,{boss:null}),'p1',{w:1,h:1,gp:[0,0,h[2],1]});if(!wl)return;const fl=o.flip?-1:1,px=x+(h[0]-cx)*TCART*fl,py=y-(V.h-h[1])*TCART+(o.sink||0)*TCART;
+  G.save();G.globalAlpha=o.alpha==null?1:o.alpha;G.translate(Math.round(px),Math.round(py));if(o.flip)G.scale(-1,1);G.drawImage(wl.c,-wl.M,-wl.M);G.restore()}
 /* 自分 > 見た目: the 推しスキン row */
 function tksFace(K){const c=document.createElement('i');c.className='tksf';const im=document.createElement('img');im.alt='';im.src=K.img;const s=Math.min(K.w,K.h)/(K.z||1)/1.15,wp=K.w/s*100,hp=K.h/s*100;im.style.cssText='width:'+wp+'%;height:'+hp+'%;left:'+(50-K.fx/100*wp)+'%;top:'+(50-K.fy/100*hp)+'%';c.append(im);return c}
 function tksRender(){const sec=$('kmsec'),box=$('kmsel');if(!sec||!box)return;const {set,all}=tksLists();if(!all.length){sec.hidden=true;return}sec.hidden=false;box.replaceChildren();const cur=S.look.km&&tksOwn(S.look.km)?S.look.km:'';
