@@ -2795,6 +2795,132 @@ body.nsopen{overflow:hidden}
 .tcggrid .tfcn,.tcggrid .tfcx,.tcggrid .tfcs span{text-shadow:0 1px 1px #000}
 .tcggrid .tfcg::before{box-shadow:none}
 
+/* ===== (10/24) KMR: the top version of a card (ユーザーと決めた形)
+   今のカードの形のまま: 枠は金ラメ(虹がうっすら流れる)、キャラは切り抜いて上の枠からはみ出す、
+   後ろはキャラを消した虹ホロ+色ラメ、右上に金ラメの KMR、キャラの前に金の線、光が当たったラメだけ光る、
+   白いツヤがカード全体をゆっくり通る、名前と数字は金箔、KMR の字は虹色。点滅・星形のきらめきはなし。
+   素材: tcgk/<id>_b.webp(背景) tcgk/<id>_c.webp(切り抜き) と共通の letters/glit/lines/gold/swoosh。動くのは transform/opacity と小さな文字のグラデーションだけ ===== */
+.tcf.kmr,.tfc.kmrx{--kxg:url("tcgk/gold.webp")}
+/* the picture area: holo layers stacked over the background */
+.kx-rb,.kx-gs,.kx-fl,.kx-lt,.kx-ch{position:absolute;inset:0;pointer-events:none;border-radius:inherit}
+.kx-rb{overflow:hidden;-webkit-mask:url("tcgk/lines.png") center/100% 100%;mask:url("tcgk/lines.png") center/100% 100%;mix-blend-mode:color-dodge;opacity:.28;z-index:2}
+.kx-rb b,.kx-fl b{position:absolute;top:-20%;bottom:-20%;left:-60%;width:220%;will-change:transform}
+.kx-rb b{background:linear-gradient(115deg,#ff6ad5,#ffe07a 16%,#7dffe0 33%,#6aa8ff 50%,#d79bff 66%,#ff6ad5 83%,#ffe07a);animation:kxb 5s ease-in-out infinite}
+.kx-gs{overflow:hidden;-webkit-mask:url("tcgk/glit.png") center/100% 100%;mask:url("tcgk/glit.png") center/100% 100%;z-index:3}
+.kx-gs b{position:absolute;left:-30%;top:-30%;width:90%;height:90%;background:radial-gradient(closest-side,#fff,rgba(255,248,225,.75) 45%,rgba(255,255,255,0));animation:kxl 6s ease-in-out infinite;will-change:transform}
+.kx-fl{overflow:hidden;mix-blend-mode:overlay;z-index:4}
+.kx-fl b{background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.95) 50%,transparent 62%);animation:kxb 4s ease-in-out infinite}
+.kx-lt{width:100%;height:100%;object-fit:cover;object-position:50% 20%;z-index:4;filter:drop-shadow(0 .4cqw .6cqw rgba(0,0,0,.45))}
+.kx-ch{z-index:5}
+.kx-ch img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%;filter:drop-shadow(0 .8cqw 1.2cqw rgba(30,10,60,.5))}
+@keyframes kxb{0%,100%{transform:translateX(-14%)}50%{transform:translateX(14%)}}
+@keyframes kxl{0%,100%{transform:translate(0,0)}50%{transform:translate(85%,95%)}}
+/* the small face (lists, packs, the deck): gold glitter ring and a small KMR mark */
+.tcf.kmr{border:0;background:#0b0910;box-shadow:0 0 0 1px rgba(255,230,160,.8),0 0 14px rgba(255,200,110,.45),0 4px 12px #0008;isolation:isolate}
+.tcf.kmr>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.tcf.kmr::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:5%;z-index:6;pointer-events:none;background:var(--kxg) center/cover;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.tcf.kmr::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:5%;z-index:6;pointer-events:none;background:linear-gradient(115deg,#ff6ad5,#ffe07a 20%,#7dffe0 40%,#6aa8ff 60%,#d79bff 80%,#ff6ad5);mix-blend-mode:overlay;opacity:.45;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.tcf.kmr .kmrtag{position:absolute;left:7%;bottom:6%;z-index:7;font:900 clamp(7px,8cqw,13px)/1 'Shippori Mincho B1','Noto Serif JP',serif;font-style:normal;letter-spacing:.12em;padding:3px 6px 3px 7px;border-radius:999px;color:#2a1a04;background:linear-gradient(135deg,#fff3c4,#e3b950 50%,#9a6a1a);box-shadow:0 1px 3px #000a;pointer-events:none}
+/* the big card: the frame turns gold glitter with a faint rainbow; the character steps over the top of the frame */
+.tfc.kmrx{--m1:#8a6a2a;--m2:#e9c873;--m3:#fff6d6}
+.tfc.kmrx::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:var(--fp);z-index:1;pointer-events:none;background:var(--kxg) center/cover;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;filter:brightness(1.1) saturate(1.1)}
+.tfc.kmrx::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:var(--fp);z-index:1;pointer-events:none;background:linear-gradient(115deg,#ff6ad5,#ffe07a 20%,#7dffe0 40%,#6aa8ff 60%,#d79bff 80%,#ff6ad5);mix-blend-mode:overlay;opacity:.45;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.tfc.kmrx>.tfa{overflow:hidden!important}
+.tfc.kmrx>.kx-pop{position:absolute;left:var(--fp);right:var(--fp);top:var(--fp);bottom:var(--fp);z-index:2;pointer-events:none;transform:translateY(-9%) scale(.94);transform-origin:50% 100%;clip-path:inset(-14% -6% 0 -6%)}
+.tfc.kmrx>.kx-pop img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;filter:drop-shadow(0 .8cqw 1.2cqw rgba(30,10,60,.5))}
+.tfc.kmrx>.kx-sw{position:absolute;inset:var(--fp);z-index:3;pointer-events:none;background:url("tcgk/swoosh.webp") center/100% 100%;border-radius:3.6cqw}
+.tfc.kmrx>.tfcsh{z-index:3}
+.tfc.kmrx>.tfct,.tfc.kmrx>.tfcb,.tfc.kmrx>.tfcgem,.tfc.kmrx>.tfckmo{z-index:4}
+.tfc.kmrx>.kx-all{position:absolute;inset:0;border-radius:inherit;overflow:hidden;z-index:6;pointer-events:none;mix-blend-mode:overlay}
+.tfc.kmrx>.kx-all b{position:absolute;top:-20%;bottom:-20%;left:-80%;width:260%;background:linear-gradient(110deg,transparent 36%,rgba(255,170,230,.28) 42%,rgba(255,255,255,.55) 48%,rgba(170,230,255,.28) 54%,transparent 60%);animation:kxa 6s ease-in-out infinite;will-change:transform}
+@keyframes kxa{0%,100%{transform:translateX(-26%)}50%{transform:translateX(26%)}}
+/* foil-stamped words */
+.tfc.kmrx .tfcn,.tfc.kmrx .tfcs span{color:transparent!important;background:linear-gradient(100deg,#a87a2a 0%,#f6dc8e 18%,#fff6d8 26%,#d8ab4c 38%,#f3d37e 50%,#ffffff 56%,#f3d37e 62%,#c39233 76%,#f6dc8e 88%,#a87a2a 100%);background-size:240% 100%;-webkit-background-clip:text;background-clip:text;text-shadow:none!important;filter:drop-shadow(0 .35cqw 0 rgba(20,10,0,.9)) drop-shadow(0 0 1cqw rgba(0,0,0,.55));animation:kxn 5s ease-in-out infinite}
+.tfc.kmrx .tfcs span small{-webkit-text-fill-color:currentColor}
+@keyframes kxn{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.tfc.kmrx .tfcy em{color:transparent!important;background:linear-gradient(90deg,#ff7ad9,#ffe07a 25%,#8dffd0 50%,#7ab8ff 75%,#d79bff)!important;-webkit-background-clip:text!important;background-clip:text!important;padding:0!important;filter:drop-shadow(0 .3cqw 0 rgba(0,0,0,.85));letter-spacing:.2em}
+.tfc .tfckmo{position:absolute;left:0;right:0;bottom:-.2cqw;z-index:4;text-align:center;font:700 2.6cqw/1 var(--body,sans-serif);font-style:normal;letter-spacing:.3em;color:#fff3c4;opacity:.75;text-shadow:0 1px 2px #000;pointer-events:none}
+.tcgkmrn{margin:8px 2px 0;color:#e9c873}
+@media(prefers-reduced-motion:reduce){.kx-rb b,.kx-gs b,.kx-fl b,.tfc.kmrx>.kx-all b,.tfc.kmrx .tfcn,.tfc.kmrx .tfcs span{animation:none}}
+
+/* ===== (10/24) シークレット B: プラチナ × 虹のプリズム(ユーザーが選んだ光り方)
+   細かいプリズムの粒が、光の帯が通ったところだけ虹色に光る。枠はプラチナ、名前と数字は銀箔。星の点滅はなし ===== */
+.tcf.foil{box-shadow:0 0 0 1px rgba(235,242,255,.9),0 0 16px rgba(170,200,255,.45),0 4px 12px #0008;animation:none}
+.tcf.foil::before{background:linear-gradient(135deg,#9aa3b5,#ffffff 22%,#d9e6ff 36%,#ffffff 50%,#bcc6da 66%,#ffffff 82%,#a7b0c2)!important;padding:3.5px}
+.tcf.foil .foilsheen{opacity:1;mix-blend-mode:color-dodge;background:none!important;animation:none!important;overflow:hidden;-webkit-mask:url("tcgk/prism.png") 0 0/30% auto repeat;mask:url("tcgk/prism.png") 0 0/30% auto repeat}
+.tcf.foil .foilsheen::before{content:"";position:absolute;top:-20%;bottom:-20%;left:-70%;width:240%;background:repeating-linear-gradient(105deg,#ff7ad9 0,#ffe07a 8%,#8dffd0 16%,#7ab8ff 24%,#d79bff 32%,#ff7ad9 40%);animation:secC 10s ease-in-out infinite;will-change:transform}
+.tcf.foil .foilspark{display:none}
+@keyframes secB{0%,20%{transform:translateX(-40%)}100%{transform:translateX(40%)}}
+/* the big card */
+.tfc.sec{--m1:#7d8597;--m2:#dfe6f5;--m3:#ffffff;background:linear-gradient(145deg,var(--m1),var(--m2) 18%,var(--m3) 30%,var(--m2) 42%,var(--m1) 58%,var(--m2) 74%,var(--m3) 86%,var(--m1));box-shadow:0 0 0 1px rgba(235,242,255,.9),0 0 18px rgba(170,200,255,.5),0 6px 14px -6px #000}
+.tfc.sec .tfcn,.tfc.sec .tfcs span{color:transparent!important;background:linear-gradient(100deg,#9aa3b5,#ffffff 22%,#d9e6ff 36%,#ffffff 50%,#bcc6da 66%,#ffffff 82%,#a7b0c2);background-size:240% 100%;-webkit-background-clip:text;background-clip:text;text-shadow:none!important;filter:drop-shadow(0 .35cqw 0 rgba(0,0,0,.85)) drop-shadow(0 0 1cqw rgba(0,0,0,.5));animation:kxn 5s ease-in-out infinite}
+.tfc.sec .tfcs span small{-webkit-text-fill-color:currentColor}
+.tfc.sec .tfcy em{color:#1d2230;background:linear-gradient(90deg,#ffffff,#d9e6ff 35%,#ffd9f3 65%,#ffffff)}
+@media(prefers-reduced-motion:reduce){.tcf.foil .foilsheen::before,.tfc.sec .tfcn,.tfc.sec .tfcs span{animation:none}}
+/* small faces: no big letters (only the big card carries them) */
+.tcf.kmr .kx-lt{display:none}
+.tcgkmrtry{display:flex;flex-direction:column;gap:8px;margin-top:12px;padding:12px;border-radius:12px;background:rgba(233,200,115,.1);box-shadow:inset 0 0 0 1px rgba(233,200,115,.35)}
+.tcgkmrtry small{color:#e9c873;font-size:12px}
+/* many KMR cards in a list (図鑑): keep them still so the list stays smooth; the card page moves */
+.tcggrid .kx-rb b,.tcggrid .kx-gs b,.tcggrid .kx-fl b,.tcggrid .tfc.kmrx>.kx-all b,.tcggrid .tfc.kmrx .tfcn,.tcggrid .tfc.kmrx .tfcs span,.tdvdex .kx-rb b,.tdvdex .kx-gs b,.tdvdex .kx-fl b,.tdvdex .tfc.kmrx>.kx-all b{animation:none!important}
+.tcgchips .ck{background:linear-gradient(135deg,#fff3c4,#e3b950 50%,#9a6a1a)!important;color:#2a1a04!important}
+/* no cut-out: the picture stays as it is; a lighter sheen */
+.kx-nocut .kx-fl{opacity:.6}
+/* no cut-out: the gold KMR goes over the picture, smaller, in the top right so it keeps off the face */
+.kx-lt.kx-ltn{transform:scale(.62);transform-origin:100% 4%;z-index:5}
+
+/* (10/24) シークレットB をもう少し強く: 見本と同じく、絵全体にうっすら虹の色味、帯に合わせて白いツヤが通る */
+.tcf.foil .foilspark{display:block!important;position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:inherit;overflow:hidden;opacity:1!important;animation:none!important;filter:none!important;background:conic-gradient(from 200deg at 30% 30%,rgba(255,138,216,.32),rgba(255,228,138,.28),rgba(138,255,216,.28),rgba(138,184,255,.32),rgba(224,154,255,.32),rgba(255,138,216,.32))!important;mix-blend-mode:overlay}
+.tcf.foil .foilspark::before{display:none;content:"";position:absolute;top:-20%;bottom:-20%;left:-70%;width:240%;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.85) 48%,transparent 58%);mix-blend-mode:soft-light;animation:secB 3.6s cubic-bezier(.5,0,.4,1) infinite;will-change:transform}
+
+/* the glitter is lit all the time; its colours drift slowly */
+@keyframes secC{0%,100%{transform:translateX(-10%)}50%{transform:translateX(10%)}}
+
+/* (10/24) シークレット: 粒が光ったり消えたりする。3組の粒が、それぞれちがう時に ふわっと光って消える(色はゆっくり動く虹) */
+.tcf.foil .foilsheen{display:none!important}
+.tcf.foil .sgl{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:inherit;overflow:hidden;mix-blend-mode:color-dodge;opacity:0;animation:sgTw 2.4s ease-in-out infinite}
+.tcf.foil .sgl::before{content:"";position:absolute;top:-20%;bottom:-20%;left:-70%;width:240%;background:repeating-linear-gradient(105deg,#ff7ad9 0,#ffe07a 8%,#8dffd0 16%,#7ab8ff 24%,#d79bff 32%,#ff7ad9 40%);animation:secC 10s ease-in-out infinite}
+.tcf.foil .sgl.s1{-webkit-mask:url("tcgk/tw1.png") 0 0/30% auto repeat;mask:url("tcgk/tw1.png") 0 0/30% auto repeat}
+.tcf.foil .sgl.s2{-webkit-mask:url("tcgk/tw2.png") 0 0/30% auto repeat;mask:url("tcgk/tw2.png") 0 0/30% auto repeat;animation-delay:-.8s}
+.tcf.foil .sgl.s3{-webkit-mask:url("tcgk/tw3.png") 0 0/30% auto repeat;mask:url("tcgk/tw3.png") 0 0/30% auto repeat;animation-delay:-1.6s}
+@keyframes sgTw{0%,100%{opacity:0}35%,55%{opacity:1}}
+@media(prefers-reduced-motion:reduce){.tcf.foil .sgl{animation:none;opacity:.6}}
+
+/* (10/24) シークレット: 本物のキラのつくり(ポケカのキラをCSSで再現する作り方を参考)
+   ラメの粒の模様 × 大きな虹のグラデーション を重ねて color-dodge、明るさ・コントラスト・彩度を強めにして、
+   虹の位置がゆっくり動く(カードを傾けたように粒の色が流れて、光る粒が入れかわる)。指でなぞると光が指についてくる */
+.tcf.foil .sgl.s2,.tcf.foil .sgl.s3{display:none}
+.tcf.foil .sgl.s1{-webkit-mask:none!important;mask:none!important;opacity:1;animation:none;z-index:5;mix-blend-mode:color-dodge;
+  background-image:url("tcgk/mirror.png"),radial-gradient(farthest-corner circle at var(--gx,30%) var(--gy,25%),#fff 0%,#e8e8e8 35%,#9a9a9a 70%,#777 100%);
+  background-size:100% 100%,100% 100%;background-blend-mode:multiply;
+  background-position:0 0,0 0;mix-blend-mode:screen!important;
+  filter:brightness(1.25) contrast(1.35);opacity:1;
+  /* like a reverse holo: the picture's middle stays clear, the sparkle is round the edges and under the text */
+  -webkit-mask:radial-gradient(ellipse 40% 30% at 50% 36%,transparent 50%,#000 92%),linear-gradient(to bottom,transparent 58%,#000 70%)!important;-webkit-mask-composite:source-over;
+  mask:radial-gradient(ellipse 40% 30% at 50% 36%,transparent 50%,#000 92%),linear-gradient(to bottom,transparent 58%,#000 70%)!important;mask-composite:add;animation:sgShift 7s ease-in-out infinite}
+.tcf.foil .sgl.s1::before{content:"";position:absolute;inset:0;top:auto;bottom:auto;left:auto;width:auto;height:auto;animation:none;
+  background:radial-gradient(farthest-corner circle at var(--gx,30%) var(--gy,25%),rgba(255,255,255,1) 0%,rgba(255,255,255,.3) 30%,rgba(0,0,0,0) 62%);mix-blend-mode:overlay}
+@keyframes sgShift{0%,100%{--sx:15%;--sy:30%;--gx:20%;--gy:20%}50%{--sx:85%;--sy:70%;--gx:80%;--gy:75%}}
+@property --sx{syntax:'<percentage>';inherits:true;initial-value:30%}
+@property --sy{syntax:'<percentage>';inherits:true;initial-value:40%}
+@property --gx{syntax:'<percentage>';inherits:true;initial-value:30%}
+@property --gy{syntax:'<percentage>';inherits:true;initial-value:25%}
+@media(prefers-reduced-motion:reduce){.tcf.foil .sgl.s1{animation:none}}
+
+/* the cut-out character over the sparkle (only the background shines); the sparkle then covers the whole picture */
+.tcf.foil.hascut .scut{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 20%;z-index:6;pointer-events:none;border-radius:inherit}
+.tcf.foil.hascut .sgl.s1{-webkit-mask:none!important;mask:none!important}
+/* KMR: the app mark in gold glitter behind the effect text (10/25); grid-area makes it sit on the text row */
+.tfc.kmrx .kx-wm{position:absolute;grid-area:2/1/3/2;left:50%;top:50%;width:58cqw;aspect-ratio:929/677;transform:translate(-50%,-50%);z-index:-1;pointer-events:none;overflow:hidden;opacity:.68;filter:saturate(1.7) contrast(1.15);
+  background:url("tcgk/mark.png") center/contain no-repeat;-webkit-mask:url("tcgk/mark.png") center/contain no-repeat;mask:url("tcgk/mark.png") center/contain no-repeat}
+.kx-wm b{position:absolute;inset:-40%;background:linear-gradient(105deg,transparent 40%,rgba(255,226,140,.75) 50%,transparent 60%);animation:kxwm 5s ease-in-out infinite;will-change:transform}
+@keyframes kxwm{0%{transform:translateX(-55%)}60%,100%{transform:translateX(55%)}}
+@container (max-width:150px){.tfc.kmrx .kx-wm{display:none}}
+.tcggrid .kx-wm,.tdvdex .kx-wm{display:none}
+@media(prefers-reduced-motion:reduce){.kx-wm b{animation:none;opacity:0}}
+.tfc.kmrx.nonch .kx-wm{top:auto;bottom:-1cqw;transform:translateX(-50%)}
+.tcgkmrpv{display:block;width:100%;margin-top:10px}
+
 /*TCGCSS-END*/
 /* monthly pass */
 .passcur{border-radius:16px;padding:14px 16px;margin-bottom:12px;border:1px solid color-mix(in srgb,var(--pc) 55%,transparent);background:radial-gradient(120% 90% at 0 0,color-mix(in srgb,var(--pc) 22%,transparent),transparent 65%),var(--panel2);display:flex;flex-direction:column;gap:4px}
@@ -6722,6 +6848,37 @@ body.kfon .kfn-ft{padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 16px)
   background:linear-gradient(180deg,#fff,#e8e5f4);box-shadow:0 0 0 1px rgba(255,255,255,.35),0 14px 30px -12px rgba(255,120,200,.9)}
 .ksx .ksx-ft button:active{transform:scale(.97)}
 @media (prefers-reduced-motion:reduce){.ksx-prism,.ksx-word.on i{animation:none}}
+
+/* ===== (10/24) KMR が出たとき: シークレットとして出て、金に「昇格」してKMRになる
+   1 シークレットの光のまま止まり、画面が暗くなって小さく震える(ため)
+   2 白い光が走って金に変わる(昇格)、後ろで金の放射が回り始める
+   3 カードがくるっと回って、KMRの大きなカードになる(着地の瞬間に止め・金の粒)
+   4 金ラメの「KMR」の文字が打ち込まれ、名前が出る。タップで最後まで飛ばせる ===== */
+.kkx{position:fixed;inset:0;z-index:107;overflow:hidden;isolation:isolate;color:#fff;font-family:var(--x-f,-apple-system,"Hiragino Sans",sans-serif);-webkit-user-select:none;user-select:none;touch-action:manipulation;cursor:pointer}
+.kkx *{box-sizing:border-box}
+.kkx-bg{position:absolute;inset:0;background:radial-gradient(70% 50% at 50% 42%,#1a1028,#05040a 72%)}
+.kkx-gold{position:absolute;inset:0;opacity:0;background:radial-gradient(65% 48% at 50% 42%,#4a3410,#0a0704 72%)}
+.kkx-rays{position:absolute;left:50%;top:42%;width:170vmax;height:170vmax;margin:-85vmax 0 0 -85vmax;opacity:0;pointer-events:none;
+  background:repeating-conic-gradient(from 0deg,rgba(255,226,150,0) 0 6deg,rgba(255,226,150,.38) 8deg 9deg,rgba(255,226,150,0) 11deg 16deg);
+  -webkit-mask-image:radial-gradient(closest-side,#000 6%,rgba(0,0,0,.4) 30%,transparent 58%);mask-image:radial-gradient(closest-side,#000 6%,rgba(0,0,0,.4) 30%,transparent 58%);animation:kgSpin 22s linear infinite}
+.kkx-cv{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none}
+.kkx-flash{position:absolute;inset:0;z-index:6;background:#fff;opacity:0;pointer-events:none}
+.kkx-lane{position:absolute;left:50%;top:40%;width:min(62vw,250px);aspect-ratio:63/88;margin:calc(min(62vw,250px) * -88 / 126) 0 0 calc(min(62vw,250px) / -2);perspective:1100px;z-index:3}
+.kkx-pre,.kkx-km{position:absolute;inset:0;transform-style:preserve-3d;backface-visibility:hidden}
+.kkx-pre .tcf{position:absolute;left:4%;right:4%;top:6%;bottom:6%;width:auto;aspect-ratio:auto;border-radius:14px;box-shadow:0 0 0 2px #fff,0 0 50px -4px rgba(255,120,200,.85),0 0 90px 10px rgba(130,190,255,.35)}
+.kkx-pre.gold .tcf{box-shadow:0 0 0 2px #fff3c4,0 0 60px 0 rgba(255,200,110,.95),0 0 120px 20px rgba(255,180,80,.45)}
+.kkx-km{opacity:0}
+.kkx-km .tfc{width:100%}
+.kkx-tx{position:absolute;left:16px;right:16px;top:calc(40% + min(62vw,250px) * 88 / 126 + 18px);z-index:6;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;pointer-events:none}
+.kkx-word{display:flex;justify-content:center;gap:.06em;font:900 clamp(40px,13vw,56px)/1 "Inter Tight",var(--x-n,"Geist"),sans-serif;letter-spacing:.04em}
+.kkx-word i{display:inline-block;font-style:normal;color:transparent;background:url("tcgk/gold.webp") center/220% auto;-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 2px 0 #3a2406) drop-shadow(0 0 10px rgba(255,200,110,.55));opacity:0}
+.kkx-jp{font:800 12.5px/1 var(--x-f,-apple-system,sans-serif);letter-spacing:.3em;margin-right:-.3em;color:#ffe9b0;opacity:0}
+.kkx-nm{max-width:100%;font:900 20px/1.3 var(--x-f,-apple-system,sans-serif);color:#fff;opacity:0;text-wrap:balance}
+.kkx-ft{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:7;display:flex;justify-content:center;opacity:0;transform:translateY(12px);transition:opacity .35s,transform .45s cubic-bezier(.2,.9,.25,1);pointer-events:none}
+.kkx-ft.on{opacity:1;transform:none;pointer-events:auto}
+.kkx .kkx-ft button{all:unset;box-sizing:border-box;width:100%;max-width:360px;height:52px;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;font:800 15.5px/1 var(--x-f,-apple-system,sans-serif);color:#2a1a04;background:linear-gradient(180deg,#fff6d6,#e9c873);box-shadow:0 14px 30px -12px rgba(255,190,90,.9)}
+.kkx .kkx-ft button:active{transform:scale(.97)}
+@media (prefers-reduced-motion:reduce){.kkx-rays{animation:none}}
 
 /* ===== ボックスの結果: the best first, then every card (4 across) ===== */
 .kbr{position:fixed;inset:0;z-index:99;background:#06060a;color:#f4f1ea;font-family:var(--x-f,-apple-system,"Hiragino Sans",sans-serif);isolation:isolate}
@@ -11800,7 +11957,7 @@ function render(){
   if(sorted.length>=4){const mb=el('button','more',HM.rank?'1〜3位の詳細をとじる':'1〜3位の詳細も見る');mb.onclick=()=>{HM.rank=!HM.rank;render()};rk.append(mb)}
   rk.querySelectorAll('[data-pid]').forEach(e=>{e.style.cursor='pointer';e.onclick=()=>{const q=players.find(x=>x.id===e.dataset.pid);if(q)showProfile(q,statLine(q))}});
   {const h=sigOf(rk.innerHTML);if(rkLive.__h!==h){rkLive.__h=h;rkLive.replaceChildren(...rk.childNodes)}}
-  renderMine();try{renderSurprise();renderWanted();bountyFeed();paintNew();likesWatch();farmWatch();mentorWatch();mtGradShow();if(!mtGradCheck.t||now()-mtGradCheck.t>30000){mtGradCheck.t=now();mtGradCheck()}}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();try{ptGuide()}catch(e){}try{stkCheck()}catch(e){}try{invCamp()}catch(e){}passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews()}$('acct').hidden=!myPlayer();
+  renderMine();try{renderSurprise();renderWanted();bountyFeed();paintNew();likesWatch();farmWatch();mentorWatch();mtGradShow();if(!mtGradCheck.t||now()-mtGradCheck.t>30000){mtGradCheck.t=now();mtGradCheck()}}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();try{ptGuide()}catch(e){}try{stkCheck()}catch(e){}try{invCamp()}catch(e){}passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews();try{kmrPromo()}catch(e){}}$('acct').hidden=!myPlayer();
   {const me=myPlayer(),pc=$('pcard'),nc=me?profileCard(me,statLine(me)):el('div','empty','アカウントを設定すると、ここにプロフィールが出ます'),h=sigOf(nc.outerHTML);if(pc.__h!==h){pc.__h=h;pc.replaceChildren(nc)}$('pedit').hidden=!me}
   if(typeof watchInv==='function'){watchInv();renderGacha()}
   {const s=$('opp'),v=s.value,me=myPlayer();s.replaceChildren();
@@ -13266,6 +13423,14 @@ if(typeof hwPackSync==='function')hwPackSync(true);
 const tcgFaces=pk=>{const P=TCGD.packs[pk];return P.face||P.f.map(f=>TCGD.leaders[f])};
 /* holo (foil) cards: a 1/100 chance per pulled card. Tracked apart from the normal copy; same per-card cap, extras become かけら. Purely cosmetic. */
 const TCG_FOIL=0.01;
+/* (10/24) KMR: the top version of any card, 1 in 1000 per pulled card (packs and boxes alike). Same strength; its own bag inv.tcg.kmr.
+   It cannot be burnt, turned into かけら or sold: it stays with you. In a deck its copies are deck.kmr = {id: n} */
+const TCG_KMR=0.001;
+/* お試し版(/preview/)の管理者は、全部のカードのKMRを1枚ずつ持っている扱い(アプリの中で試せるように。保存はしない) */
+const tcgKmrTry=()=>typeof tcgAdmin==='function'&&tcgAdmin()&&/\/preview\//.test(location.pathname);
+const tcgKmr=()=>{if(tcgKmrTry()){const o={};TCGD.cards.forEach(c=>o[c.id]=1);return o}return tcgOf(inv).kmr||{}};
+/* a pulled card for the feed: a KMR counts as the top tier there */
+const tcgFeedC=x=>x&&x.foil==='k'?Object.assign({},x.c,{r:5}):x.c;
 const TCG_BOX_PACKS=15,TCG_BOX_PRICE=1500,TCG_BOX_DOUBLE=0.05,TCG_HW_SCR=0.3;
 const tcgFoil=()=>tcgOf(inv).foil||{};
 const tcgIsFoil=id=>(tcgFoil()[id]||0)>0;
@@ -13280,7 +13445,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=157';
+const TCG_SRC='tcg_play.html?v=158';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -13293,7 +13458,9 @@ function tcgAltMvOn(f,id,im){try{if(matchMedia('(prefers-reduced-motion: reduce)
     const drop=()=>{if(!ok)v.remove()};v.addEventListener('error',drop,{once:true});
     v.addEventListener('loadeddata',()=>{try{if(v.duration>0)v.currentTime=(performance.now()/1000)%v.duration}catch(e){}const r=v.play();if(r&&r.catch)r.catch(()=>setTimeout(drop,300))},{once:true});
     setTimeout(()=>{if(!ok&&v.paused)drop()},3000);im.after(v)})}
-function tcgFace(id,cls,foil,ga){const c=TC[id];ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;if(!ga&&window.KHD)KHD.watch(im,id);f.append(im);if(foil)f.append(el('i','foilsheen'),el('i','foilspark'));if(foil&&c.hwOf){f.classList.add('hwfoil');const h=el('i','hwholo');h.append(el('b'));f.append(h)}if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));else if(c.hwOf)f.append(tcgHwPk(id));return f}
+function tcgFace(id,cls,foil,ga){const c=TC[id];if(foil==='k'&&!ga)return tcgFaceK(id,cls);ga=ga&&TCGD.alt&&TCGD.alt[id]?ga:0;if(ga>=2)foil=true;foil=!!foil;const f=el('div','tcf r-'+c.r+(foil?' foil':'')+(ga?' altf':'')+(cls?' '+cls:''));const im=el('img');im.alt=c.n;im.loading='lazy';const src=ga?TCGD.alt[id]:tcgImg(id);if(src)im.src=src;if(!ga&&window.KHD)KHD.watch(im,id);f.append(im);if(foil){f.append(el('i','foilsheen'),el('i','foilspark'),el('i','sgl s1'),el('i','sgl s2'),el('i','sgl s3'));
+    /* (10/24) like a reverse holo: when the character can be cut out, she sits on top and only the background sparkles */
+    if(!ga&&typeof tcgKmrCut==='function'&&tcgKmrCut(id)){/* the picture and the cut-out must come from the same file to line up: use the large picture when there is one */const HDm=window.CARD_HD||{};if(HDm[id]){im.dataset.hd='-';im.src='cardhd/'+id+'.webp?v='+HDm[id]}const cu=el('img','scut');cu.alt='';cu.loading='lazy';cu.decoding='async';cu.src='tcgk/'+id+'_c.webp';f.classList.add('hascut');f.append(cu)}}if(foil&&c.hwOf){f.classList.add('hwfoil');const h=el('i','hwholo');h.append(el('b'));f.append(h)}if(ga>=3)tcgAltMvOn(f,id,im);if(ga)f.append(el('i','tcfalt',['','絵違い','絵違い キラ','絵違い 極'][ga]));else if(c.hwOf)f.append(tcgHwPk(id));return f}
 /* (10/17) the Halloween versions wear a small shiny pumpkin instead of a label; each of the 20 has its own face */
 let tcgHwIx=null;function tcgHwPk(id){if(!tcgHwIx){tcgHwIx={};TCGD.cards.filter(x=>x.hwOf).forEach((x,i)=>tcgHwIx[x.id]=i%20)}const n=String((tcgHwIx[id]||0)+1).padStart(2,'0'),u='url("hwpk/pk'+n+'.webp?v=2")';
   const i=el('i','tcfpk');i.setAttribute('aria-label','ハロウィン版');i.style.setProperty('--pk',u);i.style.setProperty('--pd',(-((tcgHwIx[id]||0)*0.37)%3.6).toFixed(2)+'s');const im=el('img');im.alt='';im.decoding='async';im.src='hwpk/pk'+n+'.webp?v=2';i.append(im,el('b'),el('u'));return i}
@@ -13319,11 +13486,11 @@ function tcgRoll(pk){const P=TCGD.packs[pk],pool=tcgPool(pk);
   if(P.rt){const out=[];for(let i=0;i<TCGD.size;i++)out.push(pick(tcgRtPick(i===TCGD.size-1?P.rt.z:P.rt.a)));return out}
   const out=[];for(let i=0;i<TCGD.size;i++){const x=Math.random()*100,last=i===TCGD.size-1;out.push(pick(x<TCGD.rates.GR?'GR':(last||x<TCGD.rates.GR+TCGD.rates.R)?'R':'C'))}return out}
 /* add cards to the collection. Since v134 every copy stays, normal and SCR (choose かけら or 燃やす later from the card's page; SCR gives 1.5 times) */
-function tcgApply(v,ids,foilSlots){const t=Object.assign({},tcgOf(v)),own=Object.assign({},t.own||{}),foil=Object.assign({},t.foil||{});let sh=0;
+function tcgApply(v,ids,foilSlots){const t=Object.assign({},tcgOf(v)),own=Object.assign({},t.own||{}),foil=Object.assign({},t.foil||{}),kmr=Object.assign({},t.kmr||{});let sh=0;
   if(foilSlots!=null&&(!Array.isArray(foilSlots)||foilSlots.length!==ids.length))throw new Error('SCR抽選結果が不正です');
-  const res=ids.map((id,i)=>{const c=TC[id],isF=foilSlots!=null?foilSlots[i]===true:Math.random()<TCG_FOIL,bag=isF?foil:own,had=bag[id]||0;
-    bag[id]=had+1;const pc=typeof ownPc==='function'?ownPc('t',id,(+own[id]||0)+(+foil[id]||0)):'';return{c:tcgItem(id),isNew:!had,sh:0,pc,note:had?(had+1)+'枚目':null,foil:isF}});
-  t.own=own;t.foil=foil;if(window.__hwRolled){t.hwn=(+t.hwn||0)+window.__hwRolled;window.__hwRolled=0}const nv=Object.assign({},v,{tcg:t,shards:(v.shards||0)+sh});try{if(typeof kbuLuckAdd==='function')kbuLuckAdd(nv,res.reduce((a,r,i)=>a+kbuTcgLuck(ids[i],r.foil),0))}catch(e){}/*kbu-luck2*/return{inv:nv,res}}
+  const res=ids.map((id,i)=>{const c=TC[id],r0=Math.random(),isF=foilSlots!=null?(foilSlots[i]==='k'?'k':foilSlots[i]===true):(r0<TCG_KMR?'k':r0<TCG_KMR+TCG_FOIL),bag=isF==='k'?kmr:isF?foil:own,had=bag[id]||0;
+    bag[id]=had+1;const pc=typeof ownPc==='function'?ownPc('t',id,(+own[id]||0)+(+foil[id]||0)+(+kmr[id]||0)):'';return{c:tcgItem(id),isNew:!had,sh:0,pc,note:had?(had+1)+'枚目':null,foil:isF}});
+  t.own=own;t.foil=foil;if(Object.keys(kmr).length)t.kmr=kmr;if(window.__hwRolled){t.hwn=(+t.hwn||0)+window.__hwRolled;window.__hwRolled=0}const nv=Object.assign({},v,{tcg:t,shards:(v.shards||0)+sh});try{if(typeof kbuLuckAdd==='function')kbuLuckAdd(nv,res.reduce((a,r,i)=>a+kbuTcgLuck(ids[i],r.foil),0))}catch(e){}/*kbu-luck2*/return{inv:nv,res}}
 /* Exactly 1 SCR (95%) or 2 SCR (5%) among 45 cards; the single-pack 1% roll is not added. */
 function tcgRollBox(pk){const count=Math.random()<TCG_BOX_DOUBLE?2:1,ids=[];
   for(let i=0;i<TCG_BOX_PACKS;i++)ids.push(...tcgRoll(pk));
@@ -13336,6 +13503,7 @@ function tcgRollBox(pk){const count=Math.random()<TCG_BOX_DOUBLE?2:1,ids=[];
     for(let k=0;k<nF;k++){if(k===0&&Math.random()<TCG_HW_SCR){const H=ids.map((id,i)=>isHw(id)?i:-1).filter(i=>i>=0);let i;if(H.length)i=H[Math.random()*H.length|0];
         else{i=non();const r=TC[ids[i]]&&TC[ids[i]].r,A=TCGD.cards.filter(c=>c.hwOf&&c.r===r),B=A.length?A:TCGD.cards.filter(c=>c.hwOf);ids[i]=B[Math.random()*B.length|0].id}foils[i]=true}
       else{const i=non();if(i>=0)foils[i]=true}}}
+  for(let i=0;i<foils.length;i++)if(!foils[i]&&Math.random()<TCG_KMR)foils[i]='k';
   return{ids,foils}}
 
 async function tcgStarter(k){const me=myPlayer();if(!db||!me||me.ban||!invLoaded||invFor!==me.id||tcgOf(inv).st)return;
@@ -13412,7 +13580,7 @@ function tcgPackView(pk,res,onMore,opt={}){try{window.KHD&&KHD.preload((res||[])
   const queue=res.slice(),got=el('div','tpkg');let busy=false,cur=null;
   function dealOut(){pack.classList.add('away');const st=el('div','tpkst');stage.append(st,got);
     queue.forEach((x,i)=>{const c=el('div','tpcd'),inn=el('div','tpci'),back=el('div','tpcb'),face=el('div','tpcf');
-      back.append(emblem(6,46),el('span',null,'KIMOOTA TCG'));face.append(tcgFace(x.c.v,null,x.foil));face.append(el('b','tpcr r-'+x.c.tl,(x.foil?'SCR ':'')+(TRN[x.c.tl]||'コモン')),el('div','tpcn',x.c.n));
+      back.append(emblem(6,46),el('span',null,'KIMOOTA TCG'));face.append(tcgFace(x.c.v,null,x.foil));face.append(el('b','tpcr r-'+x.c.tl,(x.foil==='k'?'KMR ':x.foil?'SCR ':'')+(TRN[x.c.tl]||'コモン')),el('div','tpcn',x.c.n));
       inn.append(back,face);c.append(inn);if(x.foil)c.classList.add('foil');c.style.setProperty('--k',queue.length-1-i);c.style.zIndex=10+queue.length-i;c.dataset.i=i;x.el=c;
       /* the colour on the back hints at what is inside; a ガチレア sometimes hides as a レア */
       x.fake=x.c.r>=4&&Math.random()<.3;if(x.c.r>=2)c.classList.add(x.fake?'t2':'t'+x.c.r);
@@ -13423,11 +13591,11 @@ function tcgPackView(pk,res,onMore,opt={}){try{window.KHD&&KHD.preload((res||[])
     let dx0=null;st.addEventListener('pointerdown',e=>{dx0=e.clientX});st.addEventListener('pointerup',e=>{if(dx0!=null&&Math.abs(e.clientX-dx0)>50&&cur&&cur.open){tip.remove();next()}dx0=null})}
   function next(){if(busy)return;
     if(cur&&cur.open){/* the open card goes down to the row and the next one comes up */
-      busy=true;const c=cur.el;c.classList.add('fly');setTimeout(()=>{c.remove();const t=tcgFace(cur.c.v,'tpkgc',cur.foil);t.append(el('i','tpkgt'+(cur.isNew?' new':''),cur.isNew?(cur.foil?'SCR NEW':'NEW'):cur.note||('+'+cur.sh+'かけら')));got.append(t);cur=null;busy=false;if(!queue.length)finish()},RM?50:320);return}
+      busy=true;const c=cur.el;c.classList.add('fly');setTimeout(()=>{c.remove();const t=tcgFace(cur.c.v,'tpkgc',cur.foil);t.append(el('i','tpkgt'+(cur.isNew?' new':''),cur.isNew?(cur.foil==='k'?'KMR NEW':cur.foil?'SCR NEW':'NEW'):cur.note||('+'+cur.sh+'かけら')));got.append(t);cur=null;busy=false;if(!queue.length)finish()},RM?50:320);return}
     if(!queue.length)return;const x=queue[0];
     if(x.fake){x.fake=false;busy=true;x.el.classList.replace('t2','up');vib(3);FX(o,5,0);setTimeout(()=>{x.el.classList.replace('up','t4');busy=false},900);return}
     queue.shift();cur=x;busy=true;
-    const flip=()=>{x.el.classList.add('open');x.open=true;if(x.c.r>=2||x.foil){o.classList.add('lit');o.style.setProperty('--aura',x.foil?'#8fd0ff':RAR[x.c.r].c);FX(o,(x.c.r>=4||x.foil)?6:3,120,(x.c.r>=4||x.foil)?XS.rainbow:null)}setTimeout(()=>{if(!o.isConnected)return;if(x.foil&&opt.onSecret)opt.onSecret(x,()=>{busy=false});else busy=false},RM?50:520)};
+    const flip=()=>{x.el.classList.add('open');x.open=true;if(x.c.r>=2||x.foil){o.classList.add('lit');o.style.setProperty('--aura',x.foil==='k'?'#ff4fc8':x.foil?'#8fd0ff':RAR[x.c.r].c);FX(o,(x.c.r>=4||x.foil)?6:3,120,(x.c.r>=4||x.foil)?XS.rainbow:null)}setTimeout(()=>{if(!o.isConnected)return;if(x.foil&&opt.onSecret)opt.onSecret(x,()=>{busy=false});else busy=false},RM?50:520)};
     if(x.c.r>=4)cutIn(x.c,flip);else flip()}
   function finish(){const f=el('div','tpkft'),nw=res.filter(z=>z.isNew).length,sh=res.reduce((a,z)=>a+z.sh,0);
     f.append(el('div','pksum','NEW '+nw+'枚'+(sh?'  ·  かけら +'+sh:'')));const cl=el('button','sec',opt.onClose?'ボックスの結果を見る':'閉じる');cl.onclick=()=>{o.remove();if(opt.onClose)opt.onClose()};f.append(cl);
@@ -13440,8 +13608,8 @@ async function tcgOpenPack(pk,tk){const me=myPlayer();if(tcgOver(pk)||!db||!me||
   opening=true;renderTcg();await tcgLoad();
   const ids=tcgRoll(pk),paid0=paidLeft(me.id),{inv:n,res}=tcgApply(inv,ids);
   n.tpacks=(inv.tpacks||0)+1;if(tcgXp(pk))n.xpacks=(inv.xpacks||0)+1;if(tcgHp(pk))n.hpacks=(inv.hpacks||0)+1;n.pspent=(inv.pspent||0)+Math.min(tcgPrice(pk),Math.max(0,paid0));
-  try{await db.doc('inv/'+me.id).set(n);inv=n;opening=false;renderTcg();renderGacha();feedPull(res.map(x=>x.c),TCGD.packs[pk].n);
-    tcgPackView(pk,res,balance(me.id)>=tcgPrice(pk)?tcgAskPack(pk):null);return}
+  try{await db.doc('inv/'+me.id).set(n);inv=n;opening=false;renderTcg();renderGacha();feedPull(res.map(tcgFeedC),TCGD.packs[pk].n);
+    tcgPackView(pk,res,balance(me.id)>=tcgPrice(pk)?tcgAskPack(pk):null,{onSecret:(x,resume)=>x&&x.foil==='k'?tcgBoxCinematic(pk,[x],resume,resume,{revealed:true}):resume()});return}
   catch(e){toast('開けませんでした')}
   opening=false;renderTcg()}
 
@@ -13461,7 +13629,7 @@ async function tcgOpenTicketPacks(pk,tk,count){const me=myPlayer();if(tcgOver(pk
     await db.doc('inv/'+me.id).set(n);inv=n;res=a.res}
   catch(e){toast('開けませんでした');return}
   finally{opening=false;renderTcg();renderGacha()}
-  feedPull(res.map(x=>x.c),TCGD.packs[pk].n+(count>1?' 10連':''));
+  feedPull(res.map(tcgFeedC),TCGD.packs[pk].n+(count>1?' 10連':''));
   if(count===1){tcgPackView(pk,res,tcgTk(me.id,tk)>0?tcgAskTk(pk,tk):null,{moreLabel:'チケットでもう1パック',onSecret:(x,resume)=>tcgBoxCinematic(pk,[x],resume,resume,{revealed:true})});return}
   tcgMultiView(pk,res,count,'10連')}
 /* a box with a ticket: same contents and SCR guarantee as a bought box */
@@ -13471,7 +13639,7 @@ async function tcgOpenTicketBox(pk,tk){const me=myPlayer();if(tcgTk(me.id,tk)<1)
     await db.doc('inv/'+me.id).set(n);inv=n;res=a.res}
   catch(e){toast('開けませんでした');return}
   finally{opening=false;renderTcg();renderGacha()}
-  feedPull(res.map(x=>x.c),TCGD.packs[pk].n+' BOX');tcgBoxView(pk,res)}
+  feedPull(res.map(tcgFeedC),TCGD.packs[pk].n+' BOX');tcgBoxView(pk,res)}
 /* several packs in a row (10連): each pack is torn open in turn, SCR gets its own scene, then everything at once */
 function tcgMultiView(pk,res,total,label){let i=0;const summary=()=>tcgBoxSummary(pk,res),secret=(x,resume)=>tcgBoxCinematic(pk,[x],resume,resume,{revealed:true}),next=()=>{
   const n=i++;tcgPackView(pk,res.slice(n*TCGD.size,(n+1)*TCGD.size),i<total?next:null,{boxIndex:i,boxTotal:total,boxLabel:label,moreLabel:'次のパック（'+(i+1)+' / '+total+'）',onClose:summary,onSecret:secret})};next()}
@@ -13492,7 +13660,7 @@ async function tcgRedeemScr(pk,tk,id){const me=myPlayer();if(!db||!me||opening||
   try{await tcgLoad();if(tcgTk(me.id,tk)<1)throw new Error('none');const t=Object.assign({},tcgOf(inv)),f=Object.assign({},t.foil||{});const had=f[id]||0;f[id]=had+1;t.foil=f;
     const n=Object.assign({},inv,{tcg:t});n.ttu=Object.assign({},inv.ttu||{});n.ttu[tk]=(+n.ttu[tk]||0)+1;await db.doc('inv/'+me.id).set(n);inv=n;res={c:tcgItem(id),isNew:!had,sh:0,foil:true}}
   catch(e){toast('受け取れませんでした');return}finally{opening=false;renderTcg();renderGacha()}
-  feedPull([res.c],TCGD.packs[pk].n+' シークレット選択');tcgBoxCinematic(pk,[res],()=>{},()=>{},{revealed:true})}
+  feedPull([tcgFeedC(res)],TCGD.packs[pk].n+' シークレット選択');tcgBoxCinematic(pk,[res],()=>{},()=>{},{revealed:true})}
 /* a secret of one card sent by the admin (kind 'tscg', cid): added once, remembered in inv.tscgD */
 let tcgGiftBusy=false;
 async function tcgScrGifts(){const me=myPlayer();if(!db||!me||tcgGiftBusy||opening||!invLoaded||invFor!==me.id||typeof grants==='undefined')return;
@@ -13520,7 +13688,7 @@ async function tcgOpenBox(pk,tk){const me=myPlayer();if(!TCGD.packs[pk]||tcgOver
     await db.doc('inv/'+me.id).set(n);inv=n;res=applied.res;
   }catch(e){toast('ボックスを購入できませんでした');return}
   finally{opening=false;renderTcg();renderGacha()}
-  feedPull(res.map(x=>x.c),TCGD.packs[pk].n+' BOX');tcgBoxView(pk,res)}
+  feedPull(res.map(tcgFeedC),TCGD.packs[pk].n+' BOX');tcgBoxView(pk,res)}
 function tcgBoxView(pk,res){try{window.KHD&&KHD.preload((res||[]).map(x=>x&&x.c&&x.c.v))}catch(e){}let i=0;const seen=[],summary=()=>tcgBoxSummary(pk,res),secret=(x,resume)=>{seen.push(x);tcgBoxCinematic(pk,seen,resume,resume,{revealed:true})},next=()=>{
   const n=i++;tcgPackView(pk,res.slice(n*TCGD.size,(n+1)*TCGD.size),i<TCG_BOX_PACKS?next:null,{boxIndex:i,moreLabel:'次のパック（'+(i+1)+' / '+TCG_BOX_PACKS+'）',onClose:summary,onSecret:secret})};return tcgBoxCinematic(pk,res,next,summary)}
 /* ===== BOX BREAK: opening a 15-pack box, and the secret-rare moment inside it =====
@@ -13654,7 +13822,7 @@ function tcgBoxCinematic(pk,res,onPacks,onSummary,opt={}){
 }
 function tcgBoxSummary(pk,res){const o=el('div','tcgboxresult'),body=el('div','tcgboxbody'),scr=res.filter(x=>x.foil).length,nw=res.filter(x=>x.isNew).length,sh=res.reduce((n,x)=>n+x.sh,0);
   body.append(el('div','eyebrow','KIMOOTA TCG · '+(res.length/TCGD.size===10?'10連':'BOX')),el('h2',null,TCGD.packs[pk].n),el('p','tcgboxnote',Math.round(res.length/TCGD.size)+'パック · '+res.length+'枚 · SCR '+scr+'枚'),el('p','sub','NEW '+nw+'枚'+(sh?' · かけら +'+sh:'')));
-  const grid=el('div','tcggrid');res.forEach((x,i)=>{const card=el('div','tcgboxcard');card.dataset.pack=String(Math.floor(i/TCGD.size)+1);card.append(tcgFace(x.c.v,null,x.foil),el('b',null,(x.foil?'SCR · ':'')+x.c.n),el('small',null,x.sh?'かけら +'+x.sh:x.isNew?'NEW':x.note||'獲得'));grid.append(card)});body.append(grid);
+  const grid=el('div','tcggrid');res.forEach((x,i)=>{const card=el('div','tcgboxcard');card.dataset.pack=String(Math.floor(i/TCGD.size)+1);card.append(tcgFace(x.c.v,null,x.foil),el('b',null,(x.foil==='k'?'KMR · ':x.foil?'SCR · ':'')+x.c.n),el('small',null,x.sh?'かけら +'+x.sh:x.isNew?'NEW':x.note||'獲得'));grid.append(card)});body.append(grid);
   const actions=el('div','tcgsc'),close=el('button','sec','閉じる');close.onclick=()=>o.remove();actions.append(close);body.append(actions);o.append(body);document.body.append(o);return o}
 
 /* Firestore can't store an array inside an array, so a deck's cards are normalised to a flat list of string ids (same shape as the starter decks) before saving. Handles ids, [id,count] pairs and {id,count} objects. */
@@ -13678,7 +13846,7 @@ setInterval(function admDecks(){try{if(admDecks.done)return;const me=myPlayer();
   const fin=()=>{try{localStorage.setItem('admDecks131','1')}catch(e){}};if(!add.length)return fin();const N=L.concat(add.map(d=>({name:d.name,lead:d.lead,cards:d.cards.slice()}))).slice(0,20),n=N.length-L.length;
   if(!n){toast('デッキが20個いっぱいなので、強いデッキを追加できませんでした');return}tcgSaveDecks(N).then(()=>{fin();toast('管理者用に強いデッキを'+n+'つ追加しました(TCGのデッキ一覧)')})}catch(e){}},3000);
 async function tcgSaveDecks(L){const me=myPlayer();if(!db||!me||invFor!==me.id)return;
-  const decks=(L||[]).slice(0,20).map(d=>{const dd=d||{},lead=tcgCardId(dd.lead);const o={name:String(dd.name||'マイデッキ').slice(0,16),cards:tcgFlatCards(dd.cards)};if(lead!=null)o.lead=lead;const al=tcgAltMap(dd.alt,o.cards);if(Object.keys(al).length)o.alt=al;const sc=tcgScrMap(dd.scr,o.cards);if(Object.keys(sc).length)o.scr=sc;const sl=tcgSlOk(dd.sl);if(sl)o.sl=sl;return o});
+  const decks=(L||[]).slice(0,20).map(d=>{const dd=d||{},lead=tcgCardId(dd.lead);const o={name:String(dd.name||'マイデッキ').slice(0,16),cards:tcgFlatCards(dd.cards)};if(lead!=null)o.lead=lead;const al=tcgAltMap(dd.alt,o.cards);if(Object.keys(al).length)o.alt=al;const sc=tcgScrMap(dd.scr,o.cards);if(Object.keys(sc).length)o.scr=sc;const km=tcgScrMap(dd.kmr,o.cards);if(Object.keys(km).length)o.kmr=km;const sl=tcgSlOk(dd.sl);if(sl)o.sl=sl;return o});
   /* a sleeve on more decks than copies owned: the later decks lose it */
   {const used={};decks.forEach(o=>{if(!o.sl)return;const k=Math.max(1,+((inv.own||{})[o.sl])||0);used[o.sl]=(used[o.sl]||0)+1;if(used[o.sl]>k)delete o.sl})}
   const t=Object.assign({},tcgOf(inv),{decks});inv=Object.assign({},inv,{tcg:t});
@@ -13698,7 +13866,7 @@ function tcgSlOk(id){return id&&tcgSlInfo(id)&&((inv&&inv.own||{})[id]||0)>0?Str
 /* (10/18) one sleeve, one deck: there is no 「いつもの」 sleeve any more (decks without one show the standard KIMOOTA back) */
 function tcgSlDef(){return null}
 function tcgSlOwn(){return ITEMS.filter(x=>x.k==='sl'&&tcgSlOk(x.id)).sort((a,b)=>b.r-a.r).map(x=>tcgSlInfo(x.id))}
-window.TCGHOST={rkStart:lv=>{try{tcgcStart(lv)}catch(e){}},rkDelta:(lv,w)=>{try{return tcgcDelta(lv,w)}catch(e){return 0}},altOwn:()=>tcgAltOwned(),slOwn:()=>tcgSlOwn(),slInfo:id=>tcgSlInfo(id),slDef:()=>tcgSlDef(),own:()=>tcgOwn(),foil:()=>tcgFoil(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
+window.TCGHOST={rkStart:lv=>{try{tcgcStart(lv)}catch(e){}},rkDelta:(lv,w)=>{try{return tcgcDelta(lv,w)}catch(e){return 0}},altOwn:()=>tcgAltOwned(),slOwn:()=>tcgSlOwn(),slInfo:id=>tcgSlInfo(id),slDef:()=>tcgSlDef(),own:()=>tcgOwn(),foil:()=>tcgFoil(),kmr:()=>tcgKmr(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
   const f=el('iframe');f.src=TCG_SRC+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
@@ -13737,9 +13905,9 @@ function tcgResult(r){try{if(typeof tcgMarkUsed==='function')tcgMarkUsed(r.cards
 let tcgTab='all';
 /* what you hold of one card, version by version: normal, SCR, and each alternate-art grade */
 function tcgHeld(id){const own=tcgOwn()[id]||0,fo=tcgFoil()[id]||0,al=tcgAltOwned()[id]||[],hasAlt=!!(TCGD.alt&&TCGD.alt[id]);
-  const L=[{v:0,n:'通常',k:own},{v:'s',n:'シークレット',k:fo}];if(hasAlt)[1,2,3].forEach(g=>L.push({v:g,n:'絵違い '+['','ノーマル','キラ','極'][g],k:al.includes(g)?1:0}));return L}
+  const km=tcgKmr()[id]||0,L=[{v:0,n:'通常',k:own},{v:'s',n:'シークレット',k:fo}];if(km)L.unshift({v:'k',n:'KMR',k:km});if(hasAlt)[1,2,3].forEach(g=>L.push({v:g,n:'絵違い '+['','ノーマル','キラ','極'][g],k:al.includes(g)?1:0}));return L}
 function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o=el('div','tcgsh'),b=el('div','tcgshb');
-  const first=(pick!=null&&H.find(x=>x.v===pick))||has[0]||H[0];let f=tcgCardFull(id,first.v==='s','tfbig',typeof first.v==='number'?first.v:0);if(!first.k)f.classList.add('lock');
+  const first=(pick!=null&&H.find(x=>x.v===pick))||has[0]||H[0];let f=tcgCardFull(id,first.v==='k'?'k':first.v==='s','tfbig',typeof first.v==='number'?first.v:0);if(!first.k)f.classList.add('lock');
   const t=el('div','tcgsht');t.append(el('div','eyebrow',TCGD.fname[c.f]+'  ·  '+TRN[c.r]),el('h3',null,c.n),
     el('div','tcgshm',(c.ty==='chara'?'キャラ':c.ty==='spell'?'魔法':'トラップ')+'  ·  熱量 '+c.c+(c.ty==='chara'?'  ·  ATK '+c.atk+' / DEF '+c.def:'')),
     el('p','tcgshx',c.tx||'効果なし'));
@@ -13747,20 +13915,26 @@ function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o
   /* the versions you hold, as a list; tap one to see it */
   const lst=el('div','tcghl');lst.append(el('div','tcghlh',has.length?'持っているもの(タップで見た目を切り替え)':'まだ持っていません'));
   H.forEach(h=>{const r=el('button','tcghr'+(h.k?'':' no')+(h===first&&has.length?' on':''));r.disabled=!h.k;r.append(el('span',null,h.n),el('b',null,h.k?h.k+'枚':'—'));
-    r.onclick=()=>{const nf=tcgCardFull(id,h.v==='s','tfbig',typeof h.v==='number'?h.v:0);f.replaceWith(nf);f=nf;lst.querySelectorAll('.tcghr').forEach(y=>y.classList.toggle('on',y===r));if(h.v===0||h.v==='s')putBox(h.v)};lst.append(r)});
+    r.onclick=()=>{const nf=tcgCardFull(id,h.v==='k'?'k':h.v==='s','tfbig',typeof h.v==='number'?h.v:0);f.replaceWith(nf);f=nf;lst.querySelectorAll('.tcghr').forEach(y=>y.classList.toggle('on',y===r));if(h.v===0||h.v==='s')putBox(h.v);else if(h.v==='k'&&dw){dw.remove();dw=null;const n2=el('p','sub tcgkmrn','KMRは燃やしたり、かけらにしたり、出品したりできません。ずっとあなたの手元に残ります。');dw=n2;lst.after(n2)}};lst.append(r)});
   b.append(lst);
   /* 仲間の○%が所持, and かけら / 燃やす for normal copies */
   /* the box works on the version picked in the list above: 通常 or シークレット (絵違い cannot be burnt) */
   let dw=null;const putBox=v=>{if(typeof dupBox!=='function')return;const T=tcgOf(inv),foil=v==='s',n=+((foil?T.foil:T.own)||{})[id]||0,nb=dupBox('t',id,n,()=>{o.remove();tcgSheet(id,v)},{foil});if(dw)dw.remove();dw=nb;if(dw)lst.after(dw)};
-  putBox(first.v==='s'?'s':0);
+  if(first.v==='k'){dw=el('p','sub tcgkmrn','KMRは燃やしたり、かけらにしたり、出品したりできません。ずっとあなたの手元に残ります。');lst.after(dw);
+    if(typeof kmrPromoShow==='function'){const pv=el('button','sec tcgkmrpv','KMRの紹介動画を見る');pv.onclick=()=>kmrPromoShow();dw.after(pv)}} // 10/25 replay the promo filmelse putBox(first.v==='s'?'s':0);
+  /* お試し版の管理者: KMRが出たときの演出をここから見られる(何も保存しない) */
+  if(tcgKmrTry()){const kb=el('div','tcgkmrtry');const b1=el('button','sec','KMRが出る演出を見る'),b2=el('button','sec','パックから出るところを見る');
+    b1.onclick=()=>{o.remove();tcgBoxCinematic(Object.keys(TCGD.packs)[0],[{c:tcgItem(id),isNew:true,sh:0,foil:'k'}],()=>{},()=>{},{revealed:true})};
+    b2.onclick=()=>{o.remove();const pk=Object.keys(TCGD.packs)[0],pool=tcgPool(pk),pick=r=>(pool.find(c=>c.r===r&&c.id!==id)||pool[0]).id;const res=[pick('C'),id,pick('R')].map((cid,i)=>({c:tcgItem(cid),isNew:false,sh:0,note:'お試し',foil:i===1?'k':false}));tcgPackView(pk,res,null,{onSecret:(x,resume)=>x.foil==='k'?tcgBoxCinematic(pk,[x],resume,resume,{revealed:true}):resume()})};
+    kb.append(el('small',null,'お試し版(管理者だけ): 全部のカードのKMRを持っている扱いです'),b1,b2);b.append(kb)}
   /* 極 owned: watch the premiere it gets when played */
   if((tcgAltOwned()[id]||[]).includes(3)&&tcgHasSt()){const gv=el('button','sec tcgshgk','極の演出を見る');gv.onclick=()=>{o.remove();tcgPlay('gokuview='+encodeURIComponent(id))};b.append(gv)}
   b.append(x);o.append(b);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
 /* 図鑑: every card, the ones you don't have yet greyed out. Search by name or effect, sort, show only what you hold */
 let tcgQ='',tcgSort='no',tcgDexMine=false;
 const TCG_RORD={GR:0,SR:1,R:2,C:3};
-function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),AO=tcgAltOwned(),all=TCGD.cards.length,held=c=>(own[c.id]||0)+(foil[c.id]||0)+((AO[c.id]||[]).length),have=TCGD.cards.filter(c=>held(c)>0).length,gr=TCGD.cards.filter(c=>c.r==='GR'),grh=gr.filter(c=>held(c)>0).length;
-  const scrH=TCGD.cards.filter(c=>(foil[c.id]||0)>0).length;cs.append(el('div','sub',have+' / '+all+' 種類  ·  ガチレア '+grh+' / '+gr.length+'  ·  シークレット '+scrH+' / '+all));
+function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),KM=tcgKmr(),AO=tcgAltOwned(),all=TCGD.cards.length,held=c=>(own[c.id]||0)+(foil[c.id]||0)+(KM[c.id]||0)+((AO[c.id]||[]).length),have=TCGD.cards.filter(c=>held(c)>0).length,gr=TCGD.cards.filter(c=>c.r==='GR'),grh=gr.filter(c=>held(c)>0).length;
+  const scrH=TCGD.cards.filter(c=>(foil[c.id]||0)>0).length;const kmH=TCGD.cards.filter(c=>(KM[c.id]||0)>0).length;cs.append(el('div','sub',have+' / '+all+' 種類  ·  ガチレア '+grh+' / '+gr.length+'  ·  シークレット '+scrH+' / '+all+(kmH?'  ·  KMR '+kmH+' / '+all:'')));
   const bar=el('div','tcgbar');const fill=el('i');fill.style.width=(have/all*100).toFixed(1)+'%';bar.append(fill);cs.append(bar);
   try{if(typeof boxDupBar==='function'&&tcgHasSt())cs.append(boxDupBar('t',()=>rerender()))}catch(e){}
   const tools=el('div','tcgtools'),q=el('input','tcgq');q.type='search';q.placeholder='カード名・効果で検索';q.value=tcgQ;q.setAttribute('aria-label','図鑑を検索');
@@ -13777,9 +13951,9 @@ function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),AO=tcgAltOwne
     info.textContent=(s||tcgDexMine||tcgTab!=='all')?L.length+'種類':'';g.replaceChildren();
     if(!L.length){g.append(el('div','sub tcgnone','条件に合うカードがありません'));return}
     /* (10/16) each version has its own square, right after the normal one: 通常 → シークレット → 絵違い (only cards that have them) */
-    L.forEach(c=>{const HH=tcgHeld(c.id),any=HH.some(h=>h.k>0);HH.forEach((h,hi)=>{if(tcgDexMine&&!h.k)return;if(!h.k&&(any||hi>0))return;/* (10/22) one square per card unless you own more versions */const v=h.v,scr=v==='s',alt=typeof v==='number'&&v>0,w=el('button','tcgc'+(h.k?'':' lock')+(scr?' scr':alt?' alt':''));
-      w.append(tcgCardFull(c.id,scr,null,alt?v:0));
-      const ch=el('div','tcgchips');ch.append(el('i',h.k?(scr?'cs':alt?'ca':'cn'):'cx',(scr?'SCR':alt?h.n.replace('絵違い ','絵違い・'):'通常')+(h.k?(alt?'':' '+h.k):' 未所持')));
+    L.forEach(c=>{const HH=tcgHeld(c.id),any=HH.some(h=>h.k>0);HH.forEach((h,hi)=>{if(tcgDexMine&&!h.k)return;if(!h.k&&(any||hi>0))return;/* (10/22) one square per card unless you own more versions */const v=h.v,km=v==='k',scr=v==='s',alt=typeof v==='number'&&v>0,w=el('button','tcgc'+(h.k?'':' lock')+(km?' kmr':scr?' scr':alt?' alt':''));
+      w.append(tcgCardFull(c.id,km?'k':scr,null,alt?v:0));
+      const ch=el('div','tcgchips');ch.append(el('i',h.k?(km?'cs ck':scr?'cs':alt?'ca':'cn'):'cx',(km?'KMR':scr?'SCR':alt?h.n.replace('絵違い ','絵違い・'):'通常')+(h.k?(alt?'':' '+h.k):' 未所持')));
       w.append(ch);w.setAttribute('aria-label',c.n+' '+h.n+(h.k?'('+h.k+'枚)':'(未所持)'));w.onclick=()=>tcgSheet(c.id,v);g.append(w)});
       /* keep 通常 / シークレット as a left-right pair in the 4 columns: a card with 絵違い (5 squares) gets one empty square */
       })};
@@ -13795,7 +13969,7 @@ function drawTdv(){const o=$('tdv');if(!o)return;o.replaceChildren();const box=e
   if(tdvTab==='dex'){const cs=el('div','tdvdex');tcgDexInto(cs,drawTdv);box.append(cs)}
   else if(!tcgHasSt()){box.append(el('p','sub','まだスターターデッキを選んでいません。TCGの画面で選ぶと、ここにデッキが並びます。'));const b=el('button',null,'TCGの画面へ');b.onclick=()=>{o.remove();setView('tcg')};box.append(b)}
   else{const L=T.decks||[];box.append(el('p','sub','デッキは20枚。同じカードは2枚まで。金枠カードはリーダーにしたものだけ、デッキに2枚まで(引いたら生贄1体で出せる)。'));
-    L.forEach((d,i)=>{const r=el('div','tdvd'),lf=TC[d.lead]?TC[d.lead].f:'gen';r.append(tcgFace(d.lead,null,((d.scr||{})[d.lead]||0)>0));const tx=el('div','tdvdt');
+    L.forEach((d,i)=>{const r=el('div','tdvd'),lf=TC[d.lead]?TC[d.lead].f:'gen';r.append(tcgFace(d.lead,null,((d.kmr||{})[d.lead]||0)>0?'k':((d.scr||{})[d.lead]||0)>0));const tx=el('div','tdvdt');
       tx.append(el('b',null,d.name),el('span',null,'リーダー:'+(TC[d.lead]?TC[d.lead].n:'?')+'('+(TCGD.fname[lf]||'')+')'),el('span',null,d.cards.length+'枚'));
       const ac=el('div','tdvda'),eb=el('button',null,'編成');eb.onclick=()=>tcgPlay('build='+i);const db_=el('button','sec','削除');db_.onclick=()=>twoTap(db_,'削除',()=>{const N=L.slice();N.splice(i,1);tcgSaveDecks(N).then(drawTdv)});
       ac.append(eb,db_);tx.append(ac);r.append(tx);box.append(r)});
@@ -13892,15 +14066,37 @@ window.TCGHOST.spectatorSeq=()=>tcgLive?tcgLive.mine.length+tcgLive.delivered:0;
 /* (10/22) the whole card (案a, like in battle) for slabs and the showcase: the picture layer is tcgFace, so SECRET / Halloween finishes stay */
 const TFC_COL={weak:'#7fb2ff',girl:'#ff6fae',gay:'#c08cff',gen:'#ffd36b',gachi:'#ff9a3c',idol:'#ffd54a',vt:'#4fd1ff',cre:'#7ee08a',chu:'#a070ff',neta:'#ff6b6b',sei:'#ff9ad5',hage:'#d8c09a',mecha:'#4fd8d0',pirate:'#7088ff',reinc:'#5cb8ff',jujutsu:'#b07cff',henshin:'#ff6a5a'};
 const TFC_TY={chara:'キャラ',spell:'魔法',trap:'罠'};
+/* KMR pictures: the background with the character taken out, and the character cut out (made by tools/seg/kmr_build.py).
+   Cards whose cut-out did not come out well are listed in TCG_KMR_NOCUT: those keep their own picture (no stepping out) */
+const TCG_KMR_NOCUT=new Set(["c10", "c14", "c6", "c7", "d10", "d12", "d13", "d14", "d6", "d7", "g11", "g12", "g14", "g6", "g7", "i10", "i11", "i12", "i14", "i6", "i7", "i9", "j10", "j11", "j12", "j13", "j14", "j15", "j16", "j17", "j18", "j19", "j2", "j4", "j5", "j6", "j7", "k10", "k11", "k12", "k13", "k14", "k16", "k17", "k18", "k19", "k4", "k5", "k6", "k7", "k8", "k9", "m1", "m10", "m11", "m12", "m13", "m14", "m15", "m16", "m17", "m18", "m19", "m2", "m5", "m6", "m7", "m9", "n14", "n6", "n7", "n9", "o14", "o6", "o7", "p10", "p11", "p12", "p13", "p14", "p15", "p16", "p17", "p18", "p19", "p3", "p4", "p5", "p6", "p7", "p8", "q12", "q14", "q6", "q7", "q9", "r10", "r11", "r13", "r14", "r15", "r16", "r17", "r18", "r19", "r3", "r4", "r5", "r6", "r9", "s10", "s13", "s14", "s6", "s7", "v10", "v12", "v13", "v14", "v6", "v7", "w10", "w12", "w13", "w14", "w6", "w7", "x10", "x14", "x19", "x20", "x21", "x25", "x27", "x28", "x4", "x5", "x6", "x8", "y11", "y12", "y13", "y14", "y6", "y7", "y9"]);
+const tcgKmrCut=id=>!TCG_KMR_NOCUT.has(id);
+/* load a KMR's pictures early (a pack that holds one starts this when it opens, so the turn-over never shows an empty card) */
+const TCGK_PRE={};function tcgKmrPreload(id){if(!id||TCGK_PRE[id])return;TCGK_PRE[id]=1;const L=['tcgk/letters.png','tcgk/gold.webp','tcgk/swoosh.webp','tcgk/glit.png','tcgk/lines.png'];if(tcgKmrCut(id))L.push('tcgk/'+id+'_b.webp','tcgk/'+id+'_c.webp');L.forEach(u=>{try{const i=new Image();i.decoding='async';i.src=u}catch(e){}})}
+/* the holo layers over a KMR picture: rainbow in the etched lines, the light that makes the glitter shine, a white sheen, the gold KMR */
+function tcgKmrLayers(host,id){const fl=el('i','kx-fl');fl.append(el('b'));
+  /* a card without a cut-out keeps its own picture: only the soft sheen goes over it (the rainbow and the glitter would wash the character out) */
+  if(!tcgKmrCut(id)){host.classList.add('kx-nocut');host.append(fl);const lt=el('img','kx-lt kx-ltn');lt.alt='';lt.decoding='async';lt.src='tcgk/letters.png';host.append(lt);return}
+  const rb=el('i','kx-rb'),gs=el('i','kx-gs');rb.append(el('b'));gs.append(el('b'));host.append(rb,gs,fl);
+  if(tcgKmrCut(id)){const lt=el('img','kx-lt');lt.alt='';lt.decoding='async';lt.src='tcgk/letters.png';host.append(lt)}}
+/* KMR on a small face (lists, packs, the deck) */
+function tcgFaceK(id,cls){const c=TC[id],f=el('div','tcf kmr r-'+c.r+(cls?' '+cls:''));const cut=tcgKmrCut(id),im=el('img');im.alt=c.n;im.loading='lazy';im.decoding='async';
+  if(cut)im.src='tcgk/'+id+'_b.webp';else{const s=tcgImg(id);if(s)im.src=s;if(window.KHD)KHD.watch(im,id)}f.append(im);tcgKmrLayers(f,id);
+  if(cut){const ch=el('div','kx-ch'),ci=el('img');ci.alt='';ci.loading='lazy';ci.decoding='async';ci.src='tcgk/'+id+'_c.webp';ch.append(ci);f.append(ch)}
+  f.append(el('i','kmrtag','KMR'));if(c.hwOf)f.append(tcgHwPk(id));return f}
+/* the picture box of a big KMR card */
+function tcgFullArtK(id){const c=TC[id],f=el('div','tcf tfa r-'+c.r),im=el('img');im.alt='';im.decoding='async';im.loading='lazy';if(tcgKmrCut(id))im.src='tcgk/'+id+'_b.webp';else{const s=tcgImg(id);if(s)im.src=s;if(window.KHD)KHD.watch(im,id)}f.append(im);tcgKmrLayers(f,id);return f}
 function tcgCardFull(id,foil,cls,ga){const c=TC[id];if(!c)return tcgFace(id,cls,foil);const base=c.hwOf||id,lead=Object.values(TCGD.leaders||{}).includes(base);
-  const w=el('div','tfc rk-'+c.r+(foil?' sec':'')+(lead?' ace':'')+(c.ty!=='chara'?' nonch':'')+(c.hwOf?' hwc':'')+(cls?' '+cls:''));w.style.setProperty('--dc',TFC_COL[c.f]||'#4fd8d0');
-  const art=tcgFace(id,'tfa',foil,ga);{const im=art.querySelector('img');if(im)im.alt=''}w.append(art);if(ga)w.classList.add('altc');try{tcgImgLater(art,id)}catch(e){}
+  const km=foil==='k'&&!ga;const w=el('div','tfc rk-'+c.r+(km?' kmrx':foil?' sec':'')+(lead?' ace':'')+(c.ty!=='chara'?' nonch':'')+(c.hwOf?' hwc':'')+(cls?' '+cls:''));w.style.setProperty('--dc',TFC_COL[c.f]||'#4fd8d0');
+  const art=km?tcgFullArtK(id):tcgFace(id,'tfa',foil,ga);{const im=art.querySelector('img');if(im)im.alt=''}w.append(art);if(ga)w.classList.add('altc');if(!km)try{tcgImgLater(art,id)}catch(e){}
   const top=el('div','tfct');const gem=el('span','tfcg');gem.append(el('b',null,String(c.c)));top.append(gem,el('b','tfcn',c.n));
-  const bot=el('div','tfcb');const ty=el('div','tfcy');ty.append(el('span',null,(TFC_TY[c.ty]||'')+' ・ '+((TCGD.fname||{})[c.f]||'')),el('em',null,foil?'SECRET':lead?'LEADER':c.r));
+  const bot=el('div','tfcb');const ty=el('div','tfcy');ty.append(el('span',null,(TFC_TY[c.ty]||'')+' ・ '+((TCGD.fname||{})[c.f]||'')),el('em',null,km?'KMR':foil?'SECRET':lead?'LEADER':c.r));
   const tx=String(c.tx||'').split('\n').filter(l=>!/^【(リーダー|ハロウィン版)】/.test(l)).join('\n');
   bot.append(ty,el('p','tfcx',tx));
+  if(km){const wm=el('i','kx-wm');wm.append(el('b'));bot.prepend(wm)} // 10/25 the app mark in gold behind the effect text
   if(c.ty==='chara'){const st=el('div','tfcs'),a=el('span','a'),d=el('span','d');a.append(el('small',null,'ATK'),document.createTextNode(c.atk));d.append(el('small',null,'DEF'),document.createTextNode(c.def));st.append(a,el('i'),d);bot.append(st)}
-  w.append(el('i','tfcsh'),top,bot);if(!c.hwOf)w.append(el('i','tfcgem'));else{const pk=art.querySelector('.tcfpk');if(pk)w.append(pk)}['k1','k2','k3','k4'].forEach(k=>w.append(el('i','tfccn '+k)));return w}
+  w.append(el('i','tfcsh'),top,bot);if(!c.hwOf)w.append(el('i','tfcgem'));else{const pk=art.querySelector('.tcfpk');if(pk)w.append(pk)}['k1','k2','k3','k4'].forEach(k=>w.append(el('i','tfccn '+k)));
+  /* KMR: the character steps over the top of the frame, gold streaks cross in front of her, a sheen crosses the whole card */
+  if(km){if(tcgKmrCut(id)){const p=el('div','kx-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_c.webp';p.append(pi);art.after(p);p.after(el('i','kx-sw'))}const al=el('i','kx-all');al.append(el('b'));w.append(al)}return w}
 
 /* ===== friend battles: tcgm/{id} = {a,b,an,bn,t,u,st:'wait'|'go'|'end'|'decline'|'cancel',da,db,seed,sb,ma,mb (each player's own moves),wa,wb,ta,tb,ca,cb}
    Both phones run the same game from the same seed; only the moves travel. Each player writes their own result (wa / wb);
@@ -13935,10 +14131,10 @@ function tcgFriendRec(pid){let w=0,l=0;tcgms.forEach(d=>{if(!tcgDone(d)||d.wa===
 function tcgDeckOk(d){if(!d||!TC[d.lead]||!Array.isArray(d.cards)||d.cards.length!==TCGD.deckSize)return false;const own=tcgOwn(),n={};
   const fk=id=>(TC[id]&&TC[id].hwOf)||id,nf={};
   for(const id of d.cards){if(!TC[id])return false;n[id]=(n[id]||0)+1;nf[fk(id)]=(nf[fk(id)]||0)+1;if(nf[fk(id)]>(TC[id].lim||2))return false;/* gold cards: leaders only as the chosen leader (or its ハロウィン版); bosses (二体生贄) are allowed, 1 copy */if(TC[id].r==='GR'&&!TC[id].boss&&fk(id)!==fk(d.lead))return false}
-  const fo=typeof tcgFoil==='function'?tcgFoil():{},AL=tcgAltMap(d.alt,d.cards),AO=tcgAltOwned(),has=id=>(own[id]||0)+(fo[id]||0)+(AO[id]||[]).length;
-  if(has(d.lead)<1)return false;const sc=d.scr||{};return Object.keys(n).every(id=>{const a=(AL[id]||[]).length,f=Math.min(+sc[id]||0,n[id]-a);return f<=(fo[id]||0)&&n[id]-a-f<=(own[id]||0)})}
+  const fo=typeof tcgFoil==='function'?tcgFoil():{},KM=typeof tcgKmr==='function'?tcgKmr():{},AL=tcgAltMap(d.alt,d.cards),AO=tcgAltOwned(),has=id=>(own[id]||0)+(fo[id]||0)+(KM[id]||0)+(AO[id]||[]).length;
+  if(has(d.lead)<1)return false;const sc=d.scr||{},kc=d.kmr||{};return Object.keys(n).every(id=>{const a=(AL[id]||[]).length,k=Math.min(+kc[id]||0,n[id]-a),f=Math.min(+sc[id]||0,n[id]-a-k);return k<=(KM[id]||0)&&f<=(fo[id]||0)&&n[id]-a-k-f<=(own[id]||0)})}
 /* a deck as plain data of this window (Firestore refuses arrays/objects made inside the game frame) */
-function tcgPlainDeck(d){const cards=tcgFlatCards(d.cards),o={name:String(d.name||'マイデッキ').slice(0,16),lead:String(d.lead),cards},sc=tcgScrMap(d.scr,cards);if(Object.keys(sc).length)o.scr=sc;
+function tcgPlainDeck(d){const cards=tcgFlatCards(d.cards),o={name:String(d.name||'マイデッキ').slice(0,16),lead:String(d.lead),cards},sc=tcgScrMap(d.scr,cards);if(Object.keys(sc).length)o.scr=sc;{const km=tcgScrMap(d.kmr,cards);if(Object.keys(km).length)o.kmr=km}
   /* the deck's alternate-art copies (owned only): the other phone shows those copies with the new picture too */
   {const al=tcgAltMap(d.alt,cards);if(Object.keys(al).length)o.alt=al}
   /* (10/18) the deck's sleeve (or the usual one): the other phone shows it on this side's card backs */
@@ -14559,6 +14755,37 @@ function maybeUpdatePush(){if(updPushed||!NEWS_EXP||!db||/\/preview\//.test(loca
     Promise.resolve(db.doc('config/update').set({v:NEWS_ID,title:NEWS_PUSH.title,body:NEWS_PUSH.body,t:now()})).then(()=>toast('みんなにアップデートの通知を送ります')).catch(e=>{updPushed=false;console.warn('update push',e)})},()=>{updPushed=false})}
 setInterval(()=>{try{if(myPlayer())maybeUpdatePush()}catch(e){}},5000);
 function maybeNews(){let seen='';try{seen=localStorage.getItem(NEWS_KEY)||''}catch(e){}if(seen!==NEWS_ID&&myPlayer()&&!document.getElementById('ob'))setTimeout(showNews,800)}
+/* (10/25) KMR promo film: plays once per player (per phone) when the app opens, after every other opening notice has closed.
+   It starts muted (phones only allow silent autoplay); a button turns the sound on. Skip at any time. Shown until KMR_PROMO_END. */
+const KMR_PROMO_END=Date.parse('2026-12-31T23:59:59+09:00');
+function kmrPromoKey(){return 'kmrPromo1_'+((typeof me!=='undefined'&&me&&me.id)||'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
+function kmrPromoClear(){/* the home screen is the topmost thing in the middle of the screen: no sheet, notice or effect is open */
+  if(typeof curView!=='undefined'&&curView!=='home')return false;if(document.getElementById('splash')||document.body.classList.contains('ovl'))return false;
+  const x=innerWidth/2,y=innerHeight*.45,e=document.elementFromPoint(x,y);return !!(e&&e.closest&&e.closest('.view,.kfp'))}/* .kfp = the home screen layer */
+function kmrPromo(force){
+  if(!force){if(kmrPromo.started||Date.now()>KMR_PROMO_END||!myPlayer()||navigator.webdriver/* automated tests */)return;let seen=0;try{seen=+localStorage.getItem(kmrPromoKey())||0}catch(e){}if(seen)return;kmrPromo.started=true;
+    let n=0;const tick=()=>{if(document.querySelector('.kpromo'))return;if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){kmrPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,2500);return}
+  kmrPromoShow()}
+function kmrPromoShow(){
+  if(document.querySelector('.kpromo'))return;try{localStorage.setItem(kmrPromoKey(),String(Date.now()))}catch(e){}
+  if(!document.getElementById('kpromoCss')){const st=document.createElement('style');st.id='kpromoCss';st.textContent=`
+.kpromo{position:fixed;inset:0;z-index:9000;background:#000;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .35s ease}
+.kpromo.on{opacity:1}.kpromo.off{opacity:0}
+.kpromo video{width:100%;height:100%;object-fit:contain;background:#000}
+.kpromo .kpb{position:absolute;border:0;font:800 14px/1 -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;color:#fff;background:rgba(20,16,30,.62);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:999px;padding:12px 18px;letter-spacing:.04em;box-shadow:inset 0 0 0 1px rgba(255,230,170,.35)}
+.kpromo .kpb:active{transform:scale(.96)}
+.kpromo .kpskip{top:calc(env(safe-area-inset-top,0px) + 14px);right:14px}
+.kpromo .kpsnd{left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);transform:translateX(-50%);padding:14px 22px;color:#2a1a04;background:linear-gradient(100deg,#c39233,#f6dc8e 40%,#fff6d8 50%,#f3d37e 60%,#c39233);box-shadow:0 6px 20px rgba(0,0,0,.45)}
+.kpromo .kpsnd:active{transform:translateX(-50%) scale(.96)}
+.kpromo .kpsnd[hidden]{display:none}`;document.head.append(st)}
+  const o=el('div','kpromo'),v=document.createElement('video');v.src='promo_kmr.mp4';v.poster='promo_kmr.jpg';v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.autoplay=true;
+  const skip=el('button','kpb kpskip','スキップ'),snd=el('button','kpb kpsnd','音を出す');
+  let closed=false;const close=()=>{if(closed)return;closed=true;o.classList.add('off');try{v.pause()}catch(e){}setTimeout(()=>o.remove(),380)};
+  skip.onclick=e=>{e.stopPropagation();close()};
+  snd.onclick=e=>{e.stopPropagation();v.muted=false;try{if(v.ended||v.currentTime>v.duration-.3)v.currentTime=0}catch(x){}v.play().catch(()=>{});snd.hidden=true};
+  v.addEventListener('ended',()=>setTimeout(close,600));v.addEventListener('error',close);
+  o.append(v,skip,snd);document.body.append(o);requestAnimationFrame(()=>o.classList.add('on'));
+  const p=v.play();if(p&&p.catch)p.catch(()=>{/* autoplay refused: the sound button starts it */snd.textContent='再生する'})}
 let newsChecked=false;
 function statLine(p){let w=0,l=0;Object.keys(GAMES).forEach(g=>{w+=p[g+'_wins']||0;l+=p[g+'_losses']||0});return '通算 '+w+'勝 '+l+'敗'+(w+l?'  ·  勝率 '+Math.round(w/(w+l)*100)+'%':'')}
 const VTITLE={home:'きもオタレート',rank:'ランキング',battle:'対戦',gacha:'パック',tcg:'きもオタTCG',profile:'プロフィール'};
@@ -17491,6 +17718,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
      5 the three side by side, tap one to look at it closely */
   function tcgPack(pk,res,onMore,opt){opt=opt||{};
     const P=TCGD.packs[pk],n=res.length,best=Math.max(...res.map(x=>x.c.r)),scr=res.some(x=>x.foil);
+    try{res.forEach(x=>{if(x&&x.foil==='k'&&typeof tcgKmrPreload==='function')tcgKmrPreload(x.c.v)})}catch(e){}
     const big=x=>x.c.r>=4||x.foil;
     /* the pack only sometimes tells: a secret always glows in rainbow, a ガチレア in gold 6 times out of 10 */
     const tell=scr?'scr':best>=4&&Math.random()<.6?'gr':'';
@@ -17574,13 +17802,13 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
        .call(()=>{pack.remove();st.style.zIndex=''},null,1.04)}
     /* ---- the cards ---- */
     const RL={C:'コモン',R:'レア',SR:'スーパーレア',GR:'ガチレア'};
-    const els=res.map((x,i)=>{const c=mk('div','kp-c r-'+x.c.tl+(x.foil?' foil':''));c.append(tcgFace(x.c.v,null,x.foil),mk('i','kp-sh'),mk('i','kp-glow'));
+    const els=res.map((x,i)=>{const c=mk('div','kp-c r-'+x.c.tl+(x.foil?' foil':''));c.append(tcgFace(x.c.v,null,x.foil==='k'?true:x.foil),mk('i','kp-sh'),mk('i','kp-glow'));
       if(big(x))c.append(mk('span','kp-tag',x.foil?'シークレット':'ガチレア'));c.style.setProperty('--gl',x.foil?'#ff8fd0':'#f5c84c');c.style.zIndex=String(20-i);return c});
     let cur=0,busy=false;
     const pos=(i,k)=>{const d=i-k;return {x:0,y:d*9,scale:1-d*.04,rotation:0,opacity:d>2?0:1}};
     const pose=(i,k,dur)=>{const c=els[i];if(!c)return;const p=pos(i,k);if(!RM)G.to(c,Object.assign({duration:dur==null?.45:dur,ease:'expo.out'},p));else G.set(c,p)};
     const setCap=i=>{const x=res[i];if(!x){cap.classList.remove('on');return}
-      cap.innerHTML='<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span>';if(x.pc)cap.append(pcChip(x.pc));cap.classList.add('on');
+      cap.innerHTML='<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil==='k'&&x.kshown?'KMR':x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span>';if(x.pc)cap.append(pcChip(x.pc));cap.classList.add('on');
       [...dots.children].forEach((d,k)=>d.classList.toggle('on',k===i))};
     function deal(){if(ended)return;stack.append(...els);
       if(!RM){st.style.zIndex='7';const H=stack.getBoundingClientRect().height;
@@ -17597,7 +17825,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
           G.fromTo(dim,{opacity:.6},{opacity:.25,duration:.8});
           flashT.style.top=(r.top+r.height/2)+'px';G.fromTo(flashT,{opacity:.85,scaleX:.7,scaleY:1.4},{opacity:0,scaleX:1.1,scaleY:2,duration:.6,ease:'power2.out'});
           G.fromTo(c.querySelector('.kp-tag'),{opacity:0,y:12,scale:.6},{opacity:1,y:0,scale:1,duration:.5,ease:'back.out(2)',delay:.18})}
-        later(()=>{if(x.foil&&opt.onSecret)opt.onSecret(x,()=>{busy=false});else busy=false},x.foil?900:620)}
+        later(()=>{if(x.foil&&opt.onSecret)opt.onSecret(x,()=>{busy=false;/* after the promotion the card in the pack is the KMR */if(x.foil==='k'){x.kshown=1;try{const f=c.querySelector('.tcf');if(f)f.replaceWith(tcgFace(x.c.v,null,'k'));const tg=c.querySelector('.kp-tag');if(tg)tg.textContent='KMR';setCap(cur)}catch(e){}}});else busy=false},x.foil?900:620)}
       else if(x.c.r>=2){c.classList.add('shine');SFX('pop');VIB(2)}else SFX('tick')}
     let dx0=null,dragX=0,t0=0;
     function wire(){stack.addEventListener('pointerdown',e=>{if(busy||ended||cur>=n)return;const c=els[cur];if(!c||!c.contains(e.target))return;dx0=e.clientX;dragX=0;t0=performance.now();try{c.setPointerCapture(e.pointerId)}catch(_){}});
@@ -17617,7 +17845,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
       if(!RM){G.to([rays,dim],{opacity:0,duration:.3})}
       const row=mk('div','kp-row');
       res.forEach(x=>{const b=mk('button','kp-rc');b.type='button';b.setAttribute('aria-label',x.c.n+'を大きく見る');
-        const fr=mk('div','kp-rf');fr.append(tcgFace(x.c.v,null,x.foil),mk('b',x.isNew?'new':'',x.isNew?(x.foil?'SCR NEW':'NEW'):esc(x.note||('+'+x.sh+' かけら'))));b.append(fr,mk('span',null,esc(x.c.n)));if(x.pc)b.append(pcChip(x.pc));b.onclick=()=>zoom(x);row.append(b)});
+        const fr=mk('div','kp-rf');fr.append(tcgFace(x.c.v,null,x.foil),mk('b',x.isNew?'new':'',x.isNew?(x.foil==='k'?'KMR NEW':x.foil?'SCR NEW':'NEW'):esc(x.note||('+'+x.sh+' かけら'))));b.append(fr,mk('span',null,esc(x.c.n)));if(x.pc)b.append(pcChip(x.pc));b.onclick=()=>zoom(x);row.append(b)});
       o.append(row);if(!RM)G.fromTo(row.children,{y:50,opacity:0,scale:.82},{y:0,opacity:1,scale:1,duration:.6,stagger:.08,ease:'back.out(1.5)',clearProps:'transform,opacity'});
       const nw=res.filter(z=>z.isNew).length,sh=res.reduce((a,z)=>a+(z.sh||0),0),sum=mk('div','kg-sum');{const s=mk('span');s.innerHTML='NEW <b>'+nw+'</b>';sum.append(s)}if(sh){const s=mk('span');s.innerHTML='かけら <b>+'+sh+'</b>';sum.append(s)}
       const btns=mk('div','kg-btns'),cl=mk('button','kg-b1',opt.onClose?'ボックスの結果を見る':'閉じる');cl.type='button';cl.onclick=()=>{if(opt.onClose){handOff(opt.onClose)}else close()};btns.append(cl);
@@ -17625,7 +17853,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
       {const db4=dupBtn('t',res);ft.replaceChildren(...[sum,db4,btns].filter(Boolean))}requestAnimationFrame(()=>ft.classList.add('on'))}
     /* ---- one card up close: it leans under the finger and the light moves across it ---- */
     function zoom(x){const z=mk('div','kp-zoom'),w=mk('div','kp-zw'),f=tcgFace(x.c.v,null,x.foil);f.append(mk('i','kp-zl'));w.append(f);
-      z.append(w,mk('div','kp-zc','<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span><small>タップで戻る</small>'));o.append(z);
+      z.append(w,mk('div','kp-zc','<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil==='k'?'KMR':x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span><small>タップで戻る</small>'));o.append(z);
       const mv=e=>{const r=f.getBoundingClientRect(),dx=(e.clientX-(r.left+r.width/2))/r.width,dy=(e.clientY-(r.top+r.height/2))/r.height;
         f.style.setProperty('--ry',clamp(dx*30,-18,18).toFixed(1)+'deg');f.style.setProperty('--rx',clamp(-dy*24,-14,14).toFixed(1)+'deg');f.style.setProperty('--mx',(50+dx*100).toFixed(1)+'%');f.style.setProperty('--my',(30+dy*100).toFixed(1)+'%')};
       z.addEventListener('pointermove',mv);z.onclick=()=>{if(RM){z.remove();return}G.to(z,{opacity:0,duration:.2,onComplete:()=>z.remove()})};
@@ -17848,13 +18076,13 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     const C=(typeof TCGD!=='undefined'&&(zoomCard.M||(zoomCard.M=Object.fromEntries(TCGD.cards.map(c=>[c.id,c]))))[x.c.v])||null,TY={chara:'キャラ',spell:'魔法',trap:'トラップ'};
     let info='';if(C){const fam=(typeof TCGD!=='undefined'&&TCGD.fname&&TCGD.fname[C.f])||'族なし';
       info='<div class="kp-zi"><div class="kp-zm"><span>'+esc(fam)+'</span><span>'+(TY[C.ty]||'')+'</span><span>熱量 '+(+C.c||0)+'</span>'+(C.ty==='chara'?'<span class="kp-zs"><i class="kp-za">ATK <b>'+(+C.atk||0)+'</b></i><i class="kp-zd">DEF <b>'+(+C.def||0)+'</b></i></span>':'')+'</div>'+(C.tx?'<div class="kp-zt">'+esc(C.tx)+'</div>':'')+'</div>';z.classList.add('info')}
-    z.append(w,mk('div','kp-zc','<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span>'+info+'<small>タップで戻る</small>'));host.append(z);
+    z.append(w,mk('div','kp-zc','<b class="r-'+(x.foil?'SCR':x.c.tl)+'">'+(x.foil==='k'?'KMR':x.foil?'シークレット':RL[x.c.tl]||'')+'</b><span>'+esc(x.c.n)+'</span>'+info+'<small>タップで戻る</small>'));host.append(z);
     z.addEventListener('pointermove',e=>{const r=f.getBoundingClientRect(),dx=(e.clientX-(r.left+r.width/2))/r.width,dy=(e.clientY-(r.top+r.height/2))/r.height;
       f.style.setProperty('--ry',clamp(dx*30,-18,18).toFixed(1)+'deg');f.style.setProperty('--rx',clamp(-dy*24,-14,14).toFixed(1)+'deg');f.style.setProperty('--mx',(50+dx*100).toFixed(1)+'%');f.style.setProperty('--my',(30+dy*100).toFixed(1)+'%')});
     z.onclick=()=>{if(RM||!G){z.remove();return}G.to(z,{opacity:0,duration:.2,onComplete:()=>z.remove()})};
     if(!RM&&G){G.fromTo(z,{opacity:0},{opacity:1,duration:.2,clearProps:'opacity'});G.fromTo(w,{scale:.7,y:30},{scale:1,y:0,duration:.5,ease:'back.out(1.6)',clearProps:'transform'})}}
 
-  function tcgBox(pk,res,on){on=on||{};
+  function tcgBox(pk,res,on){on=on||{};try{(res||[]).forEach(x=>{if(x&&x.foil==='k'&&typeof tcgKmrPreload==='function')tcgKmrPreload(x.c.v)})}catch(e){}
     const P=TCGD.packs[pk],NP=Math.max(1,Math.round(res.length/TCGD.size)),dbl=res.filter(x=>x.foil).length>=2;
     const o=stage('kg-tcg kbx'+(dbl?' dbl':''));o.style.setProperty('--p1',P.c1);o.style.setProperty('--p2',P.c2);o.style.setProperty('--au',dbl?'#ff8fd0':'#ffe7a8');
     /* v133: the box as a rendered film when the clips exist; the fan, the choice and everything after stay the same */
@@ -17960,7 +18188,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     return o}
 
   /* ---------- the secret rare: a slit of light opens, the card turns in from the edge, the words come up ---------- */
-  function kgSecret(pk,xs,done,opt){opt=opt||{};const S=xs.slice(0,2),two=S.length>1;let fin=false;const finish=()=>{if(fin)return;fin=true;done&&done()};
+  function kgSecret(pk,xs,done,opt){opt=opt||{};{const K=xs.filter(x=>x&&x.foil==='k');if(K.length){const rest=xs.filter(x=>!(x&&x.foil==='k'));return kgKmr(pk,K,()=>{if(rest.length)kgSecret(pk,rest,done,opt);else done&&done()},opt)}}const S=xs.slice(0,2),two=S.length>1;let fin=false;const finish=()=>{if(fin)return;fin=true;done&&done()};
     const o=mk('div','ksx'+(two?' two':''));o.setAttribute('role','dialog');o.setAttribute('aria-label',two?'ダブルシークレット':'シークレットレア');
     const cv=mk('canvas','ksx-cv'),stg=mk('div','ksx-stage'),tx=mk('div','ksx-tx'),word=mk('div','ksx-word'),jp=mk('div','ksx-jp',two?'シークレットレア × 2':'シークレットレア'),nm=mk('div','ksx-nm'),ft=mk('div','ksx-ft'),btn=mk('button','kg-b2',esc(opt.button||'パックに戻る'));btn.type='button';
     (two?'DOUBLE SECRET':'SECRET RARE').split('').forEach(ch=>{const w=mk('span');w.append(mk('i',null,ch===' '?'&nbsp;':esc(ch)));word.append(w)});
@@ -17996,19 +18224,56 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     o.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;if(T.progress()<1)T.progress(1)});
     return o}
 
+  /* ---------- (10/24) KMR: it comes out as a secret, then is promoted to KMR (see the .kkx styles for the storyboard) ---------- */
+  function kgKmr(pk,xs,done,opt){opt=opt||{};let i=0,fin=false;const all=xs.slice();const next=()=>{if(i>=all.length){if(!fin){fin=true;done&&done()}return}kgKmrOne(all[i++],next,opt)};next()}
+  function kgKmrOne(x,done,opt){let fin=false;const finish=()=>{if(fin)return;fin=true;done&&done()};const id=x.c.v,TCn=(typeof TC!=='undefined'&&TC[id])||{};try{tcgKmrPreload(id)}catch(e){}
+    const o=mk('div','kkx');o.setAttribute('role','dialog');o.setAttribute('aria-label','KMR');
+    const cv=mk('canvas','kkx-cv'),lane=mk('div','kkx-lane'),pre=mk('div','kkx-pre'),km=mk('div','kkx-km'),tx=mk('div','kkx-tx'),word=mk('div','kkx-word'),jp=mk('div','kkx-jp','シークレットの上の、最上位レア'),nm=mk('div','kkx-nm'),ft=mk('div','kkx-ft'),btn=mk('button',null,esc(opt.button||'パックに戻る'));btn.type='button';
+    pre.append(tcgFace(id,null,true));const big=tcgCardFull(id,'k','tfbig');km.append(big);lane.append(pre,km);
+    'KMR'.split('').forEach(ch=>word.append(mk('i',null,ch)));nm.textContent=x.c.n||TCn.n||'';tx.append(word,jp,nm);ft.append(btn);
+    const flash=mk('i','kkx-flash'),gold=mk('i','kkx-gold'),rays=mk('i','kkx-rays');o.append(mk('i','kkx-bg'),gold,rays,lane,cv,flash,tx,ft);document.body.append(o);
+    const SPK=sparker(o,cv);const close=()=>{if(fin)return;finish();if(RM||!G){o.remove();return}G.to(o,{opacity:0,duration:.25,delay:.2,onComplete:()=>o.remove()})};
+    btn.onclick=e=>{e.stopPropagation();close()};
+    /* the big card leans under the finger */
+    o.addEventListener('pointermove',e=>{const r=big.getBoundingClientRect(),dx=(e.clientX-(r.left+r.width/2))/innerWidth,dy=(e.clientY-(r.top+r.height/2))/innerHeight;km.style.transform='rotateY('+clamp(dx*30,-14,14).toFixed(1)+'deg) rotateX('+clamp(-dy*24,-10,10).toFixed(1)+'deg)'});
+    if(RM||!G){pre.style.display='none';km.style.opacity='1';gold.style.opacity='1';rays.style.opacity='.8';word.querySelectorAll('i').forEach(i=>i.style.opacity='1');[jp,nm].forEach(e=>e.style.opacity='1');ft.classList.add('on');return o}
+    const GOLD=['#fff6d6','#ffe08a','#f3c45a','#ffffff','#e0a93a'],T=G.timeline();
+    T.fromTo(o,{opacity:0},{opacity:1,duration:.18},0)
+     .fromTo(pre,{scale:.9},{scale:1,duration:.35,ease:'back.out(2)'},0)
+     /* 1 ため: the light stops, the screen darkens, a small shake */
+     .call(()=>{VIB(2);SFX('tick')},null,.32)
+     .to(pre,{x:3,duration:.05,repeat:5,yoyo:true,ease:'none'},.34)
+     /* 2 昇格: a white flash, the light turns gold */
+     .call(()=>{VIB(5);SFX('slam');pre.classList.add('gold');const r=lane.getBoundingClientRect();SPK.burst(r.left+r.width/2,r.top+r.height/2,90,GOLD,1.5,{life:1.2,size:1.1,drag:2.4,g:60})},null,.66)
+     .fromTo(flash,{opacity:.9},{opacity:0,duration:.45,ease:'power2.out'},.66)
+     .to(gold,{opacity:1,duration:.5},.66).to(rays,{opacity:.85,duration:.8},.7)
+     /* 3 the card turns over into the KMR card; a hit-stop on landing */
+     .to(pre,{rotationY:90,duration:.26,ease:'power2.in'},1.0)
+     .set(pre,{opacity:0},1.26).set(km,{opacity:1,rotationY:-90,scale:1.14},1.26)
+     .to(km,{rotationY:0,duration:.34,ease:'power3.out'},1.26)
+     .to(km,{scale:1,duration:.5,ease:'back.out(2.2)'},1.72)
+     .call(()=>{VIB(6);SFX('chime');const r=lane.getBoundingClientRect();SPK.burst(r.left+r.width/2,r.top+r.height*.42,160,GOLD,1.9,{life:1.6,size:1.15,drag:2.2,g:90});SPK.burst(r.left+r.width/2,r.top+r.height*.42,40,['#ffffff'],1.2,{life:.7,size:.8})},null,1.6)
+     .fromTo(flash,{opacity:.55},{opacity:0,duration:.3},1.6)
+     /* 4 the gold KMR letters, then the name */
+     .fromTo(word.querySelectorAll('i'),{opacity:0,scale:1.8,y:-10},{opacity:1,scale:1,y:0,duration:.45,stagger:.08,ease:'expo.out'},1.85)
+     .fromTo([jp,nm],{opacity:0,y:10},{opacity:1,y:0,duration:.45,stagger:.08,ease:'power3.out'},2.25)
+     .call(()=>ft.classList.add('on'),null,2.7);
+    o.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;if(T.progress()<1)T.progress(1)});
+    o.__end=()=>T.progress(1);return o}
+
   /* ---------- the result of a box (or several packs): the best first, then every card ---------- */
   function boxSummary(pk,res,opt){opt=opt||{};const P=TCGD.packs[pk]||{},NP=Math.max(1,Math.round(res.length/TCGD.size));
     const o=mk('div','kbr');o.setAttribute('role','dialog');o.setAttribute('aria-label',(P.n||'')+'の結果');o.style.setProperty('--p1',P.c1||'#ffb84a');o.style.setProperty('--p2',P.c2||'#4fd1ff');
-    const rk=x=>x.foil?4:x.c.tl==='GR'?3:x.c.tl==='SR'?1.5:x.c.tl==='R'?1:0;
+    const rk=x=>x.foil==='k'?5:x.foil?4:x.c.tl==='GR'?3:x.c.tl==='SR'?1.5:x.c.tl==='R'?1:0;
     const sorted=res.map((x,i)=>({x,i})).sort((a,b)=>rk(b.x)-rk(a.x)||a.i-b.i);
     const hits=sorted.filter(z=>rk(z.x)>=3).slice(0,8);
     const sc=mk('div','kbr-sc'),hd=mk('div','kbr-hd');
     hd.append(mk('small',null,'KIMOOTA TCG · '+(NP===TCG_BOX_PACKS?'BOX':NP+'パック')),mk('h2',null,esc(P.n||'')),mk('p',null,NP+'パック · '+res.length+'枚'));
     const n=k=>res.filter(x=>k(x)).length,stats=mk('div','kbr-st');
-    [['シークレット',n(x=>x.foil),'scr'],['ガチレア',n(x=>!x.foil&&x.c.tl==='GR'),'gr']].concat(res.some(x=>x.c.tl==='SR')?[['スーパーレア',n(x=>!x.foil&&x.c.tl==='SR'),'sr']]:[]).concat([['レア',n(x=>!x.foil&&x.c.tl==='R'),'r'],['NEW',n(x=>x.isNew),'nw']]).forEach(([k,v,c])=>{const s=mk('div','kbr-s '+c);s.innerHTML='<b>'+v+'</b><span>'+k+'</span>';stats.append(s)});
+    (res.some(x=>x.foil==='k')?[['KMR',n(x=>x.foil==='k'),'scr']]:[]).concat([['シークレット',n(x=>x.foil&&x.foil!=='k'),'scr']]).concat([['ガチレア',n(x=>!x.foil&&x.c.tl==='GR'),'gr']]).concat(res.some(x=>x.c.tl==='SR')?[['スーパーレア',n(x=>!x.foil&&x.c.tl==='SR'),'sr']]:[]).concat([['レア',n(x=>!x.foil&&x.c.tl==='R'),'r'],['NEW',n(x=>x.isNew),'nw']]).forEach(([k,v,c])=>{const s=mk('div','kbr-s '+c);s.innerHTML='<b>'+v+'</b><span>'+k+'</span>';stats.append(s)});
     const sh=res.reduce((a,x)=>a+(x.sh||0),0);
     const card=(x,big)=>{const b=mk('button','kbr-c'+(big?' big':'')+(x.foil?' scr':x.c.tl==='GR'?' gr':''));b.type='button';b.setAttribute('aria-label',x.c.n+'を大きく見る');
-      const fr=mk('div','kbr-f');fr.append(tcgFace(x.c.v,null,x.foil));if(big)fr.append(mk('span','kbr-tag',x.foil?'シークレット':'ガチレア'));
+      const fr=mk('div','kbr-f');fr.append(tcgFace(x.c.v,null,x.foil));if(big)fr.append(mk('span','kbr-tag',x.foil==='k'?'KMR':x.foil?'シークレット':'ガチレア'));
       fr.append(mk('b',x.isNew?'new':'',x.isNew?'NEW':esc(x.note||(x.sh?'かけら +'+x.sh:''))));if(!x.isNew&&!x.note&&!x.sh)fr.lastChild.remove();
       b.append(fr,mk('span',null,esc(x.c.n)));b.onclick=()=>zoomCard(o,x);return b};
     const secs=[hd,stats];
@@ -18285,7 +18550,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
   function zoomTcg(id){try{const it=tcgItem(id);if(window.__kgZoomCard){const host=mk('div','kgu-zh');document.body.append(host);__kgZoomCard(host,{c:it,isNew:false,sh:0,foil:false});
       const z=host.querySelector('.kp-zoom');if(z){const old=z.onclick;z.onclick=()=>{old&&old();host.style.transition='opacity .26s';host.style.opacity='0';setTimeout(()=>host.remove(),280)}}}}catch(e){console.warn('kgu',e)}}
   function shTcg(pk){const P=TCGD.packs[pk];sheet(P.n,b=>{sec(b,'排出率');{const RR=tcgRateRows(pk),CO={r4:'#f5c84c',r3:'#8fd3ff',r2:'#b678ff',r0:'#a3a9b4'};b.append(table(RR[0],RR.slice(1).map(r=>[[r[0],CO[r[3]]],r[1],r[2]])))}
-    b.append(mk('p','kgu-note','どのカードも1%でシークレット(キラ)になります。ボックスは15パック・45枚で、シークレットが1枚以上入っています(20箱に1つは2枚)。'+(P.hw?'このボックスは30%の確率で、シークレットがハロウィンのカードになります。':'')+'同じカードは2枚まで持てて(リーダーは3枚)、それ以上はかけら(コモン1・レア3'+(P.rt&&P.rt.z.SR?'・スーパーレア10':'')+'・ガチレア40)になります。'));
+    b.append(mk('p','kgu-note','どのカードも1%でシークレット(キラ)、0.1%でKMR(シークレットの上の最上位版)になります。ボックスは15パック・45枚で、シークレットが1枚以上入っています(20箱に1つは2枚)。'+(P.hw?'このボックスは30%の確率で、シークレットがハロウィンのカードになります。':'')+'同じカードは2枚まで持てて(リーダーは3枚)、それ以上はかけら(コモン1・レア3'+(P.rt&&P.rt.z.SR?'・スーパーレア10':'')+'・ガチレア40)になります。'));
     const pool=(()=>{try{return tcgPool(pk).slice()}catch(e){return []}})(),ord={GR:0,SR:1,R:2,C:3};pool.sort((a,c)=>ord[a.r]-ord[c.r]);
     [['GR','ガチレア'],['SR','スーパーレア'],['R','レア'],['C','コモン']].forEach(([r,lab])=>{const L=pool.filter(c=>c.r===r);if(!L.length)return;sec(b,lab+' '+L.length+'種類');const g=mk('div','kgu-gr tcg');
       L.forEach(c=>{const x=bt('kgu-gi t');try{x.append(tcgFace(c.id))}catch(e){}x.append(mk('span',null,esc(c.n)));x.onclick=()=>zoomTcg(c.id);g.append(x)});b.append(g)})})}
