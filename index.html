@@ -4210,6 +4210,10 @@ body.ui2 .kbu-full section.kbu-pos{background:rgba(242,213,138,.07)!important;pa
 .kbu-oqs{display:flex;gap:6px}
 .kbu-oqs button{flex:1;height:34px;border:0;border-radius:10px;font-size:12px;font-weight:800;color:rgba(255,255,255,.75);background:rgba(255,255,255,.06)}
 .kbu-oqs button.on{color:#0b0c10;background:#f4f1ea}.kbu-oqs button:disabled{opacity:.3}
+/* the first-time guide */
+.md.ask .kbu-in1,.md.ask .kbu-in2,.md.ask .kbu-in3{position:relative;margin:0 0 10px;padding:10px 12px 10px 44px;border-radius:14px;background:rgba(126,224,184,.08);font-size:13px;line-height:1.55;text-align:left}
+.md.ask .kbu-in1::before,.md.ask .kbu-in2::before,.md.ask .kbu-in3::before{position:absolute;left:12px;top:10px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font:900 12px/1 "Geist",system-ui,sans-serif;color:#0b0c10;background:#7ee0b8}
+.md.ask .kbu-in1::before{content:"1"}.md.ask .kbu-in2::before{content:"2"}.md.ask .kbu-in3::before{content:"3"}
 /*KBU-CSS-END*/
 
 /* (10/22) ボックス: dup bar, count badges */
@@ -7882,6 +7886,15 @@ function cheerMark(cid,p){try{const K=cheerK(p);if(!K||!cid||!db||!invLoaded)ret
   inv=Object.assign({},inv,{chp:Object.assign({},inv.chp||{},{[cid]:ki})});db.doc('inv/'+me.id).set({chp:{[cid]:ki}},{merge:true}).catch(()=>{})}catch(e){}}
 window.__cheerN=n=>{const ki=KMRS.findIndex(K=>K.n===n);return ki<0?0:cheerN(ki)};window.__oshiNeed=OSHI_NEED;
 function cheerK(p){const e=p&&p.eq||{},x=e.x&&ITEM(e.x),v=e.v&&ITEM(e.v);return x&&v&&x.K&&x.K===v.K?x.K:null}
+/* (10/24) the cheer KMR also shows up in 分身バトル and TCG (推しの応援). Plain data for the game frames; window.__oshiDemo = a KMR index for the demo */
+/* stickers cut out of the 推しスキン picture (TCG stamps); added as each picture arrives */
+const KMR_ST={'オーバーサイズ':'kst_hood.webp','ふくれっつら':'kst_chibi.webp','ひだまりニット':'kst_vt1.webp','はなかんむり':'kst_vt2.webp','堕ちた天使':'kst_vt3.webp','夜宴の小悪魔':'kst_hw.webp'};
+function oshiInfo(K){if(!K)return null;return {st:KMR_ST[K.n]||'',n:K.n,img:K.img,vid:K.vid||'',w:K.w,h:K.h,fx:K.fx,fy:K.fy,z:K.z||1,c:(K.c||[]).slice(),dark:!!K.dark,whole:!!K.whole,cheers:(K.cheers||[]).slice()}}
+function myOshi(){try{if(window.__oshiDemo!=null)return oshiInfo(KMRS[window.__oshiDemo]);const me=typeof myPlayer==='function'&&myPlayer();return oshiInfo(cheerK(me))}catch(e){return null}}
+function oshiByName(n){try{return oshiInfo(KMRS.find(K=>K.n===n))}catch(e){return null}}
+/* (10/24) the KMRs whose cheer (対戦演出+勝利演出) you own: TCG stamps and 分身 skins. window.__oshiSetDemo = [KMR index…] for the demo */
+function myOshiSet(){try{if(window.__oshiSetDemo)return window.__oshiSetDemo.map(i=>oshiInfo(KMRS[i])).filter(Boolean);const own=(typeof inv!=='undefined'&&inv&&inv.own)||{},adm=typeof isAdmin==='function'&&isAdmin()&&(window.__oshiAllAdmin||/\/preview\//.test(location.pathname));/* (10/24) お試し版では管理者は全部試せる */
+  return KMRS.map((K,i)=>adm||((own['kx'+i]||0)>0&&(own['kv'+i]||0)>0)?oshiInfo(K):null).filter(Boolean)}catch(e){return []}}
 const CHEERS=['がんばれ!','ファイト!','いけるよ!','応援してる!','負けないで!','信じてる!','がんばれー!!','ここからだよ!'];
 function cheerLayer(p,side){
   const K=cheerK(p);if(!K)return null;
@@ -10761,7 +10774,10 @@ function kbuRow(p,me,o){o=o||{};const r=el('button','kbu-row kx-mk'+(p.id===me.i
   r.append(tx,kbuSpark(kbuToday(p.id),72,28,'kbu-sp',kbuPrev(p.id)),pr);r.onclick=()=>kbuDetail(p.id);return r}
 let kbuRank='up';
 /* the 仲間株 page inside the exchange */
-function kbuPage(box,back,hd){const me=myPlayer();box.append(back('仲間株'));const S=kbuSyms();
+/* the first time the page opens: three lines on how it works (only on this phone) */
+function kbuIntro(){try{if(localStorage.getItem('kbuIntro'))return;localStorage.setItem('kbuIntro','1')}catch(e){return}
+  setTimeout(()=>askSheet({title:'仲間株へようこそ',ok:'はじめる',info:true,lines:[['kbu-in1','仲間一人ひとりが株の銘柄。気になる仲間の株を pt で買えます(自分の株も)'],['kbu-in2','勝つと +3%、負けると -2%。ガチャの当たりや、毎日アプリを開くことでも上がります'],['kbu-in3','上がったら売って pt に。月曜には、1週間持っていた株に配当が入ります']],run:()=>{}}),350)}
+function kbuPage(box,back,hd){const me=myPlayer();box.append(back('仲間株'));const S=kbuSyms();kbuIntro();
   /* market average */
   const I=kbuIndex(),ich=I.now-I.prev,ip=I.prev?ich/I.prev*100:0,mk=el('section','kbu-mk');
   const mh=el('div','kbu-mkh');mh.append(el('span','kbu-mkk','仲間平均'),el('span','kbu-live','取引中'));
@@ -10839,7 +10855,7 @@ function kbuDetail(s){document.querySelectorAll('.kbu-full').forEach(x=>x.remove
     /* stats */
     const lo=Math.round(C.o*(1-KBU_LIM)),hi=Math.round(C.o*(1+KBU_LIM)),dv=Math.min(KBU_DIVCAP,KBU_DIVW*kbuWeekWins(s,weekNo(now())));
     const sx=el('section','kbu-sec');sx.append(el('h4',null,'株価情報'));const kv=el('div','kbu-kv');
-    [['前日終値',kbuFmt(pv)],['始値',kbuFmt(C.o)],['高値',kbuFmt(C.h)],['安値',kbuFmt(C.l)],['出来高',kbuVol(s)+'株'],['売買代金',kbuTurn(s).toLocaleString()+'pt'],['時価総額',kbuCap(s).toLocaleString()+'pt'],['発行済(みんなの持ち株)',H+'株'],
+    [['前日終値',kbuFmt(pv)],['始値',kbuFmt(C.o)],['高値',kbuFmt(C.h)],['安値',kbuFmt(C.l)],['出来高',kbuVol(s)+'株'],['売買額',kbuTurn(s).toLocaleString()+'pt'],['時価総額',kbuCap(s).toLocaleString()+'pt'],['発行済(みんなの持ち株)',H+'株'],
      ['値幅制限',lo.toLocaleString()+' 〜 '+hi.toLocaleString()],['予想配当(今週・1株)',dv.toFixed(1)+'pt'],['配当利回り(週)',(pr?dv/pr*100:0).toFixed(2)+'%'],['1株ごとの値上がり','+'+Math.round(KBU_K*100)+'%']].forEach(([k,v])=>{const r=el('div');r.append(el('span',null,k),el('b','kbu-num',v));kv.append(r)});sx.append(kv);body.append(sx);
     /* this week's results */
     const w=weekNo(now()),Sd=kbuStats()[s]||{};let W=0,L=0,lu=0,lg=0;for(let d=7*w-3;d<=Math.min(t,7*w+3);d++){W+=(Sd[d]||{}).w||0;L+=(Sd[d]||{}).l||0;lu+=kbuLu(s,d);if(kbuLi(s)[d])lg++}
@@ -10868,7 +10884,7 @@ function kbuSheet(s){kbuDetail(s)}
 function kbuOrder(s,side,after){document.querySelectorAll('.mks.kbu-o').forEach(x=>x.remove());const o=el('div','mks kbu-o'),b=el('div','mksb');o.append(b);let q=1,done=null;
   const draw=()=>{const me=myPlayer(),p=players.find(x=>x.id===s);b.replaceChildren();if(!me||!p){o.remove();return}
     if(done){const rc=el('div','kbu-rcpt');rc.append(el('i','kbu-ok'),el('h3',null,'約定しました'),el('p',null,p.name+'('+kbuCode(s)+')  '+(done.q>0?'買い':'売り')+'  '+Math.abs(done.q)+'株'));
-      const kv=el('div','kbu-kv');[['約定代金',kbuFmt(done.gross)+'pt'],['手数料',kbuFmt(done.fee)+'pt'],[done.q>0?'お支払い':'お受け取り',done.x.toLocaleString()+'pt'],['約定時刻',kbuHm(done.t)]].forEach(([k,v])=>{const r=el('div');r.append(el('span',null,k),el('b','kbu-num',v));kv.append(r)});rc.append(kv);
+      const kv=el('div','kbu-kv');[['約定額',kbuFmt(done.gross)+'pt'],['手数料',kbuFmt(done.fee)+'pt'],[done.q>0?'お支払い':'お受け取り',done.x.toLocaleString()+'pt'],['約定時刻',kbuHm(done.t)]].forEach(([k,v])=>{const r=el('div');r.append(el('span',null,k),el('b','kbu-num',v));kv.append(r)});rc.append(kv);
       const ok=el('button','kbu-go kx-mk','OK');ok.type='button';ok.onclick=()=>o.remove();b.append(rc,ok);return}
     const H=kbuHeld(s),mine=kbuMine(me.id,s),bn=kbuBaseNow(s),bal0=econReady()?balance(me.id):0;
     /* the most I can buy with my points (binary search, up to KBU_MAXQ a time) / sell (what I hold) */
@@ -10878,7 +10894,7 @@ function kbuOrder(s,side,after){document.querySelectorAll('.mks.kbu-o').forEach(
     const qr=el('div','kbu-oq'),qv=el('b','kbu-num',String(q)),btn=(lb,d)=>{const x=el('button','kx-mk',lb);x.type='button';x.disabled=d<0?q<=1:q>=max;x.onclick=()=>{q=Math.max(1,Math.min(max,q+d));draw()};return x};
     const qn=el('div','kbu-oqn');qn.append(qv,el('i',null,'株'));qr.append(btn('−10',-10),btn('−',-1),qn,btn('+',1),btn('+10',10));b.append(qr);
     const qs=el('div','kbu-oqs');[['1',1],['10',10],['50',50],['最大',max]].forEach(([lb,v])=>{const x=el('button','kx-mk'+(q===v&&lb!=='1'?' on':''),lb==='最大'?'最大 '+max+'株':lb+'株');x.type='button';x.disabled=v>max&&lb!=='最大';x.onclick=()=>{q=Math.max(1,Math.min(max,v));draw()};qs.append(x)});b.append(qs);
-    const kv=el('div','kbu-kv');[['概算約定代金',kbuFmt(gross)+'pt'],['手数料(5%)',kbuFmt(fee)+'pt'+(roy?'  うち'+roy+'ptは'+p.name+'へ':'')],[side>0?'お支払い(概算)':'お受け取り(概算)',x.toLocaleString()+'pt'],[side>0?'買付余力':'保有数',side>0?bal.toLocaleString()+'pt':mine+'株']].forEach(([k,v],i)=>{const r=el('div'+(i===2?'':''));r.append(el('span',null,k),el('b','kbu-num',v));kv.append(r)});b.append(kv);
+    const kv=el('div','kbu-kv');[['概算約定額',kbuFmt(gross)+'pt'],['手数料(5%)',kbuFmt(fee)+'pt'+(roy?'  うち'+roy+'ptは'+p.name+'へ':'')],[side>0?'お支払い(概算)':'お受け取り(概算)',x.toLocaleString()+'pt'],[side>0?'買付余力':'保有数',side>0?bal.toLocaleString()+'pt':mine+'株']].forEach(([k,v],i)=>{const r=el('div'+(i===2?'':''));r.append(el('span',null,k),el('b','kbu-num',v));kv.append(r)});b.append(kv);
     const bad=side>0?(bal<x?'ptが足りません':''):(mine<q?'持っている株が足りません':'');
     b.append(el('p','kbu-onote',bad||(side>0?'買うと、その分だけ値段が上がります(1株ごとに +'+Math.round(KBU_K*100)+'%)。':'売ると、その分だけ値段が下がります。')));
     const go=el('button','kbu-go '+(side>0?'b':'s')+' kx-mk',side>0?'買い注文を出す':'売り注文を出す');go.type='button';go.disabled=!!bad;
@@ -11972,7 +11988,7 @@ const admInv={};
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
 const BUN_GIRL=false;/* 分身の女の子(一旦お休み)。bunshin の GIRL_ON と合わせる */
-const BUN_SRC='bunshin.html?v=30',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=73',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -11982,7 +11998,7 @@ const bunRoll=(id,p)=>hsh('bun'+id)%1000<Math.round(p*1000);
 function bunAtk(pid,before){const L=bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&(!before||l.t<before)).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 function bunDef(pid){const L=bunLogs.filter(l=>l.d===pid&&!l.w).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 const bunQPts=qs=>{let s=0;for(let n=1;n<=Math.min(100,qs||0);n++)s+=n%10===0?100:30;return s};
-function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900:0)+raidPts(pid)+saPts(pid)+(typeof hbPts==='function'?hbPts(pid):0)}
+function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900-(+d.cp||0)*100-(+d.c10||0)*900:0)+raidPts(pid)+saPts(pid)+(typeof hbPts==='function'?hbPts(pid):0)}
 /* ===== 週末レイド (分身): one boss a week, Friday 5:00 to Monday 5:00 JST. Every try is a bunlog line {d:'xr<week>', s:damage}
    (the 'x' start keeps older app versions counting it as a quest, not as a fight with a friend). The HP is the sum of everyone's
    damage, at most RAID_DAY tries per person per day count. When it reaches 0, everyone who hit it gets 80 + up to 220 by their
@@ -12035,12 +12051,15 @@ function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c
   if(typeof tcgms!=='undefined'&&typeof tcgDone==='function')for(const d of tcgms)if((d.a===pid||d.b===pid)&&tcgDone(d)&&d.wa!=='draw'&&(+d.t||0)>=BUN0&&bunRoll(d.id+pid,.4))c++;return c+(window.__bunDemoChests||0)/* the demo panel can add some */}
 const bunLeft=pid=>Math.max(0,BUN_DAY-bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&dayNo(l.t)===dayNo(now())).length);
 const BUN_LOOK={g:'m',hs:0,hc:'茶',ec:'緑'};
-const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0};
+const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0,ch:{},cs:[],cfree:0,cp:0,c10:0};
 function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0}),pk:d.look&&d.look.pk&&typeof hbSkin==='function'&&hbSkin(p.id)?1:0},eq,al:d.al}}
 function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'}
-let bunBase=0,bunSaveQ=Promise.resolve();const bunSave1=S=>window.BUNSHINHOST._save(S);
+let bunBase=0,bunSaveQ=Promise.resolve(),bunRetryGen=0,bunRetryN=0;const bunSave1=S=>window.BUNSHINHOST._save(S);
+/* (10/24) a character list as plain data (at most 64, numbers only) */
+function bunChClean(c){const o={};if(c&&typeof c==='object')Object.keys(c).slice(0,64).forEach(id=>{const v=c[id]||{};if(/^[a-z0-9_]{1,24}$/.test(id))o[id]={n:Math.max(1,Math.min(99,Math.round(+v.n||1))),xp:Math.max(0,Math.round(+v.xp||0))}});return o}
 window.BUNSHINHOST={
   ready:()=>{try{bunLoaded()}catch(e){}},
+  oshi:()=>myOshi(),oshiSet:()=>myOshiSet(),oshiN:n=>oshiByName(n),oshiAll:()=>KMRS.map(oshiInfo).filter(Boolean),oshiReady:()=>!!(typeof invLoaded!=='undefined'&&invLoaded&&!window.__oshiSetDemo),
   mentor:()=>mtSheet(),mentorDot:()=>mtDot(),
   thumb:o=>{try{localStorage.setItem('bunThumb',JSON.stringify(o))}catch(e){}},
   /* (10/22) the copy the 分身 page started from (its u). A save made from an older start than what is saved now (chests opened on
@@ -12049,12 +12068,13 @@ window.BUNSHINHOST={
   save:S=>{const run=()=>bunSave1(S);const p=bunSaveQ.then(run,run);bunSaveQ=p.catch(()=>{});return p},
   _save:S=>{const me=myPlayer();if(!me||!db)return Promise.resolve();
     /* the page lives in another frame: copy into this frame's plain objects first (Firestore refuses objects from another frame) */
-    const o=JSON.parse(JSON.stringify({look:S.look,al:S.al||null,inv:S.inv||[],eq:S.eq,nid:+S.nid||2,qs:+S.qs||0,gp:+S.gp||0,g10:+S.g10||0,copen:+S.copen||0,u:now()}));
+    const o=JSON.parse(JSON.stringify({look:S.look,al:S.al||null,inv:S.inv||[],eq:S.eq,nid:+S.nid||2,qs:+S.qs||0,gp:+S.gp||0,g10:+S.g10||0,copen:+S.copen||0,
+      /* (10/24) characters: owned {id:{n,xp}}, the 3 party slots, the free 10連 and the paid pulls */ch:bunChClean(S.ch),cs:Array.isArray(S.cs)?S.cs.slice(0,3).map(x=>String(x||'').slice(0,24)):[],cfree:Math.min(1,+S.cfree||0),cp:+S.cp||0,c10:+S.c10||0,u:now()}));
     const sv=bunDocs[me.id];
     const base=bunBase;if(base<0||(sv&&(+sv.u||0)!==base)){toast('別の端末で分身が更新されています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
     if(sv){/* a copy older than what is saved (opened before the data arrived) must not replace it */if((+sv.nid||0)>o.nid){toast('分身のデータを読み直しています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
-      for(const k of ['gp','g10','copen'])o[k]=Math.max(o[k],+sv[k]||0);o.qs=Math.min(Math.max(o.qs,+sv.qs||0),(+sv.qs||0)+1)}
-    else{o.gp=0;o.g10=0;o.qs=Math.min(o.qs,1);o.copen=Math.min(o.copen,1)}
+      for(const k of ['gp','g10','copen','cfree','cp','c10'])o[k]=Math.max(o[k],+sv[k]||0);o.qs=Math.min(Math.max(o.qs,+sv.qs||0),(+sv.qs||0)+1)}
+    else{o.gp=0;o.g10=0;o.cp=0;o.c10=0;o.qs=Math.min(o.qs,1);o.copen=Math.min(o.copen,1)}
     /* nothing changed: no write */if(sv){const cj=x=>x&&typeof x==='object'?(Array.isArray(x)?'['+x.map(cj).join(',')+']':'{'+Object.keys(x).filter(k=>k!=='u'&&x[k]!==undefined).sort().map(k=>k+':'+cj(x[k])).join(',')+'}'):JSON.stringify(x);if(cj(sv)===cj(o))return Promise.resolve()}
     bunDocs[me.id]=JSON.parse(JSON.stringify(o));bunBase=o.u;
     /* (10/16) checked against the server's copy inside a transaction: an older copy from another phone never overwrites a newer one,
@@ -12062,8 +12082,11 @@ window.BUNSHINHOST={
     const ref=db.doc('bunshin/'+me.id);
     return db.runTransaction(async tx=>{const d=await tx.get(ref),cur=d.exists?d.data():null;
         if(cur&&((+cur.nid||0)>o.nid||(+cur.u||0)!==base)){const e=new Error('stale');e.code='stale';throw e}
-        if(cur){for(const k of ['gp','g10','copen'])o[k]=Math.max(o[k],+cur[k]||0)}tx.set(ref,o)})
-      .catch(e=>{if(e&&e.code==='stale'){bunBase=-1;if(bunDocs[me.id]&&bunDocs[me.id].u===o.u)delete bunDocs[me.id];toast('別の端末で分身が更新されています。いったん閉じて開き直してください')}else toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')');throw e})},
+        if(cur){for(const k of ['gp','g10','copen','cfree','cp','c10'])o[k]=Math.max(o[k],+cur[k]||0)}tx.set(ref,o)}).then(r=>{bunRetryN=0;return r})
+      .catch(e=>{if(e&&e.code==='stale'){bunBase=-1;if(bunDocs[me.id]&&bunDocs[me.id].u===o.u)delete bunDocs[me.id];toast('別の端末で分身が更新されています。いったん閉じて開き直してください')}
+        else{/* (10/24) not saved (offline, busy): put back what the server still has, so the next save is not taken for a stale copy, and try again */
+          if(bunBase===o.u)bunBase=base;if(bunDocs[me.id]&&bunDocs[me.id].u===o.u){if(sv)bunDocs[me.id]=sv;else delete bunDocs[me.id]}
+          const gen=++bunRetryGen;if(bunRetryN<4){bunRetryN++;setTimeout(()=>{if(gen===bunRetryGen)window.BUNSHINHOST.save(S).then(()=>{bunRetryN=0},()=>{})},2500*bunRetryN)}else toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')。通信を確かめて、開き直してください')}throw e})},
   level:()=>lvOf(myPlayer().id).L,
   points:()=>balance(myPlayer().id),
   friends:()=>{const me=myPlayer();return players.filter(p=>p.id!==me.id&&!p.retired&&p.uid).map(bunFighter).sort((a,b)=>b.lv-a.lv)},
@@ -13257,7 +13280,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=156';
+const TCG_SRC='tcg_play.html?v=157';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -13863,6 +13886,8 @@ window.TCGHOST.publishSpectator=payload=>{try{payload=JSON.parse(JSON.stringify(
   const d=tcgms.find(x=>x.id===L.id);if(!d||(me.id!==d.a&&me.id!==d.b))return Promise.resolve();
   const record=TCGSpectator.makeRecord(payload.state,d,L.first,payload.seq,now(),payload.frames,tcgPublicCoins(d,L.first));return db.doc('tcgwatch/'+L.id).set(record).catch(()=>{});
 };
+/* (10/24) 推しの応援: my cheer KMR, and one by name (the other side's, from its deck) */
+window.TCGHOST.oshi=()=>{try{return typeof myOshi==='function'?myOshi():null}catch(e){return null}};window.TCGHOST.oshiSet=()=>{try{return typeof myOshiSet==='function'?myOshiSet():[]}catch(e){return []}};window.TCGHOST.oshiOppDemo=()=>{try{return window.__oshiOppDemo!=null&&typeof oshiInfo==='function'?oshiInfo(KMRS[window.__oshiOppDemo]):null}catch(e){return null}};window.TCGHOST.oshiN=n=>{try{return typeof oshiByName==='function'?oshiByName(n):null}catch(e){return null}};
 window.TCGHOST.spectatorSeq=()=>tcgLive?tcgLive.mine.length+tcgLive.delivered:0;
 /* (10/22) the whole card (案a, like in battle) for slabs and the showcase: the picture layer is tcgFace, so SECRET / Halloween finishes stay */
 const TFC_COL={weak:'#7fb2ff',girl:'#ff6fae',gay:'#c08cff',gen:'#ffd36b',gachi:'#ff9a3c',idol:'#ffd54a',vt:'#4fd1ff',cre:'#7ee08a',chu:'#a070ff',neta:'#ff6b6b',sei:'#ff9ad5',hage:'#d8c09a',mecha:'#4fd8d0',pirate:'#7088ff',reinc:'#5cb8ff',jujutsu:'#b07cff',henshin:'#ff6a5a'};
@@ -13917,7 +13942,10 @@ function tcgPlainDeck(d){const cards=tcgFlatCards(d.cards),o={name:String(d.name
   /* the deck's alternate-art copies (owned only): the other phone shows those copies with the new picture too */
   {const al=tcgAltMap(d.alt,cards);if(Object.keys(al).length)o.alt=al}
   /* (10/18) the deck's sleeve (or the usual one): the other phone shows it on this side's card backs */
-  {const sl=tcgSlOk(d.sl);if(sl)o.sl=sl}return o}
+  {const sl=tcgSlOk(d.sl);if(sl)o.sl=sl}
+  /* (10/24) my cheer KMR (推し): the other phone shows her cheering for this side */
+  try{const K=typeof myOshi==='function'&&myOshi(),L=typeof myOshiSet==='function'?myOshiSet():[],k=K&&L.some(x=>x.n===K.n)?K:L[0];if(k&&k.n)o.os=String(k.n).slice(0,24)}catch(e){}
+  /* (10/24) this app understands stamp moves: the other phone sends stamps only to a deck that carries this */o.stv=1;return o}
 function tcgDeckPicker(box,onPick){const L=(tcgOf(inv).decks||[]).filter(tcgDeckOk);
   if(!L.length){box.append(el('p','sub','使えるデッキがありません。「デッキ・図鑑」でデッキを組んでください。'));return}
   L.forEach(d=>{const r=el('button','tcgdp');r.append(tcgFace(d.lead),el('b',null,d.name),el('span',null,TC[d.lead].n));r.onclick=()=>onPick(tcgPlainDeck(d));box.append(r)})}

@@ -1499,6 +1499,48 @@ body:not(.gkview){background:
 /* (10/18) trap slots a little bigger (the row is as tall as the piles, so nothing else moves) */
 .strow .z{height:calc(var(--ph,80px) * .86);width:calc(var(--ph,80px) * .86 * 59 / 86)}
 
+/* (10/24) 推しスタンプ (ui5_osk.js) */
+.oskc{position:relative;z-index:2;flex:0 0 auto;width:30px;height:30px;align-self:flex-end;margin:0 2px 4px -14px!important;border-radius:50%;padding:0;background:transparent;transition:transform .08s}
+.oskc .oskm,.osktab .oskm{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:#140e1e}
+.oskc img,.osktab img,.oskf img{position:absolute;max-width:none;pointer-events:none}
+.oskc::before{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 2px var(--k1),0 0 0 3.5px rgba(255,255,255,.7);z-index:2;pointer-events:none}
+.oskc::after{content:"";position:absolute;inset:-2px;border-radius:50%;box-shadow:0 0 0 2px var(--k1),0 0 14px var(--k1);opacity:0;pointer-events:none}
+.oskc.talk::after{animation:oskring .9s cubic-bezier(.2,.8,.3,1)}.oskc.talk{animation:oskbob .45s cubic-bezier(.2,1.6,.4,1)}
+.oskc:active{transform:scale(.86)}
+.oskc .oskst{position:absolute;right:-5px;bottom:-4px;z-index:3;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 0 0 1.5px var(--k1)}
+.oskc .oskst::before{content:"";position:absolute;inset:3px;border-radius:3px 3px 3px 0;background:var(--k1)}
+@keyframes oskbob{0%{transform:scale(1)}40%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes oskring{0%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(2.1)}}
+/* the sticker: a die-cut picture with a white edge, tilted, and its word under it */
+.osks{position:relative;width:84px;display:grid;justify-items:center;rotate:var(--r)}
+.osks .oskf{position:relative;width:84px;height:84px;border-radius:22px;overflow:hidden;background:#140e1e;box-shadow:0 0 0 3.5px #fff,0 0 0 5px color-mix(in srgb,var(--k1) 70%,#000),0 8px 18px rgba(0,0,0,.45)}
+.osks .oskt{margin-top:-12px;position:relative;padding:4px 10px;border-radius:999px;background:#fff;color:#22162a;font:900 13.5px/1.15 system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;white-space:nowrap;box-shadow:inset 0 0 0 2px var(--k1),0 3px 8px rgba(0,0,0,.35)}
+.osks.sm{width:64px}.osks.sm .oskf{width:64px;height:64px;border-radius:17px;box-shadow:0 0 0 3px #fff,0 0 0 4px color-mix(in srgb,var(--k1) 70%,#000),0 4px 10px rgba(0,0,0,.35)}.osks.sm .oskt{font-size:11px;padding:3px 8px;margin-top:-10px}
+.oskout{position:fixed;z-index:400;pointer-events:none;animation:oskpop .42s cubic-bezier(.2,1.5,.35,1) both}
+.oskout.me{transform-origin:30% 100%}.oskout.op{transform-origin:30% 0}
+.oskout.bye{animation:oskbye .26s ease-in both}
+@keyframes oskpop{0%{opacity:0;transform:scale(.3) translateY(14px)}60%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes oskbye{to{opacity:0;transform:scale(.85) translateY(-8px)}}
+/* die-cut: the cut-out with a white edge (a static drop-shadow ring), no frame */
+.osks.cut .oskf{border-radius:0;background:none;box-shadow:none;overflow:visible;width:96px;height:80px}
+.osks.cut .oskf img{position:static;width:100%;height:100%;object-fit:contain;object-position:50% 100%;filter:drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 4px 6px rgba(0,0,0,.45))}
+.osks.cut{width:96px}.osks.cut .oskt{margin-top:-8px}
+.osks.sm.cut,.osks.sm.cut .oskf{width:70px}.osks.sm.cut .oskf{height:58px}
+/* the list */
+.osksh h3{margin:0 0 8px}
+.osktabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px}.osktabs[hidden]{display:none}
+.osktab{position:relative;display:flex;align-items:center;gap:6px;flex:0 0 auto;padding:4px 10px 4px 4px;border-radius:999px;background:rgba(255,255,255,.06);color:#d8d0e8;font:800 11px/1 system-ui,sans-serif;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.osktab .oskm{position:relative;display:block;width:24px;height:24px;flex:0 0 auto}
+.osktab.on{background:color-mix(in srgb,var(--k1) 30%,#1a1426);color:#fff;box-shadow:inset 0 0 0 1.5px var(--k1)}
+.oskgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 6px;padding:10px 2px 6px}
+.oskpick{display:grid;place-items:center;padding:6px 0;border-radius:14px;background:transparent;transition:transform .08s}
+.oskpick:active{transform:scale(.88)}
+.oskn2{margin:8px 0 0;font-size:11px;color:#a39cb8;text-align:center}
+@media (prefers-reduced-motion:reduce){.oskout,.oskout.bye{animation:none}.oskc.talk,.oskc.talk::after{animation:none}}
+/* locked: no 推し yet */
+.oskc.lock .oskm{background:linear-gradient(160deg,#2a2438,#16121e)}
+.oskc .osklk{position:absolute;left:50%;top:50%;z-index:3;width:10px;height:12px;margin:-6px 0 0 -5px;background:#b8b0cc;-webkit-mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat;mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat}
+
 </style>
 
 <div id="tcgBoot"><b>きもオタTCG</b><span role="status">読み込んでいます…</span><div class="bootActions"><button class="btn" onclick="location.reload()">もう一度読み込む</button><button class="btn sec" onclick="try{(parent.TCGWATCH||parent.TCGHOST).close()}catch(e){history.back()}">アプリに戻る</button></div></div>
@@ -4585,6 +4627,70 @@ function bgmRow(){const B=PB?PB.state:BGM;const r=el('div','bgmrow');const sw=el
 try{window.addEventListener('pagehide',()=>{try{BGM.a&&BGM.a.pause()}catch(e){}});if(HOST&&!WATCH&&!PB)bgmEl()}catch(e){}
 function menuSheet(){sheet((s,close)=>{s.append(el('h3',null,'メニュー'));s.append(bgmRow());const a=el('div','acts');a.style.flexDirection='column';const mk=(t,fn,c)=>{const b=el('button','btn'+(c?' '+c:''),t);b.onclick=()=>{close();fn()};a.append(b)};mk('これまでの流れ',logSheet,'sec');mk('遊び方',helpSheet,'sec');if(g&&!g.over)mk('降参する',()=>{if(!g||g.over)return;if(NET)NET.send({f:'resign',by:H});g.over=true;g.win=1-H;stopTimer();finish()},'sec');if(HOST)mk('アプリに戻る',()=>HOST.close(),'sec');mk('閉じる',()=>{},'sec');s.append(a)})}
 window.__bgm={play:bgmPlay,stop:bgmStop,set:bgmSet,get state(){return PB?PB.state:{on:BGM.on,vol:BGM.vol,playing:!!(BGM.a&&!BGM.a.paused)}}};
+
+/* ===== (10/24) 推しスタンプ: 応援演出(同じKMRの対戦演出と勝利演出)を持っていると、対戦中にそのKMRのスタンプを送れる =====
+   参考(まねはしない): クラロワのエモート、ハースストーンのひとこと、LINEスタンプ。強さは変えない(見た目だけ)
+   - ライフの横に推しの丸い顔。自分の顔を押すとスタンプの一覧(持っているKMRごと)。押すとすぐ自分の側に貼られる
+   - 友達戦では、動きの一覧に {f:'stamp'} として入り、相手の画面の相手側にも貼られる(ルール変更なし)
+   - 連打しすぎないように 2.5秒あける・1試合30回まで
+   - 自動で流れる文字(前の版)はやめた。前の版は ui5_osk.v1-card.js / v2-flow は流れる文字
+   デモ: window.__oskDemo={me:{…},opp:{…},set:[…]}(HOST.oshi と同じ形)。CPU に推しがいるとき、CPUもときどき返す */
+var OSK=OSK||{tm:[],g:null,K:[null,null],chip:[null,null],set:[],last:0,n:0,prev:null,done:0};
+const OSKS=[{t:'よろしく!',r:-6},{t:'ナイス!',r:5},{t:'やるじゃん',r:-4},{t:'まって!?',r:6},{t:'ありがと!',r:-5},{t:'えっ…',r:4},{t:'くやしい!',r:-6},{t:'GG!',r:5}];
+function oskDemo(){return window.__oskDemo||null}
+function oskSetMine(){try{const D=oskDemo();if(D)return D.set||(D.me?[D.me]:[]);if(WATCH||!HOST||!HOST.oshiSet)return [];return HOST.oshiSet()||[]}catch(e){return []}}
+function oskInfo(pi){try{const D=oskDemo();if(D)return pi===H?D.me||null:D.opp||null;if(WATCH||!HOST)return null;
+  if(pi!==H&&HOST.oshiOppDemo){const k=HOST.oshiOppDemo();if(k)return k}
+  const d=pi===H?myDeck:cpuDeck;if(d&&d.os&&HOST.oshiN)return HOST.oshiN(d.os);
+  if(pi===H){const L=OSK.set,K=HOST.oshi?HOST.oshi():null;return K&&L.some(x=>x.n===K.n)?K:L[0]||null}return null}catch(e){return null}}
+function oskByName(n){if(!n)return null;const all=[...OSK.set,OSK.K[0],OSK.K[1]].filter(Boolean);const k=all.find(x=>x.n===n);if(k)return k;try{return HOST&&HOST.oshiN?HOST.oshiN(n):null}catch(e){return null}}
+/* a face crop of the illustration; wider for a sticker */
+function oskImg(K,wide){const im=el('img');im.alt='';im.src=K.img;const s=Math.min(K.w,K.h)/(K.z||1)/(wide?.62:1.15),wp=K.w/s*100,hp=K.h/s*100;im.style.cssText='width:'+wp+'%;height:'+hp+'%;left:'+(50-K.fx/100*wp)+'%;top:'+(50-(K.fy+(wide?6:0))/100*hp)+'%';return im}
+/* no 推し yet: a locked face on my side that says how to get one (so everyone finds the stamps) */
+function oskLockChip(){if(OSK.lock)return OSK.lock;const b=el('button','oskc me lock');b.style.setProperty('--k1','#8f88a6');b.setAttribute('aria-label','推しスタンプ(まだ使えません)');b.append(el('i','oskm'),el('i','osklk'));
+  b.onclick=e=>{e.stopPropagation();caption('スキンガチャで同じKMRの「対戦演出」と「勝利演出」をそろえると、推しスタンプが使えます')};OSK.lock=b;return b}
+function oskChip(pi){const K=OSK.K[pi];if(!K)return null;if(OSK.chip[pi])return OSK.chip[pi];const me=pi===H;
+  const b=el('button','oskc'+(me?' me':' op'));b.style.setProperty('--k1',K.c[0]||'#ff8fd0');b.setAttribute('aria-label',me?'推しのスタンプを送る':'相手の推し '+K.n);
+  const mk=el('i','oskm');mk.append(oskImg(K));b.append(mk);if(me&&!WATCH)b.append(el('i','oskst'));
+  b.onclick=e=>{e.stopPropagation();if(me&&!WATCH)oskPalette();else caption((me?'あなた':'相手')+'の推し「'+K.n+'」')};OSK.chip[pi]=b;return b}
+/* the stamp list: one tab per KMR you own the cheer of */
+function oskPalette(){const L=OSK.set.length?OSK.set:[OSK.K[H]].filter(Boolean);if(!L.length)return;let cur=L.findIndex(x=>OSK.K[H]&&x.n===OSK.K[H].n);if(cur<0)cur=0;
+  sheet((s,close)=>{s.classList.add('osksh');const tabs=el('div','osktabs'),grid=el('div','oskgrid');
+    const draw=()=>{const K=L[cur];s.style.setProperty('--k1',K.c[0]||'#ff8fd0');tabs.hidden=L.length<2;tabs.replaceChildren(...L.map((k,i)=>{const t=el('button','osktab'+(i===cur?' on':''));t.style.setProperty('--k1',k.c[0]);const f=el('i','oskm');f.append(oskImg(k));t.append(f,el('span',null,k.n));t.onclick=()=>{cur=i;draw()};return t}));
+      grid.replaceChildren(...OSKS.map((S,i)=>{const b=el('button','oskpick');b.style.setProperty('--k1',K.c[0]);b.append(oskSticker(K,i,true));b.onclick=()=>{close();oskSend(K,i)};return b}))};
+    const left=30-OSK.n;s.append(el('h3',null,'推しスタンプ'),tabs,grid,el('p','oskn2',left>0?'この試合 あと'+left+'回送れます':'この試合ではもう送れません'));draw()})}
+function oskSticker(K,i,small){const S=OSKS[i]||OSKS[0],w=el('div','osks'+(small?' sm':''));w.style.setProperty('--k1',K.c[0]||'#ff8fd0');w.style.setProperty('--r',S.r+'deg');
+  /* a cut-out of her skin picture makes a real die-cut sticker; until then, a framed crop of the illustration */
+  if(K.st){w.classList.add('cut');const f=el('div','oskf'),im=el('img');im.alt='';im.src=K.st;f.append(im);w.append(f,el('b','oskt',S.t));return w}
+  const f=el('div','oskf');f.append(oskImg(K,true));w.append(f,el('b','oskt',S.t));return w}
+function oskSend(K,i){const t=performance.now();if(t-OSK.last<2500){caption('少し待ってから送れます');return}if(OSK.n>=30){caption('この試合ではもう送れません');return}
+  OSK.last=t;OSK.n++;if(OSK.K[H]!==K){OSK.K[H]=K;if(OSK.chip[H])OSK.chip[H].remove();OSK.chip[H]=null;try{oskAfter(view||snap())}catch(e){}}
+  oskShow(H,K,i);/* only to an app that knows stamps (an older one would wait on the move) */try{if(NET&&g&&!g.over&&cpuDeck&&cpuDeck.stv)NET.send({f:'stamp',k:K.n,s:i,by:H})}catch(e){}
+  /* a CPU with a 推し (the demo) answers now and then */if(!NET&&OSK.K[1-H]&&Math.random()<.5)oskLater(()=>oskShow(1-H,OSK.K[1-H],[1,2,5,0][Math.floor(Math.random()*4)]),1400)}
+/* timers that belong to this match: cleared when the next one starts */
+function oskLater(fn,ms){(OSK.tm=OSK.tm||[]).push(setTimeout(fn,ms))}
+/* the sticker on that side: above my bar, below the other side's bar */
+function oskShow(pi,K,i){if(!K||FAST)return;document.querySelectorAll('.oskout.s'+pi).forEach(x=>x.remove());const me=pi===H,c=OSK.chip[pi]&&OSK.chip[pi].isConnected?OSK.chip[pi]:$(me?'myLife':'oppLife');if(!c)return;
+  const w=oskSticker(K,i);w.classList.add('oskout','s'+pi,me?'me':'op');const r=c.getBoundingClientRect(),x=Math.max(8,Math.min(innerWidth-122,r.left+r.width/2-40));w.style.left=x+'px';
+  if(me)w.style.bottom=(innerHeight-r.top+10)+'px';else w.style.top=(r.bottom+10)+'px';document.body.append(w);
+  const ch=OSK.chip[pi];if(ch){ch.classList.remove('talk');void ch.offsetWidth;ch.classList.add('talk')}
+  setTimeout(()=>{w.classList.add('bye');setTimeout(()=>w.remove(),260)},2300)}
+/* the other phone's stamp arrives as a move: shown at once, never queued behind the game's moves */
+function oskRecv(m){if(m.by===H)return;oskShow(m.by,oskByName(m.k)||OSK.K[m.by],m.s|0)}
+{const _a=applyMove;applyMove=function(m){if(m&&m.f==='stamp')return;return _a.apply(this,arguments)}}
+/* a stamp does not count as the other side being active (it must not push back the 「勝ちにする」 wait) */
+{const _o=onNet;onNet=function(m){if(m&&m.f==='stamp'){try{oskRecv(m)}catch(e){}return}return _o.apply(this,arguments)}}
+/* after each drawing: the faces next to the life; a CPU with a 推し greets once and reacts at the end */
+{const _r=render;render=function(S){_r.apply(this,arguments);try{oskAfter(S)}catch(e){}}}
+function oskAfter(S){
+  if(OSK.g!==g){(OSK.tm||[]).forEach(clearTimeout);OSK.tm=[];document.querySelectorAll('.oskout').forEach(x=>x.remove());OSK.g=g;OSK.lock=null;OSK.set=oskSetMine();OSK.K=[null,null];OSK.K=[0,1].map(oskInfo);OSK.chip=[null,null];OSK.last=0;OSK.n=0;OSK.prev=null;OSK.done=0}
+  if(!OSK.K[H]&&!WATCH&&!FAST&&HOST&&!oskDemo()){const c=oskLockChip(),L=$('myLife');if(L&&L.parentNode&&L.nextSibling!==c)L.after(c)}
+  if(!OSK.K[0]&&!OSK.K[1])return;
+  [[H,'myLife'],[1-H,'oppLife']].forEach(([pi,id])=>{const c=oskChip(pi),L=$(id);if(c&&L&&L.parentNode&&L.nextSibling!==c)L.after(c)});
+  if(NET||WATCH||!OSK.K[1-H]||!S)return;const o=1-H,P=OSK.prev;OSK.prev={lead:!!(S.p[o].lead&&S.p[o].lead.out)};
+  if(!P){oskLater(()=>oskShow(o,OSK.K[o],0),1200);return}
+  if(S.over){if(!OSK.done){OSK.done=1;oskLater(()=>oskShow(o,OSK.K[o],S.win===o?2:6),700)}return}
+  if(!P.lead&&OSK.prev.lead)oskShow(o,OSK.K[o],2)}
 
 })();
 
