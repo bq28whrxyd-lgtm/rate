@@ -4730,16 +4730,16 @@ function banner(mine){const b=el('div','tbanner v2'+(mine?' me':' op'));const n=
 
 /* ---- BGM for the match: one looping track, quiet by default (30%), with its own switch and volume in the menu.
    It starts with the match; if the phone refuses to play before a touch inside the game, it starts on the first touch. ---- */
-const BGM={a:null,vol:.3,on:true,src:'tcg_bgm.mp3',started:false};
+const BGM={a:null,vol:.3,on:true,src:'tcg_battle.mp3',started:false};
 /* inside the app the music belongs to the app (window.__kbgm): the match never starts a second copy, the menu row just controls that one */
 const PB=(()=>{try{return !WATCH&&HOST&&window.parent.__kbgm||null}catch(e){return null}})();
 try{const v=localStorage.getItem('kotcg_bgm');if(v!=null){const o=JSON.parse(v);if(typeof o.vol==='number')BGM.vol=Math.max(0,Math.min(1,o.vol));if(typeof o.on==='boolean')BGM.on=o.on}}catch(e){}
 function bgmSave(){try{localStorage.setItem('kotcg_bgm',JSON.stringify({vol:BGM.vol,on:BGM.on}))}catch(e){}}
 function bgmEl(){if(BGM.a)return BGM.a;const a=new Audio(BGM.src);a.loop=true;a.preload='auto';a.volume=BGM.vol;BGM.a=a;return a}
-function bgmPlay(){if(PB){try{PB.play()}catch(e){}return}if(!BGM.on||WATCH)return;const a=bgmEl();a.volume=0;let pr;try{pr=a.play()}catch(e){pr=Promise.reject(e)}
+function bgmPlay(){if(PB){try{PB.battle?PB.battle(true):PB.play()}catch(e){}return}/* (10/25) inside the app: the app switches to the battle track */if(!BGM.on||WATCH)return;const a=bgmEl();a.volume=0;let pr;try{pr=a.play()}catch(e){pr=Promise.reject(e)}
   const fade=()=>{BGM.started=true;const t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/1200);a.volume=BGM.vol*k;if(k<1&&BGM.on)requestAnimationFrame(step)};step()};
   if(pr&&pr.then)pr.then(fade,()=>{/* no touch yet: the first touch in the game starts it */const once=()=>{document.removeEventListener('pointerdown',once,true);document.removeEventListener('touchstart',once,true);if(!BGM.on)return;a.play().then(fade,()=>{})};document.addEventListener('pointerdown',once,true);document.addEventListener('touchstart',once,true)});else fade()}
-function bgmStop(){if(PB)return;const a=BGM.a;if(!a)return;const v0=a.volume,t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/500);a.volume=v0*(1-k);if(k<1)requestAnimationFrame(step);else{a.pause();a.currentTime=0}};step()}
+function bgmStop(){if(PB){try{PB.battle&&PB.battle(false)}catch(e){}return}const a=BGM.a;if(!a)return;const v0=a.volume,t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/500);a.volume=v0*(1-k);if(k<1)requestAnimationFrame(step);else{a.pause();a.currentTime=0}};step()}
 function bgmSet(on,vol){if(PB){try{PB.set(on,vol)}catch(e){}return}if(vol!=null)BGM.vol=Math.max(0,Math.min(1,vol));if(on!=null)BGM.on=on;bgmSave();const a=BGM.a;
   if(!BGM.on){if(a)a.pause();return}if(a){a.volume=BGM.vol;if(a.paused&&g&&!g.over)a.play().catch(()=>{})}else if(g&&!g.over)bgmPlay()}
 /* the music row for the menu: a switch and a slider */

@@ -13477,7 +13477,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=160';
+const TCG_SRC='tcg_play.html?v=161';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -13902,7 +13902,7 @@ window.TCGHOST={rkStart:lv=>{try{tcgcStart(lv)}catch(e){}},rkDelta:(lv,w)=>{try{
   toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
   const f=el('iframe');f.src=TCG_SRC+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
-function tcgClose(){if(typeof tcgLive!=='undefined')tcgLive=null;const o=$('tcgw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');renderTcg()}
+function tcgClose(){try{window.__kbgm&&window.__kbgm.battle&&window.__kbgm.battle(false)}catch(e){}/* (10/25) back to the app's music */if(typeof tcgLive!=='undefined')tcgLive=null;const o=$('tcgw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');renderTcg()}
 /* your own coin decides who goes first, then your own 対戦演出 opens the match */
 function tcgToss(info,cb){const side=coinToss({id:'tcg'},myCoin());let fired=false;const t0=Date.now();
   const go=()=>{if(fired)return;fired=true;tcgIntro(info,()=>cb(side===0))};
@@ -19163,11 +19163,17 @@ window.__tcgOnly=true;/*TCGONLY*/
 (function(){
   let on=true;try{on=localStorage.getItem('ui2')!=='0'}catch(e){}
   if(!on)return;
-  const ST={on:true,vol:.3,src:'tcg_bgm.mp3',a:null,armed:false,wasPlaying:false,fading:0};
+  const ST={on:true,vol:.3,src:'tcg_bgm.mp3',a:null,armed:false,wasPlaying:false,fading:0,cur:'main',els:{}};
+  /* (10/25) TCG matches have their own track: the app music fades out when a match starts and comes back when it ends */
+  const SRC={main:'tcg_bgm.mp3',battle:'tcg_battle.mp3'};
   try{let v=localStorage.getItem('kbgm');if(v==null)v=localStorage.getItem('kotcg_bgm');/* the match-only setting from the first build carries over */
     if(v!=null){const o=JSON.parse(v);if(typeof o.vol==='number')ST.vol=Math.max(0,Math.min(1,o.vol));if(typeof o.on==='boolean')ST.on=o.on}}catch(e){}
   const save=()=>{try{localStorage.setItem('kbgm',JSON.stringify({on:ST.on,vol:ST.vol}))}catch(e){}};
-  const el=()=>{if(ST.a)return ST.a;const a=new Audio();a.loop=true;a.preload='none';a.volume=ST.vol;a.src=ST.src;ST.a=a;return a};
+  const el=()=>{if(ST.a)return ST.a;let a=ST.els[ST.cur];if(!a){a=new Audio();a.loop=true;a.preload='none';a.volume=ST.vol;a.src=SRC[ST.cur];ST.els[ST.cur]=a}ST.a=a;return a};
+  function fadeOut(a,ms){if(!a||a.paused)return;const v0=a.volume,t0=performance.now();const step=()=>{if(ST.a===a)return;const k=Math.min(1,(performance.now()-t0)/ms);a.volume=v0*(1-k);if(k<1)requestAnimationFrame(step);else a.pause()};step()}
+  /* switch tracks: the old one fades out, the new one fades in (a match always starts its track from the top) */
+  function battle(b){if(b&&!document.body.classList.contains('tcgon'))return;/* only while the match screen is open (a late start after closing it does not stick) */const want=b?'battle':'main';if(ST.cur===want)return;const old=ST.a,was=!!(old&&!old.paused)||ST.wasPlaying;ST.cur=want;ST.a=null;ST.fading++;fadeOut(old,700);
+    const a=el();if(b){try{a.currentTime=0}catch(e){}}if(ST.on&&(was||b))play()}
   /* volume ramps so the music never pops in or out */
   function ramp(to,ms,then){const a=ST.a;if(!a)return;const id=++ST.fading,v0=a.volume,t0=performance.now();
     const step=()=>{if(ST.fading!==id)return;const k=Math.min(1,(performance.now()-t0)/ms);a.volume=v0+(to-v0)*k;if(k<1)requestAnimationFrame(step);else then&&then()};step()}
@@ -19189,7 +19195,7 @@ window.__tcgOnly=true;/*TCGONLY*/
   /* the app goes to the background: pause; comes back: continue */
   document.addEventListener('visibilitychange',()=>{const a=ST.a;if(!a)return;if(document.hidden){if(!a.paused){a.pause();ST.wasPlaying=true}}else if(ST.wasPlaying&&ST.on){a.play().catch(()=>arm())}});
   window.addEventListener('pagehide',()=>{try{ST.a&&ST.a.pause()}catch(e){}});
-  window.__kbgm={play,stop,set,get state(){return{on:ST.on,vol:ST.vol,playing:!!(ST.a&&!ST.a.paused)}}};
+  window.__kbgm={play,stop,set,battle,get state(){return{on:ST.on,vol:ST.vol,playing:!!(ST.a&&!ST.a.paused),track:ST.cur}}};
   arm();
 
   /* ---------- 設定・要望 > BGM ---------- */
