@@ -4042,10 +4042,11 @@ function tkDrawChar(g,f,cx,fy,h){if(f.boss&&HWB[f.boss.img]&&HWB[f.boss.img].I&&
 function tkReveal(g0,done){const C=tcC(g0.id),f=tcFighter(g0.id,Math.max(1,S.lv)),kmr=g0.r>=7,D=kmr?3.0:1.8;const ov=mk('div','tkov');const cv=document.createElement('canvas');ov.append(cv);document.body.append(ov);
   const dpr=Math.min(2,window.devicePixelRatio||1);let w=0,h=0;const fit=()=>{w=ov.clientWidth;h=ov.clientHeight;cv.width=w*dpr;cv.height=h*dpr;cv.style.width=w+'px';cv.style.height=h+'px'};fit();const g=cv.getContext('2d');
   const t0=performance.now()/1000;let raf=0,skip=false,ended=false;const col=kmr?TKRB:['#ff4f8b','#ff9ac0','#ffffff','#ff4f8b','#ffd0e0'];
-  if(typeof SFX!=='undefined'&&SFX.on){setTimeout(()=>SFX.charge&&SFX.charge(),50);setTimeout(()=>SFX.brk(),kmr?1200:700);setTimeout(()=>SFX.ult(),kmr?1650:900)}
+  const sfxT=[];if(typeof SFX!=='undefined'&&SFX.on){sfxT.push(setTimeout(()=>SFX.charge&&SFX.charge(),50),setTimeout(()=>SFX.brk(),kmr?1200:700),setTimeout(()=>SFX.ult(),kmr?1650:900))}
+  /* (10/24) the phone turned: size the canvas again */addEventListener('resize',fit);
   const render=t=>{g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,w,h);g.fillStyle='#05030a';g.fillRect(0,0,w,h);const cx=w/2,cy=h*.46,rr=rngOf(7);g.imageSmoothingEnabled=true;
     const T1=kmr?.5:.25,T2=kmr?1.2:.7,T3=kmr?1.6:.95;
-    /* 1: lightning */for(let n=0;n<(t<T1?1:kmr?6:3);n++){const st=n?T1+n*.08:.12;if(t<st)continue;const u=t-st,a=Math.max(0,1-u/.5);if(a<=0&&t<T3)continue;const r2=rngOf(n*31+5);g.save();g.globalAlpha=t<T3?a:0;g.strokeStyle=col[n%col.length];g.lineWidth=3;g.shadowColor=col[n%col.length];g.shadowBlur=14;g.beginPath();let x=r2()*w,y=0;g.moveTo(x,y);while(y<h){x+=(r2()-.5)*70;y+=30+r2()*30;g.lineTo(x,y)}g.stroke();g.restore()}
+    /* 1: lightning */for(let n=0;n<(t<T1?1:kmr?6:3);n++){const st=n?T1+n*.08:.12;if(t<st)continue;const u=t-st,a=Math.max(0,1-u/.5);if(a<=0||t>=T3)continue;const r2=rngOf(n*31+5);g.save();g.globalAlpha=t<T3?a:0;g.strokeStyle=col[n%col.length];g.lineWidth=3;g.shadowColor=col[n%col.length];g.shadowBlur=14;g.beginPath();let x=r2()*w,y=0;g.moveTo(x,y);while(y<h){x+=(r2()-.5)*70;y+=30+r2()*30;g.lineTo(x,y)}g.stroke();g.restore()}
     if(t<T1+.05){const a=t<.12?t/.12:0;g.fillStyle='rgba(255,255,255,'+(a*.5)+')';g.fillRect(0,0,w,h)}
     /* 2: the spinning card with a rainbow glow behind */if(t>=T1&&t<T3){const u=(t-T1)/(T3-T1),R=Math.min(w,h)*(.25+.35*u);const gr=g.createRadialGradient(cx,cy,0,cx,cy,R);gr.addColorStop(0,'rgba(255,255,255,.9)');gr.addColorStop(.3,col[Math.floor(t*12)%col.length]);gr.addColorStop(1,'rgba(0,0,0,0)');g.globalAlpha=.75;g.fillStyle=gr;g.fillRect(0,0,w,h);g.globalAlpha=1;
       const sx=Math.cos(t*(8+u*14)),cw=110,ch=156;g.save();g.translate(cx,cy);g.scale(sx,1);const cg=g.createLinearGradient(-cw/2,-ch/2,cw/2,ch/2);col.forEach((c,k)=>cg.addColorStop(k/(col.length-1),c));g.fillStyle=Math.abs(sx)<.2?'#fff':cg;g.beginPath();g.roundRect(-cw/2,-ch/2,cw,ch,12);g.fill();g.strokeStyle='#fff';g.lineWidth=3;g.stroke();g.restore()}
@@ -4056,9 +4057,10 @@ function tkReveal(g0,done){const C=tcC(g0.id),f=tcFighter(g0.id,Math.max(1,S.lv)
       const L=kmr?['K','M','R']:['G','R'];L.forEach((ch,j)=>{const tt=t-T3-.35-j*.14;if(tt<0)return;const s=tt<.1?2.2-1.2*(tt/.1):1,x=cx+(j-(L.length-1)/2)*58,y=h*.13;g.save();g.translate(x,y);g.scale(s,s);g.font='900 italic 62px "Hiragino Sans","Noto Sans JP",sans-serif';g.textAlign='center';g.textBaseline='middle';g.lineWidth=8;g.strokeStyle='#14061e';g.strokeText(ch,0,0);g.fillStyle=col[j%col.length];g.fillText(ch,0,0);g.restore()});
       const tn=t-T3-.8;if(tn>0){const a=Math.min(1,tn/.25);g.globalAlpha=a;g.textAlign='center';g.font='700 14px "Hiragino Sans","Noto Sans JP",sans-serif';g.fillStyle='#ffe9ff';g.fillText(C.t,cx,h*.86);g.font='900 30px "Hiragino Sans","Noto Sans JP",sans-serif';g.lineWidth=6;g.strokeStyle='#14061e';g.strokeText(C.n,cx,h*.86+34);g.fillStyle='#fff';g.fillText(C.n,cx,h*.86+34);g.globalAlpha=1}
       if(t>D){g.globalAlpha=.6+.4*Math.sin(t*4);g.font='700 12px "Hiragino Sans","Noto Sans JP",sans-serif';g.fillStyle='#fff';g.fillText('タップで次へ',cx,h-24);g.globalAlpha=1}}};
-  const end=()=>{if(ended)return;ended=true;cancelAnimationFrame(raf);ov.remove();done()};
-  const loop=()=>{const t=skip?99:performance.now()/1000-t0;render(Math.min(t,D+30));raf=requestAnimationFrame(loop)};loop();
-  ov.addEventListener('pointerdown',()=>{const t=performance.now()/1000-t0;if(t<D&&!skip){skip=true;return}end()})}
+  const end=()=>{if(ended)return;ended=true;cancelAnimationFrame(raf);removeEventListener('resize',fit);sfxT.forEach(clearTimeout);ov.remove();done()};
+  /* once it has played, the waiting screen (sparkles and 「タップで次へ」) is drawn at half the rate */let fr=0;
+  const loop=()=>{const t=skip?99:performance.now()/1000-t0;if(t<=D+.6||(++fr&1))render(Math.min(t,D+30));raf=requestAnimationFrame(loop)};loop();
+  ov.addEventListener('pointerdown',()=>{const t=performance.now()/1000-t0;if(t<D&&!skip){skip=true;sfxT.forEach(clearTimeout);return}end()})}
 {const _sh=tcShow;tcShow=function(got){const best=got.slice().sort((a,b)=>b.r-a.r)[0];if(best&&best.r>=6&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){tkReveal(best,()=>_sh.call(this,got));return}return _sh.apply(this,arguments)}}
 
 /* ================= (10/24) 推しスキン: 応援演出(同じKMRの対戦演出と勝利演出)を持っていると、自分の分身をその子の姿にできる =================
@@ -4084,7 +4086,10 @@ function tksDress(f){const n=f&&f.look&&f.look.km,d=n&&TKS[n];if(!d||f.ch||f.bos
   if(a)return Object.assign({},f,{boss:{img:a,pal:null,tint:0},km:n});
   return Object.assign({},f,{look:Object.assign({},f.look,{g:d.g,hs:0,ec:d.ec,pk:0,chf:d.g==='f'?1:0}),chc:d.hair,cv:d.vest,km:n})}
 /* my own fighter: a skin I no longer have is dropped (like the pumpkin knight) */
-{const _fm=fighterMe;fighterMe=function(){const f=_fm.apply(this,arguments);if(f&&f.look&&f.look.km&&!tksOwn(f.look.km))f.look=Object.assign({},f.look,{km:''});return tksDress(f)}}
+{const _fm=fighterMe;fighterMe=function(){const f=_fm.apply(this,arguments);if(f&&f.look&&f.look.km&&!tksOwn(f.look.km)){f.look=Object.assign({},f.look,{km:''});
+    /* (10/24) no longer owned (and the app's inventory has loaded): take it off for good, so friends stop seeing it too */
+    try{if(S.look.km&&HOST&&HOST.oshiReady&&HOST.oshiReady()&&!tksOwn(S.look.km)){S.look.km='';setTimeout(()=>{try{save()}catch(e){}},0)}}catch(e){}}
+  return tksDress(f)}}
 {const _df=drawFighter;drawFighter=function(f,x,y,o){if(f&&!f.km&&f.look&&f.look.km&&TKS[f.look.km])f=tksDress(f);
   if(f&&f.km&&f.boss){G.save();G.translate(x,y);G.scale(TCART,TCART);const r=_df.call(this,f,0,0,o);G.restore();if(r!==false)try{tksWeapon(f,x,y,o||{})}catch(e){}return r}return _df.call(this,f,x,y,o)}}
 /* the equipped weapon in her hand: the same weapon drawing as the parts avatar, at its usual size (not shrunk with the picture) */
@@ -4112,6 +4117,47 @@ function tksRender(){const s=$('kmsec');if(s)s.hidden=true}
 {const _pf=ptFighter;ptFighter=function(i){let f=_pf.apply(this,arguments);if(!i&&f&&f.look&&f.look.km&&!f.boss&&tksOwn(f.look.km)){f=Object.assign({},f,{km:null});f=tksDress(f)}return f}}
 /* choosing the pumpkin knight in 見た目 takes the skin off */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#pksel button');if(b&&S.look.km){S.look.km='';setTimeout(()=>{try{changed()}catch(_){}},0)}},true);
+
+/* ================= (10/24) キャラをサーバーに保存(本番に出す前に) =================
+   - 持っているキャラ・レベル(xp)・重ね・パーティの3枠を、分身の記録(bunshin/{pid})の ch / cs に入れる。ほかのスマホでも同じ
+   - キャラガチャ: はじめの10連だけ無料(cfree)、そのあとは 1回100pt(cp)・10連900pt(c10)。装備ガチャと同じく、アプリが回数から使ったptを数える
+   - 前の「お試し30回・このスマホに保存(bunCh0)」はやめた。お試し版で引いたキャラは引き継がない
+   - 親のアプリがないとき(試作のページ)は、今までどおりこのスマホに保存 */
+function tcLoad(){if(!HOST){let o=null;try{o=JSON.parse(localStorage.getItem('bunCh0')||'null')}catch(e){}o=o&&typeof o==='object'?o:{};o.own=o.own||{};if(o.tix==null)o.tix=30;o.pulls=o.pulls||0;if(!Array.isArray(o.slots))o.slots=null;return o}
+  if(!S.ch||typeof S.ch!=='object'||Array.isArray(S.ch))S.ch={};
+  return {own:S.ch,slots:Array.isArray(S.cs)&&S.cs.length===3?S.cs.slice(0,3):null,starter:Object.keys(S.ch).length>0,free:!(+S.cfree>=1),tix:!(+S.cfree>=1)?10:0}}
+function tcSave(o){if(!HOST){try{localStorage.setItem('bunCh0',JSON.stringify(o))}catch(e){}return}
+  const own={};for(const id in o.own){const c=o.own[id];if(!c||!tcC(id))continue;own[id]={n:Math.max(1,Math.min(99,+c.n||1)),xp:Math.max(0,Math.round(+c.xp||0))}}
+  S.ch=own;S.cs=Array.isArray(o.slots)?[0,1,2].map(k=>o.slots[k]&&String(o.slots[k]).startsWith('ch:')?String(o.slots[k]):''):[];save()}
+/* a pull: the first 10連 is free, then pt like the equipment gacha */
+const TCPRICE={1:100,10:900};
+/* (10/24) pulls whose save has not finished yet: the parent's balance only counts a pull once its save has run, so a quick second pull
+   could spend the same pt twice. Those costs are held back here until the save settles, then the bar and the tab are drawn again */
+let TCPEND=0;const tcPts=()=>HOST?HOST.points()-TCPEND:0;
+function tcPay(cost,p){TCPEND+=cost;const fin=()=>{TCPEND=Math.max(0,TCPEND-cost);try{renderHostBar()}catch(e){}try{if(typeof renderGachaTab==='function')renderGachaTab()}catch(e){}};Promise.resolve(p).then(fin,fin)}
+/* the equipment gacha: the same hold */
+{const _gp=gachaPull;gachaPull=function(n){const cost=n===10?900:100;if(HOST&&tcPts()<cost){toastB('ポイントが足りません('+cost+'pt 必要)');return}const g0=(+S.gp||0)+(+S.g10||0);const r=_gp.apply(this,arguments);if(HOST&&(+S.gp||0)+(+S.g10||0)>g0)tcPay(cost,HOST.save(S));return r}}
+function tcPull(n){if(!HOST){const o=tcLoad();if(o.tix<n){toastB('お試しで引ける回数が足りません(のこり'+o.tix+'回)');return}o.tix-=n;o.pulls+=n;tcRoll(o,n);return}
+  const o=tcLoad(),free=n===10&&o.free,cost=free?0:TCPRICE[n];if(!free&&tcPts()<cost){toastB('ポイントが足りません('+cost+'pt 必要)');return}
+  if(free)S.cfree=1;else if(n===10)S.c10=(+S.c10||0)+1;else S.cp=(+S.cp||0)+1;tcRoll(o,n,cost)}
+function tcRoll(o,n,cost){const got=[];
+  for(let k=0;k<n;k++){/* N 40% R 33% SR 18% UR 6% GR 2.5% KMR .5%; ten pulls: at least one SR or better */const r=Math.random()*100;let st=r<.5?7:r<3?6:r<9?5:r<27?4:r<60?3:2;if(n===10&&k===9&&!got.some(g=>g.r>=4))st=4;const L=TCH.filter(c=>c.r===st),C=L[Math.floor(Math.random()*L.length)],own=o.own[C.id],nw=!own;
+    if(nw)o.own[C.id]={n:1,xp:tcStartXp()};else own.n=Math.min(99,(own.n||1)+1);got.push({id:C.id,r:C.r,nw,n:o.own[C.id].n})}
+  tcSave(o);if(HOST&&cost!=null)tcPay(cost,saveNow());tcShow(got);refresh()}
+/* the ガチャ tab: the free 10連 first, then the prices */
+function renderGachaTab(){const p=$('p-gacha');if(!p)return;const eg=p.querySelector('.tneg');[...p.children].forEach(c=>{if(c!==eg)c.remove()});const o=tcLoad(),pt=HOST?tcPts():0;
+  const bn=mk('div','tnban');bn.innerHTML='<div class="tnbt"><small>推し活ガチャ</small><b><i class="tnkmr">KMR</i> セイラ・ジン 登場</b><span>20人のキャラが出る。10連はSR以上が1人以上</span></div>'+(HOST?(o.free?'<div class="tntix">はじめの10連<b>無料</b></div>':'<div class="tntix">所持<b>'+pt.toLocaleString()+'</b>pt</div>'):'<div class="tntix">お試し<b>'+o.tix+'</b>回</div>');p.insertBefore(bn,eg||null);
+  const bt=mk('div','tnpull');
+  for(const k of [1,10]){const free=HOST&&k===10&&o.free,cost=TCPRICE[k],b=mk('button','tnpb'+(k===10?' ten':'')+(free?' free':''));b.type='button';
+    b.disabled=HOST?(!free&&pt<cost):o.tix<k;b.innerHTML='<b>'+(k===10?'10連':'1回引く')+'</b><small>'+(HOST?(free?'無料':cost+'pt'):'お試し'+k+'回')+'</small>';b.onclick=()=>tcPull(k);bt.append(b)}
+  p.insertBefore(bt,eg||null);
+  const d=document.createElement('details');d.className='tnrate';d.innerHTML='<summary>出る確率と「重ね」</summary><p>KMR 0.5%・GR 2.5%・UR 6%・SR 18%・R 33%・N 40%。10連はSR以上が1人以上。同じキャラが出ると「重ね」で全部の数字が4%上がります(5回まで)。はじめの10連は無料、そのあとは1回100pt・10連900pt。キャラはアカウントに保存されるので、ほかのスマホでも使えます。</p>';p.insertBefore(d,eg||null);
+  if(eg&&!eg.querySelector('.tnegh')){const h=eg.querySelector('h2');if(h)h.classList.add('tnegh')}}
+/* (10/24) the party, the BOX and the gacha stage draw the fighters every frame: build them again only when something they show has changed */
+{const _tp=tbParty3;let key='',val=null,at=0;tbParty3=function(){if(TR&&!TR.end)return _tp.apply(this,arguments);const k=JSON.stringify([S.lv,S.look,S.eq,S.cs,S.ch,S.al,S.nid,typeof LKD!=='undefined'?LKD:null,typeof PTSEL!=='undefined'?PTSEL:0]),n=performance.now();
+  if(k!==key||!val||n-at>2000){val=_tp.apply(this,arguments);key=k;at=n}return val.map(f=>f&&Object.assign({},f,{st:Object.assign({},f.st),look:Object.assign({},f.look)}))}}
+{const _tf=tcFighter;const C={};tcFighter=function(id,lv){if(TR&&!TR.end)return _tf.apply(this,arguments);const own=tcLoad().own[id],k=id+'|'+lv+'|'+S.lv+'|'+(own?own.n+'/'+own.xp:'-'),c=C[id],n=performance.now();
+  if(!c||c.k!==k||n-c.at>2000)C[id]={k,at:n,f:_tf.apply(this,arguments)};const f=C[id].f;return f&&Object.assign({},f,{st:Object.assign({},f.st),look:Object.assign({},f.look)})}}
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>

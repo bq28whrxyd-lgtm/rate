@@ -11988,7 +11988,7 @@ const admInv={};
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
 const BUN_GIRL=false;/* 分身の女の子(一旦お休み)。bunshin の GIRL_ON と合わせる */
-const BUN_SRC='bunshin.html?v=72',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=73',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -11998,7 +11998,7 @@ const bunRoll=(id,p)=>hsh('bun'+id)%1000<Math.round(p*1000);
 function bunAtk(pid,before){const L=bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&(!before||l.t<before)).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 function bunDef(pid){const L=bunLogs.filter(l=>l.d===pid&&!l.w).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 const bunQPts=qs=>{let s=0;for(let n=1;n<=Math.min(100,qs||0);n++)s+=n%10===0?100:30;return s};
-function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900:0)+raidPts(pid)+saPts(pid)+(typeof hbPts==='function'?hbPts(pid):0)}
+function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900-(+d.cp||0)*100-(+d.c10||0)*900:0)+raidPts(pid)+saPts(pid)+(typeof hbPts==='function'?hbPts(pid):0)}
 /* ===== 週末レイド (分身): one boss a week, Friday 5:00 to Monday 5:00 JST. Every try is a bunlog line {d:'xr<week>', s:damage}
    (the 'x' start keeps older app versions counting it as a quest, not as a fight with a friend). The HP is the sum of everyone's
    damage, at most RAID_DAY tries per person per day count. When it reaches 0, everyone who hit it gets 80 + up to 220 by their
@@ -12051,13 +12051,15 @@ function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c
   if(typeof tcgms!=='undefined'&&typeof tcgDone==='function')for(const d of tcgms)if((d.a===pid||d.b===pid)&&tcgDone(d)&&d.wa!=='draw'&&(+d.t||0)>=BUN0&&bunRoll(d.id+pid,.4))c++;return c+(window.__bunDemoChests||0)/* the demo panel can add some */}
 const bunLeft=pid=>Math.max(0,BUN_DAY-bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&dayNo(l.t)===dayNo(now())).length);
 const BUN_LOOK={g:'m',hs:0,hc:'茶',ec:'緑'};
-const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0};
+const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0,ch:{},cs:[],cfree:0,cp:0,c10:0};
 function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0}),pk:d.look&&d.look.pk&&typeof hbSkin==='function'&&hbSkin(p.id)?1:0},eq,al:d.al}}
 function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'}
-let bunBase=0,bunSaveQ=Promise.resolve();const bunSave1=S=>window.BUNSHINHOST._save(S);
+let bunBase=0,bunSaveQ=Promise.resolve(),bunRetryGen=0,bunRetryN=0;const bunSave1=S=>window.BUNSHINHOST._save(S);
+/* (10/24) a character list as plain data (at most 64, numbers only) */
+function bunChClean(c){const o={};if(c&&typeof c==='object')Object.keys(c).slice(0,64).forEach(id=>{const v=c[id]||{};if(/^[a-z0-9_]{1,24}$/.test(id))o[id]={n:Math.max(1,Math.min(99,Math.round(+v.n||1))),xp:Math.max(0,Math.round(+v.xp||0))}});return o}
 window.BUNSHINHOST={
   ready:()=>{try{bunLoaded()}catch(e){}},
-  oshi:()=>myOshi(),oshiSet:()=>myOshiSet(),oshiN:n=>oshiByName(n),oshiAll:()=>KMRS.map(oshiInfo).filter(Boolean),
+  oshi:()=>myOshi(),oshiSet:()=>myOshiSet(),oshiN:n=>oshiByName(n),oshiAll:()=>KMRS.map(oshiInfo).filter(Boolean),oshiReady:()=>!!(typeof invLoaded!=='undefined'&&invLoaded&&!window.__oshiSetDemo),
   mentor:()=>mtSheet(),mentorDot:()=>mtDot(),
   thumb:o=>{try{localStorage.setItem('bunThumb',JSON.stringify(o))}catch(e){}},
   /* (10/22) the copy the 分身 page started from (its u). A save made from an older start than what is saved now (chests opened on
@@ -12066,12 +12068,13 @@ window.BUNSHINHOST={
   save:S=>{const run=()=>bunSave1(S);const p=bunSaveQ.then(run,run);bunSaveQ=p.catch(()=>{});return p},
   _save:S=>{const me=myPlayer();if(!me||!db)return Promise.resolve();
     /* the page lives in another frame: copy into this frame's plain objects first (Firestore refuses objects from another frame) */
-    const o=JSON.parse(JSON.stringify({look:S.look,al:S.al||null,inv:S.inv||[],eq:S.eq,nid:+S.nid||2,qs:+S.qs||0,gp:+S.gp||0,g10:+S.g10||0,copen:+S.copen||0,u:now()}));
+    const o=JSON.parse(JSON.stringify({look:S.look,al:S.al||null,inv:S.inv||[],eq:S.eq,nid:+S.nid||2,qs:+S.qs||0,gp:+S.gp||0,g10:+S.g10||0,copen:+S.copen||0,
+      /* (10/24) characters: owned {id:{n,xp}}, the 3 party slots, the free 10連 and the paid pulls */ch:bunChClean(S.ch),cs:Array.isArray(S.cs)?S.cs.slice(0,3).map(x=>String(x||'').slice(0,24)):[],cfree:Math.min(1,+S.cfree||0),cp:+S.cp||0,c10:+S.c10||0,u:now()}));
     const sv=bunDocs[me.id];
     const base=bunBase;if(base<0||(sv&&(+sv.u||0)!==base)){toast('別の端末で分身が更新されています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
     if(sv){/* a copy older than what is saved (opened before the data arrived) must not replace it */if((+sv.nid||0)>o.nid){toast('分身のデータを読み直しています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
-      for(const k of ['gp','g10','copen'])o[k]=Math.max(o[k],+sv[k]||0);o.qs=Math.min(Math.max(o.qs,+sv.qs||0),(+sv.qs||0)+1)}
-    else{o.gp=0;o.g10=0;o.qs=Math.min(o.qs,1);o.copen=Math.min(o.copen,1)}
+      for(const k of ['gp','g10','copen','cfree','cp','c10'])o[k]=Math.max(o[k],+sv[k]||0);o.qs=Math.min(Math.max(o.qs,+sv.qs||0),(+sv.qs||0)+1)}
+    else{o.gp=0;o.g10=0;o.cp=0;o.c10=0;o.qs=Math.min(o.qs,1);o.copen=Math.min(o.copen,1)}
     /* nothing changed: no write */if(sv){const cj=x=>x&&typeof x==='object'?(Array.isArray(x)?'['+x.map(cj).join(',')+']':'{'+Object.keys(x).filter(k=>k!=='u'&&x[k]!==undefined).sort().map(k=>k+':'+cj(x[k])).join(',')+'}'):JSON.stringify(x);if(cj(sv)===cj(o))return Promise.resolve()}
     bunDocs[me.id]=JSON.parse(JSON.stringify(o));bunBase=o.u;
     /* (10/16) checked against the server's copy inside a transaction: an older copy from another phone never overwrites a newer one,
@@ -12079,8 +12082,11 @@ window.BUNSHINHOST={
     const ref=db.doc('bunshin/'+me.id);
     return db.runTransaction(async tx=>{const d=await tx.get(ref),cur=d.exists?d.data():null;
         if(cur&&((+cur.nid||0)>o.nid||(+cur.u||0)!==base)){const e=new Error('stale');e.code='stale';throw e}
-        if(cur){for(const k of ['gp','g10','copen'])o[k]=Math.max(o[k],+cur[k]||0)}tx.set(ref,o)})
-      .catch(e=>{if(e&&e.code==='stale'){bunBase=-1;if(bunDocs[me.id]&&bunDocs[me.id].u===o.u)delete bunDocs[me.id];toast('別の端末で分身が更新されています。いったん閉じて開き直してください')}else toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')');throw e})},
+        if(cur){for(const k of ['gp','g10','copen','cfree','cp','c10'])o[k]=Math.max(o[k],+cur[k]||0)}tx.set(ref,o)}).then(r=>{bunRetryN=0;return r})
+      .catch(e=>{if(e&&e.code==='stale'){bunBase=-1;if(bunDocs[me.id]&&bunDocs[me.id].u===o.u)delete bunDocs[me.id];toast('別の端末で分身が更新されています。いったん閉じて開き直してください')}
+        else{/* (10/24) not saved (offline, busy): put back what the server still has, so the next save is not taken for a stale copy, and try again */
+          if(bunBase===o.u)bunBase=base;if(bunDocs[me.id]&&bunDocs[me.id].u===o.u){if(sv)bunDocs[me.id]=sv;else delete bunDocs[me.id]}
+          const gen=++bunRetryGen;if(bunRetryN<4){bunRetryN++;setTimeout(()=>{if(gen===bunRetryGen)window.BUNSHINHOST.save(S).then(()=>{bunRetryN=0},()=>{})},2500*bunRetryN)}else toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')。通信を確かめて、開き直してください')}throw e})},
   level:()=>lvOf(myPlayer().id).L,
   points:()=>balance(myPlayer().id),
   friends:()=>{const me=myPlayer();return players.filter(p=>p.id!==me.id&&!p.retired&&p.uid).map(bunFighter).sort((a,b)=>b.lv-a.lv)},
@@ -13938,7 +13944,8 @@ function tcgPlainDeck(d){const cards=tcgFlatCards(d.cards),o={name:String(d.name
   /* (10/18) the deck's sleeve (or the usual one): the other phone shows it on this side's card backs */
   {const sl=tcgSlOk(d.sl);if(sl)o.sl=sl}
   /* (10/24) my cheer KMR (推し): the other phone shows her cheering for this side */
-  try{const K=typeof myOshi==='function'&&myOshi(),L=typeof myOshiSet==='function'?myOshiSet():[],k=K&&L.some(x=>x.n===K.n)?K:L[0];if(k&&k.n)o.os=String(k.n).slice(0,24)}catch(e){}return o}
+  try{const K=typeof myOshi==='function'&&myOshi(),L=typeof myOshiSet==='function'?myOshiSet():[],k=K&&L.some(x=>x.n===K.n)?K:L[0];if(k&&k.n)o.os=String(k.n).slice(0,24)}catch(e){}
+  /* (10/24) this app understands stamp moves: the other phone sends stamps only to a deck that carries this */o.stv=1;return o}
 function tcgDeckPicker(box,onPick){const L=(tcgOf(inv).decks||[]).filter(tcgDeckOk);
   if(!L.length){box.append(el('p','sub','使えるデッキがありません。「デッキ・図鑑」でデッキを組んでください。'));return}
   L.forEach(d=>{const r=el('button','tcgdp');r.append(tcgFace(d.lead),el('b',null,d.name),el('span',null,TC[d.lead].n));r.onclick=()=>onPick(tcgPlainDeck(d));box.append(r)})}

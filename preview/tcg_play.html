@@ -4635,7 +4635,7 @@ window.__bgm={play:bgmPlay,stop:bgmStop,set:bgmSet,get state(){return PB?PB.stat
    - 連打しすぎないように 2.5秒あける・1試合30回まで
    - 自動で流れる文字(前の版)はやめた。前の版は ui5_osk.v1-card.js / v2-flow は流れる文字
    デモ: window.__oskDemo={me:{…},opp:{…},set:[…]}(HOST.oshi と同じ形)。CPU に推しがいるとき、CPUもときどき返す */
-var OSK=OSK||{g:null,K:[null,null],chip:[null,null],set:[],last:0,n:0,prev:null,done:0};
+var OSK=OSK||{tm:[],g:null,K:[null,null],chip:[null,null],set:[],last:0,n:0,prev:null,done:0};
 const OSKS=[{t:'よろしく!',r:-6},{t:'ナイス!',r:5},{t:'やるじゃん',r:-4},{t:'まって!?',r:6},{t:'ありがと!',r:-5},{t:'えっ…',r:4},{t:'くやしい!',r:-6},{t:'GG!',r:5}];
 function oskDemo(){return window.__oskDemo||null}
 function oskSetMine(){try{const D=oskDemo();if(D)return D.set||(D.me?[D.me]:[]);if(WATCH||!HOST||!HOST.oshiSet)return [];return HOST.oshiSet()||[]}catch(e){return []}}
@@ -4665,8 +4665,10 @@ function oskSticker(K,i,small){const S=OSKS[i]||OSKS[0],w=el('div','osks'+(small
   const f=el('div','oskf');f.append(oskImg(K,true));w.append(f,el('b','oskt',S.t));return w}
 function oskSend(K,i){const t=performance.now();if(t-OSK.last<2500){caption('少し待ってから送れます');return}if(OSK.n>=30){caption('この試合ではもう送れません');return}
   OSK.last=t;OSK.n++;if(OSK.K[H]!==K){OSK.K[H]=K;if(OSK.chip[H])OSK.chip[H].remove();OSK.chip[H]=null;try{oskAfter(view||snap())}catch(e){}}
-  oskShow(H,K,i);try{if(NET&&g&&!g.over)NET.send({f:'stamp',k:K.n,s:i,by:H})}catch(e){}
-  /* a CPU with a 推し (the demo) answers now and then */if(!NET&&OSK.K[1-H]&&Math.random()<.5)setTimeout(()=>oskShow(1-H,OSK.K[1-H],[1,2,5,0][Math.floor(Math.random()*4)]),1400)}
+  oskShow(H,K,i);/* only to an app that knows stamps (an older one would wait on the move) */try{if(NET&&g&&!g.over&&cpuDeck&&cpuDeck.stv)NET.send({f:'stamp',k:K.n,s:i,by:H})}catch(e){}
+  /* a CPU with a 推し (the demo) answers now and then */if(!NET&&OSK.K[1-H]&&Math.random()<.5)oskLater(()=>oskShow(1-H,OSK.K[1-H],[1,2,5,0][Math.floor(Math.random()*4)]),1400)}
+/* timers that belong to this match: cleared when the next one starts */
+function oskLater(fn,ms){(OSK.tm=OSK.tm||[]).push(setTimeout(fn,ms))}
 /* the sticker on that side: above my bar, below the other side's bar */
 function oskShow(pi,K,i){if(!K||FAST)return;document.querySelectorAll('.oskout.s'+pi).forEach(x=>x.remove());const me=pi===H,c=OSK.chip[pi]&&OSK.chip[pi].isConnected?OSK.chip[pi]:$(me?'myLife':'oppLife');if(!c)return;
   const w=oskSticker(K,i);w.classList.add('oskout','s'+pi,me?'me':'op');const r=c.getBoundingClientRect(),x=Math.max(8,Math.min(innerWidth-122,r.left+r.width/2-40));w.style.left=x+'px';
@@ -4676,17 +4678,18 @@ function oskShow(pi,K,i){if(!K||FAST)return;document.querySelectorAll('.oskout.s
 /* the other phone's stamp arrives as a move: shown at once, never queued behind the game's moves */
 function oskRecv(m){if(m.by===H)return;oskShow(m.by,oskByName(m.k)||OSK.K[m.by],m.s|0)}
 {const _a=applyMove;applyMove=function(m){if(m&&m.f==='stamp')return;return _a.apply(this,arguments)}}
-{const _o=onNet;onNet=function(m){if(m&&m.f==='stamp'){lastNet=Date.now();try{oskRecv(m)}catch(e){}return}return _o.apply(this,arguments)}}
+/* a stamp does not count as the other side being active (it must not push back the 「勝ちにする」 wait) */
+{const _o=onNet;onNet=function(m){if(m&&m.f==='stamp'){try{oskRecv(m)}catch(e){}return}return _o.apply(this,arguments)}}
 /* after each drawing: the faces next to the life; a CPU with a 推し greets once and reacts at the end */
 {const _r=render;render=function(S){_r.apply(this,arguments);try{oskAfter(S)}catch(e){}}}
 function oskAfter(S){
-  if(OSK.g!==g){document.querySelectorAll('.oskout').forEach(x=>x.remove());OSK.g=g;OSK.lock=null;OSK.set=oskSetMine();OSK.K=[null,null];OSK.K=[0,1].map(oskInfo);OSK.chip=[null,null];OSK.last=0;OSK.n=0;OSK.prev=null;OSK.done=0}
+  if(OSK.g!==g){(OSK.tm||[]).forEach(clearTimeout);OSK.tm=[];document.querySelectorAll('.oskout').forEach(x=>x.remove());OSK.g=g;OSK.lock=null;OSK.set=oskSetMine();OSK.K=[null,null];OSK.K=[0,1].map(oskInfo);OSK.chip=[null,null];OSK.last=0;OSK.n=0;OSK.prev=null;OSK.done=0}
   if(!OSK.K[H]&&!WATCH&&!FAST&&HOST&&!oskDemo()){const c=oskLockChip(),L=$('myLife');if(L&&L.parentNode&&L.nextSibling!==c)L.after(c)}
   if(!OSK.K[0]&&!OSK.K[1])return;
   [[H,'myLife'],[1-H,'oppLife']].forEach(([pi,id])=>{const c=oskChip(pi),L=$(id);if(c&&L&&L.parentNode&&L.nextSibling!==c)L.after(c)});
   if(NET||WATCH||!OSK.K[1-H]||!S)return;const o=1-H,P=OSK.prev;OSK.prev={lead:!!(S.p[o].lead&&S.p[o].lead.out)};
-  if(!P){setTimeout(()=>oskShow(o,OSK.K[o],0),1200);return}
-  if(S.over){if(!OSK.done){OSK.done=1;setTimeout(()=>oskShow(o,OSK.K[o],S.win===o?2:6),700)}return}
+  if(!P){oskLater(()=>oskShow(o,OSK.K[o],0),1200);return}
+  if(S.over){if(!OSK.done){OSK.done=1;oskLater(()=>oskShow(o,OSK.K[o],S.win===o?2:6),700)}return}
   if(!P.lead&&OSK.prev.lead)oskShow(o,OSK.K[o],2)}
 
 })();
