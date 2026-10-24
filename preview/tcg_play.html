@@ -1537,6 +1537,9 @@ body:not(.gkview){background:
 .oskpick:active{transform:scale(.88)}
 .oskn2{margin:8px 0 0;font-size:11px;color:#a39cb8;text-align:center}
 @media (prefers-reduced-motion:reduce){.oskout,.oskout.bye{animation:none}.oskc.talk,.oskc.talk::after{animation:none}}
+/* locked: no 推し yet */
+.oskc.lock .oskm{background:linear-gradient(160deg,#2a2438,#16121e)}
+.oskc .osklk{position:absolute;left:50%;top:50%;z-index:3;width:10px;height:12px;margin:-6px 0 0 -5px;background:#b8b0cc;-webkit-mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat;mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat}
 
 </style>
 
@@ -4643,6 +4646,9 @@ function oskInfo(pi){try{const D=oskDemo();if(D)return pi===H?D.me||null:D.opp||
 function oskByName(n){if(!n)return null;const all=[...OSK.set,OSK.K[0],OSK.K[1]].filter(Boolean);const k=all.find(x=>x.n===n);if(k)return k;try{return HOST&&HOST.oshiN?HOST.oshiN(n):null}catch(e){return null}}
 /* a face crop of the illustration; wider for a sticker */
 function oskImg(K,wide){const im=el('img');im.alt='';im.src=K.img;const s=Math.min(K.w,K.h)/(K.z||1)/(wide?.62:1.15),wp=K.w/s*100,hp=K.h/s*100;im.style.cssText='width:'+wp+'%;height:'+hp+'%;left:'+(50-K.fx/100*wp)+'%;top:'+(50-(K.fy+(wide?6:0))/100*hp)+'%';return im}
+/* no 推し yet: a locked face on my side that says how to get one (so everyone finds the stamps) */
+function oskLockChip(){if(OSK.lock)return OSK.lock;const b=el('button','oskc me lock');b.style.setProperty('--k1','#8f88a6');b.setAttribute('aria-label','推しスタンプ(まだ使えません)');b.append(el('i','oskm'),el('i','osklk'));
+  b.onclick=e=>{e.stopPropagation();caption('スキンガチャで同じKMRの「対戦演出」と「勝利演出」をそろえると、推しスタンプが使えます')};OSK.lock=b;return b}
 function oskChip(pi){const K=OSK.K[pi];if(!K)return null;if(OSK.chip[pi])return OSK.chip[pi];const me=pi===H;
   const b=el('button','oskc'+(me?' me':' op'));b.style.setProperty('--k1',K.c[0]||'#ff8fd0');b.setAttribute('aria-label',me?'推しのスタンプを送る':'相手の推し '+K.n);
   const mk=el('i','oskm');mk.append(oskImg(K));b.append(mk);if(me&&!WATCH)b.append(el('i','oskst'));
@@ -4674,7 +4680,8 @@ function oskRecv(m){if(m.by===H)return;oskShow(m.by,oskByName(m.k)||OSK.K[m.by],
 /* after each drawing: the faces next to the life; a CPU with a 推し greets once and reacts at the end */
 {const _r=render;render=function(S){_r.apply(this,arguments);try{oskAfter(S)}catch(e){}}}
 function oskAfter(S){
-  if(OSK.g!==g){document.querySelectorAll('.oskout').forEach(x=>x.remove());OSK.g=g;OSK.set=oskSetMine();OSK.K=[null,null];OSK.K=[0,1].map(oskInfo);OSK.chip=[null,null];OSK.last=0;OSK.n=0;OSK.prev=null;OSK.done=0}
+  if(OSK.g!==g){document.querySelectorAll('.oskout').forEach(x=>x.remove());OSK.g=g;OSK.lock=null;OSK.set=oskSetMine();OSK.K=[null,null];OSK.K=[0,1].map(oskInfo);OSK.chip=[null,null];OSK.last=0;OSK.n=0;OSK.prev=null;OSK.done=0}
+  if(!OSK.K[H]&&!WATCH&&!FAST&&HOST&&!oskDemo()){const c=oskLockChip(),L=$('myLife');if(L&&L.parentNode&&L.nextSibling!==c)L.after(c)}
   if(!OSK.K[0]&&!OSK.K[1])return;
   [[H,'myLife'],[1-H,'oppLife']].forEach(([pi,id])=>{const c=oskChip(pi),L=$(id);if(c&&L&&L.parentNode&&L.nextSibling!==c)L.after(c)});
   if(NET||WATCH||!OSK.K[1-H]||!S)return;const o=1-H,P=OSK.prev;OSK.prev={lead:!!(S.p[o].lead&&S.p[o].lead.out)};

@@ -7893,7 +7893,7 @@ function oshiInfo(K){if(!K)return null;return {st:KMR_ST[K.n]||'',n:K.n,img:K.im
 function myOshi(){try{if(window.__oshiDemo!=null)return oshiInfo(KMRS[window.__oshiDemo]);const me=typeof myPlayer==='function'&&myPlayer();return oshiInfo(cheerK(me))}catch(e){return null}}
 function oshiByName(n){try{return oshiInfo(KMRS.find(K=>K.n===n))}catch(e){return null}}
 /* (10/24) the KMRs whose cheer (対戦演出+勝利演出) you own: TCG stamps and 分身 skins. window.__oshiSetDemo = [KMR index…] for the demo */
-function myOshiSet(){try{if(window.__oshiSetDemo)return window.__oshiSetDemo.map(i=>oshiInfo(KMRS[i])).filter(Boolean);const own=(typeof inv!=='undefined'&&inv&&inv.own)||{},adm=typeof isAdmin==='function'&&isAdmin()&&window.__oshiAllAdmin;
+function myOshiSet(){try{if(window.__oshiSetDemo)return window.__oshiSetDemo.map(i=>oshiInfo(KMRS[i])).filter(Boolean);const own=(typeof inv!=='undefined'&&inv&&inv.own)||{},adm=typeof isAdmin==='function'&&isAdmin()&&(window.__oshiAllAdmin||/\/preview\//.test(location.pathname));/* (10/24) お試し版では管理者は全部試せる */
   return KMRS.map((K,i)=>adm||((own['kx'+i]||0)>0&&(own['kv'+i]||0)>0)?oshiInfo(K):null).filter(Boolean)}catch(e){return []}}
 const CHEERS=['がんばれ!','ファイト!','いけるよ!','応援してる!','負けないで!','信じてる!','がんばれー!!','ここからだよ!'];
 function cheerLayer(p,side){
