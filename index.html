@@ -2920,6 +2920,17 @@ body.nsopen{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.kx-wm b{animation:none;opacity:0}}
 .tfc.kmrx.nonch .kx-wm{top:auto;bottom:-1cqw;transform:translateX(-50%)}
 .tcgkmrpv{display:block;width:100%;margin-top:10px}
+/* (10/25) シークレット v2: 放射の筋をやめて、細かい銀のラメだけ。光が通ったところのラメだけ明るくなる。
+   ブレンド・フィルター・複数マスクを使わない(iPhoneでも同じに見える)。切り抜けないカードは縁の帯だけ、文字の下には出さない */
+.tcf.foil .sgl.s1,.tcf.foil.hascut .sgl.s1{mix-blend-mode:normal!important;filter:none!important;opacity:1;z-index:5;
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,1) 0%,rgba(244,247,255,.95) 12%,rgba(220,228,248,.66) 26%,rgba(214,222,244,.42) 40%,rgba(214,222,244,.42) 100%)!important;
+  background-size:280% 280%!important;background-repeat:no-repeat!important;
+  -webkit-mask:url("tcgk/sflake.png") 0 0/100% 100% no-repeat!important;mask:url("tcgk/sflake.png") 0 0/100% 100% no-repeat!important;
+  animation:sgMove 6.5s ease-in-out infinite!important}
+.tcf.foil:not(.hascut) .sgl.s1{-webkit-mask-image:url("tcgk/sflake_edge.png")!important;mask-image:url("tcgk/sflake_edge.png")!important}
+.tcf.foil .sgl.s1::before{display:none!important}
+@keyframes sgMove{0%,100%{background-position:0% 8%}50%{background-position:100% 92%}}
+@media(prefers-reduced-motion:reduce){.tcf.foil .sgl.s1{animation:none!important;background-position:30% 30%!important}}
 
 /*TCGCSS-END*/
 /* monthly pass */
@@ -13445,7 +13456,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=158';
+const TCG_SRC='tcg_play.html?v=159';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
