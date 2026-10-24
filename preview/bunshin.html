@@ -3747,10 +3747,10 @@ const TCH=[
  {id:'tetsu',n:'テツ',t:'グッズ職人',r:3,el:'fire',job:'warrior',wt:'sword',pas:'crit6',pn:'職人の目',pd:'会心率+6%',look:{g:'m',hs:0,ec:'赤'},hair:['#2a1810','#6b4428','#c08850'],vest:['#22262e','#4a5262','#8a94a8']},
  {id:'ren',n:'レン',t:'遠征組',r:3,el:'light',job:'lancer',wt:'spear',pas:'hp12',pn:'体力自慢',pd:'HP+12%',look:{g:'m',hs:0,ec:'青'},hair:['#5a3a10','#c4932e','#ffe9a0'],vest:['#5a4a10','#c8a830','#fff0a0']},
  /* (10/24) eight more: two KMR and two GR (pictures from the user; parts until they arrive), four N */
- {id:'seira',n:'セイラ',t:'頂点のアイドル',r:7,el:'light',job:'cheer',wt:'bow',pas:'stage',pn:'ステージの主役',pd:'バトルの最初に味方全員の必殺ゲージ+25',look:{g:'f',hs:0,ec:'金'},hair:['#8a7aa8','#f0e8ff','#ffffff'],vest:['#c8a040','#fff4d0','#ffffff']},
- {id:'jin',n:'ジン',t:'全通の覇者',r:7,el:'fire',job:'sword',wt:'sword',pas:'allhit',pn:'皆勤賞',pd:'攻撃が当たるたび、ほかの敵全員にも3割のダメージ',look:{g:'m',hs:0,ec:'金'},hair:['#5a0a0a','#e03020','#ffd060'],vest:['#1a0a0a','#5a1010','#c03020']},
- {id:'gekka',n:'ゲッカ',t:'同人界の大御所',r:6,el:'water',job:'mage',wt:'staff',pas:'tome',pn:'大長編',pd:'スキルの魔法弾が、ほかの敵全員にも3割5分で当たる',look:{g:'f',hs:0,ec:'青'},hair:['#0a1240','#2840a0','#80a8f0'],vest:['#101040','#303090','#8080e0']},
- {id:'riz',n:'リズ',t:'音ゲーの鬼',r:6,el:'wood',job:'hunter',wt:'bow',pas:'fc',pn:'フルコンボ',pd:'通常攻撃が2回当たる',look:{g:'m',hs:0,ec:'緑'},hair:['#1a4010','#60c030','#d0ff90'],vest:['#0a3a20','#20a060','#90f0b0']},
+ {id:'seira',n:'セイラ',t:'頂点のアイドル',r:7,el:'light',job:'cheer',wt:'bow',pas:'stage',pn:'ステージの主役',pd:'バトルの最初に味方全員の必殺ゲージ+15',look:{g:'f',hs:0,ec:'金'},hair:['#8a7aa8','#f0e8ff','#ffffff'],vest:['#c8a040','#fff4d0','#ffffff']},
+ {id:'jin',n:'ジン',t:'全通の覇者',r:7,el:'fire',job:'sword',wt:'sword',pas:'allhit',pn:'皆勤賞',pd:'攻撃が当たるたび、ほかの敵全員にも2割のダメージ',look:{g:'m',hs:0,ec:'金'},hair:['#5a0a0a','#e03020','#ffd060'],vest:['#1a0a0a','#5a1010','#c03020']},
+ {id:'gekka',n:'ゲッカ',t:'同人界の大御所',r:6,el:'water',job:'mage',wt:'staff',pas:'tome',pn:'大長編',pd:'スキルの魔法弾が、ほかの敵全員にも2割5分で当たる',look:{g:'f',hs:0,ec:'青'},hair:['#0a1240','#2840a0','#80a8f0'],vest:['#101040','#303090','#8080e0']},
+ {id:'riz',n:'リズ',t:'音ゲーの鬼',r:6,el:'wood',job:'hunter',wt:'bow',pas:'fc',pn:'フルコンボ',pd:'通常攻撃が2回に1回、2回当たる',look:{g:'m',hs:0,ec:'緑'},hair:['#1a4010','#60c030','#d0ff90'],vest:['#0a3a20','#20a060','#90f0b0']},
  {id:'haru',n:'ハル',t:'新人オタク',r:2,el:'wood',job:'sword',wt:'sword',pas:'atk4',pn:'はじめての推し',pd:'攻撃+4%',look:{g:'m',hs:0,ec:'緑'},hair:['#3a2a1a','#7a5a3a','#c0a080'],vest:['#2a3a20','#5a7040','#a0c080']},
  {id:'mio',n:'ミオ',t:'物販の列',r:2,el:'water',job:'priest',wt:'staff',pas:'heal6',pn:'始発組',pd:'回復+6%',look:{g:'f',hs:1,ec:'青'},hair:['#2a2a3a','#5a5a7a','#a0a0c0'],vest:['#1a2a4a','#3a5a8a','#8aaad0']},
  {id:'taku',n:'タク',t:'ペンライト係',r:2,el:'fire',job:'lancer',wt:'spear',pas:'spd5',pn:'振りコピ',pd:'素早さ+5%',look:{g:'m',hs:0,ec:'赤'},hair:['#1a1010','#4a2a2a','#906060'],vest:['#4a1a1a','#8a3a2a','#d08060']},
@@ -3772,7 +3772,7 @@ function tcLv(id){const c=tcLoad().own[id];return c?Math.min(S.lv,subLvRaw(c.xp|
 const tcStyle=job=>['mage','priest'].includes(job)?'mag':['knight','guard'].includes(job)?'tank':['hunter','monk','cheer'].includes(job)?'spd':'atk';
 /* a character as a fighter (the same shape as your avatars) */
 function tcFighter(id,lvOver){const C=tcC(id),own=tcLoad().own[id];if(!C||(!own&&lvOver==null))return null;const lv=lvOver!=null?lvOver:tcLv(id),r=TCRAR[C.r],wk=TCWK[C.wt]?TCWK[C.wt]+r:null,it=wk&&ITEMS[wk]?{id:-900,k:wk,r,e:TCE[C.r]}:null;
-  const {s}=statsOf(lv,autoAlloc(lv,tcStyle(C.job)),it?[it]:[]),mul=(1+.04*(Math.min(6,(own&&own.n)||1)-1))*({2:.86,3:1,4:1.12,5:1.25,6:1.36,7:1.5}[C.r]);for(const k in s)s[k]=Math.max(1,Math.round(s[k]*mul));
+  const {s}=statsOf(lv,autoAlloc(lv,tcStyle(C.job)),it?[it]:[]),mul=(1+.04*(Math.min(6,(own&&own.n)||1)-1))*({2:.86,3:1,4:1.12,5:1.25,6:1.3,7:1.4}[C.r])/* (10/24) GR 1.36→1.3, KMR 1.5→1.4 (ユーザー: 少し弱く) */;for(const k in s)s[k]=Math.max(1,Math.round(s[k]*mul));
   const up={mag8:['mag',1.08],atk8:['atk',1.08],def12:['def',1.12],hp12:['hp',1.12],early:['spd',1.2],atk4:['atk',1.04],spd5:['spd',1.05],hp6:['hp',1.06]}[C.pas];if(up)s[up[0]]=Math.round(s[up[0]]*up[1]);
   const f={name:C.n,lv,look:Object.assign({g:'m',hs:0,hc:'金',ec:'青',chf:1},C.look),st:s,wt:C.wt,k:it?rarOf(it).k:1,wk:it?wk:null,wr:it?r:null,ak:null,ar:null,xk:null,xr:null,job:C.job,ch:C.id,el:C.el,pas:C.pas,chc:C.hair,cv:C.vest,star:C.r};
   if(C.img&&HWB[C.img])f.boss={img:C.img,pal:null,tint:0};return f}
@@ -4031,14 +4031,14 @@ var TNQUIET=true;
    - ガチャ: GR以上が出ると専用の場面。KMRは 暗転→虹の稲妻→回るカード→割れて光→全身がせり上がり「K・M・R」。タップで飛ばせる
    - バトル: KMRは当たるたびに虹の輪とプリズムのかけら、必殺は虹色のカットイン。GRは桃色の光が少し大きく */
 /* ---------- abilities ---------- */
-{const _s=trSetup;trSetup=function(){_s.apply(this,arguments);if(!TR||TR.tpm)return;if(TR.P.some(f=>f.pas==='stage'))TR.en=TR.en.map(v=>Math.min(100,v+25))}}
+{const _s=trSetup;trSetup=function(){_s.apply(this,arguments);if(!TR||TR.tpm)return;if(TR.P.some(f=>f.pas==='stage'))TR.en=TR.en.map(v=>Math.min(100,v+15))/* (10/24) +25→+15 */}}
 {const _sk=trSkill;trSkill=function(){if(TR)TR.inSkill=TR.cur;return _sk.apply(this,arguments)}}
 {const _b=trBasic;trBasic=function(){if(TR)TR.inBasic=TR.cur;return _b.apply(this,arguments)}}
 {const _a=trAfter;trAfter=function(){if(TR){TR.inSkill=-1;TR.inBasic=-1}return _a.apply(this,arguments)}}
-{const _aa=trActAnim;trActAnim=function(i,o){if(TR&&o&&o.n===1&&TR.inBasic===i&&TR.P[i]&&TR.P[i].pas==='fc')o=Object.assign({},o,{n:2,gap:.14});return _aa.call(this,i,o)}}
+{const _aa=trActAnim;trActAnim=function(i,o){if(TR&&o&&o.n===1&&TR.inBasic===i&&TR.P[i]&&TR.P[i].pas==='fc'&&(TR.sim?Math.random():Math.random())<.5)o=Object.assign({},o,{n:2,gap:.14});/* (10/24) every time → half the time */return _aa.call(this,i,o)}}
 {const _d=trDamage;trDamage=function(i,mul,o){if(!TR||TR.tpm)return _d.apply(this,arguments);o=o||{};const f=TR.P[i];const main=TR.E,d=_d.call(this,i,mul,o);
   const spread=f&&!o.splash&&TR.ES&&TR.ES.length>1&&(f.pas==='allhit'&&d>0||f.pas==='tome'&&TR.inSkill===i);
-  if(spread){const k=f.pas==='allhit'?.3:.35;for(const e of TR.ES){if(!TR||TR.end)break;if(e===main||!trELive(e))continue;trSetE(e);_d.call(this,i,mul*k,Object.assign({},o,{big:false,crit:false,sure:true,splash:true,shield:f.pas==='tome'?(o.shield||0):0}))}if(TR&&!TR.end)trSetE(trELive(main)?main:TR.tgt)}return d}}
+  if(spread){const k=f.pas==='allhit'?.2:.25;/* (10/24) .3/.35 → .2/.25 */for(const e of TR.ES){if(!TR||TR.end)break;if(e===main||!trELive(e))continue;trSetE(e);_d.call(this,i,mul*k,Object.assign({},o,{big:false,crit:false,sure:true,splash:true,shield:f.pas==='tome'?(o.shield||0):0}))}if(TR&&!TR.end)trSetE(trELive(main)?main:TR.tgt)}return d}}
 /* ---------- in battle: KMR rainbow, GR pink ---------- */
 const TKRB=['#ff6ad5','#ffd970','#8fffb0','#7fd8ff','#c79bff'];
 {const _dr=trDraw;trDraw=function(){_dr.apply(this,arguments);if(!TR||TR.sim)return;for(const f of TR.tefx||[]){if(f.st<6)continue;const v=TR.c-f.c;if(v>.7)continue;const rr=rngOf(f.seed+9);G.save();G.imageSmoothingEnabled=true;
@@ -4177,6 +4177,9 @@ function renderGachaTab(){const p=$('p-gacha');if(!p)return;const eg=p.querySele
   if(k!==key||!val||n-at>2000){val=_tp.apply(this,arguments);key=k;at=n}return val.map(f=>f&&Object.assign({},f,{st:Object.assign({},f.st),look:Object.assign({},f.look)}))}}
 {const _tf=tcFighter;const C={};tcFighter=function(id,lv){if(TR&&!TR.end)return _tf.apply(this,arguments);const own=tcLoad().own[id],k=id+'|'+lv+'|'+S.lv+'|'+(own?own.n+'/'+own.xp:'-'),c=C[id],n=performance.now();
   if(!c||c.k!==k||n-c.at>2000)C[id]={k,at:n,f:_tf.apply(this,arguments)};const f=C[id].f;return f&&Object.assign({},f,{st:Object.assign({},f.st),look:Object.assign({},f.look)})}}
+/* (10/24) ユーザー「ハロウィンのボスが簡単」: the chain gets harder, 1体目 as before up to about 2.3 times at the 12th; the witches (6・12) a fifth more */
+const HBK=n=>(1+.08*Math.max(0,(+n||1)-1))*((+n||1)%6===0?1.2:1);/* 1, 1.16, 1.32, 1.48, 1.64, 2.16(魔女), … 12体目 2.26 */
+{const _ts=trStart;trStart=function(o){const r=o&&o.ctx&&o.ctx.raid;if(r&&r.hb&&!o.hbk){o=Object.assign({},o,{sc:(o.sc||1)*HBK(r.n),hbk:1})}return _ts.call(this,o)}}
 
 /* ================= (10/24) 新しい分身の遊び方(ユーザー「新しい分身のルール説明欲しい」) =================
    - 上の「?」ボタン(遊び方)で開く。新しい版を初めて開いたときは1回だけ自動で開く(localStorage bunHow138)
