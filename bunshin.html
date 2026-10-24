@@ -510,6 +510,20 @@ canvas.tcsil{filter:brightness(0) invert(.32)}
 .tksc{display:inline-flex;align-items:center;gap:6px;padding-left:4px!important}.tksc.on{box-shadow:inset 0 0 0 2px var(--k1)!important}
 .tksc.lock{opacity:.45}.tksc.lock::after{content:"";width:9px;height:11px;margin-left:2px;border-radius:2px;background:currentColor;-webkit-mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat;mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat}
 .tksf{position:relative;display:block;width:22px;height:22px;border-radius:50%;overflow:hidden;flex:0 0 auto;background:#140e1e;box-shadow:0 0 0 1.5px var(--k1)}.tksf img{position:absolute;max-width:none}
+/* (10/24) 遊び方(thw.js) */
+.hhow{position:relative;flex:none;width:40px;height:40px;padding:0;border-radius:50%;background:var(--s1);box-shadow:inset 0 0 0 1px var(--line2);font:900 18px/40px var(--jp);color:#f2d58a;margin-left:auto}.hd h1{white-space:nowrap}
+.hhow:active,.thwft button:active{transform:scale(.94)}
+.thw{position:fixed;inset:0;z-index:330;display:flex;align-items:flex-end;justify-content:center;background:rgba(5,3,10,.62)}
+.thwsh{width:100%;max-width:480px;max-height:86vh;display:flex;flex-direction:column;border-radius:22px 22px 0 0;background:linear-gradient(180deg,#1d1629,#120e1a);box-shadow:0 -1px 0 rgba(255,255,255,.12),0 -18px 40px rgba(0,0,0,.5);padding:18px 18px calc(16px + env(safe-area-inset-bottom,0px));animation:thwup .28s cubic-bezier(.2,1.1,.4,1)}
+@keyframes thwup{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.thwtop{display:grid;grid-template-columns:1fr auto;align-items:center;gap:2px 10px}.thwtop small{grid-column:1;font:800 11px/1 var(--jp);color:#a39cb8}.thwtop b{grid-column:1;font:900 21px/1.3 var(--jp);color:#ffe08a}
+.thwx{grid-column:2;grid-row:1/3;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);color:#d8d0e8;font:400 20px/36px var(--jp)}
+.thwbd{overflow-y:auto;padding:12px 0 6px;display:grid;gap:10px}.thwbd p{margin:0;font:600 14.5px/1.65 var(--jp);color:#ece6f6}.thwbd p b{color:#fff;font-weight:900}
+.thwl{display:grid;gap:6px}.thwl div{display:grid;grid-template-columns:6.2em 1fr;gap:8px;align-items:baseline;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.05)}.thwl b{font:900 13px/1.3 var(--jp);color:#ffe08a}.thwl span{font:600 13px/1.5 var(--jp);color:#ddd6ea}
+.thd{display:inline-block;width:10px;height:10px;transform:rotate(45deg);background:#ffd84a;margin:0 3px;vertical-align:1px}.ths{display:inline-block;width:11px;height:12px;background:#e8eefc;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);margin:0 3px;vertical-align:-1px}
+.thf{color:#ff8a5a!important}.thg{color:#72d38a!important}.thr{color:#6ab0ff!important}.thl{color:#ffe066!important}.thk{color:#c49aff!important}
+.thwft{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding-top:10px}.thwft .btn{min-width:84px}
+.thwdots{display:flex;justify-content:center;gap:6px}.thwdots i{width:7px;height:7px;border-radius:50%;background:#4a4260;cursor:pointer}.thwdots i.on{background:#ffe08a;width:18px;border-radius:4px}
 /* (10/24) 推しの応援(to.js): comments flowing over the battlefield */
 .tocm{position:absolute;left:0;z-index:6;display:flex;align-items:center;gap:5px;white-space:nowrap;pointer-events:none;will-change:transform;font:900 13px/1.2 var(--jp);color:#fff;opacity:.96;
   text-shadow:0 1px 0 rgba(0,0,0,.8),0 0 2px rgba(0,0,0,.9),0 0 10px color-mix(in srgb,var(--k1) 85%,transparent)}
@@ -4140,11 +4154,15 @@ function tcPay(cost,p){TCPEND+=cost;const fin=()=>{TCPEND=Math.max(0,TCPEND-cost
 function tcPull(n){if(!HOST){const o=tcLoad();if(o.tix<n){toastB('お試しで引ける回数が足りません(のこり'+o.tix+'回)');return}o.tix-=n;o.pulls+=n;tcRoll(o,n);return}
   const o=tcLoad(),free=n===10&&o.free,cost=free?0:TCPRICE[n];if(!free&&tcPts()<cost){toastB('ポイントが足りません('+cost+'pt 必要)');return}
   if(free)S.cfree=1;else if(n===10)S.c10=(+S.c10||0)+1;else S.cp=(+S.cp||0)+1;tcRoll(o,n,cost)}
-function tcRoll(o,n,cost){const got=[];
+/* (10/24) ユーザー「pt」: a character already at the 5重ね limit pays back pt when she comes again (about 19% of a pull on average if every one were capped) */
+const TCRF={2:5,3:10,4:25,5:60,6:150,7:400};
+function tcRoll(o,n,cost){const got=[];let rf=0;
   for(let k=0;k<n;k++){/* N 40% R 33% SR 18% UR 6% GR 2.5% KMR .5%; ten pulls: at least one SR or better */const r=Math.random()*100;let st=r<.5?7:r<3?6:r<9?5:r<27?4:r<60?3:2;if(n===10&&k===9&&!got.some(g=>g.r>=4))st=4;const L=TCH.filter(c=>c.r===st),C=L[Math.floor(Math.random()*L.length)],own=o.own[C.id],nw=!own;
     /* (10/24) ユーザー「Lv1から育てる」: a new character starts at Lv1 (the 3 starters still start at 6割 of yours) */
-    if(nw)o.own[C.id]={n:1,xp:0};else own.n=Math.min(99,(own.n||1)+1);got.push({id:C.id,r:C.r,nw,n:o.own[C.id].n})}
-  tcSave(o);if(HOST&&cost!=null)tcPay(cost,saveNow());tcShow(got);refresh()}
+    const capped=!nw&&(own.n||1)>=6;if(capped&&HOST)rf+=TCRF[C.r]||0;
+    if(nw)o.own[C.id]={n:1,xp:0};else own.n=Math.min(99,(own.n||1)+1);got.push({id:C.id,r:C.r,nw,n:o.own[C.id].n,rf:capped?TCRF[C.r]:0})}
+  if(rf)S.crf=(+S.crf||0)+rf;
+  tcSave(o);if(HOST&&cost!=null)tcPay(cost,saveNow());tcShow(got);refresh();if(rf)setTimeout(()=>toastB('重ねが上限のキャラが'+got.filter(g=>g.rf).length+'人出たので +'+rf+'pt'),900)}
 /* the ガチャ tab: the free 10連 first, then the prices */
 function renderGachaTab(){const p=$('p-gacha');if(!p)return;const eg=p.querySelector('.tneg');[...p.children].forEach(c=>{if(c!==eg)c.remove()});const o=tcLoad(),pt=HOST?tcPts():0;
   const bn=mk('div','tnban');bn.innerHTML='<div class="tnbt"><small>推し活ガチャ</small><b><i class="tnkmr">KMR</i> セイラ・ジン 登場</b><span>20人のキャラが出る。10連はSR以上が1人以上</span></div>'+(HOST?(o.free?'<div class="tntix">はじめの10連<b>無料</b></div>':'<div class="tntix">所持<b>'+pt.toLocaleString()+'</b>pt</div>'):'<div class="tntix">お試し<b>'+o.tix+'</b>回</div>');p.insertBefore(bn,eg||null);
@@ -4152,13 +4170,37 @@ function renderGachaTab(){const p=$('p-gacha');if(!p)return;const eg=p.querySele
   for(const k of [1,10]){const free=HOST&&k===10&&o.free,cost=TCPRICE[k],b=mk('button','tnpb'+(k===10?' ten':'')+(free?' free':''));b.type='button';
     b.disabled=HOST?(!free&&pt<cost):o.tix<k;b.innerHTML='<b>'+(k===10?'10連':'1回引く')+'</b><small>'+(HOST?(free?'無料':cost+'pt'):'お試し'+k+'回')+'</small>';b.onclick=()=>tcPull(k);bt.append(b)}
   p.insertBefore(bt,eg||null);
-  const d=document.createElement('details');d.className='tnrate';d.innerHTML='<summary>出る確率と「重ね」</summary><p>KMR 0.5%・GR 2.5%・UR 6%・SR 18%・R 33%・N 40%。10連はSR以上が1人以上。同じキャラが出ると「重ね」で全部の数字が4%上がります(5回まで)。はじめの10連は無料、そのあとは1回100pt・10連900pt。キャラはアカウントに保存されるので、ほかのスマホでも使えます。</p>';p.insertBefore(d,eg||null);
+  const d=document.createElement('details');d.className='tnrate';d.innerHTML='<summary>出る確率と「重ね」</summary><p>KMR 0.5%・GR 2.5%・UR 6%・SR 18%・R 33%・N 40%。10連はSR以上が1人以上。同じキャラが出ると「重ね」で全部の数字が4%上がります(5回まで)。上限のあとにまた出たら pt が返ります(N5・R10・SR25・UR60・GR150・KMR400)。はじめの10連は無料、そのあとは1回100pt・10連900pt。キャラはアカウントに保存されるので、ほかのスマホでも使えます。</p>';p.insertBefore(d,eg||null);
   if(eg&&!eg.querySelector('.tnegh')){const h=eg.querySelector('h2');if(h)h.classList.add('tnegh')}}
 /* (10/24) the party, the BOX and the gacha stage draw the fighters every frame: build them again only when something they show has changed */
 {const _tp=tbParty3;let key='',val=null,at=0;tbParty3=function(){if(TR&&!TR.end)return _tp.apply(this,arguments);const k=JSON.stringify([S.lv,S.look,S.eq,S.cs,S.ch,S.al,S.nid,typeof LKD!=='undefined'?LKD:null,typeof PTSEL!=='undefined'?PTSEL:0]),n=performance.now();
   if(k!==key||!val||n-at>2000){val=_tp.apply(this,arguments);key=k;at=n}return val.map(f=>f&&Object.assign({},f,{st:Object.assign({},f.st),look:Object.assign({},f.look)}))}}
 {const _tf=tcFighter;const C={};tcFighter=function(id,lv){if(TR&&!TR.end)return _tf.apply(this,arguments);const own=tcLoad().own[id],k=id+'|'+lv+'|'+S.lv+'|'+(own?own.n+'/'+own.xp:'-'),c=C[id],n=performance.now();
   if(!c||c.k!==k||n-c.at>2000)C[id]={k,at:n,f:_tf.apply(this,arguments)};const f=C[id].f;return f&&Object.assign({},f,{st:Object.assign({},f.st),look:Object.assign({},f.look)})}}
+
+/* ================= (10/24) 新しい分身の遊び方(ユーザー「新しい分身のルール説明欲しい」) =================
+   - 上の「?」ボタン(遊び方)で開く。新しい版を初めて開いたときは1回だけ自動で開く(localStorage bunHow138)
+   - 1ページ1つの話。左右のボタン・点・スワイプでめくる。数字はゲームの中の値と同じ */
+const THW=[
+ {t:'新しい分身バトル',b:['自分 + キャラ3人の、4人のパーティで戦います。','下のメニューで切りかえ: <b>クエスト</b>(戦う)・<b>パーティ</b>(4人を選ぶ)・<b>ガチャ</b>・<b>キャラ</b>(持っているキャラ)・<b>自分</b>(見た目・ステータス・装備)。','はじめは★3のソウタ・ユイ・ゴウがパーティに入っています。']},
+ {t:'バトルの流れ',b:['1人ずつ交代で動くターン制。光っている人の番です。','<b>通常攻撃</b>: 推しポイント<i class="thd"></i>が1つたまる(5つまで)。','<b>スキル</b>: 推しポイントを使う強い技。役職で中身が変わります。','<b>必殺技</b>: ゲージが満タンになると顔が金色に。押せばいつでも出せます。','上の「オート」「×2」で、自動・2倍速にもできます。']},
+ {t:'弱点とブレイク',b:['右上に、ねらっている敵のHP・シールド<i class="ths"></i>・弱点の武器が出ます。','弱点の武器で攻撃するとシールドが減り、0で<b>ブレイク</b>。行動が遅れて、受けるダメージが1.5倍になります。','リーダーはHPが半分を切ると怒って、大技が早くなります。']},
+ {t:'敵の役割',b:['敵を全員倒すと勝ち。敵をタップすると、ねらう相手が変わります。頭の上は次の行動です。'],L:[['リーダー','いちばん強い。半分を切ると怒る'],['とりまき','ふつうに攻撃する'],['いやし係','仲間の敵を回復する。先に倒したい'],['ばくはつ係','数字が0になると全員に大ダメージ'],['かべ係','生きている間、ほかの敵のダメージが半分'],['きらきら','すぐ逃げる。倒すと経験値2倍']]},
+ {t:'属性',b:['キャラにはそれぞれ属性があります(顔の右上の丸)。','<b class="thf">火</b> → <b class="thg">木</b> → <b class="thr">水</b> → <b class="thf">火</b> の順に強い: 有利は1.3倍、不利は0.8倍。','<b class="thl">光</b>と<b class="thk">闇</b>は、おたがいに1.3倍。','敵にも属性があります。有利なキャラを入れると楽になります。']},
+ {t:'キャラガチャ',b:['出るのは20人。KMR 0.5%・GR 2.5%・UR 6%・SR 18%・R 33%・N 40%。10連はSR以上が1人以上。','<b>はじめの10連は無料</b>。そのあとは1回100pt・10連900pt。','引いたキャラはアカウントに保存されるので、ほかのスマホでも使えます。','KMRとGRは、出たときに特別な演出があります。']},
+ {t:'キャラを育てる',b:['新しく引いたキャラは<b>Lv1</b>から。パーティに入れて戦うと経験値が入ります(勝ち80・負け25)。','自分のレベルの6割までは経験値3倍。自分のレベルより上にはなりません。','<b>重ね</b>: 同じキャラがまた出ると、全部の数字が4%上がります(5回まで)。','5回のあとにまた出たら pt が返ります(N5・R10・SR25・UR60・GR150・KMR400)。']},
+ {t:'装備と推しスキン',b:['自分 > 装備: 武器・防具・アクセ。同じシリーズを2つ・3つそろえると効果がつきます。','<b>服装</b>は見た目だけ。スキンガチャのKMRで「対戦演出」と「勝利演出」をそろえると、その子の姿(<b>推しスキン</b>)で戦えます。装備した武器を手に持ちます。','同じKMRで、TCGの対戦中に<b>推しスタンプ</b>も送れます。']},
+ {t:'見え方',b:['上の「向き」ボタンで、<b>正面</b>(敵がまん中、味方は下の欄)と<b>横</b>を切りかえられます。','KMRの必殺技は虹色、GRはピンクに光ります。','この説明は、上の「?」ボタンからいつでも見られます。']}];
+let THWI=0;
+function thwOpen(i){document.querySelectorAll('.thw').forEach(x=>x.remove());THWI=Math.max(0,Math.min(THW.length-1,i||0));const ov=mk('div','thw'),sh=mk('div','thwsh');ov.append(sh);document.body.append(ov);
+  const draw=()=>{const P=THW[THWI];sh.replaceChildren();const top=mk('div','thwtop');top.append(mk('small',null,(THWI+1)+' / '+THW.length),mk('b',null,P.t));const x=mk('button','thwx','×');x.type='button';x.setAttribute('aria-label','閉じる');x.onclick=()=>ov.remove();top.append(x);sh.append(top);
+    const body=mk('div','thwbd');P.b.forEach(h=>{const p=mk('p');p.innerHTML=h;body.append(p)});if(P.L){const ul=mk('div','thwl');P.L.forEach(([a,b])=>{const r=mk('div');r.append(mk('b',null,a),mk('span',null,b));ul.append(r)});body.append(ul)}sh.append(body);
+    const ft=mk('div','thwft'),pv=mk('button','btn','まえ'),dots=mk('div','thwdots'),nx=mk('button','btn main',THWI===THW.length-1?'とじる':'つぎ');pv.type=nx.type='button';pv.disabled=THWI===0;
+    THW.forEach((_,k)=>{const d=mk('i',k===THWI?'on':'');d.onclick=()=>{THWI=k;draw()};dots.append(d)});pv.onclick=()=>{THWI--;draw()};nx.onclick=()=>{if(THWI===THW.length-1)ov.remove();else{THWI++;draw()}};ft.append(pv,dots,nx);sh.append(ft)};
+  ov.onclick=e=>{if(e.target===ov)ov.remove()};let sx=null;sh.addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true});sh.addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>50){THWI=Math.max(0,Math.min(THW.length-1,THWI+(dx<0?1:-1)));draw()}},{passive:true});draw()}
+/* the button in the header, and the first time */
+(()=>{const hd=document.querySelector('.hd');if(!hd)return;const b=mk('button','hhow','?');b.type='button';b.setAttribute('aria-label','遊び方');b.onclick=()=>thwOpen(0);const m=$('hmentor');if(m&&m.parentNode)m.parentNode.insertBefore(b,m);else hd.append(b);
+  let seen=false;try{seen=localStorage.getItem('bunHow138')==='1'}catch(e){}if(!seen&&HOST){setTimeout(()=>{if(!TR){thwOpen(0);try{localStorage.setItem('bunHow138','1')}catch(e){}}},900)}})();
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
