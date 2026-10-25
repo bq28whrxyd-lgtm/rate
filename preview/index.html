@@ -3756,15 +3756,21 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
   box-shadow:0 0 0 1px rgba(0,0,0,.6),0 12px 28px -12px rgba(0,0,0,.85)}
 .pmat>i,.pmat>div{position:absolute;pointer-events:none}
 .pm-scene,.pm-chara{overflow:hidden}
-.pm-scene img,.pm-scene video,.pm-chara img,.pm-chara video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.pm-scene video,.pm-chara video{opacity:0;transition:opacity .35s ease}
+.pm-scene img,.pm-scene video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.pm-scene video{opacity:0;transition:opacity .35s ease}
 .pmat.live .vid>video{opacity:1}
 /* the scenery fills the mat; the character stands on the right, full height, her picture's edge melting into the fog */
 .pm-scene{inset:0}
-.pm-fog{inset:0;background:linear-gradient(90deg,rgba(20,12,34,.15) 0%,rgba(190,180,220,.12) 55%,rgba(220,214,240,.28) 72%,transparent 100%)}
-.pm-chara{top:0;bottom:0;right:0;width:calc(100cqh * 704 / 1174 * 1.12);
-  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 26%,#000 100%);mask-image:linear-gradient(90deg,transparent 0%,#000 26%,#000 100%)}
-.pm-chara img,.pm-chara video{object-position:50% 40%}
+.pm-fog{inset:0;background:linear-gradient(90deg,rgba(20,12,34,.12) 0%,transparent 45%,rgba(200,190,230,.10) 100%)}
+/* she stands on the right, cut out of her own picture: a soft moonlight behind her and a shadow where she crouches */
+.pm-aura{top:-6%;bottom:-6%;right:-4%;width:62%;background:radial-gradient(48% 52% at 58% 46%,rgba(226,214,255,.42),rgba(190,170,240,.16) 55%,transparent 75%)}
+.pm-shadow{right:6%;bottom:2%;width:44%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(14,6,22,.6),transparent)}
+.pm-chara{right:1%;bottom:-3%;height:106%;width:calc(106cqh * 432 / 720);-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 14%);mask-image:linear-gradient(90deg,transparent 0%,#000 14%)}
+.pm-chara img,.pm-chara canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pm-chara canvas{opacity:0;transition:opacity .3s ease}
+.pm-chara.vid canvas{opacity:1}
+.pm-chara img{transition:opacity .3s ease}
+.pm-chara.vid img{opacity:0}
 .pm-vig{inset:0;background:radial-gradient(130% 120% at 70% 45%,transparent 50%,rgba(12,6,20,.55) 100%),linear-gradient(0deg,rgba(12,6,20,.35),transparent 30%)}
 /* binding and stitch */
 .pm-st{inset:0;border-radius:inherit;box-shadow:inset 0 0 0 4px #120a18,inset 0 0 0 5px rgba(255,211,107,.25)}
@@ -3788,7 +3794,7 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .pm-bat{position:absolute;left:-19px;top:-10px;width:38px;height:19px;pointer-events:none;z-index:6;color:#efe4ff;filter:drop-shadow(0 0 4px rgba(180,108,255,.95)) drop-shadow(0 0 1px #2a1238)}
 .pm-bat.gold{color:#ffd36b;filter:drop-shadow(0 0 6px rgba(255,220,120,.95))}
 .pm-bat svg{width:100%;height:100%;display:block}
-@media (prefers-reduced-motion:reduce){.pm-scene video,.pm-chara video{display:none}}
+@media (prefers-reduced-motion:reduce){.pm-scene video,.pm-chara canvas{display:none}}
 
 /* ===== キモオタ二番くじ (ハロウィン後編) ===== */
 /* a prize, as a card-shaped tile */
@@ -10459,7 +10465,7 @@ document.addEventListener('DOMContentLoaded',()=>{if(oriOn())return;try{const b=
    when the mat is laid, at the start of your turn, when you tap her, when you win. Otherwise it is a still picture (battery).
    Looked at, not copied: real playmats (art window + logo + stitched edge), Pokémon TCG Pocket's playmats (a prize to show),
    Master Duel's fields (react to the duel), Hearthstone's boards (something to tap while waiting). ===== */
-const PMAT={hw:{img:'kmr_hw4.jpg',vid:'kmr_hw4.mp4',bg:'fx_hwbg_gr2.jpg',bgv:'fx_hwbg_gr2.mp4',bgp:'50% 30%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
+const PMAT={hw:{cut:'pm_hw_chara.webp',av:'pm_hw_chara.mp4',bg:'fx_hwbg_gr2.jpg',bgv:'fx_hwbg_gr2.mp4',bgp:'50% 30%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
 const PMAT_CN='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 37V12C3 6 7 3 13 3h24" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 32c0-9 4-15 11-17 5-1.5 8 1 7 4-1 3-5 3-6 1M8 32c3-1 5-3 6-6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="2.2" fill="currentColor"/></svg>';
 const PMAT_BAT='<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M20 6c1.2 0 2-1.6 2.4-3 .6 1.6 1.2 2.6 2.2 3.2C27 4 31 2 39 4c-3 2-4 5-4 8-3-2-6-2-8 0-2-1.4-4.4-1.2-7 2-2.6-3.2-5-3.4-7-2-2-2-5-2-8 0 0-3-1-6-4-8 8-2 12 0 14.4 2.2 1-.6 1.6-1.6 2.2-3.2.4 1.4 1.2 3 2.4 3z" fill="currentColor"/></svg>';
 const pmRM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -10469,17 +10475,32 @@ function pmLayer(cls,img,vid,pos){const w=pmMk('div',cls),im=pmMk('img');im.src=
   w.play=()=>{if(!vid)return;if(!v){v=pmMk('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';v.loop=true;v.src=vid;if(pos)v.style.objectPosition=pos;v.addEventListener('playing',()=>w.classList.add('vid'));w.append(v)}
     try{const p=v.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}};
   w.stop=()=>{if(v){try{v.pause()}catch(e){}}};return w}
+/* the character, cut out: a still picture with see-through background (webp), and for the moving moments a movie that carries
+   its own see-through-ness below the picture (top half colour, bottom half the cut-out mask), drawn with WebGL. Without WebGL she stays still */
+function pmChara(cut,av){const w=pmMk('div','pm-chara'),im=pmMk('img');im.src=cut;im.alt='';im.decoding='async';w.append(im);let v=null,cv=null,gl=null,raf=0,on=false;
+  function glInit(){try{cv=pmMk('canvas');cv.width=432;cv.height=720;gl=cv.getContext('webgl',{alpha:true,premultipliedAlpha:true,antialias:false});if(!gl){cv=null;return false}
+      const sh=(t,src)=>{const o=gl.createShader(t);gl.shaderSource(o,src);gl.compileShader(o);return o},pr=gl.createProgram();
+      gl.attachShader(pr,sh(gl.VERTEX_SHADER,'attribute vec2 p;varying vec2 u;void main(){u=vec2((p.x+1.)*.5,(1.-p.y)*.5);gl_Position=vec4(p,0.,1.);}'));
+      gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,'precision mediump float;uniform sampler2D t;varying vec2 u;void main(){vec3 c=texture2D(t,vec2(u.x,u.y*.5)).rgb;float a=texture2D(t,vec2(u.x,.5+u.y*.5)).r;a=smoothstep(.04,.96,a);gl_FragColor=vec4(c*a,a);}'));
+      gl.linkProgram(pr);gl.useProgram(pr);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+      const loc=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+      const tx=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tx);[gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE));
+      gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.viewport(0,0,432,720);w.append(cv);return true}catch(e){cv=null;gl=null;return false}}
+  function draw(){raf=0;if(!on)return;try{if(v.readyState>=2){gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,v);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);w.classList.add('vid')}}catch(e){}raf=requestAnimationFrame(draw)}
+  w.play=()=>{if(!av)return;if(!gl&&!glInit())return;if(!v){v=pmMk('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';v.loop=true;v.src=av;v.crossOrigin='anonymous'}
+    on=true;try{const p=v.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}if(!raf)raf=requestAnimationFrame(draw)};
+  w.stop=()=>{on=false;if(raf){cancelAnimationFrame(raf);raf=0}w.classList.remove('vid');if(v){try{v.pause()}catch(e){}}};return w}
 /* the mat (the user's sketch): a wide illustration, the whole character standing on the right, the night scenery on the left.
    Returns the element with .pmPlay(ms) (both pictures move for ms; 0 = keep moving), .pmStill(), .pmHit(x,y) (on her?), .pmSheen(delay) */
 function pmatBuild(id){const M=PMAT[id];if(!M)return null;const m=pmMk('div','pmat');m.dataset.mt=id;
-  const scene=pmLayer('pm-scene',M.bg,M.bgv,M.bgp),chara=pmLayer('pm-chara',M.img,M.vid,'50% 50%');
+  const scene=pmLayer('pm-scene',M.bg,M.bgv,M.bgp),chara=pmChara(M.cut,M.av);
   const lg=pmMk('div','pm-logo');lg.append(pmMk('b',null,'KIMOOTA TCG'),pmMk('small',null,M.n+'  ·  HALLOWEEN 2026'));
-  m.append(scene,pmMk('i','pm-fog'),chara,pmMk('i','pm-vig'),pmMk('i','pm-st'),lg,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
+  m.append(scene,pmMk('i','pm-fog'),pmMk('i','pm-aura'),pmMk('i','pm-shadow'),chara,pmMk('i','pm-vig'),pmMk('i','pm-st'),lg,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
   ['tl','tr','bl','br'].forEach(c=>{const o=pmMk('i','pm-cn pc-'+c);o.innerHTML=PMAT_CN;m.append(o)});
   let tm=0;
   m.pmPlay=ms=>{if(pmRM())return;clearTimeout(tm);m.classList.add('live');scene.play();chara.play();if(ms)tm=setTimeout(()=>m.pmStill(),ms)};
   m.pmStill=()=>{clearTimeout(tm);m.classList.remove('live');scene.stop();chara.stop()};
-  m.pmHit=(x,y)=>{const r=chara.getBoundingClientRect();return x>=r.left+r.width*.2&&x<=r.right&&y>=r.top&&y<=r.bottom};
+  m.pmHit=(x,y)=>{const r=chara.getBoundingClientRect();return x>=r.left+r.width*.12&&x<=r.right-r.width*.08&&y>=r.top&&y<=r.bottom};
   m.pmSheen=d=>{const s=m.querySelector('.pm-sheen');if(!s||pmRM()||!s.animate)return;s.animate([{transform:'translateX(-120%) skewX(-18deg)',opacity:0},{opacity:1,offset:.25},{transform:'translateX(260%) skewX(-18deg)',opacity:0}],{duration:900,delay:d||0,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'})};
   return m}
 /* bats out of a tap (host = the positioned box they fly in; x,y inside it). gold: the rare one */
@@ -14717,7 +14738,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=170';
+const TCG_SRC='tcg_play.html?v=171';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
