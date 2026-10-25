@@ -14,6 +14,9 @@ service cloud.firestore {
     function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
     function newV(k, d) { return request.resource.data.get(k, d); }
     function oldV(k, d) { return resource.data.get(k, d); }
+    // オリパ (10/25)
+    function oriAt(oid) { return /databases/$(database)/documents/ori/$(oid); }
+    function orpAt(oid, i) { return /databases/$(database)/documents/orp/$(oid + '_' + string(i)); }
 
     // a match moves a rating by at most 32; with a season reset in the same write it may also move toward 1500 (never past it by more than 32)
     function ratingOk(g) {
@@ -467,6 +470,60 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tb', 'tt'])
         && request.resource.data.tb == myPid() && request.resource.data.tt is int
         && math.abs(request.resource.data.tt - request.time.toMillis()) < 300000;
+      allow delete: if isAdmin();
+    }
+
+    // ---- TCGランダムマッチ (10/25): "I'm looking for an opponent" for 10 minutes. Only the poster writes it; the match itself is a normal tcgm ----
+    match /tcgq/{qid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.p == myPid()
+        && request.resource.data.keys().hasOnly(['p', 'n', 't', 'end', 'st', 'r'])
+        && request.resource.data.st == 'open' && tcgNow(request.resource.data.t)
+        && request.resource.data.end is int && request.resource.data.end <= request.resource.data.t + 660000
+        && request.resource.data.n is string && request.resource.data.n.size() <= 40 && request.resource.data.r is int;
+      allow update: if signedIn() && resource.data.p == myPid()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['st'])
+        && request.resource.data.st in ['taken', 'cancel'];
+      allow delete: if isAdmin() || (signedIn() && resource.data.p == myPid());
+    }
+    // ---- オリパ (10/25): the admin makes N numbered 口 in a shuffled order; a 口's contents stay hidden until someone takes it.
+    // Taking is one transaction: ori.x moves on by n, those n 口 become mine (and readable), and orp/{oid}_{x} records who paid for them
+    match /ori/{oid} {
+      allow read: if signedIn();
+      allow create, delete: if isAdmin();
+      allow update: if (isAdmin() && !('x' in request.resource.data.diff(resource.data).affectedKeys()))
+        || (signedIn() && myPid() != ''
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['x'])
+          && request.resource.data.x is int
+          && request.resource.data.x > resource.data.x && request.resource.data.x <= resource.data.x + 5
+          && request.resource.data.x <= resource.data.N
+          && request.time.toMillis() >= resource.data.st && request.time.toMillis() < resource.data.end
+          && getAfter(orpAt(oid, resource.data.x)).data.tb == myPid()
+          && getAfter(orpAt(oid, resource.data.x)).data.n == request.resource.data.x - resource.data.x);
+    }
+    match /oris/{sid} {
+      allow read: if signedIn() && resource.data.op == true;
+      allow create: if isAdmin() && request.resource.data.tb == '' && request.resource.data.op == false;
+      allow delete: if isAdmin();
+      allow update: if signedIn() && myPid() != '' && resource.data.tb == '' && resource.data.op == false
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tb', 'tt', 'op'])
+        && request.resource.data.tb == myPid() && request.resource.data.op == true
+        && request.resource.data.tt is int && math.abs(request.resource.data.tt - request.time.toMillis()) < 300000
+        && resource.data.i >= get(oriAt(resource.data.o)).data.x
+        && resource.data.i < getAfter(oriAt(resource.data.o)).data.x
+        && getAfter(orpAt(resource.data.o, get(oriAt(resource.data.o)).data.x)).data.tb == myPid();
+    }
+    match /orp/{pid_} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.tb == myPid()
+        && request.resource.data.keys().hasOnly(['o', 'i', 'n', 'p', 'tb', 't'])
+        && request.resource.data.o is string && request.resource.data.i is int && request.resource.data.n is int
+        && request.resource.data.n >= 1 && request.resource.data.n <= 5
+        && pid_ == request.resource.data.o + '_' + string(request.resource.data.i)
+        && request.resource.data.i == get(oriAt(request.resource.data.o)).data.x
+        && getAfter(oriAt(request.resource.data.o)).data.x == request.resource.data.i + request.resource.data.n
+        && request.resource.data.p == get(oriAt(request.resource.data.o)).data.p
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000;
       allow delete: if isAdmin();
     }
 
