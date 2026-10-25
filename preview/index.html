@@ -4119,7 +4119,7 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .psh-pkf button{all:unset;cursor:pointer;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(255,255,255,.06);color:rgba(255,255,255,.7)}
 .psh-pkf button.on{background:rgba(242,213,138,.18);color:#f2d58a;box-shadow:inset 0 0 0 1px rgba(242,213,138,.4)}
 .psh-pkf small{margin-left:auto;font-size:11.5px;opacity:.55}
-.psh-pkg{flex:1;min-height:120px;overflow-y:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 10px;padding:2px 2px 6px;-webkit-overflow-scrolling:touch}
+.psh-pkg{flex:1;min-height:120px;overflow-y:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 6px;padding:2px 2px 6px;-webkit-overflow-scrolling:touch}
 .psh-pkg>.mkempty{grid-column:1/-1}
 .psh-pkc{all:unset;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;gap:3px;cursor:pointer}
 .psh-pkc>.mkth{width:100%!important;height:auto!important;aspect-ratio:5/7;border-radius:8px;box-shadow:0 0 0 1px rgba(255,255,255,.1),0 4px 10px rgba(0,0,0,.4)}
@@ -4131,6 +4131,19 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .psh-pkc.on>.mkth{box-shadow:0 0 0 2px #f2d58a,0 4px 10px rgba(0,0,0,.4)}
 .psh-pkc.off{opacity:.4}
 .psh-pkc:active>.mkth{transform:scale(.96)}
+
+/* (10/26) the picker looks like the TCG 図鑑 */
+.psh-pkt{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+.psh-pkt .tcgq{flex:1 1 100%}
+.psh-pkt .tcgso{flex:1 1 0;min-width:0}
+.psh-pkg.tdxlist{display:flex;flex-direction:column;gap:6px}
+.psh-pkl.off,.psh-pkc.off{opacity:.4}
+.psh-pkl .tdlth .mkth{width:46px!important;height:auto!important;aspect-ratio:5/7}
+.psh-pkl .tdlth .mkth>*:not(i){transform:scale(.383)!important}
+.psh-pkc .mkth>i.psh-pkn{font-size:10px!important;padding:3px 5px!important}
+.psh-pkl{border-radius:12px!important;height:auto!important;min-height:0!important}
+.psh-pkc .mkth.psh-tcf{overflow:visible;background:none}
+.psh-pkc .mkth.psh-tcf>*:not(i){position:relative!important;width:100%!important;height:auto!important;transform:none!important}
 /* ORISHcss:end */
 /* STKcss:begin */
 /* ---- (10/19) ハロウィン シールアルバム ---- */
@@ -11341,26 +11354,54 @@ function pshopListSheet(k,c,f,done){document.querySelectorAll('.mks').forEach(x=
     const all=q>=have;askSheet({title:'お店に並べる',ok:'並べる',danger:all,lines:[I.rk+'「'+I.nm+'」を '+q+' 枚、1枚 '+v.toLocaleString()+'pt でお店に並べます。',all?'持っている全部です。並べている間は図鑑から消えます(下げれば戻ります)。':'並べている間は使えません。いつでも下げられます。'],
       run:async()=>{go.disabled=true;try{const r=await pshopList(k,c,f,v,q);toast(r+'枚お店に並べました');o.remove();done&&done(r)}catch(e){go.disabled=false;toast({full:'お店がいっぱいです('+PSHOP_N+'枠)',none:'そんなに持っていません',low:lo.toLocaleString()+'pt より安くは並べられません'}[e.message]||'並べられませんでした')}}})};
   const cl=el('button','sec','やめる');cl.onclick=()=>o.remove();b.append(f1);if(!st)b.append(low);if(have>1)b.append(qr);b.append(fee,go,cl);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
-/* (10/25) put something on the shelf right from the shop: pick from what I have */
-let pshopPickK='g',pshopPickDup=true;
+/* (10/25) put something on the shelf right from the shop: pick from what I have.
+   (10/26) laid out like the TCG 図鑑: search, one 「絞り込み」 button (kind / tribe / type / rarity / ダブりだけ), sort, カード / リスト, 4 columns with ×n on the picture */
+let pshopPickK='g',pshopPickDup=true,pkQ='',pkSort='dup',pkView=(()=>{try{return localStorage.getItem('pkv')==='list'?'list':'grid'}catch(e){return 'grid'}})(),pkF={kind:'',r:'',f:'',ty:''};
 function pshopOwned(k){const v=inv||{},out=[];
-  if(k==='g'){for(const id in (v.own||{})){const n=+v.own[id]||0,it=ITEM(id);if(n>0&&it&&it.lim!=='sup')out.push({k,c:id,f:false,n,r:it.r})}}
-  else if(k==='t'){const T=v.tcg||{};[['own',false],['foil',true]].forEach(([b,f])=>{for(const id in (T[b]||{})){const n=+T[b][id]||0;if(n>0&&TC[id])out.push({k,c:id,f,n,r:['C','R','SR','GR'].indexOf(TC[id].r)+(f?.5:0)})}})}
-  else if(k==='s'){const me=myPlayer(),ids=new Set();try{stkDrops(me.id).forEach(x=>ids.add(x.id))}catch(e){}Object.keys(v.stkd||{}).forEach(id=>ids.add(id));ids.forEach(id=>{const n=cardHave(v,'s',id,false);if(n>0&&cardInfo('s',id,false))out.push({k,c:id,f:false,n,r:0})})}
-  return out.sort((a,b)=>(b.n>1)-(a.n>1)||b.r-a.r||b.n-a.n)}
+  if(k==='g'){for(const id in (v.own||{})){const n=+v.own[id]||0,it=ITEM(id);if(n>0&&it&&it.lim!=='sup')out.push({k,c:id,f:false,n,r:it.r,kind:it.k,nm:it.n})}}
+  else if(k==='t'){const T=v.tcg||{};[['own',false],['foil',true]].forEach(([b,f])=>{for(const id in (T[b]||{})){const n=+T[b][id]||0,x=TC[id];if(n>0&&x)out.push({k,c:id,f,n,r:['C','R','SR','GR'].indexOf(x.r)+(f?.5:0),tr:x.f,ty:x.ty,rk:x.r,nm:x.n})}})}
+  else if(k==='s'){const me=myPlayer(),ids=new Set();try{stkDrops(me.id).forEach(x=>ids.add(x.id))}catch(e){}Object.keys(v.stkd||{}).forEach(id=>ids.add(id));ids.forEach(id=>{const n=cardHave(v,'s',id,false),I=cardInfo('s',id,false);if(n>0&&I)out.push({k,c:id,f:false,n,r:+I.r||0,nm:I.nm})})}
+  return out}
+const pkRN=k=>k==='g'?RAR.map((R,i)=>[i,R.k]):k==='t'?[['C','コモン'],['R','レア'],['SR','SR'],['GR','ガチレア']]:[];
 function pshopPick(){document.querySelectorAll('.mks').forEach(x=>x.remove());const me=myPlayer();if(!me||!invLoaded)return;const o=el('div','mks'),b=el('div','mksb psh-pk');o.append(b);
-  const draw=()=>{b.replaceChildren();const used=pshopSlots(me.id);if(draw.k!==pshopPickK){draw.k=pshopPickK;draw.told=0}
+  const draw=()=>{b.replaceChildren();const used=pshopSlots(me.id),K=pshopPickK;
     const hd=el('div','psh-pkh');hd.append(el('h3',null,'お店に並べる'),el('span',null,'枠 '+used+' / '+PSHOP_N));b.append(hd);
-    const seg=el('div','mkseg');[['g','スキン'],['t','TCGカード'],['s','ステッカー']].forEach(([k,n])=>{const x=el('button','kx-mk'+(pshopPickK===k?' on':''),n);x.type='button';x.onclick=()=>{pshopPickK=k;draw()};seg.append(x)});b.append(seg);
-    const all=pshopOwned(pshopPickK),dups=all.filter(x=>x.n>1);if(pshopPickDup&&!dups.length&&all.length&&!draw.told){pshopPickDup=false}draw.told=1;const L=pshopPickDup?dups:all;
-    const fl=el('div','psh-pkf');const t1=el('button','kx-mk'+(pshopPickDup?' on':''),'ダブりだけ');t1.type='button';t1.onclick=()=>{pshopPickDup=true;draw()};const t2=el('button','kx-mk'+(!pshopPickDup?' on':''),'持っている全部');t2.type='button';t2.onclick=()=>{pshopPickDup=false;draw()};fl.append(t1,t2,el('small',null,L.length+'種類'));b.append(fl);
-    const g=el('div','psh-pkg');if(!L.length)g.append(el('div','mkempty',pshopPickDup?'ダブりはありません。「持っている全部」に切り替えると1枚だけのカードも出せます':'並べられるものを持っていません'));
-    L.forEach(x=>{const I=cardInfo(x.k,x.c,x.f);if(!I)return;const st=pshopStackOf(me.id,x.k,x.c,x.f),full=!st&&used>=PSHOP_N;const c=el('button','psh-pkc kx-mk'+(full?' off':'')+(st?' on':''));c.type='button';if(I.col)c.style.setProperty('--rc',I.col);
-      const th=mktThumb(x.k,x.c,x.f,0);th.append(el('i','psh-pkn','×'+x.n));if(st)th.append(el('i','psh-pks','並べ中'));let sp=0;try{sp=mkPrice(x.k,x.c,x.f,0)}catch(e){}
-      c.append(th,el('b',null,I.nm),el('span',null,(x.k==='t'?'TCG ':'')+I.rk+(sp?'  ·  相場 '+sp.toLocaleString():'')));
-      c.onclick=()=>{if(full){toast('お店がいっぱいです('+PSHOP_N+'枠)。並べている物を下げると空きます');return}o.remove();pshopListSheet(x.k,x.c,x.f,()=>{try{mktPaint()}catch(e){}})};g.append(c)});b.append(g);
-    const cl=el('button','sec','閉じる');cl.onclick=()=>o.remove();b.append(cl);setTimeout(()=>{try{pshopFitPick(g)}catch(e){}},0)};
+    const seg=el('div','mkseg');[['g','スキン'],['t','TCGカード'],['s','ステッカー']].forEach(([k,n])=>{const x=el('button','kx-mk'+(K===k?' on':''),n);x.type='button';x.onclick=()=>{if(pshopPickK!==k){pshopPickK=k;pkF={kind:'',r:'',f:'',ty:''}}draw()};seg.append(x)});b.append(seg);
+    /* tools, like the 図鑑 */
+    const all=pshopOwned(K),dups=all.filter(x=>x.n>1);if(pshopPickDup&&!dups.length&&all.length&&draw.k!==K)pshopPickDup=false;draw.k=K;
+    const tools=el('div','tcgtools psh-pkt'),q=el('input','tcgq');q.type='search';q.placeholder='名前で検索';q.value=pkQ;q.setAttribute('aria-label','名前で検索');
+    const nf=(pkF.kind?1:0)+(pkF.r!==''?1:0)+(pkF.f?1:0)+(pkF.ty?1:0)+(pshopPickDup?1:0);const fb=el('button','tdxfb'+(nf?' on':''));fb.type='button';fb.append(document.createTextNode('絞り込み'));if(nf)fb.append(el('i',null,String(nf)));fb.onclick=()=>pkFilter(draw);
+    const so=el('select','tcgso');so.setAttribute('aria-label','並び順');[['dup','枚数が多い順'],['rar','レアが高い順'],['mk','相場が高い順'],['name','名前順']].forEach(([v,n])=>{const op=el('option',null,n);op.value=v;so.append(op)});so.value=pkSort;so.onchange=()=>{pkSort=so.value;fill()};
+    const vw=el('div','tdxv');[['grid','カード'],['list','リスト']].forEach(([k,n])=>{const x=el('button','kx-mk'+(pkView===k?' on':''),n);x.type='button';x.onclick=()=>{pkView=k;try{localStorage.setItem('pkv',k)}catch(e){}draw()};vw.append(x)});
+    tools.append(q,fb,so,vw);b.append(tools);
+    if(nf){const ch=el('div','tdxch');const add=(t,fn)=>{const x=el('button','kx-mk');x.type='button';x.append(document.createTextNode(t),el('i',null,'×'));x.onclick=()=>{fn();draw()};ch.append(x)};
+      if(pshopPickDup)add('ダブりだけ',()=>{pshopPickDup=false});if(pkF.kind)add(KIND[pkF.kind]||pkF.kind,()=>{pkF.kind=''});if(pkF.f)add((TCGD.fname[pkF.f]||pkF.f),()=>{pkF.f=''});if(pkF.ty)add({chara:'キャラ',spell:'魔法',trap:'罠'}[pkF.ty],()=>{pkF.ty=''});if(pkF.r!=='')add((pkRN(K).find(x=>x[0]===pkF.r)||[0,''])[1],()=>{pkF.r=''});b.append(ch)}
+    const info=el('div','sub tcgcnt'),g=el('div','psh-pkg'+(pkView==='list'?' tdxlist':''));b.append(info,g);
+    const fill=()=>{const qq=pkQ.normalize('NFKC').toLocaleLowerCase().trim();let L=(pshopPickDup?dups:all).filter(x=>(!pkF.kind||x.kind===pkF.kind)&&(!pkF.f||x.tr===pkF.f)&&(!pkF.ty||x.ty===pkF.ty)&&(pkF.r===''||(K==='g'?x.r===pkF.r:x.rk===pkF.r))&&(!qq||String(x.nm||'').normalize('NFKC').toLocaleLowerCase().includes(qq)));
+      const mk=x=>{try{return mkPrice(x.k,x.c,x.f,0)}catch(e){return 0}};
+      L=L.slice().sort({dup:(a,c)=>c.n-a.n||c.r-a.r,rar:(a,c)=>c.r-a.r||c.n-a.n,mk:(a,c)=>mk(c)-mk(a),name:(a,c)=>String(a.nm).localeCompare(String(c.nm),'ja')}[pkSort]||(()=>0));
+      info.textContent=L.length+'種類';g.replaceChildren();
+      if(!L.length){g.append(el('div','mkempty',pshopPickDup&&all.length?'ダブりはありません。絞り込みの「ダブりだけ」を外すと1枚だけのカードも出せます':'条件に合うものがありません'));return}
+      L.forEach(x=>{const I=cardInfo(x.k,x.c,x.f);if(!I)return;const st=pshopStackOf(me.id,x.k,x.c,x.f),full=!st&&used>=PSHOP_N,sp=mk(x);
+        const go=()=>{if(full){toast('お店がいっぱいです('+PSHOP_N+'枠)。並べている物を下げると空きます');return}o.remove();pshopListSheet(x.k,x.c,x.f,()=>{try{mktPaint()}catch(e){}})};
+        if(pkView==='list'){const r=el('button','tdl psh-pkl'+(full?' off':''));r.type='button';if(I.col)r.style.setProperty('--fc',I.col);const th=el('div','tdlth');th.append(mktThumb(x.k,x.c,x.f,0));const mid=el('div','tdlm');const t1=el('div','tdl1');t1.append(el('b',null,I.nm));
+          mid.append(t1,el('span','tdl2',(x.k==='t'?'TCG ':'')+I.rk+(x.kind?'  ·  '+(KIND[x.kind]||''):'')+(x.tr?'  ·  '+(TCGD.fname[x.tr]||''):'')));const own=el('div','tdl3');own.append(el('i','cn','×'+x.n));if(st)own.append(el('i','cs','並べ中 '+st.length));mid.append(own);
+          const rt=el('div','tdls');rt.append(el('span',null,'相場'),el('b',null,sp?sp.toLocaleString():'—'));r.append(th,mid,rt);r.onclick=go;g.append(r);return}
+        const c=el('button','psh-pkc kx-mk'+(full?' off':'')+(st?' on':'')+(x.k==='t'?' tc':''));c.type='button';const th=x.k==='t'&&typeof tcgCardFull==='function'?(()=>{const w=el('div','mkth psh-tcf');w.append(tcgCardFull(x.c,!!x.f));return w})():mktThumb(x.k,x.c,x.f,0);th.append(el('i','psh-pkn','×'+x.n));if(st)th.append(el('i','psh-pks','並べ中'));c.append(th);c.setAttribute('aria-label',I.nm+' '+x.n+'枚');c.onclick=go;g.append(c)});
+      setTimeout(()=>{try{pshopFitPick(g)}catch(e){}},0)};
+    q.oninput=()=>{pkQ=q.value;fill()};fill();
+    const cl=el('button','sec','閉じる');cl.onclick=()=>o.remove();b.append(cl)};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
+/* the 絞り込み sheet, same as the 図鑑's */
+function pkFilter(back){document.querySelectorAll('.mks.pkf').forEach(x=>x.remove());const o=el('div','mks pkf'),b=el('div','mksb tdxf');o.append(b);const K=pshopPickK;
+  const draw=()=>{b.replaceChildren();b.append(el('h3',null,'絞り込み'));
+    const sec=(t,items,cur,set,cls)=>{b.append(el('div','tdxfh',t));const g=el('div','tdxfg'+(cls?' '+cls:''));items.forEach(([k,n,col])=>{const x=el('button','kx-mk'+(cur===k?' on':''));x.type='button';x.textContent=n;if(col)x.style.setProperty('--fc',col);x.onclick=()=>{set(k);draw()};g.append(x)});b.append(g)};
+    sec('ダブり',[[true,'ダブりだけ'],[false,'持っている全部']],pshopPickDup,k=>{pshopPickDup=k},'c2');
+    if(K==='g')sec('種類',[['','ぜんぶ'],...Object.entries(KIND).filter(([k])=>ITEMS.some(x=>x.k===k)).map(([k,n])=>[k,n])],pkF.kind,k=>{pkF.kind=k},'c3');
+    if(K==='t'){sec('族',[['','ぜんぶ'],...TCGD.order.map(f=>[f,TCGD.fname[f].replace('族',''),typeof TFC_COL!=='undefined'?TFC_COL[f]:null])],pkF.f,k=>{pkF.f=k},'c3');sec('種類',[['','ぜんぶ'],['chara','キャラ'],['spell','魔法'],['trap','罠']],pkF.ty,k=>{pkF.ty=k},'c4')}
+    const R=pkRN(K);if(R.length)sec('レア',[['','ぜんぶ'],...R],pkF.r,k=>{pkF.r=k},K==='g'?'c4':'c5');
+    const a=el('div','tdxfa'),r=el('button','sec','リセット'),ok=el('button','mkgo','この条件で見る');r.onclick=()=>{pkF={kind:'',r:'',f:'',ty:''};pshopPickDup=false;draw()};ok.onclick=()=>{o.remove();back()};a.append(r,ok);b.append(a)};
+  draw();o.onclick=e=>{if(e.target===o){o.remove();back()}};document.body.append(o)}
 function pshopFitPick(g){const w=g.querySelector('.psh-pkc>.mkth');if(w&&w.offsetWidth)g.style.setProperty('--pkS',(w.offsetWidth/120).toFixed(3))}
 /* the bell: someone bought from my shop */
 window.__shopNotes=me=>pshops.filter(x=>x.s===me.id&&x.tb).map(x=>{const I=cardInfo(x.k,x.c,x.f);return I?{key:'sh'+x.id,t:+x.tt||now(),k:'お店',x:mktName(x.tb)+'が「'+I.nm+'」を '+x.p.toLocaleString()+'pt で買いました(+'+pshopGet(x).toLocaleString()+'pt)',go:'mkt'}:null}).filter(Boolean);
