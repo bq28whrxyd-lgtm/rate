@@ -3863,6 +3863,7 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .kjmv-seg button.on{background:linear-gradient(180deg,#ffcf8a,#ff9a3a);color:#2a1206}
 .kjmv-tip{margin:0;font-size:12px;color:#cdb8da}
 .kjmv-nt{margin:0;font-size:11.5px;line-height:1.6;color:#a993b6}
+.kjmv-v{font-size:10px;color:#6f5f7a;text-align:right}
 /* ORIKJcss:end */
 /* ORIH2css:begin */
 /* ===== ハロウィン後編: チーム戦・みんなで目標・ビンゴ ===== */
@@ -10465,7 +10466,7 @@ document.addEventListener('DOMContentLoaded',()=>{if(oriOn())return;try{const b=
    when the mat is laid, at the start of your turn, when you tap her, when you win. Otherwise it is a still picture (battery).
    Looked at, not copied: real playmats (art window + logo + stitched edge), Pokémon TCG Pocket's playmats (a prize to show),
    Master Duel's fields (react to the duel), Hearthstone's boards (something to tap while waiting). ===== */
-const PMAT={hw:{cut:'pm_hw_chara.webp',av:'pm_hw_chara.mp4',bg:'fx_hwbg_gr2.jpg',bgv:'fx_hwbg_gr2.mp4',bgp:'50% 30%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
+const PMAT={hw:{cut:'pm_hw_chara.webp',av:'pm_hw_chara.mp4',bg:'fx_hwbg_gr2.jpg',bgv:'fx_hwbg_gr2.mp4',bgp:'50% 8%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
 const PMAT_CN='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 37V12C3 6 7 3 13 3h24" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 32c0-9 4-15 11-17 5-1.5 8 1 7 4-1 3-5 3-6 1M8 32c3-1 5-3 6-6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="2.2" fill="currentColor"/></svg>';
 const PMAT_BAT='<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M20 6c1.2 0 2-1.6 2.4-3 .6 1.6 1.2 2.6 2.2 3.2C27 4 31 2 39 4c-3 2-4 5-4 8-3-2-6-2-8 0-2-1.4-4.4-1.2-7 2-2.6-3.2-5-3.4-7-2-2-2-5-2-8 0 0-3-1-6-4-8 8-2 12 0 14.4 2.2 1-.6 1.6-1.6 2.2-3.2.4 1.4 1.2 3 2.4 3z" fill="currentColor"/></svg>';
 const pmRM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -10677,7 +10678,8 @@ function kjMatView(){document.querySelectorAll('body>.kjmv').forEach(x=>x.remove
   const seg=el('div','kjmv-seg');const S=[['ふつう',''],['自分の番','turn'],['ピンチ','low'],['勝ち','won']];let cur='';
   S.forEach(([n,k])=>{const b=el('button',k===cur?'on':null,n);b.type='button';b.onclick=()=>{cur=k;seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));['turn','low','won'].forEach(c=>pm.classList.toggle(c,c===k));if(k==='won')pm.pmSheen(150)};seg.append(b)});
   const nt=el('p','kjmv-nt','TCGの対戦では、自分の側(下半分)の場にこの向きで敷かれます。友達戦では相手の画面の上半分にも見えます。対戦では、始まったとき・自分の番が来たとき・キャラをタップしたときに、キャラと景色が動きます。');
-  bx.append(hd,cl,st,seg,tip,nt);document.body.append(o);
+  const ver=el('small','kjmv-v',(typeof APP_VER!=='undefined'?APP_VER:'')+'  ·  mat 3');
+  bx.append(hd,cl,st,seg,tip,nt,ver);document.body.append(o);
   const close=()=>{try{pm.pmStill()}catch(e){}o.remove()};cl.onclick=close;o.onclick=e=>{if(e.target===o)close()};
   st.addEventListener('pointerdown',e=>{const r=st.getBoundingClientRect();if(pm.pmHit(e.clientX,e.clientY)){pm.pmSheen(0);return}pmBats(st,e.clientX-r.left,e.clientY-r.top,Math.random()<.05)});
   setTimeout(()=>{try{pm.pmPlay(0);pm.pmSheen(200)}catch(e){}},120)}
@@ -14738,7 +14740,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=171';
+const TCG_SRC='tcg_play.html?v=172';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
