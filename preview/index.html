@@ -13154,7 +13154,7 @@ function renderGw(){
 
 /* ---- admin: purchases and genre weeks ---- */
 /* ---- presence: each player records when they last had the app open (only the admin can read it) ---- */
-const APP_VER='v55';
+const APP_VER='v141';/* (10/25) the version each phone writes into seen/{pid}.v; from v141 on a phone checks in every 90 seconds */
 /* read savers (the PWA adapter has db.synced / where; the older adapter falls back to the plain listener) */
 function dbSynced(c,f,sort){return db.synced?db.synced(c,{f,sort:sort||'t'}):db.collection(c).orderBy(sort||'t','desc')}
 function dbRecent(c,f,ms){const q=db.collection(c);return q.where?q.where(f,'>',now()-ms):q}
@@ -13216,20 +13216,25 @@ let seenMap={},seenSub=null,lastPing=0;
 function ping(force){const me=myPlayer();if(!db||!me||document.visibilityState!=='visible')return;if(now()-lastPing<(force?30000:85000))return;lastPing=now();db.doc('seen/'+me.id).set({t:now(),v:APP_VER}).catch(()=>{})}
 setInterval(()=>ping(),90000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping(true)});
 function seenWatch(){if(seenSub||!db)return;seenSub=db.collection('seen').onSnapshot(s=>{seenMap={};s.docs.forEach(d=>seenMap[d.id]=d.data());if(isAdmin())admSeenRender();window.kOnlineSync&&kOnlineSync()},()=>{})}
-/* online = the app was open in the last 3 minutes (each phone checks in every 90 seconds while the app is on screen; was 5 minutes before 10/25) */
-window.kOnline=()=>{const T=now(),L=players.filter(p=>p.uid).map(p=>({id:p.id,name:p.name,t:(seenMap[p.id]||{}).t||0}));const me=myPlayer();if(me){const x=L.find(p=>p.id===me.id);if(x)x.t=Math.max(x.t,T)}return {on:L.filter(p=>T-p.t<3*60000).sort((a,b)=>b.t-a.t),recent:L.filter(p=>T-p.t>=3*60000&&T-p.t<3*3600000).sort((a,b)=>b.t-a.t).map(p=>({...p,ago:Math.max(1,Math.round((T-p.t)/60000))}))}};
+/* (10/25) one rule for every screen (対戦, ホーム, 管理者): a phone from v141 on checks in every 90 seconds and counts as online for 3 minutes;
+   an older one (it says v55) checks in every 5 minutes and counts for 6, so it doesn't blink in and out between check-ins */
+window.kOnWin=v=>(+String(v||'').replace(/\D/g,'')||0)>=141?3*60000:6*60000;
+window.kOnline=()=>{const T=now(),L=players.filter(p=>p.uid).map(p=>{const x=seenMap[p.id]||{};return {id:p.id,name:p.name,t:x.t||0,win:kOnWin(x.v)}});const me=myPlayer();if(me){const x=L.find(p=>p.id===me.id);if(x){x.t=Math.max(x.t,T);x.win=kOnWin(APP_VER)}}
+  return {on:L.filter(p=>T-p.t<p.win).sort((a,b)=>b.t-a.t),recent:L.filter(p=>T-p.t>=p.win&&T-p.t<3*3600000).sort((a,b)=>b.t-a.t).map(p=>({...p,ago:Math.max(1,Math.round((T-p.t)/60000))}))}};
 function admSeenRender(){
   const box=$('admSeen');if(!box)return;
   seenWatch();
-  box.replaceChildren();const ON=6*60000;
+  box.replaceChildren();const O=kOnline(),onIds=new Set(O.on.map(p=>p.id)),meP=myPlayer();
+  /* (10/25) the same count as the 対戦 page and the home screen (ほかに = not counting you) */
+  box.append(el('div','sub sncount','オンライン '+O.on.length+'人(あなたを含む)・ほかに '+O.on.filter(p=>!meP||p.id!==meP.id).length+'人'));
   const L=players.slice().sort((a,b)=>((seenMap[b.id]||{}).t||0)-((seenMap[a.id]||{}).t||0));
-  L.forEach(p=>{const x=seenMap[p.id],on=x&&now()-x.t<ON,r=el('div','sn'+(on?' on':''));
+  L.forEach(p=>{const x=seenMap[p.id],on=onIds.has(p.id),r=el('div','sn'+(on?' on':''));
     r.append(el('i'),el('b',null,p.name),el('span',null,!x?'まだ記録なし':on?'オンライン':ago(x.t)));
     if(x&&x.v){const v=el('small',x.v===APP_VER?null:'old',x.v===APP_VER?'最新':'古い版 '+x.v);r.append(v)}
     box.append(r)});
   if(!L.length)box.append(el('div','sub','まだプレイヤーがいません'));
 }
-setInterval(()=>{if(curView==='profile'&&isAdmin())admSeenRender()},30000);
+setInterval(()=>{if(curView==='profile'&&isAdmin())admSeenRender()},10000);
 /* ---- developer → everyone (msgs, admin writes) and everyone → developer (reqs, admin reads) ---- */
 let devMsgs=[],reqs=[],reqSub=null;
 const msgSeen=()=>{try{return +localStorage.getItem('msgSeen')||0}catch(e){return 0}};
@@ -16026,13 +16031,13 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const close=()=>{document.body.classList.remove('lobsheet');try{sheetOut(w)}catch(e){w.remove()}if(openW===w)openW=null};cl.onclick=close;w.addEventListener('click',e=>{if(e.target===w)close()})}
   q('.lgift').onclick=()=>{syncGift();sheet('プレゼント',secGf)};
   q('.llv').onclick=()=>go('profile');
-  /* who is online now (the app open in the last 6 minutes) and who was here in the last 3 hours */
+  /* how many are online now (same rule as everywhere: kOnline) and how many were here in the last 3 hours */
   window.kOnlineSync=()=>{const box=secTl.querySelector('.lonl');if(!box||typeof kOnline!=='function')return;const O=kOnline();
     const chip=(p,on)=>'<span class="onc'+(on?' on':'')+'"><i></i>'+String(p.name).replace(/[<>&]/g,'')+(on?'':'<small>'+(p.ago<60?p.ago+'分前':Math.round(p.ago/60)+'時間前')+'</small>')+'</span>';
     /* (10/25) anonymous: how many, not who */
     const me_=myPlayer(),on_=O.on.filter(p=>!me_||p.id!==me_.id).length,rc_=O.recent.filter(p=>!me_||p.id!==me_.id).length;
     box.innerHTML='<div class="onh">あなたのほかに <b>'+on_+'</b>人がオンライン</div>'+(on_?'':'<div class="onl"><span class="onn">今はだれもいません</span></div>')+(rc_?'<div class="onh sub">3時間以内に開いた人 '+rc_+'人</div>':'')};
-  setInterval(()=>{try{kOnlineSync()}catch(e){}},30000);
+  setInterval(()=>{try{kOnlineSync()}catch(e){}},5000);
   qa('[data-bun]').forEach(b=>b.onclick=()=>{if(typeof bunOpen==='function')bunOpen()});
   qa('[data-farm]').forEach(b=>b.onclick=()=>{if(typeof farmOpen==='function')farmOpen()});
   qa('[data-hw]').forEach(b=>b.onclick=()=>{if(typeof hwOpen==='function')hwOpen()});
