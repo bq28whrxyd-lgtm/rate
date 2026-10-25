@@ -13477,7 +13477,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=163';
+const TCG_SRC='tcg_play.html?v=164';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -13911,15 +13911,12 @@ function tcgIntro(info,done){
   const me=myPlayer()||{},SK=me.eq&&me.eq.x&&ITEM(me.eq.x),S=SK&&SK.k==='x'?XS[SK.v]:null;
   const o=el('div','bo tcgbo'),it=el('div','intro'),t1=el('div','it1','対戦開始');it.append(t1,el('div','itl'),el('div','it2',S?S.en:'DUEL START'));
   const RMq=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(RMq)o.append(it);else{const wp=el('div','warp'),wv=fxVid('fx_warp.mp4','wv'),wb=el('video','wb');wb.src=fxSrc('fx_bolt.mp4');wb.muted=true;wb.defaultMuted=true;wb.playsInline=true;wb.setAttribute('playsinline','');wb.setAttribute('muted','');wb.preload='auto';
-    wp.append(wv,wb,el('i','wf'),el('div','wt','VS  '+info.cpu));o.append(wp);
-    setTimeout(()=>{wp.classList.add('hit');try{wb.currentTime=0;const q=wb.play();q&&q.catch(()=>{})}catch(e){}vib(2)},780);
-    setTimeout(()=>{o.insertBefore(it,wp)},900);
-    setTimeout(()=>{wp.classList.add('out');setTimeout(()=>wp.remove(),400)},1050)}
+  /* (10/25) the warp prelude (particles + 「VS 相手」) before 対戦開始 is gone: the intro starts at once */
+  o.append(it);
   if(S&&S.K){kmrIntro(it,S.K,'VS '+info.cpu);it.style.animationDelay='3s'}
   else if(S){it.style.background=S.bg;it.classList.add('skin');it.style.animationDelay='1.9s';skinText(t1,S);skinLayer(it,S)}
   document.body.append(o);FX(o,4,1000,S);
-  const hold=(S&&S.K?3000:S?1900:1000)+(RMq?400:1200);let closed=false;
+  const hold=(S&&S.K?3000:S?1900:1000)+400;let closed=false;
   const end=()=>{if(closed)return;closed=true;o.style.transition='opacity .3s';o.style.opacity='0';setTimeout(()=>{o.remove();done()},300)};
   setTimeout(()=>{o.onclick=end},600);setTimeout(end,hold)}
 /* the result: your own 勝利演出 when you win; wins and losses are counted on the TCG screen */
