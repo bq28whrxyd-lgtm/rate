@@ -10541,7 +10541,7 @@ function pmatBuild(id,opt){const M=PMAT[id];if(!M)return null;const m=pmMk('div'
   const scene=M.art?pmLayer('pm-scene',M.art,M.artv||null,M.artPos):pmLayer('pm-scene',M.bg,M.bgv,M.bgp),chara=M.art?pmMk('div','pm-chara pm-none'):pmChara(M.cut,M.av);if(M.art)m.classList.add('art');
   const lg=pmMk('div','pm-logo'),cr=pmMk('i','pm-crest');cr.innerHTML=PMAT_CREST();const tx=pmMk('div','pm-ltx');tx.append(pmMk('b','pm-foil','KIMOOTA TCG'),pmMk('small',null,M.n+'  ·  HALLOWEEN 2026'));lg.append(cr,tx);
   const no=pmMk('div','pm-no');no.append(pmMk('small',null,'LAST ONE  ·  LIMITED'),pmMk('b','pm-foil',opt&&opt.no?'No.'+opt.no+' / 2':'2 PIECES'));
-  m.append(scene,pmMk('i','pm-fog'),pmMk('i','pm-shadow'),chara,pmMk('i','pm-vig'),pmMk('i','pm-st'),pmMk('i','pm-st2'),lg,no,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
+  m.append(scene,pmMk('i','pm-fog'),pmMk('i','pm-shadow'),chara,pmMk('i','pm-vig'),pmMk('i','pm-st'),pmMk('i','pm-st2'),lg,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
   ['tl','tr','bl','br'].forEach(c=>{const o=pmMk('i','pm-cn pc-'+c);o.innerHTML=PMAT_CNF();m.append(o)});
   m.append(pmMk('i','pm-foilsheen'));
   let tm=0;
@@ -10728,11 +10728,11 @@ function kjMatView(){document.querySelectorAll('body>.kjmv').forEach(x=>x.remove
   const st=el('div','kjmv-st'),tl=el('div','kjmv-tilt'),pm=pmatBuild('hw',{no}),gl=el('i','kjmv-glare');tl.append(pm,gl);st.append(tl);
   /* only 2 exist: who has them */
   const ed=el('div','kjmv-ed');{const L=[];try{kjAll().forEach(k=>{oriOpen(k).forEach(sl=>{if(kjIsLast(k,sl.i)&&sl.tb)L[kjBoxOf(k,sl.i)]=sl.tb})})}catch(e){}
-    [0,1].forEach(b=>{const r=el('div','kjmv-er'+(L[b]?' got':''));const p=L[b]&&players.find(x=>x.id===L[b]);r.append(el('em',null,'No.'+(b+1)),el('span',null,(b+1)+'箱目のラストワン'),el('b',null,p?(p.id===(me&&me.id)?'あなた':p.name):'まだ出ていません'));ed.append(r)})}
+    [0,1].forEach(b=>{const r=el('div','kjmv-er'+(L[b]?' got':''));const p=L[b]&&players.find(x=>x.id===L[b]);r.append(el('em',null,String(b+1)),el('span',null,(b+1)+'箱目のラストワン'),el('b',null,p?(p.id===(me&&me.id)?'あなた':p.name):'まだ出ていません'));ed.append(r)})}
   const seg=el('div','kjmv-seg');const S=[['ふつう',''],['自分の番','turn'],['ピンチ','low'],['勝ち','won']];let cur='';
   S.forEach(([n,k])=>{const b=el('button',k===cur?'on':null,n);b.type='button';b.onclick=()=>{cur=k;seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));['turn','low','won'].forEach(c=>pm.classList.toggle(c,c===k));pm.pmSheen(100)};seg.append(b)});
   const nt=el('p','kjmv-nt','全部で2枚だけの限定マットです(1箱に1枚)。TCGの対戦で自分の側の場に敷かれ、友達戦では相手の画面にも見えます。指で傾けると光が動きます。キャラ以外をタップするとコウモリ(たまに金色)。');
-  const ver=el('small','kjmv-v',(typeof APP_VER!=='undefined'?APP_VER:'')+'  ·  mat 7');
+  const ver=el('small','kjmv-v',(typeof APP_VER!=='undefined'?APP_VER:'')+'  ·  mat 8');
   bx.append(hd,cl,st,ed,seg,nt,ver);document.body.append(o);
   const close=()=>{try{pm.pmStill()}catch(e){}o.remove()};cl.onclick=close;o.onclick=e=>{if(e.target===o)close()};
   /* tilt (transform only) */
@@ -14805,7 +14805,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=177';
+const TCG_SRC='tcg_play.html?v=178';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
