@@ -11000,7 +11000,7 @@ async function kjRedeem(k,id){const me=myPlayer();if(!db||!me||!invLoaded||invFo
 window.__kjPickTks=()=>{const out=[];const kp=kjPickLeft('k'),sp=kjPickLeft('s');if(kp)out.push({l:'二番くじ: KMRを選ぶ',n:kp,on:true,go:()=>kjPick('k')});if(sp)out.push({l:'ハロウィン版シークレットを選ぶ',n:sp,on:true,go:()=>kjPick('s')});return out};
 
 /* ---------- 管理者: 用意する ---------- */
-async function kjAdminCreate(btn){if(!(ORI_PV||(typeof isAdmin==='function'&&isAdmin())))return;if(kjAll().some(o=>now()<o.end)){toast('もう用意してあります');return}
+async function kjAdminCreate(btn){if(!(ORI_PV||(typeof isAdmin==='function'&&isAdmin())))return;if(typeof hw2Rel==='function'&&!hw2Rel()){toast('ハロウィン後編はまだ本番に出していません');return}if(kjAll().some(o=>now()<o.end)){toast('もう用意してあります');return}
   if(btn&&btn.dataset.ok!=='1'){btn.dataset.ok='1';btn.textContent='本当に用意する(240枚)';return}if(btn)btn.disabled=true;
   try{await kjCreate({});toast('二番くじを用意しました'+(ORI_PV?'':'(10/29 5:00 から)'));try{renderGacha()}catch(e){}}catch(e){toast('用意できませんでした('+(e.code||e.message)+')')}finally{if(btn){btn.disabled=false;btn.dataset.ok='';btn.textContent='二番くじを用意する'}}}
 
@@ -11057,16 +11057,20 @@ const HW2_TEAM_RW={win:{tk:[['ltk',10],['tp1_h',5]],kj:3,pt:3000,x:'限定ガチ
 const HW2_BINGO=50;
 /* titles join the Halloween ones (equip as usual) */
 Object.assign(HWP_TTL,{HW_TWp:{n:'かぼちゃ団の勝利',r:4},HW_TWb:{n:'こうもり団の勝利',r:4},HW_TAp:{n:'かぼちゃ団のエース',r:5},HW_TAb:{n:'こうもり団のエース',r:5},HW_G7:{n:'みんなでハロウィン',r:4},HW_BG:{n:'ビンゴマスター',r:4}});
+/* (10/26) 本番に出すかのスイッチ: false の間、本番では後編(チーム戦・目標・ゴールデンタイム・ビンゴ・二番くじの用意)が10/29を過ぎても始まらない。
+   お試し版(/preview/)とデモ(__hw0)ではいつも動く。後編を本番に出すときに true にする */
+const HW2_REL=false;
+const hw2Rel=()=>HW_PV||HW2_REL||!!window.__hw0;
 const hw2T0=()=>hwT0()+10*864e5,hw2T1=()=>hwT1();
-const hw2On=()=>{const t=now();return hwIn(t)&&t>=hw2T0()};
-const hw2Started=()=>now()>=hw2T0()&&(HW_HERE()||!!window.__hw0);
+const hw2On=()=>{const t=now();return hw2Rel()&&hwIn(t)&&t>=hw2T0()};
+const hw2Started=()=>hw2Rel()&&now()>=hw2T0()&&(HW_HERE()||!!window.__hw0);
 const hw2Done=()=>hwRankDone();
 const HW2K=HW_PV?{c2:'pc2',ct:'pc2t',dd:'pdd',tm:'ptm',cfg:'config/hwteampv',wk:'pv'}:{c2:'c2',ct:'c2t',dd:'dd',tm:'tm',cfg:'config/hwteam',wk:''};
 /* (10/25 22:55) チーム戦は 11/7 21:30 (ゴールデンタイムの終わり) で締める: 残りの時間でごほうびのチケットとくじ券を使える */
-const hw2TeamEnd=()=>hwT1()-7.5*36e5,hw2TeamDone=()=>(HW_HERE()||!!window.__hw0)&&now()>=hw2TeamEnd();
+const hw2TeamEnd=()=>hwT1()-7.5*36e5,hw2TeamDone=()=>hw2Rel()&&(HW_HERE()||!!window.__hw0)&&now()>=hw2TeamEnd();
 /* JST minutes of the day */
 const hw2Min=t=>{const d=new Date((t||now())+9*36e5);return d.getUTCHours()*60+d.getUTCMinutes()};
-const hwGoldAt=t=>hwIn(t)&&t>=hw2T0()&&!hwNightAt(t)&&(window.__hwGold?t>=now()-36e5:(hw2Min(t)>=HW2_GOLD[0]&&hw2Min(t)<HW2_GOLD[1]));
+const hwGoldAt=t=>hw2Rel()&&hwIn(t)&&t>=hw2T0()&&!hwNightAt(t)&&(window.__hwGold?t>=now()-36e5:(hw2Min(t)>=HW2_GOLD[0]&&hw2Min(t)<HW2_GOLD[1]));
 const hwGoldNow=()=>hwGoldAt(now());
 
 /* ---------- the candy of the 後編 ---------- */
@@ -16475,12 +16479,19 @@ const NEWS_EXP=typeof TCGD!=='undefined'&&!!TCGD.packs.c;
 /* (10/17) v135: when ハロウィン is in this build (the release switches HW_ON_REL on; the お試し版 always has it) the notice is the Halloween one
    and the v134 notice moves to これまでのアップデート */
 const NEWS_HW=HW_HERE()&&NEWS_EXP;
-const NEWS_ID=NEWS_HW?'2026-v136':NEWS_EXP?'2026-v134':'2026-v121';
+const NEWS_ID=NEWS_HW?'2026-v141':NEWS_EXP?'2026-v134':'2026-v121';
+const NEWS_V141=[
+ ['自分のお店',['取引所に「お店」。持っているカードに値段を付けて並べると、仲間がすぐ買える(オークションと違って競り合いなし)','1人6枠。同じカードは同じ枠に重ねて並べられる','売れると販売手数料15%を引いた額が入る(オークションは10%のまま)','安売りで相場が崩れないように、相場の80%より安くは並べられない']],
+ ['相場の下がり方',['相場は1回の取引で最大10%しか下がらない。下がってもレアの基本の値段の半分で止まる']],
+ ['闇鍋はおしまい',['闇鍋パックはなくなりました。まだ鍋に残っていたカードは、入れた人がアプリを開くと持ち物に戻ります(ptは減りません)']],
+ ['デッキ編成と図鑑を見やすく',['デッキ編成: 上にデッキ20枚、真ん中に選んだカードの説明、下に一覧。金の「+」ですぐ入れる。「おまかせで埋める」で残りを自動で入れる','TCG図鑑: 「絞り込み」ボタン1つで族・種類・熱量・レア。カード/リストの切り替え','スキン図鑑: 種類ごとのページ。持っていない物は番号だけの空きポケット']],
+ ['閉じるはいつも右上',['どの画面でも「閉じる」は右上。下までスクロールしても上に残る']],
+];
 const NEWS_V136=[
  ['TCG 新しい族のスターターを1つもらえる',['新しい5族(機装族・海賊族・巡生族・呪術族・異装族)から、好きな1つのスターターデッキがもらえる','ホームか「対戦 → TCG」の案内を押すと選ぶ画面。横にめくって見比べて「〇〇族にする」','選べるのは1回だけ。ほかの族のカードは、あとでパックが出たら集められる']],
  ['TCG カードのデザインが新しく',['絵がカードいっぱいに。額縁の金属でレアがわかる(Cは銅・Rは銀・SRは金と虹の線・ガチレアとリーダーは厚い金)','シークレットとハロウィン版の光り方はそのまま']],
  ['図鑑がボックスの形に',['TCGの図鑑はカード全体で3列。持っている版だけマスが分かれる','上の「ダブり〇枚をまとめて整理」で、全部かけら・全部燃やすが1回でできる','カードのページにも「全部かけら」「全部燃やす」']],
- ['取引所が4つの枠に',['オークション・闇鍋パック・今週の相場・自分の取引。押すとその画面','終わったオークションは出さない(落札したもの・戻ったものは今までどおり自動で届く)']],
+ ['取引所の枠',['仲間株・オークション・お店・今週の相場・自分の取引。押すとその画面','終わったオークションは出さない(落札したもの・戻ったものは今までどおり自動で届く)']],
  ['プロフィール・ショーケース・鑑定',['プロフィールは最高レート・通算・勝率を大きく、レートは高い順に1列','ショーケースと鑑定ケースのカードはカード全体で表示','鑑定ラベルが新しく。10点は黒地に金、9点はプラチナ']],
  ['ハロウィンの小袋・大袋',['ショップに小袋('+HWB.p5.price.toLocaleString()+' '+(typeof passUnit==='function'?passUnit():'応援値')+')と大袋('+HWB.p10.price.toLocaleString()+' '+(typeof passUnit==='function'?passUnit():'応援値')+')','中身はガチャのチケット(小袋'+HWB.p5.ltk+'枚・大袋'+HWB.p10.ltk+'枚)とTCGのチケット(小袋'+HWB.p5.tcg+'枚・大袋'+HWB.p10.tcg+'枚)']]
 ];
@@ -16509,7 +16520,7 @@ const NEWS_V134=NEWS_EXP?[
  ['分身バトル',['対戦タブを「ボス・クエスト・スコアアタック・仲間と戦う」の4つの大きなタイルに','スコアアタック: 平日に1日3回。ベスト記録で順位が決まり、金曜に報酬(1位500ptなど)','週末のボス: 挑むたびに参加報酬+15pt。倒したら全員に200pt+削った量で最大350pt、一番削った人は+120pt、とどめを刺した人は+80pt']],
  ['ホーム',['今日のイベントの帯(自動でスライド)。開催中のイベント・収穫・鑑定結果がひと目でわかる','新しい機能にNEWの印','iPhoneで下のバーが浮くことがあったのを直した','アップデートの通知が前の版の文で届いていたのを直した']]
 ]:null;
-const NEWS=NEWS_HW?NEWS_V136.concat(NEWS_V135):NEWS_V134||[ ['アプリの見た目を新しく',['下のメニューは「ホーム・ランキング・対戦・ガチャ・プロフィール」の5つ。TCGは「対戦」の中に入り、パックは「ガチャ」に名前が変わった','ホームはゲームのロビーのような画面に。真ん中にランクの紋章、上にレベル・ポイント・プレゼント・通知、左右にお題・MVP・シーズン・開催中のイベント・みんなの速報','「対戦」はレート対戦・TCG・デッキ・大会と履歴を上の切り替えでまとめた','ランクの紋章を新しいデザインにそろえた(ホーム・ランキング・プロフィールなど全部)','画面の切り替えやボタンの動きをなめらかに']],
+const NEWS=NEWS_HW?NEWS_V141.concat(NEWS_V136,NEWS_V135):NEWS_V134||[ ['アプリの見た目を新しく',['下のメニューは「ホーム・ランキング・対戦・ガチャ・プロフィール」の5つ。TCGは「対戦」の中に入り、パックは「ガチャ」に名前が変わった','ホームはゲームのロビーのような画面に。真ん中にランクの紋章、上にレベル・ポイント・プレゼント・通知、左右にお題・MVP・シーズン・開催中のイベント・みんなの速報','「対戦」はレート対戦・TCG・デッキ・大会と履歴を上の切り替えでまとめた','ランクの紋章を新しいデザインにそろえた(ホーム・ランキング・プロフィールなど全部)','画面の切り替えやボタンの動きをなめらかに']],
  ['ガチャ画面',['開催中のガチャが上に並び、選ぶと大きなバナーに。中身の一部、天井(GR確定まで)、1パック / 10連のボタンが1枚にまとまった','ポイントが足りないときは「あと何P」と出る']],
  ['ガチャの演出',['通常パックはメガネのレンズに光がたまり、その色が「いちばんいいレア度」の合図(白N・青R・紫SR・金UR・虹GR)。ときどき色が一段上がる','Vtuberガチャは配信画面に。スーパーチャットの色と金額がレア度の合図。KMRのときは虹色の¥1,000,000スパチャ']],
  ['起動画面とログインボーナス',['アプリを開くと、光の点がロゴを描いてからホームへ(触れると飛ばせる)','ログインボーナスは光の柱と3Dのコイン。月額パスの毎日のptも同じ演出で、パスの種類で色が変わる','効果音と振動は「設定・要望」の「効果音」でオンにできる(最初はオフ)']],
