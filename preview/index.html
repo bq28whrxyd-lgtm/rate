@@ -9726,7 +9726,8 @@ const hwGot=pid=>hwEarn(pid)+hwTotGot(pid);
 function hwRank(){const me=myPlayer(),live=hwOn();return players.filter(p=>p.uid&&!p.retired&&!p.ban).map(p=>{let c=+((hwps[p.id]||{})[HW_RK_KEY])||0;if(live&&me&&p.id===me.id&&invLoaded&&invFor===me.id)c=Math.max(c,hwGot(p.id));return{p,c}}).filter(x=>x.c>0).sort((a,b)=>b.c-a.c||(a.p.id<b.p.id?-1:1))}
 const hwRankDone=()=>(HW_HERE()||!!window.__hw0)&&now()>=hwT1();
 /* (10/25) 延長戦 11/8 5:00 - 11/9 5:00: only tickets and くじ券 (no points, no candy) */
-const HW_EXT=864e5,hwExt=()=>(HW_HERE()||!!window.__hw0)&&now()>=hwT1()&&now()<hwT1()+HW_EXT;
+/* (10/25 22:55) 延長戦はやめた: always off (the hooks stay, harmless) */
+const HW_EXT=0,hwExt=()=>false;
 const HW_EXT_MSG='延長戦はチケットだけで引けます(11/9 朝5時まで)';
 const hwRankShow=()=>hwRankDone()&&now()<hwT1()+HW_RK_SHOW;
 function hwRankPts(pid){if(HW_PV||!hwRankDone())return 0;const i=hwRank().findIndex(x=>x.p.id===pid);return i>=0&&i<3?HW_RK_PTS[i]:0}
@@ -10672,7 +10673,7 @@ const kjDayLeft=pid=>Math.max(0,KJ_DAY-kjToday(pid));
 function kjMakePz(){const pz=[];for(let b=0;b<KJ_BOXES;b++)for(let g=1;g<=6;g++)for(let k=0;k<KJ_CNT[g];k++)pz.push({g});return pz}
 async function kjCreate(o){const me=myPlayer();if(!me)throw new Error('me');o=o||{};const pz=kjMakePz(),N=pz.length,bx=KJ_BOX,t=now();
   const ord=[];for(let b=0;b<N/bx;b++)ord.push(...oriShuf([...Array(bx).keys()].map(i=>b*bx+i)));
-  const st=o.st!=null?o.st:(ORI_PV||window.__FAKE)?t:hwT0()+10*864e5,end=o.end!=null?o.end:hwT1()+864e5;/* (10/25) +1日の延長戦(くじ券だけ) */
+  const st=o.st!=null?o.st:(ORI_PV||window.__FAKE)?t:hwT0()+10*864e5,end=o.end!=null?o.end:hwT1();
   const id='k'+t.toString(36),meta={ty:'kuji',nm:'キモオタ二番くじ',p:KJ_PRICE,N,box:bx,x:0,st,end,t,pz,last:{k:'mat'},by:me.id};
   if(ORI_PV){ORIL.create(id,meta,ord);return id}
   for(let i=0;i<N;i++){const p=pz[ord[i]];await db.doc('oris/'+id+'_'+i).set({o:id,i,j:ord[i],g:p.g,tb:'',tt:0,op:false})}
@@ -10806,7 +10807,7 @@ function kjMatView(){document.querySelectorAll('body>.kjmv').forEach(x=>x.remove
   setTimeout(()=>{try{pm.pmPlay(0);pm.pmSheen(300)}catch(e){}},200)}
 /* ORIKJjs:end */
 /* ORIH2js:begin */
-/* ===== ハロウィン後編 (10/29 5:00 - 11/8 5:00): チーム戦・みんなで目標・毎日のミニ勝負・ゴールデンタイム・ビンゴ・仲間を起こす =====
+/* ===== ハロウィン後編 (10/29 5:00 - 11/8 5:00): チーム戦・みんなで目標・ゴールデンタイム・ビンゴ =====
    後編のお菓子 = 後編の間にもらったお菓子(時刻のあるものだけ)。各アプリが自分の数を hwp/{pid} に公開する(c2 = 合計、dd = 日ごと)。
    チーム: config/hwteam (お試し版は hwteampv) を後編が始まって最初に開いた人のアプリが作る(レートとレベルをならして、交互に分ける)。
    あとから来た人は自分のアプリが少ない方を選んで hwp.tm に書く。
@@ -10818,14 +10819,16 @@ const HW2_GOAL_F=[.1,.2,.35,.5,.65,.8,1];
 const HW2_GOAL_RW=[{pt:500,x:'500pt'},{tk:'ptk',n:5,x:'通常パックチケット ×5'},{tk:'ltk',n:2,x:'限定ガチャチケット ×2'},{tk:'tp1_h',n:3,x:'TCGハロウィンパック券 ×3'},{tk:'ltk',n:4,x:'限定ガチャチケット ×4'},{kj:2,x:'二番くじ券 ×2'},{kj:3,ttl:'HW_G7',fr:'lhw9',x:'二番くじ券 ×3 と 称号「みんなでハロウィン」と フレーム「かぼちゃの灯火」'}];
 const HW2_NEED=50;/* みんなで目標のごほうびは、自分の後編のお菓子が50以上の人だけ */
 const HW2_TEAM_RW={win:{tk:'ltk',n:3,pt:1000,kj:1,x:'限定ガチャチケット ×3・1,000pt・二番くじ券 ×1・称号「○○団の勝利」'},lose:{tk:'ltk',n:1,pt:500,x:'限定ガチャチケット ×1・500pt'},mvp:{kj:2,x:'二番くじ券 ×2・称号「○○団のエース」'}};
-const HW2_DAY_PT=100,HW2_WAKE=10,HW2_WAKE_IN=2,HW2_BINGO=50;
+const HW2_BINGO=50;
 /* titles join the Halloween ones (equip as usual) */
 Object.assign(HWP_TTL,{HW_TWp:{n:'かぼちゃ団の勝利',r:4},HW_TWb:{n:'こうもり団の勝利',r:4},HW_TAp:{n:'かぼちゃ団のエース',r:5},HW_TAb:{n:'こうもり団のエース',r:5},HW_G7:{n:'みんなでハロウィン',r:4},HW_BG:{n:'ビンゴマスター',r:4}});
 const hw2T0=()=>hwT0()+10*864e5,hw2T1=()=>hwT1();
 const hw2On=()=>{const t=now();return hwIn(t)&&t>=hw2T0()};
 const hw2Started=()=>now()>=hw2T0()&&(HW_HERE()||!!window.__hw0);
 const hw2Done=()=>hwRankDone();
-const HW2K=HW_PV?{c2:'pc2',dd:'pdd',tm:'ptm',cfg:'config/hwteampv',wk:'pv'}:{c2:'c2',dd:'dd',tm:'tm',cfg:'config/hwteam',wk:''};
+const HW2K=HW_PV?{c2:'pc2',ct:'pc2t',dd:'pdd',tm:'ptm',cfg:'config/hwteampv',wk:'pv'}:{c2:'c2',ct:'c2t',dd:'dd',tm:'tm',cfg:'config/hwteam',wk:''};
+/* (10/25 22:55) チーム戦は 11/7 21:30 (ゴールデンタイムの終わり) で締める: 残りの時間でごほうびのチケットとくじ券を使える */
+const hw2TeamEnd=()=>hwT1()-7.5*36e5,hw2TeamDone=()=>(HW_HERE()||!!window.__hw0)&&now()>=hw2TeamEnd();
 /* JST minutes of the day */
 const hw2Min=t=>{const d=new Date((t||now())+9*36e5);return d.getUTCHours()*60+d.getUTCMinutes()};
 const hwGoldAt=t=>hwIn(t)&&t>=hw2T0()&&!hwNightAt(t)&&(window.__hwGold?t>=now()-36e5:(hw2Min(t)>=HW2_GOLD[0]&&hw2Min(t)<HW2_GOLD[1]));
@@ -10841,14 +10844,16 @@ function hw2Mine(pid,noX){const t0=hw2T0(),L=hw2Ev(pid).concat(hw2TotEv(pid));re
 const hw2C2Local=pid=>Math.floor(hw2Mine(pid).reduce((a,[n])=>a+n,0));
 const hw2DayLocal=(pid,d,noX)=>Math.floor(hw2Mine(pid,noX).filter(([n,t])=>dayNo(t)===d).reduce((a,[n])=>a+n,0));
 /* anyone's: what their app published (my own: the larger of that and what I see now) */
+const hw2CTLocal=pid=>{const e=hw2TeamEnd();return Math.floor(hw2Mine(pid).filter(([n,t])=>t<e).reduce((a,[n])=>a+n,0))};
+function hw2CT(pid){const me=myPlayer(),pub=+((hwps[pid]||{})[HW2K.ct])||0;return me&&pid===me.id&&invLoaded&&invFor===me.id?Math.max(pub,hw2CTLocal(pid)):pub}
 function hw2C2(pid){const me=myPlayer(),pub=+((hwps[pid]||{})[HW2K.c2])||0;return me&&pid===me.id&&invLoaded&&invFor===me.id?Math.max(pub,hw2C2Local(pid)):pub}
 function hw2Day(pid,d){const me=myPlayer(),pub=+(((hwps[pid]||{})[HW2K.dd]||{})[d])||0;return me&&pid===me.id&&invLoaded&&invFor===me.id?Math.max(pub,hw2DayLocal(pid,d)):pub}
 /* publish c2 and the last few days (same rhythm as the ranking: at most once a minute, only when it grew) */
 let hw2PubT=0;
-function hw2Pub(){const me=myPlayer();if(!me||!db||!invLoaded||invFor!==me.id||!hw2On()||now()-hw2PubT<60000)return;const c2=hw2C2Local(me.id),P=hwps[me.id]||{};
+function hw2Pub(){const me=myPlayer();if(!me||!db||!invLoaded||invFor!==me.id||!hw2On()||now()-hw2PubT<60000)return;const c2=hw2C2Local(me.id),ct=hw2CTLocal(me.id),P=hwps[me.id]||{};
   const d=dayNo(now()),dd={};for(let k=d-6;k<=d;k++){const v=hw2DayLocal(me.id,k);if(v>0)dd[k]=v}
-  const same=c2<=(+P[HW2K.c2]||0)&&JSON.stringify(dd)===JSON.stringify(P[HW2K.dd]||{});if(same)return;hw2PubT=now();
-  db.doc('hwp/'+me.id).set({[HW2K.c2]:Math.max(c2,+P[HW2K.c2]||0),[HW2K.dd]:dd,u:now()},{merge:true}).then(()=>{hwps[me.id]=Object.assign({},hwps[me.id]||{},{[HW2K.c2]:c2,[HW2K.dd]:dd})}).catch(()=>{})}
+  const same=c2<=(+P[HW2K.c2]||0)&&ct<=(+P[HW2K.ct]||0)&&JSON.stringify(dd)===JSON.stringify(P[HW2K.dd]||{});if(same)return;hw2PubT=now();
+  db.doc('hwp/'+me.id).set({[HW2K.c2]:Math.max(c2,+P[HW2K.c2]||0),[HW2K.ct]:Math.max(ct,+P[HW2K.ct]||0),[HW2K.dd]:dd,u:now()},{merge:true}).then(()=>{hwps[me.id]=Object.assign({},hwps[me.id]||{},{[HW2K.c2]:c2,[HW2K.ct]:ct,[HW2K.dd]:dd})}).catch(()=>{})}
 
 /* ---------- the two teams ---------- */
 let hw2Cfg=null,hw2CfgOn=false;
@@ -10870,13 +10875,11 @@ function hw2JoinLate(){const me=myPlayer();if(!me||!hw2Cfg||hw2Team(me.id)||!db|
   db.doc('hwp/'+me.id).set({[HW2K.tm]:tm,u:now()},{merge:true}).then(()=>{hwps[me.id]=Object.assign({},hwps[me.id]||{},{[HW2K.tm]:tm})}).catch(()=>{}).finally(()=>{hw2JoinLate.busy=0})}
 const hw2Members=tm=>hw2Elig().filter(p=>hw2Team(p.id)===tm);
 /* a team's score: the average 後編 candy of those who have any */
-function hw2TeamScore(tm,day){const L=hw2Members(tm).map(p=>day==null?hw2C2(p.id):hw2Day(p.id,day)).filter(v=>v>0);return {avg:L.length?Math.round(L.reduce((a,v)=>a+v,0)/L.length):0,n:L.length,all:hw2Members(tm).length}}
-function hw2Mvp(tm){let best=null;for(const p of hw2Members(tm)){const v=hw2C2(p.id);if(v>0&&(!best||v>best.v||(v===best.v&&p.id<best.p.id)))best={p,v}}return best}
+function hw2TeamScore(tm,day){const L=hw2Members(tm).map(p=>day==null?hw2CT(p.id):hw2Day(p.id,day)).filter(v=>v>0);return {avg:L.length?Math.round(L.reduce((a,v)=>a+v,0)/L.length):0,n:L.length,all:hw2Members(tm).length}}
+function hw2Mvp(tm){let best=null;for(const p of hw2Members(tm)){const v=hw2CT(p.id);if(v>0&&(!best||v>best.v||(v===best.v&&p.id<best.p.id)))best={p,v}}return best}
 const hw2Winner=day=>{const a=hw2TeamScore('p',day),b=hw2TeamScore('b',day);return a.avg===b.avg?null:a.avg>b.avg?'p':'b'};
 
-/* ---------- 毎日のミニ勝負: 毎朝5時に昨日の勝ちチーム。勝ちチームで昨日遊んだ人に100pt ---------- */
 function hw2Days(){const d0=dayNo(hw2T0()),d1=Math.min(dayNo(now())-1,dayNo(hw2T1()-1)),L=[];for(let d=d0;d<=d1;d++)L.push(d);return L}
-function hw2DayPts(pid){if(!hw2Cfg)return 0;const tm=hw2Team(pid);if(!tm)return 0;let t=0;for(const d of hw2Days())if(hw2Winner(d)===tm&&hw2Day(pid,d)>0)t+=HW2_DAY_PT;return t}
 
 /* ---------- みんなで目標 ---------- */
 const hw2Total=()=>hw2Elig().reduce((a,p)=>a+hw2C2(p.id),0);
@@ -10886,11 +10889,11 @@ const hw2GoalOk=pid=>hw2C2(pid)>=HW2_NEED;
 function hw2GoalRw(pid){if(!hw2Cfg||!hw2GoalOk(pid))return [];return HW2_GOAL_RW.slice(0,hw2GoalN())}
 
 /* ---------- チーム戦のごほうび (結果は終わったあと) ---------- */
-function hw2TeamRw(pid){if(!hw2Cfg||!hw2Done())return [];const tm=hw2Team(pid);if(!tm||hw2C2(pid)<=0)return [];const w=hw2Winner(null),out=[];
+function hw2TeamRw(pid){if(!hw2Cfg||!hw2TeamDone())return [];const tm=hw2Team(pid);if(!tm||hw2CT(pid)<=0)return [];const w=hw2Winner(null),out=[];
   if(w)out.push(Object.assign({k:w===tm?'win':'lose'},w===tm?HW2_TEAM_RW.win:HW2_TEAM_RW.lose));const m=hw2Mvp(tm);if(m&&m.p.id===pid)out.push(Object.assign({k:'mvp'},HW2_TEAM_RW.mvp));return out}
 const hw2Rws=pid=>hw2GoalRw(pid).concat(hw2TeamRw(pid));
 /* into the app's counts */
-function hw2Pts(pid){if(HW_PV)return 0;let t=hw2DayPts(pid);for(const r of hw2Rws(pid))t+=+r.pt||0;return t}
+function hw2Pts(pid){if(HW_PV)return 0;let t=0;for(const r of hw2Rws(pid))t+=+r.pt||0;return t}
 function hw2Tk(pid,kind){if(HW_PV)return 0;let n=0;for(const r of hw2Rws(pid))if(r.tk===kind)n+=+r.n||0;return n}
 const hw2Kj=pid=>hw2Rws(pid).reduce((a,r)=>a+(+r.kj||0),0);
 (window.KJ_TKS=window.KJ_TKS||[]).push(hw2Kj);
@@ -10931,8 +10934,8 @@ const HW2_BT=[
   ['gt','ゴールデンタイムに遊ぶ',pid=>hw2Nth(hw2Mine(pid,1).filter(([n,t])=>hwGoldAt(t)).map(x=>x[1]),1)],
   ['c100','後編のお菓子を100集める',pid=>{let s=0;for(const [n,t] of hw2Mine(pid,1).sort((a,b)=>a[1]-b[1])){s+=n;if(s>=100)return t}return 0}],
   ['c300','後編のお菓子を300集める',pid=>{let s=0;for(const [n,t] of hw2Mine(pid,1).sort((a,b)=>a[1]-b[1])){s+=n;if(s>=300)return t}return 0}],
-  ['wk','仲間を起こす',pid=>hw2Nth(hw2Wakes().filter(w=>w.f===pid).map(w=>+w.t),1)],
-  ['dw','ミニ勝負で勝ちチームに入る',pid=>{const tm=hw2Team(pid);for(const d of hw2Days())if(tm&&hw2Winner(d)===tm&&hw2Day(pid,d)>0)return (d+1)*864e5-4*36e5;return 0}],
+  ['t5','TCGの友達戦を5回',pid=>hw2Nth(hw2Tg(pid).map(d=>d.t),5)],
+  ['d5','5日遊ぶ',pid=>{let n=0;for(let d=dayNo(hw2T0());d<=dayNo(now());d++)if(hw2Day(pid,d)>0&&++n>=5)return (d+1)*864e5-4*36e5-1;return 0}],
   ['d3','3日遊ぶ',pid=>{let n=0;for(let d=dayNo(hw2T0());d<=dayNo(now());d++)if(hw2Day(pid,d)>0&&++n>=3)return (d+1)*864e5-4*36e5-1;return 0}],
   ['mx','ハロウィンガチャを引く',pid=>pid===invFor&&((+inv.hwlp||0)>(+((hwps[pid]||{}).lp0)||0))?(hw2T0()+1):0],
   ['ep','いたずらよけかお菓子2倍券を使う',pid=>pid===invFor?hw2Nth(((inv[HWK.d]||[]).map(Number)).filter(hw2Since),1):0]];
@@ -10942,68 +10945,45 @@ function hw2Card(pid){const h=s=>{let x=2166136261;for(const c of String(s)){x^=
   const C=L.slice(0,24);C.splice(12,0,null);return C}
 const HW2_LINES=(()=>{const L=[];for(let r=0;r<5;r++)L.push([0,1,2,3,4].map(c=>r*5+c));for(let c=0;c<5;c++)L.push([0,1,2,3,4].map(r=>r*5+c));L.push([0,6,12,18,24],[4,8,12,16,20]);return L})();
 let hw2BMemo={k:'',v:{}};
-function hw2Bingo(pid){const k=[matches.length,(typeof tcgms!=='undefined'?tcgms.length:0),bunLogs.length,(typeof tots!=='undefined'?tots.length:0),hw2Wakes().length,Object.keys(hwps).length,(typeof oriPays!=='undefined'?oriPays.length:0),hwMemo.k,dayNo(now())].join('|');
+function hw2Bingo(pid){const k=[matches.length,(typeof tcgms!=='undefined'?tcgms.length:0),bunLogs.length,(typeof tots!=='undefined'?tots.length:0),0,Object.keys(hwps).length,(typeof oriPays!=='undefined'?oriPays.length:0),hwMemo.k,dayNo(now())].join('|');
   if(hw2BMemo.k!==k)hw2BMemo={k,v:{}};if(hw2BMemo.v[pid])return hw2BMemo.v[pid];
   const C=hw2Card(pid),T=C.map((t,i)=>i===12?hw2T0():(window.__h2B&&pid===invFor&&window.__h2B.includes(t[0]))?now()-36e5:(()=>{try{return +t[2](pid)||0}catch(e){return 0}})());/* (demo: __h2B = tasks to show as done) */
   const lines=HW2_LINES.map(L=>L.every(i=>T[i])?Math.max(...L.map(i=>T[i])):0);
   return hw2BMemo.v[pid]={C,T,lines,n:lines.filter(Boolean).length}}
 const hw2BingoAll=pid=>{try{return hw2Bingo(pid).T.every(Boolean)}catch(e){return false}};
 
-/* ---------- 仲間を起こす: 同じチームの今日まだ遊んでいない人に1日1回。その日に遊んだら2人とも+10 ---------- */
-let hw2Wk=[],hw2WkOn=false;
-function hw2WakeWatch(){if(hw2WkOn||!db)return;hw2WkOn=true;const c=db.collection('wake');(c.where?c.where('t','>',hw2T0()-864e5):c).onSnapshot(s=>{hw2Wk=s.docs.map(d=>({id:d.id,...d.data()})).filter(w=>!!w.pv===!!HW_PV);queueRender();try{hw2Redraw()}catch(e){}},()=>{})}
-const hw2Wakes=()=>hw2Wk;
-const hw2WakeSent=pid=>hw2Wk.filter(w=>w.f===pid&&w.d===dayNo(now())).length;
-const hw2WakeGot=(pid,d)=>hw2Wk.filter(w=>w.o===pid&&w.d===d).length;
-/* who I can wake now: same team, hasn't played today, not woken twice today */
-function hw2WakeList(){const me=myPlayer();if(!me||!hw2On())return [];const tm=hw2Team(me.id),d=dayNo(now());return hw2Members(tm).filter(p=>p.id!==me.id&&hw2Day(p.id,d)<=0&&hw2WakeGot(p.id,d)<HW2_WAKE_IN&&!hw2Wk.some(w=>w.f===me.id&&w.o===p.id&&w.d===d))}
-async function hw2Wake(pid){const me=myPlayer();if(!me||!db||!hw2On())throw new Error('off');if(hw2WakeSent(me.id)>=1)throw new Error('used');const d=dayNo(now()),id='w'+d+'_'+me.id;
-  await db.doc('wake/'+id).set(Object.assign({f:me.id,o:pid,d,t:now()},HW_PV?{pv:1}:{}));}
-/* the candy: for each wake whose sleeper played that day, +10 to both (the first two a sleeper gets that day) */
-function hw2WakeEv(pid){const out=[];const byO={};hw2Wk.slice().sort((a,b)=>a.t-b.t).forEach(w=>{const k=w.o+'|'+w.d;byO[k]=(byO[k]||0)+1;if(byO[k]>HW2_WAKE_IN)return;
-    if(w.f!==pid&&w.o!==pid)return;let played=0;try{played=w.o===pid&&pid===invFor?hw2DayLocal(pid,w.d,1):+(((hwps[w.o]||{})[HW2K.dd]||{})[w.d])||0}catch(e){}if(played>0)out.push([HW2_WAKE,+w.t])});return out}
-/* the bingo lines and the wakes are candy too (hwEarn adds these) */
-window.HW2_EV=pid=>{if(!hw2Started())return [];const out=hw2WakeEv(pid);try{const B=hw2Bingo(pid);B.lines.forEach(t=>{if(t)out.push([HW2_BINGO,t])})}catch(e){}return out};
-window.HW2_K=()=>[hw2Wk.length,hw2Cfg?1:0,Object.keys(hwps).length,Math.floor(now()/6e4)].join(',');
+/* the bingo lines are candy too (hwEarn adds these) */
+window.HW2_EV=pid=>{if(!hw2Started())return [];const out=[];try{const B=hw2Bingo(pid);B.lines.forEach(t=>{if(t)out.push([HW2_BINGO,t])})}catch(e){}return out};
+window.HW2_K=()=>[hw2Cfg?1:0,Object.keys(hwps).length,Math.floor(now()/6e4)].join(',');
 window.hwGoldAt=hwGoldAt;
 
 /* ---------- 毎秒ではなく、データが来たときだけ: チームを作る・あとから入る・公開・フレーム ---------- */
-function hw2Tick(){try{if(!hw2Started())return;hw2CfgWatch();hw2WakeWatch();try{hwpWatch();totWatch()}catch(e){}hw2MakeTeams();hw2JoinLate();hw2Pub();hw2Claim()}catch(e){console.warn('hw2',e)}}
+function hw2Tick(){try{if(!hw2Started())return;hw2CfgWatch();try{hwpWatch();totWatch()}catch(e){}hw2MakeTeams();hw2JoinLate();hw2Pub();hw2Claim()}catch(e){console.warn('hw2',e)}}
 setInterval(hw2Tick,15000);setTimeout(hw2Tick,4000);
 function hw2Redraw(){try{hwOpen.redraw&&document.querySelector('.hlw')&&hwOpen.redraw()}catch(e){}try{hw2HomePaint()}catch(e){}}
 
 /* ---------- the pages in the ハロウィン sheet ---------- */
 window.HW2_TILES=(tile,me,on)=>{if(!hw2Started())return;const tm=hw2Team(me.id),a=hw2TeamScore('p'),b=hw2TeamScore('b');
-  tile('team','h2t','チーム戦',!hw2Cfg?'チーム分けを待っています':(tm?'あなたは'+HW2_TM[tm].n+'  ·  ':'')+'平均 '+a.avg+' 対 '+b.avg+(hw2Done()?'  ·  結果':''),hw2WakeList().length&&hw2WakeSent(me.id)<1?'!':'');
+  tile('team','h2t','チーム戦',!hw2Cfg?'チーム分けを待っています':(tm?'あなたは'+HW2_TM[tm].n+'  ·  ':'')+'平均 '+a.avg+' 対 '+b.avg+(hw2TeamDone()?'  ·  結果':''),'');
   tile('goal','h2g','みんなで目標',hw2GoalN()+' / 7 段  ·  合計 '+hw2Total().toLocaleString(),'');
   {const B=hw2Bingo(me.id);tile('bingo','h2b','後編ビンゴ',B.n+' 列そろった  ·  1列で お菓子+'+HW2_BINGO,'')}
   tile(()=>{document.querySelectorAll('.hlw').forEach(x=>x.remove());document.body.classList.remove('ovl');setView('gacha');setTimeout(()=>{try{gpageSet('skin')}catch(e){}setTimeout(()=>{const c=document.querySelector('#kgu-skin .kgu-chip[data-b=kuji]');c&&c.click()},300)},300)},'h2k','キモオタ二番くじ','1回400pt  ·  ハズレなし  ·  A賞 TCGハロウィンKMR','')};
 /* the golden time strip under the night strip */
-window.HW2_STRIP=b=>{if(typeof hwExt==='function'&&hwExt()){const n=el('div','hlw-night h2-gold on');const tx=el('div');tx.append(el('b',null,'延長戦'),el('span',null,'もらったチケットとくじ券を使える日(ptでは引けません)'));n.append(tx,el('em',null,'あと '+hwLeft(hwT1()+HW_EXT)));b.append(n);return}if(!hw2Started()||hw2Done())return;const on=hwGoldNow(),n=el('div','hlw-night h2-gold'+(on?' on':''));const tx=el('div');tx.append(el('b',null,'ゴールデンタイム'),el('span',null,on?'いまお菓子が1.5倍':'毎晩 21:00〜21:30  お菓子が1.5倍'));n.append(tx);
+window.HW2_STRIP=b=>{if(!hw2Started()||hw2Done())return;const on=hwGoldNow(),n=el('div','hlw-night h2-gold'+(on?' on':''));const tx=el('div');tx.append(el('b',null,'ゴールデンタイム'),el('span',null,on?'いまお菓子が1.5倍':'毎晩 21:00〜21:30  お菓子が1.5倍'));n.append(tx);
   if(on){const e=new Date(now()+9*36e5);const left=(HW2_GOLD[1]-hw2Min(now()))*60000-e.getUTCSeconds()*1000;n.append(el('em',null,'あと '+Math.max(1,Math.ceil(left/60000))+'分'))}b.append(n)};
 window.HW2_SUB=(sub,b,me,draw)=>{if(sub==='team'){b.append(hw2TeamSec(me,draw));return true}if(sub==='goal'){b.append(hw2GoalSec(me,draw));return true}if(sub==='bingo'){b.append(hw2BingoSec(me));return true}return false};
 const hw2Bar=(a,b)=>{const w=el('div','h2-bar'),t=a+b||1;const pa=el('i','p'),pb=el('i','b');pa.style.flexGrow=String(Math.max(.02,a/t));pb.style.flexGrow=String(Math.max(.02,b/t));w.append(pa,pb);return w};
-function hw2TeamSec(me,draw){const s=el('div','hlw-sec h2-team');const hd=el('h3',null,'チーム戦');hd.append(el('small',null,hw2Done()?'結果':'後編のお菓子の平均で競う'));s.append(hd);
+function hw2TeamSec(me,draw){const s=el('div','hlw-sec h2-team');const hd=el('h3',null,'チーム戦');hd.append(el('small',null,hw2TeamDone()?'結果':'後編のお菓子の平均で競う'));s.append(hd);
   if(!hw2Cfg){s.append(el('div','sub','10/29 朝5時のあと、最初にアプリを開いた人のところで自動でチームが分かれます(レートとレベルをならして半分ずつ)。'));return s}
-  const tm=hw2Team(me.id),A=hw2TeamScore('p'),B=hw2TeamScore('b'),w=hw2Done()?hw2Winner(null):null;
+  const tm=hw2Team(me.id),A=hw2TeamScore('p'),B=hw2TeamScore('b'),w=hw2TeamDone()?hw2Winner(null):null;
   const top=el('div','h2-vs');[['p',A],['b',B]].forEach(([k,S])=>{const c=el('div','h2-tc '+k+(tm===k?' me':'')+(w===k?' win':''));c.append(el('small',null,tm===k?'あなたのチーム':''),el('b',null,HW2_TM[k].n),el('strong',null,S.avg.toLocaleString()),el('span',null,'平均  ·  '+S.n+' / '+S.all+'人が参加'));top.append(c)});
   s.append(top,hw2Bar(A.avg,B.avg));
-  if(hw2Done())s.append(el('div','h2-res',w?HW2_TM[w].n+'の勝ち!':'引き分け'));
-  if(hw2Done()){const L=hw2TeamRw(me.id);if(L.length){const r=el('div','h2-my');r.append(el('b',null,'あなたのごほうび'));L.forEach(x=>r.append(el('span',null,(x.k==='mvp'?'エース: ':x.k==='win'?'勝ち: ':'参加: ')+x.x.replace('○○',HW2_TM[tm].n.replace('団','')))));r.append(el('small',null,hwExt()?'チケットとくじ券は 11/9 朝5時まで使えます(延長戦)':''));s.append(r)}else if(tm)s.append(el('div','sub','後編のお菓子が0だったので、チーム戦のごほうびはありません。'))}
+  if(hw2TeamDone())s.append(el('div','h2-res',w?HW2_TM[w].n+'の勝ち!':'引き分け'));
+  if(hw2TeamDone()){const L=hw2TeamRw(me.id);if(L.length){const r=el('div','h2-my');r.append(el('b',null,'あなたのごほうび'));L.forEach(x=>r.append(el('span',null,(x.k==='mvp'?'エース: ':x.k==='win'?'勝ち: ':'参加: ')+x.x.replace('○○',HW2_TM[tm].n.replace('団','')))));r.append(el('small',null,''));s.append(r)}else if(tm)s.append(el('div','sub','後編のお菓子が0だったので、チーム戦のごほうびはありません。'))}
   /* members, best first */
-  if(tm){const L=hw2Members(tm).map(p=>({p,v:hw2C2(p.id)})).sort((a,b)=>b.v-a.v),ul=el('div','h2-mem');L.forEach((x,i)=>{const r=el('div','h2-mr'+(x.p.id===me.id?' me':''));r.append(el('em',null,String(i+1)),el('b',null,x.p.name),el('span',null,x.v.toLocaleString()));if(i===0&&x.v>0)r.append(el('small',null,hw2Done()?'エース':'エース候補'));ul.append(r)});
+  if(tm){const L=hw2Members(tm).map(p=>({p,v:hw2CT(p.id)})).sort((a,b)=>b.v-a.v),ul=el('div','h2-mem');L.forEach((x,i)=>{const r=el('div','h2-mr'+(x.p.id===me.id?' me':''));r.append(el('em',null,String(i+1)),el('b',null,x.p.name),el('span',null,x.v.toLocaleString()));if(i===0&&x.v>0)r.append(el('small',null,hw2TeamDone()?'エース':'エース候補'));ul.append(r)});
     const h4=el('h4',null,HW2_TM[tm].n+'のメンバー');s.append(h4,ul)}
-  /* yesterday and before: the daily mini match */
-  const D=hw2Days().slice().reverse();if(D.length){const h4=el('h4',null,'毎日のミニ勝負');s.append(h4,el('div','sub','毎朝5時に、前の日の平均が多かったチームの勝ち。勝ったチームで前の日に遊んだ人に '+HW2_DAY_PT+'pt。'));
-    const ul=el('div','h2-days');D.slice(0,10).forEach(d=>{const w2=hw2Winner(d),r=el('div','h2-dr'+(w2?' '+w2:''));const dt=new Date((d*864e5)+5*36e5);r.append(el('span',null,(dt.getUTCMonth()+1)+'/'+dt.getUTCDate()),el('b',null,w2?HW2_TM[w2].n:'引き分け'),el('small',null,hw2TeamScore('p',d).avg+' 対 '+hw2TeamScore('b',d).avg));if(w2&&w2===tm&&hw2Day(me.id,d)>0)r.append(el('em',null,'+'+HW2_DAY_PT+'pt'));ul.append(r)});s.append(ul)}
-  /* wake a teammate */
-  if(tm&&hw2On()){const h4=el('h4',null,'仲間を起こす');s.append(h4,el('div','sub','同じチームで今日まだ遊んでいない人に、1日1回知らせを送れます。その日に遊んだら、ふたりともお菓子 +'+HW2_WAKE+'。'));
-    const L=hw2WakeList(),used=hw2WakeSent(me.id)>=1,row=el('div','hlw-fr');
-    if(!L.length)s.append(el('div','sub',used?'今日はもう起こしました。':'いま起こせる人はいません(みんな遊んでいます)'));
-    L.forEach(p=>{const bt=el('button','hlw-fb');bt.type='button';const ph=el('div','hlw-fa');try{ph.append(avatar(p))}catch(e){}bt.append(ph,el('b',null,p.name),el('small',null,used?'今日はもう':'起こす'));bt.disabled=used;
-      bt.onclick=async()=>{bt.disabled=true;try{await hw2Wake(p.id);toast(p.name+'を起こしました。今日遊んだらふたりにお菓子 +'+HW2_WAKE);draw()}catch(e){bt.disabled=false;toast(e.message==='used'?'今日はもう起こしました':'送れませんでした')}};row.append(bt)});
-    if(L.length)s.append(row)}
-  s.append(el('div','sub hlw-note','勝ち: '+HW2_TEAM_RW.win.x.replace('○○',tm?HW2_TM[tm].n.replace('団',''):'○○')+'  ·  負け: '+HW2_TEAM_RW.lose.x+'  ·  チームでいちばん集めた人: '+HW2_TEAM_RW.mvp.x.replace('○○',tm?HW2_TM[tm].n.replace('団',''):'○○')+'。結果は11/8 朝5時。'+(HW_PV?' お試し版ではptとチケットは入りません。':'')));
+  s.append(el('div','sub hlw-note','勝ち: '+HW2_TEAM_RW.win.x.replace('○○',tm?HW2_TM[tm].n.replace('団',''):'○○')+'  ·  負け: '+HW2_TEAM_RW.lose.x+'  ·  チームでいちばん集めた人: '+HW2_TEAM_RW.mvp.x.replace('○○',tm?HW2_TM[tm].n.replace('団',''):'○○')+'。結果は11/7 夜9時半(ゴールデンタイムの終わり)。ごほうびのチケットとくじ券は、そのあと11/8 朝5時まで使えます。'+(HW_PV?' お試し版ではptとチケットは入りません。':'')));
   hw2TitleBtns(s,me);return s}
 function hw2GoalSec(me,draw){const s=el('div','hlw-sec h2-goal');const hd=el('h3',null,'みんなで目標');hd.append(el('small',null,'全員の後編のお菓子の合計'));s.append(hd);
   const G=hw2Goals(),T=hw2Total(),n=hw2GoalN(),ok=hw2GoalOk(me.id),mine=hw2C2(me.id);
@@ -11019,7 +10999,7 @@ function hw2BingoSec(me){const s=el('div','hlw-sec h2-bingo');const B=hw2Bingo(m
 function hw2TitleBtns(s,me){const L=hw2Titles(me.id);if(!L.length)return;const r=el('div','h2-ttl');L.forEach(id=>{const on2=(me.eq||{}).t===id,b=el('button','hlw-eq',on2?'装備中':'称号「'+HWP_TTL[id].n+'」にする');b.onclick=async()=>{b.disabled=true;try{const cur=Object.assign({},me.eq||{});cur.t=on2?null:id;await db.doc('players/'+me.id).update({eq:cur});me.eq=cur;toast(on2?'はずしました':'称号を付けました');hw2Redraw()}catch(e){b.disabled=false;toast('できませんでした')}};r.append(b)});s.append(r)}
 
 /* ---------- ホーム: 2色のバー(チーム戦)。今日のイベントの先頭のカード ---------- */
-window.HW2_HOME=()=>{if(!hw2Started()||!hw2Cfg||now()>hw2T1()+3*864e5)return null;const me=myPlayer(),tm=me?hw2Team(me.id):null,A=hw2TeamScore('p').avg,B=hw2TeamScore('b').avg,dn=hw2Done(),win=dn?hw2Winner(null):null;
+window.HW2_HOME=()=>{if(!hw2Started()||!hw2Cfg||now()>hw2T1()+3*864e5)return null;const me=myPlayer(),tm=me?hw2Team(me.id):null,A=hw2TeamScore('p').avg,B=hw2TeamScore('b').avg,dn=hw2TeamDone(),win=dn?hw2Winner(null):null;
   return{c:'e9 h2s',k:'TEAM BATTLE',t:HW2_TM.p.n+' '+A+'  対  '+B+' '+HW2_TM.b.n,s:dn?(win?HW2_TM[win].n+'の勝ち':'引き分け'):(tm?'あなたは'+HW2_TM[tm].n+'  ·  後編のお菓子の平均':'後編のお菓子の平均で競う'),chip:dn?'結果':hwGoldNow()?'ゴールデンタイム中':'チーム戦',
     go:()=>{try{hwOpen.sub0='team';hwOpen()}catch(e){}},h2:[A,B,tm]}};
 window.__h2Strip=(...hosts)=>{const H=window.HW2_HOME&&HW2_HOME();if(!H)return;for(const h of hosts){if(!h)continue;h.querySelectorAll('.h2s').forEach(c=>{if(c.querySelector('.h2-bar'))return;const [A,B,tm]=H.h2,bar=hw2Bar(A,B);if(tm)c.classList.add('m'+tm);(c.querySelector('.tx')||c).append(bar)})}};
