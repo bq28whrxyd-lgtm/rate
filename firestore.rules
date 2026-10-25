@@ -486,6 +486,20 @@ service cloud.firestore {
       allow delete: if isAdmin() || (signedIn() && resource.data.s == myPid() && resource.data.n == 0);
     }
     // ---- 闇鍋パック (v134): one donated card each. Only the first taker gets it; never changed afterwards ----
+    // (10/25) 自分のお店: 出すのは本人。最初の1人だけが買える(tb を '' から自分に)。売れていなければ本人が下げられる(消す)
+    match /pshop/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.s == myPid() && id.matches('s' + myPid() + '_[0-9]+')
+        && request.resource.data.keys().hasOnly(['s', 'k', 'c', 'f', 'p', 't', 'tb', 'tt'])
+        && request.resource.data.k in ['g', 't', 's'] && request.resource.data.c is string && request.resource.data.f is bool
+        && request.resource.data.p is int && request.resource.data.p >= 1 && request.resource.data.p <= 10000000
+        && request.resource.data.tb == '' && request.resource.data.tt == 0
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000;
+      allow update: if signedIn() && myPid() != '' && resource.data.tb == '' && resource.data.s != myPid()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tb', 'tt'])
+        && request.resource.data.tb == myPid() && request.resource.data.tt is int && math.abs(request.resource.data.tt - request.time.toMillis()) < 300000;
+      allow delete: if signedIn() && resource.data.s == myPid() && resource.data.tb == '';
+    }
     match /yami/{id} {
       allow read: if signedIn();
       allow create: if signedIn() && request.resource.data.d == myPid()
