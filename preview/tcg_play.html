@@ -4828,7 +4828,7 @@ const TSFX=(()=>{let ac=null,master=null,nb=null;const last={};
   const on=()=>{try{return localStorage.getItem('ksfx')==='1'}catch(e){return false}};
   function ctx(){if(ac)return ac;const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;ac=new C();master=ac.createGain();master.gain.value=.5;
     const comp=ac.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=4;master.connect(comp);comp.connect(ac.destination);return ac}
-  function unlock(){if(!on())return;const a=ctx();if(a&&a.state==='suspended')a.resume()}
+  function unlock(){if(!on())return;const a=ctx();if(a&&a.state==='suspended')a.resume();try{load()}catch(e){}}
   ['pointerdown','touchend','keydown'].forEach(ev=>addEventListener(ev,unlock,{passive:true,capture:true}));
   function tone(f0,f1,dur,type,vol,at=0){const a=ac,t=a.currentTime+at,o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+dur);
     g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.02)}
@@ -4863,13 +4863,23 @@ const TSFX=(()=>{let ac=null,master=null,nb=null;const last={};
     win(){[523,659,784,1046].forEach((f,i)=>tone(f,f,.5,'triangle',.1,i*.11));glit(2093,5,.05,.46)},
     lose(){[392,349,311,262].forEach((f,i)=>tone(f,f*.98,.5,'triangle',.08,i*.16))},
     draw0(){tone(440,440,.3,'triangle',.07);tone(440,330,.4,'triangle',.06,.2)}};
-  function play(k){if(!on()||(typeof FAST!=='undefined'&&FAST))return;const t=performance.now();if(last[k]&&t-last[k]<45)return;last[k]=t;
-    try{const a=ctx();if(a&&a.state==='suspended')a.resume();if(a&&a.state==='running'&&bank[k])bank[k]()}catch(e){}}
+  /* (10/25) the real sounds (tsfx/ts_*.mp3, made with a sound AI and leveled): decoded once the sound is on; the synth stays as a fallback */
+  const FILES=['draw','select','place','place_secret','place_kmr','leader','spell','trap_set','trap','negate','attack','hit','clash','direct','destroy','heal','powerup','skill','guts','coin','turn_me','turn_opp','timer','win','lose','stamp'];
+  const VOL={select:.55,draw:.6,trap_set:.7,stamp:.8,timer:.8,win:.9,lose:.9};
+  const buf={};let loading=false;
+  function load(){if(loading)return;const a=ctx();if(!a)return;loading=true;
+    FILES.forEach(n=>{fetch('tsfx/ts_'+n+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject(r.status)).then(b=>new Promise((res,rej)=>{const p=a.decodeAudioData(b,res,rej);if(p&&p.then)p.then(res,rej)})).then(d=>{buf[n]=d}).catch(()=>{})})}
+  function sample(n,v){const a=ac,b=buf[n];if(!a||!b)return false;const s=a.createBufferSource(),g=a.createGain();s.buffer=b;g.gain.value=(VOL[n]||1)*(v==null?1:v);s.connect(g);g.connect(master);s.start();return true}
+  /* the old synth names map onto the files */
+  const MAP={tap:'select',draw:'draw',place:'place',rare:'place_secret',spell:'spell',set:'trap_set',trap:'trap',negate:'negate',swing:'attack',hit:'hit',clash:'clash',direct:'direct',die:'destroy',heal:'heal',power:'powerup',skill:'skill',guts:'guts',coin:'coin',blip:'select',pop:'stamp',turn:'turn_me',turnOpp:'turn_opp',win:'win',lose:'lose',draw0:'lose'};
+  function play(k,v){if(!on()||(typeof FAST!=='undefined'&&FAST))return;const t=performance.now();if(last[k]&&t-last[k]<45)return;last[k]=t;
+    try{const a=ctx();if(!a)return;if(a.state==='suspended')a.resume();load();if(a.state!=='running')return;
+      const f=FILES.includes(k)?k:MAP[k];if(f&&sample(f,v))return;if(bank[k])bank[k]()}catch(e){}}
   function set(v){try{localStorage.setItem('ksfx',v?'1':'0')}catch(e){}if(v){unlock();play('pop')}}
   return {play,on,set}})();
 /* one sound per game event, as the event starts to play */
-const TSFX_EV={play:e=>e&&playIsScrSafe(e)?'rare':'place',spell:'spell',set:'set',trap:'trap',negated:'negate',atk:'swing',direct:'direct',clash:'clash',dmg:'hit',heal:'heal',die:'die',
-  awake:'power',star:'power',evo:'power',revive:'power',summoning:'power',skill:'skill',guts:'guts',coin:'coin',tribute:'die',gauge:'blip',energy:'blip',ramp:'blip',
+const TSFX_EV={play:e=>{let sc=null;try{sc=e.scr!==undefined?e.scr:(playIsScrSafe(e)||null)}catch(x){}if(sc==='k')return 'place_kmr';if(sc)return 'place_secret';try{if(CD.isLeader(e.id))return 'leader'}catch(x){}return 'place'},spell:'spell',set:'set',trap:'trap',negated:'negate',atk:'swing',direct:'direct',clash:'clash',dmg:'hit',heal:'heal',die:'die',
+  awake:'power',star:'power',evo:'power',revive:'power',summoning:'power',skill:'skill',guts:'guts',coin:'coin',tribute:'die',
   steal:'swing',stealSpell:'swing',bounce:'swing',discard:'set',break:'die',seal:'negate',revenge:'clash',board:'place',stack:'spell'};
 function playIsScrSafe(e){try{return typeof playIsScr==='function'&&playIsScr(e)}catch(x){return false}}
 function tsfxEv(e){if(!e||!e.t)return;const m=TSFX_EV[e.t];if(!m)return;TSFX.play(typeof m==='function'?m(e):m)}
@@ -4879,6 +4889,7 @@ function tsfxEv(e){if(!e||!e.t)return;const m=TSFX_EV[e.t];if(!m)return;TSFX.pla
 {const T=handTap;handTap=function(){try{TSFX.play('tap')}catch(e){}return T.apply(this,arguments)}}
 {const F=finish;finish=function(){const was=done;const r=F.apply(this,arguments);try{if(!was&&g&&!WATCH)TSFX.play(g.win===-1?'draw0':g.win===H?'win':'lose')}catch(e){}return r}}
 {const O=oskShow;oskShow=function(){try{TSFX.play('pop')}catch(e){}return O.apply(this,arguments)}}
+{const T=tickEnd;let warned=-1;tickEnd=function(){const r=T.apply(this,arguments);try{if(left===10&&warned!==(g&&g.p[g.cur].turn)){warned=g&&g.p[g.cur].turn;TSFX.play('timer')}}catch(e){}return r}}
 /* the menu: the 効果音 switch right under BGM (the same setting as the app's 設定 > 効果音) */
 {const R=bgmRow;bgmRow=function(){const f=document.createDocumentFragment();f.append(R.apply(this,arguments));
   const r=el('div','bgmrow');const sw=el('button','bgmsw'+(TSFX.on()?' on':''));sw.type='button';sw.setAttribute('aria-label','効果音');sw.append(el('i'));
