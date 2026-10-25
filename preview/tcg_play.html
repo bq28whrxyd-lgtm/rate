@@ -1546,41 +1546,59 @@ body:not(.gkview){background:
 .watching .life.wnm.top small{color:#ff8fb8}
 .watching .life.wnm.bot{box-shadow:inset 0 0 0 1px rgba(127,216,255,.45)}
 .watching .life.wnm.top{box-shadow:inset 0 0 0 1px rgba(255,143,184,.45)}
-/* (10/25) プレイマット: a rubber mat with a stitched gold edge. Placed by matPos (transform only); nothing moves unless something happens */
+/* (10/25) プレイマット (the mat itself is in pmat.css): placed by matPos (transform only) */
 #s-game>.mat{position:absolute;left:0;top:0;pointer-events:none;z-index:0;transform-origin:50% 50%;padding:3px 4px;overflow:hidden;border-radius:18px}
-#s-game>.mat>.mat-roll{position:absolute;pointer-events:none}
-.mat-in{position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;background:#0c0711;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 10px 24px -10px rgba(0,0,0,.8)}
-.mat-in>i,.mat-in>b{position:absolute;pointer-events:none}
-.mat-art{inset:0;background:center/cover no-repeat}
-/* darkened where the cards sit, a little lighter at the player's edge, so the picture reads but the cards stay clear */
-.mat-scrim{inset:0;background:linear-gradient(0deg,rgba(12,7,17,.38) 0%,rgba(12,7,17,.62) 45%,rgba(12,7,17,.72) 100%),radial-gradient(120% 90% at 50% 120%,transparent 30%,rgba(8,4,12,.5));transition:opacity .6s ease}
-.mat-red{inset:0;opacity:0;background:radial-gradient(120% 100% at 50% 100%,rgba(255,40,70,.34),rgba(120,0,40,.28) 60%,rgba(40,0,20,.2));mix-blend-mode:hard-light;transition:opacity .8s ease}
-/* the binding and the stitch, like the edge of a real mat */
-.mat-st{inset:0;border-radius:inherit;box-shadow:inset 0 0 0 4px #120a18,inset 0 0 0 5px rgba(255,211,107,.18)}
-.mat-st::after{content:"";position:absolute;inset:6px;border-radius:11px;border:1.4px dashed rgba(255,214,140,.55)}
-.mat-cn{width:26px;height:26px;color:rgba(255,214,140,.7)}
-.mat-cn svg{width:100%;height:100%;display:block}
-.mat-cn.tl{left:9px;top:9px}.mat-cn.tr{right:9px;top:9px;transform:scaleX(-1)}.mat-cn.bl{left:9px;bottom:9px;transform:scaleY(-1)}.mat-cn.br{right:9px;bottom:9px;transform:scale(-1)}
-/* the printed name: small, along the edge by the middle line */
-.mat-logo{left:40px;top:10px;display:flex;align-items:baseline;gap:7px;color:rgba(255,226,170,.62);white-space:nowrap}
-.mat-logo span{font:italic 900 8.5px/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.24em}
-.mat-logo small{font:600 7.5px/1 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.14em;opacity:.85}
-/* your turn: the stitch and the edge glow gold */
-.mat-glow{inset:0;border-radius:inherit;opacity:0;box-shadow:inset 0 0 0 1.5px rgba(255,214,120,.9),inset 0 0 26px rgba(255,180,70,.38);transition:opacity .45s ease}
-.mat.turn .mat-glow{opacity:1}
-.mat.low .mat-red{opacity:1}
-.mat.won .mat-scrim{opacity:.25}
-.mat.won .mat-glow{opacity:1}
-/* light for the roll-out and big moments */
-.mat-sheen{top:-10%;bottom:-10%;left:0;width:45%;opacity:0;background:linear-gradient(90deg,transparent,rgba(255,236,190,.0) 20%,rgba(255,236,190,.38) 50%,rgba(255,236,190,0) 80%,transparent);mix-blend-mode:screen}
-.mat-roll{left:2px;right:2px;bottom:-4px;height:12px;opacity:0;border-radius:7px;background:linear-gradient(180deg,#2a1838,#f0d39a 45%,#6a4a2a 60%,#1a1022);box-shadow:0 -6px 14px rgba(0,0,0,.6)}
-/* the bats from a tap */
-#s-game>.mat-tap{position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;pointer-events:none;z-index:6;box-shadow:inset 0 0 0 2.5px rgba(255,210,140,.95),0 0 22px rgba(255,160,60,.6),inset 0 0 18px rgba(255,170,80,.35)}
-#s-game>.mat-tap.gold{box-shadow:inset 0 0 0 3px #ffd36b,0 0 30px rgba(255,210,90,.9)}
-#s-game>.mat-bat{position:absolute;left:-19px;top:-10px;width:38px;height:19px;pointer-events:none;z-index:6;color:#efe4ff;filter:drop-shadow(0 0 4px rgba(180,108,255,.95)) drop-shadow(0 0 1px #2a1238)}
-#s-game>.mat-bat.gold{color:#ffd36b;filter:drop-shadow(0 0 6px rgba(255,220,120,.95))}
-#s-game>.mat-bat svg{width:100%;height:100%;display:block}
-@media (prefers-reduced-motion:reduce){.mat-glow,.mat-red,.mat-scrim{transition:none}}
+#s-game>.mat>.mat-roll{position:absolute;pointer-events:none;left:2px;right:2px;bottom:-4px;height:12px;opacity:0;border-radius:7px;background:linear-gradient(180deg,#2a1838,#f0d39a 45%,#6a4a2a 60%,#1a1022);box-shadow:0 -6px 14px rgba(0,0,0,.6)}
+#s-game>.pm-tap,#s-game>.pm-bat{position:absolute}
+
+/* ===== (10/25) プレイマット (pmat.js): a wide rubber mat, the character in a round window on the right ===== */
+.pmat{position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;container-type:size;background:#140b1d;color:#fff;isolation:isolate;
+  box-shadow:0 0 0 1px rgba(0,0,0,.6),0 12px 28px -12px rgba(0,0,0,.85)}
+.pmat>i,.pmat>div{position:absolute;pointer-events:none}
+/* the cloth: deep night purple, lighter toward her window, a faint woven grain */
+.pm-base{inset:0;background:radial-gradient(70% 95% at 76% 50%,#4a2160 0%,#2a1238 42%,#160a20 75%,#0e0615 100%)}
+.pm-pat{inset:0;opacity:.5;background:repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 5px),repeating-linear-gradient(-45deg,rgba(0,0,0,.08) 0 2px,transparent 2px 5px)}
+/* binding and stitch */
+.pm-st{inset:0;border-radius:inherit;box-shadow:inset 0 0 0 4px #0d0713,inset 0 0 0 5px rgba(255,211,107,.2)}
+.pm-st::after{content:"";position:absolute;inset:6px;border-radius:11px;border:1.4px dashed rgba(255,214,140,.55)}
+.pm-cn{width:26px;height:26px;color:rgba(255,214,140,.7)}
+.pm-cn svg{width:100%;height:100%;display:block}
+.pm-cn.pc-tl{left:9px;top:9px}.pm-cn.pc-tr{right:9px;top:9px;transform:scaleX(-1)}.pm-cn.pc-bl{left:9px;bottom:9px;transform:scaleY(-1)}.pm-cn.pc-br{right:9px;bottom:9px;transform:scale(-1)}
+/* the printed name on the left */
+.pm-logo{left:7%;white-space:nowrap;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1.4cqh;color:rgba(255,226,170,.5)}
+.pm-logo b{font:italic 900 9cqh/.9 "Inter Tight",system-ui,sans-serif;letter-spacing:-.02em;color:transparent;-webkit-text-stroke:1px rgba(255,214,140,.5)}
+.pm-logo span{font:800 2.5cqh/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.3em}
+.pm-logo small{font:600 2.3cqh/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.26em;opacity:.8}
+/* her window */
+.pm-win{right:5%;top:50%;width:76cqh;height:76cqh;transform:translateY(-52%)}
+.pm-moon{position:absolute;inset:-14%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,214,140,.32),rgba(255,170,80,.12) 55%,transparent 72%)}
+.pm-face{position:absolute;inset:5.5%;border-radius:50%;overflow:hidden;background:#1a0d24;box-shadow:inset 0 0 0 2px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.6)}
+.pm-face img,.pm-face video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.55);transform-origin:50% 18%}
+.pm-face video{opacity:0;transition:opacity .35s ease}
+.pmat.live .pm-face.vid video{opacity:1}
+.pm-face::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(closest-side,transparent 72%,rgba(10,5,16,.55));pointer-events:none}
+.pm-ring{position:absolute;inset:0}
+.pm-ring svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 6px rgba(255,190,90,.35))}
+.pm-tk{transform-origin:100px 100px}
+.pmat.live .pm-tk{animation:pmSpin 14s linear infinite}
+@keyframes pmSpin{to{transform:rotate(360deg)}}
+.pm-name{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;padding:1.6cqh 4cqh 1.4cqh;border-radius:999px;background:linear-gradient(180deg,rgba(26,12,36,.92),rgba(12,6,18,.92));box-shadow:0 0 0 1px rgba(255,214,140,.55),0 4px 12px rgba(0,0,0,.5)}
+.pm-name b{font:600 4.6cqh/1 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.2em;color:#ffe2a8;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.pm-name small{font:italic 800 2.4cqh/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.3em;color:rgba(255,214,140,.6)}
+/* states (the TCG frame sets these) */
+.pm-red{inset:0;opacity:0;background:radial-gradient(120% 100% at 50% 100%,rgba(255,40,70,.34),rgba(120,0,40,.28) 60%,rgba(40,0,20,.2));mix-blend-mode:hard-light;transition:opacity .8s ease}
+.pm-glow{inset:0;border-radius:inherit;opacity:0;box-shadow:inset 0 0 0 1.5px rgba(255,214,120,.9),inset 0 0 26px rgba(255,180,70,.38);transition:opacity .45s ease}
+.pm-sheen{top:-10%;bottom:-10%;left:0;width:45%;opacity:0;background:linear-gradient(90deg,transparent,rgba(255,236,190,.38) 50%,transparent);mix-blend-mode:screen}
+.pmat.turn .pm-glow,.pmat.won .pm-glow{opacity:1}
+.pmat.low .pm-red{opacity:1}
+.pmat.won .pm-moon{background:radial-gradient(closest-side,rgba(255,226,160,.6),rgba(255,170,80,.25) 55%,transparent 72%)}
+/* bats from a tap */
+.pm-tap{position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;pointer-events:none;z-index:6;box-shadow:inset 0 0 0 2.5px rgba(255,210,140,.95),0 0 22px rgba(255,160,60,.6),inset 0 0 18px rgba(255,170,80,.35)}
+.pm-tap.gold{box-shadow:inset 0 0 0 3px #ffd36b,0 0 30px rgba(255,210,90,.9)}
+.pm-bat{position:absolute;left:-19px;top:-10px;width:38px;height:19px;pointer-events:none;z-index:6;color:#efe4ff;filter:drop-shadow(0 0 4px rgba(180,108,255,.95)) drop-shadow(0 0 1px #2a1238)}
+.pm-bat.gold{color:#ffd36b;filter:drop-shadow(0 0 6px rgba(255,220,120,.95))}
+.pm-bat svg{width:100%;height:100%;display:block}
+@media (prefers-reduced-motion:reduce){.pmat.live .pm-tk{animation:none}.pm-face video{display:none}}
 
 /* ===== (10/24) KMR in the match: the same look as the app's big card (see tcg_app.css) ===== */
 .bc.kmrc{--m1:#8a6a2a;--m2:#e9c873;--m3:#fff6d6;isolation:isolate}
@@ -3631,47 +3649,38 @@ const SLI=id=>SLI0(id)||SL_STD;
 function slOf(opp){const d=opp?cpuDeck:myDeck;return SLI(d&&d.sl)}
 function slPaint(c,S){if(!S)return c;c.classList.add('cbs');if(S.r>=3)c.classList.add('cbx');c.style.setProperty('--sl','url("'+S.img+'")');return c}
 const backCard=opp=>slPaint(el('div','cb'),slOf(!!opp));
-/* (10/25) プレイマット: a rubber playmat under each side of the field (yours from the app, the other side's from its deck.mt; the top one turned around, like across a table).
-   Looked at (not copied): real playmats (stitched edge, printed logo), Pokémon TCG Pocket (the mat as a prize), Master Duel's fields (the field answers when you touch it, and when the duel turns),
-   Hearthstone's boards (something small to play with while the other side thinks, a rare surprise).
-   Here: it rolls out from your edge when the duel starts; the edge glows gold on your turn; a tap on an empty spot lets bats fly out (now and then a golden one);
-   at low life the night turns red; when you win the whole picture lights up. Nothing moves when nothing happens (no idle animation: battery). */
-const MAT={hw:{img:'kmr_hw4.jpg',n:'夜宴の小悪魔',pos:'50% 24%'}};
-const MAT_SVG={corner:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 37V12C3 6 7 3 13 3h24" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 32c0-9 4-15 11-17 5-1.5 8 1 7 4-1 3-5 3-6 1M8 32c3-1 5-3 6-6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="2.2" fill="currentColor"/></svg>',
-  bat:'<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M20 6c1.2 0 2-1.6 2.4-3 .6 1.6 1.2 2.6 2.2 3.2C27 4 31 2 39 4c-3 2-4 5-4 8-3-2-6-2-8 0-2-1.4-4.4-1.2-7 2-2.6-3.2-5-3.4-7-2-2-2-5-2-8 0 0-3-1-6-4-8 8-2 12 0 14.4 2.2 1-.6 1.6-1.6 2.2-3.2.4 1.4 1.2 3 2.4 3z" fill="currentColor"/></svg>'};
+/* (10/25) プレイマット (pmat.js): laid under each side of the field (yours from the app, the other side's from its deck.mt; the top one turned around, like across a table).
+   It rolls out from your edge when the duel starts and she moves for a moment; at the start of your turn the edge glows gold and she moves again;
+   tap her window: she moves; tap elsewhere on the mat: bats fly out (now and then a golden one); low life: the night turns red; you win: she keeps moving.
+   Between those moments nothing moves (battery) */
 const matOf=k=>{try{if(k==='b')return (myDeck&&myDeck.mt)||(!WATCH&&HOST&&HOST.matMine?HOST.matMine():null);let t=cpuDeck&&cpuDeck.mt;if(!t&&HOST&&HOST.matDemoOpp)t=HOST.matDemoOpp();return t||null}catch(e){return null}};
-function matBuild(k,M){const m=el('div','mat '+k);m.dataset.mt=M.id;const inn=el('div','mat-in'),art=el('i','mat-art');art.style.backgroundImage='url("'+M.img+'")';art.style.backgroundPosition=M.pos;
-  const lg=el('b','mat-logo');lg.append(el('span',null,'KIMOOTA TCG'),el('small',null,M.n+'  ·  HALLOWEEN 2026'));
-  inn.append(art,el('i','mat-scrim'),el('i','mat-red'),el('i','mat-st'),lg,el('i','mat-glow'),el('i','mat-sheen'));
-  ['tl','tr','bl','br'].forEach(c=>{const o=el('i','mat-cn '+c);o.innerHTML=MAT_SVG.corner;inn.append(o)});m.append(inn,el('i','mat-roll'));return m}
+const matEl=k=>{const sg=$('s-game');return sg&&sg.querySelector(':scope>.mat.'+k)};
+const matPm=k=>{const m=matEl(k);return m&&m.querySelector('.pmat')};
 function matSync(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;
-  [['b',matOf('b')],['t',matOf('t')]].forEach(([k,v])=>{let m=sg.querySelector(':scope>.mat.'+k);const M=v&&MAT[v];if(!M){if(m)m.remove();return}
-    if(!m||m.dataset.mt!==v){if(m)m.remove();m=matBuild(k,Object.assign({id:v},M));sg.insertBefore(m,f);matUnroll(m,k==='t'?140:0)}});
+  [['b',matOf('b')],['t',matOf('t')]].forEach(([k,v])=>{let m=matEl(k);if(!v||!PMAT[v]){if(m)m.remove();return}
+    if(!m||m.dataset.mt!==v){if(m)m.remove();m=el('div','mat '+k);m.dataset.mt=v;const pm=pmatBuild(v);m.append(pm,el('i','mat-roll'));sg.insertBefore(m,f);matPos();matUnroll(m,k==='t'?140:0);setTimeout(()=>{try{pm.pmPlay(6000)}catch(e){}},(k==='t'?140:0)+500)}});
   if(!matSync.ro){try{matSync.ro=new ResizeObserver(()=>matPos());matSync.ro.observe(f)}catch(e){}}
   if(!matSync.tap){matSync.tap=1;f.addEventListener('pointerdown',matTap,{passive:true})}matPos()}
 function matPos(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;const L=sg.querySelectorAll(':scope>.mat');if(!L.length)return;const r=f.getBoundingClientRect(),o=sg.getBoundingClientRect(),h=r.height/2;
   L.forEach(m=>{const t=m.classList.contains('t');m.style.transform='translate('+(r.left-o.left)+'px,'+(r.top-o.top+(t?0:h))+'px)'+(t?' rotate(180deg)':'');m.style.width=r.width+'px';m.style.height=h+'px'})}
-const matRM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
-/* the mat rolls out from the player's edge: the picture grows from the bottom, a light rides the roll */
-function matUnroll(m,delay){const inn=m.querySelector('.mat-in'),roll=m.querySelector('.mat-roll');if(!inn||matRM()||!inn.animate)return;
-  const e='cubic-bezier(.16,1,.3,1)',H0=m.offsetHeight||200,D=760;inn.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:D,delay:delay||0,easing:e,fill:'backwards'});
+/* the mat slides out from the player's edge with a light riding its front */
+function matUnroll(m,delay){const pm=m.querySelector('.pmat'),roll=m.querySelector('.mat-roll');if(!pm||pmRM()||!pm.animate)return;
+  const e='cubic-bezier(.16,1,.3,1)',H0=m.offsetHeight||200,D=760;pm.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:D,delay:delay||0,easing:e,fill:'backwards'});
   if(roll)roll.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY('+(-H0+4)+'px)',opacity:1,offset:.9},{transform:'translateY('+(-H0+4)+'px)',opacity:0}],{duration:D+120,delay:delay||0,easing:e,fill:'both'});
-  matSheen(m,(delay||0)+560)}
-function matSheen(m,delay){const s=m&&m.querySelector('.mat-sheen');if(!s||matRM()||!s.animate)return;s.animate([{transform:'translateX(-120%) skewX(-18deg)',opacity:0},{opacity:1,offset:.25},{transform:'translateX(220%) skewX(-18deg)',opacity:0}],{duration:900,delay:delay||0,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'})}
-/* every render: whose turn (gold edge on yours), life low (the night turns red), the end */
-function matState(S){const sg=$('s-game');if(!sg||!S)return;const b=sg.querySelector(':scope>.mat.b'),t=sg.querySelector(':scope>.mat.t');
-  const side=(m,pi)=>{if(!m)return;const P=S.p[pi]||{};m.classList.toggle('turn',!S.over&&S.cur===pi);m.classList.toggle('low',!S.over&&(+P.life||0)>0&&(+P.life||0)<=1000)};side(b,H);side(t,1-H)}
-function matEnd(w){const sg=$('s-game');if(!sg)return;const b=sg.querySelector(':scope>.mat.b'),t=sg.querySelector(':scope>.mat.t');[[b,'win'],[t,'lose']].forEach(([m,me])=>{if(!m)return;m.classList.remove('turn','low');
-  const won=w==='draw'?false:(w===me);m.classList.toggle('won',won);if(won)matSheen(m,200)})}
-/* a tap on an empty spot of your own mat: bats fly out of the picture (1 in 20: a golden one) */
+  pm.pmSheen((delay||0)+560)}
+/* every render: whose turn (gold edge on yours; she moves when yours begins), life low (the night turns red) */
+let matCur=null;
+function matState(S){if(!S)return;const b=matPm('b'),t=matPm('t');
+  const side=(m,pi)=>{if(!m)return;const P=S.p[pi]||{};m.classList.toggle('turn',!S.over&&S.cur===pi);m.classList.toggle('low',!S.over&&(+P.life||0)>0&&(+P.life||0)<=1000)};side(b,H);side(t,1-H);
+  if(!S.over&&S.cur!==matCur){matCur=S.cur;const m=S.cur===H?b:t;if(m)m.pmPlay(3500)}}
+function matEnd(w){const b=matPm('b'),t=matPm('t');[[b,'win'],[t,'lose']].forEach(([m,me])=>{if(!m)return;m.classList.remove('turn','low');const won=w!=='draw'&&w===me;m.classList.toggle('won',won);if(won){m.pmSheen(200);m.pmPlay(0)}else m.pmStill()})}
+/* a tap on your own mat: on her window she moves, elsewhere bats fly out (1 in 20: a golden one) */
 let matTapT=0;
-function matTap(ev){const sg=$('s-game'),m=sg&&sg.querySelector(':scope>.mat.b');if(!m||matRM())return;const tg=ev.target;
+function matTap(ev){const sg=$('s-game'),m=matEl('b'),pm=matPm('b');if(!m||!pm)return;const tg=ev.target;
   if(tg.closest&&tg.closest('.u,.cb,button,.z.on,.hc,.card,.tfc'))return;const r=m.getBoundingClientRect();if(ev.clientY<r.top||ev.clientY>r.bottom||ev.clientX<r.left||ev.clientX>r.right)return;
-  const nowT=performance.now();if(nowT-matTapT<260)return;matTapT=nowT;const gold=Math.random()<.05,n=gold?1:3+(Math.random()*2|0),o=sg.getBoundingClientRect(),x=ev.clientX-o.left,y=ev.clientY-o.top;
-  const ring=el('i','mat-tap'+(gold?' gold':''));ring.style.transform='translate('+x+'px,'+y+'px)';sg.append(ring);ring.animate([{transform:'translate('+x+'px,'+y+'px) scale(.2)',opacity:.9},{transform:'translate('+x+'px,'+y+'px) scale(1)',opacity:0}],{duration:620,easing:'cubic-bezier(.16,1,.3,1)'}).onfinish=()=>ring.remove();
-  for(let i=0;i<n;i++){const b=el('i','mat-bat'+(gold?' gold':''));b.innerHTML=MAT_SVG.bat;sg.append(b);const a=(-90+(Math.random()*140-70))*Math.PI/180,d=70+Math.random()*70,dx=Math.cos(a)*d,dy=Math.sin(a)*d,s=gold?1.5:.7+Math.random()*.5,rot=(Math.random()*30-15);
-    b.animate([{transform:'translate('+x+'px,'+y+'px) scale('+(s*.3)+') rotate(0deg)',opacity:0},{transform:'translate('+(x+dx*.35)+'px,'+(y+dy*.35-8)+'px) scale('+s+') rotate('+rot+'deg)',opacity:1,offset:.25},{transform:'translate('+(x+dx*.7)+'px,'+(y+dy*.7+6)+'px) scale('+s+') rotate('+(-rot)+'deg)',opacity:1,offset:.6},{transform:'translate('+(x+dx)+'px,'+(y+dy-10)+'px) scale('+(s*.8)+') rotate('+rot+'deg)',opacity:0}],{duration:gold?1500:1100+Math.random()*300,delay:i*45,easing:'cubic-bezier(.3,.7,.4,1)',fill:'both'}).onfinish=()=>b.remove()}
-  if(gold)matSheen(m,0);try{if(typeof TSFX!=='undefined')TSFX.play(gold?'pop':'tap')}catch(e){}}
+  const nowT=performance.now();if(nowT-matTapT<260)return;matTapT=nowT;
+  if(pm.pmHit(ev.clientX,ev.clientY)){pm.pmPlay(4500);pm.pmSheen(0);try{if(typeof TSFX!=='undefined')TSFX.play('pop')}catch(e){}return}
+  const gold=Math.random()<.05,o=sg.getBoundingClientRect();pmBats(sg,ev.clientX-o.left,ev.clientY-o.top,gold);if(gold)pm.pmSheen(0);try{if(typeof TSFX!=='undefined')TSFX.play(gold?'pop':'tap')}catch(e){}}
 window.__mat={sync:matSync,end:matEnd,state:matState};
 
 /* ---------- title + deck select ---------- */
@@ -4750,6 +4759,45 @@ const PVP=HOST&&HOST.pvp?HOST.pvp():null;
 if(WATCH){startWatch()}else if(HOST){document.body.classList.add('inapp');if(PVP)startPvp(PVP);else if(GOKU_VIEW)gokuView(GOKU_VIEW);else if(GOKU_DEMO)gokuDemo();else if(CPU_GO)cpuGo(CPU_GO);else if(TUT)tutorial();else if(BUILD_ONLY){const v=location.hash.slice(7),L=loadDecks();if(v==='new'||!L[+v])builder(null,-1);else builder(L[+v],+v)}else deckScreen()}
 clearTimeout(window.__tcgBootTimer);if(document.documentElement.classList.contains('tcg-embedded')&&!HOST&&!(WATCH&&window.parent!==window&&window.parent.TCGWATCH)){const b=$('tcgBoot');b.classList.add('slow');b.querySelector('[role="status"]').textContent='アプリから編成・対戦・観戦を開き直してください。'}else document.documentElement.classList.remove('tcg-booting');
 window.__tcg={bigCard,_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o=>backCard(o),flyCard:(a,b,o,f)=>flyCard(a,b,null,2400,o,f)},fxt:{scrReveal,onoma,focusLines,sliceApart,cutin,coinFx,showcase,notice,get H(){return H}},trapPrompt,leaderSheet,presetOf,builder,redraw:()=>render(snap()),get g(){return g},get H(){return H},get busy(){return busy},get done(){return done},get log(){return LOG},get myDeck(){return myDeck},get cpuDeck(){return cpuDeck},get rk(){return RK},get lv(){return CPU_LV},finish,endMyTurn,startMatch,E,AI};
+
+/* ===== (10/25) プレイマット: shared by the app (見るだけの画面) and the TCG frame (対戦の場). No other dependencies.
+   The design (from the user's sketch): a wide rubber mat, the character in a round window on the right; the rest is the mat's cloth,
+   a stitched gold edge and the printed name on the left. The character moves (her KMR movie) only at moments:
+   when the mat is laid, at the start of your turn, when you tap her, when you win. Otherwise it is a still picture (battery).
+   Looked at, not copied: real playmats (art window + logo + stitched edge), Pokémon TCG Pocket's playmats (a prize to show),
+   Master Duel's fields (react to the duel), Hearthstone's boards (something to tap while waiting). ===== */
+const PMAT={hw:{img:'kmr_hw4.jpg',vid:'kmr_hw4.mp4',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP',fy:'16%',c:'#ffd36b'}};
+const PMAT_RING='<svg viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="pmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1c8"/><stop offset=".45" stop-color="#e2b25a"/><stop offset=".55" stop-color="#8a5a1e"/><stop offset="1" stop-color="#f6d58e"/></linearGradient></defs>'+
+  '<circle cx="100" cy="100" r="95" fill="none" stroke="url(#pmg)" stroke-width="3"/><circle cx="100" cy="100" r="89" fill="none" stroke="url(#pmg)" stroke-width="1.2" opacity=".8"/>'+
+  '<g class="pm-tk">'+Array.from({length:36},(_,i)=>'<rect x="99" y="'+(i%3===0?4.5:6)+'" width="2" height="'+(i%3===0?7:4)+'" rx="1" fill="#f0cf86" transform="rotate('+(i*10)+' 100 100)" opacity="'+(i%3===0?.95:.55)+'"/>').join('')+'</g>'+
+  '<g fill="#f6d58e"><path d="M100 0l4 7h-8z"/><path d="M100 200l-4-7h8z"/><path d="M0 100l7-4v8z"/><path d="M200 100l-7 4v-8z"/></g></svg>';
+const PMAT_CN='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 37V12C3 6 7 3 13 3h24" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 32c0-9 4-15 11-17 5-1.5 8 1 7 4-1 3-5 3-6 1M8 32c3-1 5-3 6-6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="2.2" fill="currentColor"/></svg>';
+const PMAT_BAT='<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M20 6c1.2 0 2-1.6 2.4-3 .6 1.6 1.2 2.6 2.2 3.2C27 4 31 2 39 4c-3 2-4 5-4 8-3-2-6-2-8 0-2-1.4-4.4-1.2-7 2-2.6-3.2-5-3.4-7-2-2-2-5-2-8 0 0-3-1-6-4-8 8-2 12 0 14.4 2.2 1-.6 1.6-1.6 2.2-3.2.4 1.4 1.2 3 2.4 3z" fill="currentColor"/></svg>';
+const pmRM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+function pmMk(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+/* the mat: id = which mat; returns the element with .pmPlay(ms) (her movie for ms, or loop when ms is 0) and .pmStill() */
+function pmatBuild(id){const M=PMAT[id];if(!M)return null;const m=pmMk('div','pmat');m.dataset.mt=id;m.style.setProperty('--pmc',M.c);
+  const base=pmMk('i','pm-base'),pat=pmMk('i','pm-pat'),st=pmMk('i','pm-st');
+  const lg=pmMk('div','pm-logo');lg.append(pmMk('b',null,'KIMOOTA'),pmMk('span',null,'TRADING CARD GAME'),pmMk('small',null,'HALLOWEEN NIGHT 2026'));
+  const win=pmMk('div','pm-win'),moon=pmMk('i','pm-moon'),ring=pmMk('i','pm-ring');ring.innerHTML=PMAT_RING;
+  const face=pmMk('div','pm-face'),im=pmMk('img');im.src=M.img;im.alt='';im.decoding='async';im.style.objectPosition='50% '+M.fy;face.append(im);
+  const nm=pmMk('div','pm-name');nm.append(pmMk('b',null,M.n),pmMk('small',null,M.en));win.append(moon,face,ring,nm);
+  m.append(base,pat,st,lg,win,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
+  ['tl','tr','bl','br'].forEach(c=>{const o=pmMk('i','pm-cn pc-'+c);o.innerHTML=PMAT_CN;m.append(o)});
+  let v=null,tm=0;
+  m.pmPlay=ms=>{if(pmRM())return;clearTimeout(tm);if(!v){v=pmMk('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';v.loop=true;v.src=M.vid;v.style.objectPosition='50% '+M.fy;
+      v.addEventListener('playing',()=>face.classList.add('vid'));face.append(v)}
+    m.classList.add('live');try{const p=v.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}if(ms)tm=setTimeout(()=>m.pmStill(),ms)};
+  m.pmStill=()=>{clearTimeout(tm);m.classList.remove('live');if(v){try{v.pause()}catch(e){}}};
+  /* where her window is (for taps) */
+  m.pmHit=(x,y)=>{const r=face.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;return Math.hypot(x-cx,y-cy)<=r.width/2+6};
+  m.pmSheen=d=>{const s=m.querySelector('.pm-sheen');if(!s||pmRM()||!s.animate)return;s.animate([{transform:'translateX(-120%) skewX(-18deg)',opacity:0},{opacity:1,offset:.25},{transform:'translateX(260%) skewX(-18deg)',opacity:0}],{duration:900,delay:d||0,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'})};
+  return m}
+/* bats out of a tap (host = the positioned box they fly in; x,y inside it). gold: the rare one */
+function pmBats(host,x,y,gold){if(pmRM())return;const n=gold?1:3+(Math.random()*2|0);
+  const ring=pmMk('i','pm-tap'+(gold?' gold':''));host.append(ring);ring.animate([{transform:'translate('+x+'px,'+y+'px) scale(.2)',opacity:.9},{transform:'translate('+x+'px,'+y+'px) scale(1)',opacity:0}],{duration:620,easing:'cubic-bezier(.16,1,.3,1)',fill:'both'}).onfinish=()=>ring.remove();
+  for(let i=0;i<n;i++){const b=pmMk('i','pm-bat'+(gold?' gold':''));b.innerHTML=PMAT_BAT;host.append(b);const a=(-90+(Math.random()*140-70))*Math.PI/180,d=70+Math.random()*70,dx=Math.cos(a)*d,dy=Math.sin(a)*d,s=gold?1.5:.7+Math.random()*.5,rot=(Math.random()*30-15);
+    b.animate([{transform:'translate('+x+'px,'+y+'px) scale('+(s*.3)+')',opacity:0},{transform:'translate('+(x+dx*.35)+'px,'+(y+dy*.35-8)+'px) scale('+s+') rotate('+rot+'deg)',opacity:1,offset:.25},{transform:'translate('+(x+dx*.7)+'px,'+(y+dy*.7+6)+'px) scale('+s+') rotate('+(-rot)+'deg)',opacity:1,offset:.6},{transform:'translate('+(x+dx)+'px,'+(y+dy-10)+'px) scale('+(s*.8)+') rotate('+rot+'deg)',opacity:0}],{duration:gold?1500:1100+Math.random()*300,delay:i*45,easing:'cubic-bezier(.3,.7,.4,1)',fill:'both'}).onfinish=()=>b.remove()}}
 
 /* ===== v121 duel v2 (ui5_v2.js, appended after ui5_main.js) =====
    1) drawing is incremental: a lane, a hand card or an avatar is rebuilt only when what it shows has changed. Before, every

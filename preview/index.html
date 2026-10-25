@@ -3751,6 +3751,55 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .ori-gc{contain:paint}
 /* ORIcss:end */
 /* ORIKJcss:begin */
+/* ===== (10/25) プレイマット (pmat.js): a wide rubber mat, the character in a round window on the right ===== */
+.pmat{position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;container-type:size;background:#140b1d;color:#fff;isolation:isolate;
+  box-shadow:0 0 0 1px rgba(0,0,0,.6),0 12px 28px -12px rgba(0,0,0,.85)}
+.pmat>i,.pmat>div{position:absolute;pointer-events:none}
+/* the cloth: deep night purple, lighter toward her window, a faint woven grain */
+.pm-base{inset:0;background:radial-gradient(70% 95% at 76% 50%,#4a2160 0%,#2a1238 42%,#160a20 75%,#0e0615 100%)}
+.pm-pat{inset:0;opacity:.5;background:repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 5px),repeating-linear-gradient(-45deg,rgba(0,0,0,.08) 0 2px,transparent 2px 5px)}
+/* binding and stitch */
+.pm-st{inset:0;border-radius:inherit;box-shadow:inset 0 0 0 4px #0d0713,inset 0 0 0 5px rgba(255,211,107,.2)}
+.pm-st::after{content:"";position:absolute;inset:6px;border-radius:11px;border:1.4px dashed rgba(255,214,140,.55)}
+.pm-cn{width:26px;height:26px;color:rgba(255,214,140,.7)}
+.pm-cn svg{width:100%;height:100%;display:block}
+.pm-cn.pc-tl{left:9px;top:9px}.pm-cn.pc-tr{right:9px;top:9px;transform:scaleX(-1)}.pm-cn.pc-bl{left:9px;bottom:9px;transform:scaleY(-1)}.pm-cn.pc-br{right:9px;bottom:9px;transform:scale(-1)}
+/* the printed name on the left */
+.pm-logo{left:7%;white-space:nowrap;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1.4cqh;color:rgba(255,226,170,.5)}
+.pm-logo b{font:italic 900 9cqh/.9 "Inter Tight",system-ui,sans-serif;letter-spacing:-.02em;color:transparent;-webkit-text-stroke:1px rgba(255,214,140,.5)}
+.pm-logo span{font:800 2.5cqh/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.3em}
+.pm-logo small{font:600 2.3cqh/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.26em;opacity:.8}
+/* her window */
+.pm-win{right:5%;top:50%;width:76cqh;height:76cqh;transform:translateY(-52%)}
+.pm-moon{position:absolute;inset:-14%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,214,140,.32),rgba(255,170,80,.12) 55%,transparent 72%)}
+.pm-face{position:absolute;inset:5.5%;border-radius:50%;overflow:hidden;background:#1a0d24;box-shadow:inset 0 0 0 2px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.6)}
+.pm-face img,.pm-face video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.55);transform-origin:50% 18%}
+.pm-face video{opacity:0;transition:opacity .35s ease}
+.pmat.live .pm-face.vid video{opacity:1}
+.pm-face::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(closest-side,transparent 72%,rgba(10,5,16,.55));pointer-events:none}
+.pm-ring{position:absolute;inset:0}
+.pm-ring svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 6px rgba(255,190,90,.35))}
+.pm-tk{transform-origin:100px 100px}
+.pmat.live .pm-tk{animation:pmSpin 14s linear infinite}
+@keyframes pmSpin{to{transform:rotate(360deg)}}
+.pm-name{position:absolute;left:50%;bottom:3%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;padding:1.6cqh 4cqh 1.4cqh;border-radius:999px;background:linear-gradient(180deg,rgba(26,12,36,.92),rgba(12,6,18,.92));box-shadow:0 0 0 1px rgba(255,214,140,.55),0 4px 12px rgba(0,0,0,.5)}
+.pm-name b{font:600 4.6cqh/1 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.2em;color:#ffe2a8;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.pm-name small{font:italic 800 2.4cqh/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.3em;color:rgba(255,214,140,.6)}
+/* states (the TCG frame sets these) */
+.pm-red{inset:0;opacity:0;background:radial-gradient(120% 100% at 50% 100%,rgba(255,40,70,.34),rgba(120,0,40,.28) 60%,rgba(40,0,20,.2));mix-blend-mode:hard-light;transition:opacity .8s ease}
+.pm-glow{inset:0;border-radius:inherit;opacity:0;box-shadow:inset 0 0 0 1.5px rgba(255,214,120,.9),inset 0 0 26px rgba(255,180,70,.38);transition:opacity .45s ease}
+.pm-sheen{top:-10%;bottom:-10%;left:0;width:45%;opacity:0;background:linear-gradient(90deg,transparent,rgba(255,236,190,.38) 50%,transparent);mix-blend-mode:screen}
+.pmat.turn .pm-glow,.pmat.won .pm-glow{opacity:1}
+.pmat.low .pm-red{opacity:1}
+.pmat.won .pm-moon{background:radial-gradient(closest-side,rgba(255,226,160,.6),rgba(255,170,80,.25) 55%,transparent 72%)}
+/* bats from a tap */
+.pm-tap{position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;pointer-events:none;z-index:6;box-shadow:inset 0 0 0 2.5px rgba(255,210,140,.95),0 0 22px rgba(255,160,60,.6),inset 0 0 18px rgba(255,170,80,.35)}
+.pm-tap.gold{box-shadow:inset 0 0 0 3px #ffd36b,0 0 30px rgba(255,210,90,.9)}
+.pm-bat{position:absolute;left:-19px;top:-10px;width:38px;height:19px;pointer-events:none;z-index:6;color:#efe4ff;filter:drop-shadow(0 0 4px rgba(180,108,255,.95)) drop-shadow(0 0 1px #2a1238)}
+.pm-bat.gold{color:#ffd36b;filter:drop-shadow(0 0 6px rgba(255,220,120,.95))}
+.pm-bat svg{width:100%;height:100%;display:block}
+@media (prefers-reduced-motion:reduce){.pmat.live .pm-tk{animation:none}.pm-face video{display:none}}
+
 /* ===== キモオタ二番くじ (ハロウィン後編) ===== */
 /* a prize, as a card-shaped tile */
 .kjf{position:relative;width:100%;aspect-ratio:63/88;border-radius:8px;overflow:hidden;background:radial-gradient(90% 80% at 50% 30%,color-mix(in srgb,var(--tc,#ff8a2a) 35%,#1a1028),#0d0915 85%);box-shadow:0 0 0 1.5px var(--tc,#ff8a2a),0 6px 16px rgba(0,0,0,.5);color:#fff}
@@ -3806,6 +3855,18 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .kgu-acts:has(>:nth-child(3)){grid-template-columns:repeat(3,minmax(0,1fr))}
 .kj-lg{z-index:3;text-shadow:0 2px 12px rgba(0,0,0,.6)}
 .kj-try{width:100%;margin-top:10px}
+/* (10/25) プレイマットを見る */
+.kjmv{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:16px;background:rgba(6,3,10,.86)}
+.kjmv-b{position:relative;width:100%;max-width:560px;display:flex;flex-direction:column;gap:12px;color:#f4ece2}
+.kjmv-h small{font-size:11px;color:#ffcf8a;letter-spacing:.06em}
+.kjmv-h h3{margin:4px 0 0;font:600 19px/1.3 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.06em}
+.kjmv-x{position:absolute;right:0;top:0;width:36px;height:36px;border:0;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);color:#fff}
+.kjmv-st{position:relative;width:100%;aspect-ratio:390/283;max-width:100%}
+.kjmv-seg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.kjmv-seg button{height:34px;border:0;border-radius:10px;background:rgba(255,255,255,.07);color:#d9c6e0;font-size:12px;font-weight:700}
+.kjmv-seg button.on{background:linear-gradient(180deg,#ffcf8a,#ff9a3a);color:#2a1206}
+.kjmv-tip{margin:0;font-size:12px;color:#cdb8da}
+.kjmv-nt{margin:0;font-size:11.5px;line-height:1.6;color:#a993b6}
 /* ORIKJcss:end */
 /* ORIH2css:begin */
 /* ===== ハロウィン後編: チーム戦・みんなで目標・ビンゴ ===== */
@@ -10403,6 +10464,45 @@ function oriAdmin(){if(!oriOn())return;const sheet=window.__kguSheet;if(typeof s
 document.addEventListener('DOMContentLoaded',()=>{if(oriOn())return;try{const b=document.getElementById('admOriGo');const c=b&&b.closest('.admcard');if(c)c.remove()}catch(e){}});
 /* ORIjs:end */
 /* ORIKJjs:begin */
+/* ===== (10/25) プレイマット: shared by the app (見るだけの画面) and the TCG frame (対戦の場). No other dependencies.
+   The design (from the user's sketch): a wide rubber mat, the character in a round window on the right; the rest is the mat's cloth,
+   a stitched gold edge and the printed name on the left. The character moves (her KMR movie) only at moments:
+   when the mat is laid, at the start of your turn, when you tap her, when you win. Otherwise it is a still picture (battery).
+   Looked at, not copied: real playmats (art window + logo + stitched edge), Pokémon TCG Pocket's playmats (a prize to show),
+   Master Duel's fields (react to the duel), Hearthstone's boards (something to tap while waiting). ===== */
+const PMAT={hw:{img:'kmr_hw4.jpg',vid:'kmr_hw4.mp4',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP',fy:'16%',c:'#ffd36b'}};
+const PMAT_RING='<svg viewBox="0 0 200 200" aria-hidden="true"><defs><linearGradient id="pmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1c8"/><stop offset=".45" stop-color="#e2b25a"/><stop offset=".55" stop-color="#8a5a1e"/><stop offset="1" stop-color="#f6d58e"/></linearGradient></defs>'+
+  '<circle cx="100" cy="100" r="95" fill="none" stroke="url(#pmg)" stroke-width="3"/><circle cx="100" cy="100" r="89" fill="none" stroke="url(#pmg)" stroke-width="1.2" opacity=".8"/>'+
+  '<g class="pm-tk">'+Array.from({length:36},(_,i)=>'<rect x="99" y="'+(i%3===0?4.5:6)+'" width="2" height="'+(i%3===0?7:4)+'" rx="1" fill="#f0cf86" transform="rotate('+(i*10)+' 100 100)" opacity="'+(i%3===0?.95:.55)+'"/>').join('')+'</g>'+
+  '<g fill="#f6d58e"><path d="M100 0l4 7h-8z"/><path d="M100 200l-4-7h8z"/><path d="M0 100l7-4v8z"/><path d="M200 100l-7 4v-8z"/></g></svg>';
+const PMAT_CN='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 37V12C3 6 7 3 13 3h24" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 32c0-9 4-15 11-17 5-1.5 8 1 7 4-1 3-5 3-6 1M8 32c3-1 5-3 6-6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="2.2" fill="currentColor"/></svg>';
+const PMAT_BAT='<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M20 6c1.2 0 2-1.6 2.4-3 .6 1.6 1.2 2.6 2.2 3.2C27 4 31 2 39 4c-3 2-4 5-4 8-3-2-6-2-8 0-2-1.4-4.4-1.2-7 2-2.6-3.2-5-3.4-7-2-2-2-5-2-8 0 0-3-1-6-4-8 8-2 12 0 14.4 2.2 1-.6 1.6-1.6 2.2-3.2.4 1.4 1.2 3 2.4 3z" fill="currentColor"/></svg>';
+const pmRM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+function pmMk(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+/* the mat: id = which mat; returns the element with .pmPlay(ms) (her movie for ms, or loop when ms is 0) and .pmStill() */
+function pmatBuild(id){const M=PMAT[id];if(!M)return null;const m=pmMk('div','pmat');m.dataset.mt=id;m.style.setProperty('--pmc',M.c);
+  const base=pmMk('i','pm-base'),pat=pmMk('i','pm-pat'),st=pmMk('i','pm-st');
+  const lg=pmMk('div','pm-logo');lg.append(pmMk('b',null,'KIMOOTA'),pmMk('span',null,'TRADING CARD GAME'),pmMk('small',null,'HALLOWEEN NIGHT 2026'));
+  const win=pmMk('div','pm-win'),moon=pmMk('i','pm-moon'),ring=pmMk('i','pm-ring');ring.innerHTML=PMAT_RING;
+  const face=pmMk('div','pm-face'),im=pmMk('img');im.src=M.img;im.alt='';im.decoding='async';im.style.objectPosition='50% '+M.fy;face.append(im);
+  const nm=pmMk('div','pm-name');nm.append(pmMk('b',null,M.n),pmMk('small',null,M.en));win.append(moon,face,ring,nm);
+  m.append(base,pat,st,lg,win,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
+  ['tl','tr','bl','br'].forEach(c=>{const o=pmMk('i','pm-cn pc-'+c);o.innerHTML=PMAT_CN;m.append(o)});
+  let v=null,tm=0;
+  m.pmPlay=ms=>{if(pmRM())return;clearTimeout(tm);if(!v){v=pmMk('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';v.loop=true;v.src=M.vid;v.style.objectPosition='50% '+M.fy;
+      v.addEventListener('playing',()=>face.classList.add('vid'));face.append(v)}
+    m.classList.add('live');try{const p=v.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}if(ms)tm=setTimeout(()=>m.pmStill(),ms)};
+  m.pmStill=()=>{clearTimeout(tm);m.classList.remove('live');if(v){try{v.pause()}catch(e){}}};
+  /* where her window is (for taps) */
+  m.pmHit=(x,y)=>{const r=face.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;return Math.hypot(x-cx,y-cy)<=r.width/2+6};
+  m.pmSheen=d=>{const s=m.querySelector('.pm-sheen');if(!s||pmRM()||!s.animate)return;s.animate([{transform:'translateX(-120%) skewX(-18deg)',opacity:0},{opacity:1,offset:.25},{transform:'translateX(260%) skewX(-18deg)',opacity:0}],{duration:900,delay:d||0,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'})};
+  return m}
+/* bats out of a tap (host = the positioned box they fly in; x,y inside it). gold: the rare one */
+function pmBats(host,x,y,gold){if(pmRM())return;const n=gold?1:3+(Math.random()*2|0);
+  const ring=pmMk('i','pm-tap'+(gold?' gold':''));host.append(ring);ring.animate([{transform:'translate('+x+'px,'+y+'px) scale(.2)',opacity:.9},{transform:'translate('+x+'px,'+y+'px) scale(1)',opacity:0}],{duration:620,easing:'cubic-bezier(.16,1,.3,1)',fill:'both'}).onfinish=()=>ring.remove();
+  for(let i=0;i<n;i++){const b=pmMk('i','pm-bat'+(gold?' gold':''));b.innerHTML=PMAT_BAT;host.append(b);const a=(-90+(Math.random()*140-70))*Math.PI/180,d=70+Math.random()*70,dx=Math.cos(a)*d,dy=Math.sin(a)*d,s=gold?1.5:.7+Math.random()*.5,rot=(Math.random()*30-15);
+    b.animate([{transform:'translate('+x+'px,'+y+'px) scale('+(s*.3)+')',opacity:0},{transform:'translate('+(x+dx*.35)+'px,'+(y+dy*.35-8)+'px) scale('+s+') rotate('+rot+'deg)',opacity:1,offset:.25},{transform:'translate('+(x+dx*.7)+'px,'+(y+dy*.7+6)+'px) scale('+s+') rotate('+(-rot)+'deg)',opacity:1,offset:.6},{transform:'translate('+(x+dx)+'px,'+(y+dy-10)+'px) scale('+(s*.8)+') rotate('+rot+'deg)',opacity:0}],{duration:gold?1500:1100+Math.random()*300,delay:i*45,easing:'cubic-bezier(.3,.7,.4,1)',fill:'both'}).onfinish=()=>b.remove()}}
+
 /* ===== キモオタ二番くじ (ハロウィン後編 10/29 5:00 - 11/8 5:00) =====
    一番くじと同じ: 全員で同じ箱を引く。ハズレなし。1箱120枚・2箱まで(1箱目が売り切れたら2箱目)。賞ごとの残りが見える。
    各箱の最後の1枚を引いた人にラストワン賞(プレイマット「夜宴の小悪魔」)。1回400pt、まとめて1/5/10回、1日20回まで。
@@ -10535,9 +10635,8 @@ function kjSheet(o,H){const {mk,bt,esc,sheet}=H;if(typeof sheet!=='function')ret
     if(me){const kp=kjPickLeft('k'),sp=kjPickLeft('s');if(kp||sp){const r=mk('div','kj-use');if(kp){const x=bt('ori-ab main','KMRを選ぶ(残り'+kp+'枚)');x.onclick=()=>kjPick('k');r.append(x)}if(sp){const x=bt('ori-ab main','シークレットを選ぶ(残り'+sp+'枚)');x.onclick=()=>kjPick('s');r.append(x)}b.append(r)}}
     {const s=mk('div','ori-sec lo');s.innerHTML='<div class="ori-sh"><b>ラストワン賞</b><span>各箱の最後の1枚を引いた人に</span></div>';const g=mk('div','ori-g one kj'),c=mk('div','ori-gc');c.append(kjFace('last'),mk('small',null,KJ_LAST.x));
       const L=kjLasts().filter(x=>x.o.id===o.id);if(L.length)c.append(mk('em','ori-got',L.map(x=>(kjBoxOf(o,x.s.i)+1)+'箱目 '+esc(oriPn(x.pid))).join('・')));g.append(c);s.append(g);
-      /* (10/25) try the mat: one CPU match with it laid out (nothing is given; 15 minutes) */
-      {const own=kjMatOn(),x=bt('ori-ab main kj-try',own?'プレイマットを敷いてCPUと対戦':'試しに敷いてCPUと対戦');x.onclick=()=>{if(!own)window.__matTry=now()+15*60000;document.querySelectorAll('body>.kgu-sh').forEach(z=>z.remove());try{setView('battle')}catch(e){}setTimeout(()=>{try{tcgPlay('cpu=0.auto')}catch(e){toast('CPU戦を始められませんでした')}},350)};
-        s.append(mk('p','ori-ex',own?'あなたのマットです。TCGの対戦で自分の側に敷かれ、友達戦では相手にも見えます。':'TCGの対戦で、自分の側の場に敷かれるマットです。友達戦では相手にも見えます。試しに敷くのはCPU戦だけ(もらえるわけではありません)。'),x)}b.append(s)}
+      /* (10/25) look at the mat (just looking: no match) */
+      {const own=kjMatOn(),x=bt('ori-ab main kj-try','プレイマットを見る');x.onclick=()=>kjMatView();s.append(mk('p','ori-ex',own?'あなたのマットです。TCGの対戦で自分の側の場に敷かれ、友達戦では相手にも見えます。':'TCGの対戦で、自分の側の場に敷かれるマットです。友達戦では相手にも見えます。'),x)}b.append(s)}
     for(let g=1;g<=6;g++){const s=mk('div','ori-sec');s.style.setProperty('--tc',KJ_T[g].c);s.innerHTML='<div class="ori-sh"><b>'+KJ_T[g].n+'</b><span>'+KJ_T[g].x+'</span><em>残り '+rm.R[g]+' / '+rm.A[g]+'</em></div>';
       const gr=mk('div','ori-g kj'+(g<=2?' big':' row')),c=mk('div','ori-gc'+(rm.R[g]?'':' out'));c.append(kjFace(g));gr.append(c);s.append(gr);b.append(s)}
     if(opened.length){const s=mk('div','ori-sec log');s.innerHTML='<div class="ori-sh"><b>出たもの</b><span>新しい順</span></div>';const ul=mk('div','ori-log');
@@ -10563,6 +10662,19 @@ window.__kjPickTks=()=>{const out=[];const kp=kjPickLeft('k'),sp=kjPickLeft('s')
 async function kjAdminCreate(btn){if(!(ORI_PV||(typeof isAdmin==='function'&&isAdmin())))return;if(kjAll().some(o=>now()<o.end)){toast('もう用意してあります');return}
   if(btn&&btn.dataset.ok!=='1'){btn.dataset.ok='1';btn.textContent='本当に用意する(240枚)';return}if(btn)btn.disabled=true;
   try{await kjCreate({});toast('二番くじを用意しました'+(ORI_PV?'':'(10/29 5:00 から)'));try{renderGacha()}catch(e){}}catch(e){toast('用意できませんでした('+(e.code||e.message)+')')}finally{if(btn){btn.disabled=false;btn.dataset.ok='';btn.textContent='二番くじを用意する'}}}
+
+/* ---------- (10/25) プレイマットを見るだけの画面: the mat as it lies on your side, her movie playing; tap her or the cloth; the states of a duel to try ---------- */
+function kjMatView(){document.querySelectorAll('body>.kjmv').forEach(x=>x.remove());const o=el('div','kjmv'),bx=el('div','kjmv-b');o.append(bx);
+  const hd=el('div','kjmv-h');hd.append(el('small',null,'二番くじ ラストワン賞'),el('h3',null,'プレイマット「夜宴の小悪魔」'));const cl=el('button','kjmv-x');cl.type='button';cl.setAttribute('aria-label','閉じる');cl.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+  const st=el('div','kjmv-st'),pm=pmatBuild('hw');st.append(pm);
+  const tip=el('p','kjmv-tip','キャラの丸をタップすると光る。ほかの所をタップするとコウモリ(たまに金色)。ピンチはライフ1000以下のとき。');
+  const seg=el('div','kjmv-seg');const S=[['ふつう',''],['自分の番','turn'],['ピンチ','low'],['勝ち','won']];let cur='';
+  S.forEach(([n,k])=>{const b=el('button',k===cur?'on':null,n);b.type='button';b.onclick=()=>{cur=k;seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));['turn','low','won'].forEach(c=>pm.classList.toggle(c,c===k));if(k==='won')pm.pmSheen(150)};seg.append(b)});
+  const nt=el('p','kjmv-nt','TCGの対戦では、自分の側(下半分)の場にこの向きで敷かれます。友達戦では相手の画面の上半分にも見えます。対戦では、始まったとき・自分の番が来たとき・キャラをタップしたときに動きます。');
+  bx.append(hd,cl,st,seg,tip,nt);document.body.append(o);
+  const close=()=>{try{pm.pmStill()}catch(e){}o.remove()};cl.onclick=close;o.onclick=e=>{if(e.target===o)close()};
+  st.addEventListener('pointerdown',e=>{const r=st.getBoundingClientRect();if(pm.pmHit(e.clientX,e.clientY)){pm.pmSheen(0);return}pmBats(st,e.clientX-r.left,e.clientY-r.top,Math.random()<.05)});
+  setTimeout(()=>{try{pm.pmPlay(0);pm.pmSheen(200)}catch(e){}},120)}
 /* ORIKJjs:end */
 /* ORIH2js:begin */
 /* ===== ハロウィン後編 (10/29 5:00 - 11/8 5:00): チーム戦・みんなで目標・毎日のミニ勝負・ゴールデンタイム・ビンゴ・仲間を起こす =====
@@ -14620,7 +14732,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=168';
+const TCG_SRC='tcg_play.html?v=169';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
