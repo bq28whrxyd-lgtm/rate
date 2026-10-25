@@ -1540,6 +1540,12 @@ body:not(.gkview){background:
 /* locked: no 推し yet */
 .oskc.lock .oskm{background:linear-gradient(160deg,#2a2438,#16121e)}
 .oskc .osklk{position:absolute;left:50%;top:50%;z-index:3;width:10px;height:12px;margin:-6px 0 0 -5px;background:#b8b0cc;-webkit-mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat;mask:linear-gradient(#000 0 0) bottom/100% 60% no-repeat,radial-gradient(circle at 50% 100%,transparent 2.5px,#000 3px 4.5px,transparent 5px) top/100% 60% no-repeat}
+/* (10/25) 観戦: each side's name in place of 「ライフ」, in that side's color (下 = blue like the bottom player's turn, 上 = pink) */
+.watching .life.wnm small{max-width:7.5em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:800;opacity:1}
+.watching .life.wnm.bot small{color:#7fd8ff}
+.watching .life.wnm.top small{color:#ff8fb8}
+.watching .life.wnm.bot{box-shadow:inset 0 0 0 1px rgba(127,216,255,.45)}
+.watching .life.wnm.top{box-shadow:inset 0 0 0 1px rgba(255,143,184,.45)}
 
 /* ===== (10/24) KMR in the match: the same look as the app's big card (see tcg_app.css) ===== */
 .bc.kmrc{--m1:#8a6a2a;--m2:#e9c873;--m3:#fff6d6;isolation:isolate}
@@ -3487,6 +3493,8 @@ const TYN={chara:'キャラ',spell:'魔法',trap:'トラップ'};
 const show=id=>['s-title','s-deck','s-build','s-toss','s-game'].forEach(s=>$(s).hidden=s!==id);
 /* ---------- inside the きもオタレート app: owned cards, saved decks, the coin toss and the result go through the app ---------- */
 const WATCH=/^#watch=/.test(location.hash);
+/* (10/25) who a side is: for the two players あなた / 相手, for someone watching the real names (下 = player 0, 上 = player 1) */
+function whoN(w){if(WATCH){const N=window.__watchNames||[];return N[w]||(w===0?'下の人':'上の人')}return w===H?'あなた':'相手'}
 const HOST=WATCH?null:(()=>{try{return window.parent!==window&&window.parent.TCGHOST||null}catch(e){return null}})();
 const BUILD_ONLY=!!HOST&&/^#build=/.test(location.hash);
 /* #gokudemo: a CPU match that opens by playing a 極 copy at once (to look at the 極 premiere) */
@@ -3817,10 +3825,10 @@ function avatar(P,key,isOpp){const av=el('button','av');av.id=isOpp?'oppAv':'myA
 function traitOn(P,pi){const O=g?g.p[1-pi]:WATCH&&view?view.p[1-pi]:null;switch(P.skill){case'weak':return O&&P.life<O.life;case'gay':return P.slot.filter(Boolean).length>=E.R.GAY_N;default:return true}}
 function traitEl(P,pi){const t=CD.TRAITS[P.skill];const b=el('button','trchip'+(traitOn(P,pi)?' on':''));b.style.setProperty('--dc','var(--'+P.skill+')');b.append(el('i'),el('span',null,t.n));b.onclick=()=>sheet((s,close)=>{s.append(el('div','k','TRAIT'),el('h3',null,(pi===H?'あなた':'相手')+'の特性「'+t.n+'」'),el('div','eff',t.t));const x=el('button','btn sec','閉じる');x.onclick=close;s.append(x)});return b}
 function lifeEl(P,isOpp){const w=el('button','life');w.id=isOpp?'oppLife':'myLife';const b=el('b',null,P.life);const bar=el('i','lbar');const f=el('i');f.style.width=Math.min(100,100*P.life/E.R.LIFE)+'%';if(P.life<=E.R.LIFE*0.3)w.classList.add('low');bar.append(f);
-  w.append(el('small',null,'ライフ'),b,bar);w.setAttribute('aria-label',(isOpp?'相手':'あなた')+'のライフ '+P.life);
-  w.onclick=()=>{if(isOpp&&mode&&mode.k==='atk'&&E.attackTargets(g,H,mode&&mode.uid?E.find(g,mode.uid):null).includes('life')){mode.target='life';render(snap());return}caption((isOpp?'相手':'あなた')+'のライフ '+P.life+'。0になったら負け')};return w}
-function trapsEl(P,isOpp){const w=el('div','tz2 strow');w.id=isOpp?'oppST':'myST';w.append(el('span','stl',P.seal?(isOpp?'相手のトラップ ':'トラップ ')+'封印中':''));if(P.seal)w.classList.add('sealed');for(let i=0;i<E.R.ST;i++){const t=P.st[i];const z=el('button','z'+(isOpp?'':' me'));
-  if(t){z.dataset.tuid=t.uid;z.append(backCard(isOpp));if(!t.ready)z.classList.add('wait');z.onclick=()=>isOpp?caption('相手が伏せたトラップ'):cardSheet(t.id,null,t.ready?'伏せてあるトラップ。相手のターンに条件がそろうと、発動するか聞かれます':'伏せたばかり。次の相手のターンから使えます')}
+  w.append(el('small',null,WATCH?whoN(isOpp?1-H:H):'ライフ'),b,bar);if(WATCH)w.classList.add('wnm',isOpp?'top':'bot');w.setAttribute('aria-label',whoN(isOpp?1-H:H)+'のライフ '+P.life);
+  w.onclick=()=>{if(isOpp&&mode&&mode.k==='atk'&&E.attackTargets(g,H,mode&&mode.uid?E.find(g,mode.uid):null).includes('life')){mode.target='life';render(snap());return}caption(whoN(isOpp?1-H:H)+'のライフ '+P.life+'。0になったら負け')};return w}
+function trapsEl(P,isOpp){const w=el('div','tz2 strow');w.id=isOpp?'oppST':'myST';w.append(el('span','stl',P.seal?(WATCH?whoN(isOpp?1-H:H)+'のトラップ ':isOpp?'相手のトラップ ':'トラップ ')+'封印中':''));if(P.seal)w.classList.add('sealed');for(let i=0;i<E.R.ST;i++){const t=P.st[i];const z=el('button','z'+(isOpp?'':' me'));
+  if(t){z.dataset.tuid=t.uid;z.append(backCard(isOpp));if(!t.ready)z.classList.add('wait');z.onclick=()=>isOpp||WATCH?caption(whoN(isOpp?1-H:H)+'が伏せたトラップ'):cardSheet(t.id,null,t.ready?'伏せてあるトラップ。相手のターンに条件がそろうと、発動するか聞かれます':'伏せたばかり。次の相手のターンから使えます')}
   else z.onclick=()=>caption('トラップを伏せる場所');w.append(z)}
   /* (10/18) マスターデュエル風: the deck (a stack of the sleeve) and the discard pile sit at the ends of the trap row */
   w.append(pileEl(P,isOpp,'deck'),pileEl(P,isOpp,'gy'));return w}
@@ -3950,7 +3958,7 @@ async function renderAnimated(S){const old=view;
   if(drew>0){const cards=[...$('hand').querySelectorAll(WATCH?'.cb':'.bc')].slice(-drew);cards.forEach(c=>c.style.opacity='0');for(const c of cards){if(WATCH){await flyCard($('myPile')||$('myDeck'),c,null,300);c.style.opacity='';continue}await flyCard($('myPile')||$('myDeck'),c,null,D(460),false,true);c.style.opacity='';anim(c,[{transform:'perspective(500px) rotateY(-90deg)',filter:'brightness(1.8)'},{transform:'perspective(500px) rotateY(0deg)',filter:'brightness(1)'}],{duration:D(190),easing:'ease-out'})}}
   const od=S.p[1-H].hand.length-oldHand[1];for(let i=0;i<Math.min(od,4);i++)await flyCard($('oppPile')||$('oppAv'),$('oppHand'),null,220,true)}
 function notice(id,who,kind,ga){const c=BY[id];const n=el('button','notice '+kind+(who===H?' me':''));const a=el('div','na');a.append(artEl(id,ga|0));
-  const tx=el('div','nt');tx.append(el('small',null,(who===H?'あなた':'相手')+'の'+{sum:'登場',spell:'魔法',trap:'トラップ',stack:'育成'}[kind]),el('b',null,c.n),el('span',null,CD.text(c).replace(/\n/g,' ')));n.append(a,tx);
+  const tx=el('div','nt');tx.append(el('small',null,whoN(who)+'の'+{sum:'登場',spell:'魔法',trap:'トラップ',stack:'育成'}[kind]),el('b',null,c.n),el('span',null,CD.text(c).replace(/\n/g,' ')));n.append(a,tx);
   n.onclick=()=>cardSheet(id,null,null,ga|0);if(who!==H)n.classList.add('full');const feed=$('feed');feed.prepend(n);[...feed.children].slice(who!==H?2:1).forEach(x=>x.remove());
   anim(n,[{transform:'translateX(-110%)',opacity:0},{transform:'none',opacity:1}],{duration:320,easing:'cubic-bezier(.2,1.1,.3,1)',fill:'none'});
   setTimeout(()=>{if(!n.isConnected)return;anim(n,[{opacity:1},{opacity:0,transform:'translateX(-30%)'}],{duration:300}).then(()=>n.remove())},D(who===H?2600:7000))}
@@ -3962,7 +3970,7 @@ async function showcase(id,who,kind,ga){const fr=rectOf($('field'));const c=bigC
   anim(lab,[{transform:'translateX(-50%) skewX(-12deg) scaleX(0)'},{transform:'translateX(-50%) skewX(-12deg) scaleX(1)'}],{duration:260,easing:'cubic-bezier(.2,1.2,.3,1)'});
   await anim(c,[{transform:'translateY('+(who===H?60:-60)+'px) scale(.5) rotateY(80deg)',opacity:0},{transform:'none',opacity:1}],{duration:420,easing:'cubic-bezier(.2,1.2,.4,1)'});
   let pn=null;if(opp){/* the opponent's card: what it does, written out large under the card, until a tap (or a few seconds) */
-    const cb=c.getBoundingClientRect();pn=fx('scfx '+kind,'top:'+Math.round(Math.min(innerHeight-150,cb.bottom+10))+'px');pn.append(el('small',null,'相手の'+(kind==='trap'?'トラップ':'魔法')),el('b',null,BY[id].n));
+    const cb=c.getBoundingClientRect();pn=fx('scfx '+kind,'top:'+Math.round(Math.min(innerHeight-150,cb.bottom+10))+'px');pn.append(el('small',null,whoN(who)+'の'+(kind==='trap'?'トラップ':'魔法')),el('b',null,BY[id].n));
     CD.text(BY[id]).split('\n').forEach(t=>{if(t)pn.append(el('span',null,t))});pn.append(el('em',null,'タップで次へ'));
     anim(pn,[{transform:'translateX(-50%) translateY(12px)',opacity:0},{transform:'translateX(-50%)',opacity:1}],{duration:260,easing:'cubic-bezier(.2,1,.3,1)'})}
   if(opp)await tapOr(FAST?10:3400,500);else await wait(650);const [x,y]=ctr(c);sparks(x,y,col,22,120);
@@ -4441,7 +4449,7 @@ function whyNot(i){const P=g.p[H],id=P.hand[i],d=BY[id];
   if(d.type==='spell'&&g.fx&&g.fx.some(f=>f.k==='noSpell'&&f.on===H&&f.turn===g.turns))return'ドタキャンされたので、このターンは魔法を使えません';
   if(d.cond==='pure2'||d.cond==='pure3')return'味方のキャラが'+(d.cond==='pure3'?3:2)+'体以上いて、全員同じ族のときだけ使えます';if(d.cond==='mixed3')return'味方のキャラが3体以上いて、全員ちがう族のときだけ使えます';if(d.life&&P.life<=d.life)return'ライフが'+d.life+'より多いときだけ使えます';if(d.tgt==='enemyStar'&&!P.slot.some(x=>!x))return'自分の場がいっぱいです';if(d.tgt==='trap')return'相手が伏せたトラップがありません';if(d.type==='chara')return'場がいっぱいです';if(d.type==='trap')return'伏せる場所がいっぱいです';if(d.cond==='behind')return'自分のライフが相手より少ないときだけ使えます';if(d.tgt)return'選べる相手がいません';return'今は使えません'}
 function unitSheet(m){const c=BY[m.id],uv=WATCH?(m.ga|0||(m.scr==='k'?'k':m.scr?'s':0)):(scrSync(),FOILU.get(m.uid)||0),ga=CARD_ALT[m.id]?gaOf(uv):0,sf=fLook(uv,ga);sheet((s,close)=>{const top=el('div','top'+(sf?' scrtop':''));top.append(bigCard(m.id,false,sf,ga));const info=el('div');info.style.minWidth='0';if(sf==='k')info.append(el('div','scrbadge kmrbadge','KMR'));else if(sf)info.append(el('div','scrbadge','SECRET RARE'));else if(ga)info.append(el('div','scrbadge altbadge',['','絵違い','絵違い キラ','絵違い 極'][ga]));
-  info.append(el('h3',null,c.n+' '+SN(m.star)),el('div','meta',(m.owner===H?'あなたの':'相手の')+'キャラ'+(g&&!WATCH?'':' ・ 今 ATK'+E.ATK(g,m)+' / DEF'+E.DEF(g,m)+'(元 '+c.atk+' / '+c.def+')')));info.append(richText(CD.text(c)));top.append(info);s.append(top);{const sb=statBox(m);if(sb)s.append(sb)}
+  info.append(el('h3',null,c.n+' '+SN(m.star)),el('div','meta',whoN(m.owner)+'の'+'キャラ'+(g&&!WATCH?'':' ・ 今 ATK'+E.ATK(g,m)+' / DEF'+E.DEF(g,m)+'(元 '+c.atk+' / '+c.def+')')));info.append(richText(CD.text(c)));top.append(info);s.append(top);{const sb=statBox(m);if(sb)s.append(sb)}
   {let u=null;try{const S2=snap();for(const P2 of S2.p)for(const x of P2.slot)if(x&&x.uid===m.uid)u=x}catch(e){}const L=u?stList(u):[];if(L.length){const sl=el('div','stl');sl.append(el('div','stlh','いまの状態'));L.forEach(x=>{const t=STM[x.key],r=el('div','stlr');r.append(stBadge(x));const tx=el('div','stlt');tx.append(el('b',null,t[2]+(x.n!==''&&x.n!=null?' '+x.n:'')),el('span',null,[x.x,t[3]].filter(Boolean).join('。')));r.append(tx);sl.append(r)});s.append(sl)}}
   const k=el('div','kwx');kwHelp(c).forEach(x=>k.append(el('div',null,x)));if(m.under.length)k.append(el('div',null,'重ねたカード '+m.under.length+'枚。倒れると全部捨て札になる'));if(m.awk)k.append(el('div',null,'覚醒中:'+CD.awText(c.aw)));if(m.gutsUsed)k.append(el('div',null,'根性はもう使った'));
   /* (10/22) 機装族 */if(m.pilot&&BY[m.pilot])k.append(el('div',null,'操縦者「'+BY[m.pilot].n+'」が搭乗中'+(m.pa?'(ATK+'+m.pa+')':'')+(m.pd?'(DEF+'+m.pd+')':'')+'。操縦者の能力(【】の効果と倒れたときの効果)も機体が持っている'));else if(g&&E.isMech(m))k.append(el('div',null,'操縦者がまだ乗っていない'));
@@ -4655,7 +4663,7 @@ function startWatch(){const wh=window.parent!==window&&window.parent.TCGWATCH;if
  function convert(s){return{cur:s.cur,over:s.over,win:s.winner,turns:s.turns,p:s.players.map((P,pi)=>({deckN:P.deckCount,hand:Array(P.handCount).fill(null),life:P.life,gy:P.graveCount,energy:P.energy,maxE:P.maxEnergy,turn:Math.max(1,Math.ceil(s.turns/2)),gauge:P.gauge,skill:BY[P.leadId].f,lead:{id:P.leadId,out:P.leadOut,n:0},skillUsed:P.skillUsed,st:Array.from({length:P.trapCount},(_,i)=>({uid:P.trapUids[i]||(-1-pi*3-i),ready:true})),slot:P.board.map((m,i)=>m?{...m,A:m.atk,D:m.def,owner:pi,slot:i,under:m.underCount}:null)}))}}
  function draw(s){myKey=s.p[0].skill;cpuKey=s.p[1].skill;render(s)}
  off=wh.subscribe(decodeURIComponent(location.hash.slice(7)),record=>{if(closed)return;if(!record||!record.state||!Array.isArray(record.state.players)||record.state.players.length!==2||record.state.players.some(p=>!p||!BY[p.leadId])){status.textContent=record&&record.state&&Array.isArray(record.state.players)&&record.state.players.length===2?'対戦している人のアプリが古いため映せません。アプリを開き直してもらうと映ります':'観戦データを待っています…';return}if(last&&(record.seq<last.seq||(record.seq===last.seq&&record.updated<last.updated)))return;
- const first=!last;last=record;const names=record.first==='b'?[record.bn,record.an]:[record.an,record.bn],final=convert(TCGSpectator.cleanState(record.state));status.textContent=record.state.over?'対戦終了':names[1]+' vs '+names[0];state.textContent=record.state.over?(record.state.winner<0?'引き分け':names[record.state.winner]+' の勝利'):'ターン '+record.state.turns+' · '+names[record.state.cur]+' の番';
+ const first=!last;last=record;const names=record.first==='b'?[record.bn,record.an]:[record.an,record.bn];window.__watchNames=names;const _n=0,final=convert(TCGSpectator.cleanState(record.state));status.textContent=record.state.over?'対戦終了':'上 '+names[1]+' ・ 下 '+names[0];state.textContent=record.state.over?(record.state.winner<0?'引き分け':names[record.state.winner]+' の勝利'):'ターン '+record.state.turns+' · '+names[record.state.cur]+' の番';
  const coinInfo={coins:TCGSpectator.cleanCoins(record.coins),names};const frames=TCGSpectator.cleanFrames(record.frames);const fresh=frames.filter(f=>!seen.has(f.key));frames.forEach(f=>seen.add(f.key));if(seen.size>500)seen=new Set(frames.map(f=>f.key));
  chain=chain.then(async()=>{if(closed)return;watchCoinInfo=coinInfo;if(first){draw(final);return}for(const f of fresh){if(closed)return;window.__watchState=convert(f.state);window.__watchEvents=(window.__watchEvents||[]).concat(f.events.map(e=>e.t)).slice(-300);await playEvents(f.events);await renderAnimated(convert(f.state));}if(!closed){const changed=view.cur!==final.cur;await renderAnimated(final);if(changed)await banner(final.cur===H)}}).catch(e=>{status.textContent='更新を再接続しています';console.error(e)});
  },()=>status.textContent='観戦データに接続できません');}
@@ -4720,7 +4728,7 @@ function render(S){if(!V2)V2={av:{},lane:[],hand:'',traps:['','']};view=S;queueS
     const st=d.querySelector('.stand'),fig=st&&st.firstElementChild;if(fig&&fig.tagName==='IMG'&&fig.src){const r=el('div','refl'),im=el('img');im.alt='';im.decoding='async';im.src=fig.src;r.append(im);st.append(r)}}catch(e){}return d}}
 /* ---- the turn banner: a glass pill in the middle, a line of light runs through it once ---- */
 function banner(mine){const b=el('div','tbanner v2'+(mine?' me':' op'));const n=g?g.p[g.cur].turn:WATCH&&view?view.p[view.cur].turn:1;
-  const pill=el('div','tpill');pill.append(el('b',null,mine?'あなたのターン':'相手のターン'),el('small',null,'TURN '+n+' / '+E.R.MAXTURN),el('i','tsw'));
+  const pill=el('div','tpill');pill.append(el('b',null,WATCH&&view?whoN(view.cur)+' のターン':mine?'あなたのターン':'相手のターン'),el('small',null,'TURN '+n+' / '+E.R.MAXTURN),el('i','tsw'));
   const line=el('i','tline');b.append(line,pill);document.body.append(b);
   const EO='cubic-bezier(.16,1,.3,1)';
   line.animate([{transform:'scaleX(0)',opacity:0},{transform:'scaleX(1)',opacity:1,offset:.3},{transform:'scaleX(1)',opacity:1,offset:.75},{transform:'scaleX(1.04)',opacity:0}],{duration:D(1100),easing:EO});
