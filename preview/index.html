@@ -9934,14 +9934,16 @@ function tqBanOut(b,msg){if(!b||b.__out)return;b.__out=1;clearTimeout(b.__t);if(
 /* ---------- (10/25) いまオンラインの人数: 対戦のページの見出しの右に「● オンライン 3人」。誰かは出さない(匿名) ----------
    オンライン = 3分以内にアプリを開いていた人(開いている間は90秒ごとに知らせる。seen/{pid}) */
 function tqOnline(){try{return typeof kOnline==='function'?kOnline().on:[]}catch(e){return []}}
-const tqOnN=()=>tqOnline().length;
+/* (10/25) the count leaves me out: "ほかに2人" */
+const tqOnN=()=>{const me=myPlayer();return tqOnline().filter(x=>!me||x.id!==me.id).length};
+const tqOnTx=n=>n?'ほかに'+n+'人オンライン':'ほかにはいません';
 function tqOnPaint(){const tr=document.querySelector('#khead .kx-trail');if(!tr)return;let b=tr.querySelector('.kx-onl');
   if(!b){b=el('button','kx-onl');b.type='button';b.append(el('i'),el('span'));b.onclick=tqOnSheet;tr.prepend(b)}
   const v=typeof curView!=='undefined'?curView:'',show=v==='battle'||v==='tcg',n=tqOnN();b.hidden=!show;
-  const tx='オンライン '+n+'人';if(b.lastChild.textContent!==tx)b.lastChild.textContent=tx;b.classList.toggle('zero',n<=1);b.setAttribute('aria-label','いまオンラインの人 '+n+'人')}
+  const tx=tqOnTx(n);if(b.lastChild.textContent!==tx)b.lastChild.textContent=tx;b.classList.toggle('zero',!n);b.setAttribute('aria-label',tqOnTx(n))}
 /* who is online stays anonymous: only how many (10/25) */
 function tqOnSheet(){document.querySelectorAll('body>.tqon').forEach(x=>x.remove());const n=tqOnN();
-  const o=el('div','tqon'),p=el('div','tqon-p');p.append(el('b',null,'いまオンライン '+n+'人'),el('p','tqon-n','3分以内にアプリを開いていた人の数です(あなたも入っています)。誰かは表示しません。ランダムマッチでさがすと、この人たちの画面に知らせが出ます'));
+  const o=el('div','tqon'),p=el('div','tqon-p');p.append(el('b',null,n?'あなたのほかに '+n+'人がオンライン':'今はあなたのほかにいません'),el('p','tqon-n','3分以内にアプリを開いていた人の数です(あなたは入りません)。誰かは表示しません。ランダムマッチでさがすと、この人たちの画面に知らせが出ます'));
   o.append(p);o.onclick=()=>o.remove();document.body.append(o)}
 setInterval(()=>{try{tqOnPaint()}catch(e){}},2000);
 /* ORIRMjs:end */
@@ -15975,7 +15977,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   window.kOnlineSync=()=>{const box=secTl.querySelector('.lonl');if(!box||typeof kOnline!=='function')return;const O=kOnline();
     const chip=(p,on)=>'<span class="onc'+(on?' on':'')+'"><i></i>'+String(p.name).replace(/[<>&]/g,'')+(on?'':'<small>'+(p.ago<60?p.ago+'分前':Math.round(p.ago/60)+'時間前')+'</small>')+'</span>';
     /* (10/25) anonymous: how many, not who */
-    box.innerHTML='<div class="onh">オンライン <b>'+O.on.length+'</b>人</div>'+(O.on.length?'':'<div class="onl"><span class="onn">今はだれもいません</span></div>')+(O.recent.length?'<div class="onh sub">3時間以内に開いた人 '+O.recent.length+'人</div>':'')};
+    const me_=myPlayer(),on_=O.on.filter(p=>!me_||p.id!==me_.id).length,rc_=O.recent.filter(p=>!me_||p.id!==me_.id).length;
+    box.innerHTML='<div class="onh">あなたのほかに <b>'+on_+'</b>人がオンライン</div>'+(on_?'':'<div class="onl"><span class="onn">今はだれもいません</span></div>')+(rc_?'<div class="onh sub">3時間以内に開いた人 '+rc_+'人</div>':'')};
   setInterval(()=>{try{kOnlineSync()}catch(e){}},30000);
   qa('[data-bun]').forEach(b=>b.onclick=()=>{if(typeof bunOpen==='function')bunOpen()});
   qa('[data-farm]').forEach(b=>b.onclick=()=>{if(typeof farmOpen==='function')farmOpen()});
@@ -16995,7 +16998,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   function tRandSide(){const s=mk('div','kvs-side op kvs-cpu kvs-tside kvs-rand');s.style.setProperty('--mg','#22d3ee');s.style.setProperty('--ml','#a5f3fc');
     const bg=mk('div','kvs-bg kvs-bgcpu');bg.innerHTML='<i class="a1"></i><i class="a2"></i><i class="gd"></i>';s.append(bg,mk('div','kvs-shade'));
     const body=mk('div','kvs-body'),aw=mk('div','kvs-avw kvs-cpuav');aw.innerHTML='<span style="display:grid;place-items:center;width:100%;height:100%;font:900 34px/1 Geist,sans-serif;color:#c4f6ff">?</span>';aw.append(mk('i','kvs-ring'));body.append(aw);
-    let n=0;try{n=tqOpen().length}catch(e){}body.append(mk('div','kvs-nm','だれか'));const m=mk('div','kvs-meta');m.append(mk('span','kvs-lv',n?n+'人がさがし中':'オンライン '+tqOnN()+'人'));body.append(m);body.append(tCard(null,'相手が選ぶ','?'));s.append(body);return s}
+    let n=0;try{n=tqOpen().length}catch(e){}body.append(mk('div','kvs-nm','だれか'));const m=mk('div','kvs-meta');m.append(mk('span','kvs-lv',n?n+'人がさがし中':tqOnTx(tqOnN())));body.append(m);body.append(tCard(null,'相手が選ぶ','?'));s.append(body);return s}
   function tFriendSide(p){const s=sideEl(p,'op',60,tRate(p.id),9);s.classList.add('kvs-tside');s.querySelector('.kvs-body').append(tCard(null,'相手が選ぶ','?'));return s}
 
   const tvs=mk('div','kvs kvs-tcg');tvs.innerHTML=vsMarkup+'<i class="kvs-beam"></i>';tvs.querySelector('.kvs-top').append(mk('div','kvs-tag'));if(offIO)offIO.observe(tvs);
@@ -17063,7 +17066,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
       c.append(sw,mk('i','ck'),av,mk('b',null,'CPU'),mk('small',null,tMode==='rank'?'ランク戦':tLv==='strong'?'つよい':'ふつう'),mk('em','new',(T.w||0)+'勝 '+(T.l||0)+'敗'));c.onclick=()=>{if(tOpp==='cpu')return;tOpp='cpu';LSset('kxtopp','cpu');paintTcg();ani(c,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
       /* (10/25) ランダムマッチ: no name to pick. Shows how many friends are searching right now */
       const rd=mk('button','kx-opp kx-orand'+(tqN?' live':''));rd.type='button';rd.dataset.id='rand';rd.setAttribute('role','option');const rav=mk('span','kav kx-randav');rav.style.setProperty('--es','56px');rav.innerHTML='<svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26.5" fill="#0c0b18" stroke="#67e8f9" stroke-opacity=".6"/><path d="M17 21h6l10 14h6M17 35h6l3-4.2M33 21h6" fill="none" stroke="#c4f6ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 17.5l3.5 3.5-3.5 3.5M36 31.5l3.5 3.5-3.5 3.5" fill="none" stroke="#c4f6ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      rd.append(mk('i','kx-osw kx-oswcpu'),mk('i','ck'),rav,mk('b',null,'ランダム'),mk('small',null,tqM?'さがしています':'名前を選ばない'),mk('em',tqN?'new':'',tqN?tqN+'人がさがし中':'オンライン '+tqOnN()+'人'));rd.onclick=()=>{if(tOpp==='rand')return;tOpp='rand';LSset('kxtopp','rand');paintTcg();ani(rd,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
+      rd.append(mk('i','kx-osw kx-oswcpu'),mk('i','ck'),rav,mk('b',null,'ランダム'),mk('small',null,tqM?'さがしています':'名前を選ばない'),mk('em',tqN?'new':'',tqN?tqN+'人がさがし中':tqOnTx(tqOnN())));rd.onclick=()=>{if(tOpp==='rand')return;tOpp='rand';LSset('kxtopp','rand');paintTcg();ani(rd,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
       const L=[c,rd].concat(fr.map(o=>{const b=mk('button','kx-opp');b.type='button';b.dataset.id=o.id;b.setAttribute('role','option');
         const sw=mk('i','kx-osw'),bv=bgOf(o.p);if(bv)sw.classList.add('pb-'+bv);else sw.classList.add('none');try{mvars(b,TI(o.r))}catch(e){}
         b.append(sw,mk('i','ck'),AV(o.id,56),mk('b',null,esc(o.p.name)),mk('small',null,esc(RNk(o.r))),mk('em',o.h.w+o.h.l?'':'new',o.h.w+o.h.l?o.h.w+'勝 '+o.h.l+'敗':'初対戦'));
