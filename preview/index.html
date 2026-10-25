@@ -3763,9 +3763,8 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .pm-scene{inset:0}
 .pm-fog{inset:0;background:linear-gradient(90deg,rgba(20,12,34,.12) 0%,transparent 45%,rgba(200,190,230,.10) 100%)}
 /* she stands on the right, cut out of her own picture: a soft moonlight behind her and a shadow where she crouches */
-.pm-aura{top:-6%;bottom:-6%;right:-4%;width:62%;background:radial-gradient(48% 52% at 58% 46%,rgba(226,214,255,.42),rgba(190,170,240,.16) 55%,transparent 75%)}
 .pm-shadow{right:6%;bottom:2%;width:44%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(14,6,22,.6),transparent)}
-.pm-chara{right:1%;bottom:-3%;height:106%;width:calc(106cqh * 432 / 720);-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 14%);mask-image:linear-gradient(90deg,transparent 0%,#000 14%)}
+.pm-chara{right:-1.5%;bottom:-3%;height:106%;width:calc(106cqh * 432 / 720);-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 5%);mask-image:linear-gradient(90deg,transparent 0%,#000 5%)}
 .pm-chara img,.pm-chara canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .pm-chara canvas{opacity:0;transition:opacity .3s ease}
 .pm-chara.vid canvas{opacity:1}
@@ -10466,7 +10465,7 @@ document.addEventListener('DOMContentLoaded',()=>{if(oriOn())return;try{const b=
    when the mat is laid, at the start of your turn, when you tap her, when you win. Otherwise it is a still picture (battery).
    Looked at, not copied: real playmats (art window + logo + stitched edge), Pokémon TCG Pocket's playmats (a prize to show),
    Master Duel's fields (react to the duel), Hearthstone's boards (something to tap while waiting). ===== */
-const PMAT={hw:{cut:'pm_hw_chara.webp',av:'pm_hw_chara.mp4',bg:'fx_hwbg_gr2.jpg',bgv:'fx_hwbg_gr2.mp4',bgp:'50% 8%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
+const PMAT={hw:{cut:'pm_hw_chara.webp',av:'pm_hw_chara.mp4',bg:'fx_hwbg_gr2.jpg',bgv:null,bgp:'50% 8%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
 const PMAT_CN='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 37V12C3 6 7 3 13 3h24" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 32c0-9 4-15 11-17 5-1.5 8 1 7 4-1 3-5 3-6 1M8 32c3-1 5-3 6-6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="2.2" fill="currentColor"/></svg>';
 const PMAT_BAT='<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M20 6c1.2 0 2-1.6 2.4-3 .6 1.6 1.2 2.6 2.2 3.2C27 4 31 2 39 4c-3 2-4 5-4 8-3-2-6-2-8 0-2-1.4-4.4-1.2-7 2-2.6-3.2-5-3.4-7-2-2-2-5-2-8 0 0-3-1-6-4-8 8-2 12 0 14.4 2.2 1-.6 1.6-1.6 2.2-3.2.4 1.4 1.2 3 2.4 3z" fill="currentColor"/></svg>';
 const pmRM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -10496,7 +10495,7 @@ function pmChara(cut,av){const w=pmMk('div','pm-chara'),im=pmMk('img');im.src=cu
 function pmatBuild(id){const M=PMAT[id];if(!M)return null;const m=pmMk('div','pmat');m.dataset.mt=id;
   const scene=pmLayer('pm-scene',M.bg,M.bgv,M.bgp),chara=pmChara(M.cut,M.av);
   const lg=pmMk('div','pm-logo');lg.append(pmMk('b',null,'KIMOOTA TCG'),pmMk('small',null,M.n+'  ·  HALLOWEEN 2026'));
-  m.append(scene,pmMk('i','pm-fog'),pmMk('i','pm-aura'),pmMk('i','pm-shadow'),chara,pmMk('i','pm-vig'),pmMk('i','pm-st'),lg,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
+  m.append(scene,pmMk('i','pm-fog'),pmMk('i','pm-shadow'),chara,pmMk('i','pm-vig'),pmMk('i','pm-st'),lg,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
   ['tl','tr','bl','br'].forEach(c=>{const o=pmMk('i','pm-cn pc-'+c);o.innerHTML=PMAT_CN;m.append(o)});
   let tm=0;
   m.pmPlay=ms=>{if(pmRM())return;clearTimeout(tm);m.classList.add('live');scene.play();chara.play();if(ms)tm=setTimeout(()=>m.pmStill(),ms)};
@@ -10678,7 +10677,7 @@ function kjMatView(){document.querySelectorAll('body>.kjmv').forEach(x=>x.remove
   const seg=el('div','kjmv-seg');const S=[['ふつう',''],['自分の番','turn'],['ピンチ','low'],['勝ち','won']];let cur='';
   S.forEach(([n,k])=>{const b=el('button',k===cur?'on':null,n);b.type='button';b.onclick=()=>{cur=k;seg.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));['turn','low','won'].forEach(c=>pm.classList.toggle(c,c===k));if(k==='won')pm.pmSheen(150)};seg.append(b)});
   const nt=el('p','kjmv-nt','TCGの対戦では、自分の側(下半分)の場にこの向きで敷かれます。友達戦では相手の画面の上半分にも見えます。対戦では、始まったとき・自分の番が来たとき・キャラをタップしたときに、キャラと景色が動きます。');
-  const ver=el('small','kjmv-v',(typeof APP_VER!=='undefined'?APP_VER:'')+'  ·  mat 3');
+  const ver=el('small','kjmv-v',(typeof APP_VER!=='undefined'?APP_VER:'')+'  ·  mat 5');
   bx.append(hd,cl,st,seg,tip,nt,ver);document.body.append(o);
   const close=()=>{try{pm.pmStill()}catch(e){}o.remove()};cl.onclick=close;o.onclick=e=>{if(e.target===o)close()};
   st.addEventListener('pointerdown',e=>{const r=st.getBoundingClientRect();if(pm.pmHit(e.clientX,e.clientY)){pm.pmSheen(0);return}pmBats(st,e.clientX-r.left,e.clientY-r.top,Math.random()<.05)});
@@ -14740,7 +14739,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=172';
+const TCG_SRC='tcg_play.html?v=174';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
