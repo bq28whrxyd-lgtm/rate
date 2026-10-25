@@ -4039,7 +4039,7 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .psc-row:last-child{margin-bottom:0}
 .psc-glass{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 18%,rgba(255,255,255,.07) 24%,rgba(255,255,255,.015) 31%,transparent 36%,transparent 62%,rgba(255,255,255,.05) 66%,transparent 70%)}
 .psc-it{all:unset;box-sizing:border-box;min-width:0;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.psc-cd{position:relative;width:86%;aspect-ratio:5/7;transform:perspective(420px) rotateX(5deg);transform-origin:50% 100%;transition:transform .12s ease-out}
+.psc-cd{position:relative;width:80%;margin-right:6%;aspect-ratio:5/7;transform:perspective(420px) rotateX(5deg);transform-origin:50% 100%;transition:transform .12s ease-out}
 .psc-cd::before{content:"";position:absolute;left:-7%;right:-7%;bottom:-6px;height:9px;border-radius:2px;background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.06));box-shadow:0 1px 0 rgba(255,255,255,.4) inset;z-index:2}
 .psc-cd::after{content:"";position:absolute;inset:0;border-radius:6px;pointer-events:none;background:linear-gradient(160deg,rgba(255,255,255,.22),transparent 38%);z-index:1}
 .psc-cd>.mkth{width:100%!important;height:100%!important;border-radius:6px;box-shadow:0 6px 14px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.12)}
@@ -4068,6 +4068,18 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .psh-low.bad b{color:#ff8a92}
 @media (prefers-reduced-motion:reduce){.psc-cd{transition:none}}
 .psc-cd>.mkth>*{transform:scale(var(--pscS,.8))!important}
+/* (10/25) stacks: copies of the same card behind the front one */
+.psc-bk{position:absolute;inset:0;border-radius:6px;background:linear-gradient(160deg,#3a3d49,#1b1c22);box-shadow:0 0 0 1px rgba(255,255,255,.32),0 4px 10px rgba(0,0,0,.55)}
+.psc-bk1{transform:translate(7px,-6px) rotate(3deg)}
+.psc-bk2{transform:translate(13px,-11px) rotate(6deg)}
+.psc-n{position:absolute;right:-6px;bottom:8px;z-index:4;font-style:normal;font:900 12px/1 system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#16151a;background:#fbf9f3;padding:4px 6px;border-radius:999px;box-shadow:0 2px 5px rgba(0,0,0,.55),0 0 0 1.5px #c8323c}
+.psh-2{display:flex;gap:8px}
+.psh-2>button{flex:1}
+.psh-q{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.05)}
+.psh-q>span{font-size:13px;opacity:.75}
+.psh-q>button{width:40px;height:40px;min-height:0;padding:0;border-radius:50%;font-size:20px;font-weight:800;display:grid;place-items:center}
+.psh-q>b{min-width:28px;text-align:center;font-size:20px;font-weight:900;font-variant-numeric:tabular-nums}
+.psh-q>small{margin-left:auto;font-size:11.5px;opacity:.6}
 /* ORISHcss:end */
 /* STKcss:begin */
 /* ---- (10/19) ハロウィン シールアルバム ---- */
@@ -11072,11 +11084,11 @@ function hw2HomePaint(){}
 /* ORIH2js:end */
 /* ORISHjs:begin */
 /* ===== (10/25) 自分のお店: ダブりに値段を付けて並べ、仲間が即決で買える。オークションとは分けない(どちらにも出せる)
-   売れると販売手数料15%を引いた額が入る(オークションは10%のまま)。1人 PSHOP_N 枠まで。
+   売れると販売手数料15%を引いた額が入る(オークションは10%のまま)。1人 PSHOP_N 枠まで。(10/25) 同じカードは同じ値段で1つの枠に重ねて並べられる(1枚ずつ1つの書類、枠は「カード+値段」ごとに数える)。
    pshop/{id}  {s seller, k 'g'|'t'|'s', c id, f secret, p price, t listed, tb buyer ('' = still on the shelf), tt bought}
    Points come from these documents (like the auctions): the buyer pays p, the seller gets p - 15%.
    The buyer's app adds the copy once (inv.sg = received). Rules let only the first buyer through. The seller can take an unsold copy back (the doc goes). ===== */
-const PSHOP_FEE=.15,PSHOP_N=8;
+const PSHOP_FEE=.15,PSHOP_N=6;
 let pshops=[],pshopLoaded=false;
 /* (10/25) no dumping: a shelf price can't go below 80% of the 相場 (or half the rarity base when nothing has sold yet) */
 const PSHOP_LO=.8;
@@ -11084,6 +11096,11 @@ function pshopMin(k,c,f){let sp=0,b=0;try{sp=mkPrice(k,c,f,0)}catch(e){}try{b=mk
 const pshopGet=x=>Math.floor((+x.p||0)*(1-PSHOP_FEE));
 const pshopOpen=x=>!x.tb;
 const pshopMine=pid=>pshops.filter(x=>x.s===pid&&pshopOpen(x));
+/* stacks: one slot = one seller's copies of the same card at the same price */
+const pshopGk=x=>x.s+'|'+x.k+':'+x.c+(x.f?'*':'')+'|'+x.p;
+function pshopStacks(L){const M=new Map();L.forEach(x=>{const g=pshopGk(x);if(!M.has(g))M.set(g,[]);M.get(g).push(x)});return [...M.values()].map(a=>a.sort((x,y)=>x.t-y.t))}
+const pshopSlots=pid=>pshopStacks(pshopMine(pid)).length;
+const pshopStackOf=(pid,k,c,f)=>pshopStacks(pshopMine(pid)).find(a=>a[0].k===k&&String(a[0].c)===String(c)&&!!a[0].f===!!f)||null;
 function pshopNet(pid){let t=0;for(const x of pshops){if(!x.tb)continue;if(x.tb===pid)t-=+x.p||0;if(x.s===pid)t+=pshopGet(x)}return t}
 {const N=mktNet;mktNet=function(pid){let t=0;try{t=N.apply(this,arguments)}catch(e){}try{t+=pshopNet(pid)}catch(e){}return t}}
 function pshopWatch(){if(!db||pshopWatch.on)return;pshopWatch.on=1;db.collection('pshop').onSnapshot(s=>{pshops=s.docs.map(d=>({id:d.id,...d.data()}));pshopLoaded=true;queueRender();pshopClaim();try{mktPaint(true)}catch(e){}try{pshopSheet.redraw&&pshopSheet.redraw()}catch(e){}},()=>{pshopLoaded=true})}
@@ -11092,12 +11109,16 @@ function pshopWatch(){if(!db||pshopWatch.on)return;pshopWatch.on=1;db.collection
 let pshopBusy=false;
 async function pshopClaim(){const me=myPlayer();if(pshopBusy||!db||!me||!invLoaded||invFor!==me.id||!pshopLoaded)return;const sg=new Set(inv.sg||[]),got=pshops.filter(x=>x.tb===me.id&&!sg.has(x.id));if(!got.length)return;pshopBusy=true;
   try{const nv=JSON.parse(JSON.stringify(inv));got.forEach(x=>{cardAdd(nv,x.k,x.c,x.f,1);sg.add(x.id)});nv.sg=[...sg].slice(-400);await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg()}catch(e){}finally{pshopBusy=false}}
-/* put one copy on my shelf */
-async function pshopList(k,c,f,p){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');p=Math.round(+p||0);if(p<1)throw new Error('price');if(p<pshopMin(k,c,f))throw new Error('low');if(pshopMine(me.id).length>=PSHOP_N)throw new Error('full');if(cardHave(inv,k,c,f)<1)throw new Error('none');
-  const nv=JSON.parse(JSON.stringify(inv));cardAdd(nv,k,c,f,-1);const id='s'+me.id+'_'+now(),t=now();
-  await db.doc('pshop/'+id).set({s:me.id,k,c:String(c),f:!!f,p,t,tb:'',tt:0});await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg();
-  if(k==='g'){const it=ITEM(c),e=Object.assign({},me.eq||{});if(it&&cardHave(nv,k,c,f)<1&&e[it.k]===c){e[it.k]=null;db.doc('players/'+me.id).update({eq:e}).catch(()=>{})}}
-  const I=cardInfo(k,c,f);if(I)post('sl_'+id,'mkt',me.id,me.name,me.name+'のお店に'+(k==='t'?'TCG ':'')+I.rk+'「'+I.nm+'」が並んだ('+p.toLocaleString()+'pt)');return id}
+/* put n copies on my shelf (a card already on the shelf joins its stack at the same price) */
+async function pshopList(k,c,f,p,n){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');n=Math.max(1,Math.round(+n||1));const st=pshopStackOf(me.id,k,c,f);
+  if(st)p=st[0].p;else{p=Math.round(+p||0);if(p<1)throw new Error('price');if(p<pshopMin(k,c,f))throw new Error('low');if(pshopSlots(me.id)>=PSHOP_N)throw new Error('full')}
+  if(cardHave(inv,k,c,f)<n)throw new Error('none');
+  const nv=JSON.parse(JSON.stringify(inv));cardAdd(nv,k,c,f,-n);await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg();
+  const t=now();let put=0,id0='';try{for(let i=0;i<n;i++){const id='s'+me.id+'_'+(t+i);const d={s:me.id,k,c:String(c),f:!!f,p,t:t+i,tb:'',tt:0};await db.doc('pshop/'+id).set(d);if(!pshops.some(x=>x.id===id))pshops.push(Object.assign({id},d));put++;if(!id0)id0=id}}
+  finally{if(put<n){try{const v2=JSON.parse(JSON.stringify(inv));cardAdd(v2,k,c,f,n-put);await db.doc('inv/'+me.id).set(v2);inv=v2;ownSync();renderGacha()}catch(e){}}}
+  if(!put)throw new Error('net');
+  if(k==='g'){const it=ITEM(c),e=Object.assign({},me.eq||{});if(it&&cardHave(inv,k,c,f)<1&&e[it.k]===c){e[it.k]=null;db.doc('players/'+me.id).update({eq:e}).catch(()=>{})}}
+  const I=cardInfo(k,c,f);if(I&&!st)post('sl_'+id0,'mkt',me.id,me.name,me.name+'のお店に'+(k==='t'?'TCG ':'')+I.rk+'「'+I.nm+'」が並んだ('+p.toLocaleString()+'pt'+(put>1?' ×'+put:'')+')');return put}
 /* buy it (the first one wins) */
 async function pshopBuy(x){const me=myPlayer();if(!db||!me)throw new Error('me');if(x.s===me.id)throw new Error('own');if(!pshopOpen(x))throw new Error('gone');if(balance(me.id)<x.p)throw new Error('pt');
   await db.runTransaction(async tx=>{const ref=db.doc('pshop/'+x.id),s=await tx.get(ref);if(!s.exists)throw new Error('gone');const d=s.data();if(d.tb)throw new Error('gone');tx.update(ref,{tb:me.id,tt:now()})});
@@ -11105,6 +11126,10 @@ async function pshopBuy(x){const me=myPlayer();if(!db||!me)throw new Error('me')
 /* take an unsold copy back */
 async function pshopCancel(x){const me=myPlayer();if(!db||!me||x.s!==me.id||x.tb)throw new Error('no');await db.doc('pshop/'+x.id).delete();
   const nv=JSON.parse(JSON.stringify(inv));cardAdd(nv,x.k,x.c,x.f,1);await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg()}
+/* a stack: buy the oldest copy still there; take some back */
+async function pshopBuyOne(L){let last=null;for(const x of L.filter(pshopOpen)){try{await pshopBuy(x);return x}catch(e){last=e;if(e.message!=='gone')throw e}}throw last||new Error('gone')}
+async function pshopCancelN(L){const me=myPlayer();if(!db||!me)throw new Error('no');L=L.filter(x=>x.s===me.id&&!x.tb);let n=0;for(const x of L){try{await db.doc('pshop/'+x.id).delete();pshops=pshops.filter(y=>y.id!==x.id);n++}catch(e){}}
+  if(n){const nv=JSON.parse(JSON.stringify(inv));cardAdd(nv,L[0].k,L[0].c,L[0].f,n);await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg()}if(!n)throw new Error('no');return n}
 const pshopPrice=x=>{try{return mkPrice(x.k,x.c,x.f,0)}catch(e){return 0}};
 
 /* ---------- 取引所の中: お店のページ ---------- */
@@ -11116,13 +11141,13 @@ window.__shopPage=(box,back,hd)=>{const me=myPlayer();box.append(back('お店'),
   const mine=pshopMine(me.id),sold=pshops.filter(x=>x.s===me.id&&x.tb).sort((a,b)=>b.tt-a.tt);
   const seg=el('div','mkseg');[['all','みんなのお店',pshops.filter(x=>pshopOpen(x)&&x.s!==me.id).length],['mine','自分のお店',mine.length]].forEach(([k,n,c])=>{const b=el('button','kx-mk'+(pshopTab===k?' on':''));b.append(document.createTextNode(n));if(c)b.append(el('em',null,String(c)));b.onclick=()=>{pshopTab=k;mktPaint()};seg.append(b)});sec.append(seg);
   /* (10/25) a real card-shop glass case: LED strip, glass shelves, cards on acrylic stands, paper price tags */
-  const item=x=>{const I=cardInfo(x.k,x.c,x.f);if(!I)return null;const sp=pshopPrice(x),deal=!x.tb&&sp&&x.p<sp*.9;
-    const it=el('button','psc-it kx-mk'+(x.tb?' sold':'')+(deal?' deal':''));const cd=el('div','psc-cd');cd.append(mktThumb(x.k,x.c,x.f,0));if(x.tb)cd.append(el('i','psc-sold','SOLD'));
+  const item=L=>{const x=L[0],I=cardInfo(x.k,x.c,x.f);if(!I)return null;const n=x.tb?1:L.length,sp=pshopPrice(x),deal=!x.tb&&sp&&x.p<sp*.9;
+    const it=el('button','psc-it kx-mk'+(x.tb?' sold':'')+(deal?' deal':'')+(n>1?' stk'+Math.min(n,3):''));const cd=el('div','psc-cd');if(n>1)cd.append(el('i','psc-bk psc-bk1'));if(n>2)cd.append(el('i','psc-bk psc-bk2'));cd.append(mktThumb(x.k,x.c,x.f,0));if(x.tb)cd.append(el('i','psc-sold','SOLD'));if(n>1)cd.append(el('i','psc-n','×'+n));
     const tg=el('div','psc-tag');tg.append(el('small',null,(x.k==='t'?'TCG ':'')+I.rk),el('span',null,I.nm),el('b',null,x.p.toLocaleString()+'pt'));if(deal)tg.append(el('em',null,'お買い得'));
     it.append(cd,tg);it.onclick=()=>pshopSheet(x.id);return it};
   const cabinet=(pid,L,slots)=>{const p=players.find(q=>q.id===pid)||{},c=el('div','psc'),hd2=el('div','psc-top');const av=el('div','psh-av');try{av.append(avatar(p))}catch(e){}
-    hd2.append(av,el('b',null,pid===me.id?'自分のお店':(p.name||'だれか')+'のお店'),el('span',null,slots?L.length+' / '+slots+' 枠':L.length+'点'));
-    const cs=el('div','psc-case');cs.append(el('div','psc-led'));const cells=L.map(item).filter(Boolean);if(slots)for(let n=cells.length;n<slots;n++){const e=el('div','psc-it psc-empty');e.append(el('div','psc-cd'),el('div','psc-tag'));e.lastChild.append(el('span',null,'空き'));cells.push(e)}
+    const ns=pshopStacks(L).length;hd2.append(av,el('b',null,pid===me.id?'自分のお店':(p.name||'だれか')+'のお店'),el('span',null,slots?ns+' / '+slots+' 枠':L.length+'点'));
+    const cs=el('div','psc-case');cs.append(el('div','psc-led'));const cells=pshopStacks(L).sort((a,b)=>b[b.length-1].t-a[a.length-1].t).map(item).filter(Boolean);if(slots)for(let n=cells.length;n<slots;n++){const e=el('div','psc-it psc-empty');e.append(el('div','psc-cd'),el('div','psc-tag'));e.lastChild.append(el('span',null,'空き'));cells.push(e)}
     for(let n=0;n<cells.length;n+=3){const r=el('div','psc-row');cells.slice(n,n+3).forEach(e=>r.append(e));cs.append(r)}
     cs.append(el('div','psc-glass'));c.append(hd2,cs);pshopFit(c);return c};
   if(pshopTab==='all'){const L=pshops.filter(x=>pshopOpen(x)&&x.s!==me.id),by={};L.forEach(x=>{(by[x.s]=by[x.s]||[]).push(x)});const S=Object.keys(by).sort((a,b)=>Math.max(...by[b].map(x=>x.t))-Math.max(...by[a].map(x=>x.t)));
@@ -11130,32 +11155,40 @@ window.__shopPage=(box,back,hd)=>{const me=myPlayer();box.append(back('お店'),
     S.forEach(pid=>sec.append(cabinet(pid,by[pid].sort((a,b)=>b.t-a.t))))}
   else{sec.append(cabinet(me.id,mine.sort((a,b)=>b.t-a.t),PSHOP_N));
     sec.append(el('p','psh-sub','売れると販売手数料'+Math.round(PSHOP_FEE*100)+'%を引いた額が入ります。相場の'+Math.round(PSHOP_LO*100)+'%より安くは並べられません。'+(mine.length?'':'図鑑のカードのページの「お店に並べる」から出せます。')));
-    if(sold.length){sec.append(el('h4','psh-sub','売れたもの'));const l2=el('div','psc psc-done'),cs=el('div','psc-case');cs.append(el('div','psc-led'));const cells=sold.slice(0,9).map(item).filter(Boolean);for(let n=0;n<cells.length;n+=3){const r=el('div','psc-row');cells.slice(n,n+3).forEach(e=>r.append(e));cs.append(r)}cs.append(el('div','psc-glass'));l2.append(cs);pshopFit(l2);sec.append(l2)}}
+    if(sold.length){sec.append(el('h4','psh-sub','売れたもの'));const l2=el('div','psc psc-done'),cs=el('div','psc-case');cs.append(el('div','psc-led'));const cells=sold.slice(0,9).map(x=>item([x])).filter(Boolean);for(let n=0;n<cells.length;n+=3){const r=el('div','psc-row');cells.slice(n,n+3).forEach(e=>r.append(e));cs.append(r)}cs.append(el('div','psc-glass'));l2.append(cs);pshopFit(l2);sec.append(l2)}}
   sec.append(el('p','sub mkfoot','お店は値段を決めて、すぐ買ってもらう売り方です。値段を競り合わせたいときはオークションへ。お店は販売手数料'+Math.round(PSHOP_FEE*100)+'%、オークションは10%。'));box.append(sec)};
 /* the faces are drawn at 120px wide: scale them to the stand */
 function pshopFit(c){const f=()=>{const w=c.querySelector('.psc-cd');if(w&&w.offsetWidth)c.style.setProperty('--pscS',(w.offsetWidth/120).toFixed(3))};requestAnimationFrame(f);try{new ResizeObserver(f).observe(c)}catch(e){}}
-/* one item: details and buying */
+/* one slot: details and buying (a stack sells one copy at a time) */
 function pshopSheet(id){document.querySelectorAll('.mks').forEach(x=>x.remove());const o=el('div','mks'),b=el('div','mksb');o.append(b);
-  const draw=()=>{const x=pshops.find(y=>y.id===id),me=myPlayer();b.replaceChildren();if(!x||!me){o.remove();return}const I=cardInfo(x.k,x.c,x.f);if(!I){o.remove();return}const sp=pshopPrice(x);
+  const draw=()=>{let x=pshops.find(y=>y.id===id);const me=myPlayer();b.replaceChildren();if(!x||!me){o.remove();return}
+    let L=x.tb?[x]:pshopStacks(pshops.filter(y=>pshopOpen(y)&&y.s===x.s)).find(a=>a.some(y=>y.id===id))||[x];
+    if(!x.tb&&!L.length){o.remove();return}const I=cardInfo(x.k,x.c,x.f);if(!I){o.remove();return}const sp=pshopPrice(x),n=x.tb?1:L.length;
     const top=el('div','mkst');top.append(mktThumb(x.k,x.c,x.f,0));const tx=el('div','mksi');tx.append(el('small',null,I.rk),el('h3',null,I.nm),el('div','sub',(x.s===me.id?'あなた':mktName(x.s))+'のお店'+(sp?'  ·  相場 '+sp.toLocaleString()+'pt':'')));top.append(tx);b.append(top);
-    const g=el('div','mksg');[['値段',x.p.toLocaleString()+'pt'],['相場',sp?sp.toLocaleString()+'pt':'—'],['並べた日',(()=>{const d=new Date(x.t);return (d.getMonth()+1)+'/'+d.getDate()})()],['所持',balance(me.id).toLocaleString()+'pt']].forEach(([k,v])=>{const c=el('div');c.append(el('span',null,k),el('b',null,v));g.append(c)});b.append(g);
+    const g=el('div','mksg');[['値段',x.p.toLocaleString()+'pt'],['相場',sp?sp.toLocaleString()+'pt':'—'],x.tb?['売れた日',(()=>{const d=new Date(+x.tt||x.t);return (d.getMonth()+1)+'/'+d.getDate()})()]:['残り',n+'枚'],['所持',balance(me.id).toLocaleString()+'pt']].forEach(([k,v])=>{const c=el('div');c.append(el('span',null,k),el('b',null,v));g.append(c)});b.append(g);
     if(x.tb)b.append(el('div','mknote',x.tb===me.id?'あなたが買いました':x.s===me.id?mktName(x.tb)+'が買いました。あなたに '+pshopGet(x).toLocaleString()+'pt が入りました':mktName(x.tb)+'が買いました'));
-    else if(x.s===me.id){b.append(el('div','mknote','あなたのお店に並べています。売れると '+pshopGet(x).toLocaleString()+'pt が入ります(販売手数料'+Math.round(PSHOP_FEE*100)+'%)'));const cb=el('button','sec','お店から下げる');cb.onclick=()=>askSheet({title:'お店から下げる',ok:'下げる',lines:['カードはあなたの持ち物に戻ります。'],run:async()=>{try{await pshopCancel(x);toast('お店から下げました');o.remove();mktPaint()}catch(e){toast('下げられませんでした')}}});b.append(cb)}
-    else{const bb=el('button','mkgo',x.p.toLocaleString()+'pt で買う');bb.disabled=balance(me.id)<x.p;if(bb.disabled)b.append(el('div','sub','ptが足りません'));
-      bb.onclick=()=>askSheet({title:'買う',ok:'買う',lines:[I.rk+'「'+I.nm+'」を '+x.p.toLocaleString()+'pt で買います。','すぐにあなたのものになります。'],run:async()=>{bb.disabled=true;try{await pshopBuy(x);toast('買いました');o.remove();mktPaint()}catch(e){bb.disabled=false;toast({pt:'ptが足りません',gone:'先にほかの人が買いました',own:'自分のお店の物です'}[e.message]||'買えませんでした')}}});b.append(bb)}
+    else if(x.s===me.id){b.append(el('div','mknote','あなたのお店に '+n+' 枚並べています。1枚売れるごとに '+pshopGet(x).toLocaleString()+'pt が入ります(販売手数料'+Math.round(PSHOP_FEE*100)+'%)'));
+      const take=(m)=>askSheet({title:'お店から下げる',ok:'下げる',lines:[(m>1?m+'枚':'1枚')+'をお店から下げます。','カードはあなたの持ち物に戻ります。'],run:async()=>{try{const r=await pshopCancelN(L.slice(-m));toast(r+'枚お店から下げました');if(m>=n)o.remove();else draw();mktPaint()}catch(e){toast('下げられませんでした')}}});
+      const r2=el('div','psh-2');const c1=el('button','sec',n>1?'1枚下げる':'お店から下げる');c1.onclick=()=>take(1);r2.append(c1);if(n>1){const c2=el('button','sec','全部下げる('+n+'枚)');c2.onclick=()=>take(n);r2.append(c2)}b.append(r2)}
+    else{const bb=el('button','mkgo',x.p.toLocaleString()+'pt で1枚買う');bb.disabled=balance(me.id)<x.p;if(bb.disabled)b.append(el('div','sub','ptが足りません'));
+      bb.onclick=()=>askSheet({title:'買う',ok:'買う',lines:[I.rk+'「'+I.nm+'」を1枚 '+x.p.toLocaleString()+'pt で買います。','すぐにあなたのものになります。'],run:async()=>{bb.disabled=true;try{const got=await pshopBuyOne(L);toast('買いました');const rest=L.filter(y=>y!==got&&pshopOpen(y));if(rest.length){id=rest[0].id;draw()}else o.remove();mktPaint()}catch(e){bb.disabled=false;toast({pt:'ptが足りません',gone:'先にほかの人が買いました',own:'自分のお店の物です'}[e.message]||'買えませんでした')}}});b.append(bb)}
     const cl=el('button','sec','閉じる');cl.onclick=()=>o.remove();b.append(cl)};
   draw();o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o);pshopSheet.redraw=()=>{if(o.isConnected)draw()}}
-/* putting a copy on the shelf, from a card's page */
+/* putting copies on the shelf, from a card's page */
 function pshopListSheet(k,c,f,done){document.querySelectorAll('.mks').forEach(x=>x.remove());const I=cardInfo(k,c,f),me=myPlayer();if(!I||!me)return;const o=el('div','mks'),b=el('div','mksb');o.append(b);
-  const top=el('div','mkst');top.append(mktThumb(k,c,f,0));const tx=el('div','mksi');tx.append(el('small',null,I.rk),el('h3',null,I.nm),el('div','sub','お店に並べる  ·  あと '+Math.max(0,PSHOP_N-pshopMine(me.id).length)+' 枠'));top.append(tx);b.append(top);
-  let sp=0;try{sp=mkPrice(k,c,f,0)}catch(e){}const f1=el('label','mkf'),pi=el('input');pi.type='number';pi.inputMode='numeric';const lo=pshopMin(k,c,f);pi.min=String(lo);pi.value=String(Math.max(lo,sp||mktSugg(k,c,f)));f1.append(el('span',null,'値段(pt)'),pi);
-  const low=el('div','psh-low');low.append(el('b',null,'いちばん安くて '+lo.toLocaleString()+'pt から'),el('span',null,sp?'相場の'+Math.round(PSHOP_LO*100)+'%より下げられません(安売りで相場が崩れないように)':'まだ売れた記録がないので、レアの基本の値段の半分より下げられません'));
-  const fee=el('div','sub');const upd=()=>{const v=Math.max(0,Math.round(+pi.value||0));fee.textContent=(sp?'相場 '+sp.toLocaleString()+'pt  ·  ':'')+'売れると販売手数料'+Math.round(PSHOP_FEE*100)+'%を引いた '+Math.floor(v*(1-PSHOP_FEE)).toLocaleString()+'pt が入ります。'};pi.oninput=()=>{upd();low.classList.toggle('bad',Math.round(+pi.value||0)<lo)};upd();
-  const last=(k==='t'?tcgCopies(inv,c):cardHave(inv,k,c,f))===1,full=pshopMine(me.id).length>=PSHOP_N,go=el('button','mkgo',full?'お店がいっぱい('+PSHOP_N+'枠)':'お店に並べる');go.disabled=full;
-  go.onclick=()=>{const v=Math.round(+pi.value||0);if(v<1){toast('値段を入れてください');return}if(v<lo){toast(lo.toLocaleString()+'pt より安くは並べられません');pi.value=String(lo);upd();low.classList.remove('bad');return}
-    askSheet({title:'お店に並べる',ok:'並べる',danger:last,lines:[I.rk+'「'+I.nm+'」を '+v.toLocaleString()+'pt でお店に並べます。',last?'これが最後の1枚です。並べている間は図鑑から消えます(下げれば戻ります)。':'並べている間は使えません。いつでも下げられます。'],
-      run:async()=>{go.disabled=true;try{await pshopList(k,c,f,v);toast('お店に並べました');o.remove();done&&done()}catch(e){go.disabled=false;toast({full:'お店がいっぱいです('+PSHOP_N+'枠)',none:'もう持っていません',low:lo.toLocaleString()+'pt より安くは並べられません'}[e.message]||'並べられませんでした')}}})};
-  const cl=el('button','sec','やめる');cl.onclick=()=>o.remove();b.append(f1,low,fee,go,cl);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
+  const st=pshopStackOf(me.id,k,c,f),used=pshopSlots(me.id),have=cardHave(inv,k,c,f),full=!st&&used>=PSHOP_N;
+  const top=el('div','mkst');top.append(mktThumb(k,c,f,0));const tx=el('div','mksi');tx.append(el('small',null,I.rk),el('h3',null,I.nm),el('div','sub',st?'お店に '+st.length+' 枚並んでいます。同じ枠に重ねます':'お店に並べる  ·  枠 '+used+' / '+PSHOP_N));top.append(tx);b.append(top);
+  let sp=0;try{sp=mkPrice(k,c,f,0)}catch(e){}const lo=pshopMin(k,c,f);
+  const f1=el('label','mkf'),pi=el('input');pi.type='number';pi.inputMode='numeric';pi.min=String(lo);pi.value=String(st?st[0].p:Math.max(lo,sp||mktSugg(k,c,f)));if(st){pi.disabled=true}f1.append(el('span',null,st?'値段(並んでいるのと同じ)':'値段(pt・1枚あたり)'),pi);
+  const low=el('div','psh-low');if(!st)low.append(el('b',null,'いちばん安くて '+lo.toLocaleString()+'pt から'),el('span',null,sp?'相場の'+Math.round(PSHOP_LO*100)+'%より下げられません(安売りで相場が崩れないように)':'まだ売れた記録がないので、レアの基本の値段の半分より下げられません'));
+  let q=1;const qr=el('div','psh-q'),qm=el('button','sec','−'),qn=el('b'),qp=el('button','sec','+');qr.append(el('span',null,'枚数'),qm,qn,qp,el('small',null,'持っている '+have+' 枚'));
+  const fee=el('div','sub');const upd=()=>{const v=Math.max(0,Math.round(+pi.value||0));qn.textContent=String(q);qm.disabled=q<=1;qp.disabled=q>=have;fee.textContent=(sp?'相場 '+sp.toLocaleString()+'pt  ·  ':'')+'1枚売れるごとに販売手数料'+Math.round(PSHOP_FEE*100)+'%を引いた '+Math.floor(v*(1-PSHOP_FEE)).toLocaleString()+'pt が入ります。'};
+  qm.onclick=()=>{q=Math.max(1,q-1);upd()};qp.onclick=()=>{q=Math.min(have,q+1);upd()};pi.oninput=()=>{upd();low.classList.toggle('bad',Math.round(+pi.value||0)<lo)};upd();
+  const go=el('button','mkgo',full?'お店がいっぱい('+PSHOP_N+'枠)':st?'重ねて並べる':'お店に並べる');go.disabled=full||have<1;
+  go.onclick=()=>{const v=Math.round(+pi.value||0);if(!st){if(v<1){toast('値段を入れてください');return}if(v<lo){toast(lo.toLocaleString()+'pt より安くは並べられません');pi.value=String(lo);upd();low.classList.remove('bad');return}}
+    const all=q>=have;askSheet({title:'お店に並べる',ok:'並べる',danger:all,lines:[I.rk+'「'+I.nm+'」を '+q+' 枚、1枚 '+v.toLocaleString()+'pt でお店に並べます。',all?'持っている全部です。並べている間は図鑑から消えます(下げれば戻ります)。':'並べている間は使えません。いつでも下げられます。'],
+      run:async()=>{go.disabled=true;try{const r=await pshopList(k,c,f,v,q);toast(r+'枚お店に並べました');o.remove();done&&done(r)}catch(e){go.disabled=false;toast({full:'お店がいっぱいです('+PSHOP_N+'枠)',none:'そんなに持っていません',low:lo.toLocaleString()+'pt より安くは並べられません'}[e.message]||'並べられませんでした')}}})};
+  const cl=el('button','sec','やめる');cl.onclick=()=>o.remove();b.append(f1);if(!st)b.append(low);if(have>1)b.append(qr);b.append(fee,go,cl);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
 /* the bell: someone bought from my shop */
 window.__shopNotes=me=>pshops.filter(x=>x.s===me.id&&x.tb).map(x=>{const I=cardInfo(x.k,x.c,x.f);return I?{key:'sh'+x.id,t:+x.tt||now(),k:'お店',x:mktName(x.tb)+'が「'+I.nm+'」を '+x.p.toLocaleString()+'pt で買いました(+'+pshopGet(x).toLocaleString()+'pt)',go:'mkt'}:null}).filter(Boolean);
 /* ORISHjs:end */
@@ -11742,14 +11775,14 @@ function paintNew(){const L=newSeenGet(),want=new Set();NEWF.forEach(f=>{if(L.in
              an unsold card goes back to the seller (inv.mb = returned). A listing with no bids can be withdrawn.
    yami/{id} one donated card {d donor, k, c, f, t, tb taker, tt}. Anyone takes a random untaken one for YAMI_PT; the donor gets half.
              The taker's app adds the card (inv.yg = received). Rules let only the first taker through, so a card is never taken twice. */
-const YAMI_PT=50,YAMI_BACK=25,AUC_FEE=.1,AUC_DUR=[[6,'6時間'],[24,'24時間'],[72,'3日']];
+const YAMI_PT=50,YAMI_BACK=25,YAMI_OFF=Date.UTC(2026,9,25,12),AUC_FEE=.1,AUC_DUR=[[6,'6時間'],[24,'24時間'],[72,'3日']];
 let aucs=[],yamis=[],aucLoaded=false,yamiLoaded=false;
 const aucOpen=a=>now()<a.end&&!(a.bn>0&&a.hb>=a.bn);
 const aucSold=a=>!aucOpen(a)&&(+a.n||0)>0;
 const aucGet=a=>Math.floor((+a.hb||0)*(1-AUC_FEE));
 /* points: held bids, payments, sales, 闇鍋 pulls and the donors' half */
 function mktNet(pid){let t=0;for(const a of aucs){if(a.hp===pid&&(+a.n||0)>0)t-=+a.hb||0;if(a.s===pid&&aucSold(a))t+=aucGet(a)}
-  for(const y of yamis){if(y.tb===pid)t-=YAMI_PT;if(y.tb&&y.d===pid)t+=YAMI_BACK}return t}
+  for(const y of yamis){if(y.tb&&y.tb===y.d&&(+y.tt||0)>=YAMI_OFF)continue;/* (10/25) 闇鍋 closed: the donor takes the card back for free */if(y.tb===pid)t-=YAMI_PT;if(y.tb&&y.d===pid)t+=YAMI_BACK}return t}
 function mktWatch(){if(!db||mktWatch.on)return;mktWatch.on=1;try{kbuWatch()}catch(e){}/*kbu-watch*/
   db.collection('auc').onSnapshot(s=>{aucs=s.docs.map(d=>({id:d.id,...d.data()}));aucLoaded=true;queueRender();mktClaim();mktPaint();try{renderHbar()}catch(e){}},()=>{aucLoaded=true});
   db.collection('yami').onSnapshot(s=>{yamis=s.docs.map(d=>({id:d.id,...d.data()}));yamiLoaded=true;queueRender();mktClaim();mktPaint()},()=>{yamiLoaded=true});
@@ -11760,7 +11793,12 @@ const cardHave=(v,k,c,f)=>k==='s'?(typeof stkHave==='function'?stkHave(v,c):0):k
 const cardInfo=(k,c,f)=>{if(k==='s')return typeof stkInfo==='function'?stkInfo(c):null;if(k==='h'){return {nm:'お菓子 '+(+c||0).toLocaleString()+'個',rk:'ハロウィン',r:1,col:'#ff8a2a',face:()=>{const d=el('div','hlw-mkf');d.innerHTML=hwCandySvg(40)+'<b>'+(+c||0)+'</b>';return d}}}if(k==='b'){return typeof TCGD!=='undefined'&&TCGD.packs[c]?{nm:bxName(c)+' BOX',rk:'未開封BOX',r:3,col:'#f5c84c',face:()=>bxFace(c)}:null}if(k==='g'){const it=ITEM(c);return it?{nm:it.n,rk:RAR[it.r].k,r:it.r,col:RAR[it.r].c,face:()=>cardFace(it)}:null}const x=typeof TC!=='undefined'&&TC[c];return x?{nm:x.n,rk:(f==='k'?'KMR ':f?'シークレット ':'')+x.r,r:{C:0,R:1,SR:2,GR:4}[x.r]+(f?1:0),col:f?'#ff7ab8':{C:'#a3a9b4',R:'#9a6bff',SR:'#8fd3ff',GR:'#f5c84c'}[x.r],face:()=>tcgFace(c,null,!!f)}:null};
 /* cards I won or got from the pot, and my unsold listings: put them into my collection once */
 let mktBusy=false;
-async function mktClaim(){const me=myPlayer();if(mktBusy||!db||!me||!invLoaded||invFor!==me.id||!aucLoaded||!yamiLoaded)return;
+/* (10/25) 闇鍋 is gone: cards still in the pot go back to whoever put them in (free) */
+let yamiBackOn=false;
+async function yamiBack(){const me=myPlayer();if(yamiBackOn||!db||!me||!yamiLoaded)return;const L=yamis.filter(y=>y.d===me.id&&!y.tb);if(!L.length)return;yamiBackOn=true;let n=0;
+  try{for(const y of L){try{await db.doc('yami/'+y.id).update({tb:me.id,tt:now()});y.tb=me.id;y.tt=now();n++}catch(e){}}}finally{yamiBackOn=false}
+  if(n){toast('闇鍋はなくなりました。入れていたカード'+n+'枚が戻りました');await mktClaim()}}
+async function mktClaim(){const me=myPlayer();if(mktBusy||!db||!me||!invLoaded||invFor!==me.id||!aucLoaded||!yamiLoaded)return;setTimeout(()=>{try{yamiBack()}catch(e){}},0);
   const mg=new Set(inv.mg||[]),mb=new Set(inv.mb||[]),yg=new Set(inv.yg||[]);
   const won=aucs.filter(a=>a.hp===me.id&&aucSold(a)&&!mg.has(a.id)),back=aucs.filter(a=>a.s===me.id&&!aucOpen(a)&&!(+a.n>0)&&!mb.has(a.id)),got=yamis.filter(y=>y.tb===me.id&&!yg.has(y.id));
   if(!won.length&&!back.length&&!got.length)return;mktBusy=true;
@@ -12625,7 +12663,6 @@ function mktPaint(soft){try{aucSheet.redraw&&aucSheet.redraw()}catch(e){}const b
     g.append(tile('t-auc','AUCTION','オークション',num(N('open'),'件 出品中'),soon?'次に終わる: '+((cardInfo(soon.k,soon.c,soon.f)||{}).nm||'')+'  ·  '+mktLeft(soon.end):'いまは出品なし',()=>{mktTab='open';go('auc')}));
     const pot=el('div','mkpot mkt2pot');pot.innerHTML='<i class="b1"></i><i class="b2"></i><i class="b3"></i><span class="lid"></span><span class="bowl"></span>';
     try{if(window.__shopTile)g.append(__shopTile(tile,num,go))}catch(e){console.warn('shop tile',e)}/* (10/25) お店 */
-    g.append(tile('t-yami','MYSTERY','闇鍋パック',num(L.length,'枚 鍋の中'),L.length?(hi?'SR以上が '+hi+'枚  ·  ':'')+YAMI_PT+'ptで1枚':'鍋は空っぽ',()=>go('yami'),pot));
     let mv=null;try{const M=mkMovers();mv=M.up[0]||M.down[0]||null}catch(e){}
     const mvI=mv&&cardInfo(mv.k,mv.c,mv.f);
     g.append(tile('t-mv','MARKET','今週の相場',mvI?(()=>{const d=el('div','mkt2n');d.append(el('b',null,(mv.ch>0?'+':'')+mv.ch),el('span',null,'%'));if(mv.ch<0)d.classList.add('dn');return d})():num('—',''),mvI?mvI.nm+'  ·  '+mv.m.toLocaleString()+'pt':'まだ値動きなし',()=>go('mv')));
@@ -12646,6 +12683,7 @@ function mktPaint(soft){try{aucSheet.redraw&&aucSheet.redraw()}catch(e){}const b
       if(a.hp===me.id){r.classList.add('top');ft.append(el('span','mkme','あなたが1位'))}
       r.append(mktThumb(a.k,a.c,a.f,+a.g||0),tx,pr,ft);r.onclick=()=>aucSheet(a.id);ls.append(r)});
     as.append(ls,el('p','sub mkfoot','終わりが近い順に並んでいます。売れると手数料10%を引いた額が入ります。入札したptは、ほかの人に抜かれるまで押さえられます。'));box.append(as);return}
+  if(mktSec==='yami')mktSec='';/* (10/25) 闇鍋 closed */
   if(mktSec==='yami'){box.append(back('闇鍋パック'),hd);
     const ys=el('section','mkyami'),pot=el('div','mkpot');pot.innerHTML='<i class="b1"></i><i class="b2"></i><i class="b3"></i><span class="lid"></span><span class="bowl"></span>';
     const yt=el('div','mkyt');yt.append(el('p','sub','仲間が入れたカードから1枚。何が出るかは引くまでわからない'),el('div','mkyn',L.length?'鍋の中 '+L.length+'枚'+(hi?'  ·  SR以上が '+hi+'枚':''):'鍋は空っぽ'));
@@ -12705,12 +12743,12 @@ function dupBox(kind,id,rn,done,opt){opt=opt||{};try{newSeen('burn134')}catch(e)
       const all=(mode,btn)=>askSheet({title:mode==='sh'?'ダブりを全部かけらにする':'ダブりを全部燃やす',danger:mode==='burn',ok:mode==='sh'?'かけらにする':'燃やす',lines:[rk+'「'+nm+'」のダブり'+ex+'枚を'+(mode==='sh'?'かけら +'+(ex*sh)+' にします。':'燃やして +'+(ex*pt)+'pt。'),keep+'枚は残します。','もとに戻せません。'],
         run:async()=>{btn.disabled=true;try{const r=await dupBulk(kind,X2,mode);toast(mode==='sh'?'かけら +'+r.gain:'燃やしました  +'+r.gain+'pt');done&&done({left:rn-r.cnt,gain:r.gain})}catch(e){btn.disabled=false;toast('できませんでした')}}});
       c1.onclick=()=>all('sh',c1);c2.onclick=()=>all('burn',c2);ra.append(c1,c2);w.append(ra)}}
-    /* 取引所: sell it or put it in the pot */
-    const row2=el('div','dupb dupb2 dupb3'),b3=el('button','sec','オークション'),b4=el('button','sec','闇鍋に入れる'),b5=el('button','sec','お店に並べる'),fo=!!opt.foil;
-    b5.onclick=()=>{if(typeof pshopListSheet==='function')pshopListSheet(kind,id,fo,()=>done&&done({left:rn-1,gain:0}))};
+    /* 取引所: お店 or オークション */
+    const row2=el('div','dupb dupb2'),b3=el('button','sec','オークション'),b4=el('button','sec','闇鍋に入れる'),b5=el('button','sec','お店に並べる'),fo=!!opt.foil;
+    b5.onclick=()=>{if(typeof pshopListSheet==='function')pshopListSheet(kind,id,fo,r=>done&&done({left:rn-(+r||1),gain:0}))};
     b3.onclick=()=>listSheet(kind,id,fo,()=>done&&done({left:rn-1,gain:0}));
     b4.onclick=()=>askSheet({title:'闇鍋に入れる'+(last?'(最後の1枚)':''),danger:last,ok:'入れる',lines:[rk+'「'+nm+'」を1枚、闇鍋パックに入れます。','誰かが引くと、あなたに'+YAMI_BACK+'ptが入ります。'+(last?'最後の1枚なので、図鑑から消えます。':''),'もとに戻せません。'],run:async()=>{b4.disabled=true;try{await yamiGive(kind,id,fo);toast('闇鍋に入れました');done&&done({left:rn-1,gain:0})}catch(e){b4.disabled=false;toast('入れられませんでした')}}});
-    row2.append(b5,b3,b4);
+    row2.append(b5,b3);/* (10/25) 闇鍋に入れる is gone */
     w.append(row,row2,el('div','sub',(opt.foil?'シークレットはかけらもptも1.5倍。':'')+(last?'これが最後の1枚です':'ダブり '+(rn-1)+' 枚。燃やすと仲間全体の枚数が減って、残ったカードが珍しくなります')))}
   return w}
   /* (10/17) 推しキャラ: every KMR you can put on the home screen. 300 cheers (応援演出) with her unlock it */
