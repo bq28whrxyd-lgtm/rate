@@ -3555,10 +3555,10 @@ button.tcgkeep{width:100%;margin-top:8px}
 .ori-sh b{font-size:15px;font-weight:900;color:var(--tc,#ffe7a3)}
 .ori-sh span{font-size:12px;opacity:.7;min-width:0}
 .ori-sh em{margin-left:auto;font-style:normal;font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
-.ori-g{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.ori-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .ori-g.big{grid-template-columns:repeat(3,minmax(0,1fr))}
-.ori-g.one{grid-template-columns:minmax(0,120px)}
-.ori-g.sm{grid-template-columns:repeat(8,minmax(0,1fr));gap:5px}
+.ori-g.one{grid-template-columns:minmax(0,150px)}
+.ori-g.sm{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .ori-gc{position:relative;display:flex;flex-direction:column;gap:4px;min-width:0;padding:0;border:0;background:none;color:inherit;text-align:left;font:inherit}
 .ori-gc>.tcf{width:100%;margin:0;filter:none}
 .ori-gc small{font-size:10px;line-height:1.3;opacity:.8;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
@@ -3645,6 +3645,10 @@ button.tcgkeep{width:100%;margin-top:8px}
 .ori-fc.gone>.tfc{filter:grayscale(1) brightness(.5)}
 .orpk.opened .orpk-c>.tfc{box-shadow:0 0 0 2px var(--tc),0 0 34px color-mix(in srgb,var(--tc) 55%,transparent),0 12px 30px rgba(0,0,0,.6)}
 .orx-rc>.tfc{box-shadow:0 0 0 2px var(--tc),0 6px 18px rgba(0,0,0,.6)}
+.ori-gc>.tfc{width:100%;margin:0;filter:none}
+.ori-gc.out>.tfc{filter:grayscale(1) brightness(.4)}
+.ori-g{contain:paint}
+.ori-gc{contain:paint}
 /* ORIcss:end */
 /* STKcss:begin */
 /* ---- (10/19) ハロウィン シールアルバム ---- */
@@ -9837,7 +9841,8 @@ function oriPickN(L,n,used){const a=oriShuf(L.filter(x=>!used.has(x)));const out
 function oriMakePz(top,last){const P=oriPool(),u=new Set([top,last]),pz=[{g:1,c:top,f:'k'}];
   oriPickN(P.LD,2,u).forEach(c=>pz.push({g:2,c,f:true}));
   const g3=oriPickN(P.GR,4,u);g3.forEach(c=>pz.push({g:3,c,f:true}));
-  oriPickN(P.GR,8,u).forEach(c=>pz.push({g:4,c,f:false}));
+  /* (there are only 11 GR that aren't leaders, so 4等 may also be a leader's normal version) */
+  oriPickN(P.GR.concat(P.LD),8,u).forEach(c=>pz.push({g:4,c,f:false}));
   oriPickN(P.RS,15,new Set()).forEach(c=>pz.push({g:5,c,f:true}));
   return pz}
 const oriDefTop=()=>{const L=oriPool().LD;return L.includes('d8')?'d8':L[0]};
@@ -9992,10 +9997,10 @@ function oriSheet(o,H){const {mk,bt,esc,sheet}=H;if(typeof sheet!=='function')re
   sheet(o.nm,b=>{const r=oriLeft(o),rm=oriRemain(o),opened=oriOpen(o);
     const sm=mk('div','ori-sum');sm.innerHTML='<div><small>1口</small><b>'+o.p.toLocaleString('ja-JP')+'pt</b></div><div><small>残り</small><b>'+r+' / '+o.N+'口</b></div><div><small>期限</small><b>'+esc(H.left(o.end).replace('残り ',''))+'</b></div>';b.append(sm);
     b.append(mk('p','ori-ex','全'+o.N+'口の中に、下の賞品が1つずつ入っています。どれが何番目かは誰にも分かりません。出た賞品は消えていき、最後の1口を引いた人にはラストワン賞も付きます。'+(ORI_PV?'(お試し版: 引いてもptは減らず、カードももらえません)':'')));
-    if(o.last){const s=mk('div','ori-sec lo');s.innerHTML='<div class="ori-sh"><b>ラストワン賞</b><span>最後の1口を引いた人に</span></div>';const g=mk('div','ori-g one'),c=mk('button','ori-gc');c.type='button';c.append(oriFace(o.last.c,o.last.f),mk('small',null,'KMR '+esc(oriNm(o.last.c))));c.onclick=()=>oriZoom(o.last.c,o.last.f);
+    if(o.last){const s=mk('div','ori-sec lo');s.innerHTML='<div class="ori-sh"><b>ラストワン賞</b><span>最後の1口を引いた人に</span></div>';const g=mk('div','ori-g one'),c=mk('button','ori-gc');c.type='button';c.append(oriFull(o.last.c,o.last.f));c.onclick=()=>oriZoom(o.last.c,o.last.f);
       const lb=oriLastBy(o);if(lb){c.classList.add('out');c.append(mk('em','ori-got',esc(oriPn(lb))))}g.append(c);s.append(g);b.append(s)}
     for(let g=1;g<=5;g++){const s=mk('div','ori-sec');s.style.setProperty('--tc',ORI_T[g].c);s.innerHTML='<div class="ori-sh"><b>'+ORI_T[g].n+'</b><span>'+ORI_T[g].k+'</span><em>残り '+rm.R[g]+' / '+rm.A[g]+'</em></div>';
-      const gr=mk('div','ori-g'+(g<=2?' big':''));(o.pz||[]).forEach((p,j)=>{if(p.g!==g)return;const c=mk('button','ori-gc');c.type='button';c.append(oriFace(p.c,p.f),mk('small',null,esc(oriFk(p.f)+oriNm(p.c))));c.onclick=()=>oriZoom(p.c,p.f);
+      const gr=mk('div','ori-g'+(g<=2?' big':''));(o.pz||[]).forEach((p,j)=>{if(p.g!==g)return;const c=mk('button','ori-gc');c.type='button';c.setAttribute('aria-label',oriFk(p.f)+oriNm(p.c));c.append(oriFull(p.c,p.f));c.onclick=()=>oriZoom(p.c,p.f);
         if(rm.gone.has(j)){c.classList.add('out');const sl=opened.find(x=>x.j===j);c.append(mk('em','ori-got',sl?esc(oriPn(sl.tb)):'出ました'))}gr.append(c)});s.append(gr);b.append(s)}
     if(opened.length){const s=mk('div','ori-sec log');s.innerHTML='<div class="ori-sh"><b>出たもの</b><span>新しい順</span></div>';const ul=mk('div','ori-log');
       opened.slice().sort((a,c)=>c.i-a.i).slice(0,30).forEach(x=>{const li=mk('div','ori-li');li.style.setProperty('--tc',ORI_T[x.g].c);li.innerHTML='<span>No.'+(x.i+1)+'</span><b>'+ORI_T[x.g].n+'</b><em>'+esc(oriFk(x.f)+oriNm(x.c))+'</em><small>'+esc(oriPn(x.tb))+'</small>';ul.append(li)});s.append(ul);b.append(s)}
@@ -10018,7 +10023,7 @@ function oriAdmin(){const sheet=window.__kguSheet;if(typeof sheet!=='function'){
     const sel=(L,v)=>{const s=el('select');L.forEach(id=>{const o=el('option',null,oriNm(id));o.value=id;if(id===v)o.selected=true;s.append(o)});return s};
     const t1=row('1等(KMR)',sel(P.LD,top)),lo=row('ラストワン(KMR)',sel(P.GR,last));
     const pv=el('div','ori-pv'),draw=()=>{pv.replaceChildren();for(let g=1;g<=5;g++){const s=el('div','ori-sec');s.style.setProperty('--tc',ORI_T[g].c);const h=el('div','ori-sh');h.append(el('b',null,ORI_T[g].n),el('span',null,ORI_T[g].k),el('em',null,'×'+ORI_CNT[g]));s.append(h);
-      const gr=el('div','ori-g sm');pz.filter(p=>p.g===g).forEach(p=>{const c=el('div','ori-gc');c.append(oriFace(p.c,p.f));gr.append(c)});s.append(gr);pv.append(s)}};
+      const gr=el('div','ori-g sm');pz.filter(p=>p.g===g).forEach(p=>{const c=el('div','ori-gc');c.append(oriFull(p.c,p.f));gr.append(c)});s.append(gr);pv.append(s)}};
     const re=el('button','ori-ab','中身を選び直す');re.type='button';re.onclick=()=>{top=t1.value;last=lo.value;pz=oriMakePz(top,last);draw()};t1.onchange=lo.onchange=re.onclick;
     const go=el('button','ori-ab main','このオリパを出す');go.type='button';const msg=el('div','ori-msg',ORI_PV?'お試し版: このスマホの中だけで作ります':'出すと全員のガチャ画面に出ます。速報にも流れます');
     go.onclick=async()=>{if(go.dataset.ok!=='1'){go.dataset.ok='1';go.textContent='本当に出す(全'+pz.length+'口)';return}go.disabled=true;
