@@ -10657,7 +10657,7 @@ function kjPts(pid){let t=0;for(const s of kjMine(pid)){const T=KJ_T[s.g];if(T&&
   const n=kjLasts().filter(x=>x.pid===pid).length;if(n>1)t+=(n-1)*1000;return t}
 function kjTk(pid,kind){let n=0;for(const s of kjMine(pid)){const T=KJ_T[s.g];if(T&&T.k===kind)n+=T.q}return n}
 /* 選べる券: got from A/B, used ones are counted in the inventory (inv.kju = {k: KMR, s: secret}) */
-const kjPickHave=(pid,k)=>kjTk(pid,k==='k'?'kmrp':'scrp');
+const kjPickHave=(pid,k)=>kjTk(pid,k==='k'?'kmrp':'scrp')+(window.KJ_PICKS||[]).reduce((a,f)=>{try{return a+(+f(pid,k)||0)}catch(e){return a}},0);
 const kjPickLeft=k=>{const m=myPlayer();if(!m)return 0;const u=(inv.kju||{})[k]||0;return Math.max(0,kjPickHave(m.id,k)-u)};
 /* くじ券 (1 free draw): from the 後編's other parts (window.KJ_TKS: functions pid → count), used = draws with p:0 */
 const kjTkGot=pid=>(window.KJ_TKS||[]).reduce((a,f)=>{try{return a+(+f(pid)||0)}catch(e){return a}},0);
@@ -10765,7 +10765,7 @@ async function kjRedeem(k,id){const me=myPlayer();if(!db||!me||!invLoaded||invFo
     const res={c:tcgItem(id),isNew:!had,sh:0,foil:k==='k'?'k':true};try{feedPull([res.c],'二番くじ '+(k==='k'?'A賞':'B賞'))}catch(e){}try{tcgBoxCinematic('h',[res],()=>{},()=>{},{revealed:true})}catch(e){}}
   catch(e){toast('受け取れませんでした')}}
 /* the 選べる券 also show on the TCG gacha's Halloween pack as tickets */
-window.__kjPickTks=()=>{const out=[];const kp=kjPickLeft('k'),sp=kjPickLeft('s');if(kp)out.push({l:'二番くじ: KMRを選ぶ',n:kp,on:true,go:()=>kjPick('k')});if(sp)out.push({l:'二番くじ: シークレットを選ぶ',n:sp,on:true,go:()=>kjPick('s')});return out};
+window.__kjPickTks=()=>{const out=[];const kp=kjPickLeft('k'),sp=kjPickLeft('s');if(kp)out.push({l:'二番くじ: KMRを選ぶ',n:kp,on:true,go:()=>kjPick('k')});if(sp)out.push({l:'ハロウィン版シークレットを選ぶ',n:sp,on:true,go:()=>kjPick('s')});return out};
 
 /* ---------- 管理者: 用意する ---------- */
 async function kjAdminCreate(btn){if(!(ORI_PV||(typeof isAdmin==='function'&&isAdmin())))return;if(kjAll().some(o=>now()<o.end)){toast('もう用意してあります');return}
@@ -10818,7 +10818,10 @@ const HW2_TM={p:{n:'かぼちゃ団',c:'#ff8a2a',c2:'#ffcf8a',e:'🎃'},b:{n:'�
 const HW2_GOAL_F=[.1,.2,.35,.5,.65,.8,1];
 const HW2_GOAL_RW=[{pt:500,x:'500pt'},{tk:'ptk',n:5,x:'通常パックチケット ×5'},{tk:'ltk',n:2,x:'限定ガチャチケット ×2'},{tk:'tp1_h',n:3,x:'TCGハロウィンパック券 ×3'},{tk:'ltk',n:4,x:'限定ガチャチケット ×4'},{kj:2,x:'二番くじ券 ×2'},{kj:3,ttl:'HW_G7',fr:'lhw9',x:'二番くじ券 ×3 と 称号「みんなでハロウィン」と フレーム「かぼちゃの灯火」'}];
 const HW2_NEED=50;/* みんなで目標のごほうびは、自分の後編のお菓子が50以上の人だけ */
-const HW2_TEAM_RW={win:{tk:'ltk',n:3,pt:1000,kj:1,x:'限定ガチャチケット ×3・1,000pt・二番くじ券 ×1・称号「○○団の勝利」'},lose:{tk:'ltk',n:1,pt:500,x:'限定ガチャチケット ×1・500pt'},mvp:{kj:2,x:'二番くじ券 ×2・称号「○○団のエース」'}};
+/* (10/25 23:05) 「しょぼい」→ 上げた。tk: [kind, n] のリスト。sc = TCGハロウィン版シークレットを選べる券 */
+const HW2_TEAM_RW={win:{tk:[['ltk',10],['tp1_h',5]],kj:3,pt:3000,x:'限定ガチャチケット ×10・TCGハロウィンパック券 ×5・二番くじ券 ×3・3,000pt・称号「○○団の勝利」'},
+  lose:{tk:[['ltk',5],['tp1_h',2]],kj:1,pt:1000,x:'限定ガチャチケット ×5・TCGハロウィンパック券 ×2・二番くじ券 ×1・1,000pt'},
+  mvp:{sc:1,kj:2,x:'TCGハロウィン版シークレットを選べる券 ×1・二番くじ券 ×2・称号「○○団のエース」'}};
 const HW2_BINGO=50;
 /* titles join the Halloween ones (equip as usual) */
 Object.assign(HWP_TTL,{HW_TWp:{n:'かぼちゃ団の勝利',r:4},HW_TWb:{n:'こうもり団の勝利',r:4},HW_TAp:{n:'かぼちゃ団のエース',r:5},HW_TAb:{n:'こうもり団のエース',r:5},HW_G7:{n:'みんなでハロウィン',r:4},HW_BG:{n:'ビンゴマスター',r:4}});
@@ -10894,7 +10897,9 @@ function hw2TeamRw(pid){if(!hw2Cfg||!hw2TeamDone())return [];const tm=hw2Team(pi
 const hw2Rws=pid=>hw2GoalRw(pid).concat(hw2TeamRw(pid));
 /* into the app's counts */
 function hw2Pts(pid){if(HW_PV)return 0;let t=0;for(const r of hw2Rws(pid))t+=+r.pt||0;return t}
-function hw2Tk(pid,kind){if(HW_PV)return 0;let n=0;for(const r of hw2Rws(pid))if(r.tk===kind)n+=+r.n||0;return n}
+function hw2Tk(pid,kind){if(HW_PV)return 0;let n=0;for(const r of hw2Rws(pid)){if(Array.isArray(r.tk)){for(const [k,q] of r.tk)if(k===kind)n+=q}else if(r.tk===kind)n+=+r.n||0}return n}
+/* the ace's pick: through the 二番くじ's 選べる券 (same screen) */
+(window.KJ_PICKS=window.KJ_PICKS||[]).push((pid,k)=>k==='s'&&!HW_PV?hw2Rws(pid).reduce((a,r)=>a+(+r.sc||0),0):0);
 const hw2Kj=pid=>hw2Rws(pid).reduce((a,r)=>a+(+r.kj||0),0);
 (window.KJ_TKS=window.KJ_TKS||[]).push(hw2Kj);
 {const P=hwPassTk;hwPassTk=function(pid,kind){let n=0;try{n=P.apply(this,arguments)}catch(e){}try{n+=hw2Tk(pid,kind)}catch(e){}return n}}
