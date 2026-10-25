@@ -1644,6 +1644,13 @@ body:not(.gkview){background:
 .bc.foilc .bart .sgl.s1::before{display:none!important}
 @keyframes sgMove{0%,100%{background-position:0% 8%}50%{background-position:100% 92%}}
 @media(prefers-reduced-motion:reduce){.bc.foilc .bart .sgl.s1{animation:none!important;background-position:30% 30%!important}}
+/* (10/25) lightness: the secret light moves with transform (no repaint every frame) */
+.bc.foilc .bart .sgl.s1,.bc.foilc .bart.hascut .sgl.s1{background:none!important;animation:none!important;overflow:hidden}
+.bc.foilc .bart .sgl.s1::after{content:"";position:absolute;left:-90%;top:-90%;width:280%;height:280%;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,1) 0%,rgba(244,247,255,.95) 4.3%,rgba(220,228,248,.66) 9.3%,rgba(214,222,244,.42) 14.3%,rgba(214,222,244,.42) 100%);
+  animation:sgMoveT 6.5s ease-in-out infinite;will-change:transform}
+@keyframes sgMoveT{0%,100%{transform:translate(32%,27%)}50%{transform:translate(-32%,-27%)}}
+@media(prefers-reduced-motion:reduce){.bc.foilc .bart .sgl.s1::after{animation:none;transform:translate(12%,10%)}}
 
 </style>
 
@@ -4359,7 +4366,7 @@ function lifeHit(who,n,heal){const L=$(who===H?'myLife':'oppLife');if(!L)return;
   const step=t=>{const k=Math.min(1,(t-t0)/dur);b.textContent=Math.round(from+(to-from)*k);if(k<1)requestAnimationFrame(step)};requestAnimationFrame(step);
   const fbar=L.querySelector('.lbar i');if(fbar)fbar.style.width=Math.min(100,100*to/E.R.LIFE)+'%';
   floatOn(L,(heal?'+':'-')+n,heal?'heal':'bad');if(!heal)bigNum(L,'-'+n,n>=1200?'crit':'');if(!heal){anim(L,[{transform:'translateX(-5px)'},{transform:'translateX(5px)'},{transform:'none'}],{duration:260,fill:'none'});if(who===H&&n>=800){const v=el('div','hurt');document.body.append(v);setTimeout(()=>v.remove(),D(500))}}}
-async function playEvents(evs){for(let i=0;i<evs.length;i++){const e=evs[i];LOG.push(e);if(done&&e.t!=='end')continue;
+async function playEvents(evs){for(let i=0;i<evs.length;i++){const e=evs[i];LOG.push(e);if(done&&e.t!=='end')continue;try{tsfxEv(e)}catch(_){}
   switch(e.t){
   case'tribute':{const u=uidEl(e.uid);if(u){const [x,y]=ctr(u);sparks(x,y,'#ffd36b',18,70);await anim(u,[{transform:'none',filter:'brightness(1)',opacity:1},{transform:'translateY(-20px) scale(.85)',filter:'brightness(3) sepia(1)',opacity:0}],{duration:520,easing:'ease-in'});u.style.visibility='hidden'}caption(e.board?'「'+BY[e.id].n+'」が機体に乗り込んだ':'「'+BY[e.id].n+'」を生贄にした');break}
   case'play':if(BY[e.id].trib){await aceSummon(e)}if(playIsScr(e)){if((e.ga|0)>=3)await gokuReveal(e,'unit');else await scrSummon(e)}if(e.who!==H||e.free)notice(e.id,e.who,'sum',e.ga);break;
@@ -4535,7 +4542,7 @@ function X(f,...a){const pl=g&&(f==='castSpell'||f==='setTrap'||f==='playChara')
   if(r!==false&&NET){const m={f,a,by:H};if(pv!==undefined)m.pv=pv;NET.send(m)}return r}
 function netAsk(kind,extra){busy=true;render(snap());hint('相手の反応を待っています…');const q=++askQ;NET.send(Object.assign({f:'ask',kind,by:H,q},extra));
   return new Promise(r=>{let fin=false;const t=setTimeout(()=>{if(askRes)askRes(0)},20000);askRes=u=>{if(fin)return;fin=true;clearTimeout(t);askRes=null;hint('');busy=false;r(u||0)}})}
-function onNet(m){lastNet=Date.now();Q.push(m);pump()}
+function onNet(m){/* (10/25) a stamp is shown at once and never enters the game's queue (handled here: the receiver is registered before the stamp code loads) */if(m&&m.f==='stamp'){try{oskRecv(m)}catch(e){}return}lastNet=Date.now();Q.push(m);pump()}
 function applyMove(m){RPEND=null;if(m.pv!==undefined&&g&&m.by!==H){const i=m.f==='qk'?m.h:(m.a||[])[0];const id=typeof i==='number'&&g.p[m.by]?g.p[m.by].hand[i]:null;if(id)RPEND={pi:m.by,id,v:m.pv}}
   if(m.f==='endTurn'){E.endTurn(g);if(!g.over)E.startTurn(g);return}
   if(m.f==='qk'){if(m.h>=0){if(E.quickWin(g,m.by).length)PQK={by:m.by,h:m.h};else E.castQuick(g,m.by,m.h)}return}
@@ -4723,16 +4730,16 @@ function banner(mine){const b=el('div','tbanner v2'+(mine?' me':' op'));const n=
 
 /* ---- BGM for the match: one looping track, quiet by default (30%), with its own switch and volume in the menu.
    It starts with the match; if the phone refuses to play before a touch inside the game, it starts on the first touch. ---- */
-const BGM={a:null,vol:.3,on:true,src:'tcg_bgm.mp3',started:false};
+const BGM={a:null,vol:.3,on:true,src:'tcg_battle2.mp3',started:false};
 /* inside the app the music belongs to the app (window.__kbgm): the match never starts a second copy, the menu row just controls that one */
 const PB=(()=>{try{return !WATCH&&HOST&&window.parent.__kbgm||null}catch(e){return null}})();
 try{const v=localStorage.getItem('kotcg_bgm');if(v!=null){const o=JSON.parse(v);if(typeof o.vol==='number')BGM.vol=Math.max(0,Math.min(1,o.vol));if(typeof o.on==='boolean')BGM.on=o.on}}catch(e){}
 function bgmSave(){try{localStorage.setItem('kotcg_bgm',JSON.stringify({vol:BGM.vol,on:BGM.on}))}catch(e){}}
 function bgmEl(){if(BGM.a)return BGM.a;const a=new Audio(BGM.src);a.loop=true;a.preload='auto';a.volume=BGM.vol;BGM.a=a;return a}
-function bgmPlay(){if(PB){try{PB.play()}catch(e){}return}if(!BGM.on||WATCH)return;const a=bgmEl();a.volume=0;let pr;try{pr=a.play()}catch(e){pr=Promise.reject(e)}
+function bgmPlay(){if(PB){try{PB.battle?PB.battle(true):PB.play()}catch(e){}return}/* (10/25) inside the app: the app switches to the battle track */if(!BGM.on||WATCH)return;const a=bgmEl();a.volume=0;let pr;try{pr=a.play()}catch(e){pr=Promise.reject(e)}
   const fade=()=>{BGM.started=true;const t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/1200);a.volume=BGM.vol*k;if(k<1&&BGM.on)requestAnimationFrame(step)};step()};
   if(pr&&pr.then)pr.then(fade,()=>{/* no touch yet: the first touch in the game starts it */const once=()=>{document.removeEventListener('pointerdown',once,true);document.removeEventListener('touchstart',once,true);if(!BGM.on)return;a.play().then(fade,()=>{})};document.addEventListener('pointerdown',once,true);document.addEventListener('touchstart',once,true)});else fade()}
-function bgmStop(){if(PB)return;const a=BGM.a;if(!a)return;const v0=a.volume,t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/500);a.volume=v0*(1-k);if(k<1)requestAnimationFrame(step);else{a.pause();a.currentTime=0}};step()}
+function bgmStop(){if(PB){try{PB.battle&&PB.battle(false)}catch(e){}return}const a=BGM.a;if(!a)return;const v0=a.volume,t0=performance.now();const step=()=>{const k=Math.min(1,(performance.now()-t0)/500);a.volume=v0*(1-k);if(k<1)requestAnimationFrame(step);else{a.pause();a.currentTime=0}};step()}
 function bgmSet(on,vol){if(PB){try{PB.set(on,vol)}catch(e){}return}if(vol!=null)BGM.vol=Math.max(0,Math.min(1,vol));if(on!=null)BGM.on=on;bgmSave();const a=BGM.a;
   if(!BGM.on){if(a)a.pause();return}if(a){a.volume=BGM.vol;if(a.paused&&g&&!g.over)a.play().catch(()=>{})}else if(g&&!g.over)bgmPlay()}
 /* the music row for the menu: a switch and a slider */
@@ -4785,7 +4792,7 @@ function oskSticker(K,i,small){const S=OSKS[i]||OSKS[0],w=el('div','osks'+(small
   const f=el('div','oskf');f.append(oskImg(K,true));w.append(f,el('b','oskt',S.t));return w}
 function oskSend(K,i){const t=performance.now();if(t-OSK.last<2500){caption('少し待ってから送れます');return}if(OSK.n>=30){caption('この試合ではもう送れません');return}
   OSK.last=t;OSK.n++;if(OSK.K[H]!==K){OSK.K[H]=K;if(OSK.chip[H])OSK.chip[H].remove();OSK.chip[H]=null;try{oskAfter(view||snap())}catch(e){}}
-  oskShow(H,K,i);/* only to an app that knows stamps (an older one would wait on the move) */try{if(NET&&g&&!g.over&&cpuDeck&&cpuDeck.stv)NET.send({f:'stamp',k:K.n,s:i,by:H})}catch(e){}
+  oskShow(H,K,i);/* only to an app that knows stamps (an older one would wait on the move) */try{if(NET&&g&&!g.over&&cpuDeck&&cpuDeck.stv)NET.send({f:'stamp',kn:K.n,s:i,by:H})}catch(e){}
   /* a CPU with a 推し (the demo) answers now and then */if(!NET&&OSK.K[1-H]&&Math.random()<.5)oskLater(()=>oskShow(1-H,OSK.K[1-H],[1,2,5,0][Math.floor(Math.random()*4)]),1400)}
 /* timers that belong to this match: cleared when the next one starts */
 function oskLater(fn,ms){(OSK.tm=OSK.tm||[]).push(setTimeout(fn,ms))}
@@ -4796,7 +4803,8 @@ function oskShow(pi,K,i){if(!K||FAST)return;document.querySelectorAll('.oskout.s
   const ch=OSK.chip[pi];if(ch){ch.classList.remove('talk');void ch.offsetWidth;ch.classList.add('talk')}
   setTimeout(()=>{w.classList.add('bye');setTimeout(()=>w.remove(),260)},2300)}
 /* the other phone's stamp arrives as a move: shown at once, never queued behind the game's moves */
-function oskRecv(m){if(m.by===H)return;oskShow(m.by,oskByName(m.k)||OSK.K[m.by],m.s|0)}
+/* (10/25) the name travels as kn (k is the move's place in the list and is overwritten when sent) */
+function oskRecv(m){if(m.by===H)return;oskShow(m.by,oskByName(m.kn)||OSK.K[m.by],m.s|0)}
 {const _a=applyMove;applyMove=function(m){if(m&&m.f==='stamp')return;return _a.apply(this,arguments)}}
 /* a stamp does not count as the other side being active (it must not push back the 「勝ちにする」 wait) */
 {const _o=onNet;onNet=function(m){if(m&&m.f==='stamp'){try{oskRecv(m)}catch(e){}return}return _o.apply(this,arguments)}}
@@ -4811,6 +4819,83 @@ function oskAfter(S){
   if(!P){oskLater(()=>oskShow(o,OSK.K[o],0),1200);return}
   if(S.over){if(!OSK.done){OSK.done=1;oskLater(()=>oskShow(o,OSK.K[o],S.win===o?2:6),700)}return}
   if(!P.lead&&OSK.prev.lead)oskShow(o,OSK.K[o],2)}
+
+/* ===== (10/25) TCGの効果音: アプリ本体の「効果音」スイッチ(localStorage ksfx)と同じ設定で鳴る =====
+   音の素材ファイルは使わず、その場で Web Audio で作る(アプリの SFX と同じ作り方)。対戦のメニューにもスイッチ。
+   鳴らす場面: カードを引く・出す・魔法・トラップ・攻撃・ぶつかり合い・ダメージ・破壊・回復・覚醒・スキル・コイン・ターン・勝ち負け・スタンプ
+   参考(まねはしない): カードゲームの「出す=重さ」「攻撃=空気を切る→当たる」「破壊=割れる」「レア=きらめき」の分け方 */
+const TSFX=(()=>{let ac=null,master=null,nb=null;const last={};
+  const on=()=>{try{return localStorage.getItem('ksfx')==='1'}catch(e){return false}};
+  function ctx(){if(ac)return ac;const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;ac=new C();master=ac.createGain();master.gain.value=.5;
+    const comp=ac.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=4;master.connect(comp);comp.connect(ac.destination);return ac}
+  function unlock(){if(!on())return;const a=ctx();if(a&&a.state==='suspended')a.resume();try{load()}catch(e){}}
+  ['pointerdown','touchend','keydown'].forEach(ev=>addEventListener(ev,unlock,{passive:true,capture:true}));
+  function tone(f0,f1,dur,type,vol,at=0){const a=ac,t=a.currentTime+at,o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f0,t);if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.02)}
+  function noiseBuf(){if(nb)return nb;nb=ac.createBuffer(1,ac.sampleRate*.8,ac.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return nb}
+  function noise(dur,f0,f1,q,vol,at=0,type){const a=ac,t=a.currentTime+at,s=a.createBufferSource(),bp=a.createBiquadFilter(),g=a.createGain();s.buffer=noiseBuf();bp.type=type||'bandpass';bp.Q.value=q||1.2;
+    bp.frequency.setValueAtTime(f0,t);bp.frequency.exponentialRampToValueAtTime(Math.max(40,f1||f0),t+dur);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+Math.min(.02,dur*.3));g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    s.connect(bp);bp.connect(g);g.connect(master);s.start(t);s.stop(t+dur+.02)}
+  const glit=(base,n,vol,at=0)=>{for(let i=0;i<n;i++){const f=base*(1+i*.26+Math.random()*.06);tone(f,f*1.01,.5-i*.05,'sine',vol,at+i*.035)}};
+  const bank={
+    tap(){tone(1900,1700,.035,'triangle',.05)},
+    draw(){noise(.16,5200,2600,1.6,.09)},                                   // a card slides off the deck
+    place(){tone(170,80,.16,'sine',.42);noise(.07,1500,700,1,.12)},          // a card lands on the field
+    rare(){tone(170,80,.16,'sine',.4);glit(1568,5,.06,.04);noise(.5,2200,7000,3,.05,.04)}, // シークレット・KMR
+    spell(){noise(.42,500,3600,2.4,.14);tone(660,1320,.32,'triangle',.07,.05);tone(990,1980,.3,'sine',.04,.1)},
+    set(){tone(300,220,.07,'square',.05);noise(.06,2400,1600,1.2,.08)},
+    trap(){tone(880,880,.09,'square',.08);tone(1175,1175,.14,'square',.08,.09);noise(.2,3000,1500,2,.06)},
+    negate(){tone(420,120,.32,'sawtooth',.08);noise(.25,900,300,1.4,.08)},
+    swing(){noise(.2,700,2800,1.5,.15)},                                      // an attack leaves
+    hit(){tone(140,55,.2,'sine',.5);noise(.08,2600,900,.9,.2)},               // it lands
+    clash(){tone(120,48,.26,'sine',.6);noise(.12,3400,1200,.8,.24);tone(1300,1260,.18,'triangle',.05,.01)},
+    direct(){tone(95,38,.42,'sine',.7);noise(.16,1800,400,.8,.26);noise(.5,300,90,1,.12,.04,'lowpass')},
+    die(){noise(.38,5200,1800,.7,.2,0,'highpass');[2637,3136,3951].forEach((f,i)=>tone(f,f*.97,.25,'triangle',.05,.02+i*.03))},
+    heal(){[784,988,1175,1568].forEach((f,i)=>tone(f,f,.36,'sine',.07,i*.05))},
+    power(){[523,659,784,1046,1318].forEach((f,i)=>tone(f,f,.28,'triangle',.07,i*.05));noise(.4,800,4000,2,.05)},
+    skill(){noise(.6,300,4200,1.8,.16);tone(220,440,.5,'sawtooth',.05);glit(1318,4,.05,.3)},
+    guts(){tone(620,600,.35,'square',.06);tone(930,900,.3,'square',.04,.02)},
+    coin(){tone(2489,2489,.12,'sine',.1);tone(3322,3322,.35,'sine',.08,.08)},
+    blip(){tone(880,1320,.09,'sine',.07)},
+    pop(){tone(520,980,.09,'sine',.11);tone(1560,1560,.06,'sine',.04,.04)},
+    turn(){tone(784,784,.12,'triangle',.08);tone(1175,1175,.22,'triangle',.08,.1)},
+    turnOpp(){tone(392,392,.12,'triangle',.07);tone(330,330,.22,'triangle',.07,.1)},
+    win(){[523,659,784,1046].forEach((f,i)=>tone(f,f,.5,'triangle',.1,i*.11));glit(2093,5,.05,.46)},
+    lose(){[392,349,311,262].forEach((f,i)=>tone(f,f*.98,.5,'triangle',.08,i*.16))},
+    draw0(){tone(440,440,.3,'triangle',.07);tone(440,330,.4,'triangle',.06,.2)}};
+  /* (10/25) the real sounds (tsfx/ts_*.mp3, made with a sound AI and leveled): decoded once the sound is on; the synth stays as a fallback */
+  const FILES=['draw','select','place','place_secret','place_kmr','leader','spell','trap_set','trap','negate','attack','hit','clash','direct','destroy','heal','powerup','skill','guts','coin','turn_me','turn_opp','timer','win','lose','stamp'];
+  const VOL={select:.55,draw:.6,trap_set:.7,stamp:.8,timer:.8,win:.9,lose:.9};
+  const buf={};let loading=false;
+  function load(){if(loading)return;const a=ctx();if(!a)return;loading=true;
+    FILES.forEach(n=>{fetch('tsfx/ts_'+n+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject(r.status)).then(b=>new Promise((res,rej)=>{const p=a.decodeAudioData(b,res,rej);if(p&&p.then)p.then(res,rej)})).then(d=>{buf[n]=d}).catch(()=>{})})}
+  function sample(n,v){const a=ac,b=buf[n];if(!a||!b)return false;const s=a.createBufferSource(),g=a.createGain();s.buffer=b;g.gain.value=(VOL[n]||1)*(v==null?1:v);s.connect(g);g.connect(master);s.start();return true}
+  /* the old synth names map onto the files */
+  const MAP={tap:'select',draw:'draw',place:'place',rare:'place_secret',spell:'spell',set:'trap_set',trap:'trap',negate:'negate',swing:'attack',hit:'hit',clash:'clash',direct:'direct',die:'destroy',heal:'heal',power:'powerup',skill:'skill',guts:'guts',coin:'coin',blip:'select',pop:'stamp',turn:'turn_me',turnOpp:'turn_opp',win:'win',lose:'lose',draw0:'lose'};
+  function play(k,v){if(!on()||(typeof FAST!=='undefined'&&FAST))return;const t=performance.now();if(last[k]&&t-last[k]<45)return;last[k]=t;
+    try{const a=ctx();if(!a)return;if(a.state==='suspended')a.resume();load();if(a.state!=='running')return;
+      const f=FILES.includes(k)?k:MAP[k];if(f&&sample(f,v))return;if(bank[k])bank[k]()}catch(e){}}
+  function set(v){try{localStorage.setItem('ksfx',v?'1':'0')}catch(e){}if(v){unlock();play('pop')}}
+  return {play,on,set}})();
+/* one sound per game event, as the event starts to play */
+const TSFX_EV={play:e=>{let sc=null;try{sc=e.scr!==undefined?e.scr:(playIsScrSafe(e)||null)}catch(x){}if(sc==='k')return 'place_kmr';if(sc)return 'place_secret';try{if(CD.isLeader(e.id))return 'leader'}catch(x){}return 'place'},spell:'spell',set:'set',trap:'trap',negated:'negate',atk:'swing',direct:'direct',clash:'clash',dmg:'hit',heal:'heal',die:'die',
+  awake:'power',star:'power',evo:'power',revive:'power',summoning:'power',skill:'skill',guts:'guts',coin:'coin',tribute:'die',
+  steal:'swing',stealSpell:'swing',bounce:'swing',discard:'set',break:'die',seal:'negate',revenge:'clash',board:'place',stack:'spell'};
+function playIsScrSafe(e){try{return typeof playIsScr==='function'&&playIsScr(e)}catch(x){return false}}
+function tsfxEv(e){if(!e||!e.t)return;const m=TSFX_EV[e.t];if(!m)return;TSFX.play(typeof m==='function'?m(e):m)}
+/* drawing a card (the deck flies to the hand), the turn banner, a tap in the hand, the end, stamps */
+{const F=flyCard;flyCard=function(fromEl,toEl,face,ms,opp,flip){try{TSFX.play(flip?'draw':'tap')}catch(e){}return F.apply(this,arguments)}}
+{const B=banner;banner=function(mine){try{TSFX.play(mine?'turn':'turnOpp')}catch(e){}return B.apply(this,arguments)}}
+{const T=handTap;handTap=function(){try{TSFX.play('tap')}catch(e){}return T.apply(this,arguments)}}
+{const F=finish;finish=function(){const was=done;const r=F.apply(this,arguments);try{if(!was&&g&&!WATCH)TSFX.play(g.win===-1?'draw0':g.win===H?'win':'lose')}catch(e){}return r}}
+{const O=oskShow;oskShow=function(){try{TSFX.play('pop')}catch(e){}return O.apply(this,arguments)}}
+{const T=tickEnd;let warned=-1;tickEnd=function(){const r=T.apply(this,arguments);try{if(left===10&&warned!==(g&&g.p[g.cur].turn)){warned=g&&g.p[g.cur].turn;TSFX.play('timer')}}catch(e){}return r}}
+/* the menu: the 効果音 switch right under BGM (the same setting as the app's 設定 > 効果音) */
+{const R=bgmRow;bgmRow=function(){const f=document.createDocumentFragment();f.append(R.apply(this,arguments));
+  const r=el('div','bgmrow');const sw=el('button','bgmsw'+(TSFX.on()?' on':''));sw.type='button';sw.setAttribute('aria-label','効果音');sw.append(el('i'));
+  const lab=el('div','bgmlab');lab.append(el('b',null,'効果音'),el('span',null,TSFX.on()?'鳴ります':'鳴りません'));
+  sw.onclick=()=>{const v=!TSFX.on();TSFX.set(v);sw.classList.toggle('on',v);lab.lastChild.textContent=v?'鳴ります':'鳴りません'};
+  r.append(sw,lab);f.append(r);return f}}
 
 })();
 
