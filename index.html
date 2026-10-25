@@ -3506,6 +3506,238 @@ button.tcgkeep{width:100%;margin-top:8px}
 .camp-box>span{font-size:12px;line-height:1.55;opacity:.85}
 @media (prefers-reduced-motion:reduce){.camp-hero::before{animation:none}.camp-c{animation:none}}
 /* AUDcss:end */
+/* ORIRMcss:begin */
+/* ===== TCGランダムマッチ (10/25): 仲間が相手をさがしているときに上に出るカード ===== */
+.tqb{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 10px);z-index:1900;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:10px 10px 10px 12px;border-radius:20px;background:rgba(28,26,40,.9);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);box-shadow:0 12px 34px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.1);color:#fff;animation:tqIn .5s cubic-bezier(.16,1,.3,1) both}
+.tqb.out{animation:tqOut .3s ease-in both}
+@keyframes tqIn{from{transform:translateY(-130%)}to{transform:none}}
+@keyframes tqOut{to{transform:translateY(-130%);opacity:0}}
+.tqb-av{width:40px;height:40px;border-radius:50%;background:#3a3550}
+.tqb-t{display:flex;flex-direction:column;gap:3px;min-width:0}
+.tqb-t b{font-size:13.5px;font-weight:800;line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.tqb-t span{font-size:11.5px;opacity:.7}
+.tqb-go{padding:10px 14px;border-radius:999px;border:0;background:linear-gradient(135deg,#8b7bff,#67e8f9);color:#0b0a18;font:inherit;font-size:13px;font-weight:900;white-space:nowrap}
+.tqb-go:disabled{opacity:.5}
+.tqb-x{width:32px;height:32px;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:#fff}
+.tq-left{font-size:12.5px;opacity:.75;font-variant-numeric:tabular-nums;margin:6px 0 12px}
+@media (prefers-reduced-motion:reduce){.tqb,.tqb.out{animation:none}}
+/* ===== (10/25) 対戦 > TCG を短く: 相手・デッキ・CPUの設定を詰めて、VSまでを1画面に近づける ===== */
+#kxtcg>.kx-card{padding:14px 16px}
+#kxtcg .kx-h{margin:0 2px 8px}
+#kxtcg .kx-h h2{font-size:16px!important}
+#kxtcg .kx-hs{font-size:12px}
+/* デッキ: one row each, the leader's face on the left */
+#kxtcg .kx-tdk{flex-direction:row!important;align-items:center!important;gap:9px!important;min-width:150px;padding:8px 12px 8px 8px!important;text-align:left!important}
+#kxtcg .kx-tdk .tcf{width:34px!important;flex:none;border-radius:4px}
+#kxtcg .kx-tdk>b{width:auto;flex:1 1 auto;min-width:0}
+#kxtcg .kx-tdk>small{display:none}
+#kxtcg .kx-tdk.new{min-width:auto;padding:8px 14px!important;justify-content:center}
+#kxtcg .kx-tdk.new svg{width:16px;height:16px}
+/* CPUの設定: the two choices as one short row; the long explanation goes */
+#kxtcg .kx-tmode button{min-height:0;padding:10px 12px;flex-direction:row;align-items:center;justify-content:center}
+#kxtcg .kx-tlv button{min-height:0;padding:10px 12px;gap:3px}
+#kxtcg .kx-tmode small,#kxtcg .kx-tmode .kx-txp{display:none}
+#kxtcg .kx-tmode b,#kxtcg .kx-tlv b{font-size:14px}
+#kxtcg .kx-trkd{display:none}
+#kxtcg .kx-toptd{font-size:11.5px;margin-top:6px}
+/* the line under VS: two lines at most */
+#kxtcg .kx-foot{font-size:11.5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#kxtcg .kx-nsban{margin-bottom:8px}
+#kxtcg .kx-tdk,#kxtcg .kx-tdk.new{min-height:0!important;height:auto!important}
+#kxtcg .kx-trow{gap:8px}
+#kxtcg .kx-trow>button{height:34px;padding:0 10px 0 13px;font-size:12.5px}
+.tcgobserve>p.sub:first-of-type{display:none}
+#kxtcg .kx-tdk.new{white-space:nowrap}
+#kxtcg .kx-tdk.new svg{flex:none}
+/* いまオンラインの人数 (対戦のページの見出しの右) */
+.kx-onl{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px 0 9px;margin-right:6px;border:0;border-radius:999px;background:rgba(52,211,153,.12);box-shadow:inset 0 0 0 1px rgba(52,211,153,.35);color:#bff5dc;font:800 12px/1 var(--x-f,Geist,sans-serif);white-space:nowrap}
+.kx-onl i{width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:tqPulse 2s ease-out infinite}
+.kx-onl.zero{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);color:rgba(255,255,255,.7)}
+.kx-onl.zero i{background:rgba(255,255,255,.4);animation:none}
+@keyframes tqPulse{70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.tqon{position:fixed;inset:0;z-index:1950;background:rgba(4,4,8,.5);display:flex;justify-content:flex-end;align-items:flex-start;padding:calc(env(safe-area-inset-top,0px) + 64px) 16px 16px}
+.tqon-p{width:min(300px,100%);max-height:70vh;overflow:auto;padding:14px 14px 12px;border-radius:18px;background:rgba(28,26,40,.96);box-shadow:0 18px 40px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.1);color:#fff;animation:tqIn2 .28s cubic-bezier(.16,1,.3,1) both}
+@keyframes tqIn2{from{transform:translateY(-8px);opacity:0}}
+.tqon-p>b{display:block;font-size:14px;font-weight:900;margin:0 2px 10px}
+.tqon-l{display:flex;flex-direction:column;gap:8px}
+.tqon-r{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:700;min-width:0}
+.tqon-r>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tqon-n{font-size:11px;line-height:1.5;opacity:.6;margin:12px 2px 0}
+@media (prefers-reduced-motion:reduce){.kx-onl i,.tqon-p{animation:none}}
+/* はじめに1回のランダムマッチの説明 */
+.tqi{position:fixed;inset:0;z-index:1960;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,4,10,.62);animation:tqiFade .25s ease both}
+.tqi.out{animation:tqiFadeOut .28s ease both}
+@keyframes tqiFade{from{opacity:0}}@keyframes tqiFadeOut{to{opacity:0}}
+.tqi-p{position:relative;width:min(520px,100%);max-height:92vh;overflow:auto;box-sizing:border-box;padding:12px 20px calc(env(safe-area-inset-bottom,0px) + 18px);border-radius:28px 28px 0 0;background:linear-gradient(180deg,#1b1930,#121120);box-shadow:0 -20px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);color:#fff;animation:tqiUp .5s cubic-bezier(.16,1,.3,1) both}
+.tqi.out .tqi-p{animation:tqiDown .28s ease-in both}
+@keyframes tqiUp{from{transform:translateY(100%)}}@keyframes tqiDown{to{transform:translateY(100%)}}
+.tqi-grab{display:block;width:40px;height:4px;margin:0 auto 14px;border-radius:2px;background:rgba(255,255,255,.2)}
+.tqi-new{display:inline-block;padding:3px 9px;border-radius:999px;background:linear-gradient(135deg,#8b7bff,#67e8f9);color:#0b0a18;font:900 10.5px/1.2 Geist,sans-serif;letter-spacing:.08em}
+.tqi-p h2{color:#fff!important;margin:8px 0 14px!important;font:900 22px/1.3 "Hiragino Sans","Noto Sans JP",sans-serif;letter-spacing:-.01em}
+.tqi-ill{position:relative;height:118px;margin:0 0 16px;border-radius:22px;overflow:hidden;background:radial-gradient(90% 120% at 50% 0%,#2c2850,#16142a 70%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.tqi-notch{position:absolute;left:50%;top:10px;width:84px;height:20px;margin-left:-42px;border-radius:12px;background:#05050a}
+.tqi-mock{position:absolute;left:14px;right:14px;top:40px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 9px 9px 10px;border-radius:17px;background:rgba(40,37,60,.95);box-shadow:0 10px 26px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.12);animation:tqiMock .7s cubic-bezier(.16,1,.3,1) .45s both}
+@keyframes tqiMock{from{transform:translateY(-120px)}}
+.tqi-mock .tqi-go{animation:tqiTap 2.4s ease-in-out 1.4s infinite}
+@keyframes tqiTap{0%,70%,100%{transform:none}78%{transform:scale(.9)}86%{transform:scale(1.04)}}
+.tqi-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#8b7bff,#ff8fb8)}
+.tqi-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tqi-tx b{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tqi-tx small{font-size:10.5px;opacity:.65}
+.tqi-go{padding:8px 11px;border-radius:999px;background:linear-gradient(135deg,#8b7bff,#67e8f9);color:#0b0a18;font-size:11.5px;font-weight:900;white-space:nowrap}
+.tqi-l{display:flex;flex-direction:column;gap:12px;margin:0 0 18px}
+.tqi-r{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start}
+.tqi-r>i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:rgba(139,123,255,.18);color:#c4b5fd;font:900 12px/1 Geist,sans-serif;font-style:normal}
+.tqi-r b{display:block;font-size:14.5px;font-weight:800;margin:2px 0 3px}
+.tqi-r span{display:block;font-size:12.5px;line-height:1.6;opacity:.72}
+.tqi-go2{display:block;width:100%;padding:15px;border:0;border-radius:999px;background:linear-gradient(135deg,#8b7bff,#67e8f9);color:#0b0a18;font:900 15px/1 "Hiragino Sans","Noto Sans JP",sans-serif}
+.tqi-x{display:block;width:100%;margin-top:8px;padding:12px;border:0;border-radius:999px;background:none;color:rgba(255,255,255,.7);font:700 14px/1 "Hiragino Sans","Noto Sans JP",sans-serif}
+@media (prefers-reduced-motion:reduce){.tqi,.tqi-p,.tqi-mock{animation:none}}
+/* ORIRMcss:end */
+/* ORIcss:begin */
+/* ===== オリパ (10/25) ===== */
+/* banner thumb + art */
+.kgu-tn.ori{background:radial-gradient(90% 120% at 50% 20%,#3a2a12,#0d0a10 80%)}
+.ori-tnc{position:absolute;left:50%;top:6px;width:30px;margin-left:-15px;transform:rotate(-6deg)}
+.ori-tnc>.tcf{width:100%;margin:0;border-radius:4px;border-width:1px;filter:none}
+.kgu-bd.ori{background:linear-gradient(90deg,#ffd36b,#ff4d6d);color:#2a0710}
+.kgu-art.a-ori{background:radial-gradient(70% 70% at 62% 46%,#3b2a10 0%,#180f14 46%,#07060b 100%)}
+.ori-sky{position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,211,107,.05) 0 2px,transparent 2px 22px);mask-image:radial-gradient(60% 70% at 62% 46%,#000,transparent)}
+.ori-ry{position:absolute;left:62%;top:46%;width:150%;aspect-ratio:1;translate:-50% -50%;background:conic-gradient(from 0deg,transparent 0 6%,rgba(255,215,120,.16) 8%,transparent 11% 22%,rgba(255,215,120,.12) 24%,transparent 27% 40%,rgba(255,215,120,.14) 42%,transparent 45% 60%,rgba(255,215,120,.12) 62%,transparent 65% 80%,rgba(255,215,120,.15) 82%,transparent 85%);mask-image:radial-gradient(closest-side,#000 20%,transparent);animation:oriSpin 40s linear infinite}
+@keyframes oriSpin{to{transform:rotate(360deg)}}
+.ori-fan{position:absolute;left:30%;right:0;top:4%;bottom:30%}
+.ori-fc{position:absolute;top:50%;width:37%;translate:-50% -50%}
+.ori-fc>.tcf{width:100%;margin:0;filter:none}
+.ori-fc.m{left:50%;width:46%;z-index:2;transform:translateY(-2%);filter:drop-shadow(0 10px 22px rgba(0,0,0,.6)) drop-shadow(0 0 18px rgba(255,214,120,.35))}
+.ori-fc.l{left:21%;transform:rotate(-11deg) translateY(6%);opacity:.92}
+.ori-fc.r{left:79%;transform:rotate(11deg) translateY(6%);opacity:.92}
+.ori-fc.gone>.tcf{filter:grayscale(1) brightness(.5)}
+.ori-lg{position:absolute;left:6%;top:9%;display:flex;flex-direction:column;line-height:1;color:#fff4d6}
+.ori-lg small{font:800 9px/1 "Inter Tight",Geist,sans-serif;letter-spacing:.32em;opacity:.7}
+.ori-lg b{font:italic 900 30px/1 "Inter Tight",Geist,sans-serif;letter-spacing:-.02em;margin-top:3px;background:linear-gradient(180deg,#fff7df,#f2c45e 60%,#b9822a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ori-cn{position:absolute;left:6%;bottom:11%;display:flex;align-items:baseline;gap:3px;color:#fff;font-variant-numeric:tabular-nums}
+.ori-cn small{font-size:11px;font-weight:800;opacity:.75;margin-right:4px}
+.ori-cn b{font:900 46px/1 "Inter Tight",Geist,sans-serif;letter-spacing:-.04em}
+.ori-cn em{font-style:normal;font-size:13px;font-weight:800;opacity:.75}
+.ori-pr{position:absolute;left:6%;bottom:calc(11% + 52px);display:flex;align-items:baseline;gap:3px;color:#ffd98a}
+.ori-pr small{font-size:10.5px;font-weight:800;opacity:.85;margin-right:3px}
+.ori-pr b{font:900 18px/1 "Inter Tight",Geist,sans-serif}
+.ori-pr em{font-style:normal;font-size:11px;font-weight:800}
+.ori-so{position:absolute;left:62%;top:50%;translate:-50% -50%;rotate:-12deg;z-index:4;padding:6px 18px;border:3px solid #ff4d6d;border-radius:10px;color:#ff4d6d;font:900 26px/1 "Inter Tight",Geist,sans-serif;letter-spacing:.1em;background:rgba(10,6,10,.6)}
+.kgu-prog.ori .kgu-bar i{background:linear-gradient(90deg,#ff4d6d,#ffd36b)}
+/* remaining per tier, under the bar */
+.ori-rem{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.ori-rt{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px 7px;border-radius:12px;background:color-mix(in srgb,var(--tc,#ffd36b) 12%,rgba(255,255,255,.03));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tc,#ffd36b) 30%,transparent);min-width:0}
+.ori-rt b{font-size:11px;font-weight:900;color:var(--tc,#ffd36b);white-space:nowrap}
+.ori-rt span{font:800 13px/1 "Inter Tight",Geist,sans-serif;font-variant-numeric:tabular-nums;color:#fff}
+.ori-rt.lo{--tc:#ffe7a3}.ori-rt.lo b{font-size:9.5px}
+.ori-rt.out{opacity:.38}
+/* the sheet */
+.ori-sum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:10px}
+.ori-sum>div{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.05)}
+.ori-sum small{font-size:11px;opacity:.65;font-weight:700}
+.ori-sum b{font-size:15px;font-weight:900;font-variant-numeric:tabular-nums}
+.ori-ex{font-size:12.5px;line-height:1.7;opacity:.8;margin:0 0 14px}
+.ori-sec{margin:0 0 16px}
+.ori-sh{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;padding-left:10px;border-left:3px solid var(--tc,#ffe7a3)}
+.ori-sh b{font-size:15px;font-weight:900;color:var(--tc,#ffe7a3)}
+.ori-sh span{font-size:12px;opacity:.7;min-width:0}
+.ori-sh em{margin-left:auto;font-style:normal;font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.ori-g{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ori-g.big{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ori-g.one{grid-template-columns:minmax(0,150px)}
+.ori-g.sm{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ori-gc{position:relative;display:flex;flex-direction:column;gap:4px;min-width:0;padding:0;border:0;background:none;color:inherit;text-align:left;font:inherit}
+.ori-gc>.tcf{width:100%;margin:0;filter:none}
+.ori-gc small{font-size:10px;line-height:1.3;opacity:.8;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.ori-gc.out>.tcf{filter:grayscale(1) brightness(.4)}
+.ori-gc.out small{opacity:.4}
+.ori-got{position:absolute;left:50%;top:38%;translate:-50% -50%;rotate:-10deg;max-width:96%;padding:3px 6px;border:2px solid #ff4d6d;border-radius:6px;background:rgba(12,6,10,.75);color:#ff8aa0;font-style:normal;font-size:10px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ori-log{display:flex;flex-direction:column;gap:4px}
+.ori-li{display:grid;grid-template-columns:44px 34px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.04);font-size:12px}
+.ori-li span{font-variant-numeric:tabular-nums;opacity:.6}
+.ori-li b{color:var(--tc);font-weight:900}
+.ori-li em{font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ori-li small{opacity:.7;white-space:nowrap}
+.ori-adm{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)}
+.ori-adm small{font-size:11px;opacity:.6;margin-right:auto}
+.ori-ab{padding:10px 14px;border-radius:12px;border:0;background:rgba(255,255,255,.08);color:inherit;font:inherit;font-size:13px;font-weight:800}
+.ori-ab.main{background:linear-gradient(90deg,#ffd36b,#ff4d6d);color:#2a0710}
+.ori-ab:disabled{opacity:.5}
+.ori-form{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.ori-fr{display:grid;grid-template-columns:104px minmax(0,1fr);align-items:center;gap:10px;font-size:13px}
+.ori-fr span{opacity:.75;font-weight:700}
+.ori-fr input,.ori-fr select{min-width:0;width:100%;padding:9px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:inherit;font:inherit}
+.ori-fa{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.ori-msg{font-size:12px;opacity:.7;margin-top:8px;text-align:right}
+.orz{position:fixed;inset:0;z-index:2100;display:flex;align-items:center;justify-content:center;background:rgba(4,3,8,.82)}
+.orz>.tcf{width:min(72vw,320px);margin:0;filter:none}
+
+/* ---------- the draw ---------- */
+.orx{position:fixed;inset:0;z-index:2050;color:#fff;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none}
+.orx-bg{position:absolute;inset:0;background:radial-gradient(80% 60% at 50% 44%,#1c1622 0%,#0a080e 60%,#040306 100%)}
+.orx-bg::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.025) 0 1px,transparent 1px 18px)}
+.orx-fl{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6}
+.orx-ry{position:absolute;left:50%;top:44%;width:180vmax;height:180vmax;margin:-90vmax 0 0 -90vmax;opacity:0;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 5%,rgba(255,231,163,.32) 7%,transparent 10% 20%,rgba(255,157,224,.24) 22%,transparent 25% 37%,rgba(255,231,163,.3) 39%,transparent 42% 55%,rgba(143,211,255,.22) 57%,transparent 60% 72%,rgba(255,231,163,.3) 74%,transparent 77% 88%,rgba(255,157,224,.24) 90%,transparent 93%);mask-image:radial-gradient(closest-side,#000 8%,transparent 70%)}
+.orx-hd{position:absolute;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 14px);display:flex;justify-content:space-between;align-items:center;z-index:5;font-size:13px;font-weight:800}
+.orx-nm{opacity:.7;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.orx-cnt{font:800 15px/1 "Inter Tight",Geist,sans-serif;font-variant-numeric:tabular-nums}
+.orx-st{position:absolute;left:0;right:0;top:12%;height:58%;display:flex;align-items:center;justify-content:center;z-index:3;perspective:900px}
+.orx-in{position:absolute;left:16px;right:16px;top:72%;z-index:5;display:flex;flex-direction:column;align-items:center}
+.orx-hint{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);text-align:center;font-size:13px;font-weight:700;opacity:.7;z-index:5}
+.orx-bar{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;justify-content:center;z-index:7}
+.orx-skip{min-width:180px;padding:14px 22px;border-radius:999px;border:0;background:rgba(255,255,255,.1);color:#fff;font:inherit;font-size:14px;font-weight:800;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.orx-tier{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.orx-tier b{font:900 40px/1 "Inter Tight",Geist,"Noto Sans JP",sans-serif;letter-spacing:.02em;color:var(--tc);text-shadow:0 0 22px color-mix(in srgb,var(--tc) 60%,transparent)}
+.orx-tier.t1 b{font-size:58px;background:linear-gradient(90deg,#fff3c4,#ff9de0,#8fd3ff,#fff3c4);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 16px rgba(255,220,150,.55))}
+.orx-tier span{font-size:14px;font-weight:800;opacity:.9}
+/* the pack */
+.orpk{position:relative;width:min(56vw,230px);aspect-ratio:3/4.6;--lk:0;touch-action:none;cursor:grab}
+.orpk-b,.orpk-t{position:absolute;inset:0;border-radius:6px}
+.orpk-t{clip-path:inset(0 0 84% 0);transform-origin:96% 16%;z-index:3}
+.orpk-b{clip-path:inset(16% 0 0 0);z-index:2}
+.orpk-face{position:absolute;inset:0;border-radius:3px;overflow:hidden;-webkit-mask:linear-gradient(#000 0 0) center/100% calc(100% - 10px) no-repeat,conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) top/9px 5px repeat-x,conic-gradient(from 135deg at top,#0000,#000 1deg 89deg,#0000 90deg) bottom/9px 5px repeat-x;mask:linear-gradient(#000 0 0) center/100% calc(100% - 10px) no-repeat,conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) top/9px 5px repeat-x,conic-gradient(from 135deg at top,#0000,#000 1deg 89deg,#0000 90deg) bottom/9px 5px repeat-x;background:linear-gradient(160deg,#e9eef7 0%,#9aa6ba 22%,#f4f6fb 40%,#7d889c 62%,#d9dfea 80%,#8a95a9 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),0 18px 40px rgba(0,0,0,.6)}
+.orpk-face::after{content:"";position:absolute;left:0;right:0;top:0;height:7%;background:repeating-linear-gradient(90deg,rgba(0,0,0,.14) 0 1px,transparent 1px 4px)}
+.orpk-face::before{content:"";position:absolute;inset:7% 9%;border-radius:4px;background:radial-gradient(90% 60% at 50% 40%,#2a2238,#0f0c17 80%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.orpk.last .orpk-face{background:linear-gradient(160deg,#fff4cf 0%,#d9a84a 22%,#fff6da 40%,#b47d26 62%,#f6dc96 80%,#a8742a 100%)}
+.orpk-holo{position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,157,224,.35) 42%,rgba(143,211,255,.35) 50%,rgba(255,240,170,.35) 58%,transparent 70%);mix-blend-mode:overlay;transform:translateX(-30%);animation:oriHolo 3.6s ease-in-out infinite}
+@keyframes oriHolo{50%{transform:translateX(30%)}}
+.orpk-sh{position:absolute;inset:0;background:linear-gradient(100deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%);transform:translateX(-120%);animation:oriSh 4.2s ease-in-out infinite}
+@keyframes oriSh{60%,100%{transform:translateX(120%)}}
+.orpk-lg{position:absolute;left:0;right:0;top:40%;display:flex;flex-direction:column;align-items:center;line-height:1;color:#fff}
+.orpk-lg small{font:800 9px/1 "Inter Tight",Geist,sans-serif;letter-spacing:.4em;opacity:.7}
+.orpk-lg b{font:italic 900 36px/1 "Inter Tight",Geist,sans-serif;margin-top:5px;background:linear-gradient(180deg,#fff7df,#f2c45e 60%,#b9822a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.orpk-lg em{font:800 13px/1 "Inter Tight",Geist,sans-serif;font-style:normal;letter-spacing:.14em;margin-top:10px;opacity:.85}
+.orpk-n{position:absolute;left:0;right:0;bottom:11%;text-align:center;font-size:11px;font-weight:800;color:rgba(255,255,255,.7);letter-spacing:.08em}
+.orpk-cut{position:absolute;left:0;right:0;top:15.4%;height:0;border-top:1.5px dashed rgba(255,255,255,.55)}
+.orpk-cut::before{content:"";position:absolute;left:-1px;top:-7px;border:6px solid transparent;border-left:7px solid #0a080e}
+.orpk-c{position:absolute;left:9%;right:9%;top:12%;z-index:1;transform-style:preserve-3d}
+.orpk-c>.tcf{width:100%;margin:0;filter:none}
+.orpk-leak{position:absolute;left:-10%;right:-10%;top:-30%;height:60%;z-index:4;pointer-events:none;opacity:var(--lk);transform-origin:50% 100%;background:radial-gradient(50% 60% at 50% 100%,color-mix(in srgb,var(--tc) 90%,#fff),color-mix(in srgb,var(--tc2) 40%,transparent) 50%,transparent 75%);mix-blend-mode:screen}
+.orpk.hot .orpk-face{box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),0 18px 40px rgba(0,0,0,.6),0 0 30px rgba(255,220,150,.45)}
+.orpk.opened .orpk-b,.orpk.opened .orpk-t{pointer-events:none}
+/* results */
+.orx-rt{font:900 20px/1 Geist,"Noto Sans JP",sans-serif;margin:0 0 12px}
+.orx-res{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;max-width:420px}
+.orx-res.one{grid-template-columns:minmax(0,160px);justify-content:center}
+.orx-in:has(.orx-res){top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);max-height:76%;overflow-y:auto}
+.orx-rc{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.orx-rc>.tcf{width:100%;margin:0;filter:none;box-shadow:0 0 0 2px var(--tc),0 6px 18px rgba(0,0,0,.6)}
+.orx-rc b{font-size:13px;font-weight:900;color:var(--tc)}
+.orx-rc small{font-size:10.5px;opacity:.8;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.ori-ry,.orpk-holo,.orpk-sh{animation:none}}
+.orpk.opened .orpk-c>.tcf{box-shadow:0 0 0 2px var(--tc),0 0 34px color-mix(in srgb,var(--tc) 55%,transparent),0 12px 30px rgba(0,0,0,.6)}
+/* the full cards */
+.ori-fc>.tfc,.orpk-c>.tfc,.orx-rc>.tfc,.orz>.tfc{width:100%;margin:0;filter:none}
+.orz>.tfc{width:min(76vw,330px)}
+.ori-fc.gone>.tfc{filter:grayscale(1) brightness(.5)}
+.orpk.opened .orpk-c>.tfc{box-shadow:0 0 0 2px var(--tc),0 0 34px color-mix(in srgb,var(--tc) 55%,transparent),0 12px 30px rgba(0,0,0,.6)}
+.orx-rc>.tfc{box-shadow:0 0 0 2px var(--tc),0 6px 18px rgba(0,0,0,.6)}
+.ori-gc>.tfc{width:100%;margin:0;filter:none}
+.ori-gc.out>.tfc{filter:grayscale(1) brightness(.4)}
+.ori-g{contain:paint}
+.ori-gc{contain:paint}
+/* ORIcss:end */
 /* STKcss:begin */
 /* ---- (10/19) ハロウィン シールアルバム ---- */
 .stk{--w:200px;position:relative;flex:none;width:var(--w);height:var(--w);border-radius:11%;padding:calc(var(--w) * .042);box-sizing:border-box;background:linear-gradient(160deg,#fffdf6,#efe7d6);box-shadow:0 1px 0 #fff inset,0 calc(var(--w) * .04) calc(var(--w) * .1) rgba(0,0,0,.42),0 1px 3px rgba(0,0,0,.35);transition:transform .18s ease-out;font-family:var(--kjf,-apple-system),"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;text-align:left}
@@ -7737,6 +7969,9 @@ body.kpc .tcgw iframe{width:min(100vw,calc(100vh * .66),720px)!important;height:
 <div class="row" style="margin-top:8px"><select id="admTkTo" aria-label="配る相手" style="flex:1;min-width:0"></select><button id="admTkGo" style="flex:none">配布</button></div>
 <div id="admTkMsg" class="sub" style="margin-top:6px;min-height:18px"></div>
 </div>
+<div class="admcard"><div class="admct">オリパ</div><div class="admcd">口数限定のくじ。30口の中身(1等〜5等とラストワン)を決めて出します。TCGのガチャ画面のいちばん左に出ます。</div>
+<div class="row" style="margin-top:8px"><button id="admOriGo" style="flex:1" onclick="oriAdmin()">オリパを作る</button></div>
+</div>
 <div class="admcard"><div class="admct">ポイント購入</div><div class="admcd">応援値をもらったときに使います。購入ptはガチャ専用で、賭けや予想には使えません。</div>
 <div class="row" style="margin-top:8px"><select id="admBuyP" aria-label="購入した人" style="flex:1;min-width:0"></select><select id="admBuyPlan" aria-label="プラン" style="flex:1;min-width:0"></select></div>
 <div class="row supvrow" style="margin-top:8px"><span class="sub" style="flex:none">サポーターランクに</span><input id="admBuyV" type="number" inputmode="numeric" min="0" aria-label="ランクに足す値" style="flex:1;min-width:0"><span class="sub supunit" style="flex:none"></span></div>
@@ -9650,6 +9885,355 @@ function campPush(){if(campPushed||!db||/\/preview\//.test(location.pathname)||w
     un=ref.onSnapshot(d=>{try{un&&un()}catch(e){}if(d.exists)return;ref.set({title:P.title,body:P.body,go:'home',t:now()}).then(()=>toast(P.done)).catch(()=>{campPushed=false})},()=>{campPushed=false})})}
 setInterval(()=>{try{if(myPlayer())campPush()}catch(e){}},6000);
 /* AUDjs:end */
+/* ORIRMjs:begin */
+/* ===== TCGランダムマッチ (10/25): 名前を選ばずに対戦する。
+   押すと、さがしている人がいればすぐ組む(TCGレートが近い人から)。いなければ tcgq/{id} に「さがしています」を出し、
+   そのときアプリを開いている仲間の画面の上に、通知のようなカードが出る。誰かが「対戦する」を押すと、その人から
+   申し込み(tcgm、q = 募集の番号つき)が届き、さがしていた人のアプリが自動で受けて始まる。
+   10分で静かに消える。断る・断られるは出さない(2人が同時に押したら、あとの人には「ほかの人が先に始めました」)。
+   参考(まねはしない): クラロワのクラン内フレンドバトルの募集、チェスサイトの対局募集の一覧 */
+const TQ_WAIT=10*60000;
+let tqs=[],tqMine=null;const tqSeen={};let tqBanQ=[];
+function tqWatch(){if(tqWatch.on||!db)return;tqWatch.on=1;const c=db.collection('tcgq');
+  (c.where?c.where('end','>',now()-60000):c).onSnapshot(s=>{tqs=s.docs.map(d=>({id:d.id,...d.data()}));tqTick()},()=>{});setInterval(tqTick,3000)}
+const tqBanned=pid=>{try{const p=players.find(x=>x.id===pid);return !p||p.ban}catch(e){return true}};
+function tqOpen(){const t=now(),me=myPlayer();return tqs.filter(q=>q.st==='open'&&q.end>t&&(!me||q.p!==me.id)&&!tqBanned(q.p))}
+const tqRate=id=>{try{return Math.round(tcgRating(id))}catch(e){return 1500}};
+/* the deck I'd play with: the one picked on the 対戦 page, else the first that works */
+function tqDeck(){let L=[];try{L=tcgOf(inv).decks||[]}catch(e){}const ok=d=>{try{return tcgDeckOk(d)}catch(e){return false}};let i=0;try{i=+localStorage.getItem('kxtdeck')||0}catch(e){}
+  return ok(L[i])?L[i]:L.find(ok)||null}
+
+/* the button */
+async function tqGo(deck){const me=myPlayer();if(!me||!db)return;if(!tcgHasSt()){toast('先にTCGでスターターデッキを選んでください');return}
+  deck=deck||tqDeck();if(!deck){toast('使えるデッキがありません');return}deck=tcgPlainDeck(deck);
+  if(tqMine){tqWaitModal();return}
+  const r0=tqRate(me.id),L=tqOpen().sort((a,b)=>Math.abs((a.r||1500)-r0)-Math.abs((b.r||1500)-r0)||a.t-b.t);
+  if(L.length)return tqJoin(L[0],deck);
+  const id='q'+now().toString(36)+me.id.slice(0,4),t=now();
+  try{await db.doc('tcgq/'+id).set({p:me.id,n:String(me.name||'').slice(0,40),t,end:t+TQ_WAIT,st:'open',r:r0})}catch(e){toast('さがし始められませんでした');return}
+  tqMine={id,deck,t};tqWaitModal()}
+/* join someone who is searching: a normal challenge that carries the 募集's number; their app takes it by itself */
+async function tqJoin(q,deck){const me=myPlayer();if(!me)return;const live=tqs.find(x=>x.id===q.id);if(!live||live.st!=='open'||live.end<=now()){toast('もう始まっていました');return}
+  const p=players.find(x=>x.id===q.p);if(!p)return;deck=tcgPlainDeck(deck||tqDeck());if(!deck){toast('使えるデッキがありません');return}
+  const id='m'+now().toString(36)+me.id.slice(0,4),d={a:me.id,b:p.id,an:me.name,bn:p.name,t:now(),u:now(),st:'wait',da:deck,seed:0,ma:[],mb:[],q:q.id};
+  try{await db.doc('tcgm/'+id).set(d);tcgMine[id]=1;tcgModal((c,close)=>{c.classList.add('tcgwait');c.append(el('div','mdt',p.name+' とつないでいます'),el('div','dots'));
+    const x=el('button','sec','やめる');x.onclick=()=>{db.doc('tcgm/'+id).update({st:'cancel',u:now()}).catch(()=>{});close()};c.append(x)}).dataset.wait=id}catch(e){toast('つなげませんでした')}}
+async function tqCancel(soft){const m=tqMine;if(!m)return;tqMine=null;document.querySelectorAll('.tcgmd.tqw').forEach(x=>x.remove());try{await db.doc('tcgq/'+m.id).update({st:'cancel'})}catch(e){}if(!soft)toast('さがすのをやめました');try{window.__tqSync&&__tqSync()}catch(e){}}
+function tqWaitModal(){if(!tqMine)return;document.querySelectorAll('.tcgmd').forEach(x=>x.remove());
+  tcgModal((c,close)=>{c.classList.add('tcgwait');c.parentElement.classList.add('tqw');const t=el('div','tq-left');
+    c.append(el('div','mdt','相手をさがしています'),el('div','dots'),el('div','sub','いまアプリを開いている仲間に知らせました。誰かが受けるとすぐ始まります。'),t);
+    const tick=()=>{if(!document.contains(t))return;if(!tqMine){close();return}const s=Math.max(0,Math.ceil((tqMine.t+TQ_WAIT-now())/1000));t.textContent='あと '+Math.floor(s/60)+':'+String(s%60).padStart(2,'0')+' さがします';setTimeout(tick,1000)};tick();
+    const hide=el('button',null,'閉じて待つ');hide.onclick=()=>{close();toast('見つかったら自動で始まります')};
+    const x=el('button','sec','やめる');x.onclick=()=>tqCancel();c.append(hide,x)})}
+
+/* my 募集 answered: take the first one, quietly turn away the rest */
+async function tqAnswer(d){const m=tqMine,ok=m&&m.id===d.q&&!m.busy&&!document.body.classList.contains('tcgon');
+  if(!ok){db.doc('tcgm/'+d.id).update({st:'decline',u:now()}).catch(()=>{});return}
+  m.busy=1;const sb=Math.random().toString(36).slice(2,10);
+  try{await db.doc('tcgm/'+d.id).update({st:'go',db:m.deck,sb,u:now()});tqMine=null;db.doc('tcgq/'+m.id).update({st:'taken'}).catch(()=>{});document.querySelectorAll('.tcgmd').forEach(x=>x.remove());
+    try{vib(2)}catch(e){}tcgPvpStart(Object.assign({},d,{st:'go',db:m.deck,sb}))}catch(e){m.busy=0}}
+try{const IN=tcgIncoming;tcgIncoming=function(d){if(d&&d.q){tcgAsked[d.id]=1;tqAnswer(d);return}return IN.apply(this,arguments)}}catch(e){console.warn('tq',e)}
+
+/* every few seconds: my 募集 ends after 10 minutes (or when I start another game); others' 募集 show as a card at the top */
+function tqTick(){const me=myPlayer();if(!me)return;const t=now();
+  /* a 募集 of mine left over from before this app was opened can't be answered any more */
+  tqs.forEach(q=>{if(q.p===me.id&&q.st==='open'&&q.end>t&&(!tqMine||tqMine.id!==q.id)&&!tqSeen['x'+q.id]){tqSeen['x'+q.id]=1;db.doc('tcgq/'+q.id).update({st:'cancel'}).catch(()=>{})}});
+  if(tqMine){if(t>tqMine.t+TQ_WAIT){tqCancel(true);toast('今回は相手が見つかりませんでした')}else if(document.body.classList.contains('tcgon')&&!tqMine.busy)tqCancel(true)}
+  /* a card that is up but whose 募集 ended slides away */
+  document.querySelectorAll('body>.tqb').forEach(b=>{const q=tqs.find(x=>x.id===b.dataset.q);if(!q||q.st!=='open'||q.end<=t)tqBanOut(b,q&&q.st==='taken'?'もう始まりました':'')});
+  let st=false;try{st=tcgHasSt()&&invLoaded&&invFor===me.id}catch(e){}
+  if(st&&!tqMine)tqOpen().forEach(q=>{if(tqSeen[q.id])return;tqSeen[q.id]=1;if(t-q.t<TQ_WAIT-30000)tqBanQ.push(q.id)});
+  tqBanNext();try{window.__tqSync&&__tqSync()}catch(e){}}
+/* one card at a time, and never on top of a game or a full-screen 演出 */
+function tqBanNext(){if(document.querySelector('body>.tqb'))return;const b=document.body;if(b.classList.contains('tcgon')||b.classList.contains('ovl'))return;
+  while(tqBanQ.length){const id=tqBanQ.shift(),q=tqOpen().find(x=>x.id===id);if(q){tqBanner(q);return}}}
+function tqBanner(q){const b=el('div','tqb');b.dataset.q=q.id;b.setAttribute('role','alert');
+  const av=(()=>{try{return window.__kavOf?__kavOf(q.p,40):el('span','tqb-av')}catch(e){return el('span','tqb-av')}})();
+  const tx=el('div','tqb-t');tx.append(el('b',null,(q.n||'仲間')+' が対戦相手をさがしています'),el('span',null,'TCG ・ レート '+(q.r||1500)));
+  const go=el('button','tqb-go','対戦する'),x=el('button','tqb-x');go.type=x.type='button';x.setAttribute('aria-label','閉じる');x.innerHTML='<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+  go.onclick=()=>{tqBanOut(b);const d=tqDeck();if(d){tqJoin(q,d);return}tcgModal((c,close)=>{c.append(el('div','mdt',(q.n||'仲間')+' と対戦'),el('div','sub','使うデッキを選んでください'));const dl=el('div','tcgfl');tcgDeckPicker(dl,dk=>{close();tqJoin(q,dk)});const n=el('button','sec','やめる');n.onclick=close;c.append(dl,n)})};
+  x.onclick=()=>tqBanOut(b);b.append(av,tx,go,x);document.body.append(b);
+  try{window.KMotion&&KMotion.SFX.play('pop')}catch(e){}
+  /* it stays 14 seconds; the 対戦 page still shows who is searching after that */
+  b.__t=setTimeout(()=>tqBanOut(b),14000);
+  let sy=null;b.addEventListener('touchstart',e=>{sy=e.touches[0].clientY},{passive:true});b.addEventListener('touchmove',e=>{if(sy!=null&&e.touches[0].clientY-sy<-24){sy=null;tqBanOut(b)}},{passive:true})}
+function tqBanOut(b,msg){if(!b||b.__out)return;b.__out=1;clearTimeout(b.__t);if(msg){const s=b.querySelector('.tqb-t span');if(s)s.textContent=msg;b.querySelector('.tqb-go').disabled=true}
+  setTimeout(()=>{b.classList.add('out');setTimeout(()=>{b.remove();tqBanNext()},320)},msg?900:0)}
+
+/* ---------- (10/25) いまオンラインの人数: 対戦のページの見出しの右に「● オンライン 3人」。誰かは出さない(匿名) ----------
+   オンライン = 3分以内にアプリを開いていた人(開いている間は90秒ごとに知らせる。seen/{pid}) */
+function tqOnline(){try{return typeof kOnline==='function'?kOnline().on:[]}catch(e){return []}}
+/* (10/25) the count leaves me out: "ほかに2人" */
+const tqOnN=()=>{const me=myPlayer();return tqOnline().filter(x=>!me||x.id!==me.id).length};
+const tqOnTx=n=>n?'ほかに'+n+'人オンライン':'ほかにはいません';
+function tqOnPaint(){const tr=document.querySelector('#khead .kx-trail');if(!tr)return;let b=tr.querySelector('.kx-onl');
+  if(!b){b=el('button','kx-onl');b.type='button';b.append(el('i'),el('span'));b.onclick=tqOnSheet;tr.prepend(b)}
+  const v=typeof curView!=='undefined'?curView:'',show=v==='battle'||v==='tcg',n=tqOnN();b.hidden=!show;
+  const tx=tqOnTx(n);if(b.lastChild.textContent!==tx)b.lastChild.textContent=tx;b.classList.toggle('zero',!n);b.setAttribute('aria-label',tqOnTx(n))}
+/* who is online stays anonymous: only how many (10/25) */
+function tqOnSheet(){document.querySelectorAll('body>.tqon').forEach(x=>x.remove());const n=tqOnN();
+  const o=el('div','tqon'),p=el('div','tqon-p');p.append(el('b',null,n?'あなたのほかに '+n+'人がオンライン':'今はあなたのほかにいません'),el('p','tqon-n','3分以内にアプリを開いていた人の数です(あなたは入りません)。誰かは表示しません。ランダムマッチでさがすと、この人たちの画面に知らせが出ます'));
+  o.append(p);o.onclick=()=>o.remove();document.body.append(o)}
+setInterval(()=>{try{tqOnPaint()}catch(e){}},2000);
+
+/* ---------- (10/25) はじめに1回: ランダムマッチの説明。ホームでほかのお知らせ(KMRの動画も)が全部閉じたあとに出る ---------- */
+const TQI_END=Date.parse('2026-12-31T23:59:59+09:00');
+function tqIntroKey(){const m=myPlayer();return 'tqIntro1_'+(m?m.id:'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
+function tqIntro(force){if(force){tqIntroShow();return}
+  if(tqIntro.started||Date.now()>TQI_END||!myPlayer()||navigator.webdriver/* automated tests */)return;let seen=null;try{seen=localStorage.getItem(tqIntroKey())}catch(e){}if(seen)return;tqIntro.started=1;
+  let n=0;const tick=()=>{if(document.querySelector('.tqi'))return;let kw=false;try{kw=typeof kmrPromoKey==='function'&&Date.now()<KMR_PROMO_END&&!localStorage.getItem(kmrPromoKey())}catch(e){}
+    const clear=typeof kmrPromoClear==='function'?kmrPromoClear():!document.body.classList.contains('ovl');
+    if(!kw&&!document.querySelector('.kpromo')&&document.visibilityState==='visible'&&clear){if(++n>=2){tqIntroShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,4000)}
+function tqIntroShow(){if(document.querySelector('.tqi'))return;try{localStorage.setItem(tqIntroKey(),String(Date.now()))}catch(e){}
+  const o=el('div','tqi'),p=el('div','tqi-p');
+  /* the picture: a phone's top edge, and the card that slides in on a friend's screen */
+  const ill=el('div','tqi-ill'),mock=el('div','tqi-mock');mock.innerHTML='<span class="tqi-av"></span><span class="tqi-tx"><b>仲間 が対戦相手をさがしています</b><small>TCG ・ レート 1500</small></span><span class="tqi-go">対戦する</span>';ill.append(el('i','tqi-notch'),mock);
+  const L=[['名前を選ばずに対戦','対戦 > TCG の相手で「ランダム」を選んでVSを押すだけ'],['いる人とすぐ始まる','さがしている人がいればすぐ。いなければ、いまアプリを開いている仲間の画面に上のような知らせが出ます'],['断る・断られるはなし','誰も来なければ10分で静かに終わります。見出しの右で、ほかに何人オンラインか分かります']];
+  const ul=el('div','tqi-l');L.forEach(([b,s],i)=>{const r=el('div','tqi-r');r.append(el('i',null,String(i+1)),(()=>{const d=el('div');d.append(el('b',null,b),el('span',null,s));return d})());ul.append(r)});
+  const go=el('button','tqi-go2','ランダムを選んでみる'),x=el('button','tqi-x','閉じる');go.type=x.type='button';
+  const close=()=>{o.classList.add('out');setTimeout(()=>o.remove(),280)};x.onclick=close;
+  go.onclick=()=>{close();try{localStorage.setItem('kxtopp','rand')}catch(e){}try{setView('battle');if(window.kbSeg)kbSeg('tcg')}catch(e){}let k=0;const pick=()=>{const b=document.querySelector('#kxtcg .kx-opp[data-id=rand]');if(b&&b.offsetParent){if(!b.classList.contains('on'))b.click();return}if(++k<20)setTimeout(pick,150)};setTimeout(pick,300)};
+  p.append(el('i','tqi-grab'),el('small','tqi-new','NEW'),el('h2',null,'ランダムマッチができました'),ill,ul,go,x);o.append(p);o.onclick=e=>{if(e.target===o)close()};document.body.append(o)}
+setTimeout(()=>{try{tqIntro()}catch(e){}},1500);
+/* ORIRMjs:end */
+/* ORIjs:begin */
+/* ===== オリパ (10/25): 口数限定のくじ。賞品は全部見えていて、何番目に入っているかだけ分からない。引くと番号順に開く。
+   ori/{oid}   公開: 名前・1口のpt(p)・口数(N)・次に開く番号(x)・期間(st,end)・賞品の一覧(pz: {g,c,f})・ラストワン(last)
+   oris/{oid}_{i} i番目の中身(j = pz の何番目か)。引かれるまでは誰も読めない(ルールで op==true のものだけ読める)
+   orp/{oid}_{i}  引いた記録: だれが(tb) i番目から n口を p ptで。ptはここから計算する(取引所と同じく公開の記録から)
+   引くときは1回のまとめた書き込み(transaction)で x を進め、その口を自分のものにして、記録を作る。2人が同時に引いても同じ口は取れない。
+   お試し版(preview)ではデータベースに書かず、このスマホの中だけで試せる(ptは減らず、カードももらえない)
+   参考(まねはしない): ネットのオリパの「口数・等ごとの残り・ラストワン賞」の見せ方。演出は袋を指でなぞって破る */
+const ORI_PV=/\/preview\//.test(location.pathname)&&!window.__FAKE;
+/* (10/25) 本番ではまだ出さない: お試し版とデモだけ。出すときはここを true にして、ルール(ori/oris/orp)も出す */
+const oriOn=()=>/\/preview\//.test(location.pathname)||!!window.__FAKE;/* read when used: the demo's stand-in database is set up after this script */
+const ORI_N=30,ORI_MAX=5,ORI_PRICE=1000;
+const ORI_T=[null,
+  {n:'1等',k:'KMR',c:'#ffe7a3',c2:'#ff9de0'},
+  {n:'2等',k:'シークレットのリーダー',c:'#ff4d6d',c2:'#ffb36b'},
+  {n:'3等',k:'シークレット GR',c:'#ff7ab8',c2:'#c79bff'},
+  {n:'4等',k:'GR',c:'#f5c84c',c2:'#ffdf8a'},
+  {n:'5等',k:'シークレット R・SR',c:'#9b8cff',c2:'#7fd8ff'}];
+const ORI_CNT=[0,1,2,4,8,15];
+let oris=[],oriSlots=[],oriPays=[],oriLoaded=false,oriBusy=false;
+const oriTc=c=>(typeof TC!=='undefined'&&TC[c])||null;
+const oriNm=c=>{const x=oriTc(c);return x?x.n:'カード'};
+const oriFk=f=>f==='k'?'KMR ':f?'シークレット ':'';
+/* the one on sale now: the newest that hasn't ended (a sold-out one stays until its end, so people can see who got what) */
+function oriCur(){const t=now();const L=oriAll().filter(o=>o&&t>=(+o.st||0)&&t<o.end).sort((a,b)=>(b.t||0)-(a.t||0));return L[0]||null}
+const oriAll=()=>ORI_PV?ORIL.metas():oris;
+const oriOpen=o=>(ORI_PV?ORIL.slots():oriSlots).filter(s=>s.o===o.id);
+const oriPaysOf=o=>(ORI_PV?ORIL.pays():oriPays).filter(p=>p.o===o.id);
+const oriLeft=o=>Math.max(0,(+o.N||0)-(+o.x||0));
+const oriSold=o=>oriLeft(o)<=0;
+/* who took the last 口 (gets the ラストワン) */
+function oriLastBy(o){if(!oriSold(o))return '';const p=oriPaysOf(o).find(p=>p.i+p.n>=o.N);return p?p.tb:''}
+/* what's still inside, per tier */
+function oriRemain(o){const gone=new Set(oriOpen(o).map(s=>s.j)),R=[0,0,0,0,0,0],A=[0,0,0,0,0,0];(o.pz||[]).forEach((p,j)=>{A[p.g]++;if(!gone.has(j))R[p.g]++});return {R,A,gone}}
+/* points: every 口 I took costs its price */
+function oriNet(pid){if(ORI_PV)return 0;let t=0;for(const p of oriPays)if(p.tb===pid)t-=(+p.p||0)*(+p.n||0);return t}
+
+/* ---------- the prizes: made by the admin's app, then shuffled into 30 numbered 口 ---------- */
+const oriShuf=a=>{const p=a.slice();for(let i=p.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[p[i],p[j]]=[p[j],p[i]]}return p};
+function oriPool(){const C=(TCGD.cards||[]).filter(c=>!c.hwOf),LD=Object.values(TCGD.leaders||{}).filter(id=>oriTc(id));
+  return {LD,GR:C.filter(c=>c.r==='GR'&&!LD.includes(c.id)).map(c=>c.id),RS:C.filter(c=>c.r==='R'||c.r==='SR').map(c=>c.id)}}
+function oriPickN(L,n,used){const a=oriShuf(L.filter(x=>!used.has(x)));const out=a.slice(0,n);while(out.length<n&&L.length)out.push(L[Math.random()*L.length|0]);out.forEach(x=>used.add(x));return out}
+/* top: the 1等 card (as KMR), last: the ラストワン card (as KMR) */
+function oriMakePz(top,last){const P=oriPool(),u=new Set([top,last]),pz=[{g:1,c:top,f:'k'}];
+  oriPickN(P.LD,2,u).forEach(c=>pz.push({g:2,c,f:true}));
+  const g3=oriPickN(P.GR,4,u);g3.forEach(c=>pz.push({g:3,c,f:true}));
+  /* (there are only 11 GR that aren't leaders, so 4等 may also be a leader's normal version) */
+  oriPickN(P.GR.concat(P.LD),8,u).forEach(c=>pz.push({g:4,c,f:false}));
+  oriPickN(P.RS,15,new Set()).forEach(c=>pz.push({g:5,c,f:true}));
+  return pz}
+const oriDefTop=()=>{const L=oriPool().LD;return L.includes('d8')?'d8':L[0]};
+const oriDefLast=()=>{const L=oriPool().GR;return L.includes('d11')?'d11':L[0]};
+async function oriCreate(o){const me=myPlayer();if(!me)throw new Error('me');
+  const id='o'+now().toString(36),t=now(),N=o.pz.length,ord=oriShuf(o.pz.map((_,j)=>j));
+  const meta={nm:String(o.nm||'オリパ').slice(0,30),p:Math.max(1,Math.round(+o.p||ORI_PRICE)),N,x:0,st:t,end:t+Math.max(1,+o.days||7)*864e5,t,pz:o.pz.map(p=>({g:p.g,c:String(p.c),f:p.f})),last:o.last?{c:String(o.last.c),f:o.last.f}:null,by:me.id};
+  if(ORI_PV){ORIL.create(id,meta,ord);return id}
+  /* the 口 first, the public page last (so nobody sees it before all of it is there) */
+  for(let i=0;i<N;i++){const p=meta.pz[ord[i]];await db.doc('oris/'+id+'_'+i).set({o:id,i,j:ord[i],g:p.g,c:p.c,f:p.f,tb:'',tt:0,op:false})}
+  await db.doc('ori/'+id).set(meta);
+  post('on_'+id,'ori',me.id,me.name,'オリパ「'+meta.nm+'」が始まりました。全'+N+'口・1口 '+meta.p.toLocaleString()+'pt。1等はKMR「'+oriNm(meta.pz[0].c)+'」');
+  return id}
+async function oriStop(o){if(ORI_PV){ORIL.stop(o.id);return}await db.doc('ori/'+o.id).update({end:now()})}
+
+/* ---------- お試し版: everything lives in this phone only ---------- */
+const ORIL=(()=>{let S=null;const K='oriPv1';
+  const load=()=>{if(S)return S;try{S=JSON.parse(localStorage.getItem(K)||'null')}catch(e){}if(!S||!S.m)S={m:{},s:{},p:[]};return S};
+  const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+  return{metas:()=>Object.entries(load().m).map(([id,m])=>Object.assign({id},m)),
+    slots:()=>Object.values(load().s).filter(s=>s.op),pays:()=>load().p,
+    create(id,meta,ord){load();S.m[id]=meta;meta.pz.forEach((_,i)=>{const p=meta.pz[ord[i]];S.s[id+'_'+i]={id:id+'_'+i,o:id,i,j:ord[i],g:p.g,c:p.c,f:p.f,tb:'',tt:0,op:false}});save()},
+    stop(id){load();if(S.m[id])S.m[id].end=now();save()},
+    take(o,n,pid){load();const m=S.m[o.id];if(!m)throw new Error('gone');const x=m.x,k=Math.min(n,m.N-x);if(k<=0)throw new Error('sold');
+      m.x=x+k;for(let i=x;i<x+k;i++){const s=S.s[o.id+'_'+i];s.tb=pid;s.tt=now();s.op=true}S.p.push({id:o.id+'_'+x,o:o.id,i:x,n:k,p:m.p,tb:pid,t:now()});save();
+      return {x,k}},
+    reset(){S={m:{},s:{},p:[]};save()}}})();
+/* the お試し版 starts with one, so it can be tried straight away */
+function oriPvSeed(){if(!ORI_PV||oriCur())return;try{if(typeof TCGD==='undefined'||!TCGD.cards)return;const me=myPlayer();if(!me)return;
+  ORIL.create('opv'+now().toString(36),{nm:'きもオタ オリパ 第1弾',p:ORI_PRICE,N:ORI_N,x:0,st:now(),end:now()+7*864e5,t:now(),pz:oriMakePz(oriDefTop(),oriDefLast()),last:{c:oriDefLast(),f:'k'},by:me.id},oriShuf([...Array(ORI_N).keys()]))}catch(e){console.warn('ori',e)}}
+
+/* ---------- reading the data ---------- */
+function oriWatch(){if(!oriOn()||oriWatch.on||!db||ORI_PV)return;oriWatch.on=1;const up=()=>{oriLoaded=!!(oriWatch.a&&oriWatch.b&&oriWatch.c);queueRender();try{renderGacha()}catch(e){}oriClaim();oriRepaint()};
+  db.collection('ori').onSnapshot(s=>{oris=s.docs.map(d=>({id:d.id,...d.data()}));oriWatch.a=1;up()},()=>{oriWatch.a=1});
+  db.collection('oris').where('op','==',true).onSnapshot(s=>{oriSlots=s.docs.map(d=>({id:d.id,...d.data()}));oriWatch.b=1;up()},()=>{oriWatch.b=1});
+  db.collection('orp').onSnapshot(s=>{oriPays=s.docs.map(d=>({id:d.id,...d.data()}));oriWatch.c=1;up()},()=>{oriWatch.c=1})}
+/* the cards I drew (and the ラストワン) go into my collection once */
+async function oriClaim(){const me=myPlayer();if(ORI_PV||oriBusy||!db||!me||!oriLoaded||!invLoaded||invFor!==me.id)return;
+  const og=new Set(inv.og||[]),got=oriSlots.filter(s=>s.tb===me.id&&!og.has(s.id)),last=oris.filter(o=>o.last&&!og.has('L'+o.id)&&oriLastBy(o)===me.id);
+  if(!got.length&&!last.length)return;oriBusy=true;
+  try{const nv=JSON.parse(JSON.stringify(inv));got.forEach(s=>{cardAdd(nv,'t',s.c,s.f,1);og.add(s.id)});last.forEach(o=>{cardAdd(nv,'t',o.last.c,o.last.f,1);og.add('L'+o.id)});
+    nv.og=[...og];await db.doc('inv/'+me.id).set(nv);inv=nv;try{ownSync()}catch(e){}try{renderGacha()}catch(e){}try{if(typeof renderTcg==='function')renderTcg()}catch(e){}}
+  catch(e){console.warn('ori claim',e)}finally{oriBusy=false}}
+
+/* ---------- drawing ---------- */
+async function oriTake(o,n){const me=myPlayer();if(!me)throw new Error('me');n=Math.max(1,Math.min(ORI_MAX,n|0));
+  if(ORI_PV){const r=ORIL.take(o,n,me.id);return oriOpen(o).filter(s=>s.i>=r.x&&s.i<r.x+r.k).sort((a,b)=>a.i-b.i)}
+  if(!db||!invLoaded||invFor!==me.id)throw new Error('inv');if(balance(me.id)<o.p*Math.min(n,oriLeft(o)))throw new Error('pt');
+  let got=null;
+  await db.runTransaction(async tx=>{const ref=db.doc('ori/'+o.id),s=await tx.get(ref);if(!s.exists)throw new Error('gone');const d=s.data(),x=+d.x||0,t=now();
+    if(t>=d.end||t<(+d.st||0))throw new Error('closed');const k=Math.min(n,d.N-x);if(k<=0)throw new Error('sold');if(balance(me.id)<d.p*k)throw new Error('pt');
+    tx.update(ref,{x:x+k});for(let i=x;i<x+k;i++)tx.update(db.doc('oris/'+o.id+'_'+i),{tb:me.id,tt:t,op:true});
+    tx.set(db.doc('orp/'+o.id+'_'+x),{o:o.id,i:x,n:k,p:d.p,tb:me.id,t});got={x,k}});
+  /* the 口 are readable now; they arrive through the listener */
+  const want=i=>oriSlots.find(s=>s.o===o.id&&s.i===i);
+  for(let w=0;w<80;w++){let all=true;for(let i=got.x;i<got.x+got.k;i++)if(!want(i)){all=false;break}if(all)break;await new Promise(r=>setTimeout(r,100))}
+  const L=[];for(let i=got.x;i<got.x+got.k;i++){const s=want(i);if(s)L.push(s)}if(L.length<got.k)throw new Error('late');return L}
+/* the button: draw, then the 演出; news for the big ones afterwards */
+async function oriGo(n){const o=oriCur();if(!o||oriGo.busy)return;const me=myPlayer();if(!me)return;
+  const k=Math.min(n,oriLeft(o));if(k<=0){toast('完売しました');return}
+  if(!ORI_PV&&balance(me.id)<o.p*k){toast('ptが足りません');return}
+  oriGo.busy=true;let L;
+  try{L=await oriTake(o,k)}catch(e){oriGo.busy=false;const m=String(e&&e.message||e);toast(m==='pt'?'ptが足りません':m==='sold'?'完売しました':m==='closed'?'販売は終わりました':m==='late'?'通信が遅いようです。少しして持ち物を見てください':'引けませんでした('+m+')');return}
+  const o2=oriAll().find(x=>x.id===o.id)||o,last=o2.last&&L.some(s=>s.i===o2.N-1)?o2.last:null;
+  oriGo.busy=false;try{renderGacha()}catch(e){}
+  oriShow(o2,L,last,()=>{if(ORI_PV)return;L.filter(s=>s.g<=3).forEach(s=>post('or_'+s.id,'ori',me.id,me.name,me.name+'がオリパで'+ORI_T[s.g].n+'「'+oriFk(s.f)+oriNm(s.c)+'」を引いた!(No.'+(s.i+1)+')'));
+    if(last)post('ol_'+o2.id,'ori',me.id,me.name,me.name+'がオリパ「'+o2.nm+'」の最後の1口を引いて、ラストワン賞「KMR '+oriNm(last.c)+'」を手に入れた!');try{oriClaim()}catch(e){}})}
+
+/* ---------- the 演出: one sealed pack per 口. Run a finger along the top to tear it open (or tap it) ---------- */
+function oriSnd(k){try{window.KMotion&&KMotion.SFX.play(k)}catch(e){}}
+function oriKmrSnd(){try{if(localStorage.getItem('ksfx')!=='1')return;const a=new Audio('tsfx/ts_place_kmr.mp3');a.volume=.9;a.play().catch(()=>{})}catch(e){}}
+function oriFace(c,f){try{return tcgFace(c,null,f)}catch(e){return el('div','tcf')}}
+/* the full card (frame, name, KMR's gold frame and pop-out): for the reveal, the results, the zoom and the banner */
+function oriFull(c,f){try{return typeof tcgCardFull==='function'?tcgCardFull(c,f):tcgFace(c,null,f)}catch(e){return oriFace(c,f)}}
+function oriPack(o,s,last){const p=el('div','orpk'+(last?' last':''));p.style.setProperty('--tc',last?'#ffe7a3':ORI_T[s.g].c);p.style.setProperty('--tc2',last?'#ff9de0':ORI_T[s.g].c2);
+  const body=el('div','orpk-b'),top=el('div','orpk-t'),mk=()=>{const w=el('div','orpk-face');w.append(el('i','orpk-holo'),el('i','orpk-sh'));
+    const lg=el('div','orpk-lg');lg.append(el('small',null,'KIMOOTA'),el('b',null,'ORIPA'),el('em',null,last?'LAST ONE':'No.'+String(s.i+1).padStart(2,'0')));w.append(lg,el('span','orpk-n',last?'ラストワン賞':o.N+'口限定'));return w};
+  body.append(mk());top.append(mk(),el('i','orpk-cut'));
+  const cd=el('div','orpk-c');cd.append(oriFull(last?last.c:s.c,last?last.f:s.f));
+  p.append(el('i','orpk-leak'),cd,body,top);return p}
+function oriShow(o,L,last,done){const G=window.gsap,RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
+  document.querySelectorAll('body>.orx').forEach(x=>x.remove());
+  const Q=L.map(s=>({s,last:null}));if(last)Q.push({s:{g:0,i:o.N-1},last});
+  const X=el('div','orx'),bg=el('div','orx-bg'),fl=el('i','orx-fl'),ry=el('i','orx-ry'),hd=el('div','orx-hd'),stage=el('div','orx-st'),info=el('div','orx-in'),hint=el('div','orx-hint','上のふちを指でなぞって開ける'),bar=el('div','orx-bar');
+  const cnt=el('b','orx-cnt'),skip=el('button','orx-skip',Q.length>1?'まとめて開ける':'とばす');skip.type='button';hd.append(el('span','orx-nm',o.nm),cnt);
+  bar.append(skip);X.append(bg,ry,stage,fl,hd,info,hint,bar);document.body.append(X);document.body.classList.add('ovl');
+  let k=-1,cur=null,tl=null,state='',ended=false;
+  const fin=()=>{if(ended)return;ended=true;X.remove();if(!document.querySelector('body>.pk,body>.tpk,body>.cut,body>.news'))document.body.classList.remove('ovl');try{done&&done()}catch(e){}};
+  function results(){state='res';if(tl)tl.kill();stage.replaceChildren();info.replaceChildren();hint.hidden=true;ry.style.opacity=0;cnt.textContent='';
+    const g=el('div','orx-res'+(Q.length<=1?' one':''));Q.forEach(({s,last:l})=>{const c=el('div','orx-rc');c.style.setProperty('--tc',l?'#ffe7a3':ORI_T[s.g].c);c.append(oriFull(l?l.c:s.c,l?l.f:s.f),el('b',null,l?'ラストワン':ORI_T[s.g].n),el('small',null,oriNm(l?l.c:s.c)));g.append(c)});
+    const best=Math.min(...Q.map(q=>q.last?1:q.s.g));
+    info.append(el('div','orx-rt',best<=2?'おめでとう!':'結果'),g);skip.textContent='閉じる';skip.onclick=fin;
+    if(G&&!RM)G.from(g.children,{y:24,opacity:0,duration:.42,stagger:.05,ease:'power3.out'})}
+  function next(){k++;if(k>=Q.length){results();return}const q=Q[k];cnt.textContent=Q.length>1?(k+1)+' / '+Q.length:'';
+    info.replaceChildren();hint.hidden=false;hint.textContent='上のふちを指でなぞって開ける';state='pack';ry.style.opacity=0;
+    const p=oriPack(o,q.s,q.last);stage.replaceChildren(p);cur={p,q};
+    if(G&&!RM){G.fromTo(p,{y:60,opacity:0,rotation:-4,scale:.92},{y:0,opacity:1,rotation:0,scale:1,duration:.55,ease:'expo.out'});
+      /* 予兆: the big ones tremble before you open them (a few small ones do too, so it isn't a sure sign) */
+      const g=q.last?1:q.s.g,sh=g===1?1:g===2?.6:g===3?.25:.08;if(Math.random()<sh){const a=g===1?3.2:2;p.__sh=G.timeline({repeat:-1,repeatDelay:g===1?.5:1.1,delay:.8});p.__sh.to(p.querySelector('.orpk-b'),{x:a,duration:.05,yoyo:true,repeat:7,ease:'none'}).to(p.querySelector('.orpk-t'),{x:a,duration:.05,yoyo:true,repeat:7,ease:'none'},0);if(g===1)p.classList.add('hot')}}
+    oriSnd('whoosh');armTear(p)}
+  /* tearing: follow the finger along the top edge; past 55% it rips off */
+  function armTear(p){const top=p.querySelector('.orpk-t');let sx=null,pr=0,moved=false;
+    const set=v=>{pr=v;top.style.transform='rotate('+(-7*v)+'deg) translate('+(-4*v)+'px,'+(-6*v)+'px)';p.style.setProperty('--lk',(v*.8).toFixed(3))};
+    p.onpointerdown=e=>{if(state!=='pack')return;sx=e.clientX;moved=false;try{p.setPointerCapture(e.pointerId)}catch(_){}top.style.transition='none'};
+    p.onpointermove=e=>{if(sx==null||state!=='pack')return;const w=p.getBoundingClientRect().width,d=Math.abs(e.clientX-sx)/w;if(d>.04)moved=true;set(Math.min(1,d/.7));if(pr>=1){sx=null;tear()}};
+    p.onpointerup=p.onpointercancel=e=>{if(sx==null||state!=='pack')return;sx=null;if(!moved||pr>.55){tear();return}top.style.transition='transform .25s';set(0)}}
+  function tear(){if(state!=='pack'||!cur)return;state='open';X.__ign=performance.now();hint.hidden=true;const {p,q}=cur,g=q.last?1:q.s.g,big=g<=2,top=p.querySelector('.orpk-t'),body=p.querySelector('.orpk-b'),cd=p.querySelector('.orpk-c'),lk=p.querySelector('.orpk-leak');
+    if(p.__sh){p.__sh.kill();p.__sh=null}p.classList.remove('hot');
+    const nm=q.last?'ラストワン賞':ORI_T[g].n,ttl=el('div','orx-tier'+(g===1?' t1':''));ttl.style.setProperty('--tc',q.last?'#ffe7a3':ORI_T[g].c);
+    ttl.append(el('b',null,nm),el('span',null,(q.last?'KMR ':q.s.f==='k'?'KMR ':q.s.f?'シークレット ':'')+oriNm(q.last?q.last.c:q.s.c)));
+    const show=()=>{info.replaceChildren(ttl);hint.hidden=false;hint.textContent=k<Q.length-1?'タップで次へ':'タップで結果へ';state='shown'};
+    if(!G||RM){top.style.opacity=0;body.style.opacity=0;cd.style.transform='none';p.classList.add('opened');show();return}
+    top.style.transition='none';oriSnd('whoosh');
+    tl=G.timeline();
+    tl.to(top,{x:-90,y:-160,rotation:-38,opacity:0,duration:.55,ease:'expo.out'},0)
+      .to(lk,{opacity:1,scaleY:big?1.5:1,duration:.3,ease:'power2.out'},0)
+      .add(()=>{oriSnd(g<=3?'beam':'tick')},.1);
+    const hold=g===1?.6:g===2?.35:.12;
+    /* the card slides up out of the pack, the pack drops away, the card comes forward */
+    tl.to(cd,{y:'-62%',duration:.42,ease:'power3.out'},.2+hold)
+      .to(body,{y:'70%',opacity:0,duration:.5,ease:'power2.in'},.42+hold)
+      .to(lk,{opacity:0,duration:.4},.5+hold)
+      .to(cd,{y:'-6%',scale:1.18,duration:.55,ease:'expo.out'},.62+hold)
+      .add(()=>{p.classList.add('opened');if(big){fl.style.opacity=1;G.to(fl,{opacity:0,duration:.6,ease:'power2.out'});G.fromTo(ry,{opacity:0,scale:.6,rotation:0},{opacity:g===1?.95:.6,scale:1,rotation:40,duration:1.6,ease:'power2.out'});oriSnd('slam');if(g===1)oriKmrSnd()}else oriSnd('land');
+        if(g<=3)setTimeout(()=>oriSnd('chime'),180)},.62+hold)
+      .add(show,.9+hold)
+      .from(ttl.children,{y:18,opacity:0,duration:.4,stagger:.06,ease:'power3.out'},.9+hold);
+    if(g===1)tl.fromTo(cd,{rotationY:0},{rotationY:360,duration:.9,ease:'power3.out'},.62+hold)}
+  X.addEventListener('click',e=>{if(e.target.closest('.orx-skip'))return;if(performance.now()-(X.__ign||0)<450)return;if(state==='shown'){if(tl)tl.progress(1);next()}else if(state==='open'&&tl){tl.progress(1)}});
+  skip.onclick=()=>{if(state==='res'){fin();return}results()};
+  if(G&&!RM)G.from(bg,{opacity:0,duration:.3});next();
+  return X}
+
+/* ---------- the banner on the TCG gacha page (kgu asks for it) ---------- */
+window.__oriBanner=H=>{if(!oriOn())return null;if(ORI_PV)oriPvSeed();const o=oriCur();if(!o)return null;const {mk,bt,esc,fmt,PT,left,ready}=H;const m=myPlayer(),b=m?balance(m.id):0,r=oriLeft(o),ok=(ORI_PV||ready())&&!oriGo.busy&&now()<o.end,rm=oriRemain(o);
+  const k=Math.min(ORI_MAX,r),acts=r<=0?[{l:'完売しました',on:false,main:1}]:r===1?[{l:'最後の1口',c:o.p,need:o.p-b,note:'ラストワン賞つき',main:1,on:ok&&(ORI_PV||b>=o.p),go:()=>oriGo(1)}]
+    :[{l:'1口',c:o.p,need:o.p-b,on:ok&&(ORI_PV||b>=o.p),go:()=>oriGo(1)},{l:k+'口',c:o.p*k,need:o.p*k-b,note:'まとめて開ける',main:1,on:ok&&(ORI_PV||b>=o.p*k),go:()=>oriGo(k)}];
+  return{id:'ori',ak:'ori-'+o.id+'-'+r,chip:'オリパ',ac:['#ffd36b','#ff4d6d'],
+    thumb:()=>{const t=mk('span','kgu-tn ori'),w=mk('span','ori-tnc');w.append(oriFace(o.pz[0].c,'k'));t.append(w,mk('em','kgu-bd ori',r?r+'/'+o.N+'口':'完売'));return t},
+    title:o.nm,sub:'1等 KMR「'+oriNm(o.pz[0].c)+'」・全'+o.N+'口',subH:'1等 <span class="kgu-nw">KMR「'+esc(oriNm(o.pz[0].c))+'」</span>・全'+o.N+'口',
+    tags:[['口数限定','hot'],[left(o.end),'time'],[r?'残り '+r+'口':'完売']].concat(ORI_PV?[['お試し版']]:[]),art:()=>oriArt(o,H),
+    prog:[{k:'残り',v:r,max:o.N,tx:r?r+' / '+o.N+'口':'完売',c:'ori'}],
+    extra:()=>{const w=mk('div','ori-rem');for(let g=1;g<=5;g++){const c=mk('div','ori-rt'+(rm.R[g]?'':' out'));c.style.setProperty('--tc',ORI_T[g].c);c.innerHTML='<b>'+ORI_T[g].n+'</b><span>'+rm.R[g]+'/'+rm.A[g]+'</span>';w.append(c)}
+      if(o.last){const c=mk('div','ori-rt lo'+(r?'':' out'));c.innerHTML='<b>ラストワン</b><span>'+(r?'あり':'済')+'</span>';w.append(c)}return w},
+    bal:ORI_PV?null:b,acts,tks:[],moreL:'賞品と残りを見る',sheet:()=>oriSheet(o,H)}};
+function oriArt(o,H){const {mk}=H,a=mk('div','kgu-art a-ori'),r=oriLeft(o),rm=oriRemain(o);a.append(mk('i','ori-sky'),mk('i','ori-ry'));
+  const fan=mk('div','ori-fan'),two=o.pz.filter(p=>p.g===2).slice(0,2);
+  [[two[0],'l'],[two[1],'r'],[o.pz[0],'m']].forEach(([p,c])=>{if(!p)return;const w=mk('div','ori-fc '+c);w.append(oriFull(p.c,p.f));if(c==='m'&&!rm.R[1])w.classList.add('gone');fan.append(w)});
+  const lg=mk('div','ori-lg');lg.innerHTML='<small>KIMOOTA</small><b>ORIPA</b>';
+  a.append(fan,lg,mk('i','kgu-spk'));if(!r)a.append(mk('div','ori-so','完売'));return a}
+function oriSheet(o,H){const {mk,bt,esc,sheet}=H;if(typeof sheet!=='function')return;
+  sheet(o.nm,b=>{const r=oriLeft(o),rm=oriRemain(o),opened=oriOpen(o);
+    const sm=mk('div','ori-sum');sm.innerHTML='<div><small>1口</small><b>'+o.p.toLocaleString('ja-JP')+'pt</b></div><div><small>残り</small><b>'+r+' / '+o.N+'口</b></div><div><small>期限</small><b>'+esc(H.left(o.end).replace('残り ',''))+'</b></div>';b.append(sm);
+    b.append(mk('p','ori-ex','全'+o.N+'口の中に、下の賞品が1つずつ入っています。どれが何番目かは誰にも分かりません。出た賞品は消えていき、最後の1口を引いた人にはラストワン賞も付きます。'+(ORI_PV?'(お試し版: 引いてもptは減らず、カードももらえません)':'')));
+    if(o.last){const s=mk('div','ori-sec lo');s.innerHTML='<div class="ori-sh"><b>ラストワン賞</b><span>最後の1口を引いた人に</span></div>';const g=mk('div','ori-g one'),c=mk('button','ori-gc');c.type='button';c.append(oriFull(o.last.c,o.last.f));c.onclick=()=>oriZoom(o.last.c,o.last.f);
+      const lb=oriLastBy(o);if(lb){c.classList.add('out');c.append(mk('em','ori-got',esc(oriPn(lb))))}g.append(c);s.append(g);b.append(s)}
+    for(let g=1;g<=5;g++){const s=mk('div','ori-sec');s.style.setProperty('--tc',ORI_T[g].c);s.innerHTML='<div class="ori-sh"><b>'+ORI_T[g].n+'</b><span>'+ORI_T[g].k+'</span><em>残り '+rm.R[g]+' / '+rm.A[g]+'</em></div>';
+      const gr=mk('div','ori-g'+(g<=2?' big':''));(o.pz||[]).forEach((p,j)=>{if(p.g!==g)return;const c=mk('button','ori-gc');c.type='button';c.setAttribute('aria-label',oriFk(p.f)+oriNm(p.c));c.append(oriFull(p.c,p.f));c.onclick=()=>oriZoom(p.c,p.f);
+        if(rm.gone.has(j)){c.classList.add('out');const sl=opened.find(x=>x.j===j);c.append(mk('em','ori-got',sl?esc(oriPn(sl.tb)):'出ました'))}gr.append(c)});s.append(gr);b.append(s)}
+    if(opened.length){const s=mk('div','ori-sec log');s.innerHTML='<div class="ori-sh"><b>出たもの</b><span>新しい順</span></div>';const ul=mk('div','ori-log');
+      opened.slice().sort((a,c)=>c.i-a.i).slice(0,30).forEach(x=>{const li=mk('div','ori-li');li.style.setProperty('--tc',ORI_T[x.g].c);li.innerHTML='<span>No.'+(x.i+1)+'</span><b>'+ORI_T[x.g].n+'</b><em>'+esc(oriFk(x.f)+oriNm(x.c))+'</em><small>'+esc(oriPn(x.tb))+'</small>';ul.append(li)});s.append(ul);b.append(s)}
+    if(ORI_PV||(typeof isAdmin==='function'&&isAdmin())){const s=mk('div','ori-adm'),a=bt('ori-ab','新しく作る'),z=bt('ori-ab','販売を止める');a.onclick=()=>{document.querySelectorAll('body>.kgu-sh').forEach(x=>x.remove());oriAdmin()};
+      z.onclick=async()=>{if(z.dataset.ok!=='1'){z.dataset.ok='1';z.textContent='本当に止める';return}try{await oriStop(o);toast('止めました');document.querySelectorAll('body>.kgu-sh').forEach(x=>x.remove());renderGacha()}catch(e){toast('止められませんでした')}};
+      s.append(mk('small',null,ORI_PV?'お試し版':'管理者'),a,z);b.append(s)}})}
+const oriPn=pid=>{try{const p=players.find(x=>x.id===pid);return p?p.name:'?'}catch(e){return '?'}};
+function oriZoom(c,f){document.querySelectorAll('body>.orz').forEach(x=>x.remove());const z=el('div','orz');z.append(oriFull(c,f));z.onclick=()=>z.remove();document.body.append(z);try{window.gsap&&gsap.from(z.firstChild,{scale:.7,opacity:0,duration:.35,ease:'expo.out'})}catch(e){}}
+function oriRepaint(){}
+
+/* ---------- 管理者: 作る ---------- */
+function oriAdmin(){if(!oriOn())return;const sheet=window.__kguSheet;if(typeof sheet!=='function'){toast('ガチャの画面を一度開いてください');return}
+  if(!ORI_PV&&!(typeof isAdmin==='function'&&isAdmin()))return;
+  const P=oriPool();let top=oriDefTop(),last=oriDefLast(),pz=oriMakePz(top,last);
+  sheet('オリパを作る',b=>{const f=el('div','ori-form');
+    const row=(lab,inp)=>{const r=el('label','ori-fr');r.append(el('span',null,lab),inp);f.append(r);return inp};
+    const nm=row('名前',el('input'));nm.value='きもオタ オリパ 第'+(oriAll().length+1)+'弾';nm.maxLength=30;
+    const pt=row('1口のpt',el('input'));pt.type='number';pt.inputMode='numeric';pt.min='1';pt.value=String(ORI_PRICE);
+    const dy=row('期間',el('select'));[[3,'3日'],[7,'7日'],[14,'14日']].forEach(([v,l])=>{const o=el('option',null,l);o.value=v;if(v===7)o.selected=true;dy.append(o)});
+    const sel=(L,v)=>{const s=el('select');L.forEach(id=>{const o=el('option',null,oriNm(id));o.value=id;if(id===v)o.selected=true;s.append(o)});return s};
+    const t1=row('1等(KMR)',sel(P.LD,top)),lo=row('ラストワン(KMR)',sel(P.GR,last));
+    const pv=el('div','ori-pv'),draw=()=>{pv.replaceChildren();for(let g=1;g<=5;g++){const s=el('div','ori-sec');s.style.setProperty('--tc',ORI_T[g].c);const h=el('div','ori-sh');h.append(el('b',null,ORI_T[g].n),el('span',null,ORI_T[g].k),el('em',null,'×'+ORI_CNT[g]));s.append(h);
+      const gr=el('div','ori-g sm');pz.filter(p=>p.g===g).forEach(p=>{const c=el('div','ori-gc');c.append(oriFull(p.c,p.f));gr.append(c)});s.append(gr);pv.append(s)}};
+    const re=el('button','ori-ab','中身を選び直す');re.type='button';re.onclick=()=>{top=t1.value;last=lo.value;pz=oriMakePz(top,last);draw()};t1.onchange=lo.onchange=re.onclick;
+    const go=el('button','ori-ab main','このオリパを出す');go.type='button';const msg=el('div','ori-msg',ORI_PV?'お試し版: このスマホの中だけで作ります':'出すと全員のガチャ画面に出ます。速報にも流れます');
+    go.onclick=async()=>{if(go.dataset.ok!=='1'){go.dataset.ok='1';go.textContent='本当に出す(全'+pz.length+'口)';return}go.disabled=true;
+      try{await oriCreate({nm:nm.value.trim()||'オリパ',p:+pt.value,days:+dy.value,pz,last:{c:last,f:'k'}});toast('オリパを出しました');document.querySelectorAll('body>.kgu-sh').forEach(x=>x.remove());try{renderGacha()}catch(e){}}
+      catch(e){go.disabled=false;go.dataset.ok='';go.textContent='このオリパを出す';msg.textContent='出せませんでした('+(e.code||e.message)+')'}};
+    draw();const act=el('div','ori-fa');act.append(re,go);b.append(f,pv,act,msg)})}
+/* the admin's オリパ card only where it is on */
+document.addEventListener('DOMContentLoaded',()=>{if(oriOn())return;try{const b=document.getElementById('admOriGo');const c=b&&b.closest('.admcard');if(c)c.remove()}catch(e){}});
+/* ORIjs:end */
 /* STKjs:begin */
 /* ---- (10/19) ハロウィン シールアルバム: 9 stickers, only during the Halloween event.
    Every rate match and TCG friend battle (win or lose) gives each player a 10% chance of one sticker. The chance and the sticker
@@ -10242,9 +10826,9 @@ function mktWatch(){if(!db||mktWatch.on)return;mktWatch.on=1;try{kbuWatch()}catc
   db.collection('yami').onSnapshot(s=>{yamis=s.docs.map(d=>({id:d.id,...d.data()}));yamiLoaded=true;queueRender();mktClaim();mktPaint()},()=>{yamiLoaded=true});
   setInterval(()=>{mktClaim();mktPaint(true)},30000)}
 /* one copy into / out of an inventory copy */
-function cardAdd(nv,k,c,f,d){if(k==='s'){nv.stkd=Object.assign({},nv.stkd||{});nv.stkd[c]=(+nv.stkd[c]||0)+d;return}if(k==='g'){nv.own=Object.assign({},nv.own||{});nv.own[c]=Math.max(0,(+nv.own[c]||0)+d)}else{const T=nv.tcg=Object.assign({},nv.tcg||{}),bk=f?'foil':'own';T[bk]=Object.assign({},T[bk]||{});T[bk][c]=Math.max(0,(+T[bk][c]||0)+d)}}
-const cardHave=(v,k,c,f)=>k==='s'?(typeof stkHave==='function'?stkHave(v,c):0):k==='g'?+((v.own||{})[c])||0:+(((v.tcg||{})[f?'foil':'own']||{})[c])||0;
-const cardInfo=(k,c,f)=>{if(k==='s')return typeof stkInfo==='function'?stkInfo(c):null;if(k==='h'){return {nm:'お菓子 '+(+c||0).toLocaleString()+'個',rk:'ハロウィン',r:1,col:'#ff8a2a',face:()=>{const d=el('div','hlw-mkf');d.innerHTML=hwCandySvg(40)+'<b>'+(+c||0)+'</b>';return d}}}if(k==='b'){return typeof TCGD!=='undefined'&&TCGD.packs[c]?{nm:bxName(c)+' BOX',rk:'未開封BOX',r:3,col:'#f5c84c',face:()=>bxFace(c)}:null}if(k==='g'){const it=ITEM(c);return it?{nm:it.n,rk:RAR[it.r].k,r:it.r,col:RAR[it.r].c,face:()=>cardFace(it)}:null}const x=typeof TC!=='undefined'&&TC[c];return x?{nm:x.n,rk:(f?'シークレット ':'')+x.r,r:{C:0,R:1,SR:2,GR:4}[x.r]+(f?1:0),col:f?'#ff7ab8':{C:'#a3a9b4',R:'#9a6bff',SR:'#8fd3ff',GR:'#f5c84c'}[x.r],face:()=>tcgFace(c,null,!!f)}:null};
+function cardAdd(nv,k,c,f,d){if(k==='s'){nv.stkd=Object.assign({},nv.stkd||{});nv.stkd[c]=(+nv.stkd[c]||0)+d;return}if(k==='g'){nv.own=Object.assign({},nv.own||{});nv.own[c]=Math.max(0,(+nv.own[c]||0)+d)}else{const T=nv.tcg=Object.assign({},nv.tcg||{}),bk=f==='k'?'kmr':f?'foil':'own';T[bk]=Object.assign({},T[bk]||{});T[bk][c]=Math.max(0,(+T[bk][c]||0)+d)}}
+const cardHave=(v,k,c,f)=>k==='s'?(typeof stkHave==='function'?stkHave(v,c):0):k==='g'?+((v.own||{})[c])||0:+(((v.tcg||{})[f==='k'?'kmr':f?'foil':'own']||{})[c])||0;
+const cardInfo=(k,c,f)=>{if(k==='s')return typeof stkInfo==='function'?stkInfo(c):null;if(k==='h'){return {nm:'お菓子 '+(+c||0).toLocaleString()+'個',rk:'ハロウィン',r:1,col:'#ff8a2a',face:()=>{const d=el('div','hlw-mkf');d.innerHTML=hwCandySvg(40)+'<b>'+(+c||0)+'</b>';return d}}}if(k==='b'){return typeof TCGD!=='undefined'&&TCGD.packs[c]?{nm:bxName(c)+' BOX',rk:'未開封BOX',r:3,col:'#f5c84c',face:()=>bxFace(c)}:null}if(k==='g'){const it=ITEM(c);return it?{nm:it.n,rk:RAR[it.r].k,r:it.r,col:RAR[it.r].c,face:()=>cardFace(it)}:null}const x=typeof TC!=='undefined'&&TC[c];return x?{nm:x.n,rk:(f==='k'?'KMR ':f?'シークレット ':'')+x.r,r:{C:0,R:1,SR:2,GR:4}[x.r]+(f?1:0),col:f?'#ff7ab8':{C:'#a3a9b4',R:'#9a6bff',SR:'#8fd3ff',GR:'#f5c84c'}[x.r],face:()=>tcgFace(c,null,!!f)}:null};
 /* cards I won or got from the pot, and my unsold listings: put them into my collection once */
 let mktBusy=false;
 async function mktClaim(){const me=myPlayer();if(mktBusy||!db||!me||!invLoaded||invFor!==me.id||!aucLoaded||!yamiLoaded)return;
@@ -12164,7 +12748,7 @@ const spentOf=v=>(v.packs||0)*PACK+Math.max(0,(v.lpacks||0)-(v.lfree||0))*LPACK+
 /* points on the table in an unfinished match can't be spent */
 const betHeld=pid=>(typeof chs!=='undefined'?chs:[]).filter(c=>c.bet&&(c.st==='pending'?c.a===pid:(c.a===pid||c.b===pid)&&['active','reported','abortreq'].includes(c.st))&&live(c)&&!matches.some(m=>m.id===c.id)).reduce((a,c)=>a+c.bet,0);
 const invAdj=v=>spentOf(v)-(+v.mpts||0)-(+v.lbp||0)-(+v.ppp||0)-(+v.bpt||0)-(+v.hmp||0)-(+v.hxp||0)+(+v.gfee||0)+(+v.scfee||0)+(+v.fsd||0)+(+v.fdog||0)-(+v.fhv||0);
-const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)+(typeof mktNet==='function'?mktNet(pid):0)+(typeof bountyPts==='function'?bountyPts(pid):0)+(typeof farmNet==='function'?farmNet(pid):0)+(typeof mtPts==='function'?mtPts(pid):0)+(typeof hwRankPts==='function'?hwRankPts(pid):0)+(typeof invPts==='function'?invPts(pid):0)+(typeof kbuNet==='function'?kbuNet(pid):0)/*kbu-bal*/-(pid===invFor?invAdj(inv):(admInv[pid]||0));
+const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)+(typeof mktNet==='function'?mktNet(pid):0)+(typeof bountyPts==='function'?bountyPts(pid):0)+(typeof farmNet==='function'?farmNet(pid):0)+(typeof mtPts==='function'?mtPts(pid):0)+(typeof hwRankPts==='function'?hwRankPts(pid):0)+(typeof invPts==='function'?invPts(pid):0)+(typeof kbuNet==='function'?kbuNet(pid):0)/*kbu-bal*/+(typeof oriNet==='function'?oriNet(pid):0)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
 const admInv={};
 /* ===== 分身アバターバトル (beta): the page runs in an overlay (bunshin.html) and talks to the app through BUNSHINHOST =====
    bunshin/{pid}: your avatar (look, allocation, items, equipped, quest stage, gacha pulls, chests opened)
@@ -12443,7 +13027,7 @@ function checkPredHits(){
 /* ---- timeline (feed) and reactions ---- */
 let feed=[];
 const RX=[['w','草'],['o','おめ'],['k','神'],['d','ドンマイ'],['z','ずるい']];
-const FK={mentor:'師弟',grade:'鑑定',bounty:'賞金首',mkt:'取引所',yami:'闇鍋',burn:'焼却',kmr:'KMR',gr:'GR',up:'昇格',streak:'連勝',geko:'下剋上',gold:'豪華宝箱',pred:'予想的中',lv:'レベル',ten:'10連',tour:'大会',stk:'シール'};
+const FK={mentor:'師弟',grade:'鑑定',bounty:'賞金首',mkt:'取引所',yami:'闇鍋',burn:'焼却',kmr:'KMR',gr:'GR',up:'昇格',streak:'連勝',geko:'下剋上',gold:'豪華宝箱',pred:'予想的中',lv:'レベル',ten:'10連',tour:'大会',stk:'シール',ori:'オリパ'};
 function post(id,k,p,n,x,g){const me=myPlayer();if(!db||!me)return;db.doc('feed/'+id).set({t:now(),k,by:me.id,p,n,x:String(x).slice(0,140),r:{},...(g?{g}:{})}).catch(()=>{})}
 function feedPull(cards,label){
   const me=myPlayer();if(!me||isAdmin())return;   /* the developer's own pulls are not announced */const top=cards.filter(c=>c.r>=4).sort((a,b)=>b.r-a.r)[0];if(!top)return;
@@ -12629,11 +13213,11 @@ function renderPush(){const sec=$('pushsec'),box=$('pushbox'),me=myPlayer();if(!
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{const g=e.data&&e.data.kgo;if(g==='adm'){try{admOrdGo()}catch(_){}return}if(g&&['home','battle','gacha','tcg','rank','profile'].includes(g))setView(g)});
 {const g=new URLSearchParams(location.search).get('go');if(g==='adm'){setTimeout(()=>{try{admOrdGo()}catch(e){}},2500);try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}else if(g&&['home','battle','gacha','tcg','rank','profile'].includes(g)){setTimeout(()=>{try{setView(g)}catch(e){}},1500);try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}}
 let seenMap={},seenSub=null,lastPing=0;
-function ping(force){const me=myPlayer();if(!db||!me||document.visibilityState!=='visible')return;if(now()-lastPing<(force?30000:290000))return;lastPing=now();db.doc('seen/'+me.id).set({t:now(),v:APP_VER}).catch(()=>{})}
-setInterval(()=>ping(),300000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping(true)});
+function ping(force){const me=myPlayer();if(!db||!me||document.visibilityState!=='visible')return;if(now()-lastPing<(force?30000:85000))return;lastPing=now();db.doc('seen/'+me.id).set({t:now(),v:APP_VER}).catch(()=>{})}
+setInterval(()=>ping(),90000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping(true)});
 function seenWatch(){if(seenSub||!db)return;seenSub=db.collection('seen').onSnapshot(s=>{seenMap={};s.docs.forEach(d=>seenMap[d.id]=d.data());if(isAdmin())admSeenRender();window.kOnlineSync&&kOnlineSync()},()=>{})}
-/* online = the app was open in the last 6 minutes (each phone checks in every 5 minutes while the app is on screen) */
-window.kOnline=()=>{const T=now(),L=players.filter(p=>p.uid).map(p=>({id:p.id,name:p.name,t:(seenMap[p.id]||{}).t||0}));const me=myPlayer();if(me){const x=L.find(p=>p.id===me.id);if(x)x.t=Math.max(x.t,T)}return {on:L.filter(p=>T-p.t<6*60000).sort((a,b)=>b.t-a.t),recent:L.filter(p=>T-p.t>=6*60000&&T-p.t<3*3600000).sort((a,b)=>b.t-a.t).map(p=>({...p,ago:Math.max(1,Math.round((T-p.t)/60000))}))}};
+/* online = the app was open in the last 3 minutes (each phone checks in every 90 seconds while the app is on screen; was 5 minutes before 10/25) */
+window.kOnline=()=>{const T=now(),L=players.filter(p=>p.uid).map(p=>({id:p.id,name:p.name,t:(seenMap[p.id]||{}).t||0}));const me=myPlayer();if(me){const x=L.find(p=>p.id===me.id);if(x)x.t=Math.max(x.t,T)}return {on:L.filter(p=>T-p.t<3*60000).sort((a,b)=>b.t-a.t),recent:L.filter(p=>T-p.t>=3*60000&&T-p.t<3*3600000).sort((a,b)=>b.t-a.t).map(p=>({...p,ago:Math.max(1,Math.round((T-p.t)/60000))}))}};
 function admSeenRender(){
   const box=$('admSeen');if(!box)return;
   seenWatch();
@@ -13455,9 +14039,9 @@ if(typeof hwPackSync==='function')hwPackSync(true);
 const tcgFaces=pk=>{const P=TCGD.packs[pk];return P.face||P.f.map(f=>TCGD.leaders[f])};
 /* holo (foil) cards: a 1/100 chance per pulled card. Tracked apart from the normal copy; same per-card cap, extras become かけら. Purely cosmetic. */
 const TCG_FOIL=0.01;
-/* (10/24) KMR: the top version of any card, 1 in 1000 per pulled card (packs and boxes alike). Same strength; its own bag inv.tcg.kmr.
+/* (10/24) KMR: the top version of any card. (10/25) 1 in 450 per pulled card = one in 10 boxes on average (a box is 15 packs x 3 = 45 cards; was 1 in 1000). Packs and boxes alike. Same strength; its own bag inv.tcg.kmr.
    It cannot be burnt, turned into かけら or sold: it stays with you. In a deck its copies are deck.kmr = {id: n} */
-const TCG_KMR=0.001;
+const TCG_KMR=1/450;
 /* お試し版(/preview/)の管理者は、全部のカードのKMRを1枚ずつ持っている扱い(アプリの中で試せるように。保存はしない) */
 const tcgKmrTry=()=>typeof tcgAdmin==='function'&&tcgAdmin()&&/\/preview\//.test(location.pathname);
 const tcgKmr=()=>{if(tcgKmrTry()){const o={};TCGD.cards.forEach(c=>o[c.id]=1);return o}return tcgOf(inv).kmr||{}};
@@ -13477,7 +14061,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=165';
+const TCG_SRC='tcg_play.html?v=166';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -14224,7 +14808,7 @@ function tcgmTick(){const me=myPlayer();if(!me)return;const t=now();
   tcgms.forEach(d=>{
     if(d.st==='wait'&&d.b===me.id&&t-d.t<TCG_WAIT&&!tcgAsked[d.id]&&invLoaded&&invFor===me.id)tcgIncoming(d);
     if(d.st==='go'&&d.a===me.id&&d.wa==null&&!tcgStarted[d.id]&&tcgMine[d.id])tcgPvpStart(d);
-    if((d.st==='decline'||d.st==='cancel')&&tcgMine[d.id]){delete tcgMine[d.id];document.querySelectorAll('.tcgmd[data-wait="'+d.id+'"]').forEach(x=>x.remove());if(d.st==='decline')toast(d.bn+' にことわられました')}
+    if((d.st==='decline'||d.st==='cancel')&&tcgMine[d.id]){delete tcgMine[d.id];document.querySelectorAll('.tcgmd[data-wait="'+d.id+'"]').forEach(x=>x.remove());if(d.st==='decline')toast(d.q?'ほかの人が先に対戦を始めました':d.bn+' にことわられました')}
     if(d.st==='cancel'&&tcgAsked[d.id]===1&&d.b===me.id){tcgAsked[d.id]=2;document.querySelectorAll('.tcgmd').forEach(x=>x.remove())}
     /* both results are in: the moves are no longer needed */
     {const sd=d.a===me.id?'a':d.b===me.id?'b':null;if(sd&&d.wa!=null&&d.wb!=null&&(d['m'+sd]||[]).length&&!(tcgLive&&tcgLive.id===d.id))db.doc('tcgm/'+d.id).update({['m'+sd]:[],u:now()}).catch(()=>{})}
@@ -14921,7 +15505,7 @@ render();
   /* matches, grants and predictions only grow: db.synced keeps a saved copy on the phone and reads only the new ones */
   dbSynced('matches','t').onSnapshot(onMatches,()=>{});
   watchTcgSpectators();
-  bunWatch();ownWatch();mktWatch();
+  bunWatch();ownWatch();mktWatch();try{oriWatch()}catch(e){}try{tqWatch()}catch(e){}
   seenWatch();
   db.doc('config/coinev').onSnapshot(s=>{coinev=s.exists?s.data():null;queueRender()},()=>{});
   db.collection('tours').orderBy('t','desc').onSnapshot(s=>{toursLoaded=true;tours=s.docs.map(d=>({id:d.id,...d.data()}));queueRender()},()=>{toursLoaded=true;queueRender()});
@@ -15445,7 +16029,9 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   /* who is online now (the app open in the last 6 minutes) and who was here in the last 3 hours */
   window.kOnlineSync=()=>{const box=secTl.querySelector('.lonl');if(!box||typeof kOnline!=='function')return;const O=kOnline();
     const chip=(p,on)=>'<span class="onc'+(on?' on':'')+'"><i></i>'+String(p.name).replace(/[<>&]/g,'')+(on?'':'<small>'+(p.ago<60?p.ago+'分前':Math.round(p.ago/60)+'時間前')+'</small>')+'</span>';
-    box.innerHTML='<div class="onh">オンライン <b>'+O.on.length+'</b>人</div><div class="onl">'+(O.on.length?O.on.map(p=>chip(p,1)).join(''):'<span class="onn">今はだれもいません</span>')+'</div>'+(O.recent.length?'<div class="onh sub">さっきまでいた人</div><div class="onl">'+O.recent.map(p=>chip(p,0)).join('')+'</div>':'')};
+    /* (10/25) anonymous: how many, not who */
+    const me_=myPlayer(),on_=O.on.filter(p=>!me_||p.id!==me_.id).length,rc_=O.recent.filter(p=>!me_||p.id!==me_.id).length;
+    box.innerHTML='<div class="onh">あなたのほかに <b>'+on_+'</b>人がオンライン</div>'+(on_?'':'<div class="onl"><span class="onn">今はだれもいません</span></div>')+(rc_?'<div class="onh sub">3時間以内に開いた人 '+rc_+'人</div>':'')};
   setInterval(()=>{try{kOnlineSync()}catch(e){}},30000);
   qa('[data-bun]').forEach(b=>b.onclick=()=>{if(typeof bunOpen==='function')bunOpen()});
   qa('[data-farm]').forEach(b=>b.onclick=()=>{if(typeof farmOpen==='function')farmOpen()});
@@ -16462,6 +17048,10 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const body=mk('div','kvs-body'),aw=mk('div','kvs-avw kvs-cpuav');aw.innerHTML=cpuSVG(false);aw.append(mk('i','kvs-ring'));body.append(aw);
     body.append(mk('div','kvs-nm','CPU'));const m=mk('div','kvs-meta');m.append(mk('span','kvs-lv rk','ふつう か つよい'));body.append(m);
     body.append(tCard(null,'おまかせ','?'));s.append(body);return s}
+  function tRandSide(){const s=mk('div','kvs-side op kvs-cpu kvs-tside kvs-rand');s.style.setProperty('--mg','#22d3ee');s.style.setProperty('--ml','#a5f3fc');
+    const bg=mk('div','kvs-bg kvs-bgcpu');bg.innerHTML='<i class="a1"></i><i class="a2"></i><i class="gd"></i>';s.append(bg,mk('div','kvs-shade'));
+    const body=mk('div','kvs-body'),aw=mk('div','kvs-avw kvs-cpuav');aw.innerHTML='<span style="display:grid;place-items:center;width:100%;height:100%;font:900 34px/1 Geist,sans-serif;color:#c4f6ff">?</span>';aw.append(mk('i','kvs-ring'));body.append(aw);
+    let n=0;try{n=tqOpen().length}catch(e){}body.append(mk('div','kvs-nm','だれか'));const m=mk('div','kvs-meta');m.append(mk('span','kvs-lv',n?n+'人がさがし中':tqOnTx(tqOnN())));body.append(m);body.append(tCard(null,'相手が選ぶ','?'));s.append(body);return s}
   function tFriendSide(p){const s=sideEl(p,'op',60,tRate(p.id),9);s.classList.add('kvs-tside');s.querySelector('.kvs-body').append(tCard(null,'相手が選ぶ','?'));return s}
 
   const tvs=mk('div','kvs kvs-tcg');tvs.innerHTML=vsMarkup+'<i class="kvs-beam"></i>';tvs.querySelector('.kvs-top').append(mk('div','kvs-tag'));if(offIO)offIO.observe(tvs);
@@ -16489,6 +17079,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   tCta.onclick=async()=>{const me=ME();if(!me||tSending)return;let st=false;try{st=tcgHasSt()}catch(e){}
     if(!st){const s=document.querySelector('#tcgbox .tcgst');if(s)s.scrollIntoView({behavior:'smooth',block:'start'});return}
     const deck=tSel();if(!deck||!tcgOk(deck)){try{kbSeg('deck')}catch(e){}return}
+    if(tOpp==='rand'){burstVS(tvs,'v');sfx('chime');try{await tqGo(deck)}catch(e){}paintTcg();return}
     if(tOpp==='cpu'){LSset('kotcg_cpulv',tLv);burstVS(tvs,'v');sfx('slam');const hs=tMode==='rank'?'cpu='+tDeck+'.auto.rk':'cpu='+tDeck+'.'+tOpt;setTimeout(()=>{try{tcgPlay(hs)}catch(e){}},260);return}
     const p=players.find(x=>x.id===tOpp);if(!p)return;tSending=true;paintTcg();
     try{await tcgChallenge(p,tcgPlainDeck(deck));if(document.querySelector('.tcgmd[data-wait]')){burstVS(tvs,'v');sfx('chime')}}catch(e){}tSending=false;paintTcg()};
@@ -16503,28 +17094,33 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const kMe=me.id+'|'+tRate(me.id)+'|'+JSON.stringify(me.eq||{})+'|'+(deck?deck.lead+deck.name:'-')+'|'+!!window.CARD_IMG;
     if(!tMe||tMe.dataset.k!==kMe){const n=tMeSide(me,deck);n.dataset.k=kMe;n.dataset.who=me.id+'|'+JSON.stringify(me.eq||{});const old=tMe;if(old)old.replaceWith(n);else tvs.prepend(n);tMe=n;if(old&&old.dataset.who===n.dataset.who)flipIn(n)}
     const p=tOpp==='cpu'?null:players.find(x=>x.id===tOpp);
-    const kOp=p?'p|'+p.id+'|'+tRate(p.id)+'|'+JSON.stringify(p.eq||{}):tMode==='rank'?'cpu|rank':'cpu|'+tLv+'|'+tOpt+'|'+(tOpt==='mirror'&&deck?deck.lead+'|'+!!window.CARD_IMG:'');
-    if(!tOp||tOp.dataset.k!==kOp){const n=p?tFriendSide(p):tCpuSide(deck);n.dataset.k=kOp;n.dataset.who=p?p.id:'cpu';const old=tOp;tOp=n;tMe.after(n);
+    let tqN2=0;try{tqN2=tqOpen().length}catch(e){}
+    const kOp=p?'p|'+p.id+'|'+tRate(p.id)+'|'+JSON.stringify(p.eq||{}):tOpp==='rand'?'rand|'+tqN2+'|'+tqOnN():tMode==='rank'?'cpu|rank':'cpu|'+tLv+'|'+tOpt+'|'+(tOpt==='mirror'&&deck?deck.lead+'|'+!!window.CARD_IMG:'');
+    if(!tOp||tOp.dataset.k!==kOp){const n=p?tFriendSide(p):tOpp==='rand'?tRandSide():tCpuSide(deck);n.dataset.k=kOp;n.dataset.who=p?p.id:tOpp==='rand'?'rand':'cpu';const old=tOp;tOp=n;tMe.after(n);
       if(old&&old.dataset.who!==n.dataset.who){const a=ani(old,[{opacity:1,transform:'none'},{opacity:0,transform:'translateX(24px)'}],{duration:180,easing:'ease-in',fill:'forwards'});if(a)a.onfinish=()=>old.remove();else old.remove();
         ani(n,[{opacity:0,transform:'translateX(40px)'},{opacity:1,transform:'none'}],{duration:560,delay:70});
         ani(n.querySelector('.kvs-avw'),[{transform:'scale(.6)'},{transform:'scale(1.08)',offset:.6},{transform:'scale(1)'}],{duration:640,delay:110});punch(tvs);sfx('slam')}
       else{if(old)old.remove();if(old)flipIn(n)}}
     const tag=tvs.querySelector('.kvs-tag');let tx='';
-    if(p){const h=tH2H(me.id,p.id);tx=h.w+h.l?'通算 '+h.w+'勝 '+h.l+'敗':'はじめての対戦'}else{let T={};try{T=tcgOf(inv)}catch(e){}tx='CPU戦 '+(T.w||0)+'勝 '+(T.l||0)+'敗'}
+    if(p){const h=tH2H(me.id,p.id);tx=h.w+h.l?'通算 '+h.w+'勝 '+h.l+'敗':'はじめての対戦'}else if(tOpp==='rand'){tx='ランダムマッチ'}else{let T={};try{T=tcgOf(inv)}catch(e){}tx='CPU戦 '+(T.w||0)+'勝 '+(T.l||0)+'敗'}
     if(tag.textContent!==tx)tag.textContent=tx}
   function renderTcg2(){const me=ME();let st=false;try{st=tcgHasSt()}catch(e){}
     if(!window.CARD_IMG&&!tLoad){tLoad=true;try{tcgLoad().then(()=>{tOppSig=tDkSig='';renderTcg2()})}catch(e){}}
     tHero.classList.toggle('nost',!st);
     if(!me){[tvs,tOpps,tDk,tCpu,tGo,tRow].forEach(e=>e.hidden=true);return}[tvs,tOpps,tDk,tGo,tRow].forEach(e=>e.hidden=false);
     /* opponents: the CPU first, then friends (recent rivals first) */
-    if(tOpp!=='cpu'&&!players.some(p=>p.id===tOpp&&!p.ban))tOpp='cpu';
+    if(tOpp!=='cpu'&&tOpp!=='rand'&&!players.some(p=>p.id===tOpp&&!p.ban))tOpp='cpu';
     const fr=players.filter(p=>p.id!==me.id&&!p.ban&&!p.hidden).map(p=>({p,id:p.id,r:tRate(p.id),h:tH2H(me.id,p.id)})).sort((a,b)=>(b.h.last-a.h.last)||(b.r-a.r));
     let T={};try{T=tcgOf(inv)}catch(e){}
-    const os=JSON.stringify([fr.map(o=>[o.id,o.p.name,o.r,o.h.w,o.h.l,bgOf(o.p),o.p.eq&&o.p.eq.a,o.p.eq&&o.p.eq.f]),T.w,T.l,tLv,tMode]);
+    const tqN=(()=>{try{return tqOpen().length}catch(e){return 0}})(),tqM=(()=>{try{return !!tqMine}catch(e){return false}})();
+    const os=JSON.stringify([fr.map(o=>[o.id,o.p.name,o.r,o.h.w,o.h.l,bgOf(o.p),o.p.eq&&o.p.eq.a,o.p.eq&&o.p.eq.f]),T.w,T.l,tLv,tMode,tqN,tqM,tqOnN()]);
     if(os!==tOppSig){tOppSig=os;const box=tOpps.querySelector('.kx-opps');
       const c=mk('button','kx-opp kx-ocpu');c.type='button';c.dataset.id='cpu';c.setAttribute('role','option');const sw=mk('i','kx-osw kx-oswcpu'),av=mk('span','kav kx-cpuav');av.style.setProperty('--es','56px');av.innerHTML=cpuSVG(tMode!=='rank'&&tLv==='strong');
       c.append(sw,mk('i','ck'),av,mk('b',null,'CPU'),mk('small',null,tMode==='rank'?'ランク戦':tLv==='strong'?'つよい':'ふつう'),mk('em','new',(T.w||0)+'勝 '+(T.l||0)+'敗'));c.onclick=()=>{if(tOpp==='cpu')return;tOpp='cpu';LSset('kxtopp','cpu');paintTcg();ani(c,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
-      const L=[c].concat(fr.map(o=>{const b=mk('button','kx-opp');b.type='button';b.dataset.id=o.id;b.setAttribute('role','option');
+      /* (10/25) ランダムマッチ: no name to pick. Shows how many friends are searching right now */
+      const rd=mk('button','kx-opp kx-orand'+(tqN?' live':''));rd.type='button';rd.dataset.id='rand';rd.setAttribute('role','option');const rav=mk('span','kav kx-randav');rav.style.setProperty('--es','56px');rav.innerHTML='<svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26.5" fill="#0c0b18" stroke="#67e8f9" stroke-opacity=".6"/><path d="M17 21h6l10 14h6M17 35h6l3-4.2M33 21h6" fill="none" stroke="#c4f6ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 17.5l3.5 3.5-3.5 3.5M36 31.5l3.5 3.5-3.5 3.5" fill="none" stroke="#c4f6ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      rd.append(mk('i','kx-osw kx-oswcpu'),mk('i','ck'),rav,mk('b',null,'ランダム'),mk('small',null,tqM?'さがしています':'名前を選ばない'),mk('em',tqN?'new':'',tqN?tqN+'人がさがし中':tqOnTx(tqOnN())));rd.onclick=()=>{if(tOpp==='rand')return;tOpp='rand';LSset('kxtopp','rand');paintTcg();ani(rd,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
+      const L=[c,rd].concat(fr.map(o=>{const b=mk('button','kx-opp');b.type='button';b.dataset.id=o.id;b.setAttribute('role','option');
         const sw=mk('i','kx-osw'),bv=bgOf(o.p);if(bv)sw.classList.add('pb-'+bv);else sw.classList.add('none');try{mvars(b,TI(o.r))}catch(e){}
         b.append(sw,mk('i','ck'),AV(o.id,56),mk('b',null,esc(o.p.name)),mk('small',null,esc(RNk(o.r))),mk('em',o.h.w+o.h.l?'':'new',o.h.w+o.h.l?o.h.w+'勝 '+o.h.l+'敗':'初対戦'));
         b.onclick=()=>{tOpp=tOpp===o.id?'cpu':o.id;LSset('kxtopp',tOpp);paintTcg();ani(b,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};return b}));
@@ -16539,6 +17135,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     let fr2='';try{fr2=tcgFriendRec(me.id)}catch(e){}
     tRow.querySelector('.kx-trec').innerHTML='CPU戦 <b>'+(T.w||0)+'勝 '+(T.l||0)+'敗</b> ・ 友達戦 <b>'+esc(fr2||'0勝 0敗')+'</b>';
     paintTcg()}
+  let tqK='';window.__tqSync=()=>{try{const k=tqOpen().length+'|'+!!tqMine+'|'+tqOnN();if(k===tqK)return;tqK=k;if(tvs.isConnected)renderTcg2()}catch(e){}};
   function paintTcg(){try{nsPaint()}catch(e){}const me=ME();if(!me)return;let st=false;try{st=tcgHasSt()}catch(e){}
     tOpps.querySelectorAll('.kx-opp').forEach(b=>{const on=b.dataset.id===tOpp;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false')});
     const deck=st?tSel():null;
@@ -16554,6 +17151,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     tCta.classList.toggle('strong',!p&&tMode!=='rank'&&tLv==='strong');tCta.classList.toggle('rk',!p&&tMode==='rank');
     if(!st){tCta.disabled=false;tCta.textContent='スターターデッキを選ぶ';tGo.querySelector('.kx-foot').textContent='VSを押して、3つのスターターデッキから1つ選ぶと、CPUや友達と対戦できます';tV.set('はじめる',true,'スターターデッキを選ぶ')}
     else if(!deck||!tcgOk(deck)){tCta.disabled=false;tCta.textContent='デッキを組む';tGo.querySelector('.kx-foot').textContent='使えるデッキがありません。VSを押すとデッキのページへ移ります';tV.set('デッキへ',true,'デッキを組む')}
+    else if(tOpp==='rand'){let mine=false;try{mine=!!tqMine}catch(e){}let n=0;try{n=tqOpen().length}catch(e){}tCta.disabled=false;tCta.textContent=mine?'さがしています…':n?'さがしている人と対戦':'ランダムマッチ';tGo.querySelector('.kx-foot').textContent=n?'VSを押すと、いまさがしている人(レートが近い人から)とすぐ始まります。勝つと宝箱(最大50pt)':'VSを押すと相手をさがします。いまアプリを開いている仲間に知らせて、誰かが受けたら始まります(10分)。勝つと宝箱(最大50pt)';tV.set(mine?'さがし中':'さがす',true,'ランダムマッチ')}
     else if(p){tCta.disabled=tSending;tCta.innerHTML=tSending?'送信中…':esc(p.name)+'に申し込む';tGo.querySelector('.kx-foot').textContent='VSを押すと申し込みます。相手が受けると始まります(10分有効)。勝つと宝箱(最大50pt)';tV.set(tSending?'送信中':'申し込む',!tSending,p.name+'に申し込む')}
     else if(tMode==='rank'){let rr=1500;try{rr=tcgRating(me.id)}catch(e){}tCta.disabled=false;tCta.textContent='ランク戦をはじめる';tGo.querySelector('.kx-foot').textContent='VSを押すと始まります。いまのTCGレート '+rr+'。勝つと上がり、負けると下がります。途中でやめると負け';tV.set('ランク戦',true,'ランク戦をはじめる')}
     else{tCta.disabled=false;tCta.textContent=tLv==='strong'?'つよいCPUと対戦':'CPUと対戦';tGo.querySelector('.kx-foot').textContent='VSを押すと始まります。練習やデッキの試しに。レートは変わりません';tV.set('対戦する',true,tLv==='strong'?'つよいCPUと対戦':'CPUと対戦')}}
@@ -18491,7 +19089,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
       cards:gr.slice(0,5),
       bal:b,acts:st?[{l:'1パック',c:tcgPrice(pk),need:tcgPrice(pk)-b,on:ok&&b>=tcgPrice(pk),go:()=>tcgAskPack(pk)()},{l:'1ボックス',c:tcgBoxPrice(pk),need:tcgBoxPrice(pk)-b,note:TCG_BOX_PACKS+'パック',main:1,on:ok&&b>=tcgBoxPrice(pk),go:()=>tcgConfirmBox(pk)}]
         :[{l:'スターターデッキを選ぶ',note:'先にTCGで1つ選ぶ',main:1,on:true,go:()=>{try{window.kbSeg?kbSeg('tcg'):setView('tcg')}catch(e){setView('tcg')}}}],tks,sheet:()=>shTcg(pk)}}
-  function list(pg){if(pg==='tcg'){try{return Object.keys(TCGD.packs).filter(k=>!TCGD.packs[k].over).sort((a,b)=>(!!TCGD.packs[b].hw)-(!!TCGD.packs[a].hw)).map(mTcg)}catch(e){return []}}
+  function list(pg){if(pg==='tcg'){const OB=(()=>{try{return window.__oriBanner?__oriBanner({mk,bt,esc,fmt,PT,left,ready,sheet}):null}catch(e){console.warn('kgu ori',e);return null}})();try{return (OB?[OB]:[]).concat(Object.keys(TCGD.packs).filter(k=>!TCGD.packs[k].over).sort((a,b)=>(!!TCGD.packs[b].hw)-(!!TCGD.packs[a].hw)).map(mTcg))}catch(e){return OB?[OB]:[]}}
     const L=[];try{if(limActive())L.push(mLim())}catch(e){console.warn('kgu lim',e)}try{if(coinOn(now()))L.push(mCoin())}catch(e){}try{L.push(mNormal())}catch(e){}return L}
 
   /* ---------- drawing ---------- */
@@ -18537,6 +19135,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
     /* how far to the guarantee (two side by side when there are two) */
     const pr=b.prog||[];if(pr.length){const w=mk('div','kgu-progs'+(pr.length>1?' two':''));pr.forEach(p=>{const r=mk('div','kgu-prog '+p.c),f=Math.max(0,Math.min(1,p.v/p.max));
       r.innerHTML='<div class="kgu-pl"><span>'+esc(p.k)+'</span><b>'+esc(p.tx)+'</b></div><div class="kgu-bar"><i style="transform:scaleX('+f.toFixed(3)+')"></i></div>';w.append(r)});out.push(w)}
+    if(b.extra){try{const x=b.extra();if(x)out.push(x)}catch(e){}}
     if(b.stat){const r=mk('div','kgu-stat','<span>'+esc(b.stat.k)+'</span><b>'+fmt(b.stat.v)+'<small>'+esc(b.stat.u)+'</small></b>');out.push(r)}
     /* the pulls: the cost is on the button */
     const acts=mk('div','kgu-acts'+((b.acts||[]).length===1?' one':'')),rd=ready();(b.acts||[]).forEach(a=>{const x=bt('kgu-pull'+(a.main?' main':''));x.disabled=!a.on;
@@ -18554,7 +19153,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
       const all=bt('kgu-all','<span>中身</span><b>すべて</b>');all.onclick=()=>b.sheet();r.append(th,all);out.push(r)}
     if(b.cards&&b.cards.length){const r=mk('div','kgu-line cards'),th=mk('div','kgu-th');b.cards.forEach(id=>{const c=bt('kgu-it t');try{c.append(tcgFace(id))}catch(e){}c.onclick=()=>zoomTcg(id);th.append(c)});
       const all=bt('kgu-all','<span>ガチレア</span><b>すべて</b>');all.onclick=()=>b.sheet();r.append(th,all);out.push(r)}
-    const more=bt('kgu-more','排出率・中身を見る');more.onclick=()=>b.sheet();out.push(more);
+    const more=bt('kgu-more',b.moreL||'排出率・中身を見る');more.onclick=()=>b.sheet();out.push(more);
     return out}
   const curId=pg=>{const c=pages[pg]&&pages[pg].querySelector('.kgu-card');return c?c.dataset.b:null};
   function pick(pg,id,dir){const was=curId(pg);if(was===id)return;const L=list(pg),ids=L.map(b=>b.id).join(','),a=L.findIndex(b=>b.id===was),z=L.findIndex(b=>b.id===id);if(z<0)return;
@@ -18570,6 +19169,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
       const ids=list(pg).map(b=>b.id);if(ids.length<2)return;const k=Math.max(0,ids.indexOf(curId(pg))),n=(k+(dx<0?1:-1)+ids.length)%ids.length;pick(pg,ids[n],dx<0?1:-1)},{passive:true})}
 
   /* ---------- 排出率・中身 (a sheet) ---------- */
+  window.__kguSheet=(t,f)=>sheet(t,f);
   function sheet(title,build){document.querySelectorAll('body>.kgu-sh').forEach(x=>x.remove());
     const o=mk('div','kgu-sh'),p=mk('div','kgu-shp'),h=mk('div','kgu-shh'),x=bt('kgu-x','閉じる'),b=mk('div','kgu-shb');h.append(mk('b',null,esc(title)),x);p.append(mk('i','kgu-grab'),h,b);o.append(p);
     try{build(b)}catch(e){console.warn('kgu',e)}document.body.append(o);
@@ -18595,7 +19195,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
   function zoomTcg(id){try{const it=tcgItem(id);if(window.__kgZoomCard){const host=mk('div','kgu-zh');document.body.append(host);__kgZoomCard(host,{c:it,isNew:false,sh:0,foil:false});
       const z=host.querySelector('.kp-zoom');if(z){const old=z.onclick;z.onclick=()=>{old&&old();host.style.transition='opacity .26s';host.style.opacity='0';setTimeout(()=>host.remove(),280)}}}}catch(e){console.warn('kgu',e)}}
   function shTcg(pk){const P=TCGD.packs[pk];sheet(P.n,b=>{sec(b,'排出率');{const RR=tcgRateRows(pk),CO={r4:'#f5c84c',r3:'#8fd3ff',r2:'#b678ff',r0:'#a3a9b4'};b.append(table(RR[0],RR.slice(1).map(r=>[[r[0],CO[r[3]]],r[1],r[2]])))}
-    b.append(mk('p','kgu-note','どのカードも1%でシークレット(キラ)、0.1%でKMR(シークレットの上の最上位版)になります。ボックスは15パック・45枚で、シークレットが1枚以上入っています(20箱に1つは2枚)。'+(P.hw?'このボックスは30%の確率で、シークレットがハロウィンのカードになります。':'')+'同じカードは2枚まで持てて(リーダーは3枚)、それ以上はかけら(コモン1・レア3'+(P.rt&&P.rt.z.SR?'・スーパーレア10':'')+'・ガチレア40)になります。'));
+    b.append(mk('p','kgu-note','どのカードも1%でシークレット(キラ)、約0.22%でKMR(シークレットの上の最上位版)になります(だいたい10ボックスに1枚)。ボックスは15パック・45枚で、シークレットが1枚以上入っています(20箱に1つは2枚)。'+(P.hw?'このボックスは30%の確率で、シークレットがハロウィンのカードになります。':'')+'同じカードは2枚まで持てて(リーダーは3枚)、それ以上はかけら(コモン1・レア3'+(P.rt&&P.rt.z.SR?'・スーパーレア10':'')+'・ガチレア40)になります。'));
     const pool=(()=>{try{return tcgPool(pk).slice()}catch(e){return []}})(),ord={GR:0,SR:1,R:2,C:3};pool.sort((a,c)=>ord[a.r]-ord[c.r]);
     [['GR','ガチレア'],['SR','スーパーレア'],['R','レア'],['C','コモン']].forEach(([r,lab])=>{const L=pool.filter(c=>c.r===r);if(!L.length)return;sec(b,lab+' '+L.length+'種類');const g=mk('div','kgu-gr tcg');
       L.forEach(c=>{const x=bt('kgu-gi t');try{x.append(tcgFace(c.id))}catch(e){}x.append(mk('span',null,esc(c.n)));x.onclick=()=>zoomTcg(c.id);g.append(x)});b.append(g)})})}
@@ -19407,7 +20007,7 @@ const db={
   collection:c=>{const mk=cs=>({orderBy:(f,d)=>mk([...cs,orderBy(f,d||'asc')]),limit:n=>mk([...cs,limit(n)]),where:(f,op,v)=>mk([...cs,where(f,op,v)]),add:d=>W(c+'/+',()=>addDoc(collection(FS,c),d)),
     onSnapshot:(cb,er,o)=>LS(c,()=>o&&o.meta?onSnapshot(query(collection(FS,c),...cs),{includeMetadataChanges:true},s=>cb({docs:s.docs.map(snap),metadata:{fromCache:!!(s.metadata&&s.metadata.fromCache)}}),er||(()=>{})):onSnapshot(query(collection(FS,c),...cs),s=>cb({docs:s.docs.map(snap),metadata:{fromCache:!!(s.metadata&&s.metadata.fromCache)}}),er||(()=>{})),er)});return mk([])},
   /* (10/16) read and write against the server's copy in one step (分身's chests) */
-  runTransaction:fn=>W('tx',()=>runTransaction(FS,t=>fn({get:async d=>snap(await t.get(d.__r)),set:(d,v)=>{t.set(d.__r,v)}}))),
+  runTransaction:fn=>W('tx',()=>runTransaction(FS,t=>fn({get:async d=>snap(await t.get(d.__r)),set:(d,v)=>{t.set(d.__r,v)},update:(d,v)=>{t.update(d.__r,v)}}))),
   synced,
   resetSaved:async()=>{for(const c of ['matches','grants','preds','tcgm'])await IDB.del(EPOCH+'|'+((auth.currentUser&&auth.currentUser.uid)||'-')+'|'+c)}
 };
