@@ -9931,7 +9931,7 @@ function tqBanner(q){const b=el('div','tqb');b.dataset.q=q.id;b.setAttribute('ro
 function tqBanOut(b,msg){if(!b||b.__out)return;b.__out=1;clearTimeout(b.__t);if(msg){const s=b.querySelector('.tqb-t span');if(s)s.textContent=msg;b.querySelector('.tqb-go').disabled=true}
   setTimeout(()=>{b.classList.add('out');setTimeout(()=>{b.remove();tqBanNext()},320)},msg?900:0)}
 
-/* ---------- (10/25) いまオンラインの人数: 対戦のページの見出しの右に「● オンライン 3人」。押すと誰がいるか ----------
+/* ---------- (10/25) いまオンラインの人数: 対戦のページの見出しの右に「● オンライン 3人」。誰かは出さない(匿名) ----------
    オンライン = 3分以内にアプリを開いていた人(開いている間は90秒ごとに知らせる。seen/{pid}) */
 function tqOnline(){try{return typeof kOnline==='function'?kOnline().on:[]}catch(e){return []}}
 const tqOnN=()=>tqOnline().length;
@@ -9939,11 +9939,10 @@ function tqOnPaint(){const tr=document.querySelector('#khead .kx-trail');if(!tr)
   if(!b){b=el('button','kx-onl');b.type='button';b.append(el('i'),el('span'));b.onclick=tqOnSheet;tr.prepend(b)}
   const v=typeof curView!=='undefined'?curView:'',show=v==='battle'||v==='tcg',n=tqOnN();b.hidden=!show;
   const tx='オンライン '+n+'人';if(b.lastChild.textContent!==tx)b.lastChild.textContent=tx;b.classList.toggle('zero',n<=1);b.setAttribute('aria-label','いまオンラインの人 '+n+'人')}
-function tqOnSheet(){document.querySelectorAll('body>.tqon').forEach(x=>x.remove());const me=myPlayer(),L=tqOnline();
-  const o=el('div','tqon'),p=el('div','tqon-p');p.append(el('b',null,'いまオンライン '+L.length+'人'));
-  const ul=el('div','tqon-l');L.forEach(x=>{const r=el('div','tqon-r');let av;try{av=window.__kavOf?__kavOf(x.id,34):el('span')}catch(e){av=el('span')}r.append(av,el('span',null,x.id===(me&&me.id)?x.name+'(自分)':x.name));ul.append(r)});
-  if(!L.length)ul.append(el('p','sub','今はだれもいません'));p.append(ul,el('p','tqon-n','3分以内にアプリを開いていた人。ランダムマッチでさがすと、この人たちの画面に知らせが出ます'));
-  o.append(p);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
+/* who is online stays anonymous: only how many (10/25) */
+function tqOnSheet(){document.querySelectorAll('body>.tqon').forEach(x=>x.remove());const n=tqOnN();
+  const o=el('div','tqon'),p=el('div','tqon-p');p.append(el('b',null,'いまオンライン '+n+'人'),el('p','tqon-n','3分以内にアプリを開いていた人の数です(あなたも入っています)。誰かは表示しません。ランダムマッチでさがすと、この人たちの画面に知らせが出ます'));
+  o.append(p);o.onclick=()=>o.remove();document.body.append(o)}
 setInterval(()=>{try{tqOnPaint()}catch(e){}},2000);
 /* ORIRMjs:end */
 /* ORIjs:begin */
@@ -15975,7 +15974,8 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   /* who is online now (the app open in the last 6 minutes) and who was here in the last 3 hours */
   window.kOnlineSync=()=>{const box=secTl.querySelector('.lonl');if(!box||typeof kOnline!=='function')return;const O=kOnline();
     const chip=(p,on)=>'<span class="onc'+(on?' on':'')+'"><i></i>'+String(p.name).replace(/[<>&]/g,'')+(on?'':'<small>'+(p.ago<60?p.ago+'分前':Math.round(p.ago/60)+'時間前')+'</small>')+'</span>';
-    box.innerHTML='<div class="onh">オンライン <b>'+O.on.length+'</b>人</div><div class="onl">'+(O.on.length?O.on.map(p=>chip(p,1)).join(''):'<span class="onn">今はだれもいません</span>')+'</div>'+(O.recent.length?'<div class="onh sub">さっきまでいた人</div><div class="onl">'+O.recent.map(p=>chip(p,0)).join('')+'</div>':'')};
+    /* (10/25) anonymous: how many, not who */
+    box.innerHTML='<div class="onh">オンライン <b>'+O.on.length+'</b>人</div>'+(O.on.length?'':'<div class="onl"><span class="onn">今はだれもいません</span></div>')+(O.recent.length?'<div class="onh sub">3時間以内に開いた人 '+O.recent.length+'人</div>':'')};
   setInterval(()=>{try{kOnlineSync()}catch(e){}},30000);
   qa('[data-bun]').forEach(b=>b.onclick=()=>{if(typeof bunOpen==='function')bunOpen()});
   qa('[data-farm]').forEach(b=>b.onclick=()=>{if(typeof farmOpen==='function')farmOpen()});
