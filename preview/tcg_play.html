@@ -1597,6 +1597,12 @@ body:not(.gkview){background:
 .pm-bat.gold{color:#ffd36b;filter:drop-shadow(0 0 6px rgba(255,220,120,.95))}
 .pm-bat svg{width:100%;height:100%;display:block}
 @media (prefers-reduced-motion:reduce){.pm-scene video,.pm-chara canvas{display:none}}
+/* the user's own wide picture: no extra fog, shadow or picture of her on top */
+.pmat.art .pm-fog,.pmat.art .pm-shadow,.pmat.art .pm-none{display:none}
+.pmat.art .pm-vig{background:linear-gradient(0deg,rgba(12,6,20,.3),transparent 26%)}
+.pmat.art .pm-scene img{transform-origin:78% 45%;transition:transform 5s cubic-bezier(.2,.6,.3,1)}
+.pmat.art.live .pm-scene img{transform:scale(1.045)}
+@media (prefers-reduced-motion:reduce){.pmat.art .pm-scene img{transition:none}}
 
 /* ===== (10/24) KMR in the match: the same look as the app's big card (see tcg_app.css) ===== */
 .bc.kmrc{--m1:#8a6a2a;--m2:#e9c873;--m3:#fff6d6;isolation:isolate}
@@ -4763,7 +4769,7 @@ window.__tcg={bigCard,_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o
    when the mat is laid, at the start of your turn, when you tap her, when you win. Otherwise it is a still picture (battery).
    Looked at, not copied: real playmats (art window + logo + stitched edge), Pokémon TCG Pocket's playmats (a prize to show),
    Master Duel's fields (react to the duel), Hearthstone's boards (something to tap while waiting). ===== */
-const PMAT={hw:{cut:'pm_hw_chara.webp',av:'pm_hw_chara.mp4',bg:'fx_hwbg_gr2.jpg',bgv:null,bgp:'50% 8%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
+const PMAT={hw:{art:'pm_hw_art.jpg',artPos:'78% 50%',cut:'pm_hw_chara.webp',av:'pm_hw_chara.mp4',bg:'fx_hwbg_gr2.jpg',bgv:null,bgp:'50% 8%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
 const PMAT_CN='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 37V12C3 6 7 3 13 3h24" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 32c0-9 4-15 11-17 5-1.5 8 1 7 4-1 3-5 3-6 1M8 32c3-1 5-3 6-6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="2.2" fill="currentColor"/></svg>';
 const PMAT_BAT='<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M20 6c1.2 0 2-1.6 2.4-3 .6 1.6 1.2 2.6 2.2 3.2C27 4 31 2 39 4c-3 2-4 5-4 8-3-2-6-2-8 0-2-1.4-4.4-1.2-7 2-2.6-3.2-5-3.4-7-2-2-2-5-2-8 0 0-3-1-6-4-8 8-2 12 0 14.4 2.2 1-.6 1.6-1.6 2.2-3.2.4 1.4 1.2 3 2.4 3z" fill="currentColor"/></svg>';
 const pmRM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
@@ -4791,14 +4797,15 @@ function pmChara(cut,av){const w=pmMk('div','pm-chara'),im=pmMk('img');im.src=cu
 /* the mat (the user's sketch): a wide illustration, the whole character standing on the right, the night scenery on the left.
    Returns the element with .pmPlay(ms) (both pictures move for ms; 0 = keep moving), .pmStill(), .pmHit(x,y) (on her?), .pmSheen(delay) */
 function pmatBuild(id){const M=PMAT[id];if(!M)return null;const m=pmMk('div','pmat');m.dataset.mt=id;
-  const scene=pmLayer('pm-scene',M.bg,M.bgv,M.bgp),chara=pmChara(M.cut,M.av);
+  /* (10/25 21:35) the user's own wide picture (made for the mat): it is the whole mat. Without it: the cut-out character on the scenery */
+  const scene=M.art?pmLayer('pm-scene',M.art,M.artv||null,M.artPos):pmLayer('pm-scene',M.bg,M.bgv,M.bgp),chara=M.art?pmMk('div','pm-chara pm-none'):pmChara(M.cut,M.av);if(M.art)m.classList.add('art');
   const lg=pmMk('div','pm-logo');lg.append(pmMk('b',null,'KIMOOTA TCG'),pmMk('small',null,M.n+'  ·  HALLOWEEN 2026'));
   m.append(scene,pmMk('i','pm-fog'),pmMk('i','pm-shadow'),chara,pmMk('i','pm-vig'),pmMk('i','pm-st'),lg,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
   ['tl','tr','bl','br'].forEach(c=>{const o=pmMk('i','pm-cn pc-'+c);o.innerHTML=PMAT_CN;m.append(o)});
   let tm=0;
-  m.pmPlay=ms=>{if(pmRM())return;clearTimeout(tm);m.classList.add('live');scene.play();chara.play();if(ms)tm=setTimeout(()=>m.pmStill(),ms)};
-  m.pmStill=()=>{clearTimeout(tm);m.classList.remove('live');scene.stop();chara.stop()};
-  m.pmHit=(x,y)=>{const r=chara.getBoundingClientRect();return x>=r.left+r.width*.12&&x<=r.right-r.width*.08&&y>=r.top&&y<=r.bottom};
+  m.pmPlay=ms=>{if(pmRM())return;clearTimeout(tm);m.classList.add('live');scene.play&&scene.play();chara.play&&chara.play();if(M.art&&!M.artv)m.pmSheen(0);if(ms)tm=setTimeout(()=>m.pmStill(),ms)};
+  m.pmStill=()=>{clearTimeout(tm);m.classList.remove('live');scene.stop&&scene.stop();chara.stop&&chara.stop()};
+  m.pmHit=(x,y)=>{if(M.art){const r=m.getBoundingClientRect();return x>=r.left+r.width*.6}const r=chara.getBoundingClientRect();return x>=r.left+r.width*.12&&x<=r.right-r.width*.08&&y>=r.top&&y<=r.bottom};
   m.pmSheen=d=>{const s=m.querySelector('.pm-sheen');if(!s||pmRM()||!s.animate)return;s.animate([{transform:'translateX(-120%) skewX(-18deg)',opacity:0},{opacity:1,offset:.25},{transform:'translateX(260%) skewX(-18deg)',opacity:0}],{duration:900,delay:d||0,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'})};
   return m}
 /* bats out of a tap (host = the positioned box they fly in; x,y inside it). gold: the rare one */
