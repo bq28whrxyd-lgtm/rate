@@ -10005,6 +10005,8 @@ setTimeout(()=>{try{tqIntro()}catch(e){}},1500);
    お試し版(preview)ではデータベースに書かず、このスマホの中だけで試せる(ptは減らず、カードももらえない)
    参考(まねはしない): ネットのオリパの「口数・等ごとの残り・ラストワン賞」の見せ方。演出は袋を指でなぞって破る */
 const ORI_PV=/\/preview\//.test(location.pathname)&&!window.__FAKE;
+/* (10/25) 本番ではまだ出さない: お試し版とデモだけ。出すときはここを true にして、ルール(ori/oris/orp)も出す */
+const oriOn=()=>/\/preview\//.test(location.pathname)||!!window.__FAKE;/* read when used: the demo's stand-in database is set up after this script */
 const ORI_N=30,ORI_MAX=5,ORI_PRICE=1000;
 const ORI_T=[null,
   {n:'1等',k:'KMR',c:'#ffe7a3',c2:'#ff9de0'},
@@ -10074,7 +10076,7 @@ function oriPvSeed(){if(!ORI_PV||oriCur())return;try{if(typeof TCGD==='undefined
   ORIL.create('opv'+now().toString(36),{nm:'きもオタ オリパ 第1弾',p:ORI_PRICE,N:ORI_N,x:0,st:now(),end:now()+7*864e5,t:now(),pz:oriMakePz(oriDefTop(),oriDefLast()),last:{c:oriDefLast(),f:'k'},by:me.id},oriShuf([...Array(ORI_N).keys()]))}catch(e){console.warn('ori',e)}}
 
 /* ---------- reading the data ---------- */
-function oriWatch(){if(oriWatch.on||!db||ORI_PV)return;oriWatch.on=1;const up=()=>{oriLoaded=!!(oriWatch.a&&oriWatch.b&&oriWatch.c);queueRender();try{renderGacha()}catch(e){}oriClaim();oriRepaint()};
+function oriWatch(){if(!oriOn()||oriWatch.on||!db||ORI_PV)return;oriWatch.on=1;const up=()=>{oriLoaded=!!(oriWatch.a&&oriWatch.b&&oriWatch.c);queueRender();try{renderGacha()}catch(e){}oriClaim();oriRepaint()};
   db.collection('ori').onSnapshot(s=>{oris=s.docs.map(d=>({id:d.id,...d.data()}));oriWatch.a=1;up()},()=>{oriWatch.a=1});
   db.collection('oris').where('op','==',true).onSnapshot(s=>{oriSlots=s.docs.map(d=>({id:d.id,...d.data()}));oriWatch.b=1;up()},()=>{oriWatch.b=1});
   db.collection('orp').onSnapshot(s=>{oriPays=s.docs.map(d=>({id:d.id,...d.data()}));oriWatch.c=1;up()},()=>{oriWatch.c=1})}
@@ -10176,7 +10178,7 @@ function oriShow(o,L,last,done){const G=window.gsap,RM=(()=>{try{return matchMed
   return X}
 
 /* ---------- the banner on the TCG gacha page (kgu asks for it) ---------- */
-window.__oriBanner=H=>{if(ORI_PV)oriPvSeed();const o=oriCur();if(!o)return null;const {mk,bt,esc,fmt,PT,left,ready}=H;const m=myPlayer(),b=m?balance(m.id):0,r=oriLeft(o),ok=(ORI_PV||ready())&&!oriGo.busy&&now()<o.end,rm=oriRemain(o);
+window.__oriBanner=H=>{if(!oriOn())return null;if(ORI_PV)oriPvSeed();const o=oriCur();if(!o)return null;const {mk,bt,esc,fmt,PT,left,ready}=H;const m=myPlayer(),b=m?balance(m.id):0,r=oriLeft(o),ok=(ORI_PV||ready())&&!oriGo.busy&&now()<o.end,rm=oriRemain(o);
   const k=Math.min(ORI_MAX,r),acts=r<=0?[{l:'完売しました',on:false,main:1}]:r===1?[{l:'最後の1口',c:o.p,need:o.p-b,note:'ラストワン賞つき',main:1,on:ok&&(ORI_PV||b>=o.p),go:()=>oriGo(1)}]
     :[{l:'1口',c:o.p,need:o.p-b,on:ok&&(ORI_PV||b>=o.p),go:()=>oriGo(1)},{l:k+'口',c:o.p*k,need:o.p*k-b,note:'まとめて開ける',main:1,on:ok&&(ORI_PV||b>=o.p*k),go:()=>oriGo(k)}];
   return{id:'ori',ak:'ori-'+o.id+'-'+r,chip:'オリパ',ac:['#ffd36b','#ff4d6d'],
@@ -10211,7 +10213,7 @@ function oriZoom(c,f){document.querySelectorAll('body>.orz').forEach(x=>x.remove
 function oriRepaint(){}
 
 /* ---------- 管理者: 作る ---------- */
-function oriAdmin(){const sheet=window.__kguSheet;if(typeof sheet!=='function'){toast('ガチャの画面を一度開いてください');return}
+function oriAdmin(){if(!oriOn())return;const sheet=window.__kguSheet;if(typeof sheet!=='function'){toast('ガチャの画面を一度開いてください');return}
   if(!ORI_PV&&!(typeof isAdmin==='function'&&isAdmin()))return;
   const P=oriPool();let top=oriDefTop(),last=oriDefLast(),pz=oriMakePz(top,last);
   sheet('オリパを作る',b=>{const f=el('div','ori-form');
@@ -10229,6 +10231,8 @@ function oriAdmin(){const sheet=window.__kguSheet;if(typeof sheet!=='function'){
       try{await oriCreate({nm:nm.value.trim()||'オリパ',p:+pt.value,days:+dy.value,pz,last:{c:last,f:'k'}});toast('オリパを出しました');document.querySelectorAll('body>.kgu-sh').forEach(x=>x.remove());try{renderGacha()}catch(e){}}
       catch(e){go.disabled=false;go.dataset.ok='';go.textContent='このオリパを出す';msg.textContent='出せませんでした('+(e.code||e.message)+')'}};
     draw();const act=el('div','ori-fa');act.append(re,go);b.append(f,pv,act,msg)})}
+/* the admin's オリパ card only where it is on */
+document.addEventListener('DOMContentLoaded',()=>{if(oriOn())return;try{const b=document.getElementById('admOriGo');const c=b&&b.closest('.admcard');if(c)c.remove()}catch(e){}});
 /* ORIjs:end */
 /* STKjs:begin */
 /* ---- (10/19) ハロウィン シールアルバム: 9 stickers, only during the Halloween event.
