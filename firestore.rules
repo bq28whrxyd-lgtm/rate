@@ -392,7 +392,14 @@ service cloud.firestore {
     }
     match /hwp/{pid} {
       allow read: if signedIn();
-      allow write: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['L', 'u', 'c', 'pc', 'x', 'px', 'S', 'pS'])
+      allow write: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['L', 'u', 'c', 'pc', 'x', 'px', 'S', 'pS', 'c2', 'pc2', 'dd', 'pdd', 'tm', 'ptm'])
+        // (10/25) ハロウィン後編: c2 / pc2 = 後編のお菓子、dd / pdd = 日ごと (最近の数日)、tm / ptm = あとから入ったチーム (一度決めたら変えない)
+        && (!('c2' in request.resource.data) || (request.resource.data.c2 is int && request.resource.data.c2 >= 0 && request.resource.data.c2 <= 200000))
+        && (!('pc2' in request.resource.data) || (request.resource.data.pc2 is int && request.resource.data.pc2 >= 0 && request.resource.data.pc2 <= 200000))
+        && (!('dd' in request.resource.data) || (request.resource.data.dd is map && request.resource.data.dd.size() <= 10))
+        && (!('pdd' in request.resource.data) || (request.resource.data.pdd is map && request.resource.data.pdd.size() <= 10))
+        && (!('tm' in request.resource.data) || (request.resource.data.tm in ['p', 'b'] && (resource == null || !('tm' in resource.data) || resource.data.tm == request.resource.data.tm)))
+        && (!('ptm' in request.resource.data) || (request.resource.data.ptm in ['p', 'b'] && (resource == null || !('ptm' in resource.data) || resource.data.ptm == request.resource.data.ptm)))
         && (!('L' in request.resource.data) || (request.resource.data.L is list && request.resource.data.L.size() <= 20))
         // (10/17) 交換所の経験値 (x / お試し版 px: 100 ずつ、何回でも) とボス戦のスタミナ回復 (S / pS: 使った時刻の list、何回でも)
         && (!('x' in request.resource.data) || (request.resource.data.x is int && request.resource.data.x >= 0 && request.resource.data.x <= 1000000))
@@ -401,6 +408,24 @@ service cloud.firestore {
         && (!('pS' in request.resource.data) || (request.resource.data.pS is list && request.resource.data.pS.size() <= 2000))
         && (!('c' in request.resource.data) || (request.resource.data.c is int && request.resource.data.c >= 0 && request.resource.data.c <= 200000))
         && (!('pc' in request.resource.data) || (request.resource.data.pc is int && request.resource.data.pc >= 0 && request.resource.data.pc <= 200000));
+    }
+    // (10/25) ハロウィン後編のチーム分け: 後編が始まって最初に開いた人のアプリが一度だけ作る (お試し版は hwteampv)。直すのは管理者だけ
+    match /config/{k} {
+      allow read: if signedIn() && k in ['hwteam', 'hwteampv'];
+      allow create: if signedIn() && k in ['hwteam', 'hwteampv'] && myPid() != '' && request.resource.data.keys().hasOnly(['t', 'a', 'base', 'by'])
+        && request.resource.data.by == myPid() && request.resource.data.a is map && request.resource.data.base is int
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000
+        && (k == 'hwteampv' || request.time.toMillis() >= 1793217600000);
+      allow update, delete: if k in ['hwteam', 'hwteampv'] && isAdmin();
+    }
+    // (10/25) 仲間を起こす: 1日1回 (id = 'w' + 日 + '_' + 自分)。消せない、変えられない
+    match /wake/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && myPid() != '' && request.resource.data.keys().hasOnly(['f', 'o', 'd', 't', 'pv'])
+        && request.resource.data.f == myPid() && request.resource.data.o is string && request.resource.data.o != myPid()
+        && request.resource.data.d == int((request.time.toMillis() + 14400000) / 86400000)
+        && id == 'w' + string(request.resource.data.d) + '_' + myPid()
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000;
     }
     match /tot/{id} {
       allow read: if signedIn();
@@ -486,7 +511,7 @@ service cloud.firestore {
         && request.resource.data.st in ['taken', 'cancel'];
       allow delete: if isAdmin() || (signedIn() && resource.data.p == myPid());
     }
-    // ---- オリパ (10/25): the admin makes N numbered 口 in a shuffled order; a 口's contents stay hidden until someone takes it.
+    // ---- オリパ / 二番くじ (10/25, ty:'kuji' = the 二番くじ: up to 10 at a time, p 0 = a くじ券): the admin makes N numbered 口 in a shuffled order; a 口's contents stay hidden until someone takes it.
     // Taking is one transaction: ori.x moves on by n, those n 口 become mine (and readable), and orp/{oid}_{x} records who paid for them
     match /ori/{oid} {
       allow read: if signedIn();
@@ -495,7 +520,7 @@ service cloud.firestore {
         || (signedIn() && myPid() != ''
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['x'])
           && request.resource.data.x is int
-          && request.resource.data.x > resource.data.x && request.resource.data.x <= resource.data.x + 5
+          && request.resource.data.x > resource.data.x && request.resource.data.x <= resource.data.x + 10
           && request.resource.data.x <= resource.data.N
           && request.time.toMillis() >= resource.data.st && request.time.toMillis() < resource.data.end
           && getAfter(orpAt(oid, resource.data.x)).data.tb == myPid()
@@ -518,11 +543,11 @@ service cloud.firestore {
       allow create: if signedIn() && myPid() != '' && request.resource.data.tb == myPid()
         && request.resource.data.keys().hasOnly(['o', 'i', 'n', 'p', 'tb', 't'])
         && request.resource.data.o is string && request.resource.data.i is int && request.resource.data.n is int
-        && request.resource.data.n >= 1 && request.resource.data.n <= 5
+        && request.resource.data.n >= 1 && request.resource.data.n <= 10
         && pid_ == request.resource.data.o + '_' + string(request.resource.data.i)
         && request.resource.data.i == get(oriAt(request.resource.data.o)).data.x
         && getAfter(oriAt(request.resource.data.o)).data.x == request.resource.data.i + request.resource.data.n
-        && request.resource.data.p == get(oriAt(request.resource.data.o)).data.p
+        && (request.resource.data.p == get(oriAt(request.resource.data.o)).data.p || request.resource.data.p == 0)
         && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000;
       allow delete: if isAdmin();
     }
