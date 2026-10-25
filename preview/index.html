@@ -14035,9 +14035,9 @@ if(typeof hwPackSync==='function')hwPackSync(true);
 const tcgFaces=pk=>{const P=TCGD.packs[pk];return P.face||P.f.map(f=>TCGD.leaders[f])};
 /* holo (foil) cards: a 1/100 chance per pulled card. Tracked apart from the normal copy; same per-card cap, extras become かけら. Purely cosmetic. */
 const TCG_FOIL=0.01;
-/* (10/24) KMR: the top version of any card, 1 in 1000 per pulled card (packs and boxes alike). Same strength; its own bag inv.tcg.kmr.
+/* (10/24) KMR: the top version of any card. (10/25) 1 in 450 per pulled card = one in 10 boxes on average (a box is 15 packs x 3 = 45 cards; was 1 in 1000). Packs and boxes alike. Same strength; its own bag inv.tcg.kmr.
    It cannot be burnt, turned into かけら or sold: it stays with you. In a deck its copies are deck.kmr = {id: n} */
-const TCG_KMR=0.001;
+const TCG_KMR=1/450;
 /* お試し版(/preview/)の管理者は、全部のカードのKMRを1枚ずつ持っている扱い(アプリの中で試せるように。保存はしない) */
 const tcgKmrTry=()=>typeof tcgAdmin==='function'&&tcgAdmin()&&/\/preview\//.test(location.pathname);
 const tcgKmr=()=>{if(tcgKmrTry()){const o={};TCGD.cards.forEach(c=>o[c.id]=1);return o}return tcgOf(inv).kmr||{}};
@@ -19191,7 +19191,7 @@ function pcChip(t){const i=document.createElement('i'),solo=t==='あなただけ
   function zoomTcg(id){try{const it=tcgItem(id);if(window.__kgZoomCard){const host=mk('div','kgu-zh');document.body.append(host);__kgZoomCard(host,{c:it,isNew:false,sh:0,foil:false});
       const z=host.querySelector('.kp-zoom');if(z){const old=z.onclick;z.onclick=()=>{old&&old();host.style.transition='opacity .26s';host.style.opacity='0';setTimeout(()=>host.remove(),280)}}}}catch(e){console.warn('kgu',e)}}
   function shTcg(pk){const P=TCGD.packs[pk];sheet(P.n,b=>{sec(b,'排出率');{const RR=tcgRateRows(pk),CO={r4:'#f5c84c',r3:'#8fd3ff',r2:'#b678ff',r0:'#a3a9b4'};b.append(table(RR[0],RR.slice(1).map(r=>[[r[0],CO[r[3]]],r[1],r[2]])))}
-    b.append(mk('p','kgu-note','どのカードも1%でシークレット(キラ)、0.1%でKMR(シークレットの上の最上位版)になります。ボックスは15パック・45枚で、シークレットが1枚以上入っています(20箱に1つは2枚)。'+(P.hw?'このボックスは30%の確率で、シークレットがハロウィンのカードになります。':'')+'同じカードは2枚まで持てて(リーダーは3枚)、それ以上はかけら(コモン1・レア3'+(P.rt&&P.rt.z.SR?'・スーパーレア10':'')+'・ガチレア40)になります。'));
+    b.append(mk('p','kgu-note','どのカードも1%でシークレット(キラ)、約0.22%でKMR(シークレットの上の最上位版)になります(だいたい10ボックスに1枚)。ボックスは15パック・45枚で、シークレットが1枚以上入っています(20箱に1つは2枚)。'+(P.hw?'このボックスは30%の確率で、シークレットがハロウィンのカードになります。':'')+'同じカードは2枚まで持てて(リーダーは3枚)、それ以上はかけら(コモン1・レア3'+(P.rt&&P.rt.z.SR?'・スーパーレア10':'')+'・ガチレア40)になります。'));
     const pool=(()=>{try{return tcgPool(pk).slice()}catch(e){return []}})(),ord={GR:0,SR:1,R:2,C:3};pool.sort((a,c)=>ord[a.r]-ord[c.r]);
     [['GR','ガチレア'],['SR','スーパーレア'],['R','レア'],['C','コモン']].forEach(([r,lab])=>{const L=pool.filter(c=>c.r===r);if(!L.length)return;sec(b,lab+' '+L.length+'種類');const g=mk('div','kgu-gr tcg');
       L.forEach(c=>{const x=bt('kgu-gi t');try{x.append(tcgFace(c.id))}catch(e){}x.append(mk('span',null,esc(c.n)));x.onclick=()=>zoomTcg(c.id);g.append(x)});b.append(g)})})}
