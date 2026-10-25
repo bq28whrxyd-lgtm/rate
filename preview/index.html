@@ -3564,6 +3564,35 @@ button.tcgkeep{width:100%;margin-top:8px}
 .tqon-r>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tqon-n{font-size:11px;line-height:1.5;opacity:.6;margin:12px 2px 0}
 @media (prefers-reduced-motion:reduce){.kx-onl i,.tqon-p{animation:none}}
+/* はじめに1回のランダムマッチの説明 */
+.tqi{position:fixed;inset:0;z-index:1960;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,4,10,.62);animation:tqiFade .25s ease both}
+.tqi.out{animation:tqiFadeOut .28s ease both}
+@keyframes tqiFade{from{opacity:0}}@keyframes tqiFadeOut{to{opacity:0}}
+.tqi-p{position:relative;width:min(520px,100%);max-height:92vh;overflow:auto;box-sizing:border-box;padding:12px 20px calc(env(safe-area-inset-bottom,0px) + 18px);border-radius:28px 28px 0 0;background:linear-gradient(180deg,#1b1930,#121120);box-shadow:0 -20px 50px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);color:#fff;animation:tqiUp .5s cubic-bezier(.16,1,.3,1) both}
+.tqi.out .tqi-p{animation:tqiDown .28s ease-in both}
+@keyframes tqiUp{from{transform:translateY(100%)}}@keyframes tqiDown{to{transform:translateY(100%)}}
+.tqi-grab{display:block;width:40px;height:4px;margin:0 auto 14px;border-radius:2px;background:rgba(255,255,255,.2)}
+.tqi-new{display:inline-block;padding:3px 9px;border-radius:999px;background:linear-gradient(135deg,#8b7bff,#67e8f9);color:#0b0a18;font:900 10.5px/1.2 Geist,sans-serif;letter-spacing:.08em}
+.tqi-p h2{color:#fff!important;margin:8px 0 14px!important;font:900 22px/1.3 "Hiragino Sans","Noto Sans JP",sans-serif;letter-spacing:-.01em}
+.tqi-ill{position:relative;height:118px;margin:0 0 16px;border-radius:22px;overflow:hidden;background:radial-gradient(90% 120% at 50% 0%,#2c2850,#16142a 70%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.tqi-notch{position:absolute;left:50%;top:10px;width:84px;height:20px;margin-left:-42px;border-radius:12px;background:#05050a}
+.tqi-mock{position:absolute;left:14px;right:14px;top:40px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 9px 9px 10px;border-radius:17px;background:rgba(40,37,60,.95);box-shadow:0 10px 26px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.12);animation:tqiMock .7s cubic-bezier(.16,1,.3,1) .45s both}
+@keyframes tqiMock{from{transform:translateY(-120px)}}
+.tqi-mock .tqi-go{animation:tqiTap 2.4s ease-in-out 1.4s infinite}
+@keyframes tqiTap{0%,70%,100%{transform:none}78%{transform:scale(.9)}86%{transform:scale(1.04)}}
+.tqi-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#8b7bff,#ff8fb8)}
+.tqi-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tqi-tx b{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tqi-tx small{font-size:10.5px;opacity:.65}
+.tqi-go{padding:8px 11px;border-radius:999px;background:linear-gradient(135deg,#8b7bff,#67e8f9);color:#0b0a18;font-size:11.5px;font-weight:900;white-space:nowrap}
+.tqi-l{display:flex;flex-direction:column;gap:12px;margin:0 0 18px}
+.tqi-r{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start}
+.tqi-r>i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:rgba(139,123,255,.18);color:#c4b5fd;font:900 12px/1 Geist,sans-serif;font-style:normal}
+.tqi-r b{display:block;font-size:14.5px;font-weight:800;margin:2px 0 3px}
+.tqi-r span{display:block;font-size:12.5px;line-height:1.6;opacity:.72}
+.tqi-go2{display:block;width:100%;padding:15px;border:0;border-radius:999px;background:linear-gradient(135deg,#8b7bff,#67e8f9);color:#0b0a18;font:900 15px/1 "Hiragino Sans","Noto Sans JP",sans-serif}
+.tqi-x{display:block;width:100%;margin-top:8px;padding:12px;border:0;border-radius:999px;background:none;color:rgba(255,255,255,.7);font:700 14px/1 "Hiragino Sans","Noto Sans JP",sans-serif}
+@media (prefers-reduced-motion:reduce){.tqi,.tqi-p,.tqi-mock{animation:none}}
 /* ORIRMcss:end */
 /* ORIcss:begin */
 /* ===== オリパ (10/25) ===== */
@@ -9946,6 +9975,26 @@ function tqOnSheet(){document.querySelectorAll('body>.tqon').forEach(x=>x.remove
   const o=el('div','tqon'),p=el('div','tqon-p');p.append(el('b',null,n?'あなたのほかに '+n+'人がオンライン':'今はあなたのほかにいません'),el('p','tqon-n','3分以内にアプリを開いていた人の数です(あなたは入りません)。誰かは表示しません。ランダムマッチでさがすと、この人たちの画面に知らせが出ます'));
   o.append(p);o.onclick=()=>o.remove();document.body.append(o)}
 setInterval(()=>{try{tqOnPaint()}catch(e){}},2000);
+
+/* ---------- (10/25) はじめに1回: ランダムマッチの説明。ホームでほかのお知らせ(KMRの動画も)が全部閉じたあとに出る ---------- */
+const TQI_END=Date.parse('2026-12-31T23:59:59+09:00');
+function tqIntroKey(){const m=myPlayer();return 'tqIntro1_'+(m?m.id:'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
+function tqIntro(force){if(force){tqIntroShow();return}
+  if(tqIntro.started||Date.now()>TQI_END||!myPlayer()||navigator.webdriver/* automated tests */)return;let seen=null;try{seen=localStorage.getItem(tqIntroKey())}catch(e){}if(seen)return;tqIntro.started=1;
+  let n=0;const tick=()=>{if(document.querySelector('.tqi'))return;let kw=false;try{kw=typeof kmrPromoKey==='function'&&Date.now()<KMR_PROMO_END&&!localStorage.getItem(kmrPromoKey())}catch(e){}
+    const clear=typeof kmrPromoClear==='function'?kmrPromoClear():!document.body.classList.contains('ovl');
+    if(!kw&&!document.querySelector('.kpromo')&&document.visibilityState==='visible'&&clear){if(++n>=2){tqIntroShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,4000)}
+function tqIntroShow(){if(document.querySelector('.tqi'))return;try{localStorage.setItem(tqIntroKey(),String(Date.now()))}catch(e){}
+  const o=el('div','tqi'),p=el('div','tqi-p');
+  /* the picture: a phone's top edge, and the card that slides in on a friend's screen */
+  const ill=el('div','tqi-ill'),mock=el('div','tqi-mock');mock.innerHTML='<span class="tqi-av"></span><span class="tqi-tx"><b>仲間 が対戦相手をさがしています</b><small>TCG ・ レート 1500</small></span><span class="tqi-go">対戦する</span>';ill.append(el('i','tqi-notch'),mock);
+  const L=[['名前を選ばずに対戦','対戦 > TCG の相手で「ランダム」を選んでVSを押すだけ'],['いる人とすぐ始まる','さがしている人がいればすぐ。いなければ、いまアプリを開いている仲間の画面に上のような知らせが出ます'],['断る・断られるはなし','誰も来なければ10分で静かに終わります。見出しの右で、ほかに何人オンラインか分かります']];
+  const ul=el('div','tqi-l');L.forEach(([b,s],i)=>{const r=el('div','tqi-r');r.append(el('i',null,String(i+1)),(()=>{const d=el('div');d.append(el('b',null,b),el('span',null,s));return d})());ul.append(r)});
+  const go=el('button','tqi-go2','ランダムを選んでみる'),x=el('button','tqi-x','閉じる');go.type=x.type='button';
+  const close=()=>{o.classList.add('out');setTimeout(()=>o.remove(),280)};x.onclick=close;
+  go.onclick=()=>{close();try{localStorage.setItem('kxtopp','rand')}catch(e){}try{setView('battle');if(window.kbSeg)kbSeg('tcg')}catch(e){}let k=0;const pick=()=>{const b=document.querySelector('#kxtcg .kx-opp[data-id=rand]');if(b&&b.offsetParent){if(!b.classList.contains('on'))b.click();return}if(++k<20)setTimeout(pick,150)};setTimeout(pick,300)};
+  p.append(el('i','tqi-grab'),el('small','tqi-new','NEW'),el('h2',null,'ランダムマッチができました'),ill,ul,go,x);o.append(p);o.onclick=e=>{if(e.target===o)close()};document.body.append(o)}
+setTimeout(()=>{try{tqIntro()}catch(e){}},1500);
 /* ORIRMjs:end */
 /* ORIjs:begin */
 /* ===== オリパ (10/25): 口数限定のくじ。賞品は全部見えていて、何番目に入っているかだけ分からない。引くと番号順に開く。
