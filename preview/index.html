@@ -3549,6 +3549,21 @@ button.tcgkeep{width:100%;margin-top:8px}
 .tcgobserve>p.sub:first-of-type{display:none}
 #kxtcg .kx-tdk.new{white-space:nowrap}
 #kxtcg .kx-tdk.new svg{flex:none}
+/* いまオンラインの人数 (対戦のページの見出しの右) */
+.kx-onl{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 11px 0 9px;margin-right:6px;border:0;border-radius:999px;background:rgba(52,211,153,.12);box-shadow:inset 0 0 0 1px rgba(52,211,153,.35);color:#bff5dc;font:800 12px/1 var(--x-f,Geist,sans-serif);white-space:nowrap}
+.kx-onl i{width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:tqPulse 2s ease-out infinite}
+.kx-onl.zero{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);color:rgba(255,255,255,.7)}
+.kx-onl.zero i{background:rgba(255,255,255,.4);animation:none}
+@keyframes tqPulse{70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+.tqon{position:fixed;inset:0;z-index:1950;background:rgba(4,4,8,.5);display:flex;justify-content:flex-end;align-items:flex-start;padding:calc(env(safe-area-inset-top,0px) + 64px) 16px 16px}
+.tqon-p{width:min(300px,100%);max-height:70vh;overflow:auto;padding:14px 14px 12px;border-radius:18px;background:rgba(28,26,40,.96);box-shadow:0 18px 40px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.1);color:#fff;animation:tqIn2 .28s cubic-bezier(.16,1,.3,1) both}
+@keyframes tqIn2{from{transform:translateY(-8px);opacity:0}}
+.tqon-p>b{display:block;font-size:14px;font-weight:900;margin:0 2px 10px}
+.tqon-l{display:flex;flex-direction:column;gap:8px}
+.tqon-r{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:700;min-width:0}
+.tqon-r>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tqon-n{font-size:11px;line-height:1.5;opacity:.6;margin:12px 2px 0}
+@media (prefers-reduced-motion:reduce){.kx-onl i,.tqon-p{animation:none}}
 /* ORIRMcss:end */
 /* ORIcss:begin */
 /* ===== オリパ (10/25) ===== */
@@ -9915,6 +9930,21 @@ function tqBanner(q){const b=el('div','tqb');b.dataset.q=q.id;b.setAttribute('ro
   let sy=null;b.addEventListener('touchstart',e=>{sy=e.touches[0].clientY},{passive:true});b.addEventListener('touchmove',e=>{if(sy!=null&&e.touches[0].clientY-sy<-24){sy=null;tqBanOut(b)}},{passive:true})}
 function tqBanOut(b,msg){if(!b||b.__out)return;b.__out=1;clearTimeout(b.__t);if(msg){const s=b.querySelector('.tqb-t span');if(s)s.textContent=msg;b.querySelector('.tqb-go').disabled=true}
   setTimeout(()=>{b.classList.add('out');setTimeout(()=>{b.remove();tqBanNext()},320)},msg?900:0)}
+
+/* ---------- (10/25) いまオンラインの人数: 対戦のページの見出しの右に「● オンライン 3人」。押すと誰がいるか ----------
+   オンライン = 3分以内にアプリを開いていた人(開いている間は90秒ごとに知らせる。seen/{pid}) */
+function tqOnline(){try{return typeof kOnline==='function'?kOnline().on:[]}catch(e){return []}}
+const tqOnN=()=>tqOnline().length;
+function tqOnPaint(){const tr=document.querySelector('#khead .kx-trail');if(!tr)return;let b=tr.querySelector('.kx-onl');
+  if(!b){b=el('button','kx-onl');b.type='button';b.append(el('i'),el('span'));b.onclick=tqOnSheet;tr.prepend(b)}
+  const v=typeof curView!=='undefined'?curView:'',show=v==='battle'||v==='tcg',n=tqOnN();b.hidden=!show;
+  const tx='オンライン '+n+'人';if(b.lastChild.textContent!==tx)b.lastChild.textContent=tx;b.classList.toggle('zero',n<=1);b.setAttribute('aria-label','いまオンラインの人 '+n+'人')}
+function tqOnSheet(){document.querySelectorAll('body>.tqon').forEach(x=>x.remove());const me=myPlayer(),L=tqOnline();
+  const o=el('div','tqon'),p=el('div','tqon-p');p.append(el('b',null,'いまオンライン '+L.length+'人'));
+  const ul=el('div','tqon-l');L.forEach(x=>{const r=el('div','tqon-r');let av;try{av=window.__kavOf?__kavOf(x.id,34):el('span')}catch(e){av=el('span')}r.append(av,el('span',null,x.id===(me&&me.id)?x.name+'(自分)':x.name));ul.append(r)});
+  if(!L.length)ul.append(el('p','sub','今はだれもいません'));p.append(ul,el('p','tqon-n','3分以内にアプリを開いていた人。ランダムマッチでさがすと、この人たちの画面に知らせが出ます'));
+  o.append(p);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
+setInterval(()=>{try{tqOnPaint()}catch(e){}},2000);
 /* ORIRMjs:end */
 /* ORIjs:begin */
 /* ===== オリパ (10/25): 口数限定のくじ。賞品は全部見えていて、何番目に入っているかだけ分からない。引くと番号順に開く。
@@ -13129,11 +13159,11 @@ function renderPush(){const sec=$('pushsec'),box=$('pushbox'),me=myPlayer();if(!
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{const g=e.data&&e.data.kgo;if(g==='adm'){try{admOrdGo()}catch(_){}return}if(g&&['home','battle','gacha','tcg','rank','profile'].includes(g))setView(g)});
 {const g=new URLSearchParams(location.search).get('go');if(g==='adm'){setTimeout(()=>{try{admOrdGo()}catch(e){}},2500);try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}else if(g&&['home','battle','gacha','tcg','rank','profile'].includes(g)){setTimeout(()=>{try{setView(g)}catch(e){}},1500);try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}}}
 let seenMap={},seenSub=null,lastPing=0;
-function ping(force){const me=myPlayer();if(!db||!me||document.visibilityState!=='visible')return;if(now()-lastPing<(force?30000:290000))return;lastPing=now();db.doc('seen/'+me.id).set({t:now(),v:APP_VER}).catch(()=>{})}
-setInterval(()=>ping(),300000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping(true)});
+function ping(force){const me=myPlayer();if(!db||!me||document.visibilityState!=='visible')return;if(now()-lastPing<(force?30000:85000))return;lastPing=now();db.doc('seen/'+me.id).set({t:now(),v:APP_VER}).catch(()=>{})}
+setInterval(()=>ping(),90000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping(true)});
 function seenWatch(){if(seenSub||!db)return;seenSub=db.collection('seen').onSnapshot(s=>{seenMap={};s.docs.forEach(d=>seenMap[d.id]=d.data());if(isAdmin())admSeenRender();window.kOnlineSync&&kOnlineSync()},()=>{})}
-/* online = the app was open in the last 6 minutes (each phone checks in every 5 minutes while the app is on screen) */
-window.kOnline=()=>{const T=now(),L=players.filter(p=>p.uid).map(p=>({id:p.id,name:p.name,t:(seenMap[p.id]||{}).t||0}));const me=myPlayer();if(me){const x=L.find(p=>p.id===me.id);if(x)x.t=Math.max(x.t,T)}return {on:L.filter(p=>T-p.t<6*60000).sort((a,b)=>b.t-a.t),recent:L.filter(p=>T-p.t>=6*60000&&T-p.t<3*3600000).sort((a,b)=>b.t-a.t).map(p=>({...p,ago:Math.max(1,Math.round((T-p.t)/60000))}))}};
+/* online = the app was open in the last 3 minutes (each phone checks in every 90 seconds while the app is on screen; was 5 minutes before 10/25) */
+window.kOnline=()=>{const T=now(),L=players.filter(p=>p.uid).map(p=>({id:p.id,name:p.name,t:(seenMap[p.id]||{}).t||0}));const me=myPlayer();if(me){const x=L.find(p=>p.id===me.id);if(x)x.t=Math.max(x.t,T)}return {on:L.filter(p=>T-p.t<3*60000).sort((a,b)=>b.t-a.t),recent:L.filter(p=>T-p.t>=3*60000&&T-p.t<3*3600000).sort((a,b)=>b.t-a.t).map(p=>({...p,ago:Math.max(1,Math.round((T-p.t)/60000))}))}};
 function admSeenRender(){
   const box=$('admSeen');if(!box)return;
   seenWatch();
@@ -16965,7 +16995,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
   function tRandSide(){const s=mk('div','kvs-side op kvs-cpu kvs-tside kvs-rand');s.style.setProperty('--mg','#22d3ee');s.style.setProperty('--ml','#a5f3fc');
     const bg=mk('div','kvs-bg kvs-bgcpu');bg.innerHTML='<i class="a1"></i><i class="a2"></i><i class="gd"></i>';s.append(bg,mk('div','kvs-shade'));
     const body=mk('div','kvs-body'),aw=mk('div','kvs-avw kvs-cpuav');aw.innerHTML='<span style="display:grid;place-items:center;width:100%;height:100%;font:900 34px/1 Geist,sans-serif;color:#c4f6ff">?</span>';aw.append(mk('i','kvs-ring'));body.append(aw);
-    let n=0;try{n=tqOpen().length}catch(e){}body.append(mk('div','kvs-nm','だれか'));const m=mk('div','kvs-meta');m.append(mk('span','kvs-lv',n?n+'人がさがし中':'レートが近い人から'));body.append(m);body.append(tCard(null,'相手が選ぶ','?'));s.append(body);return s}
+    let n=0;try{n=tqOpen().length}catch(e){}body.append(mk('div','kvs-nm','だれか'));const m=mk('div','kvs-meta');m.append(mk('span','kvs-lv',n?n+'人がさがし中':'オンライン '+tqOnN()+'人'));body.append(m);body.append(tCard(null,'相手が選ぶ','?'));s.append(body);return s}
   function tFriendSide(p){const s=sideEl(p,'op',60,tRate(p.id),9);s.classList.add('kvs-tside');s.querySelector('.kvs-body').append(tCard(null,'相手が選ぶ','?'));return s}
 
   const tvs=mk('div','kvs kvs-tcg');tvs.innerHTML=vsMarkup+'<i class="kvs-beam"></i>';tvs.querySelector('.kvs-top').append(mk('div','kvs-tag'));if(offIO)offIO.observe(tvs);
@@ -17009,7 +17039,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     if(!tMe||tMe.dataset.k!==kMe){const n=tMeSide(me,deck);n.dataset.k=kMe;n.dataset.who=me.id+'|'+JSON.stringify(me.eq||{});const old=tMe;if(old)old.replaceWith(n);else tvs.prepend(n);tMe=n;if(old&&old.dataset.who===n.dataset.who)flipIn(n)}
     const p=tOpp==='cpu'?null:players.find(x=>x.id===tOpp);
     let tqN2=0;try{tqN2=tqOpen().length}catch(e){}
-    const kOp=p?'p|'+p.id+'|'+tRate(p.id)+'|'+JSON.stringify(p.eq||{}):tOpp==='rand'?'rand|'+tqN2:tMode==='rank'?'cpu|rank':'cpu|'+tLv+'|'+tOpt+'|'+(tOpt==='mirror'&&deck?deck.lead+'|'+!!window.CARD_IMG:'');
+    const kOp=p?'p|'+p.id+'|'+tRate(p.id)+'|'+JSON.stringify(p.eq||{}):tOpp==='rand'?'rand|'+tqN2+'|'+tqOnN():tMode==='rank'?'cpu|rank':'cpu|'+tLv+'|'+tOpt+'|'+(tOpt==='mirror'&&deck?deck.lead+'|'+!!window.CARD_IMG:'');
     if(!tOp||tOp.dataset.k!==kOp){const n=p?tFriendSide(p):tOpp==='rand'?tRandSide():tCpuSide(deck);n.dataset.k=kOp;n.dataset.who=p?p.id:tOpp==='rand'?'rand':'cpu';const old=tOp;tOp=n;tMe.after(n);
       if(old&&old.dataset.who!==n.dataset.who){const a=ani(old,[{opacity:1,transform:'none'},{opacity:0,transform:'translateX(24px)'}],{duration:180,easing:'ease-in',fill:'forwards'});if(a)a.onfinish=()=>old.remove();else old.remove();
         ani(n,[{opacity:0,transform:'translateX(40px)'},{opacity:1,transform:'none'}],{duration:560,delay:70});
@@ -17027,13 +17057,13 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     const fr=players.filter(p=>p.id!==me.id&&!p.ban&&!p.hidden).map(p=>({p,id:p.id,r:tRate(p.id),h:tH2H(me.id,p.id)})).sort((a,b)=>(b.h.last-a.h.last)||(b.r-a.r));
     let T={};try{T=tcgOf(inv)}catch(e){}
     const tqN=(()=>{try{return tqOpen().length}catch(e){return 0}})(),tqM=(()=>{try{return !!tqMine}catch(e){return false}})();
-    const os=JSON.stringify([fr.map(o=>[o.id,o.p.name,o.r,o.h.w,o.h.l,bgOf(o.p),o.p.eq&&o.p.eq.a,o.p.eq&&o.p.eq.f]),T.w,T.l,tLv,tMode,tqN,tqM]);
+    const os=JSON.stringify([fr.map(o=>[o.id,o.p.name,o.r,o.h.w,o.h.l,bgOf(o.p),o.p.eq&&o.p.eq.a,o.p.eq&&o.p.eq.f]),T.w,T.l,tLv,tMode,tqN,tqM,tqOnN()]);
     if(os!==tOppSig){tOppSig=os;const box=tOpps.querySelector('.kx-opps');
       const c=mk('button','kx-opp kx-ocpu');c.type='button';c.dataset.id='cpu';c.setAttribute('role','option');const sw=mk('i','kx-osw kx-oswcpu'),av=mk('span','kav kx-cpuav');av.style.setProperty('--es','56px');av.innerHTML=cpuSVG(tMode!=='rank'&&tLv==='strong');
       c.append(sw,mk('i','ck'),av,mk('b',null,'CPU'),mk('small',null,tMode==='rank'?'ランク戦':tLv==='strong'?'つよい':'ふつう'),mk('em','new',(T.w||0)+'勝 '+(T.l||0)+'敗'));c.onclick=()=>{if(tOpp==='cpu')return;tOpp='cpu';LSset('kxtopp','cpu');paintTcg();ani(c,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
       /* (10/25) ランダムマッチ: no name to pick. Shows how many friends are searching right now */
       const rd=mk('button','kx-opp kx-orand'+(tqN?' live':''));rd.type='button';rd.dataset.id='rand';rd.setAttribute('role','option');const rav=mk('span','kav kx-randav');rav.style.setProperty('--es','56px');rav.innerHTML='<svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="26.5" fill="#0c0b18" stroke="#67e8f9" stroke-opacity=".6"/><path d="M17 21h6l10 14h6M17 35h6l3-4.2M33 21h6" fill="none" stroke="#c4f6ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 17.5l3.5 3.5-3.5 3.5M36 31.5l3.5 3.5-3.5 3.5" fill="none" stroke="#c4f6ff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      rd.append(mk('i','kx-osw kx-oswcpu'),mk('i','ck'),rav,mk('b',null,'ランダム'),mk('small',null,tqM?'さがしています':'名前を選ばない'),mk('em',tqN?'new':'',tqN?tqN+'人がさがし中':'仲間に知らせる'));rd.onclick=()=>{if(tOpp==='rand')return;tOpp='rand';LSset('kxtopp','rand');paintTcg();ani(rd,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
+      rd.append(mk('i','kx-osw kx-oswcpu'),mk('i','ck'),rav,mk('b',null,'ランダム'),mk('small',null,tqM?'さがしています':'名前を選ばない'),mk('em',tqN?'new':'',tqN?tqN+'人がさがし中':'オンライン '+tqOnN()+'人'));rd.onclick=()=>{if(tOpp==='rand')return;tOpp='rand';LSset('kxtopp','rand');paintTcg();ani(rd,[{transform:'scale(.92)'},{transform:'scale(1.04)',offset:.55},{transform:'none'}],{duration:420})};
       const L=[c,rd].concat(fr.map(o=>{const b=mk('button','kx-opp');b.type='button';b.dataset.id=o.id;b.setAttribute('role','option');
         const sw=mk('i','kx-osw'),bv=bgOf(o.p);if(bv)sw.classList.add('pb-'+bv);else sw.classList.add('none');try{mvars(b,TI(o.r))}catch(e){}
         b.append(sw,mk('i','ck'),AV(o.id,56),mk('b',null,esc(o.p.name)),mk('small',null,esc(RNk(o.r))),mk('em',o.h.w+o.h.l?'':'new',o.h.w+o.h.l?o.h.w+'勝 '+o.h.l+'敗':'初対戦'));
@@ -17049,7 +17079,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
     let fr2='';try{fr2=tcgFriendRec(me.id)}catch(e){}
     tRow.querySelector('.kx-trec').innerHTML='CPU戦 <b>'+(T.w||0)+'勝 '+(T.l||0)+'敗</b> ・ 友達戦 <b>'+esc(fr2||'0勝 0敗')+'</b>';
     paintTcg()}
-  let tqK='';window.__tqSync=()=>{try{const k=tqOpen().length+'|'+!!tqMine;if(k===tqK)return;tqK=k;if(tvs.isConnected)renderTcg2()}catch(e){}};
+  let tqK='';window.__tqSync=()=>{try{const k=tqOpen().length+'|'+!!tqMine+'|'+tqOnN();if(k===tqK)return;tqK=k;if(tvs.isConnected)renderTcg2()}catch(e){}};
   function paintTcg(){try{nsPaint()}catch(e){}const me=ME();if(!me)return;let st=false;try{st=tcgHasSt()}catch(e){}
     tOpps.querySelectorAll('.kx-opp').forEach(b=>{const on=b.dataset.id===tOpp;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false')});
     const deck=st?tSel():null;
