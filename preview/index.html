@@ -3639,6 +3639,12 @@ button.tcgkeep{width:100%;margin-top:8px}
 .orx-rc small{font-size:10.5px;opacity:.8;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.ori-ry,.orpk-holo,.orpk-sh{animation:none}}
 .orpk.opened .orpk-c>.tcf{box-shadow:0 0 0 2px var(--tc),0 0 34px color-mix(in srgb,var(--tc) 55%,transparent),0 12px 30px rgba(0,0,0,.6)}
+/* the full cards */
+.ori-fc>.tfc,.orpk-c>.tfc,.orx-rc>.tfc,.orz>.tfc{width:100%;margin:0;filter:none}
+.orz>.tfc{width:min(76vw,330px)}
+.ori-fc.gone>.tfc{filter:grayscale(1) brightness(.5)}
+.orpk.opened .orpk-c>.tfc{box-shadow:0 0 0 2px var(--tc),0 0 34px color-mix(in srgb,var(--tc) 55%,transparent),0 12px 30px rgba(0,0,0,.6)}
+.orx-rc>.tfc{box-shadow:0 0 0 2px var(--tc),0 6px 18px rgba(0,0,0,.6)}
 /* ORIcss:end */
 /* STKcss:begin */
 /* ---- (10/19) ハロウィン シールアルバム ---- */
@@ -9904,11 +9910,13 @@ async function oriGo(n){const o=oriCur();if(!o||oriGo.busy)return;const me=myPla
 function oriSnd(k){try{window.KMotion&&KMotion.SFX.play(k)}catch(e){}}
 function oriKmrSnd(){try{if(localStorage.getItem('ksfx')!=='1')return;const a=new Audio('tsfx/ts_place_kmr.mp3');a.volume=.9;a.play().catch(()=>{})}catch(e){}}
 function oriFace(c,f){try{return tcgFace(c,null,f)}catch(e){return el('div','tcf')}}
+/* the full card (frame, name, KMR's gold frame and pop-out): for the reveal, the results, the zoom and the banner */
+function oriFull(c,f){try{return typeof tcgCardFull==='function'?tcgCardFull(c,f):tcgFace(c,null,f)}catch(e){return oriFace(c,f)}}
 function oriPack(o,s,last){const p=el('div','orpk'+(last?' last':''));p.style.setProperty('--tc',last?'#ffe7a3':ORI_T[s.g].c);p.style.setProperty('--tc2',last?'#ff9de0':ORI_T[s.g].c2);
   const body=el('div','orpk-b'),top=el('div','orpk-t'),mk=()=>{const w=el('div','orpk-face');w.append(el('i','orpk-holo'),el('i','orpk-sh'));
     const lg=el('div','orpk-lg');lg.append(el('small',null,'KIMOOTA'),el('b',null,'ORIPA'),el('em',null,last?'LAST ONE':'No.'+String(s.i+1).padStart(2,'0')));w.append(lg,el('span','orpk-n',last?'ラストワン賞':o.N+'口限定'));return w};
   body.append(mk());top.append(mk(),el('i','orpk-cut'));
-  const cd=el('div','orpk-c');cd.append(oriFace(last?last.c:s.c,last?last.f:s.f));
+  const cd=el('div','orpk-c');cd.append(oriFull(last?last.c:s.c,last?last.f:s.f));
   p.append(el('i','orpk-leak'),cd,body,top);return p}
 function oriShow(o,L,last,done){const G=window.gsap,RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
   document.querySelectorAll('body>.orx').forEach(x=>x.remove());
@@ -9919,7 +9927,7 @@ function oriShow(o,L,last,done){const G=window.gsap,RM=(()=>{try{return matchMed
   let k=-1,cur=null,tl=null,state='',ended=false;
   const fin=()=>{if(ended)return;ended=true;X.remove();if(!document.querySelector('body>.pk,body>.tpk,body>.cut,body>.news'))document.body.classList.remove('ovl');try{done&&done()}catch(e){}};
   function results(){state='res';if(tl)tl.kill();stage.replaceChildren();info.replaceChildren();hint.hidden=true;ry.style.opacity=0;cnt.textContent='';
-    const g=el('div','orx-res'+(Q.length<=1?' one':''));Q.forEach(({s,last:l})=>{const c=el('div','orx-rc');c.style.setProperty('--tc',l?'#ffe7a3':ORI_T[s.g].c);c.append(oriFace(l?l.c:s.c,l?l.f:s.f),el('b',null,l?'ラストワン':ORI_T[s.g].n),el('small',null,oriNm(l?l.c:s.c)));g.append(c)});
+    const g=el('div','orx-res'+(Q.length<=1?' one':''));Q.forEach(({s,last:l})=>{const c=el('div','orx-rc');c.style.setProperty('--tc',l?'#ffe7a3':ORI_T[s.g].c);c.append(oriFull(l?l.c:s.c,l?l.f:s.f),el('b',null,l?'ラストワン':ORI_T[s.g].n),el('small',null,oriNm(l?l.c:s.c)));g.append(c)});
     const best=Math.min(...Q.map(q=>q.last?1:q.s.g));
     info.append(el('div','orx-rt',best<=2?'おめでとう!':'結果'),g);skip.textContent='閉じる';skip.onclick=fin;
     if(G&&!RM)G.from(g.children,{y:24,opacity:0,duration:.42,stagger:.05,ease:'power3.out'})}
@@ -9977,7 +9985,7 @@ window.__oriBanner=H=>{if(ORI_PV)oriPvSeed();const o=oriCur();if(!o)return null;
     bal:ORI_PV?null:b,acts,tks:[],moreL:'賞品と残りを見る',sheet:()=>oriSheet(o,H)}};
 function oriArt(o,H){const {mk}=H,a=mk('div','kgu-art a-ori'),r=oriLeft(o),rm=oriRemain(o);a.append(mk('i','ori-sky'),mk('i','ori-ry'));
   const fan=mk('div','ori-fan'),two=o.pz.filter(p=>p.g===2).slice(0,2);
-  [[two[0],'l'],[two[1],'r'],[o.pz[0],'m']].forEach(([p,c])=>{if(!p)return;const w=mk('div','ori-fc '+c);w.append(oriFace(p.c,p.f));if(c==='m'&&!rm.R[1])w.classList.add('gone');fan.append(w)});
+  [[two[0],'l'],[two[1],'r'],[o.pz[0],'m']].forEach(([p,c])=>{if(!p)return;const w=mk('div','ori-fc '+c);w.append(oriFull(p.c,p.f));if(c==='m'&&!rm.R[1])w.classList.add('gone');fan.append(w)});
   const lg=mk('div','ori-lg');lg.innerHTML='<small>KIMOOTA</small><b>ORIPA</b>';
   a.append(fan,lg,mk('i','kgu-spk'));if(!r)a.append(mk('div','ori-so','完売'));return a}
 function oriSheet(o,H){const {mk,bt,esc,sheet}=H;if(typeof sheet!=='function')return;
@@ -9995,7 +10003,7 @@ function oriSheet(o,H){const {mk,bt,esc,sheet}=H;if(typeof sheet!=='function')re
       z.onclick=async()=>{if(z.dataset.ok!=='1'){z.dataset.ok='1';z.textContent='本当に止める';return}try{await oriStop(o);toast('止めました');document.querySelectorAll('body>.kgu-sh').forEach(x=>x.remove());renderGacha()}catch(e){toast('止められませんでした')}};
       s.append(mk('small',null,ORI_PV?'お試し版':'管理者'),a,z);b.append(s)}})}
 const oriPn=pid=>{try{const p=players.find(x=>x.id===pid);return p?p.name:'?'}catch(e){return '?'}};
-function oriZoom(c,f){document.querySelectorAll('body>.orz').forEach(x=>x.remove());const z=el('div','orz');z.append(oriFace(c,f));z.onclick=()=>z.remove();document.body.append(z);try{window.gsap&&gsap.from(z.firstChild,{scale:.7,opacity:0,duration:.35,ease:'expo.out'})}catch(e){}}
+function oriZoom(c,f){document.querySelectorAll('body>.orz').forEach(x=>x.remove());const z=el('div','orz');z.append(oriFull(c,f));z.onclick=()=>z.remove();document.body.append(z);try{window.gsap&&gsap.from(z.firstChild,{scale:.7,opacity:0,duration:.35,ease:'expo.out'})}catch(e){}}
 function oriRepaint(){}
 
 /* ---------- 管理者: 作る ---------- */
