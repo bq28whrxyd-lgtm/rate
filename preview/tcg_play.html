@@ -1546,10 +1546,41 @@ body:not(.gkview){background:
 .watching .life.wnm.top small{color:#ff8fb8}
 .watching .life.wnm.bot{box-shadow:inset 0 0 0 1px rgba(127,216,255,.45)}
 .watching .life.wnm.top{box-shadow:inset 0 0 0 1px rgba(255,143,184,.45)}
-/* (10/25) プレイマット: under one side of the field. Transform only (placed by matPos) */
-#s-game>.mat{position:absolute;left:0;top:0;pointer-events:none;z-index:0;transform-origin:50% 50%;border-radius:18px;background:#120a18 center 22%/cover no-repeat;opacity:.42;
-  -webkit-mask-image:linear-gradient(to top,#000 0%,#000 55%,transparent 100%);mask-image:linear-gradient(to top,#000 0%,#000 55%,transparent 100%)}
-#s-game>.mat::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1.5px rgba(255,211,107,.55);background:radial-gradient(120% 80% at 50% 100%,transparent 40%,rgba(10,6,16,.55))}
+/* (10/25) プレイマット: a rubber mat with a stitched gold edge. Placed by matPos (transform only); nothing moves unless something happens */
+#s-game>.mat{position:absolute;left:0;top:0;pointer-events:none;z-index:0;transform-origin:50% 50%;padding:3px 4px;overflow:hidden;border-radius:18px}
+#s-game>.mat>.mat-roll{position:absolute;pointer-events:none}
+.mat-in{position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;background:#0c0711;box-shadow:0 0 0 1px rgba(0,0,0,.6),0 10px 24px -10px rgba(0,0,0,.8)}
+.mat-in>i,.mat-in>b{position:absolute;pointer-events:none}
+.mat-art{inset:0;background:center/cover no-repeat}
+/* darkened where the cards sit, a little lighter at the player's edge, so the picture reads but the cards stay clear */
+.mat-scrim{inset:0;background:linear-gradient(0deg,rgba(12,7,17,.38) 0%,rgba(12,7,17,.62) 45%,rgba(12,7,17,.72) 100%),radial-gradient(120% 90% at 50% 120%,transparent 30%,rgba(8,4,12,.5));transition:opacity .6s ease}
+.mat-red{inset:0;opacity:0;background:radial-gradient(120% 100% at 50% 100%,rgba(255,40,70,.34),rgba(120,0,40,.28) 60%,rgba(40,0,20,.2));mix-blend-mode:hard-light;transition:opacity .8s ease}
+/* the binding and the stitch, like the edge of a real mat */
+.mat-st{inset:0;border-radius:inherit;box-shadow:inset 0 0 0 4px #120a18,inset 0 0 0 5px rgba(255,211,107,.18)}
+.mat-st::after{content:"";position:absolute;inset:6px;border-radius:11px;border:1.4px dashed rgba(255,214,140,.55)}
+.mat-cn{width:26px;height:26px;color:rgba(255,214,140,.7)}
+.mat-cn svg{width:100%;height:100%;display:block}
+.mat-cn.tl{left:9px;top:9px}.mat-cn.tr{right:9px;top:9px;transform:scaleX(-1)}.mat-cn.bl{left:9px;bottom:9px;transform:scaleY(-1)}.mat-cn.br{right:9px;bottom:9px;transform:scale(-1)}
+/* the printed name: small, along the edge by the middle line */
+.mat-logo{left:40px;top:10px;display:flex;align-items:baseline;gap:7px;color:rgba(255,226,170,.62);white-space:nowrap}
+.mat-logo span{font:italic 900 8.5px/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.24em}
+.mat-logo small{font:600 7.5px/1 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.14em;opacity:.85}
+/* your turn: the stitch and the edge glow gold */
+.mat-glow{inset:0;border-radius:inherit;opacity:0;box-shadow:inset 0 0 0 1.5px rgba(255,214,120,.9),inset 0 0 26px rgba(255,180,70,.38);transition:opacity .45s ease}
+.mat.turn .mat-glow{opacity:1}
+.mat.low .mat-red{opacity:1}
+.mat.won .mat-scrim{opacity:.25}
+.mat.won .mat-glow{opacity:1}
+/* light for the roll-out and big moments */
+.mat-sheen{top:-10%;bottom:-10%;left:0;width:45%;opacity:0;background:linear-gradient(90deg,transparent,rgba(255,236,190,.0) 20%,rgba(255,236,190,.38) 50%,rgba(255,236,190,0) 80%,transparent);mix-blend-mode:screen}
+.mat-roll{left:2px;right:2px;bottom:-4px;height:12px;opacity:0;border-radius:7px;background:linear-gradient(180deg,#2a1838,#f0d39a 45%,#6a4a2a 60%,#1a1022);box-shadow:0 -6px 14px rgba(0,0,0,.6)}
+/* the bats from a tap */
+#s-game>.mat-tap{position:absolute;left:-40px;top:-40px;width:80px;height:80px;border-radius:50%;pointer-events:none;z-index:6;box-shadow:inset 0 0 0 2.5px rgba(255,210,140,.95),0 0 22px rgba(255,160,60,.6),inset 0 0 18px rgba(255,170,80,.35)}
+#s-game>.mat-tap.gold{box-shadow:inset 0 0 0 3px #ffd36b,0 0 30px rgba(255,210,90,.9)}
+#s-game>.mat-bat{position:absolute;left:-19px;top:-10px;width:38px;height:19px;pointer-events:none;z-index:6;color:#efe4ff;filter:drop-shadow(0 0 4px rgba(180,108,255,.95)) drop-shadow(0 0 1px #2a1238)}
+#s-game>.mat-bat.gold{color:#ffd36b;filter:drop-shadow(0 0 6px rgba(255,220,120,.95))}
+#s-game>.mat-bat svg{width:100%;height:100%;display:block}
+@media (prefers-reduced-motion:reduce){.mat-glow,.mat-red,.mat-scrim{transition:none}}
 
 /* ===== (10/24) KMR in the match: the same look as the app's big card (see tcg_app.css) ===== */
 .bc.kmrc{--m1:#8a6a2a;--m2:#e9c873;--m3:#fff6d6;isolation:isolate}
@@ -3600,13 +3631,48 @@ const SLI=id=>SLI0(id)||SL_STD;
 function slOf(opp){const d=opp?cpuDeck:myDeck;return SLI(d&&d.sl)}
 function slPaint(c,S){if(!S)return c;c.classList.add('cbs');if(S.r>=3)c.classList.add('cbx');c.style.setProperty('--sl','url("'+S.img+'")');return c}
 const backCard=opp=>slPaint(el('div','cb'),slOf(!!opp));
-/* (10/25) プレイマット: a picture under each side of the field (yours from the app, the other side's from its deck.mt). The top one is turned around, like a mat across the table */
-const MAT_IMG={hw:'kmr_hw4.jpg'};
-function matSync(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;let bot=null;try{bot=(myDeck&&myDeck.mt)||(!WATCH&&HOST&&HOST.matMine?HOST.matMine():null)}catch(e){}let top=cpuDeck&&cpuDeck.mt;try{if(!top&&HOST&&HOST.matDemoOpp)top=HOST.matDemoOpp()}catch(e){}
-  [['b',bot],['t',top]].forEach(([k,v])=>{let m=sg.querySelector(':scope>.mat.'+k);const img=v&&MAT_IMG[v];if(!img){if(m)m.remove();return}if(!m){m=el('div','mat '+k);sg.insertBefore(m,f)}m.style.backgroundImage='url("'+img+'")'});
-  if(!matSync.ro){try{matSync.ro=new ResizeObserver(()=>matPos());matSync.ro.observe(f)}catch(e){}}matPos()}
+/* (10/25) プレイマット: a rubber playmat under each side of the field (yours from the app, the other side's from its deck.mt; the top one turned around, like across a table).
+   Looked at (not copied): real playmats (stitched edge, printed logo), Pokémon TCG Pocket (the mat as a prize), Master Duel's fields (the field answers when you touch it, and when the duel turns),
+   Hearthstone's boards (something small to play with while the other side thinks, a rare surprise).
+   Here: it rolls out from your edge when the duel starts; the edge glows gold on your turn; a tap on an empty spot lets bats fly out (now and then a golden one);
+   at low life the night turns red; when you win the whole picture lights up. Nothing moves when nothing happens (no idle animation: battery). */
+const MAT={hw:{img:'kmr_hw4.jpg',n:'夜宴の小悪魔',pos:'50% 24%'}};
+const MAT_SVG={corner:'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 37V12C3 6 7 3 13 3h24" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 32c0-9 4-15 11-17 5-1.5 8 1 7 4-1 3-5 3-6 1M8 32c3-1 5-3 6-6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="2.2" fill="currentColor"/></svg>',
+  bat:'<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M20 6c1.2 0 2-1.6 2.4-3 .6 1.6 1.2 2.6 2.2 3.2C27 4 31 2 39 4c-3 2-4 5-4 8-3-2-6-2-8 0-2-1.4-4.4-1.2-7 2-2.6-3.2-5-3.4-7-2-2-2-5-2-8 0 0-3-1-6-4-8 8-2 12 0 14.4 2.2 1-.6 1.6-1.6 2.2-3.2.4 1.4 1.2 3 2.4 3z" fill="currentColor"/></svg>'};
+const matOf=k=>{try{if(k==='b')return (myDeck&&myDeck.mt)||(!WATCH&&HOST&&HOST.matMine?HOST.matMine():null);let t=cpuDeck&&cpuDeck.mt;if(!t&&HOST&&HOST.matDemoOpp)t=HOST.matDemoOpp();return t||null}catch(e){return null}};
+function matBuild(k,M){const m=el('div','mat '+k);m.dataset.mt=M.id;const inn=el('div','mat-in'),art=el('i','mat-art');art.style.backgroundImage='url("'+M.img+'")';art.style.backgroundPosition=M.pos;
+  const lg=el('b','mat-logo');lg.append(el('span',null,'KIMOOTA TCG'),el('small',null,M.n+'  ·  HALLOWEEN 2026'));
+  inn.append(art,el('i','mat-scrim'),el('i','mat-red'),el('i','mat-st'),lg,el('i','mat-glow'),el('i','mat-sheen'));
+  ['tl','tr','bl','br'].forEach(c=>{const o=el('i','mat-cn '+c);o.innerHTML=MAT_SVG.corner;inn.append(o)});m.append(inn,el('i','mat-roll'));return m}
+function matSync(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;
+  [['b',matOf('b')],['t',matOf('t')]].forEach(([k,v])=>{let m=sg.querySelector(':scope>.mat.'+k);const M=v&&MAT[v];if(!M){if(m)m.remove();return}
+    if(!m||m.dataset.mt!==v){if(m)m.remove();m=matBuild(k,Object.assign({id:v},M));sg.insertBefore(m,f);matUnroll(m,k==='t'?140:0)}});
+  if(!matSync.ro){try{matSync.ro=new ResizeObserver(()=>matPos());matSync.ro.observe(f)}catch(e){}}
+  if(!matSync.tap){matSync.tap=1;f.addEventListener('pointerdown',matTap,{passive:true})}matPos()}
 function matPos(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;const L=sg.querySelectorAll(':scope>.mat');if(!L.length)return;const r=f.getBoundingClientRect(),o=sg.getBoundingClientRect(),h=r.height/2;
   L.forEach(m=>{const t=m.classList.contains('t');m.style.transform='translate('+(r.left-o.left)+'px,'+(r.top-o.top+(t?0:h))+'px)'+(t?' rotate(180deg)':'');m.style.width=r.width+'px';m.style.height=h+'px'})}
+const matRM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+/* the mat rolls out from the player's edge: the picture grows from the bottom, a light rides the roll */
+function matUnroll(m,delay){const inn=m.querySelector('.mat-in'),roll=m.querySelector('.mat-roll');if(!inn||matRM()||!inn.animate)return;
+  const e='cubic-bezier(.16,1,.3,1)',H0=m.offsetHeight||200,D=760;inn.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:D,delay:delay||0,easing:e,fill:'backwards'});
+  if(roll)roll.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY('+(-H0+4)+'px)',opacity:1,offset:.9},{transform:'translateY('+(-H0+4)+'px)',opacity:0}],{duration:D+120,delay:delay||0,easing:e,fill:'both'});
+  matSheen(m,(delay||0)+560)}
+function matSheen(m,delay){const s=m&&m.querySelector('.mat-sheen');if(!s||matRM()||!s.animate)return;s.animate([{transform:'translateX(-120%) skewX(-18deg)',opacity:0},{opacity:1,offset:.25},{transform:'translateX(220%) skewX(-18deg)',opacity:0}],{duration:900,delay:delay||0,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'})}
+/* every render: whose turn (gold edge on yours), life low (the night turns red), the end */
+function matState(S){const sg=$('s-game');if(!sg||!S)return;const b=sg.querySelector(':scope>.mat.b'),t=sg.querySelector(':scope>.mat.t');
+  const side=(m,pi)=>{if(!m)return;const P=S.p[pi]||{};m.classList.toggle('turn',!S.over&&S.cur===pi);m.classList.toggle('low',!S.over&&(+P.life||0)>0&&(+P.life||0)<=1000)};side(b,H);side(t,1-H)}
+function matEnd(w){const sg=$('s-game');if(!sg)return;const b=sg.querySelector(':scope>.mat.b'),t=sg.querySelector(':scope>.mat.t');[[b,'win'],[t,'lose']].forEach(([m,me])=>{if(!m)return;m.classList.remove('turn','low');
+  const won=w==='draw'?false:(w===me);m.classList.toggle('won',won);if(won)matSheen(m,200)})}
+/* a tap on an empty spot of your own mat: bats fly out of the picture (1 in 20: a golden one) */
+let matTapT=0;
+function matTap(ev){const sg=$('s-game'),m=sg&&sg.querySelector(':scope>.mat.b');if(!m||matRM())return;const tg=ev.target;
+  if(tg.closest&&tg.closest('.u,.cb,button,.z.on,.hc,.card,.tfc'))return;const r=m.getBoundingClientRect();if(ev.clientY<r.top||ev.clientY>r.bottom||ev.clientX<r.left||ev.clientX>r.right)return;
+  const nowT=performance.now();if(nowT-matTapT<260)return;matTapT=nowT;const gold=Math.random()<.05,n=gold?1:3+(Math.random()*2|0),o=sg.getBoundingClientRect(),x=ev.clientX-o.left,y=ev.clientY-o.top;
+  const ring=el('i','mat-tap'+(gold?' gold':''));ring.style.transform='translate('+x+'px,'+y+'px)';sg.append(ring);ring.animate([{transform:'translate('+x+'px,'+y+'px) scale(.2)',opacity:.9},{transform:'translate('+x+'px,'+y+'px) scale(1)',opacity:0}],{duration:620,easing:'cubic-bezier(.16,1,.3,1)'}).onfinish=()=>ring.remove();
+  for(let i=0;i<n;i++){const b=el('i','mat-bat'+(gold?' gold':''));b.innerHTML=MAT_SVG.bat;sg.append(b);const a=(-90+(Math.random()*140-70))*Math.PI/180,d=70+Math.random()*70,dx=Math.cos(a)*d,dy=Math.sin(a)*d,s=gold?1.5:.7+Math.random()*.5,rot=(Math.random()*30-15);
+    b.animate([{transform:'translate('+x+'px,'+y+'px) scale('+(s*.3)+') rotate(0deg)',opacity:0},{transform:'translate('+(x+dx*.35)+'px,'+(y+dy*.35-8)+'px) scale('+s+') rotate('+rot+'deg)',opacity:1,offset:.25},{transform:'translate('+(x+dx*.7)+'px,'+(y+dy*.7+6)+'px) scale('+s+') rotate('+(-rot)+'deg)',opacity:1,offset:.6},{transform:'translate('+(x+dx)+'px,'+(y+dy-10)+'px) scale('+(s*.8)+') rotate('+rot+'deg)',opacity:0}],{duration:gold?1500:1100+Math.random()*300,delay:i*45,easing:'cubic-bezier(.3,.7,.4,1)',fill:'both'}).onfinish=()=>b.remove()}
+  if(gold)matSheen(m,0);try{if(typeof TSFX!=='undefined')TSFX.play(gold?'pop':'tap')}catch(e){}}
+window.__mat={sync:matSync,end:matEnd,state:matState};
 
 /* ---------- title + deck select ---------- */
 (function(){if(HOST||WATCH)return;const f=$('fan');['q8','w8','y8'].forEach((id,i)=>{const c=bigCard(id,true);c.style.transform='rotate('+((i-1)*12)+'deg) translateY('+(i===1?-8:6)+'px)';c.style.zIndex=i===1?2:1;f.append(c)})})();
@@ -3854,7 +3920,7 @@ function endBtn(S){const mine=S.cur===H&&!S.over;const b=el('button','endb'+(min
   b.append(el('span',null,mine?'ターン\n終了':'相手の\nターン'));if(mine)b.append(el('small',null,left));
   b.disabled=!mine||busy;b.onclick=()=>endMyTurn();return b}
 function tickEnd(){const b=$('endb');if(!b)return;const r=24,C=2*Math.PI*r;const tr=b.querySelector('.tr');if(tr)tr.setAttribute('stroke-dashoffset',C*(1-left/TURN_SEC));const s=b.querySelector('small');if(s)s.textContent=left;b.classList.toggle('warn',left<=10)}
-function render(S){view=S;queueSpectator();const me=S.p[H],op=S.p[1-H];
+function render(S){view=S;queueSpectator();try{setTimeout(()=>matState(S),0)}catch(e){}const me=S.p[H],op=S.p[1-H];
   const ob=$('oppBar');ob.replaceChildren();ob.append(avatar(op,cpuKey,true),lifeEl(op,true),traitEl(op,1-H),el('div','sp'));
   const oh=el('div','meta');oh.id='oppHand';oh.innerHTML='<span class="ic hcard'+(slOf(true)?' hsl':'')+'"'+(slOf(true)?' style="--sl:url(&quot;'+slOf(true).img+'&quot;)"':'')+'></span><b>'+op.hand.length+'</b><span class="ic gem"></span><b>'+op.energy+'<small>/'+op.maxE+'</small></b>';ob.append(oh);
   const tc=el('button','tchip');tc.append(el('b',null,S.over?'終了':Math.max(1,S.p[S.cur].turn)+'/'+E.R.MAXTURN),el('span',null,'メニュー'));tc.onclick=menuSheet;ob.append(tc);
@@ -4654,7 +4720,7 @@ async function autoTurn(){let n=0;while(!g.over&&g.cur===H&&n++<40){const a=AI.n
   if(a.type==='leader')await act1(()=>X('summonLeader',a.tribs));else if(a.type==='chara')await summonMine(a.hand,a.slot,a.tribs);else if(a.type==='evolve')await act1(()=>X('evolve',a.hand,a.uid));else if(a.type==='set')await act1(()=>X('setTrap',a.hand));else if(a.type==='skill')await act1(()=>X('skill',a.target));
   else if(a.type==='spell')await castMine(a.hand,a.target);else if(a.type==='attack')await doAttack(a.uid,a.target)}
   if(!g.over)endMyTurn()}
-function finish(){if(done)return;queueSpectator(g&&g.ev);done=true;stopTimer();busy=false;closeSheets();render(snap());const w=g.win===-1?'draw':g.win===H?'win':'lose';const e=g.ev.concat(LOG).reverse().find(x=>x.t==='end');
+function finish(){if(done)return;queueSpectator(g&&g.ev);done=true;stopTimer();busy=false;closeSheets();render(snap());const w=g.win===-1?'draw':g.win===H?'win':'lose';try{setTimeout(()=>matEnd(w),60)}catch(e){}const e=g.ev.concat(LOG).reverse().find(x=>x.t==='end');
   if(NET){const sideOf=pi=>pi===0?NET.first:(NET.first==='a'?'b':'a');try{NET.claim({win:g.win===-1?'draw':sideOf(g.win),turns:g.turns})}catch(er){}}
   let rkDv=null;if(!NET&&RK&&HOST&&HOST.rkDelta){try{rkDv=HOST.rkDelta(CPU_LV,w)}catch(er){}}
   if(HOST){try{HOST.result({w,me:g.p[H].life,cpu:g.p[1-H].life,deck:myDeck.name,cards:myDeck.name==='極のデモ'?[]:[myDeck.lead].concat(myDeck.cards||[]),cpuName:NET?NET.names[NET.side==='a'?'b':'a']:BY[cpuDeck.lead].n,pvp:!!NET,lv:NET?'':CPU_LV,opp:NET?'':(cpuDeck&&cpuDeck.__auto?'auto':'other'),rk:!NET&&RK?1:0})}catch(er){}}
