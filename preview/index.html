@@ -13477,7 +13477,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=164';
+const TCG_SRC='tcg_play.html?v=165';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -13901,7 +13901,8 @@ function tcgSlOwn(){return ITEMS.filter(x=>x.k==='sl'&&tcgSlOk(x.id)).sort((a,b)
 window.TCGHOST={rkStart:lv=>{try{tcgcStart(lv)}catch(e){}},rkDelta:(lv,w)=>{try{return tcgcDelta(lv,w)}catch(e){return 0}},altOwn:()=>tcgAltOwned(),slOwn:()=>tcgSlOwn(),slInfo:id=>tcgSlInfo(id),slDef:()=>tcgSlDef(),own:()=>tcgOwn(),foil:()=>tcgFoil(),kmr:()=>tcgKmr(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
-  const f=el('iframe');f.src=TCG_SRC+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon')}
+  const f=el('iframe');f.src=TCG_SRC+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon');
+  /* (10/25) a match (CPU or friend): the music starts changing the moment the button opens it */if(/^(cpu=|pvp|tut)/.test(hash||''))try{window.__kbgm&&window.__kbgm.battle&&window.__kbgm.battle(true)}catch(e){}}
 function tcgClose(){try{window.__kbgm&&window.__kbgm.battle&&window.__kbgm.battle(false)}catch(e){}/* (10/25) back to the app's music */if(typeof tcgLive!=='undefined')tcgLive=null;const o=$('tcgw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');renderTcg()}
 /* your own coin decides who goes first, then your own 対戦演出 opens the match */
 function tcgToss(info,cb){const side=coinToss({id:'tcg'},myCoin());let fired=false;const t0=Date.now();
@@ -19169,8 +19170,11 @@ window.__tcgOnly=true;/*TCGONLY*/
   const el=()=>{if(ST.a)return ST.a;let a=ST.els[ST.cur];if(!a){a=new Audio();a.loop=true;a.preload='none';a.volume=ST.vol;a.src=SRC[ST.cur];ST.els[ST.cur]=a}ST.a=a;return a};
   function fadeOut(a,ms){if(!a||a.paused)return;const v0=a.volume,t0=performance.now();const step=()=>{if(ST.a===a)return;const k=Math.min(1,(performance.now()-t0)/ms);a.volume=v0*(1-k);if(k<1)requestAnimationFrame(step);else a.pause()};step()}
   /* switch tracks: the old one fades out, the new one fades in (a match always starts its track from the top) */
-  function battle(b){if(b&&!document.body.classList.contains('tcgon'))return;/* only while the match screen is open (a late start after closing it does not stick) */const want=b?'battle':'main';if(ST.cur===want)return;const old=ST.a,was=!!(old&&!old.paused)||ST.wasPlaying;ST.cur=want;ST.a=null;ST.fading++;fadeOut(old,700);
-    const a=el();if(b){try{a.currentTime=0}catch(e){}}if(ST.on&&(was||b))play()}
+  function battle(b){if(b&&!document.body.classList.contains('tcgon'))return;/* only while the match screen is open (a late start after closing it does not stick) */const want=b?'battle':'main';if(ST.cur===want)return;const old=ST.a,was=!!(old&&!old.paused)||ST.wasPlaying;ST.cur=want;ST.a=null;ST.fading++;
+    /* (10/25) a slow cross-fade: the old song fades out over 2.2s while the new one comes up over 2.6s */fadeOut(old,2200);
+    const a=el();if(b){try{a.currentTime=0}catch(e){}}if(!(ST.on&&(was||b)))return;
+    if(!a.paused&&a.currentTime>0&&!a.ended){ramp(ST.vol,2600);return}a.volume=0;let pr;try{pr=a.play()}catch(e){pr=Promise.reject(e)}
+    const ok=()=>{ST.wasPlaying=true;ramp(ST.vol,2600)};if(pr&&pr.then)pr.then(ok,()=>arm());else ok()}
   /* volume ramps so the music never pops in or out */
   function ramp(to,ms,then){const a=ST.a;if(!a)return;const id=++ST.fading,v0=a.volume,t0=performance.now();
     const step=()=>{if(ST.fading!==id)return;const k=Math.min(1,(performance.now()-t0)/ms);a.volume=v0+(to-v0)*k;if(k<1)requestAnimationFrame(step);else then&&then()};step()}
