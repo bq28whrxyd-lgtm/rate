@@ -1758,58 +1758,97 @@ body:not(.gkview){background:
 @keyframes sgMoveT{0%,100%{transform:translate(32%,27%)}50%{transform:translate(-32%,-27%)}}
 @media(prefers-reduced-motion:reduce){.bc.foilc .bart .sgl.s1::after{animation:none;transform:translate(12%,10%)}}
 
-/* ===== (10/26) 見やすいデッキ編成 ===== */
-.bhd.bhd2{flex-direction:column;align-items:stretch;gap:8px;padding:8px 0 10px;background:#0d0a20}
+/* ===== (10/26 v2) デッキ編成: マスターデュエルのデッキ編集を参考にした3段 =====
+   上 = デッキ全体 / 中 = 選んだカードの説明 / 下 = 一覧(ここだけスクロール) */
+#s-build.mdb{padding:8px 12px 0;gap:0;overflow:hidden}
+#s-build.mdb>.mdtop{flex:none;display:flex;flex-direction:column;gap:8px;padding-bottom:8px;box-shadow:0 10px 14px -12px #000;position:relative;z-index:3}
+#s-build.mdb>.mdl{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:8px 0 calc(env(safe-area-inset-bottom,0px) + 24px)}
 .bhr{display:flex;align-items:center;gap:8px}
-.dtray{border-radius:14px;padding:8px 10px 7px;background:linear-gradient(180deg,#1b1640,#110d27);box-shadow:inset 0 0 0 1px #e9cf8a30,0 6px 16px #0008}
-.dthd{display:flex;align-items:center;gap:12px}
-.dcurve{flex:none;display:flex;gap:3px;height:46px}
-.dcb{width:14px;display:flex;flex-direction:column;align-items:center;gap:2px}
-.dcb small{height:10px;font:800 9px/10px var(--body);color:#ffe9a8}
-.dcw{flex:1;width:100%;display:flex;align-items:flex-end;border-radius:2px;background:#ffffff0a}
-.dcw i{display:block;width:100%;min-height:2px;border-radius:2px 2px 0 0;background:linear-gradient(180deg,#ffe9a8,#c49a3c)}
-.dcb:not(.on) .dcw i{background:#ffffff1a}
-.dcb span{font:700 8.5px/1 var(--body);color:#8f8ab3}
-.dtinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
-.dtyp{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11px;color:#c9c5e6}
-.dtyp b{font:800 15px/1 var(--body);color:#fff;margin-right:3px;font-variant-numeric:tabular-nums}
-.dtyp .dt-spell b{color:#8fd8ff}.dtyp .dt-trap b{color:#ff9ac0}
-.dtavg{font-size:10.5px;color:#a9a4cc}
-.dtgl{flex:none;height:28px;padding:0 11px;border-radius:999px;font:700 11px/1 var(--body);background:#ffffff10;color:#e9e6ff;border:1px solid #ffffff1f}
-.dstrip{display:flex;gap:7px;overflow-x:auto;margin:8px -4px 0;padding:5px 6px 4px;scrollbar-width:none;scroll-snap-type:x proximity}
-.dstrip::-webkit-scrollbar{display:none}
-.dtm{position:relative;flex:none;width:42px;padding:0;margin:0;background:none;border:0;scroll-snap-align:start;transition:transform .1s}
-.dtm .bc{width:42px;pointer-events:none}
-.dtm:active{transform:scale(.9)}
-.dtc{position:absolute;left:-4px;top:-4px;z-index:8;width:17px;height:17px;border-radius:50%;display:grid;place-items:center;font:900 10px/1 var(--body);font-style:normal;color:#2a1d02;background:radial-gradient(circle at 35% 30%,#fff3cf,#e9cf8a 55%,#b88a2c);box-shadow:0 1px 3px #000a}
-.dtn{position:absolute;right:-4px;bottom:-4px;z-index:8;padding:2px 5px;border-radius:999px;font:900 10px/1.1 var(--body);font-style:normal;color:#0b1a12;background:#8affc8;box-shadow:0 1px 3px #000a}
-.dsempty{font-size:12px;color:#a9a4cc;padding:14px 4px}
-.dthint{margin-top:3px;font-size:10px;color:#7f7aa6}
-/* the leader, folded into one line */
-.lsum{display:flex;align-items:center;gap:12px;width:100%;padding:8px 10px 8px 8px;border-radius:14px;text-align:left;color:inherit;background:linear-gradient(90deg,#e9cf8a14,#ffffff06);border:1px solid #e9cf8a3a}
-.lsum .bc{width:48px;flex:none;pointer-events:none}
-.lsx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-.lsx small{font:700 10.5px/1.2 var(--body);color:#c9b98a}
-.lsx b{font:400 16px/1.2 var(--disp);color:#fff3cf}
-.lsx span{font-size:11px;line-height:1.4;color:#c9c5e6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.lsgo{flex:none;font-style:normal;font:700 11.5px/1 var(--body);padding:7px 11px;border-radius:999px;background:#e9cf8a24;color:#ffe9a8}
-.lsum.open .lsgo{background:#ffffff14;color:#e9e6ff}
-/* the +/- under each card: one stepper with the count in the middle */
-.bcell .pm{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;align-items:center;gap:0;height:34px;border-radius:999px;overflow:hidden;background:#ffffff0c;box-shadow:inset 0 0 0 1px #ffffff1a}
-.bcell .pm button{height:34px;border-radius:0;background:none;font:700 18px/1 var(--body)}
-.bcell .pm button:last-child{background:linear-gradient(180deg,#f3d58a,#c49a3c);color:#2a1d02}
-.bcell .pm button:disabled{opacity:.25}
-.pmn{text-align:center;font:800 13px/1 var(--body);color:#6f6a96;font-variant-numeric:tabular-nums}
-.pmn.on{color:#8affc8}
-.bcell>.cnt{display:none}
-@media (prefers-reduced-motion:reduce){.dtm{transition:none}}
-/* tribes: a grid, no sideways sliding */
-.btabs{overflow-x:visible;flex-wrap:wrap}
-.btabs button{flex:1 1 0;min-width:0}
-.btribes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
-.btribes button{height:30px;min-width:0;padding:0 4px;border-radius:999px;border:1px solid #ffffff1f;color:#c9c5e6;font-size:11.5px;font-weight:700;background:#ffffff08;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.btribes button.on{color:#fff;border-color:var(--dc,#e9cf8a);background:color-mix(in srgb,var(--dc,#e9cf8a) 22%,transparent)}
-.btribes button[style]{box-shadow:inset 3px 0 0 var(--dc)}
+.bhr .bname{flex:1;min-width:0}
+.bhr .btn{height:38px;padding:0 16px;font-size:13px}
+
+/* the deck */
+.mdd{display:flex;gap:8px;padding:8px;border-radius:14px;background:linear-gradient(180deg,#1b1640,#110d27);box-shadow:inset 0 0 0 1px #e9cf8a30}
+.mdside{flex:none;width:46px;display:flex;flex-direction:column;gap:6px}
+.mdlb,.mdsl{display:flex;flex-direction:column;align-items:center;gap:3px;padding:0;background:none;border:0;color:#c9b98a;font:700 9px/1 var(--body)}
+.mdlb .bc{width:46px;pointer-events:none;outline:1.5px solid #e9cf8a;outline-offset:1px;border-radius:4px}
+.mdsl .slt{width:30px;height:42px}
+.mdmain{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.mdg{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px}
+.mds{position:relative;padding:0;margin:0;background:none;border:0;border-radius:3px;aspect-ratio:63/88;min-width:0}
+.mds .bc{width:100%;pointer-events:none}
+.mds.empty{display:block;border-radius:3px;background:#ffffff07;box-shadow:inset 0 0 0 1px #ffffff14}
+.mds.on{outline:2px solid #8affc8;outline-offset:1px;z-index:2}
+.mds:active{transform:scale(.92)}
+.mdsc{position:absolute;left:-3px;top:-3px;z-index:6;width:12px;height:12px;border-radius:50%;display:grid;place-items:center;font:900 8px/1 var(--body);font-style:normal;color:#2a1d02;background:radial-gradient(circle at 35% 30%,#fff3cf,#e9cf8a 55%,#b88a2c);box-shadow:0 1px 2px #000a}
+.mdinf{display:flex;align-items:center;flex-wrap:wrap;gap:4px 10px;font-size:11px;color:#c9c5e6}
+.mdinf b{font:800 14px/1 var(--body);color:#fff;margin-right:2px;font-variant-numeric:tabular-nums}
+.mdinf .dt-spell b{color:#8fd8ff}.mdinf .dt-trap b{color:#ff9ac0}
+.mdavg{font-size:10.5px;color:#a9a4cc}
+.mdauto{margin-left:auto;height:28px;padding:0 11px;border-radius:999px;font:700 11px/1 var(--body);color:#2a1d02;background:linear-gradient(180deg,#f3d58a,#c49a3c);border:0}
+.mdauto:disabled{opacity:.3}
+
+/* the chosen card */
+.mdx{display:grid;grid-template-columns:62px minmax(0,1fr) 46px;gap:10px;align-items:start;padding:8px;border-radius:14px;background:#ffffff08;box-shadow:inset 0 0 0 1px #ffffff17;min-height:96px}
+.mdx.none{display:flex;align-items:center;justify-content:center;min-height:56px}
+.mdxn{font-size:12px;color:#a9a4cc;text-align:center;line-height:1.5}
+.mdxc{padding:0;background:none;border:0}
+.mdxc .bc{width:62px;pointer-events:none}
+.mdxt{min-width:0}
+.mdxh{display:flex;align-items:center;gap:6px;min-width:0}
+.mdxh b{font-size:14.5px;font-weight:800;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdxh em{flex:none;font-style:normal;font:800 9px/1 var(--body);padding:3px 5px;border-radius:4px;color:#3a240a;background:linear-gradient(90deg,#ffe2a0,#fff6d8,#ffd98a)}
+.mdcost{flex:none;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font:900 10.5px/1 var(--body);font-style:normal;color:#2a1d02;background:radial-gradient(circle at 35% 30%,#fff3cf,#e9cf8a 55%,#b88a2c)}
+.mdxm{margin-top:3px;font-size:10.5px;color:#a9a4cc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdxs{margin-top:2px;font:800 11px/1.2 var(--body);color:#ffe9a8;font-variant-numeric:tabular-nums}
+.mdxb{margin-top:5px;max-height:62px;overflow-y:auto;font-size:11.5px;line-height:1.5;color:#e9e6ff;overscroll-behavior:contain}
+.mdxp{display:flex;flex-direction:column;align-items:center;gap:4px}
+.mdxp button{width:42px;height:34px;border-radius:10px;border:0;font:800 18px/1 var(--body);background:#ffffff12;color:#fff}
+.mdxp button:first-child{background:linear-gradient(180deg,#f3d58a,#c49a3c);color:#2a1d02}
+.mdxp button:disabled{opacity:.25}
+.mdxp b{font:800 15px/1 var(--body);color:#8affc8;font-variant-numeric:tabular-nums}
+.mdxp small{font-size:8.5px;color:#8f8ab3;white-space:nowrap}
+
+/* the list */
+.mdbar{display:flex;gap:6px}
+.mdq{flex:1;min-width:0;height:36px;padding:0 12px;border-radius:10px;border:1px solid #ffffff1f;background:#ffffff0a;color:#fff;font-size:13px}
+.mdfb{flex:none;position:relative;height:36px;padding:0 12px;border-radius:10px;border:1px solid #ffffff1f;background:#ffffff0a;color:#e9e6ff;font:700 12px/1 var(--body)}
+.mdfb.on{border-color:#e9cf8a;color:#ffe9a8}
+.mdfb i{position:absolute;right:-5px;top:-5px;min-width:16px;height:16px;border-radius:999px;display:grid;place-items:center;font:900 10px/1 var(--body);font-style:normal;color:#2a1d02;background:#e9cf8a}
+.mdso{flex:none;height:36px;padding:0 8px;border-radius:10px;border:1px solid #ffffff1f;background:#ffffff0a;color:#e9e6ff;font-size:12px}
+.mdseg{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;margin-top:8px;padding:3px;border-radius:12px;background:#ffffff08}
+.mdseg button{height:30px;border:0;border-radius:9px;background:none;color:#a9a4cc;font:700 12px/1 var(--body)}
+.mdseg button.on{background:#ffffff1a;color:#fff}
+.mdcnt{margin:8px 2px 6px;font-size:11px;color:#8f8ab3}
+.mdgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px 6px}
+.mdgrid>.bempty{grid-column:1/-1}
+.mdc{position:relative;padding:0 0 15px;margin:0;background:none;border:0;min-width:0;content-visibility:auto;contain-intrinsic-size:auto 100px}
+.mdc .bc{width:100%;pointer-events:none}
+.mdc.on .bc{outline:2px solid #8affc8;outline-offset:1px}
+.mdc.lock .bc{filter:grayscale(1) brightness(.5)}
+.mdn{position:absolute;right:-4px;top:-5px;z-index:7;min-width:18px;height:18px;padding:0 4px;border-radius:999px;display:grid;place-items:center;font:900 11px/1 var(--body);font-style:normal;color:#0b1a12;background:#8affc8;box-shadow:0 1px 3px #000a}
+.mdo{position:absolute;left:0;right:0;bottom:0;font:700 9px/1 var(--body);font-style:normal;color:#8f8ab3;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdo.x{color:#6f6a96}
+.mdadd{position:absolute;right:-3px;bottom:12px;z-index:7;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:900 16px/1 var(--body);color:#2a1d02;background:linear-gradient(180deg,#f3d58a,#c49a3c);box-shadow:0 2px 5px #000b}
+.mdadd.off{opacity:.25;pointer-events:none}
+.mdadd:active{transform:scale(.88)}
+
+/* sheets */
+.mdfh{margin:12px 0 6px;font:700 12px/1 var(--body);color:#c9b98a}
+.mdfg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.mdfg.t4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.mdfg.t7{grid-template-columns:1.7fr repeat(6,minmax(0,1fr))}
+.mdfg button{height:34px;min-width:0;padding:0 4px;border-radius:10px;border:1px solid #ffffff1f;background:#ffffff08;color:#c9c5e6;font:700 12px/1 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdfg button[style]{box-shadow:inset 3px 0 0 var(--dc)}
+.mdfg button.on{color:#fff;border-color:var(--dc,#e9cf8a);background:color-mix(in srgb,var(--dc,#e9cf8a) 24%,transparent)}
+.mdfa{display:flex;gap:8px;margin-top:16px}
+.mdfa .btn{flex:1}
+.mdlg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0 10px}
+.mdlc{padding:0;background:none;border:0;border-radius:6px}
+.mdlc .bc{width:100%;pointer-events:none}
+.mdlc.on .bc{outline:2px solid #fff;outline-offset:2px}
+.mdlc.lock .bc{filter:grayscale(1) brightness(.45)}
+@media (prefers-reduced-motion:reduce){.mds:active,.mdadd:active{transform:none}}
 
 </style>
 
@@ -3831,55 +3870,75 @@ function slRow(){const own=HOST.slOwn()||[],cur=B.sl&&own.find(x=>x.id===B.sl);
     const gr=el('div','slgrid');const opt=(S,id,name,note)=>{const b=el('button','slopt'+((B.sl||null)===id?' on':''));b.append(slThumb(S),el('span',null,name));if(note)b.append(el('small','slu',note));b.onclick=()=>{B.sl=id;close();drawBuilder()};gr.append(b)};
     opt(SL_STD,null,'なし(標準の裏)');own.forEach(x=>{const U=slUsers(x.id,B.idx),full=U.length>=(x.k||1);opt(x,x.id,x.n,full&&B.sl!==x.id?'「'+String(U[0].d.name||'').slice(0,10)+'」で使用中':'')});s.append(gr);
     if(!own.length)s.append(el('p','mut','スリーブはスキンガチャ(いまはハロウィンガチャ)から出ます'))});return r}
-function drawBuilder(){const box=$('s-build'),keep=box.scrollTop,tabScroll=box.querySelector('.btabs')?.scrollLeft||0,leadScroll=box.querySelector('.lrow')?.scrollLeft||0;box.replaceChildren();const lf=BY[B.lead].f;
-  const top=el('div','bhd');const back=el('button','iconb','←');back.onclick=deckScreen;const nm=el('input','bname');nm.value=B.name;nm.maxLength=16;nm.oninput=()=>B.name=nm.value;
+/* (10/26 v2) デッキ編成 — マスターデュエルのデッキ編集を参考に、縦のスマホ向けに組み直した:
+   上 = デッキ全体(20枚が2段の格子で一目で見える、左にリーダーとスリーブ) / 中 = 選んだカードの説明と −・枚数・+ /
+   下 = カード一覧(小さい絵を5列、ここだけスクロール)。絞り込み(族・種類・熱量)は1つのボタンにまとめた。
+   「おまかせで埋める」は入れたカードを残して、残りを持っているカードから組む(マスターデュエルの自動デッキ構築と同じ考え) */
+function bV(id,sv){const isK=sv==='k',ak=typeof sv==='string'&&!isK?+sv.slice(1):0,isA=ak>0,tot=B.cards.filter(x=>x===id).length,AL=(B.alt[id]||[]),na=AL.length,q=Math.min((B.kmr||{})[id]||0,tot-na),sc=Math.min(B.scr[id]||0,tot-na-q),n=isA?(AL.includes(ak)?1:0):isK?q:sv?sc:tot-na-q-sc,cap=CD.deckCap(id,B.lead),mine=isA?1:isK?KMRN(id):sv?FOIL(id):NORM(id);
+  if(!B.kmr)B.kmr={};
+  const canAdd=!(tot>=cap||(CD.fk&&B.cards.filter(x=>CD.fk(x)===CD.fk(id)).length>=cap)||(HOST&&n>=mine)||(!HOST&&!isA&&tot>=capOf(id,B.lead))||B.cards.length>=CD.DECK_SIZE);
+  return {id,sv,isK,ak,isA,n,tot,cap,mine,canAdd,tag:isA?'絵違い'+['','',' キラ',' 極'][ak]:isK?'KMR':sv?'SCR':'',look:isK?'k':sv===true,lv:isA?ak:isK?'k':sv?'s':0,
+    add(){if(!canAdd)return false;B.cards.push(id);if(isA)B.alt[id]=AL.concat([ak]).sort((a,b)=>b-a);else if(isK){B.kmr[id]=q+1;B.scr[id]=sc}else if(sv){B.scr[id]=sc+1;B.kmr[id]=q}else{B.scr[id]=sc;B.kmr[id]=q}return true},
+    sub(){if(!n)return false;const i=B.cards.lastIndexOf(id);if(i<0)return false;B.cards.splice(i,1);if(isA){B.alt[id]=AL.filter(x=>x!==ak);if(!B.alt[id].length)delete B.alt[id]}else if(isK){B.kmr[id]=q-1;B.scr[id]=sc}else if(sv)B.scr[id]=sc-1;else{B.kmr[id]=q;B.scr[id]=Math.min(sc,tot-1-na-q)}return true}}}
+const bVars=id=>{const AO=ALTOWN(id);return [false].concat(HOST&&KMRN(id)>0?['k']:[],HOST&&FOIL(id)>0?[true]:[],AO.map(k=>'a'+k)).filter(sv=>!(sv===false&&HOST&&NORM(id)<1&&(FOIL(id)>0||KMRN(id)>0||AO.length)))};
+const bSel=(id,sv)=>!!B.sel&&B.sel.id===id&&String(B.sel.sv)===String(sv);
+const B_RO={C:0,R:1,SR:2,GR:3,HR:4};
+function deckSlots(){const N={},out=[];B.cards.forEach(id=>N[id]=(N[id]||0)+1);
+  Object.keys(N).forEach(id=>{const tot=N[id],AL=B.alt[id]||[],na=AL.length,q=Math.min((B.kmr||{})[id]||0,tot-na),sc=Math.min(B.scr[id]||0,tot-na-q),n0=tot-na-q-sc;
+    AL.forEach(ak=>out.push({id,sv:'a'+ak,look:false,ak}));for(let k=0;k<q;k++)out.push({id,sv:'k',look:'k',ak:0});for(let k=0;k<sc;k++)out.push({id,sv:true,look:true,ak:0});for(let k=0;k<n0;k++)out.push({id,sv:false,look:false,ak:0})});
+  return out.sort((a,b)=>(BY[a.id].c-BY[b.id].c)||(BY[a.id].type<BY[b.id].type?-1:BY[a.id].type>BY[b.id].type?1:0)||BY[a.id].n.localeCompare(BY[b.id].n,'ja'))}
+function drawBuilder(){const box=$('s-build'),ol=box.querySelector('.mdl'),keep=ol?ol.scrollTop:(B.lsTop||0);box.replaceChildren();box.classList.add('mdb');
+  const top=el('div','mdtop');const hd=el('div','bhr');const back=el('button','iconb','←');back.onclick=deckScreen;const nm=el('input','bname');nm.value=B.name;nm.maxLength=16;nm.oninput=()=>B.name=nm.value;
   const cnt=el('b','bcount'+(B.cards.length===CD.DECK_SIZE?' ok':''),B.cards.length+'/'+CD.DECK_SIZE);const sv=el('button','btn','保存');sv.disabled=B.cards.length!==CD.DECK_SIZE;
   sv.onclick=()=>{const L=loadDecks();const al=altClean(B),d={name:(B.name||'マイデッキ').slice(0,16),lead:B.lead,cards:B.cards.slice(),scr:scrClean(B)};{const km=kmrClean(B);if(Object.keys(km).length)d.kmr=km}if(Object.keys(al).length)d.alt=al;if(B.sl){d.sl=B.sl;try{const k=((HOST&&HOST.slOwn&&HOST.slOwn()||[]).find(x=>x.id===B.sl)||{}).k||1;let n=1;L.forEach((x,j)=>{if(j===B.idx||!x||x.sl!==B.sl)return;if(n<k)n++;else{const y=Object.assign({},x);delete y.sl;L[j]=y}})}catch(e){}}if(B.idx>=0)L[B.idx]=d;else{L.push(d);B.idx=L.length-1}saveDecks(L);caption('保存しました');deckScreen()};
-  const tr0=el('div','bhr');tr0.append(back,nm,cnt,sv);top.classList.add('bhd2');top.append(tr0,deckTray());box.append(top);
-  if(HOST&&HOST.slOwn)box.append(slRow());
-  box.append(leaderSum());
-  if(B.lx){box.append(el('div','sec-h','リーダー(特性と必殺技を持つ・金のカード11種類から)'));
-  const lr=el('div','lrow');Object.values(CD.LEADERS).forEach(id=>{const c=bigCard(id,true);if(id===B.lead)c.classList.add('pick');if(OWN(id)<1){c.classList.add('lock');c.onclick=()=>caption('このリーダーはまだ持っていません(パックのガチレア)')}else c.onclick=()=>{B.lead=id;const f=fitDeck(B);B.cards=f.cards;B.scr=f.scr;B.kmr=f.kmr;drawBuilder()};lr.append(c)});box.append(lr);
-  const info=el('div','linfo');info.append(el('b',null,'特性「'+CD.TRAITS[lf].n+'」'),document.createTextNode(CD.TRAITS[lf].t),el('br'),el('b',null,'必殺技「'+CD.SKILLS[lf].n+'」'),document.createTextNode(CD.SKILLS[lf].t));box.append(info,leaderAbil(B.lead))}
-  /* (10/26) no sideways sliding: the four main filters stay on top, the tribes wrap into a grid underneath */
-  const tabs=el('div','btabs'),trb=el('div','btribes');[...(HOST?[['own','持っている']]:[]),['all','すべて'],['deck','採用中'],['same','同族'],...Object.keys(CD.PFX).map(k=>[k,CD.FNAME[k].replace('族','')]),['gen','族なし']].forEach(([k,n])=>{const b=el('button',B.tab===k?'on':'',n);if(CD.PFX[k])b.style.setProperty('--dc','var(--'+k+')');b.onclick=()=>{B.tab=k;drawBuilder()};(CD.PFX[k]||k==='gen'?trb:tabs).append(b)});box.append(tabs,trb);
-  const search=el('div','bsearch'),query=el('input');query.type='search';query.placeholder='カード名で検索';query.setAttribute('aria-label','カード名で検索');query.value=B.query;const clear=el('button',null,'クリア');clear.disabled=!B.query;
-  const applySearch=()=>{B.query=query.value;clear.disabled=!B.query;drawBuilderCards(box)};query.oninput=applySearch;query.oncompositionend=applySearch;query.onsearch=applySearch;clear.onclick=()=>{query.value='';applySearch();query.focus({preventScroll:true})};search.append(query,clear);box.append(search);
-  drawBuilderCards(box);box.querySelector('.btabs').scrollLeft=tabScroll;{const lr2=box.querySelector('.lrow');if(lr2)lr2.scrollLeft=leadScroll}{const ds=box.querySelector('.dstrip');if(ds&&B.dsx!=null)ds.scrollLeft=B.dsx}bldStick(box);box.scrollTop=keep;requestAnimationFrame(()=>{box.scrollTop=keep;bldStick(box)})}
-/* (10/26) 見やすいデッキ編成: the deck is always in view at the top (a strip of the cards in it, sorted by 熱量, with the 熱量 curve and how many of each kind).
-   Tapping a card in the strip takes one copy out. The leader is folded into one line until you want to change it. */
-function bldStick(box){const h=box.querySelector('.bhd'),t=box.querySelector('.btabs');if(h&&t)t.style.top=(h.offsetHeight-10)+'px'}
-function bldTakeOne(id){const tot=B.cards.filter(x=>x===id).length;if(!tot)return;const AL=B.alt[id]||[],na=AL.length,q=Math.min((B.kmr||{})[id]||0,tot-na),sc=Math.min(B.scr[id]||0,tot-na-q),n0=tot-na-q-sc;
-  const i=B.cards.lastIndexOf(id);B.cards.splice(i,1);
-  if(n0>0){B.kmr[id]=q;B.scr[id]=Math.min(sc,tot-1-na-q)}else if(sc>0)B.scr[id]=sc-1;else if(q>0){B.kmr[id]=q-1;B.scr[id]=sc}else if(na){B.alt[id]=AL.slice(0,-1);if(!B.alt[id].length)delete B.alt[id]}}
-function deckTray(){const w=el('div','dtray'+(B.tc?' min':'')),N={},T={chara:0,spell:0,trap:0},C=[0,0,0,0,0,0];B.cards.forEach(id=>{N[id]=(N[id]||0)+1;T[BY[id].type]=(T[BY[id].type]||0)+1;C[Math.max(0,Math.min(5,BY[id].c|0))]++});
-  const mx=Math.max(1,...C),cv=el('div','dcurve');C.forEach((n,i)=>{const b=el('div','dcb'+(n?' on':''));const bar=el('i');bar.style.height=Math.round(n/mx*100)+'%';const wr=el('div','dcw');wr.append(bar);b.append(el('small',null,n?String(n):''),wr,el('span',null,i===5?'5+':String(i)));cv.append(b)});
-  const ty=el('div','dtyp');[['chara','キャラ'],['spell','魔法'],['trap','罠']].forEach(([k,n])=>{const x=el('span','dt-'+k);x.append(el('b',null,String(T[k]||0)),document.createTextNode(n));ty.append(x)});
-  const avg=B.cards.length?(B.cards.reduce((a,id)=>a+(BY[id].c|0),0)/B.cards.length):0;
-  const hd=el('div','dthd');const tg=el('button','dtgl',B.tc?'デッキを見る':'たたむ');tg.onclick=()=>{B.tc=!B.tc;drawBuilder()};hd.append(cv,el('div','dtinfo'),tg);hd.children[1].append(ty,el('span','dtavg','平均熱量 '+avg.toFixed(1)));w.append(hd);
-  if(!B.tc){const st=el('div','dstrip');const ids=Object.keys(N).sort((a,b)=>(BY[a].c-BY[b].c)||(BY[a].type<BY[b].type?-1:BY[a].type>BY[b].type?1:0)||BY[a].n.localeCompare(BY[b].n,'ja'));
-    if(!ids.length)st.append(el('div','dsempty','下の一覧の「+」でカードを入れると、ここに並びます'));
-    ids.forEach(id=>{const b=el('button','dtm'+(BY[id].f===BY[B.lead].f?' same':''));b.setAttribute('aria-label',BY[id].n+'を1枚外す');const c=bigCard(id,true);b.append(c,el('i','dtc',String(BY[id].c)));if(N[id]>1)b.append(el('i','dtn','×'+N[id]));
-      b.onclick=()=>{B.dsx=st.scrollLeft;bldTakeOne(id);try{caption('「'+BY[id].n+'」を1枚外しました')}catch(e){}drawBuilder()};st.append(b)});
-    w.append(st,el('div','dthint','並んでいるカードを押すと1枚外れます'))}
-  return w}
-function leaderSum(){const id=B.lead,lf=BY[id].f,b=el('button','lsum'+(B.lx?' open':''));const c=bigCard(id,true);b.append(c);const tx=el('div','lsx');tx.append(el('small',null,'リーダー  ·  '+CD.FNAME[lf]),el('b',null,BY[id].n),el('span',null,'特性「'+CD.TRAITS[lf].n+'」  ·  必殺技「'+CD.SKILLS[lf].n+'」'));b.append(tx,el('i','lsgo',B.lx?'閉じる':'変える'));
-  b.onclick=()=>{B.lx=!B.lx;drawBuilder()};return b}
-function drawBuilderCards(box){const lf=BY[B.lead].f;box.querySelectorAll('.bgrid,.bempty,.bresults').forEach(e=>e.remove());
-  const q=B.query.normalize('NFKC').toLocaleLowerCase().trim();
-  const grid=el('div','bgrid');CD.POOL.filter(id=>(B.tab==='all'||(B.tab==='own'?OWN(id)>0:B.tab==='deck'?B.cards.includes(id):B.tab==='same'?BY[id].f===lf:BY[id].f===B.tab))&&(!q||BY[id].n.normalize('NFKC').toLocaleLowerCase().includes(q))).sort((a,b)=>(OWN(b)>0)-(OWN(a)>0)||(BY[b].f===lf)-(BY[a].f===lf)||BY[a].c-BY[b].c).forEach(id=>{const AO=ALTOWN(id),variants=[false].concat(HOST&&KMRN(id)>0?['k']:[],HOST&&FOIL(id)>0?[true]:[],AO.map(k=>'a'+k));variants.forEach(sv=>{
-    const isK=sv==='k',ak=typeof sv==='string'&&!isK?+sv.slice(1):0,isA=ak>0,tot=B.cards.filter(x=>x===id).length,AL=(B.alt[id]||[]),na=AL.length,q=Math.min((B.kmr||{})[id]||0,tot-na),sc=Math.min(B.scr[id]||0,tot-na-q),n=isA?(AL.includes(ak)?1:0):isK?q:sv?sc:tot-na-q-sc,cap=CD.deckCap(id,B.lead),mine=isA?1:isK?KMRN(id):sv?FOIL(id):NORM(id);
-    if(!B.kmr)B.kmr={};
-    if(sv===false&&HOST&&NORM(id)<1&&(FOIL(id)>0||KMRN(id)>0||AO.length))return;/* only special copies are owned: show just those cells */
-    const w=el('div','bcell'+(n?' has':'')+(sv===true?' scrcell':'')+(isK?' kmrcell':'')+(isA?' altcell':'')+(BY[id].f===lf?' same':'')+(OWN(id)<1?' lock':''));w.dataset.cardId=id;const c=bigCard(id,true,isK?'k':sv===true,ak);w.append(c);
-    const tag=isA?'絵違い'+['','',' キラ',' 極'][ak]+' ':isK?'KMR ':sv?'SCR ':'';
-    if(OWN(id)<1)w.append(el('i','lockt','未所持'));else if(CD.isLeader(id)&&id!==B.lead)w.append(el('i','lockt','リーダーにすると1枚'));else if(BY[id].lim&&!HOST)w.append(el('i','lockt','制限 1枚まで'));else if(HOST)w.append(el('i','ownt'+(sv===true?' ownscr':'')+(isK?' ownkmr':'')+(isA?' ownalt':''),tag+'所持'+mine));
-    if(n)w.append(el('i','cnt','×'+n));if((BY[id].kw||{}).syn&&BY[id].f===lf)w.append(el('i','synon','同族ボーナス'));
-    const pm=el('div','pm');const mi=el('button',null,'−');mi.setAttribute('aria-label',BY[id].n+(tag?'('+tag.trim()+')':'')+'を1枚減らす');mi.disabled=!n;mi.onclick=e=>{e.stopPropagation();const i=B.cards.lastIndexOf(id);if(i>=0){B.cards.splice(i,1);if(isA){B.alt[id]=AL.filter(x=>x!==ak);if(!B.alt[id].length)delete B.alt[id]}else if(isK){B.kmr[id]=q-1;B.scr[id]=sc}else if(sv)B.scr[id]=sc-1;else{B.kmr[id]=q;B.scr[id]=Math.min(sc,tot-1-na-q)}}drawBuilder()};
-    const pl=el('button',null,'+');pl.setAttribute('aria-label',BY[id].n+(tag?'('+tag.trim()+')':'')+'を1枚追加');pl.disabled=tot>=cap||(CD.fk&&B.cards.filter(x=>CD.fk(x)===CD.fk(id)).length>=cap)||(HOST&&n>=mine)||(!HOST&&!isA&&tot>=capOf(id,B.lead))||B.cards.length>=CD.DECK_SIZE;pl.onclick=e=>{e.stopPropagation();B.cards.push(id);if(isA)B.alt[id]=AL.concat([ak]).sort((a,b)=>b-a);else if(isK){B.kmr[id]=q+1;B.scr[id]=sc}else if(sv){B.scr[id]=sc+1;B.kmr[id]=q}else{B.scr[id]=sc;B.kmr[id]=q}drawBuilder()};pm.append(mi,el('b','pmn'+(n?' on':''),n?'×'+n:'0'),pl);w.append(pm);
-    c.onclick=()=>cardSheet(id,null,null,isA?ak:isK?'k':sv?'s':0);grid.append(w)})});box.append(grid);
-  if(!grid.childElementCount)box.append(el('div','bempty',B.tab==='deck'&&!B.cards.length?'まだカードが入っていません。持っているカードから追加してください。':'条件に合うカードがありません。検索や族を変更してください。'));
-  if(B.query.trim()){const results=el('div','bresults','検索結果：'+grid.childElementCount+'種類');results.setAttribute('role','status');box.insertBefore(results,grid)}}
+  hd.append(back,nm,cnt,sv);top.append(hd,mdDeck(),mdDetail());box.append(top);
+  const lw=el('div','mdl');box.append(lw);mdList(lw);lw.scrollTop=keep;requestAnimationFrame(()=>{lw.scrollTop=keep});lw.onscroll=()=>{B.lsTop=lw.scrollTop}}
+function mdDeck(){const w=el('div','mdd'),side=el('div','mdside');
+  const lb=el('button','mdlb');lb.setAttribute('aria-label','リーダーを変える');lb.append(bigCard(B.lead,true),el('span',null,'リーダー'));lb.onclick=mdLeadSheet;side.append(lb);
+  if(HOST&&HOST.slOwn){const own=HOST.slOwn()||[],cur=B.sl&&own.find(x=>x.id===B.sl);const sb=el('button','mdsl');sb.append(slThumb(cur),el('span',null,'スリーブ'));sb.onclick=()=>slRow().click();side.append(sb)}
+  const S=deckSlots(),g=el('div','mdg');for(let i=0;i<CD.DECK_SIZE;i++){const x=S[i];if(!x){g.append(el('i','mds empty'));continue}const b=el('button','mds'+(bSel(x.id,x.sv)?' on':''));b.setAttribute('aria-label',BY[x.id].n);b.append(bigCard(x.id,true,x.look,x.ak),el('i','mdsc',String(BY[x.id].c)));b.onclick=()=>{B.sel={id:x.id,sv:x.sv};drawBuilder()};g.append(b)}
+  const T={chara:0,spell:0,trap:0};B.cards.forEach(id=>T[BY[id].type]=(T[BY[id].type]||0)+1);const avg=B.cards.length?B.cards.reduce((a,id)=>a+(BY[id].c|0),0)/B.cards.length:0;
+  const inf=el('div','mdinf');[['chara','キャラ'],['spell','魔法'],['trap','罠']].forEach(([k,n])=>{const x=el('span','dt-'+k);x.append(el('b',null,String(T[k]||0)),document.createTextNode(n));inf.append(x)});inf.append(el('span','mdavg','平均熱量 '+avg.toFixed(1)));
+  const af=el('button','mdauto','おまかせで埋める');af.disabled=B.cards.length>=CD.DECK_SIZE;af.onclick=autoFill;inf.append(af);
+  const main=el('div','mdmain');main.append(g,inf);w.append(side,main);return w}
+function mdDetail(){const w=el('div','mdx'),s=B.sel;if(!s||!BY[s.id]){w.classList.add('none');w.append(el('div','mdxn','カードを押すと、ここに説明が出ます。一覧の「+」ですぐ入れることもできます'));return w}
+  const c=BY[s.id],v=bV(s.id,s.sv),th=el('button','mdxc');th.setAttribute('aria-label','大きく見る');th.append(bigCard(s.id,true,v.look,v.ak));th.onclick=()=>cardSheet(s.id,null,null,v.lv);
+  const tx=el('div','mdxt'),h=el('div','mdxh');h.append(el('i','mdcost',String(c.c)),el('b',null,c.n));if(v.tag)h.append(el('em',null,v.tag));
+  tx.append(h,el('div','mdxm',TYN[c.type]+' ・ '+CD.FNAME[c.f]+' ・ '+c.r));if(c.type==='chara')tx.append(el('div','mdxs','ATK '+c.atk+'  /  DEF '+c.def));const body=el('div','mdxb');body.append(richText(CD.text(c)));tx.append(body);
+  const pm=el('div','mdxp'),mi=el('button',null,'−'),pl=el('button',null,'+');mi.setAttribute('aria-label','1枚外す');pl.setAttribute('aria-label','1枚入れる');mi.disabled=!v.n;pl.disabled=!v.canAdd;mi.onclick=()=>{if(v.sub())drawBuilder()};pl.onclick=()=>{if(v.add())drawBuilder()};
+  const lim=HOST?Math.min(v.cap,Math.max(0,v.mine)):v.cap;pm.append(pl,el('b',null,String(v.n)),el('small',null,OWN(s.id)<1?'未所持':CD.isLeader(s.id)&&s.id!==B.lead?'リーダーは1枚':'最大 '+lim),mi);
+  w.append(th,tx,pm);return w}
+function mdList(lw){const lf=BY[B.lead].f;if(B.cost==null)B.cost=-1;
+  const bar=el('div','mdbar'),q=el('input','mdq');q.type='search';q.placeholder='カード名で検索';q.setAttribute('aria-label','カード名で検索');q.value=B.query;
+  const nf=(B.ty?1:0)+(B.cost>=0?1:0)+(CD.PFX[B.tab]||B.tab==='gen'?1:0),fb=el('button','mdfb'+(nf?' on':''));fb.append(document.createTextNode('絞り込み'));if(nf)fb.append(el('i',null,String(nf)));fb.onclick=filterSheet;
+  const so=el('select','mdso');so.setAttribute('aria-label','並び順');[['cost','熱量順'],['rar','レア順'],['name','名前順']].forEach(([k,n])=>{const o=el('option',null,n);o.value=k;so.append(o)});so.value=B.sort||'cost';
+  bar.append(q,fb,so);
+  const seg=el('div','mdseg');[...(HOST?[['own','持っている']]:[]),['all','すべて'],['deck','採用中'],['same','同族']].forEach(([k,n])=>{const b=el('button',B.tab===k?'on':'',n);b.onclick=()=>{B.tab=k;B.lsTop=0;drawBuilder()};seg.append(b)});
+  const info=el('div','mdcnt'),grid=el('div','mdgrid');lw.append(bar,seg,info,grid);
+  const fill=()=>{const qq=B.query.normalize('NFKC').toLocaleLowerCase().trim();
+    const L=CD.POOL.filter(id=>(B.tab==='all'||(B.tab==='own'?OWN(id)>0:B.tab==='deck'?B.cards.includes(id):B.tab==='same'?BY[id].f===lf:BY[id].f===B.tab))&&(!B.ty||BY[id].type===B.ty)&&(B.cost<0||Math.min(5,BY[id].c|0)===B.cost)&&(!qq||BY[id].n.normalize('NFKC').toLocaleLowerCase().includes(qq)));
+    const so2=B.sort||'cost';L.sort((a,b)=>(OWN(b)>0)-(OWN(a)>0)||(so2==='rar'?(B_RO[BY[b].r]||0)-(B_RO[BY[a].r]||0):so2==='name'?BY[a].n.localeCompare(BY[b].n,'ja'):((BY[b].f===lf)-(BY[a].f===lf))||BY[a].c-BY[b].c)||BY[a].c-BY[b].c);
+    grid.replaceChildren();let k=0;L.forEach(id=>bVars(id).forEach(sv=>{const v=bV(id,sv),own=OWN(id)>0;k++;
+      const w=el('button','mdc'+(v.n?' has':'')+(own?'':' lock')+(bSel(id,sv)?' on':'')+(BY[id].f===lf?' same':''));w.setAttribute('aria-label',BY[id].n+(v.tag?'('+v.tag+')':''));w.append(bigCard(id,true,v.look,v.ak));
+      if(v.n)w.append(el('i','mdn',String(v.n)));w.append(el('i','mdo'+(own?'':' x'),own?(HOST?(v.tag?v.tag+' ':'')+'所持'+v.mine:''):'未所持'));
+      if(own){const ad=el('span','mdadd'+(v.canAdd?'':' off'),'+');ad.setAttribute('role','button');ad.setAttribute('aria-label',BY[id].n+'を1枚入れる');ad.onclick=e=>{e.stopPropagation();if(v.add()){B.sel={id,sv};drawBuilder()}};w.append(ad)}
+      w.onclick=()=>{B.sel={id,sv};drawBuilder()};grid.append(w)}));
+    info.textContent=k+'枚'+(B.query.trim()?'(検索中)':'');if(!k)grid.append(el('div','bempty',B.tab==='deck'&&!B.cards.length?'まだカードが入っていません。':'条件に合うカードがありません。絞り込みや検索を変えてください。'))};
+  q.oninput=()=>{B.query=q.value;fill()};q.onsearch=q.oninput;so.onchange=()=>{B.sort=so.value;fill()};fill()}
+function filterSheet(){sheet((s,close)=>{const draw=()=>{s.replaceChildren();s.append(el('h3',null,'絞り込み'));
+    const sec=(t,items,cur,set,cls)=>{s.append(el('div','mdfh',t));const g=el('div','mdfg'+(cls?' '+cls:''));items.forEach(([k,n,col])=>{const b=el('button',cur===k?'on':'',n);if(col)b.style.setProperty('--dc',col);b.onclick=()=>{set(k);draw()};g.append(b)});s.append(g)};
+    const trib=CD.PFX[B.tab]||B.tab==='gen'?B.tab:'';sec('族',[['','ぜんぶ'],...Object.keys(CD.PFX).map(k=>[k,CD.FNAME[k].replace('族',''),'var(--'+k+')']),['gen','族なし']],trib,k=>{B.tab=k||'own';if(!k&&!HOST)B.tab='all'},'t4');
+    sec('種類',[['','ぜんぶ'],['chara','キャラ'],['spell','魔法'],['trap','罠']],B.ty||'',k=>{B.ty=k});
+    sec('熱量',[[-1,'ぜんぶ'],[0,'0'],[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5以上']],B.cost,k=>{B.cost=k},'t7');
+    const a=el('div','mdfa'),r=el('button','btn sec','リセット'),ok=el('button','btn','この条件で見る');r.onclick=()=>{B.ty='';B.cost=-1;if(CD.PFX[B.tab]||B.tab==='gen')B.tab=HOST?'own':'all';draw()};ok.onclick=()=>{close();B.lsTop=0;drawBuilder()};a.append(r,ok);s.append(a)};draw()})}
+function mdLeadSheet(){sheet((s,close)=>{const draw=()=>{s.replaceChildren();const lf=BY[B.lead].f;s.append(el('h3',null,'リーダー'),el('p','mut','特性と必殺技を持つ金のカード。持っているものから選べます'));
+    const g=el('div','mdlg');Object.values(CD.LEADERS).forEach(id=>{const c=bigCard(id,true);const b=el('button','mdlc'+(id===B.lead?' on':'')+(OWN(id)<1?' lock':''));b.append(c);b.onclick=()=>{if(OWN(id)<1){caption('このリーダーはまだ持っていません(パックのガチレア)');return}if(id===B.lead)return;B.lead=id;const f=fitDeck(B);B.cards=f.cards;B.scr=f.scr;B.kmr=f.kmr;draw()};g.append(b)});s.append(g);
+    const info=el('div','linfo');info.append(el('b',null,'特性「'+CD.TRAITS[lf].n+'」'),document.createTextNode(CD.TRAITS[lf].t),el('br'),el('b',null,'必殺技「'+CD.SKILLS[lf].n+'」'),document.createTextNode(CD.SKILLS[lf].t));s.append(info,leaderAbil(B.lead));
+    const ok=el('button','btn','決める');ok.onclick=()=>{close();drawBuilder()};s.append(ok)};draw()})}
+function autoFill(){const lf=BY[B.lead].f,before=B.cards.length;
+  const cand=CD.POOL.filter(id=>OWN(id)>0&&!CD.isLeader(id)).sort((a,b)=>(BY[b].f===lf)-(BY[a].f===lf)||((BY[b].kw||{}).syn?1:0)-((BY[a].kw||{}).syn?1:0)||(B_RO[BY[b].r]||0)-(B_RO[BY[a].r]||0)||BY[a].c-BY[b].c);
+  for(const id of cand){if(B.cards.length>=CD.DECK_SIZE)break;for(let k=0;k<2&&B.cards.length<CD.DECK_SIZE;k++){const v=bVars(id).map(sv=>bV(id,sv)).find(x=>x.canAdd);if(!v||!v.add())break}}
+  const n=B.cards.length-before;caption(n?'おまかせで'+n+'枚入れました。いらないカードは選んで「−」で外せます':'入れられるカードがありません');drawBuilder()}
 /* ---------- state ---------- */
 let watchCoinInfo={coins:['basic','basic'],names:['プレイヤーA','プレイヤーB']};
 let g=null,H=0,myKey='weak',cpuKey='girl',myDeck=null,cpuDeck=null,busy=false,mode=null,timer=null,left=TURN_SEC,seed=Date.now()%100000,done=false,LOG=[],view=null;

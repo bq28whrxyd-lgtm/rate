@@ -8343,6 +8343,36 @@ body.kpc .tcgw iframe{width:min(100vw,calc(100vh * .66),720px)!important;height:
 .dxp .cic{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:.75}
 .dxp .cno{opacity:.0}
 .dxp:active .dxpk{transform:scale(.97)}
+
+/* ===== (10/26 v2) TCG図鑑: マスターデュエルのカードリストを参考に ===== */
+.tdx2 .tdxstk .tcgtools{flex-wrap:wrap}
+.tdx2 .tdxstk .tcgq{flex:1 1 100%}
+.tdx2 .tdxstk .tcgso{flex:1 1 0;min-width:0}
+.tdxfb{flex:none;position:relative;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);font-size:13px;font-weight:700}
+.tdxfb.on{border-color:var(--gold);color:var(--gold)}
+.tdxfb i{position:absolute;right:-5px;top:-6px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;display:grid;place-items:center;font:900 10px/1 var(--body);font-style:normal;color:#1b1405;background:var(--gold)}
+.tdxch{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.tdxch button{display:flex;align-items:center;gap:6px;height:28px;padding:0 6px 0 11px;border-radius:999px;border:1px solid color-mix(in srgb,var(--gold) 55%,transparent);background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--fg);font-size:12px;font-weight:700}
+.tdxch button i{font-style:normal;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:#ffffff1a;font-size:11px}
+.tdx2 .tcggrid:not(.tdxlist){grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 6px}
+.tdx2 .tcgc{padding-bottom:0}
+.tdx2 .tcgc .tcgchips{position:absolute;right:-3px;bottom:-4px;margin:0;min-height:0;z-index:6;justify-content:flex-end}
+.tdx2 .tcgc .tcgchips i{font-size:9.5px;padding:3px 6px;border-radius:999px;box-shadow:0 1px 4px #000c}
+.tdx2 .tcgc .tcgchips .cn{background:#0d1a12;color:#8affc8;box-shadow:inset 0 0 0 1px #8affc866,0 1px 4px #000c}
+.tdx2 .tcgc .tcgchips .cx{display:none}
+.tdx2 .tcgc.lock{opacity:.5}
+.tdxf h3{margin:0 0 4px;font-size:18px}
+.tdxfh{margin:12px 0 6px;font-size:12px;font-weight:700;color:var(--mut)}
+.tdxfg{display:grid;gap:6px}
+.tdxfg.c2{grid-template-columns:repeat(2,minmax(0,1fr))}.tdxfg.c3{grid-template-columns:repeat(3,minmax(0,1fr))}.tdxfg.c4{grid-template-columns:repeat(4,minmax(0,1fr))}.tdxfg.c5{grid-template-columns:repeat(5,minmax(0,1fr))}.tdxfg.c7{grid-template-columns:1.7fr repeat(6,minmax(0,1fr))}
+.tdxfg button{min-width:0;height:36px;padding:0 4px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;overflow:hidden}
+.tdxfg button[style]{box-shadow:inset 3px 0 0 var(--fc)}
+.tdxfg button small{font-size:9.5px;color:var(--mut);font-variant-numeric:tabular-nums}
+.tdxfg button.on{background:var(--gold);border-color:var(--gold);color:#1b1405}
+.tdxfg button.on small{color:#1b1405b0}
+.tdxfa{display:flex;gap:8px;margin-top:16px}
+.tdxfa>*{flex:1}
+.tdxf{max-height:88vh;overflow-y:auto}
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
 #login h1{margin:4px 0 0}#login button{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -15190,7 +15220,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=191';
+const TCG_SRC='tcg_play.html?v=193';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -15674,7 +15704,7 @@ function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o
   if((tcgAltOwned()[id]||[]).includes(3)&&tcgHasSt()){const gv=el('button','sec tcgshgk','極の演出を見る');gv.onclick=()=>{o.remove();tcgPlay('gokuview='+encodeURIComponent(id))};b.append(gv)}
   b.append(x);o.append(b);o.onclick=e=>{if(e.target===o)o.remove()};document.body.append(o)}
 /* 図鑑: every card, the ones you don't have yet greyed out. Search by name or effect, sort, show only what you hold */
-let tcgQ='',tcgSort='no',tcgDexMine=false,tcgDexView=(()=>{try{return localStorage.getItem('tcgdv')==='list'?'list':'grid'}catch(e){return 'grid'}})();
+let tcgQ='',tcgSort='no',tcgDexMine=false,tcgDexTy='',tcgDexCost=-1,tcgDexRar='',tcgDexView=(()=>{try{return localStorage.getItem('tcgdv')==='list'?'list':'grid'}catch(e){return 'grid'}})();
 const TCG_RORD={GR:0,SR:1,R:2,C:3};
 function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),KM=tcgKmr(),AO=tcgAltOwned(),all=TCGD.cards.length,held=c=>(own[c.id]||0)+(foil[c.id]||0)+(KM[c.id]||0)+((AO[c.id]||[]).length),have=TCGD.cards.filter(c=>held(c)>0).length,gr=TCGD.cards.filter(c=>c.r==='GR'),grh=gr.filter(c=>held(c)>0).length;
   const scrH=TCGD.cards.filter(c=>(foil[c.id]||0)>0).length;const kmH=TCGD.cards.filter(c=>(KM[c.id]||0)>0).length;cs.append(el('div','sub',have+' / '+all+' 種類  ·  ガチレア '+grh+' / '+gr.length+'  ·  シークレット '+scrH+' / '+all+(kmH?'  ·  KMR '+kmH+' / '+all:'')));
@@ -15682,15 +15712,19 @@ function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),KM=tcgKmr(),A
   try{if(typeof boxDupBar==='function'&&tcgHasSt())cs.append(boxDupBar('t',()=>rerender()))}catch(e){}
   const tools=el('div','tcgtools'),q=el('input','tcgq');q.type='search';q.placeholder='カード名・効果で検索';q.value=tcgQ;q.setAttribute('aria-label','図鑑を検索');
   const so=el('select','tcgso');so.setAttribute('aria-label','並び順');[['no','番号順'],['rar','レア度が高い順'],['rarlo','レア度が低い順'],['cost','熱量が少ない順'],['costhi','熱量が多い順'],['name','名前順'],['own','持っている数が多い順']].forEach(([v,n])=>{const op=el('option',null,n);op.value=v;so.append(op)});so.value=tcgSort;
-  const mi=el('button','tcgmine'+(tcgDexMine?' on':''),'持っているだけ');mi.setAttribute('aria-pressed',tcgDexMine?'true':'false');
-  /* (10/26) 見やすい図鑑: カード / リスト, each tribe with how many you have, and the tools stay on screen while you scroll */
+  /* (10/26 v2) マスターデュエルのカードリストを参考に: 検索・「絞り込み」1つ(族・種類・熱量・レア・持っているだけ)・並び順・カード/リスト。
+     かけた条件は下に小さく並び、×で外せる。カードは4列の絵だけにして、持っている数は絵の上に */
+  cs.classList.add('tdx2');
+  const nf=(tcgTab!=='all'?1:0)+(tcgDexTy?1:0)+(tcgDexCost>=0?1:0)+(tcgDexRar?1:0)+(tcgDexMine?1:0);
+  const fb=el('button','tdxfb'+(nf?' on':''));fb.type='button';fb.append(document.createTextNode('絞り込み'));if(nf)fb.append(el('i',null,String(nf)));fb.onclick=()=>tcgDexFilter(rerender,held);
   const vw=el('div','tdxv');[['grid','カード'],['list','リスト']].forEach(([k,n])=>{const b=el('button','kx-mk'+(tcgDexView===k?' on':''),n);b.type='button';b.onclick=()=>{tcgDexView=k;try{localStorage.setItem('tcgdv',k)}catch(e){}rerender()};vw.append(b)});
-  tools.append(q,so,mi,vw);const stk=el('div','tdxstk');stk.append(tools);cs.append(stk);
-  const tabs=el('div','tcgtabs');[['all','すべて'],...TCGD.order.map(f=>[f,TCGD.fname[f].replace('族','')])].forEach(([k,n])=>{const F=TCGD.cards.filter(c=>k==='all'||c.f===k),h=F.filter(c=>held(c)>0).length;const b=el('button',(tcgTab===k?'on':'')+(h===F.length&&F.length?' done':''));b.append(document.createTextNode(n),el('small',null,h+'/'+F.length));if(k!=='all'&&typeof TFC_COL!=='undefined'&&TFC_COL[k])b.style.setProperty('--fc',TFC_COL[k]);b.onclick=()=>{tcgTab=k;rerender()};tabs.append(b)});tabs.classList.add('tdxtabs');cs.append(tabs);
+  tools.append(q,fb,so,vw);const stk=el('div','tdxstk');stk.append(tools);cs.append(stk);
+  if(nf){const ch=el('div','tdxch'),TY={chara:'キャラ',spell:'魔法',trap:'罠'},RN={C:'コモン',R:'レア',SR:'スーパーレア',GR:'ガチレア'};const add=(t,fn)=>{const b=el('button','kx-mk');b.type='button';b.append(document.createTextNode(t),el('i',null,'×'));b.onclick=()=>{fn();rerender()};ch.append(b)};
+    if(tcgTab!=='all')add(TCGD.fname[tcgTab]||tcgTab,()=>{tcgTab='all'});if(tcgDexTy)add(TY[tcgDexTy],()=>{tcgDexTy=''});if(tcgDexCost>=0)add('熱量 '+(tcgDexCost>=5?'5以上':tcgDexCost),()=>{tcgDexCost=-1});if(tcgDexRar)add(RN[tcgDexRar]||tcgDexRar,()=>{tcgDexRar=''});if(tcgDexMine)add('持っているだけ',()=>{tcgDexMine=false});stk.append(ch)}
   const info=el('div','sub tcgcnt'),g=el('div','tcggrid');cs.append(info,g);
   const idx=new Map(TCGD.cards.map((c,i)=>[c.id,i]));
   const draw=()=>{const s=tcgQ.normalize('NFKC').toLocaleLowerCase().trim();
-    let L=TCGD.cards.filter(c=>(tcgTab==='all'||c.f===tcgTab)&&(!tcgDexMine||held(c)>0)&&(!s||(c.n+' '+(c.tx||'')).normalize('NFKC').toLocaleLowerCase().includes(s)));
+    let L=TCGD.cards.filter(c=>(tcgTab==='all'||c.f===tcgTab)&&(!tcgDexMine||held(c)>0)&&(!tcgDexTy||c.ty===tcgDexTy)&&(tcgDexCost<0||Math.min(5,c.c|0)===tcgDexCost)&&(!tcgDexRar||c.r===tcgDexRar)&&(!s||(c.n+' '+(c.tx||'')).normalize('NFKC').toLocaleLowerCase().includes(s)));
     const by={no:(a,b)=>idx.get(a.id)-idx.get(b.id),rar:(a,b)=>TCG_RORD[a.r]-TCG_RORD[b.r],rarlo:(a,b)=>TCG_RORD[b.r]-TCG_RORD[a.r],cost:(a,b)=>a.c-b.c,costhi:(a,b)=>b.c-a.c,name:(a,b)=>a.n.localeCompare(b.n,'ja'),own:(a,b)=>held(b)-held(a)}[tcgSort]||((a,b)=>0);
     L=L.slice().sort((a,b)=>by(a,b)||idx.get(a.id)-idx.get(b.id));
     info.textContent=(s||tcgDexMine||tcgTab!=='all')?L.length+'種類':'';g.replaceChildren();
@@ -15706,12 +15740,24 @@ function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),KM=tcgKmr(),A
     /* (10/16) each version has its own square, right after the normal one: 通常 → シークレット → 絵違い (only cards that have them) */
     L.forEach(c=>{const HH=tcgHeld(c.id),any=HH.some(h=>h.k>0);HH.forEach((h,hi)=>{if(tcgDexMine&&!h.k)return;if(!h.k&&(any||hi>0))return;/* (10/22) one square per card unless you own more versions */const v=h.v,km=v==='k',scr=v==='s',alt=typeof v==='number'&&v>0,w=el('button','tcgc'+(h.k?'':' lock')+(km?' kmr':scr?' scr':alt?' alt':''));
       w.append(tcgCardFull(c.id,km?'k':scr,null,alt?v:0));
-      const ch=el('div','tcgchips');ch.append(el('i',h.k?(km?'cs ck':scr?'cs':alt?'ca':'cn'):'cx',(km?'KMR':scr?'SCR':alt?h.n.replace('絵違い ','絵違い・'):'通常')+(h.k?(alt?'':' '+h.k):' 未所持')));
+      const ch=el('div','tcgchips');ch.append(el('i',h.k?(km?'cs ck':scr?'cs':alt?'ca':'cn'):'cx',(km?'KMR ':scr?'SCR ':alt?h.n.replace('絵違い ','絵違い・'):'×')+(h.k?(alt?'':h.k):' 未所持')));
       w.append(ch);w.setAttribute('aria-label',c.n+' '+h.n+(h.k?'('+h.k+'枚)':'(未所持)'));w.onclick=()=>tcgSheet(c.id,v);g.append(w)});
       /* keep 通常 / シークレット as a left-right pair in the 4 columns: a card with 絵違い (5 squares) gets one empty square */
       })};
-  q.oninput=()=>{tcgQ=q.value;draw()};so.onchange=()=>{tcgSort=so.value;draw()};mi.onclick=()=>{tcgDexMine=!tcgDexMine;mi.classList.toggle('on',tcgDexMine);mi.setAttribute('aria-pressed',tcgDexMine?'true':'false');draw()};
+  q.oninput=()=>{tcgQ=q.value;draw()};so.onchange=()=>{tcgSort=so.value;draw()};
   draw()}
+/* the 絞り込み sheet of the TCG 図鑑 (one place for every filter; each tribe shows how many you have) */
+function tcgDexFilter(rerender,held){document.querySelectorAll('.mks').forEach(x=>x.remove());const o=el('div','mks'),b=el('div','mksb tdxf');o.append(b);
+  const draw=()=>{b.replaceChildren();b.append(el('h3',null,'絞り込み'));
+    const sec=(t,items,cur,set,cls)=>{b.append(el('div','tdxfh',t));const g=el('div','tdxfg'+(cls?' '+cls:''));items.forEach(([k,n,col,sub])=>{const x=el('button','kx-mk'+(cur===k?' on':''));x.type='button';x.append(document.createTextNode(n));if(sub)x.append(el('small',null,sub));if(col)x.style.setProperty('--fc',col);x.onclick=()=>{set(k);draw()};g.append(x)});b.append(g)};
+    const cnt=f=>{const F=TCGD.cards.filter(c=>c.f===f);return F.filter(c=>held(c)>0).length+'/'+F.length};
+    sec('族',[['all','ぜんぶ'],...TCGD.order.map(f=>[f,TCGD.fname[f].replace('族',''),typeof TFC_COL!=='undefined'?TFC_COL[f]:null,cnt(f)])],tcgTab,k=>{tcgTab=k},'c3');
+    sec('種類',[['','ぜんぶ'],['chara','キャラ'],['spell','魔法'],['trap','罠']],tcgDexTy,k=>{tcgDexTy=k},'c4');
+    sec('熱量',[[-1,'ぜんぶ'],[0,'0'],[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5+']],tcgDexCost,k=>{tcgDexCost=k},'c7');
+    sec('レア',[['','ぜんぶ'],['C','コモン'],['R','レア'],['SR','SR'],['GR','ガチレア']],tcgDexRar,k=>{tcgDexRar=k},'c5');
+    sec('持っているか',[[false,'ぜんぶ'],[true,'持っているだけ']],tcgDexMine,k=>{tcgDexMine=k},'c2');
+    const a=el('div','tdxfa'),r=el('button','sec','リセット'),ok=el('button','mkgo','この条件で見る');r.onclick=()=>{tcgTab='all';tcgDexTy='';tcgDexCost=-1;tcgDexRar='';tcgDexMine=false;draw()};ok.onclick=()=>{o.remove();rerender()};a.append(r,ok);b.append(a)};
+  draw();o.onclick=e=>{if(e.target===o){o.remove();rerender()}};document.body.append(o)}
 /* デッキ・図鑑: next to コレクション・図鑑 (パック and プロフィール) */
 let tdvTab='deck';
 function tcgDeckView(tab){if(tab)tdvTab=tab;tcgLoad().then(()=>{const o=$('tdv');if(o)drawTdv()});let o=$('tdv');if(!o){o=el('div','tdv');o.id='tdv';document.body.append(o)}drawTdv()}
