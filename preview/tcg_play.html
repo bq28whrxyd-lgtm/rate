@@ -5268,6 +5268,36 @@ function tsfxEv(e){if(!e||!e.t)return;const m=TSFX_EV[e.t];if(!m)return;TSFX.pla
   sw.onclick=()=>{const v=!TSFX.on();TSFX.set(v);sw.classList.toggle('on',v);lab.lastChild.textContent=v?'鳴ります':'鳴りません'};
   r.append(sw,lab);f.append(r);return f}}
 
+/* ===== (10/26) 閉じるはいつも上: どの画面(全面の画面・下から出るシート)でも、「閉じる」を右上に固定する。
+   画面ごとの「閉じる」ボタンはそのまま残して隠し、右上のボタンはそれを押したのと同じ動きをする(閉じたあとの処理も同じ)。
+   中身を描き直す画面でも、そのたびに付け直す。 ===== */
+(function(){if(window.__topx)return;window.__topx=1;
+  const css=document.createElement('style');css.textContent=
+    '.txw{position:sticky;top:0;z-index:60;display:flex;justify-content:flex-end;pointer-events:none;overflow:visible;margin:0 0 6px;padding:0}'+
+    '.txb{pointer-events:auto;flex:none;display:inline-flex;align-items:center;gap:5px;height:34px;margin:0;padding:0 12px 0 10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);'+
+      'background:rgba(20,18,30,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font:700 13px/1 system-ui,-apple-system,"Hiragino Sans",sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.45);cursor:pointer;-webkit-tap-highlight-color:transparent}'+
+    '.txb::before{content:"";width:12px;height:12px;background:linear-gradient(45deg,transparent 44%,currentColor 44% 56%,transparent 56%),linear-gradient(-45deg,transparent 44%,currentColor 44% 56%,transparent 56%)}'+
+    '.txb:active{transform:scale(.95)}'+
+    '.txw.safe{padding-top:calc(env(safe-area-inset-top,0px) + 8px)}'+
+    '.txb.fx{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:2147483000;margin:0}'+
+    '.txh{display:none!important}';
+  (document.head||document.documentElement).append(css);
+  const isClose=b=>b.tagName==='BUTTON'&&!b.closest('.txw')&&!b.classList.contains('txb')&&(b.textContent||'').replace(/\s+/g,'')==='閉じる';
+  const topOf=el=>{let x=el;while(x&&x.parentElement&&x.parentElement!==document.body)x=x.parentElement;return x&&x.parentElement===document.body?x:null};
+  const scroller=(b,top)=>{let x=b.parentElement;while(x&&x!==top){const s=getComputedStyle(x);if(/(auto|scroll)/.test(s.overflowY))return x;x=x.parentElement}const s=getComputedStyle(top);return /(auto|scroll)/.test(s.overflowY)?top:null};
+  const proxyClick=host=>{const t=topOf(host)||host;const o=[...t.querySelectorAll('button.txh')].filter(b=>b.isConnected);if(o.length){o[o.length-1].click();return}t.remove()};
+  function scan(){const L=document.querySelectorAll('body>* button');for(const b of L){if(b.dataset.txd||!isClose(b))continue;const top=topOf(b);if(!top||top===b)continue;
+      const st=getComputedStyle(top);if(st.position!=='fixed'||st.display==='none'||top.hidden)continue;
+      b.dataset.txd='1';b.classList.add('txh');
+      const sc=scroller(b,top);
+      if(sc){if(sc.querySelector(':scope>.txw'))continue;const w=document.createElement('div');w.className='txw';const x=document.createElement('button');x.type='button';x.className='txb';x.textContent='閉じる';x.setAttribute('aria-label','閉じる');
+        x.onclick=e=>{e.stopPropagation();proxyClick(sc)};w.append(x);sc.prepend(w);try{if(sc.getBoundingClientRect().top<24)w.classList.add('safe')}catch(e){}}
+      else{if(top.querySelector('.txb.fx'))continue;const x=document.createElement('button');x.type='button';x.className='txb fx';x.textContent='閉じる';x.setAttribute('aria-label','閉じる');x.onclick=e=>{e.stopPropagation();proxyClick(top)};top.append(x)}}}
+  window.__topxScan=scan;
+  let q=0;const kick=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;try{scan()}catch(e){}})};
+  const start=()=>{try{new MutationObserver(kick).observe(document.body,{childList:true,subtree:true})}catch(e){}kick()};
+  if(document.body)start();else document.addEventListener('DOMContentLoaded',start)})();
+
 })();
 
 </script>

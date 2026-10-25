@@ -4112,7 +4112,7 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .psh-add>i::after{transform:rotate(90deg)}
 .psh-add:active{transform:scale(.98)}
 .psh-pk{max-height:86vh;display:flex;flex-direction:column}
-.psh-pkh{display:flex;align-items:baseline;gap:10px}
+.psh-pkh{display:flex;align-items:baseline;gap:10px;padding-right:100px}
 .psh-pkh h3{margin:0;font-size:18px}
 .psh-pkh span{margin-left:auto;font-size:12px;opacity:.65;font-variant-numeric:tabular-nums}
 .psh-pkf{display:flex;align-items:center;gap:6px}
@@ -8347,6 +8347,7 @@ body.kpc .tcgw iframe{width:min(100vw,calc(100vh * .66),720px)!important;height:
 /* ===== (10/26 v2) TCG図鑑: マスターデュエルのカードリストを参考に ===== */
 .tdx2 .tdxstk .tcgtools{flex-wrap:wrap}
 .tdx2 .tdxstk .tcgq{flex:1 1 100%}
+.tdv .tdxstk{top:40px;box-shadow:0 -48px 0 var(--ink),0 10px 14px -12px #000}
 .tdx2 .tdxstk .tcgso{flex:1 1 0;min-width:0}
 .tdxfb{flex:none;position:relative;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);font-size:13px;font-weight:700}
 .tdxfb.on{border-color:var(--gold);color:var(--gold)}
@@ -15220,7 +15221,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=193';
+const TCG_SRC='tcg_play.html?v=195';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -21126,6 +21127,36 @@ document.addEventListener('keydown',e=>{if(!on()||e.defaultPrevented||e.altKey||
 window.__kpc={apply,closeTop,topLayer};
 })();
 /*KPCJS-END*/</script>
+<script>/*TOPX-START*//* ===== (10/26) 閉じるはいつも上: どの画面(全面の画面・下から出るシート)でも、「閉じる」を右上に固定する。
+   画面ごとの「閉じる」ボタンはそのまま残して隠し、右上のボタンはそれを押したのと同じ動きをする(閉じたあとの処理も同じ)。
+   中身を描き直す画面でも、そのたびに付け直す。 ===== */
+(function(){if(window.__topx)return;window.__topx=1;
+  const css=document.createElement('style');css.textContent=
+    '.txw{position:sticky;top:0;z-index:60;display:flex;justify-content:flex-end;pointer-events:none;overflow:visible;margin:0 0 6px;padding:0}'+
+    '.txb{pointer-events:auto;flex:none;display:inline-flex;align-items:center;gap:5px;height:34px;margin:0;padding:0 12px 0 10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);'+
+      'background:rgba(20,18,30,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font:700 13px/1 system-ui,-apple-system,"Hiragino Sans",sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.45);cursor:pointer;-webkit-tap-highlight-color:transparent}'+
+    '.txb::before{content:"";width:12px;height:12px;background:linear-gradient(45deg,transparent 44%,currentColor 44% 56%,transparent 56%),linear-gradient(-45deg,transparent 44%,currentColor 44% 56%,transparent 56%)}'+
+    '.txb:active{transform:scale(.95)}'+
+    '.txw.safe{padding-top:calc(env(safe-area-inset-top,0px) + 8px)}'+
+    '.txb.fx{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:2147483000;margin:0}'+
+    '.txh{display:none!important}';
+  (document.head||document.documentElement).append(css);
+  const isClose=b=>b.tagName==='BUTTON'&&!b.closest('.txw')&&!b.classList.contains('txb')&&(b.textContent||'').replace(/\s+/g,'')==='閉じる';
+  const topOf=el=>{let x=el;while(x&&x.parentElement&&x.parentElement!==document.body)x=x.parentElement;return x&&x.parentElement===document.body?x:null};
+  const scroller=(b,top)=>{let x=b.parentElement;while(x&&x!==top){const s=getComputedStyle(x);if(/(auto|scroll)/.test(s.overflowY))return x;x=x.parentElement}const s=getComputedStyle(top);return /(auto|scroll)/.test(s.overflowY)?top:null};
+  const proxyClick=host=>{const t=topOf(host)||host;const o=[...t.querySelectorAll('button.txh')].filter(b=>b.isConnected);if(o.length){o[o.length-1].click();return}t.remove()};
+  function scan(){const L=document.querySelectorAll('body>* button');for(const b of L){if(b.dataset.txd||!isClose(b))continue;const top=topOf(b);if(!top||top===b)continue;
+      const st=getComputedStyle(top);if(st.position!=='fixed'||st.display==='none'||top.hidden)continue;
+      b.dataset.txd='1';b.classList.add('txh');
+      const sc=scroller(b,top);
+      if(sc){if(sc.querySelector(':scope>.txw'))continue;const w=document.createElement('div');w.className='txw';const x=document.createElement('button');x.type='button';x.className='txb';x.textContent='閉じる';x.setAttribute('aria-label','閉じる');
+        x.onclick=e=>{e.stopPropagation();proxyClick(sc)};w.append(x);sc.prepend(w);try{if(sc.getBoundingClientRect().top<24)w.classList.add('safe')}catch(e){}}
+      else{if(top.querySelector('.txb.fx'))continue;const x=document.createElement('button');x.type='button';x.className='txb fx';x.textContent='閉じる';x.setAttribute('aria-label','閉じる');x.onclick=e=>{e.stopPropagation();proxyClick(top)};top.append(x)}}}
+  window.__topxScan=scan;
+  let q=0;const kick=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;try{scan()}catch(e){}})};
+  const start=()=>{try{new MutationObserver(kick).observe(document.body,{childList:true,subtree:true})}catch(e){}kick()};
+  if(document.body)start();else document.addEventListener('DOMContentLoaded',start)})();
+/*TOPX-END*/</script>
 <script>
 /* data carried over from the Claude version (imported once by the first person who presses the button) */
 window.MIGRATE={"admin": "3kcrm26nwc6hhos2mgxd", "players": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"eq": {"b": null, "f": null, "t": null, "v": null, "x": "x40"}, "name": "山田", "season": 1}}], "inv": [{"id": "3kcrm26nwc6hhos2mgxd", "data": {"own": {"f00": 3, "f01": 1, "f02": 2, "t00": 1, "t10": 1, "t14": 2, "x00": 1, "x10": 1, "x11": 1, "x21": 1, "x40": 1}, "packs": 3, "shards": 6, "since": 0}}]};
