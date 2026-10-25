@@ -265,30 +265,10 @@ const HW2_T0 = Date.UTC(2026, 9, 28, 20, 0), HW2_T1 = Date.UTC(2026, 10, 7, 20, 
 const HW2_TM = {p: 'かぼちゃ団', b: 'こうもり団'};
 const hw2Live = t => HW2_LIVE && t >= HW2_T0 && t < HW2_T1;
 const hw2Pv = t => t >= HW2_PV0 && t < HW2_T1;
-/* 仲間を起こす: tell the one who was woken */
-exports.pushWake = onDocumentCreated('wake/{id}', async ev => {
-  const w = ev.data && ev.data.data(); if (!w || !w.o || !w.f) return;
-  const pv = !!w.pv; if (!pv && !HW2_LIVE) return;
-  let nm = '仲間'; try { const p = (await db.doc('players/' + w.f).get()).data(); if (p && p.name) nm = p.name; } catch (e) {}
-  await send([w.o], 'give', {title: nm + 'が起こしています', body: '今日まだ遊んでないよ。今日1回遊ぶと、ふたりともお菓子 +10', go: 'home', tag: 'wk' + ev.params.id}, pv);
-});
 /* ゴールデンタイム: 21:00 every night of the 後編, except 10/31 (the night counts double then) */
 exports.pushGold = onSchedule({schedule: '0 21 * * *', timeZone: 'Asia/Tokyo'}, async () => {
   const t = Date.now(), d = new Date(t + 9 * 36e5);
   if (d.getUTCMonth() === 9 && d.getUTCDate() === 31) return;
   const live = hw2Live(t); if (!live && !hw2Pv(t)) return;
   await send(null, 'give', {title: 'ゴールデンタイム', body: 'いまから30分、お菓子が1.5倍。チーム戦の点を伸ばすチャンス', go: 'home', tag: 'gold' + dayNo(t)}, !live);
-});
-/* 毎日のミニ勝負: 5:01 every morning, yesterday's winner (average of that day's candy, people with 0 not counted) */
-exports.pushHw2Day = onSchedule({schedule: '1 5 * * *', timeZone: 'Asia/Tokyo'}, async () => {
-  const t = Date.now(), live = hw2Live(t - 36e5), pv = !live && hw2Pv(t - 36e5); if (!live && !pv) return;
-  const cfg = (await db.doc(live ? 'config/hwteam' : 'config/hwteampv').get()).data(); if (!cfg || !cfg.a) return;
-  const K = live ? {dd: 'dd', tm: 'tm'} : {dd: 'pdd', tm: 'ptm'}, y = dayNo(t) - 1, S = {p: [0, 0], b: [0, 0]};
-  for (const d of (await db.collection('hwp').get()).docs) {
-    const v = d.data() || {}, tm = cfg.a[d.id] || v[K.tm], c = +((v[K.dd] || {})[y]) || 0;
-    if (S[tm] && c > 0) { S[tm][0] += c; S[tm][1]++; }
-  }
-  const a = S.p[1] ? Math.round(S.p[0] / S.p[1]) : 0, b = S.b[1] ? Math.round(S.b[0] / S.b[1]) : 0; if (!a && !b) return;
-  const w = a === b ? null : a > b ? 'p' : 'b';
-  await send(null, 'give', {title: w ? 'きのうのミニ勝負: ' + HW2_TM[w] + 'の勝ち' : 'きのうのミニ勝負: 引き分け', body: HW2_TM.p + ' ' + a + ' 対 ' + b + ' ' + HW2_TM.b + (w ? '。勝ったチームで遊んだ人に 100pt' : ''), go: 'home', tag: 'h2d' + y}, pv);
 });

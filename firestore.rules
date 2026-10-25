@@ -392,10 +392,12 @@ service cloud.firestore {
     }
     match /hwp/{pid} {
       allow read: if signedIn();
-      allow write: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['L', 'u', 'c', 'pc', 'x', 'px', 'S', 'pS', 'c2', 'pc2', 'dd', 'pdd', 'tm', 'ptm'])
+      allow write: if signedIn() && myPid() == pid && request.resource.data.keys().hasOnly(['L', 'u', 'c', 'pc', 'x', 'px', 'S', 'pS', 'c2', 'pc2', 'c2t', 'pc2t', 'dd', 'pdd', 'tm', 'ptm'])
         // (10/25) ハロウィン後編: c2 / pc2 = 後編のお菓子、dd / pdd = 日ごと (最近の数日)、tm / ptm = あとから入ったチーム (一度決めたら変えない)
         && (!('c2' in request.resource.data) || (request.resource.data.c2 is int && request.resource.data.c2 >= 0 && request.resource.data.c2 <= 200000))
         && (!('pc2' in request.resource.data) || (request.resource.data.pc2 is int && request.resource.data.pc2 >= 0 && request.resource.data.pc2 <= 200000))
+        && (!('c2t' in request.resource.data) || (request.resource.data.c2t is int && request.resource.data.c2t >= 0 && request.resource.data.c2t <= 200000))
+        && (!('pc2t' in request.resource.data) || (request.resource.data.pc2t is int && request.resource.data.pc2t >= 0 && request.resource.data.pc2t <= 200000))
         && (!('dd' in request.resource.data) || (request.resource.data.dd is map && request.resource.data.dd.size() <= 10))
         && (!('pdd' in request.resource.data) || (request.resource.data.pdd is map && request.resource.data.pdd.size() <= 10))
         && (!('tm' in request.resource.data) || (request.resource.data.tm in ['p', 'b'] && (resource == null || !('tm' in resource.data) || resource.data.tm == request.resource.data.tm)))
