@@ -1575,15 +1575,27 @@ body:not(.gkview){background:
 .pm-chara.vid img{opacity:0}
 .pm-vig{inset:0;background:radial-gradient(130% 120% at 70% 45%,transparent 50%,rgba(12,6,20,.55) 100%),linear-gradient(0deg,rgba(12,6,20,.35),transparent 30%)}
 /* binding and stitch */
-.pm-st{inset:0;border-radius:inherit;box-shadow:inset 0 0 0 4px #120a18,inset 0 0 0 5px rgba(255,211,107,.25)}
-.pm-st::after{content:"";position:absolute;inset:6px;border-radius:11px;border:1.4px dashed rgba(255,214,140,.6)}
-.pm-cn{width:24px;height:24px;color:rgba(255,220,150,.8)}
+.pm-st{inset:0;border-radius:inherit;box-shadow:inset 0 0 0 7px #0b0610,inset 0 0 0 8px rgba(255,214,140,.55),inset 0 0 0 9px rgba(0,0,0,.6),inset 0 0 22px 9px rgba(0,0,0,.45)}
+.pm-st::before,.pm-st::after{content:"";position:absolute;border-radius:10px;border:1.2px dashed rgba(240,206,130,.85)}
+.pm-st::before{inset:2.5px;border-radius:14px;border-color:rgba(240,206,130,.55)}
+.pm-st::after{inset:12px;border-radius:8px}
+.pm-st2{inset:15px;border-radius:6px;box-shadow:0 0 0 .8px rgba(255,226,160,.35)}
+.pm-cn{width:12cqh;height:12cqh;min-width:34px;min-height:34px;max-width:58px;max-height:58px;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.7))}
 .pm-cn svg{width:100%;height:100%;display:block}
-.pm-cn.pc-tl{left:9px;top:9px}.pm-cn.pc-tr{right:9px;top:9px;transform:scaleX(-1)}.pm-cn.pc-bl{left:9px;bottom:9px;transform:scaleY(-1)}.pm-cn.pc-br{right:9px;bottom:9px;transform:scale(-1)}
+.pm-cn.pc-tl{left:4px;top:4px}.pm-cn.pc-tr{right:4px;top:4px;transform:scaleX(-1)}.pm-cn.pc-bl{left:4px;bottom:4px;transform:scaleY(-1)}.pm-cn.pc-br{right:4px;bottom:4px;transform:scale(-1)}
 /* the printed name, small, in the lower left like a real mat */
-.pm-logo{left:38px;bottom:13px;display:flex;flex-direction:column;gap:3px;color:rgba(255,236,200,.85);text-shadow:0 1px 6px rgba(10,5,18,.8);white-space:nowrap}
-.pm-logo b{font:italic 900 10px/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.24em}
-.pm-logo small{font:600 8px/1 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.14em;opacity:.85}
+.pm-logo{left:max(50px,14cqh);bottom:max(17px,5.2cqh);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.pm-crest{width:max(30px,9cqh);height:max(21px,6.2cqh);filter:drop-shadow(0 1px 2px rgba(0,0,0,.8))}
+.pm-crest svg{width:100%;height:100%;display:block}
+.pm-ltx{display:flex;flex-direction:column;gap:3px}
+.pm-foil{background:linear-gradient(100deg,#8a6a2a 0%,#f6e2a6 28%,#c9a24e 44%,#fff4cc 52%,#b8892f 66%,#f1d48a 84%,#7a5a1e 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 1.2px rgba(0,0,0,.85))}
+.pm-ltx b{font:italic 900 max(11px,3.6cqh)/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.26em}
+.pm-ltx small{font:600 max(7.5px,2.4cqh)/1 "Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.16em;color:rgba(255,232,190,.82);text-shadow:0 1px 4px rgba(0,0,0,.9)}
+/* the edition: top left, like the serial stamp on a limited mat */
+.pm-no{left:max(50px,14cqh);top:max(17px,5.2cqh);display:flex;flex-direction:column;gap:3px;white-space:nowrap}
+.pm-no small{font:800 max(6.5px,2cqh)/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.3em;color:rgba(255,226,170,.75);text-shadow:0 1px 3px rgba(0,0,0,.9)}
+.pm-no b{font:italic 800 max(10px,3.2cqh)/1 "Inter Tight",system-ui,sans-serif;letter-spacing:.12em}
+.pm-foilsheen{top:-20%;bottom:-20%;left:20%;width:60%;opacity:0;background:linear-gradient(100deg,transparent 30%,rgba(255,240,200,.28) 48%,rgba(255,255,255,.4) 50%,rgba(255,240,200,.28) 52%,transparent 70%);mix-blend-mode:overlay}
 /* states (the TCG frame sets these) */
 .pm-red{inset:0;opacity:0;background:radial-gradient(120% 100% at 50% 100%,rgba(255,40,70,.34),rgba(120,0,40,.28) 60%,rgba(40,0,20,.2));mix-blend-mode:hard-light;transition:opacity .8s ease}
 .pm-glow{inset:0;border-radius:inherit;opacity:0;box-shadow:inset 0 0 0 1.5px rgba(255,214,120,.9),inset 0 0 26px rgba(255,180,70,.38);transition:opacity .45s ease}
@@ -3662,7 +3674,7 @@ const matEl=k=>{const sg=$('s-game');return sg&&sg.querySelector(':scope>.mat.'+
 const matPm=k=>{const m=matEl(k);return m&&m.querySelector('.pmat')};
 function matSync(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;
   [['b',matOf('b')],['t',matOf('t')]].forEach(([k,v])=>{let m=matEl(k);if(!v||!PMAT[v]){if(m)m.remove();return}
-    if(!m||m.dataset.mt!==v){if(m)m.remove();m=el('div','mat '+k);m.dataset.mt=v;const pm=pmatBuild(v);m.append(pm,el('i','mat-roll'));sg.insertBefore(m,f);matPos();matUnroll(m,k==='t'?140:0);setTimeout(()=>{try{pm.pmPlay(6000)}catch(e){}},(k==='t'?140:0)+500)}});
+    if(!m||m.dataset.mt!==v){if(m)m.remove();m=el('div','mat '+k);m.dataset.mt=v;let no=0;try{no=k==='b'?((myDeck&&myDeck.mn)||(!WATCH&&HOST&&HOST.matNo?HOST.matNo():0)):((cpuDeck&&cpuDeck.mn)||0)}catch(e){}const pm=pmatBuild(v,{no});m.append(pm,el('i','mat-roll'));sg.insertBefore(m,f);matPos();matUnroll(m,k==='t'?140:0);setTimeout(()=>{try{pm.pmPlay(6000)}catch(e){}},(k==='t'?140:0)+500)}});
   if(!matSync.ro){try{matSync.ro=new ResizeObserver(()=>matPos());matSync.ro.observe(f)}catch(e){}}
   if(!matSync.tap){matSync.tap=1;f.addEventListener('pointerdown',matTap,{passive:true})}matPos()}
 function matPos(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;const L=sg.querySelectorAll(':scope>.mat');if(!L.length)return;const r=f.getBoundingClientRect(),o=sg.getBoundingClientRect(),h=r.height/2;
@@ -4770,7 +4782,20 @@ window.__tcg={bigCard,_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o
    Looked at, not copied: real playmats (art window + logo + stitched edge), Pokémon TCG Pocket's playmats (a prize to show),
    Master Duel's fields (react to the duel), Hearthstone's boards (something to tap while waiting). ===== */
 const PMAT={hw:{art:'pm_hw_art.jpg',artPos:'78% 50%',cut:'pm_hw_chara.webp',av:'pm_hw_chara.mp4',bg:'fx_hwbg_gr2.jpg',bgv:null,bgp:'50% 8%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
-const PMAT_CN='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 37V12C3 6 7 3 13 3h24" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 32c0-9 4-15 11-17 5-1.5 8 1 7 4-1 3-5 3-6 1M8 32c3-1 5-3 6-6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="7" cy="7" r="2.2" fill="currentColor"/></svg>';
+/* (22:05) 高級感: gold foil (like foil-stamped playmats), a numbered limited edition (only 2 exist: one per box), a double stitch */
+let pmGid=0;
+const pmGold=id=>'<linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5a1e"/><stop offset=".28" stop-color="#f6e2a6"/><stop offset=".45" stop-color="#c9a24e"/><stop offset=".55" stop-color="#fff4cc"/><stop offset=".7" stop-color="#b8892f"/><stop offset="1" stop-color="#f1d48a"/></linearGradient>';
+const PMAT_CNF=()=>{const g='pmg'+(++pmGid);return '<svg viewBox="0 0 64 64" aria-hidden="true"><defs>'+pmGold(g)+'</defs><g fill="url(#'+g+')">'+
+  '<path d="M2 62V18C2 8.6 8.6 2 18 2h44v3H18C10.3 5 5 10.3 5 18v44z"/><path d="M9 62V20c0-6.1 4.9-11 11-11h42v1.6H20c-5.2 0-9.4 4.2-9.4 9.4v42z" opacity=".75"/>'+
+  '<path d="M14 40c0-13 7-23 19-25 7-1.1 11 2.6 9.6 6.8-1.3 3.9-6.6 4-7.8 1.3-.9-2 .6-3.6 2.2-3.2-1-1.5-3.6-2-6.3-1.2C23 21 18 29.6 18 40z"/>'+
+  '<path d="M14 40c1.6 4.2 5.2 7 9.6 7-3.8-2.2-5.4-5.1-5.6-8z"/><path d="M40 14c4.2 1.6 7 5.2 7 9.6-2.2-3.8-5.1-5.4-8-5.6z"/>'+
+  '<path d="M18 18l4-6 4 6-4 6z"/><circle cx="31" cy="31" r="2.2"/></g></svg>'};
+const PMAT_CREST=()=>{const g='pmg'+(++pmGid);return '<svg viewBox="0 0 64 44" aria-hidden="true"><defs>'+pmGold(g)+'</defs><g fill="url(#'+g+')">'+
+  '<path d="M32 4c-6.6 0-12 5.4-12 12s5.4 12 12 12c-4.2-2-7-6.6-7-12s2.8-10 7-12z" transform="translate(4 0)"/>'+
+  '<path d="M30 22c-4-6-12-9-22-8 4 2 5.6 5 5.6 8-3-2-6-2.2-9-1 4 1.6 6 4.6 6.4 8 3-2.6 7.6-3 11-1.4 1.4-3.2 4.4-5 8-5.6z"/>'+
+  '<path d="M34 22c4-6 12-9 22-8-4 2-5.6 5-5.6 8 3-2 6-2.2 9-1-4 1.6-6 4.6-6.4 8-3-2.6-7.6-3-11-1.4-1.4-3.2-4.4-5-8-5.6z"/>'+
+  '<path d="M32 18l4 7-4 7-4-7z"/><rect x="14" y="38" width="36" height="1.4" rx=".7"/><circle cx="32" cy="38.7" r="2"/></g></svg>'};
+
 const PMAT_BAT='<svg viewBox="0 0 40 20" aria-hidden="true"><path d="M20 6c1.2 0 2-1.6 2.4-3 .6 1.6 1.2 2.6 2.2 3.2C27 4 31 2 39 4c-3 2-4 5-4 8-3-2-6-2-8 0-2-1.4-4.4-1.2-7 2-2.6-3.2-5-3.4-7-2-2-2-5-2-8 0 0-3-1-6-4-8 8-2 12 0 14.4 2.2 1-.6 1.6-1.6 2.2-3.2.4 1.4 1.2 3 2.4 3z" fill="currentColor"/></svg>';
 const pmRM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
 function pmMk(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
@@ -4796,17 +4821,19 @@ function pmChara(cut,av){const w=pmMk('div','pm-chara'),im=pmMk('img');im.src=cu
   w.stop=()=>{on=false;if(raf){cancelAnimationFrame(raf);raf=0}w.classList.remove('vid');if(v){try{v.pause()}catch(e){}}};return w}
 /* the mat (the user's sketch): a wide illustration, the whole character standing on the right, the night scenery on the left.
    Returns the element with .pmPlay(ms) (both pictures move for ms; 0 = keep moving), .pmStill(), .pmHit(x,y) (on her?), .pmSheen(delay) */
-function pmatBuild(id){const M=PMAT[id];if(!M)return null;const m=pmMk('div','pmat');m.dataset.mt=id;
+function pmatBuild(id,opt){const M=PMAT[id];if(!M)return null;const m=pmMk('div','pmat');m.dataset.mt=id;
   /* (10/25 21:35) the user's own wide picture (made for the mat): it is the whole mat. Without it: the cut-out character on the scenery */
   const scene=M.art?pmLayer('pm-scene',M.art,M.artv||null,M.artPos):pmLayer('pm-scene',M.bg,M.bgv,M.bgp),chara=M.art?pmMk('div','pm-chara pm-none'):pmChara(M.cut,M.av);if(M.art)m.classList.add('art');
-  const lg=pmMk('div','pm-logo');lg.append(pmMk('b',null,'KIMOOTA TCG'),pmMk('small',null,M.n+'  ·  HALLOWEEN 2026'));
-  m.append(scene,pmMk('i','pm-fog'),pmMk('i','pm-shadow'),chara,pmMk('i','pm-vig'),pmMk('i','pm-st'),lg,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
-  ['tl','tr','bl','br'].forEach(c=>{const o=pmMk('i','pm-cn pc-'+c);o.innerHTML=PMAT_CN;m.append(o)});
+  const lg=pmMk('div','pm-logo'),cr=pmMk('i','pm-crest');cr.innerHTML=PMAT_CREST();const tx=pmMk('div','pm-ltx');tx.append(pmMk('b','pm-foil','KIMOOTA TCG'),pmMk('small',null,M.n+'  ·  HALLOWEEN 2026'));lg.append(cr,tx);
+  const no=pmMk('div','pm-no');no.append(pmMk('small',null,'LAST ONE  ·  LIMITED'),pmMk('b','pm-foil',opt&&opt.no?'No.'+opt.no+' / 2':'2 PIECES'));
+  m.append(scene,pmMk('i','pm-fog'),pmMk('i','pm-shadow'),chara,pmMk('i','pm-vig'),pmMk('i','pm-st'),pmMk('i','pm-st2'),lg,no,pmMk('i','pm-red'),pmMk('i','pm-glow'),pmMk('i','pm-sheen'));
+  ['tl','tr','bl','br'].forEach(c=>{const o=pmMk('i','pm-cn pc-'+c);o.innerHTML=PMAT_CNF();m.append(o)});
+  m.append(pmMk('i','pm-foilsheen'));
   let tm=0;
   m.pmPlay=ms=>{if(pmRM())return;clearTimeout(tm);m.classList.add('live');scene.play&&scene.play();chara.play&&chara.play();if(M.art&&!M.artv)m.pmSheen(0);if(ms)tm=setTimeout(()=>m.pmStill(),ms)};
   m.pmStill=()=>{clearTimeout(tm);m.classList.remove('live');scene.stop&&scene.stop();chara.stop&&chara.stop()};
   m.pmHit=(x,y)=>{if(M.art){const r=m.getBoundingClientRect();return x>=r.left+r.width*.6}const r=chara.getBoundingClientRect();return x>=r.left+r.width*.12&&x<=r.right-r.width*.08&&y>=r.top&&y<=r.bottom};
-  m.pmSheen=d=>{const s=m.querySelector('.pm-sheen');if(!s||pmRM()||!s.animate)return;s.animate([{transform:'translateX(-120%) skewX(-18deg)',opacity:0},{opacity:1,offset:.25},{transform:'translateX(260%) skewX(-18deg)',opacity:0}],{duration:900,delay:d||0,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'})};
+  m.pmSheen=d=>{const f=m.querySelector('.pm-foilsheen');if(f&&!pmRM()&&f.animate)f.animate([{transform:'translateX(-60%)',opacity:0},{opacity:1,offset:.3},{transform:'translateX(60%)',opacity:0}],{duration:1400,delay:(d||0)+150,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'});const s=m.querySelector('.pm-sheen');if(!s||pmRM()||!s.animate)return;s.animate([{transform:'translateX(-120%) skewX(-18deg)',opacity:0},{opacity:1,offset:.25},{transform:'translateX(260%) skewX(-18deg)',opacity:0}],{duration:900,delay:d||0,easing:'cubic-bezier(.4,0,.2,1)',fill:'both'})};
   return m}
 /* bats out of a tap (host = the positioned box they fly in; x,y inside it). gold: the rare one */
 function pmBats(host,x,y,gold){if(pmRM())return;const n=gold?1:3+(Math.random()*2|0);
