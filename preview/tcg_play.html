@@ -1759,7 +1759,7 @@ body:not(.gkview){background:
 @media(prefers-reduced-motion:reduce){.bc.foilc .bart .sgl.s1::after{animation:none;transform:translate(12%,10%)}}
 
 /* ===== (10/26) 見やすいデッキ編成 ===== */
-.bhd.bhd2{flex-direction:column;align-items:stretch;gap:8px;padding:8px 0 10px;background:linear-gradient(180deg,#0d0a20 92%,#0d0a2000)}
+.bhd.bhd2{flex-direction:column;align-items:stretch;gap:8px;padding:8px 0 10px;background:#0d0a20}
 .bhr{display:flex;align-items:center;gap:8px}
 .dtray{border-radius:14px;padding:8px 10px 7px;background:linear-gradient(180deg,#1b1640,#110d27);box-shadow:inset 0 0 0 1px #e9cf8a30,0 6px 16px #0008}
 .dthd{display:flex;align-items:center;gap:12px}
@@ -1803,6 +1803,13 @@ body:not(.gkview){background:
 .pmn.on{color:#8affc8}
 .bcell>.cnt{display:none}
 @media (prefers-reduced-motion:reduce){.dtm{transition:none}}
+/* tribes: a grid, no sideways sliding */
+.btabs{overflow-x:visible;flex-wrap:wrap}
+.btabs button{flex:1 1 0;min-width:0}
+.btribes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.btribes button{height:30px;min-width:0;padding:0 4px;border-radius:999px;border:1px solid #ffffff1f;color:#c9c5e6;font-size:11.5px;font-weight:700;background:#ffffff08;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btribes button.on{color:#fff;border-color:var(--dc,#e9cf8a);background:color-mix(in srgb,var(--dc,#e9cf8a) 22%,transparent)}
+.btribes button[style]{box-shadow:inset 3px 0 0 var(--dc)}
 
 </style>
 
@@ -3834,7 +3841,8 @@ function drawBuilder(){const box=$('s-build'),keep=box.scrollTop,tabScroll=box.q
   if(B.lx){box.append(el('div','sec-h','リーダー(特性と必殺技を持つ・金のカード11種類から)'));
   const lr=el('div','lrow');Object.values(CD.LEADERS).forEach(id=>{const c=bigCard(id,true);if(id===B.lead)c.classList.add('pick');if(OWN(id)<1){c.classList.add('lock');c.onclick=()=>caption('このリーダーはまだ持っていません(パックのガチレア)')}else c.onclick=()=>{B.lead=id;const f=fitDeck(B);B.cards=f.cards;B.scr=f.scr;B.kmr=f.kmr;drawBuilder()};lr.append(c)});box.append(lr);
   const info=el('div','linfo');info.append(el('b',null,'特性「'+CD.TRAITS[lf].n+'」'),document.createTextNode(CD.TRAITS[lf].t),el('br'),el('b',null,'必殺技「'+CD.SKILLS[lf].n+'」'),document.createTextNode(CD.SKILLS[lf].t));box.append(info,leaderAbil(B.lead))}
-  const tabs=el('div','btabs');[...(HOST?[['own','持っている']]:[]),['all','すべて'],['deck','採用中'],['same','同族'],...Object.keys(CD.PFX).map(k=>[k,CD.FNAME[k].replace('族','')]),['gen','族なし']].forEach(([k,n])=>{const b=el('button',B.tab===k?'on':'',n);if(CD.PFX[k])b.style.setProperty('--dc','var(--'+k+')');b.onclick=()=>{B.tab=k;drawBuilder()};tabs.append(b)});box.append(tabs);
+  /* (10/26) no sideways sliding: the four main filters stay on top, the tribes wrap into a grid underneath */
+  const tabs=el('div','btabs'),trb=el('div','btribes');[...(HOST?[['own','持っている']]:[]),['all','すべて'],['deck','採用中'],['same','同族'],...Object.keys(CD.PFX).map(k=>[k,CD.FNAME[k].replace('族','')]),['gen','族なし']].forEach(([k,n])=>{const b=el('button',B.tab===k?'on':'',n);if(CD.PFX[k])b.style.setProperty('--dc','var(--'+k+')');b.onclick=()=>{B.tab=k;drawBuilder()};(CD.PFX[k]||k==='gen'?trb:tabs).append(b)});box.append(tabs,trb);
   const search=el('div','bsearch'),query=el('input');query.type='search';query.placeholder='カード名で検索';query.setAttribute('aria-label','カード名で検索');query.value=B.query;const clear=el('button',null,'クリア');clear.disabled=!B.query;
   const applySearch=()=>{B.query=query.value;clear.disabled=!B.query;drawBuilderCards(box)};query.oninput=applySearch;query.oncompositionend=applySearch;query.onsearch=applySearch;clear.onclick=()=>{query.value='';applySearch();query.focus({preventScroll:true})};search.append(query,clear);box.append(search);
   drawBuilderCards(box);box.querySelector('.btabs').scrollLeft=tabScroll;{const lr2=box.querySelector('.lrow');if(lr2)lr2.scrollLeft=leadScroll}{const ds=box.querySelector('.dstrip');if(ds&&B.dsx!=null)ds.scrollLeft=B.dsx}bldStick(box);box.scrollTop=keep;requestAnimationFrame(()=>{box.scrollTop=keep;bldStick(box)})}

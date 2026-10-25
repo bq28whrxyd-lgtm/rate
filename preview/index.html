@@ -8294,6 +8294,9 @@ body.kpc .tcgw iframe{width:min(100vw,calc(100vh * .66),720px)!important;height:
 .tdxstk .tcgso{flex:1 1 0;min-width:0}
 .tdxstk .tcgmine,.tdxstk .tdxv{flex:none}
 .tdxstk .tdxv button{padding:0 10px}
+.tcgtabs.tdxtabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;overflow:visible;padding:0}
+.tdxtabs button{min-width:0;height:34px;padding:0 5px;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;font-size:11.5px;letter-spacing:-.01em}
+.tdxtabs button small{flex:none}
 .tcggrid.tdxlist{display:flex;flex-direction:column;gap:6px}
 .tdl{all:unset;box-sizing:border-box;display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 12px 7px 9px;border-radius:12px;cursor:pointer;background:var(--panel2);box-shadow:inset 3px 0 0 var(--fc,#888),inset 0 0 0 1px var(--line);content-visibility:auto;contain-intrinsic-size:auto 68px}
 .tdl:active{transform:scale(.99)}
@@ -15187,7 +15190,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=190';
+const TCG_SRC='tcg_play.html?v=191';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -15683,7 +15686,7 @@ function tcgDexInto(cs,rerender){const own=tcgOwn(),foil=tcgFoil(),KM=tcgKmr(),A
   /* (10/26) 見やすい図鑑: カード / リスト, each tribe with how many you have, and the tools stay on screen while you scroll */
   const vw=el('div','tdxv');[['grid','カード'],['list','リスト']].forEach(([k,n])=>{const b=el('button','kx-mk'+(tcgDexView===k?' on':''),n);b.type='button';b.onclick=()=>{tcgDexView=k;try{localStorage.setItem('tcgdv',k)}catch(e){}rerender()};vw.append(b)});
   tools.append(q,so,mi,vw);const stk=el('div','tdxstk');stk.append(tools);cs.append(stk);
-  const tabs=el('div','tcgtabs');[['all','すべて'],...TCGD.order.map(f=>[f,TCGD.fname[f].replace('族','')])].forEach(([k,n])=>{const F=TCGD.cards.filter(c=>k==='all'||c.f===k),h=F.filter(c=>held(c)>0).length;const b=el('button',(tcgTab===k?'on':'')+(h===F.length&&F.length?' done':''));b.append(document.createTextNode(n),el('small',null,h+'/'+F.length));if(k!=='all'&&typeof TFC_COL!=='undefined'&&TFC_COL[k])b.style.setProperty('--fc',TFC_COL[k]);b.onclick=()=>{tcgTab=k;rerender()};tabs.append(b)});stk.append(tabs);
+  const tabs=el('div','tcgtabs');[['all','すべて'],...TCGD.order.map(f=>[f,TCGD.fname[f].replace('族','')])].forEach(([k,n])=>{const F=TCGD.cards.filter(c=>k==='all'||c.f===k),h=F.filter(c=>held(c)>0).length;const b=el('button',(tcgTab===k?'on':'')+(h===F.length&&F.length?' done':''));b.append(document.createTextNode(n),el('small',null,h+'/'+F.length));if(k!=='all'&&typeof TFC_COL!=='undefined'&&TFC_COL[k])b.style.setProperty('--fc',TFC_COL[k]);b.onclick=()=>{tcgTab=k;rerender()};tabs.append(b)});tabs.classList.add('tdxtabs');cs.append(tabs);
   const info=el('div','sub tcgcnt'),g=el('div','tcggrid');cs.append(info,g);
   const idx=new Map(TCGD.cards.map((c,i)=>[c.id,i]));
   const draw=()=>{const s=tcgQ.normalize('NFKC').toLocaleLowerCase().trim();
