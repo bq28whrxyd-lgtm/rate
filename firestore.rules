@@ -502,7 +502,8 @@ service cloud.firestore {
     }
     match /yami/{id} {
       allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.d == myPid()
+      // (10/25) 闇鍋 closed: nothing new goes in. Cards still in the pot are taken back by their donors (tb = donor)
+      allow create: if false && signedIn() && request.resource.data.d == myPid()
         && request.resource.data.keys().hasOnly(['d', 'k', 'c', 'f', 't', 'tb', 'tt'])
         && request.resource.data.k in ['g', 't'] && request.resource.data.c is string && request.resource.data.f is bool
         && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000
