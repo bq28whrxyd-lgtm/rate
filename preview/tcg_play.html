@@ -1546,6 +1546,10 @@ body:not(.gkview){background:
 .watching .life.wnm.top small{color:#ff8fb8}
 .watching .life.wnm.bot{box-shadow:inset 0 0 0 1px rgba(127,216,255,.45)}
 .watching .life.wnm.top{box-shadow:inset 0 0 0 1px rgba(255,143,184,.45)}
+/* (10/25) プレイマット: under one side of the field. Transform only (placed by matPos) */
+#s-game>.mat{position:absolute;left:0;top:0;pointer-events:none;z-index:0;transform-origin:50% 50%;border-radius:18px;background:#120a18 center 22%/cover no-repeat;opacity:.42;
+  -webkit-mask-image:linear-gradient(to top,#000 0%,#000 55%,transparent 100%);mask-image:linear-gradient(to top,#000 0%,#000 55%,transparent 100%)}
+#s-game>.mat::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1.5px rgba(255,211,107,.55);background:radial-gradient(120% 80% at 50% 100%,transparent 40%,rgba(10,6,16,.55))}
 
 /* ===== (10/24) KMR in the match: the same look as the app's big card (see tcg_app.css) ===== */
 .bc.kmrc{--m1:#8a6a2a;--m2:#e9c873;--m3:#fff6d6;isolation:isolate}
@@ -3596,6 +3600,13 @@ const SLI=id=>SLI0(id)||SL_STD;
 function slOf(opp){const d=opp?cpuDeck:myDeck;return SLI(d&&d.sl)}
 function slPaint(c,S){if(!S)return c;c.classList.add('cbs');if(S.r>=3)c.classList.add('cbx');c.style.setProperty('--sl','url("'+S.img+'")');return c}
 const backCard=opp=>slPaint(el('div','cb'),slOf(!!opp));
+/* (10/25) プレイマット: a picture under each side of the field (yours from the app, the other side's from its deck.mt). The top one is turned around, like a mat across the table */
+const MAT_IMG={hw:'kmr_hw4.jpg'};
+function matSync(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;let bot=null;try{bot=(myDeck&&myDeck.mt)||(!WATCH&&HOST&&HOST.matMine?HOST.matMine():null)}catch(e){}let top=cpuDeck&&cpuDeck.mt;try{if(!top&&HOST&&HOST.matDemoOpp)top=HOST.matDemoOpp()}catch(e){}
+  [['b',bot],['t',top]].forEach(([k,v])=>{let m=sg.querySelector(':scope>.mat.'+k);const img=v&&MAT_IMG[v];if(!img){if(m)m.remove();return}if(!m){m=el('div','mat '+k);sg.insertBefore(m,f)}m.style.backgroundImage='url("'+img+'")'});
+  if(!matSync.ro){try{matSync.ro=new ResizeObserver(()=>matPos());matSync.ro.observe(f)}catch(e){}}matPos()}
+function matPos(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;const L=sg.querySelectorAll(':scope>.mat');if(!L.length)return;const r=f.getBoundingClientRect(),o=sg.getBoundingClientRect(),h=r.height/2;
+  L.forEach(m=>{const t=m.classList.contains('t');m.style.transform='translate('+(r.left-o.left)+'px,'+(r.top-o.top+(t?0:h))+'px)'+(t?' rotate(180deg)':'');m.style.width=r.width+'px';m.style.height=h+'px'})}
 
 /* ---------- title + deck select ---------- */
 (function(){if(HOST||WATCH)return;const f=$('fan');['q8','w8','y8'].forEach((id,i)=>{const c=bigCard(id,true);c.style.transform='rotate('+((i-1)*12)+'deg) translateY('+(i===1?-8:6)+'px)';c.style.zIndex=i===1?2:1;f.append(c)})})();
@@ -3705,7 +3716,7 @@ function startMatch(d,cpu){if(!cpu&&!AUTO){cpuPick(d);return}if(!cpu)cpu=AI.pick
   coin.animate([{transform:'translateY(0) rotateY(0)'},{transform:'translateY(-120px) rotateY(900deg)',offset:.5},{transform:'translateY(0) rotateY('+(1800+(heads?0:180))+'deg)'}],{duration:D(1600),easing:'cubic-bezier(.3,.6,.3,1)',fill:'forwards'});
   setTimeout(()=>{res.append(document.createTextNode(heads?'表 ・ あなたが先攻':'裏 ・ あなたは後攻'));res.append(el('small',null,'相手:'+cpuDeck.name+'(リーダー '+BY[cpuDeck.lead].n+')'));res.append(el('small',null,heads?'先攻は最初のターン、引けず攻撃もできません':'後攻は最初のターン熱量+1'))},D(1650));
   setTimeout(beginGame,D(3400))}
-function beginGame(){try{window.KHD&&setTimeout(()=>KHD.preload([...(myDeck&&myDeck.cards||[]),...(cpuDeck&&cpuDeck.cards||[])]),1200)}catch(e){}{/* get the 極 premiere's grain and soft backdrop ready before it is needed */try{const ids=[myDeck,cpuDeck].flatMap(d=>Object.entries((d&&d.alt)||{}).filter(([,L])=>Array.isArray(L)&&L.includes(3)).map(([id])=>id));if(ids.length)setTimeout(()=>{gkGrainFrames();ids.forEach(id=>CARD_ALT[id]&&gkSoft(id))},1200)}catch(_){}const a=myDeck.cards.slice(),b=cpuDeck.cards.slice();g=H===0?E.newGame(a,b,seed++,myDeck.lead,cpuDeck.lead):E.newGame(b,a,seed++,cpuDeck.lead,myDeck.lead);g.ev=[];
+function beginGame(){try{setTimeout(matSync,0)}catch(e){}try{window.KHD&&setTimeout(()=>KHD.preload([...(myDeck&&myDeck.cards||[]),...(cpuDeck&&cpuDeck.cards||[])]),1200)}catch(e){}{/* get the 極 premiere's grain and soft backdrop ready before it is needed */try{const ids=[myDeck,cpuDeck].flatMap(d=>Object.entries((d&&d.alt)||{}).filter(([,L])=>Array.isArray(L)&&L.includes(3)).map(([id])=>id));if(ids.length)setTimeout(()=>{gkGrainFrames();ids.forEach(id=>CARD_ALT[id]&&gkSoft(id))},1200)}catch(_){}const a=myDeck.cards.slice(),b=cpuDeck.cards.slice();g=H===0?E.newGame(a,b,seed++,myDeck.lead,cpuDeck.lead):E.newGame(b,a,seed++,cpuDeck.lead,myDeck.lead);g.ev=[];
     done=false;mode=null;LOG=[];view=snap();view.p.forEach(P=>{P.deckN+=P.hand.length;P.hand=[]});show('s-game');render(view);dealOpening();setTimeout(()=>caption((RK?'ランク戦 ・ '+(CPU_LV==='strong'?'つよい':'ふつう')+'のCPU ・ ':CPU_LV==='strong'?'つよいCPU ・ ':'')+'相手のデッキ:'+cpuDeck.name),D(300))}}
 async function dealOpening(){busy=true;render(view);await renderAnimated(snap());busy=false;beginTurn()}
 
