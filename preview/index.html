@@ -3593,6 +3593,18 @@ button.tcgkeep{width:100%;margin-top:8px}
 .tqi-go2{display:block;width:100%;padding:15px;border:0;border-radius:999px;background:linear-gradient(135deg,#8b7bff,#67e8f9);color:#0b0a18;font:900 15px/1 "Hiragino Sans","Noto Sans JP",sans-serif}
 .tqi-x{display:block;width:100%;margin-top:8px;padding:12px;border:0;border-radius:999px;background:none;color:rgba(255,255,255,.7);font:700 14px/1 "Hiragino Sans","Noto Sans JP",sans-serif}
 @media (prefers-reduced-motion:reduce){.tqi,.tqi-p,.tqi-mock{animation:none}}
+/* ===== (10/25) 熱・電池: 見えていないページ(裏に置いてある他のタブ)の動きは全部止める。
+   前は .view[hidden] の中でも200個くらいのアニメーションが毎フレーム動いていて、そのたびに見た目の計算が走っていた ===== */
+/* :not(#kz) only makes these win over the few animations written with !important (the GR sweep) */
+.view[hidden] *:not(#kz),.view[hidden] *:not(#kz)::before,.view[hidden] *:not(#kz)::after{animation-play-state:paused!important}
+/* オンラインの点: 影(box-shadow)を毎フレーム描き直す動きをやめて、輪を拡大縮小(transform)するだけに */
+.kx-onl i{position:relative;animation:none!important;box-shadow:none!important}
+.kx-onl i::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(52,211,153,.55);animation:tqRing 2.2s ease-out infinite;will-change:transform,opacity}
+.kx-onl.zero i::after{display:none}
+@keyframes tqRing{from{transform:scale(.5);opacity:1}to{transform:scale(1.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){.kx-onl i::after{animation:none;display:none}}
+/* 20秒なにも触らないと body.kidle が付く(前からある仕組み。ホームの舞台はもう止まる)。そのときは画面の飾りの動きも全部止める。触るとすぐ戻る */
+body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:not(#kz)::after,body.kidle .bnav *:not(#kz),body.kidle #ktop *:not(#kz),body.kidle #khead *:not(#kz){animation-play-state:paused!important}
 /* ORIRMcss:end */
 /* ORIcss:begin */
 /* ===== オリパ (10/25) ===== */
