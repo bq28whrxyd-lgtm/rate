@@ -3805,6 +3805,7 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .kj-use{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .kgu-acts:has(>:nth-child(3)){grid-template-columns:repeat(3,minmax(0,1fr))}
 .kj-lg{z-index:3;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.kj-try{width:100%;margin-top:10px}
 /* ORIKJcss:end */
 /* ORIH2css:begin */
 /* ===== ハロウィン後編: チーム戦・みんなで目標・ビンゴ ===== */
@@ -10533,7 +10534,10 @@ function kjSheet(o,H){const {mk,bt,esc,sheet}=H;if(typeof sheet!=='function')ret
     b.append(mk('p','ori-ex','1箱'+kjBox(o)+'枚・全'+(o.N/kjBox(o))+'箱。ハズレはありません。1箱目が売り切れると2箱目が始まります。各箱の最後の1枚を引いた人には、ラストワン賞のプレイマットも付きます。1日20回まで。'+(ORI_PV?'(お試し版: ptは減らず、賞品ももらえません)':'')));
     if(me){const kp=kjPickLeft('k'),sp=kjPickLeft('s');if(kp||sp){const r=mk('div','kj-use');if(kp){const x=bt('ori-ab main','KMRを選ぶ(残り'+kp+'枚)');x.onclick=()=>kjPick('k');r.append(x)}if(sp){const x=bt('ori-ab main','シークレットを選ぶ(残り'+sp+'枚)');x.onclick=()=>kjPick('s');r.append(x)}b.append(r)}}
     {const s=mk('div','ori-sec lo');s.innerHTML='<div class="ori-sh"><b>ラストワン賞</b><span>各箱の最後の1枚を引いた人に</span></div>';const g=mk('div','ori-g one kj'),c=mk('div','ori-gc');c.append(kjFace('last'),mk('small',null,KJ_LAST.x));
-      const L=kjLasts().filter(x=>x.o.id===o.id);if(L.length)c.append(mk('em','ori-got',L.map(x=>(kjBoxOf(o,x.s.i)+1)+'箱目 '+esc(oriPn(x.pid))).join('・')));g.append(c);s.append(g);b.append(s)}
+      const L=kjLasts().filter(x=>x.o.id===o.id);if(L.length)c.append(mk('em','ori-got',L.map(x=>(kjBoxOf(o,x.s.i)+1)+'箱目 '+esc(oriPn(x.pid))).join('・')));g.append(c);s.append(g);
+      /* (10/25) try the mat: one CPU match with it laid out (nothing is given; 15 minutes) */
+      {const own=kjMatOn(),x=bt('ori-ab main kj-try',own?'プレイマットを敷いてCPUと対戦':'試しに敷いてCPUと対戦');x.onclick=()=>{if(!own)window.__matTry=now()+15*60000;document.querySelectorAll('body>.kgu-sh').forEach(z=>z.remove());try{setView('battle')}catch(e){}setTimeout(()=>{try{tcgPlay('cpu=0.auto')}catch(e){toast('CPU戦を始められませんでした')}},350)};
+        s.append(mk('p','ori-ex',own?'あなたのマットです。TCGの対戦で自分の側に敷かれ、友達戦では相手にも見えます。':'TCGの対戦で、自分の側の場に敷かれるマットです。友達戦では相手にも見えます。試しに敷くのはCPU戦だけ(もらえるわけではありません)。'),x)}b.append(s)}
     for(let g=1;g<=6;g++){const s=mk('div','ori-sec');s.style.setProperty('--tc',KJ_T[g].c);s.innerHTML='<div class="ori-sh"><b>'+KJ_T[g].n+'</b><span>'+KJ_T[g].x+'</span><em>残り '+rm.R[g]+' / '+rm.A[g]+'</em></div>';
       const gr=mk('div','ori-g kj'+(g<=2?' big':' row')),c=mk('div','ori-gc'+(rm.R[g]?'':' out'));c.append(kjFace(g));gr.append(c);s.append(gr);b.append(s)}
     if(opened.length){const s=mk('div','ori-sec log');s.innerHTML='<div class="ori-sh"><b>出たもの</b><span>新しい順</span></div>';const ul=mk('div','ori-log');
@@ -15037,7 +15041,7 @@ function tcgSlOk(id){return id&&tcgSlInfo(id)&&((inv&&inv.own||{})[id]||0)>0?Str
 /* (10/18) one sleeve, one deck: there is no 「いつもの」 sleeve any more (decks without one show the standard KIMOOTA back) */
 function tcgSlDef(){return null}
 function tcgSlOwn(){return ITEMS.filter(x=>x.k==='sl'&&tcgSlOk(x.id)).sort((a,b)=>b.r-a.r).map(x=>tcgSlInfo(x.id))}
-window.TCGHOST={matDemoOpp:()=>window.__FAKE&&window.__matOpp?'hw':null,matMine:()=>{try{return window.tcgMatMine?tcgMatMine():null}catch(e){return null}},rkStart:lv=>{try{tcgcStart(lv)}catch(e){}},rkDelta:(lv,w)=>{try{return tcgcDelta(lv,w)}catch(e){return 0}},altOwn:()=>tcgAltOwned(),slOwn:()=>tcgSlOwn(),slInfo:id=>tcgSlInfo(id),slDef:()=>tcgSlDef(),own:()=>tcgOwn(),foil:()=>tcgFoil(),kmr:()=>tcgKmr(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
+window.TCGHOST={matDemoOpp:()=>window.__FAKE&&window.__matOpp?'hw':null,matMine:()=>{try{return (window.tcgMatMine&&tcgMatMine())||(window.__matTry&&now()<window.__matTry?'hw':null)}catch(e){return null}},rkStart:lv=>{try{tcgcStart(lv)}catch(e){}},rkDelta:(lv,w)=>{try{return tcgcDelta(lv,w)}catch(e){return 0}},altOwn:()=>tcgAltOwned(),slOwn:()=>tcgSlOwn(),slInfo:id=>tcgSlInfo(id),slDef:()=>tcgSlDef(),own:()=>tcgOwn(),foil:()=>tcgFoil(),kmr:()=>tcgKmr(),starter:()=>tcgOf(inv).st||'weak',decks:()=>tcgOf(inv).decks||[],saveDecks:L=>tcgSaveDecks(L),
   toss:(info,cb)=>tcgToss(info,cb),effectCoin:info=>tcgBattleEffectCoin(info),result:r=>tcgResult(r),close:()=>tcgClose()};
 function tcgPlay(hash){if(!tcgHasSt()||$('tcgw'))return;const o=el('div','tcgw');o.id='tcgw';
   const f=el('iframe');f.src=TCG_SRC+(hash?'#'+hash:'');f.title='きもオタTCG';f.setAttribute('allow','autoplay');o.append(f);document.body.append(o);document.body.classList.add('tcgon');
