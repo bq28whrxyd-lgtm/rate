@@ -11285,10 +11285,12 @@ function kxPlan(q,fast){const lv=kxLv(q),R=Math.random,g=q.last?'L':'SABCDEF'[q.
   return{lv,fin,g,seq,auto:false}}
 function kjShow(o,L,last,done){const RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
   document.querySelectorAll('body>.kjx').forEach(x=>x.remove());
-  const Q=L.map(s=>({s,last:null})).sort((a,b)=>b.s.g-a.s.g);if(last)Q.push({s:{g:1,i:last.i},last});Q.forEach(q=>q.p=kxPlan(q,Q.length>1&&kxLv(q)<=0&&!(window.__kxForce||{}).slow));
+  const Q=L.map(s=>({s,last:null})).sort((a,b)=>b.s.g-a.s.g);if(last)Q.push({s:{g:1,i:last.i},last});
+  /* (10/26) 5回・10回でも演出は1回だけ(スキンガチャと同じ): いちばん良い賞の演出を流して、そのあと結果をまとめて出す。最初に色を並べるのはやめた */
+  const rank=q=>kxLv(q)*10+(q.last?3:6-(q.s.g||0));const A=Q.length>1?[Q.slice().sort((a,b)=>rank(b)-rank(a))[0]]:Q;A.forEach(q=>q.p=kxPlan(q,false));
   const X=el('div','kjx kj2 kj5'),stg=el('div','kj5-st'),va=el('video','kj5-v'),vb=el('video','kj5-v'),ov=el('div','kj5-ov'),hd=el('div','kjx-hd'),bar=el('div','kjx-bar'),tap=el('div','kj5-tap'),fl=el('i','kj5-fl');
   [va,vb].forEach(v=>{v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.disablePictureInPicture=true});
-  const cnt=el('b','kjx-cnt'),hint=el('div','kjx-hint'),skip=el('button','kjx-skip',Q.length>1?'まとめて開ける':'とばす');skip.type='button';
+  const cnt=el('b','kjx-cnt'),hint=el('div','kjx-hint'),skip=el('button','kjx-skip','とばす');skip.type='button';
   hd.append(el('span','kjx-nm','夜宴くじ'),cnt);bar.append(hint,skip);stg.append(va,vb,ov);X.append(stg,fl,tap,hd,bar);document.body.append(X);document.body.classList.add('ovl');
   const webm=window.__fxWebm||!va.canPlayType('video/mp4; codecs="avc1.42E01E"');
   const src=n=>{const f='fx_kj_'+n+(webm?'.webm':'.mp4');try{return fxSrc(f)}catch(e){return f}};
@@ -11309,14 +11311,13 @@ function kjShow(o,L,last,done){const RM=(()=>{try{return matchMedia('(prefers-re
     /* if a clip can't load, don't get stuck */v.onerror=()=>{if(my===tok&&then&&!loop)then()}}
   function preload(n){/* warm the cache for the next clip */try{const l=document.createElement('link');l.rel='preload';l.as='video';l.href=src(n);document.head.append(l);setTimeout(()=>l.remove(),8000)}catch(e){}}
   function clearOv(){ov.replaceChildren();tap.replaceChildren();tap.className='kj5-tap'}
-  function next(){k++;if(k>=Q.length){results();return}const q=Q[k];cur=q;clearOv();cnt.textContent=Q.length>1?(k+1)+' / '+Q.length:'';seq=q.p.seq;si=0;
-    if(RM){state='shown';showPrize(q,true);hint.textContent=k<Q.length-1?'タップで次へ':'タップで結果へ';return}
+  function next(){k++;if(k>=A.length){results();return}const q=A[k];cur=q;clearOv();cnt.textContent=Q.length>1?Q.length+'回':'';seq=q.p.seq;si=0;
+    if(RM){state='shown';showPrize(q,true);hint.textContent=Q.length>1?'タップで全部の結果へ':'タップで結果へ';return}
     state='anim';hint.textContent='タップでとばす';step()}
   function step(){const [n,r]=seq[si];if(seq[si+1])preload(seq[si+1][0]);
     if(n.startsWith('idle_')){if(cur.p.auto){si++;step();return}state='wait';hint.textContent='';play(n,1,true);tap.replaceChildren(el('b',null,'タップで開封'),el('small',null,'横になぞっても開けられます'));tap.className='kj5-tap on';return}
-    if(n.startsWith('open_')){state='opening';tap.className='kj5-tap';hint.textContent='タップでとばす';play(n,r,false,()=>{state='shown';showPrize(cur);hint.textContent=k<Q.length-1?'タップで次へ':'タップで結果へ';
-        /* (10/26) 10回の下の賞は少し見せたら自動で次へ */if(cur.p.auto&&k<Q.length-1){const me=cur;setTimeout(()=>{if(state==='shown'&&cur===me)next()},700)}});
-      /* the prize card appears in the glowing frame just after the light settles */const D=(KX_D[n]||3.4)/r;setTimeout(()=>{if(state==='opening'&&cur===Q[k])showPrize(cur)},Math.max(0,(1.55/r))*1000);return}
+    if(n.startsWith('open_')){state='opening';tap.className='kj5-tap';hint.textContent='タップでとばす';play(n,r,false,()=>{state='shown';showPrize(cur);hint.textContent=Q.length>1?'タップで全部の結果へ':'タップで結果へ'});
+      /* the prize card appears in the glowing frame just after the light settles *//* (10/26) パックが下に抜けて光の枠が止まってから(早すぎると開ける前に中身が見える) */setTimeout(()=>{if(state==='opening'&&cur===A[k])showPrize(cur)},(1.95/r)*1000);return}
     play(n,r,false,()=>{si++;step()})}
   function skipToWait(){/* jump past the effects to the waiting pack (or straight to the prize in fast mode) */const i=seq.findIndex(s=>s[0].startsWith('idle_'));if(cur.p.auto){si=seq.length-1;step();return}if(i>=0&&si<i){si=i;step()}}
   function openNow(){if(state!=='wait')return;si=seq.findIndex(s=>s[0].startsWith('open_'));step()}
@@ -11334,11 +11335,7 @@ function kjShow(o,L,last,done){const RM=(()=>{try{return matchMedia('(prefers-re
   let sx=null;X.addEventListener('pointerdown',e=>{sx=state==='wait'?e.clientX:null},{passive:true});
   X.addEventListener('pointermove',e=>{if(sx!=null&&state==='wait'&&Math.abs(e.clientX-sx)>40){sx=null;noClick=performance.now();openNow()}},{passive:true});
   skip.onclick=()=>{if(state==='res')fin();else results()};
-  /* 10回: show the 10 packs (their first colours) for a moment first */
-  if(Q.length>1&&!RM){state='pv';const g=el('div','kj5-pv');Q.forEach(q=>{const c=el('div','kj5-mp');c.style.backgroundImage='url('+src('pk_'+q.p.seq[0][0].slice(6)).replace(/\.(mp4|webm)$/,'.webp')+')';g.append(c)});ov.append(g);
-    if(window.gsap)gsap.from(g.children,{y:-60,opacity:0,rotation:-10,duration:.4,stagger:.06,ease:'back.out(1.6)'});oriSnd('whoosh');preload(Q[0].p.seq[0][0]);
-    const t=setTimeout(()=>{if(state==='pv')next()},1700);X.addEventListener('click',()=>{if(state==='pv'){clearTimeout(t);next()}},{once:true})}
-  else next()}
+  next()}
 /* ORIKJjs:end */
 /* ORIH2js:begin */
 /* ===== ハロウィン後編 (10/29 5:00 - 11/8 5:00): チーム戦・みんなで目標・ゴールデンタイム・ビンゴ =====
