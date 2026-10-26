@@ -3928,6 +3928,13 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .kjf-coin>.coin{--cz:min(96px,74cqw)!important;animation:kjfspin 6s ease-in-out infinite}
 @keyframes kjfspin{0%,40%{transform:rotateY(0)}50%,90%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
 @media (prefers-reduced-motion:reduce){.kjf-sl .kjf-sh,.kjf-coin>.coin{animation:none}}
+/* (10/26) 180枚の箱: 3けたの残りが枠からはみ出さないように */
+.kj-rem .ori-rt{min-width:0;overflow:hidden}
+.kj-rem .ori-rt span{white-space:nowrap}
+.kj-rem .ori-rt span small{font-size:8.5px;opacity:.6;letter-spacing:-.02em}
+.kj-rem .ori-rt span{font-size:11.5px}
+.kj-rem .ori-rt span small{font-size:8px}
+.kj-rem .ori-rt.lo b{font-size:8.5px;letter-spacing:-.04em}
 /* ORIKJcss:end */
 /* ORIH2css:begin */
 /* ===== ハロウィン後編: チーム戦・みんなで目標・ビンゴ ===== */
@@ -10856,10 +10863,10 @@ function pmFx(sg,kind,tg,pm){try{if(!sg||!tg||pmRM())return;const o=sg.getBoundi
 
 /* ===== 夜宴くじ (ハロウィン後編 10/29 5:00 - 11/8 5:00) =====
    一番くじと同じ: 全員で同じ箱を引く。ハズレなし。1箱180枚・2箱まで(1箱目が売り切れたら2箱目)。賞ごとの残りが見える。
-   各箱の最後の1枚を引いた人にラストワン賞(プレイマット「夜宴の小悪魔」)。1回400pt、まとめて1/5/10回、1日20回まで。
+   各箱の最後の1枚を引いた人にラストワン賞(プレイマット「夜宴の小悪魔」)。1回400pt、まとめて1/5/10回。(10/26) 1日の回数の制限はなし(KJ_DAY=0)。
    仕組みはオリパと同じ(ori/oris/orp、ty:'kuji')。賞品は公開された札から計算する(pt・チケット・選べる券・マット)ので、持ち物に書くのは選べる券を使ったときだけ。
    くじ券(1回タダ)はチーム戦やみんなで目標のごほうび。券で引いた記録は p:0 */
-const KJ_PRICE=400,KJ_BOX=180,/* (10/26) 1箱 120→180枚 */KJ_BOXES=2,KJ_DAY=20;
+const KJ_PRICE=400,KJ_BOX=180,/* (10/26) 1箱 120→180枚 */KJ_BOXES=2,KJ_DAY=0;/* 0 = 1日の制限なし */
 const KJ_T=[null,
   /* (10/26) A賞=KMRコイン・B賞=KMRスリーブ(どちらも「夜宴の小悪魔」、ここでしか手に入らない lim:'kuji')、C賞=TCGハロウィンKMRを選べる券(1箱2本) */
   {n:'A賞',it:'cimp',q:1,c:'#ffe7a3',c2:'#b678ff',x:'KMRコイン「夜宴の小悪魔」',s:'KMRコイン'},
@@ -10915,9 +10922,9 @@ const kjPickLeft=k=>{const m=myPlayer();if(!m)return 0;const u=(inv.kju||{})[k]|
 const kjTkGot=pid=>(window.KJ_TKS||[]).reduce((a,f)=>{try{return a+(+f(pid)||0)}catch(e){return a}},0);
 const kjTkUsed=pid=>{const ids=new Set(kjAll().map(o=>o.id));return (ORI_PV?ORIL.pays():oriPays).filter(p=>p.tb===pid&&ids.has(p.o)&&!(+p.p)).reduce((a,p)=>a+(+p.n||0),0)};
 const kjTkLeft=pid=>Math.max(0,kjTkGot(pid)-kjTkUsed(pid));
-/* 1日20回まで (a day starts at 5:00) */
+/* 1日の回数 (a day starts at 5:00)。KJ_DAY=0 なら制限なし */
 const kjToday=pid=>{const d=dayNo(now()),ids=new Set(kjAll().map(o=>o.id));return (ORI_PV?ORIL.pays():oriPays).filter(p=>p.tb===pid&&ids.has(p.o)&&dayNo(+p.t||0)===d).reduce((a,p)=>a+(+p.n||0),0)};
-const kjDayLeft=pid=>Math.max(0,KJ_DAY-kjToday(pid));
+const kjDayLeft=pid=>KJ_DAY?Math.max(0,KJ_DAY-kjToday(pid)):1e9;
 /* the tickets join the app's own counts (通常パック・限定ガチャ) */
 {const P=hwPassTk;hwPassTk=function(pid,kind){let n=0;try{n=P.apply(this,arguments)}catch(e){}try{if(kind==='ltk'||kind==='ptk')n+=kjTk(pid,kind)}catch(e){}return n}}
 
@@ -10949,7 +10956,7 @@ async function kjTake(o,n,free){const me=myPlayer();if(!me)throw new Error('me')
 async function kjGo(n,free){const o=kjCur();if(!o||kjGo.busy)return;const me=myPlayer();if(!me)return;
   if(o.x>=o.N){toast('全部の箱が売り切れました');return}
   if(!free&&typeof hwExt==='function'&&hwExt()){toast('延長戦はくじ券だけで引けます(11/9 朝5時まで)');return}
-  const day=kjDayLeft(me.id);if(day<=0){toast('今日はもう20回引きました。また明日');return}
+  const day=kjDayLeft(me.id);if(day<=0){toast('今日はもう'+KJ_DAY+'回引きました。また明日');return}
   let k=Math.min(n,kjBoxLeft(o)||n,day);if(free)k=Math.min(k,kjTkLeft(me.id));if(k<=0){toast(free?'くじ券がありません':'引けません');return}
   if(!free&&!ORI_PV&&balance(me.id)<o.p*k){toast('ptが足りません');return}
   kjGo.busy=true;let L;
@@ -10982,9 +10989,9 @@ window.__kjBanner=H=>{if(!kjOn())return null;if(ORI_PV)kjPvSeed();const o=kjCur(
     title:'夜宴くじ',sub:'A賞 KMRコイン「夜宴の小悪魔」・ハズレなし',subH:'A賞 <span class="kgu-nw">KMRコイン「夜宴の小悪魔」</span>・ハズレなし',
     tags:[[ext?'延長戦 くじ券だけ':'ハロウィン後編','hot'],[left(o.end),'time'],[sold?'完売':(rm.b+1)+'箱目 残り'+bl+'枚']].concat(ORI_PV?[['お試し版']]:[]),art:()=>kjArt(o,H),
     prog:[{k:(rm.b+1)+'箱目の残り',v:bl,max:kjBox(o),tx:sold?'完売':bl+' / '+kjBox(o)+'枚',c:'kj'}],
-    extra:()=>{const w=mk('div','ori-rem kj-rem');for(let g=1;g<=6;g++){const c=mk('div','ori-rt'+(rm.R[g]?'':' out'));c.style.setProperty('--tc',KJ_T[g].c);c.innerHTML='<b>'+KJ_T[g].n+'</b><span>'+rm.R[g]+'/'+rm.A[g]+'</span>';w.append(c)}
+    extra:()=>{const w=mk('div','ori-rem kj-rem');for(let g=1;g<=6;g++){const c=mk('div','ori-rt'+(rm.R[g]?'':' out'));c.style.setProperty('--tc',KJ_T[g].c);c.innerHTML='<b>'+KJ_T[g].n+'</b><span>'+rm.R[g]+'<small>/'+rm.A[g]+'</small></span>';w.append(c)}
       const lo=mk('div','ori-rt lo'+(sold?' out':''));lo.innerHTML='<b>ラストワン</b><span>'+(sold?'済':'あり')+'</span>';w.append(lo);
-      if(m&&!sold){const n=mk('div','kj-day','今日あと <b>'+day+'</b> 回 ・ 1日20回まで');w.append(n)}return w},
+      if(m&&!sold&&KJ_DAY){const n=mk('div','kj-day','今日あと <b>'+day+'</b> 回 ・ 1日'+KJ_DAY+'回まで');w.append(n)}return w},
     bal:ORI_PV?null:b,acts,tks,moreL:'賞品と残りを見る',sheet:()=>kjSheet(o,H)}};
 function kjArt(o,H){const {mk}=H,a=mk('div','kgu-art a-kj');a.append(mk('i','kj-sky'),mk('i','kj-moon'));
   const mat=mk('div','kj-mat');const im=mk('img');im.src=KJ_MAT_IMG;im.alt='';im.decoding='async';mat.append(im,mk('b',null,'LAST ONE'));
@@ -10993,8 +11000,8 @@ function kjArt(o,H){const {mk}=H,a=mk('div','kgu-art a-kj');a.append(mk('i','kj-
   a.append(mat,fan,lg,mk('i','kgu-spk'));if(o.x>=o.N)a.append(mk('div','ori-so','完売'));return a}
 function kjSheet(o,H){const {mk,bt,esc,sheet}=H;if(typeof sheet!=='function')return;
   sheet('夜宴くじ',b=>{const rm=kjRemain(o),bl=kjBoxLeft(o),me=myPlayer(),opened=oriOpen(o);
-    const sm=mk('div','ori-sum');sm.innerHTML='<div><small>1回</small><b>'+o.p.toLocaleString('ja-JP')+'pt</b></div><div><small>'+(rm.b+1)+'箱目の残り</small><b>'+bl+' / '+kjBox(o)+'枚</b></div><div><small>今日</small><b>あと '+(me?kjDayLeft(me.id):0)+'回</b></div>';b.append(sm);
-    b.append(mk('p','ori-ex','1箱'+kjBox(o)+'枚・全'+(o.N/kjBox(o))+'箱。ハズレはありません。1箱目が売り切れると2箱目が始まります。各箱の最後の1枚を引いた人には、ラストワン賞のプレイマットも付きます。1日20回まで。'+(ORI_PV?'(お試し版: ptは減らず、賞品ももらえません)':'')));
+    const sm=mk('div','ori-sum');sm.innerHTML='<div><small>1回</small><b>'+o.p.toLocaleString('ja-JP')+'pt</b></div><div><small>'+(rm.b+1)+'箱目の残り</small><b>'+bl+' / '+kjBox(o)+'枚</b></div>'+(KJ_DAY?'<div><small>今日</small><b>あと '+(me?kjDayLeft(me.id):0)+'回</b></div>':'<div><small>全部の残り</small><b>'+Math.max(0,o.N-o.x)+'枚</b></div>');b.append(sm);
+    b.append(mk('p','ori-ex','1箱'+kjBox(o)+'枚・全'+(o.N/kjBox(o))+'箱。ハズレはありません。1箱目が売り切れると2箱目が始まります。各箱の最後の1枚を引いた人には、ラストワン賞のプレイマットも付きます。'+(KJ_DAY?'1日'+KJ_DAY+'回まで。':'')+(ORI_PV?'(お試し版: ptは減らず、賞品ももらえません)':'')));
     if(me){const kp=kjPickLeft('k'),sp=kjPickLeft('s');if(kp||sp){const r=mk('div','kj-use');if(kp){const x=bt('ori-ab main','KMRを選ぶ(残り'+kp+'枚)');x.onclick=()=>kjPick('k');r.append(x)}if(sp){const x=bt('ori-ab main','シークレットを選ぶ(残り'+sp+'枚)');x.onclick=()=>kjPick('s');r.append(x)}b.append(r)}}
     {const s=mk('div','ori-sec lo');s.innerHTML='<div class="ori-sh"><b>ラストワン賞</b><span>各箱の最後の1枚を引いた人に</span></div>';const g=mk('div','ori-g one kj'),c=mk('div','ori-gc');c.append(kjFace('last'),mk('small',null,KJ_LAST.x));
       const L=kjLasts().filter(x=>x.o.id===o.id);if(L.length)c.append(mk('em','ori-got',L.map(x=>(kjBoxOf(o,x.s.i)+1)+'箱目 '+esc(oriPn(x.pid))).join('・')));g.append(c);s.append(g);
