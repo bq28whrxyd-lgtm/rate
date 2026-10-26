@@ -8685,6 +8685,11 @@ body .tcpop button.tcgo,body .tcpop button.tclt{width:100%!important;margin:0!im
 body .tcpop button.tcgo{height:48px!important;font-weight:900!important;font-size:16px!important;color:#2a1a00!important;background:linear-gradient(180deg,#fff0bf,#f2c14f 55%,#d69a22)!important}
 body .tcpop.k-mine button.tcgo{background:linear-gradient(180deg,#ff9a88,#e2361b)!important;color:#fff!important}
 body .tcpop button.tclt{height:40px!important;font-weight:700!important;font-size:14px!important;color:rgba(255,255,255,.8)!important;background:rgba(255,255,255,.08)!important}
+
+.ktour .ktbs{flex:none;display:grid;gap:4px;justify-items:stretch}
+body.ui2 #lob .ktour button.ktno,body .ktour button.ktno{height:24px!important;min-height:0!important;margin:0!important;padding:0 8px!important;border:0!important;border-radius:999px!important;font-size:11px!important;font-weight:700!important;line-height:1!important;font-family:inherit!important;color:rgba(255,255,255,.72)!important;background:rgba(255,255,255,.08)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)!important;white-space:nowrap}
+.ktour:has(.ktbs){padding-top:9px;padding-bottom:9px}
+.ktour:has(.ktbs) .ktt span{display:none}
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
 #login h1{margin:4px 0 0}#login button{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -15165,6 +15170,7 @@ function bracketView(T){
 const TC_TROPHY='<svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="tcg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6d2"/><stop offset=".45" stop-color="#f2c75a"/><stop offset=".75" stop-color="#b9821f"/><stop offset="1" stop-color="#fff0b0"/></linearGradient></defs><path fill="url(#tcg1)" d="M15 6h18v9.5a9 9 0 0 1-18 0zM15 9H8.5v3a7 7 0 0 0 7 7M33 9h6.5v3a7 7 0 0 1-7 7" stroke="url(#tcg1)" stroke-width="2.4" stroke-linejoin="round"/><path fill="url(#tcg1)" d="M21.5 24.5h5v6h-5zM16 31h16l2 6H14z"/><rect x="12" y="37" width="24" height="5" rx="1.6" fill="url(#tcg1)"/><path d="M20 9.5l2.2 4.4 4.8.7-3.5 3.4.8 4.8-4.3-2.3" fill="#fff8e0" opacity=".85"/></svg>';
 function tourState(){const T=typeof curTour==='function'&&curTour(),me=myPlayer();if(!T||!me)return null;
   const ent=tentry.filter(e=>e.tid===T.id),inT=ent.some(e=>e.pid===me.id);
+  if(T.st==='entry'&&!inT&&tourSkipped(T.id))return null;/* (10/26) ホームで「エントリーしない」を押した大会は、受付中のあいだバナーも「!」も出さない */
   if(T.st==='entry')return{T,me,k:'entry',key:T.id+':e',chip:'エントリー受付中',sub:gname(T.g)+'  ·  '+ent.length+'人がエントリー  ·  優勝 '+(+T.p1||0).toLocaleString()+'pt',cta:inT?'エントリー済':'エントリー',done:inT,ent};
   if(T.st==='live'){const ch=tourChamp(T);if(ch)return{T,me,k:'champ',key:T.id+':c',chip:'結果',sub:'優勝は '+pname(ch),cta:'見る'};
     const nx=tourNext(T,me.id);if(nx)return{T,me,k:'mine',key:T.id+':m:'+nx.key,chip:'あなたの試合',sub:roundName(nx.r,bracket(T).length)+'  ·  vs '+pname(nx.opp),cta:'対戦する',nx};
@@ -15175,6 +15181,8 @@ function tourGo(){try{setView('battle')}catch(e){}setTimeout(()=>{try{kbSeg('tou
 async function tourAct(st,btn){if(!st)return;if(st.k==='entry'&&!st.done){if(!db)return;btn&&(btn.disabled=true);try{await db.doc('tentry/'+st.T.id+'_'+st.me.id).set({tid:st.T.id,pid:st.me.id,t:now()});toast('「'+st.T.n+'」にエントリーしました');try{oriSnd&&oriSnd('coin')}catch(e){}}catch(e){toast('できませんでした')}btn&&(btn.disabled=false);tourCall();return}
   if(st.k==='mine'){const T=st.T,nx=st.nx;if(T.g==='tcg'){try{tcgTourChallenge(nx.opp,T.id)}catch(e){tourGo()}return}btn&&(btn.disabled=true);const e=await challengeTo(nx.opp,T.g,0,T.id);toast(e||pname(nx.opp)+'に大会の対戦を申し込みました');btn&&(btn.disabled=false);return}
   tourGo()}
+function tourSkipped(id){try{return JSON.parse(localStorage.getItem('tourSkip')||'[]').includes(id)}catch(e){return false}}
+function tourSkip(st){try{const L=JSON.parse(localStorage.getItem('tourSkip')||'[]');L.push(st.T.id);localStorage.setItem('tourSkip',JSON.stringify(L.slice(-20)))}catch(e){}tourSeenAdd(st.key);toast('「'+st.T.n+'」にはエントリーしません。あとからでも 対戦 →「大会・履歴」でエントリーできます');tourCall()}
 function tourSeen(k){try{return JSON.parse(localStorage.getItem('tourSeen')||'[]').includes(k)}catch(e){return false}}
 function tourSeenAdd(k){try{const L=JSON.parse(localStorage.getItem('tourSeen')||'[]');L.push(k);localStorage.setItem('tourSeen',JSON.stringify(L.slice(-40)))}catch(e){}}
 function tourPop(st){document.querySelectorAll('body>.tcpop').forEach(x=>x.remove());const o=el('div','tcpop k-'+st.k),w=el('div','tcpw');
@@ -15192,7 +15200,8 @@ function tourCall(){let st=null;try{st=tourState()}catch(e){st=null}
     const sig=st.key+'|'+st.sub+'|'+st.cta+'|'+st.T.n;if(bn.dataset.k!==sig){bn.dataset.k=sig;bn.className='ktour k-'+st.k;
       const ic=el('i','kti');ic.innerHTML=TC_TROPHY;const tx=el('div','ktx'),top=el('div','ktt');top.append(el('em',null,st.chip),el('span',null,'大会'));tx.append(top,el('b',null,st.T.n),el('small',null,st.sub));
       const b=el('button','ktb'+(st.done?' done':''),st.cta);b.type='button';b.onclick=e=>{e.stopPropagation();tourAct(st,b)};
-      bn.replaceChildren(ic,tx,b);bn.onclick=()=>tourGo();bn.onkeydown=e=>{if(e.key==='Enter')tourGo()}}}
+      let act=b;if(st.k==='entry'&&!st.done){act=el('div','ktbs');const no=el('button','ktno','エントリーしない');no.type='button';no.onclick=e=>{e.stopPropagation();tourSkip(st)};act.append(b,no)}
+      bn.replaceChildren(ic,tx,act);bn.onclick=()=>tourGo();bn.onkeydown=e=>{if(e.key==='Enter')tourGo()}}}
   /* 2) the 対戦 tab: a "!" while you can enter, or when it is your match */
   const nb=document.querySelector('.bnav [data-v=battle]');if(nb){let bd=nb.querySelector('.ktbd');const need=!!st&&((st.k==='entry'&&!st.done)||st.k==='mine');if(need&&!bd){bd=el('i','ktbd','!');nb.append(bd)}else if(!need&&bd)bd.remove()}
   /* 3) once: when entry opens, and when your match comes */
