@@ -2946,7 +2946,7 @@ body.nsopen{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.tcf.r-GR::after{animation:none!important;opacity:0}.tcf.foil .sgl.s1::after{animation:none;transform:translate(12%,10%)}}
 /* (10/26 夜・3回目) スペシャルアート(SA): ほかのTCGの特別版にならう。絵は端まで(枠なし)、名前は太いゴシックの白に黒のふち、
    効果は下のくらいグラデーションの上に白で。いちばん下に小さくカード番号・レアリティ・セット名。光は全体の箔が傾きで流れる */
-.tfc.sac{--sa-ui:'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',system-ui,sans-serif;background:#0a0d0c;border-radius:4.6%/3.3%;transform:perspective(900px) rotateY(0) rotateX(0);transition:transform .25s ease-out;isolation:isolate;box-shadow:0 0 0 1px rgba(255,255,255,.18),0 1.4cqw 4cqw rgba(0,0,0,.55)}
+.tfc.sac{--sa-ui:'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',system-ui,sans-serif;background:#0a0d0c;border-radius:4.6%/3.3%;transform:none;transition:transform .25s ease-out;isolation:isolate;box-shadow:0 0 0 1px rgba(255,255,255,.18),0 1.4cqw 4cqw rgba(0,0,0,.55)}
 .tfc.sac.sac.sac::before{content:"";position:absolute;inset:0;z-index:7;border-radius:inherit;pointer-events:none;padding:0;-webkit-mask:none;mask:none;background:none;box-shadow:inset 0 0 0 .45cqw rgba(255,255,255,.22)}
 .tfc.sac::after{display:none}
 .tfc.sac>.tfa{inset:0;z-index:1;border-radius:inherit;box-shadow:none!important}
@@ -2989,7 +2989,6 @@ body.nsopen{overflow:hidden}
 .tfc.sac.satl{transform:perspective(900px) rotateY(calc(var(--sx,0)*13deg)) rotateX(calc(var(--sy,0)*-10deg))}
 .tfc.sac.satl .sa-glare{opacity:1}
 .tfc.sac.satl .sa-pop>img{animation:none;transform:translate(calc(var(--sx,0)*1.8%),calc(var(--sy,0)*1.2%))}
-.tfc.sac.tfbig:not(.satl),.kj5-card .tfc.sac:not(.satl),.kj2-rc .tfc.sac:not(.satl){animation:saSway 6.5s ease-in-out infinite}
 @keyframes saSway{0%,100%{transform:perspective(900px) rotateY(-5deg) rotateX(1.5deg)}50%{transform:perspective(900px) rotateY(5deg) rotateX(-1.5deg)}}
 @media (prefers-reduced-motion:reduce){.tfc.sac,.tfc .sa-pop>img,.tcf.saf>.satx,.tcf.saf>.sasp,.tcf.saf::after{animation:none!important}}
 @container (max-width:150px){.tfc .sa-ft,.tfc .sa-ty{display:none}}
@@ -3010,6 +3009,10 @@ body.nsopen{overflow:hidden}
 .tfc.sac .tfcy em{color:transparent;-webkit-text-fill-color:transparent;background:linear-gradient(100deg,#fff4cc,#e6b24c 40%,#fffaf0 55%,#c8902c 75%);-webkit-background-clip:text;background-clip:text}
 .tfc .sa-ft b{background:linear-gradient(100deg,#c8902c,#fff6d8 35%,#e9bd5a 55%,#fff1c4 75%,#b07a1f) 0 0/200% 100%;animation:saGoldMove 3s ease-in-out infinite alternate}
 @media (prefers-reduced-motion:reduce){.tfc .sa-gold::before,.tfc .sa-gold::after,.tfc .sa-ft b{animation:none!important}}
+
+/* (10/26) くっきり見せる: さわっていないときは傾けない・妖精も動かさない(画像の引き伸ばしでぼやけるため) */
+.tfc .sa-pop>img{animation:none}
+.tfc.sac .tfcsh{left:0;right:0;bottom:0;width:auto;border-radius:0 0 4.6% 4.6%/0 0 3.3% 3.3%}
 
 /*TCGCSS-END*/
 /* monthly pass */
@@ -16242,7 +16245,7 @@ function tcgCardFull(id,foil,cls,ga){const c=TC[id];if(!c)return tcgFace(id,cls,
   bot.append(ty,el('p','tfcx',tx));
   if(km){const wm=el('i','kx-wm');wm.append(el('b'));bot.prepend(wm)} // 10/25 the app mark in gold behind the effect text
   if(c.ty==='chara'){const st=el('div','tfcs'),a=el('span','a'),d=el('span','d');a.append(el('small',null,'ATK'),document.createTextNode(c.atk));d.append(el('small',null,'DEF'),document.createTextNode(c.def));st.append(a,el('i'),d);bot.append(st)}
-  w.append(el('i','tfcsh'),top,bot);if(c.saOf){/* (10/26) SA: 枠なしの全面絵。上に種類、下に小さくカード番号・レアリティ・セット名。妖精は切り抜いて少しだけ奥行き */const p=el('div','sa-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_sa.webp';p.append(pi);art.after(p);/* (10/26) 金箔: 絵の中の金(つる草・ランタン・飾り)だけが金属のように光る */const gd=el('i','sa-gold');gd.style.setProperty('--gm','url("tcgk/'+id+'_gold.webp")');p.after(gd);const ft=el('div','sa-ft');ft.append(el('b',null,'SA'),el('i',null,'NF-S 001/001'),el('span',null,'夜宴くじ NIGHT FEAST'));w.append(ft,el('i','sa-glare'));saTilt(w)}if(!c.hwOf)w.append(el('i','tfcgem'));else{const pk=art.querySelector('.tcfpk');if(pk)w.append(pk)}['k1','k2','k3','k4'].forEach(k=>w.append(el('i','tfccn '+k)));
+  w.append(el('i','tfcsh'),top,bot);if(c.saOf){/* (10/26) SA: 枠なしの全面絵。上に種類、下に小さくカード番号・レアリティ・セット名。妖精は切り抜いて少しだけ奥行き */const p=el('div','sa-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_sa.webp';p.append(pi);art.after(p);/* (10/26) 絵は最初から元の大きさ(小さい絵を引き伸ばさない) */{const ai=art.querySelector('img'),H=window.CARD_HD||{};if(ai&&H[id]){ai.dataset.hd='-';ai.src='cardhd/'+id+'.webp?v='+H[id]}}/* (10/26) 金箔: 絵の中の金(つる草・ランタン・飾り)だけが金属のように光る */const gd=el('i','sa-gold');gd.style.setProperty('--gm','url("tcgk/'+id+'_gold.webp")');p.after(gd);const ft=el('div','sa-ft');ft.append(el('b',null,'SA'),el('i',null,'NF-S 001/001'),el('span',null,'夜宴くじ NIGHT FEAST'));w.append(ft,el('i','sa-glare'));saTilt(w)}if(!c.hwOf)w.append(el('i','tfcgem'));else{const pk=art.querySelector('.tcfpk');if(pk)w.append(pk)}['k1','k2','k3','k4'].forEach(k=>w.append(el('i','tfccn '+k)));
   /* KMR: the character steps over the top of the frame, gold streaks cross in front of her, a sheen crosses the whole card */
   if(km){if(tcgKmrCut(id)){const p=el('div','kx-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_c.webp';p.append(pi);art.after(p);p.after(el('i','kx-sw'))}const al=el('i','kx-all');al.append(el('b'));w.append(al)}return w}
 
