@@ -4132,6 +4132,7 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .kj5-st{position:absolute;left:50%;top:50%;width:max(100vw,46.154vh);aspect-ratio:540/1170;transform:translate(-50%,-50%);overflow:hidden}
 .kj5-v{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;pointer-events:none;background:#000}
 .kj5-v.on{opacity:1}
+.kj5-v.xf{z-index:1;transition:opacity .3s ease}
 .kj5-ov{position:absolute;inset:0;pointer-events:none}
 .kj5-card{position:absolute;left:50%;top:38.7%;width:62%;transform:translate(-50%,-50%);animation:kj5in .5s cubic-bezier(.2,1.4,.4,1) both;filter:drop-shadow(0 0 18px var(--kc,#fff))}
 .kj5-card>.kjf{width:100%;border-radius:12px;box-shadow:0 0 0 2px var(--kc,#fff)}
@@ -11445,7 +11446,11 @@ function kjShow(o,L,last,done){const RM=(()=>{try{return matchMedia('(prefers-re
   let tok=0;
   function play(n,rate,loop,then){const my=++tok,v=back;v.loop=!!loop;v.playbackRate=rate||1;v.src=src(n);try{v.load()}catch(e){}
     const go=()=>{if(my!==tok)return;v.playbackRate=rate||1;const p=v.play();if(p&&p.catch)p.catch(()=>{})};
-    const shown=()=>{v.removeEventListener('playing',shown);if(my!==tok)return;v.classList.add('on');front.classList.remove('on');try{front.pause()}catch(e){}const f=front;front=v;back=f;sfx(n,rate||1);
+    const shown=()=>{v.removeEventListener('playing',shown);if(my!==tok)return;const f=front;
+      /* (10/27) 3Dのパックへ切り替わるところは0.3秒で重ねて切り替える(絵が飛ばないように) */
+      if(/^(idle|open)_/.test(n)&&f.classList.contains('on')){v.classList.add('xf');void v.offsetWidth;v.classList.add('on');setTimeout(()=>{v.classList.remove('xf');if(f!==front){f.classList.remove('on');try{f.pause()}catch(e){}}},320)}
+      else{v.classList.add('on');f.classList.remove('on');try{f.pause()}catch(e){}}
+      front=v;back=f;sfx(n,rate||1);
       if(!loop)v.onended=()=>{if(my===tok&&then)then()}};
     v.addEventListener('playing',shown);v.onended=null;if(v.readyState>=2)go();else v.addEventListener('canplay',go,{once:true});
     /* if a clip can't load, don't get stuck */v.onerror=()=>{if(my===tok&&then&&!loop)then()}}
