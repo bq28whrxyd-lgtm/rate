@@ -10861,14 +10861,14 @@ function pmFx(sg,kind,tg,pm){try{if(!sg||!tg||pmRM())return;const o=sg.getBoundi
    くじ券(1回タダ)はチーム戦やみんなで目標のごほうび。券で引いた記録は p:0 */
 const KJ_PRICE=400,KJ_BOX=120,KJ_BOXES=2,KJ_DAY=20;
 const KJ_T=[null,
-  /* (10/26) A賞・B賞は「夜宴の小悪魔」(ハロウィンのKMR)のスリーブとコイン。ここでしか手に入らない(lim:'kuji') */
-  {n:'A賞',it:'slimp',q:1,c:'#ffe7a3',c2:'#b678ff',x:'KMRスリーブ「夜宴の小悪魔」',s:'KMRスリーブ'},
-  {n:'B賞',it:'cimp',q:1,c:'#c9a8ff',c2:'#ff8a2a',x:'KMRコイン「夜宴の小悪魔」',s:'KMRコイン'},
-  {n:'C賞',k:'ltk',q:5,c:'#b678ff',c2:'#7fd8ff',x:'限定ガチャチケット ×5',s:'限定ガチャ券 ×5'},
+  /* (10/26) A賞=KMRコイン・B賞=KMRスリーブ(どちらも「夜宴の小悪魔」、ここでしか手に入らない lim:'kuji')、C賞=TCGハロウィンKMRを選べる券(1箱2本) */
+  {n:'A賞',it:'cimp',q:1,c:'#ffe7a3',c2:'#b678ff',x:'KMRコイン「夜宴の小悪魔」',s:'KMRコイン'},
+  {n:'B賞',it:'slimp',q:1,c:'#c9a8ff',c2:'#ff8a2a',x:'KMRスリーブ「夜宴の小悪魔」',s:'KMRスリーブ'},
+  {n:'C賞',k:'kmrp',q:1,c:'#ff6ad5',c2:'#ffe7a3',x:'TCGハロウィンKMRを選べる券',s:'KMRを選べる券'},
   {n:'D賞',k:'ltk',q:2,pt:300,c:'#ff8a2a',c2:'#ffd36b',x:'限定ガチャチケット ×2 と 300pt',s:'限定ガチャ券 ×2+300pt'},
   {n:'E賞',k:'ptk',q:3,c:'#4fd1a5',c2:'#9cf0d0',x:'通常パックチケット ×3',s:'パック券 ×3'},
   {n:'F賞',pt:150,c:'#9aa6ba',c2:'#d5dbe6',x:'150pt',s:'150pt'}];
-const KJ_CNT=[0,1,2,4,8,25,80];
+const KJ_CNT=[0,1,2,2,8,25,82];/* (10/26) C賞 4→2本(KMR)、そのぶんF賞 80→82 */
 const KJ_LAST={k:'mat',x:'プレイマット「夜宴の小悪魔」',s:'プレイマット'};
 const KJ_MAT_IMG='kmr_hw4.jpg';
 const kjOn=()=>{try{return hwOn()||(typeof hwExt==='function'&&hwExt())||oriOn()}catch(e){return false}};
@@ -10956,15 +10956,16 @@ async function kjGo(n,free){const o=kjCur();if(!o||kjGo.busy)return;const me=myP
   try{L=await kjTake(o,k,free)}catch(e){kjGo.busy=false;const m=String(e&&e.message||e);toast(m==='pt'?'ptが足りません':m==='sold'?'この箱は売り切れました':m==='closed'?'販売は終わりました':m==='late'?'通信が遅いようです。少しして見てください':'引けませんでした('+m+')');return}
   const o2=kjAll().find(x=>x.id===o.id)||o,ls=L.find(s=>kjIsLast(o2,s.i)),last=ls?Object.assign({i:ls.i},KJ_LAST):null;
   kjGo.busy=false;try{renderGacha()}catch(e){}setTimeout(()=>{try{kjItemKeep()}catch(e){}},400);
-  oriShow(o2,L,last,()=>{if(ORI_PV)return;L.filter(s=>s.g<=2).forEach(s=>post('kj_'+s.id,'kuji',me.id,me.name,me.name+'が夜宴くじで'+KJ_T[s.g].n+'「'+KJ_T[s.g].x+'」を引いた!'));
+  oriShow(o2,L,last,()=>{if(ORI_PV)return;L.filter(s=>s.g<=3).forEach(s=>post('kj_'+s.id,'kuji',me.id,me.name,me.name+'が夜宴くじで'+KJ_T[s.g].n+'「'+KJ_T[s.g].x+'」を引いた!'));
     if(last)post('kjl_'+o2.id+'_'+last.i,'kuji',me.id,me.name,me.name+'が夜宴くじ '+(kjBoxOf(o2,last.i)+1)+'箱目の最後の1枚を引いて、ラストワン賞「'+KJ_LAST.x+'」を手に入れた!')})}
 
 /* ---------- how the prizes look (the 演出 and the lists) ---------- */
 function kjFace(g){const f=el('div','kjf'+(g==='last'?' mat':' kjg'+g));/* (10/26) not ' g2': the app has a global .g2 (9px high) */
   if(g==='last'){const im=el('img');im.src=KJ_MAT_IMG;im.alt='';im.decoding='async';f.append(im,el('i','kjf-sh'),el('b','kjf-tag','PLAY MAT'));return f}
   const T=KJ_T[g];f.style.setProperty('--tc',T.c);f.style.setProperty('--tc2',T.c2);
-  if(g===1){const sl=el('div','kjf-sl'),im=el('img');im.src=(SLV.slimp||{}).img||'';im.alt='';im.decoding='async';sl.append(im,el('i','kjf-sh'));f.append(sl,el('b','kjf-tag','KMR スリーブ'));return f}
-  if(g===2){const cw=el('div','kjf-coin');try{cw.append(coinEl('imp',96,false))}catch(e){}f.append(cw,el('b','kjf-tag','KMR コイン'));return f}
+  if(g===2){const sl=el('div','kjf-sl'),im=el('img');im.src=(SLV.slimp||{}).img||'';im.alt='';im.decoding='async';sl.append(im,el('i','kjf-sh'));f.append(sl,el('b','kjf-tag','KMR スリーブ'));return f}
+  if(g===1){const cw=el('div','kjf-coin');try{cw.append(coinEl('imp',96,false))}catch(e){}f.append(cw,el('b','kjf-tag','KMR コイン'));return f}
+  if(g===3){let c;try{c=tcgCardFull('hq8','k')}catch(e){c=el('div','tcf')}f.append(c,el('b','kjf-tag','KMRを1枚選べる'));return f}
   const t=el('div','kjf-tk');t.append(el('small',null,T.k==='ltk'?'限定ガチャ':T.k==='ptk'?'通常パック':'POINT'),el('b',null,T.k?'×'+T.q:T.pt+''),el('em',null,T.k?'TICKET':'pt'));
   f.append(t);if(T.k&&T.pt)f.append(el('b','kjf-plus','+'+T.pt+'pt'));return f}
 function kjSkin(o){return{T:g=>KJ_T[g]||{},face:(s,l)=>kjFace(l?'last':s.g),name:(s,l)=>l?KJ_LAST.x:(KJ_T[s.g]||{}).x,cap:(s,l)=>l?KJ_LAST.s:(KJ_T[s.g]||{}).s,
@@ -10978,7 +10979,7 @@ window.__kjBanner=H=>{if(!kjOn())return null;if(ORI_PV)kjPvSeed();const o=kjCur(
   const tks=tk>0&&!sold?[{l:'くじ券で引く',n:tk,on:ok&&day>0,go:()=>kjGo(Math.min(10,tk),true)}]:[];
   return{id:'kuji',ak:'kuji-'+o.id+'-'+o.x,chip:'夜宴くじ',ac:['#ff8a2a','#b45cff'],
     thumb:()=>{const t=mk('span','kgu-tn kj'),w=mk('span','kj-tnc');w.append(kjFace(1));t.append(w,mk('em','kgu-bd kj',sold?'完売':'残り'+bl));return t},
-    title:'夜宴くじ',sub:'A賞 KMRスリーブ「夜宴の小悪魔」・ハズレなし',subH:'A賞 <span class="kgu-nw">KMRスリーブ「夜宴の小悪魔」</span>・ハズレなし',
+    title:'夜宴くじ',sub:'A賞 KMRコイン「夜宴の小悪魔」・ハズレなし',subH:'A賞 <span class="kgu-nw">KMRコイン「夜宴の小悪魔」</span>・ハズレなし',
     tags:[[ext?'延長戦 くじ券だけ':'ハロウィン後編','hot'],[left(o.end),'time'],[sold?'完売':(rm.b+1)+'箱目 残り'+bl+'枚']].concat(ORI_PV?[['お試し版']]:[]),art:()=>kjArt(o,H),
     prog:[{k:(rm.b+1)+'箱目の残り',v:bl,max:kjBox(o),tx:sold?'完売':bl+' / '+kjBox(o)+'枚',c:'kj'}],
     extra:()=>{const w=mk('div','ori-rem kj-rem');for(let g=1;g<=6;g++){const c=mk('div','ori-rt'+(rm.R[g]?'':' out'));c.style.setProperty('--tc',KJ_T[g].c);c.innerHTML='<b>'+KJ_T[g].n+'</b><span>'+rm.R[g]+'/'+rm.A[g]+'</span>';w.append(c)}
@@ -11000,7 +11001,7 @@ function kjSheet(o,H){const {mk,bt,esc,sheet}=H;if(typeof sheet!=='function')ret
       /* (10/25) look at the mat (just looking: no match) */
       {const own=kjMatOn(),x=bt('ori-ab main kj-try','プレイマットを見る');x.onclick=()=>kjMatView();s.append(mk('p','ori-ex',own?'あなたのマットです。TCGの対戦で自分の側の場に敷かれ、友達戦では相手にも見えます。':'TCGの対戦で、自分の側の場に敷かれるマットです。友達戦では相手にも見えます。'),x)}b.append(s)}
     for(let g=1;g<=6;g++){const s=mk('div','ori-sec');s.style.setProperty('--tc',KJ_T[g].c);s.innerHTML='<div class="ori-sh"><b>'+KJ_T[g].n+'</b><span>'+KJ_T[g].x+'</span><em>残り '+rm.R[g]+' / '+rm.A[g]+'</em></div>';
-      const gr=mk('div','ori-g kj'+(g<=2?' big':' row')),c=mk('div','ori-gc'+(rm.R[g]?'':' out'));c.append(kjFace(g));gr.append(c);s.append(gr);b.append(s)}
+      const gr=mk('div','ori-g kj'+(g<=3?' big':' row')),c=mk('div','ori-gc'+(rm.R[g]?'':' out'));c.append(kjFace(g));gr.append(c);s.append(gr);b.append(s)}
     if(opened.length){const s=mk('div','ori-sec log');s.innerHTML='<div class="ori-sh"><b>出たもの</b><span>新しい順</span></div>';const ul=mk('div','ori-log');
       opened.slice().sort((a,c)=>c.i-a.i).slice(0,40).forEach(x=>{const li=mk('div','ori-li');li.style.setProperty('--tc',KJ_T[x.g].c);li.innerHTML='<span>No.'+(x.i+1)+'</span><b>'+KJ_T[x.g].n+'</b><em>'+esc(KJ_T[x.g].s)+'</em><small>'+esc(oriPn(x.tb))+'</small>';ul.append(li)});s.append(ul);b.append(s)}})}
 
