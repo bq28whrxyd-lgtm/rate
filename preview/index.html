@@ -3012,6 +3012,43 @@ body.nsopen{overflow:hidden}
 .tfc.sac .tfcn{left:25.5cqw;right:6.5cqw}
 .tfc.sac .tfcx{font-size:4.5cqw;letter-spacing:.02em;text-wrap:balance}
 
+/* (10/26 夜) 枠がちゃんと光る: 金の部分に光の筋、真珠の外枠に動く虹、宝石はきらめき、ランタンはゆらぐ灯り、下の宝石は金に脈打つ */
+.tfc .sa-fgold,.tfc .sa-fpearl{position:absolute;inset:0;z-index:5;pointer-events:none;-webkit-mask:var(--fm) 0 0/100% 100% no-repeat;mask:var(--fm) 0 0/100% 100% no-repeat}
+.tfc .sa-fgold{mix-blend-mode:color-dodge;background:linear-gradient(110deg,transparent 38%,rgba(255,240,190,.95) 47%,rgba(255,220,140,.75) 52%,transparent 62%) 0 0/300% 100%;animation:saGoldGlint 3.6s ease-in-out infinite}
+.tfc .sa-fpearl{mix-blend-mode:color-dodge;opacity:.75;background:linear-gradient(125deg,#ff7fcf,#7fc6ff 18%,#7fffc0 36%,#ffe27f 54%,#c69bff 72%,#ff7fcf 90%) 0 0/300% 300%;animation:saPearlMove 5s linear infinite}
+@keyframes saPearlMove{from{background-position:0% 0%}to{background-position:300% 300%}}
+.tfc .sa-gems{position:absolute;inset:0;z-index:6;pointer-events:none}
+.tfc .sa-gm{position:absolute;width:0;height:0}
+.tfc .sa-gm::before,.tfc .sa-gm::after{content:"";position:absolute;left:0;top:0;transform:translate(-50%,-50%)}
+/* a 4-point star that flashes */
+.tfc .sa-gm.cr::before,.tfc .sa-gm.st::before,.tfc .sa-gm.dia::after,.tfc .sa-gm.bot::after{width:9cqw;height:9cqw;background:
+  radial-gradient(closest-side,rgba(255,255,255,1),rgba(255,255,255,0) 22%),
+  linear-gradient(90deg,transparent 47%,rgba(255,255,255,.95) 50%,transparent 53%) 50% 50%/100% 100%,
+  linear-gradient(0deg,transparent 47%,rgba(255,255,255,.95) 50%,transparent 53%) 50% 50%/100% 100%;
+  -webkit-mask:radial-gradient(closest-side,#000 25%,transparent);mask:radial-gradient(closest-side,#000 25%,transparent);
+  mix-blend-mode:screen;opacity:0;animation:saStar 3s ease-in-out infinite;animation-delay:inherit}
+.tfc .sa-gm.st::before{width:6cqw;height:6cqw}
+.tfc .sa-gm.dia::after{width:16cqw;height:16cqw}
+.tfc .sa-gm.bot::after{width:13cqw;height:13cqw}
+@keyframes saStar{0%,62%,100%{opacity:0;transform:translate(-50%,-50%) scale(.3) rotate(0)}74%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(25deg)}86%{opacity:0;transform:translate(-50%,-50%) scale(.5) rotate(45deg)}}
+.tfc .sa-gm.cr::after{width:4.5cqw;height:7cqw;border-radius:40%;background:radial-gradient(closest-side,rgba(220,240,255,.85),rgba(255,180,240,.35) 60%,transparent);mix-blend-mode:screen;animation:saGlow 3s ease-in-out infinite;animation-delay:inherit}
+/* the big opal diamond: a rainbow that runs inside it */
+.tfc .sa-gm.dia::before{width:13.6cqw;height:13.6cqw;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);mix-blend-mode:color-dodge;opacity:.8;
+  background:linear-gradient(135deg,transparent 20%,#ff8fd8 35%,#8fd8ff 45%,#9fffc8 55%,#ffe38f 65%,transparent 80%) 0 0/300% 300%;animation:saPearlMove 3.4s linear infinite}
+/* lanterns: a warm light that breathes and flickers a little */
+.tfc .sa-gm.lan::before{width:11cqw;height:13cqw;border-radius:50%;background:radial-gradient(closest-side,rgba(255,220,140,.9),rgba(255,170,60,.35) 45%,transparent);mix-blend-mode:screen;animation:saLan 2.2s ease-in-out infinite;animation-delay:inherit}
+@keyframes saLan{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.92)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}55%{opacity:.75}70%{opacity:.95}}
+/* the gold gem at the bottom: a gold pulse */
+.tfc .sa-gm.bot::before{width:16cqw;height:12cqw;border-radius:50%;background:radial-gradient(closest-side,rgba(255,236,160,.95),rgba(255,190,60,.4) 50%,transparent);mix-blend-mode:screen;animation:saGlow 2.6s ease-in-out infinite}
+@keyframes saGlow{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.85)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.tfc .sa-fgold,.tfc .sa-fpearl,.tfc .sa-gm::before,.tfc .sa-gm::after{animation:none!important}}
+@container (max-width:150px){.tfc .sa-gems{display:none}}
+.tfc .sa-fpearl{mix-blend-mode:soft-light;opacity:.9}
+.tfc .sa-fpearl::after{content:"";position:absolute;inset:0;mix-blend-mode:overlay;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.7) 50%,transparent 60%) 0 0/300% 100%;animation:saGoldGlint 4.4s ease-in-out infinite}
+.tfc.sac .tfct{z-index:7}
+.tfc .sa-gm.dia::before{opacity:.45}
+.tfc.sac .tcf.saf>.satx{opacity:.28}
+
 /*TCGCSS-END*/
 /* monthly pass */
 .passcur{border-radius:16px;padding:14px 16px;margin-bottom:12px;border:1px solid color-mix(in srgb,var(--pc) 55%,transparent);background:radial-gradient(120% 90% at 0 0,color-mix(in srgb,var(--pc) 22%,transparent),transparent 65%),var(--panel2);display:flex;flex-direction:column;gap:4px}
@@ -16232,6 +16269,7 @@ function saTilt(w){let r=0;const set=(x,y)=>{w.style.setProperty('--sx',x.toFixe
   w.addEventListener('pointermove',e=>{if(!w.classList.contains('tfbig')&&!w.closest('.kj5-card,.kjx'))return;const b=w.getBoundingClientRect();const x=Math.max(-1,Math.min(1,(e.clientX-b.left)/b.width*2-1)),y=Math.max(-1,Math.min(1,(e.clientY-b.top)/b.height*2-1));w.classList.add('satl');cancelAnimationFrame(r);r=requestAnimationFrame(()=>set(x,y))},{passive:true});
   const off=()=>{w.classList.remove('satl');set(0,0)};w.addEventListener('pointerleave',off);w.addEventListener('pointercancel',off)}
 /* (10/26) SA の文字と金のリボン(参考: 特別版のTCGカード。上に名前と大きな数字、金のリボンの帯、絵の上に白ふちの黒文字、下にルールの箱と小さな番号) */
+const SA_GEMS=[[12,10,'dia',0],[22.7,11.6,'cr',.7],[93,10.5,'cr',1.6],[77,3.9,'st',2.3],[63,3.3,'st',.4],[7.4,20.4,'lan',0],[94.4,26,'lan',1.1],[5.9,44.2,'cr',1.9],[6.5,59,'cr',.9],[96.5,47,'cr',2.6],[95.7,61.9,'cr',1.3],[50.9,92.8,'bot',0],[20,96,'st',1.7],[80,96,'st',.2]];
 function saLayout(c){const L=el('div','sa-lay'),base=(TC[c.saOf]||{}).n||c.n,tx=String(c.tx||'').split('\n').filter(l=>!/^【(リーダー|ハロウィン版|スペシャルアート)】/.test(l)).join('\n');
   const hd=el('div','sa-hd');const pill=el('b','sa-pill',TFC_TY[c.ty]||'');const nm=el('b','sa-nm',c.n);const co=el('div','sa-co');co.append(el('small',null,'熱量'),el('b',null,String(c.c)),el('i','sa-coin'));hd.append(pill,nm,co);
   const sub=el('div','sa-sub');sub.append(el('span',null,((TCGD.fname||{})[c.f]||'')+'  ・  SPECIAL ART'));
@@ -16250,7 +16288,9 @@ function tcgCardFull(id,foil,cls,ga){const c=TC[id];if(!c)return tcgFace(id,cls,
   bot.append(ty,el('p','tfcx',tx));
   if(km){const wm=el('i','kx-wm');wm.append(el('b'));bot.prepend(wm)} // 10/25 the app mark in gold behind the effect text
   if(c.ty==='chara'){const st=el('div','tfcs'),a=el('span','a'),d=el('span','d');a.append(el('small',null,'ATK'),document.createTextNode(c.atk));d.append(el('small',null,'DEF'),document.createTextNode(c.def));st.append(a,el('i'),d);bot.append(st)}
-  w.append(el('i','tfcsh'),top,bot);if(c.saOf){/* (10/26) SA: 枠なしの全面絵。上に種類、下に小さくカード番号・レアリティ・セット名。妖精は切り抜いて少しだけ奥行き */const p=el('div','sa-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_sa.webp';p.append(pi);art.after(p);/* (10/26) 絵は最初から元の大きさ(小さい絵を引き伸ばさない) */{const ai=art.querySelector('img'),H=window.CARD_HD||{};if(ai&&H[id]){ai.dataset.hd='-';ai.src='cardhd/'+id+'.webp?v='+H[id]}}/* (10/26) 金箔: 絵の中の金(つる草・ランタン・飾り)だけが金属のように光る */const gd=el('i','sa-gold');gd.style.setProperty('--gm','url("tcgk/'+id+'_gold.webp")');p.after(gd);/* (10/26) 名前と熱量は金の立体文字の画像(開封演出の文字と同じ作り) */{const nmE=top.querySelector('.tfcn'),gB=top.querySelector('.tfcg>b');if(nmE){const im=el('img');im.alt=c.n;im.decoding='async';im.src='tcgk/'+id+'_tnm.webp';nmE.replaceChildren(im)}if(gB){const im=el('img');im.alt=String(c.c);im.decoding='async';im.src='tcgk/'+id+'_tco.webp';gB.replaceChildren(im)}}/* (10/26) SA専用の枠(GPTで作った真珠の箔とつる草の枠。絵の窓は透明) */const fr=el('img','sa-frame');fr.alt='';fr.decoding='async';fr.src='tcgk/'+id+'_frame.webp';const fs=el('i','sa-fsh');fs.style.setProperty('--fm','url("tcgk/'+id+'_frame.webp")');w.append(fr,fs,el('i','sa-glare'));saTilt(w)}if(!c.hwOf)w.append(el('i','tfcgem'));else{const pk=art.querySelector('.tcfpk');if(pk)w.append(pk)}['k1','k2','k3','k4'].forEach(k=>w.append(el('i','tfccn '+k)));
+  w.append(el('i','tfcsh'),top,bot);if(c.saOf){/* (10/26) SA: 枠なしの全面絵。上に種類、下に小さくカード番号・レアリティ・セット名。妖精は切り抜いて少しだけ奥行き */const p=el('div','sa-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_sa.webp';p.append(pi);art.after(p);/* (10/26) 絵は最初から元の大きさ(小さい絵を引き伸ばさない) */{const ai=art.querySelector('img'),H=window.CARD_HD||{};if(ai&&H[id]){ai.dataset.hd='-';ai.src='cardhd/'+id+'.webp?v='+H[id]}}/* (10/26) 金箔: 絵の中の金(つる草・ランタン・飾り)だけが金属のように光る */const gd=el('i','sa-gold');gd.style.setProperty('--gm','url("tcgk/'+id+'_gold.webp")');p.after(gd);/* (10/26) 名前と熱量は金の立体文字の画像(開封演出の文字と同じ作り) */{const nmE=top.querySelector('.tfcn'),gB=top.querySelector('.tfcg>b');if(nmE){const im=el('img');im.alt=c.n;im.decoding='async';im.src='tcgk/'+id+'_tnm.webp';nmE.replaceChildren(im)}if(gB){const im=el('img');im.alt=String(c.c);im.decoding='async';im.src='tcgk/'+id+'_tco.webp';gB.replaceChildren(im)}}/* (10/26) SA専用の枠(GPTで作った真珠の箔とつる草の枠。絵の窓は透明) */const fr=el('img','sa-frame');fr.alt='';fr.decoding='async';fr.src='tcgk/'+id+'_frame.webp';const fs=el('i','sa-fsh');fs.style.setProperty('--fm','url("tcgk/'+id+'_frame.webp")');const fg=el('i','sa-fgold'),fp=el('i','sa-fpearl');fg.style.setProperty('--fm','url("tcgk/'+id+'_fgold.webp")');fp.style.setProperty('--fm','url("tcgk/'+id+'_fpearl.webp")');
+    /* (10/26) 枠の宝石・ランタン・下の宝石がそれぞれ光る(位置は枠の絵に合わせて決めた) */const gm=el('div','sa-gems');SA_GEMS.forEach(([x,y,k,d])=>{const g=el('i','sa-gm '+k);g.style.left=x+'%';g.style.top=y+'%';g.style.animationDelay=d+'s';gm.append(g)});
+    w.append(fr,fp,fg,fs,gm,el('i','sa-glare'));saTilt(w)}if(!c.hwOf)w.append(el('i','tfcgem'));else{const pk=art.querySelector('.tcfpk');if(pk)w.append(pk)}['k1','k2','k3','k4'].forEach(k=>w.append(el('i','tfccn '+k)));
   /* KMR: the character steps over the top of the frame, gold streaks cross in front of her, a sheen crosses the whole card */
   if(km){if(tcgKmrCut(id)){const p=el('div','kx-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_c.webp';p.append(pi);art.after(p);p.after(el('i','kx-sw'))}const al=el('i','kx-all');al.append(el('b'));w.append(al)}return w}
 
