@@ -4161,6 +4161,16 @@ body.kidle main *:not(#kz),body.kidle main *:not(#kz)::before,body.kidle main *:
 .kjf-s b{font:900 58cqw/.9 "Dela Gothic One","Inter Tight",sans-serif;background:linear-gradient(170deg,#fff 10%,#ffe7a0 35%,#ff9be0 60%,#9fd0ff 85%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 .6cqw 0 #5a2a00) drop-shadow(0 0 4cqw rgba(255,255,255,.6))}
 .kjf-s em{font:italic 900 8cqw/1 "Inter Tight",Geist,sans-serif;letter-spacing:.3em;color:#fff;opacity:.9}
 .kjf.kjg0 .kjf-tag{z-index:2}
+
+/* (10/27) プチュン(テレビが消えたように真っ暗)とフリーズ(全部止まる) */
+.kj5.kj5-blk{background:#000}
+.kj5-fl.kj5-flon{animation:kj5Flon .55s ease-out both}
+@keyframes kj5Flon{0%{opacity:1}100%{opacity:0}}
+.kj5.kj5-frz .kj5-st::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 4px),radial-gradient(ellipse at 50% 50%,transparent 45%,rgba(0,0,0,.55));z-index:3}
+.kj5.kj5-frz2 .kj5-st{animation:kj5Frz .09s steps(2) infinite}
+@keyframes kj5Frz{0%{transform:translate(-50%,-50%) translate(-3px,1px)}100%{transform:translate(-50%,-50%) translate(3px,-2px)}}
+@media (prefers-reduced-motion:reduce){.kj5.kj5-frz2 .kj5-st{animation:none}}
+.kj5-fl{position:absolute;inset:0;z-index:4;pointer-events:none;background:#fff;opacity:0}
 /* ORIKJcss:end */
 /* ORIH2css:begin */
 /* ===== ハロウィン後編: チーム戦・みんなで目標・ビンゴ ===== */
@@ -11406,6 +11416,11 @@ function kxPlan(q,fast){const lv=kxLv(q),R=Math.random,g=q.last?'L':'SABCDEF'[q.
   if(cur===3){if(F.cutin||R()<(lv>=5?.9:lv===4?.7:.45))seq.push(['cutin_red',1]);if(F.hot||R()<(lv>=5?.9:lv===4?.6:.35))seq.push(['hot',1])}
   if(lv>=4){const gy=F.gyaku||(cur===3&&R()<(lv>=5?.5:.3));seq.push([gy?'gyaku':'door_'+KX_TIER[cur],1]);if(lv>=5||R()<.6)seq.push(['kaku',1]);if(lv>=5)seq.push(['glass',1])}
   seq.push(['idle_'+fin,1]);seq.push(['open_'+g,1]);
+  /* (10/27) プチュン: 引いた直後に突然テレビが消えたように真っ暗 → 確定。A賞以上だけで出る(出たら必ずA以上)。あおりは全部とばす */
+  if(lv>=4&&(F.puchun||(!F.freeze&&R()<(lv>=5?.3:.15)))){const s2=[['puchun',1],['kaku',1]];if(lv>=5)s2.push(['glass',1]);s2.push(['idle_'+fin,1],['open_'+g,1]);if(!fast)return{lv,fin,g,seq:s2,auto:false}}
+  /* (10/27) フリーズ: S賞だけのまれな演出。あおりの途中で絵も音も止まる → 数秒の沈黙 → 割れるように動き出して確定 */
+  else if(lv>=5&&(F.freeze||R()<.25)){const i=seq.findIndex(x=>x[0]==='hot'||x[0]==='cutin_red'||x[0].startsWith('gyaku'));const at=i>=0?i:seq.findIndex(x=>x[0]==='kaku');const base=seq[at]&&!seq[at][0].startsWith('kaku')?seq[at][0]:'hot';
+    const s2=seq.slice(0,at>=0?at:1);s2.push(['freeze',1,base],['kaku',1],['glass',1],['idle_'+fin,1],['open_'+g,1]);if(!fast)return{lv,fin,g,seq:s2,auto:false}}
   if(fast){/* 10回の下の賞: 登場と開封だけ、速く */return{lv,fin,g,seq:[['intro_'+fin,1.8],['open_'+g,1.8]],auto:true}}
   return{lv,fin,g,seq,auto:false}}
 function kjShow(o,L,last,done){const RM=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
@@ -11439,12 +11454,27 @@ function kjShow(o,L,last,done){const RM=(()=>{try{return matchMedia('(prefers-re
   function next(){k++;if(k>=A.length){results();return}const q=A[k];cur=q;clearOv();cnt.textContent=Q.length>1?Q.length+'回':'';seq=q.p.seq;si=0;
     if(RM){state='shown';showPrize(q,true);hint.textContent=Q.length>1?'タップで全部の結果へ':'タップで結果へ';return}
     state='anim';hint.textContent='タップでとばす';step()}
+  /* (10/27) プチュン・フリーズの音(効果音ファイルではなく、その場で作る) */
+  const tone=(f0,f1,dur,vol,type)=>{try{if(!AC)return;if(AC.state==='suspended')AC.resume();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type=type||'sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+dur);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+dur+.02)}catch(e){}};
+  const noise=(dur,vol,lp)=>{try{if(!AC)return;const n=Math.floor(AC.sampleRate*dur),b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();f.type='lowpass';f.frequency.value=lp||8000;g.gain.value=vol;s.buffer=b;s.connect(f);f.connect(g);g.connect(AC.destination);s.start()}catch(e){}};
+  const sfxOff=()=>{noise(.05,.5,9000);tone(1900,70,.11,.35,'square');tone(120,40,.25,.4)};/* テレビが消える「プチュン」 */
+  const sfxBoom=()=>{noise(.6,.7,900);tone(70,32,.9,.9);tone(2400,1200,.25,.12,'triangle')};/* 動き出す「ドン」 */
+  const fxOK=my=>state==='anim'&&my===fxTok;let fxTok=0;
+  function stOff(){/* the picture folds into a line, then a dot, then black (old TV) */try{stg.animate([{transform:'translate(-50%,-50%)',opacity:1},{transform:'translate(-50%,-50%) scale(1,.006)',opacity:1,offset:.55},{transform:'translate(-50%,-50%) scale(0,.006)',opacity:1}],{duration:280,easing:'cubic-bezier(.6,0,.9,.4)',fill:'forwards'})}catch(e){stg.style.opacity='0'}}
+  function stOn(){try{stg.getAnimations().forEach(a=>a.cancel())}catch(e){}stg.style.opacity=''}
   function step(){const [n,r]=seq[si];if(seq[si+1])preload(seq[si+1][0]);
+    if(n==='puchun'){const my=++fxTok;state='anim';hint.textContent='';X.classList.add('kj5-blk');play('intro_white',1,false,null);
+      setTimeout(()=>{if(!fxOK(my))return;try{snd&&snd.stop()}catch(e){}[va,vb].forEach(v=>{try{v.pause()}catch(e){}});sfxOff();stOff();
+        setTimeout(()=>{if(!fxOK(my))return;stOn();X.classList.remove('kj5-blk');fl.classList.remove('kj5-flon');void fl.offsetWidth;fl.classList.add('kj5-flon');sfxBoom();si++;step()},1700)},820);return}
+    if(n==='freeze'){const my=++fxTok;state='anim';play(seq[si][2]||'hot',1,false,null);
+      setTimeout(()=>{if(!fxOK(my))return;[va,vb].forEach(v=>{try{v.pause()}catch(e){}});try{snd&&snd.stop()}catch(e){}X.classList.add('kj5-frz');hint.textContent='';
+        setTimeout(()=>{if(!fxOK(my))return;X.classList.add('kj5-frz2')},1900);
+        setTimeout(()=>{if(!fxOK(my))return;X.classList.remove('kj5-frz','kj5-frz2');fl.classList.remove('kj5-flon');void fl.offsetWidth;fl.classList.add('kj5-flon');sfxBoom();si++;step()},2900)},900);return}
     if(n.startsWith('idle_')){if(cur.p.auto){si++;step();return}state='wait';hint.textContent='';play(n,1,true);tap.replaceChildren(el('b',null,'タップで開封'),el('small',null,'横になぞっても開けられます'));tap.className='kj5-tap on';return}
     if(n.startsWith('open_')){state='opening';tap.className='kj5-tap';hint.textContent='タップでとばす';play(n,r,false,()=>{state='shown';showPrize(cur);hint.textContent=Q.length>1?'タップで全部の結果へ':'タップで結果へ'});
       /* the prize card appears in the glowing frame just after the light settles *//* (10/26) パックが下に抜けて光の枠が止まってから(早すぎると開ける前に中身が見える) */setTimeout(()=>{if(state==='opening'&&cur===A[k])showPrize(cur)},(1.95/r)*1000);return}
     play(n,r,false,()=>{si++;step()})}
-  function skipToWait(){/* jump past the effects to the waiting pack (or straight to the prize in fast mode) */const i=seq.findIndex(s=>s[0].startsWith('idle_'));if(cur.p.auto){si=seq.length-1;step();return}if(i>=0&&si<i){si=i;step()}}
+  function skipToWait(){fxTok++;stOn();X.classList.remove('kj5-blk','kj5-frz','kj5-frz2');/* jump past the effects to the waiting pack (or straight to the prize in fast mode) */const i=seq.findIndex(s=>s[0].startsWith('idle_'));if(cur.p.auto){si=seq.length-1;step();return}if(i>=0&&si<i){si=i;step()}}
   function openNow(){if(state!=='wait')return;si=seq.findIndex(s=>s[0].startsWith('open_'));step()}
   function showPrize(q,instant){if(ov.querySelector('.kj5-card'))return;const lv=kxLv(q);
     if(q.last||q.s.g!==1||instant){/* the card face in the frame (A賞 is the coin in the film, so only when we skipped) */const c=el('div','kj5-card'+(lv>=5?' rb':''));c.style.setProperty('--kc',lv===5?'#ffcf4a':KX_COL[lv]);c.append(kjFace(q.last?'last':q.s.g));ov.append(c);
