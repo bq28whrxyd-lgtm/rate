@@ -8686,10 +8686,25 @@ body .tcpop button.tcgo{height:48px!important;font-weight:900!important;font-siz
 body .tcpop.k-mine button.tcgo{background:linear-gradient(180deg,#ff9a88,#e2361b)!important;color:#fff!important}
 body .tcpop button.tclt{height:40px!important;font-weight:700!important;font-size:14px!important;color:rgba(255,255,255,.8)!important;background:rgba(255,255,255,.08)!important}
 
-.ktour .ktbs{flex:none;display:grid;gap:4px;justify-items:stretch}
-body.ui2 #lob .ktour button.ktno,body .ktour button.ktno{height:24px!important;min-height:0!important;margin:0!important;padding:0 8px!important;border:0!important;border-radius:999px!important;font-size:11px!important;font-weight:700!important;line-height:1!important;font-family:inherit!important;color:rgba(255,255,255,.72)!important;background:rgba(255,255,255,.08)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)!important;white-space:nowrap}
-.ktour:has(.ktbs){padding-top:9px;padding-bottom:9px}
-.ktour:has(.ktbs) .ktt span{display:none}
+/* (10/26) 受付中は2段: 上に大会、下にボタン2つを横に */
+.ktour:has(.ktbs){flex-wrap:wrap;row-gap:10px;padding:12px}
+.ktour .ktbs{flex:1 1 100%;display:grid;grid-template-columns:1fr 1.4fr;gap:8px;order:3}
+.ktour .ktbs .ktno{order:1}.ktour .ktbs .ktb{order:2}
+body.ui2 #lob .ktour button.ktno,body .ktour button.ktno{height:40px!important;min-height:0!important;margin:0!important;padding:0 8px!important;border:0!important;border-radius:999px!important;font-size:14px!important;font-weight:700!important;line-height:1!important;font-family:inherit!important;color:rgba(255,255,255,.72)!important;background:rgba(255,255,255,.08)!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)!important;white-space:nowrap}
+body.ui2 #lob .ktour .ktbs button.ktb,body .ktour .ktbs button.ktb{height:40px!important;width:100%!important;font-size:15px!important}
+.ktour:has(.ktbs) .ktx small{white-space:normal;color:rgba(255,255,255,.82);font-size:12.5px}
+.ktour:has(.ktbs) .ktx b{font-size:17px}
+
+/* (10/26) 見やすく: 背景は不透明、状態のラベルは上のふちに乗せる(1行へらす)、受付中でも盾や横のボタンにかからない高さ */
+.ktour{margin-top:12px;background:linear-gradient(120deg,rgba(255,214,120,.14),rgba(255,214,120,.04) 45%,rgba(120,80,200,.1)),#15111f!important;overflow:visible}
+.ktour::after{border-radius:inherit;overflow:hidden}
+.ktour .ktt{position:absolute;left:12px;top:-11px;z-index:2;gap:6px;padding:0;pointer-events:none}
+.ktour .ktt span{font-size:10.5px;font-weight:800;letter-spacing:.06em;color:#ffe7a8;background:#15111f;padding:3px 8px;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(255,214,120,.45)}
+.ktour .ktx{padding-top:4px}
+.ktour:has(.ktbs){row-gap:9px;padding:13px 12px 11px}
+.ktour:has(.ktbs) .ktx small{white-space:nowrap}
+.ktour:has(.ktbs) .kti{width:40px;height:40px}.ktour:has(.ktbs) .kti svg{width:28px;height:28px}
+body.ui2 #lob .ktour .ktbs button,body .ktour .ktbs button{height:38px!important}
 #login{position:fixed;inset:0;z-index:140;background:radial-gradient(90% 60% at 50% 30%,#1c2233,var(--ink));display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
 #login .lx{max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
 #login h1{margin:4px 0 0}#login button{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -15171,7 +15186,7 @@ const TC_TROPHY='<svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradie
 function tourState(){const T=typeof curTour==='function'&&curTour(),me=myPlayer();if(!T||!me)return null;
   const ent=tentry.filter(e=>e.tid===T.id),inT=ent.some(e=>e.pid===me.id);
   if(T.st==='entry'&&!inT&&tourSkipped(T.id))return null;/* (10/26) ホームで「エントリーしない」を押した大会は、受付中のあいだバナーも「!」も出さない */
-  if(T.st==='entry')return{T,me,k:'entry',key:T.id+':e',chip:'エントリー受付中',sub:gname(T.g)+'  ·  '+ent.length+'人がエントリー  ·  優勝 '+(+T.p1||0).toLocaleString()+'pt',cta:inT?'エントリー済':'エントリー',done:inT,ent};
+  if(T.st==='entry')return{T,me,k:'entry',key:T.id+':e',chip:'エントリー受付中',sub:ent.length+'人がエントリー  ·  優勝 '+(+T.p1||0).toLocaleString()+'pt',cta:inT?'エントリー済':'エントリーする',done:inT,ent};
   if(T.st==='live'){const ch=tourChamp(T);if(ch)return{T,me,k:'champ',key:T.id+':c',chip:'結果',sub:'優勝は '+pname(ch),cta:'見る'};
     const nx=tourNext(T,me.id);if(nx)return{T,me,k:'mine',key:T.id+':m:'+nx.key,chip:'あなたの試合',sub:roundName(nx.r,bracket(T).length)+'  ·  vs '+pname(nx.opp),cta:'対戦する',nx};
     return{T,me,k:'live',key:T.id+':l',chip:'開催中',sub:gname(T.g)+'  ·  '+((T.ps||[]).length)+'人のトーナメント',cta:'見る'}}
@@ -15198,7 +15213,7 @@ function tourCall(){let st=null;try{st=tourState()}catch(e){st=null}
   const lob=document.getElementById('lob'),strip=lob&&lob.querySelector('.lstrip');let bn=lob&&lob.querySelector('.ktour');
   if(!st){if(bn)bn.remove()}else if(strip){if(!bn){bn=el('div','ktour');bn.setAttribute('role','button');bn.tabIndex=0;strip.parentNode.insertBefore(bn,strip)}
     const sig=st.key+'|'+st.sub+'|'+st.cta+'|'+st.T.n;if(bn.dataset.k!==sig){bn.dataset.k=sig;bn.className='ktour k-'+st.k;
-      const ic=el('i','kti');ic.innerHTML=TC_TROPHY;const tx=el('div','ktx'),top=el('div','ktt');top.append(el('em',null,st.chip),el('span',null,'大会'));tx.append(top,el('b',null,st.T.n),el('small',null,st.sub));
+      const ic=el('i','kti');ic.innerHTML=TC_TROPHY;const tx=el('div','ktx'),top=el('div','ktt');top.append(el('em',null,st.chip),el('span',null,'大会  ·  '+gname(st.T.g)));tx.append(top,el('b',null,st.T.n),el('small',null,st.sub));
       const b=el('button','ktb'+(st.done?' done':''),st.cta);b.type='button';b.onclick=e=>{e.stopPropagation();tourAct(st,b)};
       let act=b;if(st.k==='entry'&&!st.done){act=el('div','ktbs');const no=el('button','ktno','エントリーしない');no.type='button';no.onclick=e=>{e.stopPropagation();tourSkip(st)};act.append(b,no)}
       bn.replaceChildren(ic,tx,act);bn.onclick=()=>tourGo();bn.onkeydown=e=>{if(e.key==='Enter')tourGo()}}}
