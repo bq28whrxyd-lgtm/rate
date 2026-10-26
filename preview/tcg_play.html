@@ -2364,7 +2364,10 @@ const HWV=[['q2','hq2','魔女コスのギャル'],['n3','hn3','かぼちゃの�
   ['w9','hw9','元カノの幽霊に憑かれた男'],
   ['d11','hd11','万聖節の魔王'],['n11','hn11','かぼちゃの大怪獣']];
 HWV.forEach(([b,id,n])=>{const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,n,set:'hw',hwOf:b,img:b});C.push(c);BY[id]=c});
-const fk=id=>(BY[id]&&BY[id].hwOf)||id;
+/* (10/26) スペシャルアート: 夜宴くじのS賞だけで手に入る、絵とカードの作りが特別な版。効果は元のカードと同じで、デッキには合わせて2枚まで */
+const SAV=[['x5','sx5']];
+SAV.forEach(([b,id])=>{const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,set:'sa',saOf:b});C.push(c);BY[id]=c});
+const fk=id=>(BY[id]&&(BY[id].hwOf||BY[id].saOf))||id;
 const DECK_SIZE=20,MAX_COPY=2;
 const isLeader=id=>!!BY[id].trib&&!BY[id].same;
 const POOL=C.map(c=>c.id);
@@ -2461,6 +2464,7 @@ function text(c){const t=[],k=c.kw||{};
   else if(c.type==='trap')t.push({attack:'相手のキャラが攻撃してきたとき',direct:'相手のキャラがライフを直接攻撃してきたとき',spell:'相手が魔法を使ったとき',any:'相手が攻撃か魔法をしてきたとき',play:'相手がキャラを出したときか魔法を使ったとき'}[c.when]+'、発動するか選べる:'+O(c.ops));
   if(c.aw)t.push('★3覚醒:'+awText(c.aw));
   if(c.lim)t.unshift('【制限】デッキに1枚しか入れられない');
+  if(c.saOf&&BY[c.saOf])t.unshift('【スペシャルアート】「'+BY[c.saOf].n+'」と同じカード。デッキには合わせて'+(c.lim||MAX_COPY)+'枚まで');
   if(c.hwOf&&BY[c.hwOf])t.unshift('【ハロウィン版】「'+BY[c.hwOf].n+'」と同じカード。デッキには合わせて'+(c.lim||MAX_COPY)+'枚まで');
   if(c.same)t.unshift('【二体生贄】自分の'+FNAME[c.f]+'のキャラ2体を生贄にして出す');else if(c.trib)t.unshift('【リーダー】リーダーにできる。リーダーにしたときだけ、同じカードをデッキに2枚まで入れられる。引いて手札に来たら、自分のキャラ1体を生贄にして出す');
   return t.join('\n')}
@@ -3236,7 +3240,7 @@ function makeDeck(r,o){o=o||{};const pick=a=>a[Math.floor(r()*a.length)];const t
   const famOf=c=>(c.kw&&c.kw.mimic)?f:c.f;
   const W=c=>{let w=c.f===f?2.2:c.f===partner?1.5:.8;w*=c.type==='chara'?1:c.type==='spell'?.8:.6;w*={N:1,R:1.15,HR:1.22,SR:1.3}[c.r]||1;if(c.kw&&c.kw.syn&&c.f===f)w*=1.3;if(theme)w*=THEMES[theme].w(c);return w*(.6+r()*.8)};
   const d=[lead,lead];const cnt=id=>d.filter(x=>x===id).length;
-  const cand=CD.C.filter(c=>ok(c.id)&&!c.hwOf).map(c=>({c,w:W(c)}));
+  const cand=CD.C.filter(c=>ok(c.id)&&!c.hwOf&&!c.saOf).map(c=>({c,w:W(c)}));
   const N=t=>d.filter(id=>CD.BY[id].type===t).length;const heavy=()=>d.filter(id=>!CD.isLeader(id)&&CD.BY[id].c>=4).length;
   let guard=0;while(d.length<CD.DECK_SIZE&&guard++<400){
     const need=CD.DECK_SIZE-d.length,charaShort=Math.max(0,12-N('chara'));
