@@ -2994,6 +2994,23 @@ body.nsopen{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.tfc.sac,.tfc .sa-pop>img,.tcf.saf>.satx,.tcf.saf>.sasp,.tcf.saf::after{animation:none!important}}
 @container (max-width:150px){.tfc .sa-ft,.tfc .sa-ty{display:none}}
 
+/* (10/26 夜) 金箔をところどころ: 絵の金の部分・熱量の輪・区切り線・カードのふち・SAの札 */
+.tfc .sa-gold{position:absolute;inset:0;z-index:3;border-radius:inherit;pointer-events:none;
+  -webkit-mask:var(--gm) 50% 26%/cover no-repeat;mask:var(--gm) 50% 26%/cover no-repeat}
+.tfc .sa-gold::before,.tfc .sa-gold::after{content:"";position:absolute;inset:0}
+.tfc .sa-gold::before{mix-blend-mode:hard-light;opacity:1;background:linear-gradient(135deg,#7a4a08,#f6d27a 22%,#fff6d8 30%,#c8912c 42%,#8a5a12 55%,#f3cf72 70%,#fff3cc 78%,#9a6a18) 0 0/220% 220%;animation:saGoldMove 6s ease-in-out infinite alternate}
+.tfc .sa-gold::after{mix-blend-mode:color-dodge;background:linear-gradient(110deg,transparent 40%,rgba(255,250,225,.95) 48%,rgba(255,235,170,.7) 52%,transparent 60%) 0 0/300% 100%;animation:saGoldGlint 3.2s ease-in-out infinite}
+@keyframes saGoldMove{from{background-position:0 0}to{background-position:100% 100%}}
+@keyframes saGoldGlint{0%,30%{background-position:120% 0}75%,100%{background-position:-40% 0}}
+.tfc.sac.satl .sa-gold::after{animation:none;background-position:calc(50% - var(--sx,0)*60%) 0}
+/* gold foil on the frame bits */
+.tfc.sac.sac.sac::before{box-shadow:inset 0 0 0 .55cqw rgba(238,200,112,.85),inset 0 0 0 .9cqw rgba(60,36,4,.35)}
+.tfc.sac .tfcg{box-shadow:none;background:radial-gradient(circle,rgba(8,12,14,.82) 0 60%,transparent 62%),conic-gradient(from 40deg,#fff4c6,#c08624,#fff8de,#9a6616,#f5d27a,#fff4c6)}
+.tfc.sac .tfcy{border-bottom:0;background:linear-gradient(90deg,rgba(240,205,120,0),#f0cd78 18%,#fff4d0 50%,#d9a743 82%,rgba(240,205,120,0)) 0 100%/100% .35cqw no-repeat}
+.tfc.sac .tfcy em{color:transparent;-webkit-text-fill-color:transparent;background:linear-gradient(100deg,#fff4cc,#e6b24c 40%,#fffaf0 55%,#c8902c 75%);-webkit-background-clip:text;background-clip:text}
+.tfc .sa-ft b{background:linear-gradient(100deg,#c8902c,#fff6d8 35%,#e9bd5a 55%,#fff1c4 75%,#b07a1f) 0 0/200% 100%;animation:saGoldMove 3s ease-in-out infinite alternate}
+@media (prefers-reduced-motion:reduce){.tfc .sa-gold::before,.tfc .sa-gold::after,.tfc .sa-ft b{animation:none!important}}
+
 /*TCGCSS-END*/
 /* monthly pass */
 .passcur{border-radius:16px;padding:14px 16px;margin-bottom:12px;border:1px solid color-mix(in srgb,var(--pc) 55%,transparent);background:radial-gradient(120% 90% at 0 0,color-mix(in srgb,var(--pc) 22%,transparent),transparent 65%),var(--panel2);display:flex;flex-direction:column;gap:4px}
@@ -16225,7 +16242,7 @@ function tcgCardFull(id,foil,cls,ga){const c=TC[id];if(!c)return tcgFace(id,cls,
   bot.append(ty,el('p','tfcx',tx));
   if(km){const wm=el('i','kx-wm');wm.append(el('b'));bot.prepend(wm)} // 10/25 the app mark in gold behind the effect text
   if(c.ty==='chara'){const st=el('div','tfcs'),a=el('span','a'),d=el('span','d');a.append(el('small',null,'ATK'),document.createTextNode(c.atk));d.append(el('small',null,'DEF'),document.createTextNode(c.def));st.append(a,el('i'),d);bot.append(st)}
-  w.append(el('i','tfcsh'),top,bot);if(c.saOf){/* (10/26) SA: 枠なしの全面絵。上に種類、下に小さくカード番号・レアリティ・セット名。妖精は切り抜いて少しだけ奥行き */const p=el('div','sa-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_sa.webp';p.append(pi);art.after(p);const ft=el('div','sa-ft');ft.append(el('b',null,'SA'),el('i',null,'NF-S 001/001'),el('span',null,'夜宴くじ NIGHT FEAST'));w.append(ft,el('i','sa-glare'));saTilt(w)}if(!c.hwOf)w.append(el('i','tfcgem'));else{const pk=art.querySelector('.tcfpk');if(pk)w.append(pk)}['k1','k2','k3','k4'].forEach(k=>w.append(el('i','tfccn '+k)));
+  w.append(el('i','tfcsh'),top,bot);if(c.saOf){/* (10/26) SA: 枠なしの全面絵。上に種類、下に小さくカード番号・レアリティ・セット名。妖精は切り抜いて少しだけ奥行き */const p=el('div','sa-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_sa.webp';p.append(pi);art.after(p);/* (10/26) 金箔: 絵の中の金(つる草・ランタン・飾り)だけが金属のように光る */const gd=el('i','sa-gold');gd.style.setProperty('--gm','url("tcgk/'+id+'_gold.webp")');p.after(gd);const ft=el('div','sa-ft');ft.append(el('b',null,'SA'),el('i',null,'NF-S 001/001'),el('span',null,'夜宴くじ NIGHT FEAST'));w.append(ft,el('i','sa-glare'));saTilt(w)}if(!c.hwOf)w.append(el('i','tfcgem'));else{const pk=art.querySelector('.tcfpk');if(pk)w.append(pk)}['k1','k2','k3','k4'].forEach(k=>w.append(el('i','tfccn '+k)));
   /* KMR: the character steps over the top of the frame, gold streaks cross in front of her, a sheen crosses the whole card */
   if(km){if(tcgKmrCut(id)){const p=el('div','kx-pop'),pi=el('img');pi.alt='';pi.decoding='async';pi.loading='lazy';pi.src='tcgk/'+id+'_c.webp';p.append(pi);art.after(p);p.after(el('i','kx-sw'))}const al=el('i','kx-all');al.append(el('b'));w.append(al)}return w}
 
