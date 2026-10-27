@@ -1859,6 +1859,29 @@ body:not(.gkview){background:
 #field,#field .lane,#field .slot,#field .u{transform-style:preserve-3d}
 #field .u .stand>*{transform:rotateX(calc(-1 * var(--tilt,18deg)));transform-origin:50% 100%}
 
+/* ===== (10/27) Blender で作った場(tcgk/fb_*.webp)。台は奥に倒れた #field の下に .board3d として敷く(matPos が位置を合わせる)。
+   相手の名前の帯と手札の場所は倒さない(#s-game の背景)。プレイマットを敷いた側は、今までどおりマットの置き場所を使う ===== */
+#s-game{background:url(tcgk/fb_top.webp) 50% 0/100% var(--fbT,62px) no-repeat,url(tcgk/fb_bot.webp) 50% 100%/100% var(--fbB,216px) no-repeat,#16112a!important}
+#s-game>.board3d{position:absolute;left:0;top:0;z-index:0;pointer-events:none;background:#1d1636 url(tcgk/fb_board.webp) 50% 50%/cover no-repeat;box-shadow:0 0 0 1px rgba(0,0,0,.5)}
+/* the line between the two sides */
+#field .midl{background:none!important;overflow:visible}
+#field .midl::after{display:none}
+#field .midl::before{content:"";position:absolute;left:-4%;width:108%;top:50%;aspect-ratio:2580/200;transform:translateY(-50%);background:url(tcgk/fb_div.webp) center/100% 100% no-repeat;pointer-events:none}
+/* character slots: carved frame (9-slice), a faint crest, and the little stage the stand stands on */
+#field:not(.pm-b) .lane.m .slot,#field:not(.pm-t) .lane.o .slot{border-style:solid!important;border-width:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+  border-image:url(tcgk/fb_mon.webp) 72 fill/calc(var(--cw,85px) * .15) stretch}
+#field:not(.pm-b) .lane.m .slot::before,#field:not(.pm-t) .lane.o .slot::before{content:"";position:absolute;left:50%;top:40%;width:46%;aspect-ratio:1;transform:translate(-50%,-50%);background:url(tcgk/fb_crest.webp) center/contain no-repeat;opacity:.75;pointer-events:none}
+#field:not(.pm-b) .lane.m .slot::after,#field:not(.pm-t) .lane.o .slot::after{top:auto!important;bottom:8%!important;left:50%!important;width:72%!important;height:auto!important;aspect-ratio:400/180;border-radius:0!important;transform:translate(-50%,0)!important;opacity:1!important;
+  background:url(tcgk/fb_stage.webp) center/contain no-repeat!important;box-shadow:none!important}
+#field:not(.pm-b) .lane.m.pick .slot{border-image-source:url(tcgk/fb_mon_on.webp);box-shadow:0 0 18px rgba(255,214,120,.55)!important}
+/* magic / trap slots */
+#field:not(.pm-b) #myST .z,#field:not(.pm-t) #oppST .z{border-style:solid!important;border-width:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
+  border-image:url(tcgk/fb_st.webp) 48 fill/7px stretch}
+/* deck and discard: a tray under the pile */
+.strow .pile::after{content:"";position:absolute;inset:-8.3% -10.6%;z-index:-1;pointer-events:none;background:url(tcgk/fb_deck.webp) center/100% 100% no-repeat}
+.strow .pile.gy::after{background-image:url(tcgk/fb_gy.webp)}
+#field:not(.pm-b) #myST .z::after,#field:not(.pm-t) #oppST .z::after{display:none}
+
 </style>
 
 <div id="tcgBoot"><b>きもオタTCG</b><span role="status">読み込んでいます…</span><div class="bootActions"><button class="btn" onclick="location.reload()">もう一度読み込む</button><button class="btn sec" onclick="try{(parent.TCGWATCH||parent.TCGHOST).close()}catch(e){history.back()}">アプリに戻る</button></div></div>
@@ -3817,7 +3840,12 @@ function matSync(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;
 /* (10/27) the field is tilted back (ui5_tilt.css): measure its untilted box and tilt the mats the same way, around the same point */
 const TILT=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches?10:18}catch(e){return 18}})();
 function fieldBox(){const sg=$('s-game'),f=$('field');let x=0,y=0,e=f;while(e&&e!==sg){x+=e.offsetLeft;y+=e.offsetTop;e=e.offsetParent}if(e!==sg){const r=f.getBoundingClientRect(),o=sg.getBoundingClientRect();return{left:r.left-o.left,top:r.top-o.top,width:r.width,height:r.height}}return{left:x,top:y,width:f.offsetWidth,height:f.offsetHeight}}
-function matPos(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;sg.style.setProperty('--tilt',TILT+'deg');const L=sg.querySelectorAll(':scope>.mat');if(!L.length)return;const r=fieldBox(),h=r.height/2;
+/* (10/27) the Blender board (ui5_field3d.css): one board under the field, tilted like it; the top band and the hand ledge stay flat on #s-game */
+function boardPos(sg,r){let b=sg.querySelector(':scope>.board3d');if(!b){b=el('div','board3d');sg.insertBefore(b,sg.firstChild)}
+  const w=r.width,oy=r.height;b.style.transformOrigin='0 0';b.style.width=w+'px';b.style.height=r.height+'px';
+  b.style.transform='translate('+r.left+'px,'+r.top+'px) translate('+(w/2)+'px,'+oy+'px) rotateX('+TILT+'deg) translate('+(-w/2)+'px,'+(-oy)+'px)';
+  sg.style.setProperty('--fbT',Math.max(0,r.top)+'px');sg.style.setProperty('--fbB',Math.max(0,sg.clientHeight-(r.top+r.height))+'px')}
+function matPos(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;sg.style.setProperty('--tilt',TILT+'deg');try{boardPos(sg,fieldBox())}catch(e){}const L=sg.querySelectorAll(':scope>.mat');if(!L.length)return;const r=fieldBox(),h=r.height/2;
   L.forEach(m=>{const t=m.classList.contains('t'),T=r.top+(t?0:h),oy=r.top+r.height-T,w=r.width;m.style.transformOrigin='0 0';
     m.style.transform='translate('+r.left+'px,'+T+'px) translate('+(w/2)+'px,'+oy+'px) rotateX('+TILT+'deg) translate('+(-w/2)+'px,'+(-oy)+'px)'+(t?' translate('+(w/2)+'px,'+(h/2)+'px) rotate(180deg) translate('+(-w/2)+'px,'+(-h/2)+'px)':'');m.style.width=w+'px';m.style.height=h+'px'})}
 /* the mat slides out from the player's edge with a light riding its front */
