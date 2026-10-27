@@ -1874,14 +1874,12 @@ html.f3d #field:not(.pm-b) #myST .z,html.f3d #field:not(.pm-t) #oppST .z{border-
 html.f3d .strow .pile::after{content:"";position:absolute;inset:-8.3% -10.6%;z-index:-1;pointer-events:none;background:url(tcgk/fb_deck.webp) center/100% 100% no-repeat}
 html.f3d .strow .pile.gy::after{background-image:url(tcgk/fb_gy.webp)}
 html.f3d #field:not(.pm-b) #myST .z::after,html.f3d #field:not(.pm-t) #oppST .z::after{display:none}
-html.f3d #s-game>.mat::after{content:"";position:absolute;inset:3px 4px;border-radius:16px;pointer-events:none;z-index:5;
-  background:linear-gradient(180deg,rgba(255,236,200,.12),transparent 40%,rgba(10,6,20,.25)),url(tcgk/fb_matcloth.webp) 0 0/110px 110px repeat;mix-blend-mode:overlay;opacity:.8}
-html.f3d #s-game>.mat.t::after{background:linear-gradient(0deg,rgba(255,236,200,.12),transparent 40%,rgba(10,6,20,.25)),url(tcgk/fb_matcloth.webp) 0 0/110px 110px repeat}
-html.f3d #s-game>.mat::before{content:"";position:absolute;inset:3px 4px;pointer-events:none;z-index:6;border-style:solid;border-width:0;border-image:url(tcgk/fb_matedge.webp) 90 fill/calc(var(--mw,380px) * .075) stretch}
+html.f3d #s-game>.mat::before{content:"";position:absolute;inset:3px 4px;pointer-events:none;z-index:6;border-style:solid;border-width:0;border-image:url(tcgk/fb_pmbind.webp) 60 fill/calc(var(--mw,380px) * .05) stretch}
+html.f3d #s-game>.mat .pm-vig{opacity:.45}
 html.f3d #s-game>.mat .pm-st{display:none}
 html.f3d #s-game>.mat .pmat{box-shadow:0 0 0 1px rgba(0,0,0,.7),inset 0 1.5px 0 rgba(255,240,210,.18),inset 0 -2px 3px rgba(0,0,0,.45),inset 0 0 14px rgba(0,0,0,.35)!important}
-html.f3d #field.pm-b .lane.m .slot,html.f3d #field.pm-t .lane.o .slot{border-style:solid!important;border-width:0!important;border-radius:0!important;box-shadow:none!important;border-image:url(tcgk/fb_mon_mat.webp) 72 fill/calc(var(--cw,85px) * .15) stretch}
-html.f3d #field.pm-b #myST .z,html.f3d #field.pm-t #oppST .z{border-style:solid!important;border-width:0!important;border-radius:0!important;box-shadow:none!important;border-image:url(tcgk/fb_st_mat.webp) 48 fill/7px stretch}
+html.f3d #field.pm-b .lane.m .slot,html.f3d #field.pm-t .lane.o .slot{border-style:solid!important;border-width:0!important;border-radius:0!important;box-shadow:none!important;border-image:url(tcgk/fb_zmon.webp) 72 fill/calc(var(--cw,85px) * .15) stretch}
+html.f3d #field.pm-b #myST .z,html.f3d #field.pm-t #oppST .z{border-style:solid!important;border-width:0!important;border-radius:0!important;box-shadow:none!important;border-image:url(tcgk/fb_zst.webp) 48 fill/7px stretch}
 html.f3d #field.pm-b .lane.m.pick .slot{border-image-source:url(tcgk/fb_mon_on.webp);box-shadow:0 0 18px rgba(255,214,120,.55)!important}
 html.f3d #field .lane .slot:has(.u)::after,html.f3d #field .lane .slot:has(.u)::before{display:none!important}
 
@@ -3836,7 +3834,7 @@ const matEl=k=>{const sg=$('s-game');return sg&&sg.querySelector(':scope>.mat.'+
 const matPm=k=>{const m=matEl(k);return m&&m.querySelector('.pmat')};
 function matSync(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;
   [['b',matOf('b')],['t',matOf('t')]].forEach(([k,v])=>{let m=matEl(k);if(!v||!PMAT[v]){if(m)m.remove();return}
-    if(!m||m.dataset.mt!==v){if(m)m.remove();m=el('div','mat '+k);m.dataset.mt=v;let no=0;try{no=k==='b'?((myDeck&&myDeck.mn)||(!WATCH&&HOST&&HOST.matNo?HOST.matNo():0)):((cpuDeck&&cpuDeck.mn)||0)}catch(e){}const pm=pmatBuild(v,{no});m.append(pm,el('i','mat-roll'));sg.insertBefore(m,f);matPos();matUnroll(m,k==='t'?140:0);setTimeout(()=>{try{pm.pmPlay(6000)}catch(e){}},(k==='t'?140:0)+500)}});
+    if(!m||m.dataset.mt!==v){if(m)m.remove();m=el('div','mat '+k);m.dataset.mt=v;let no=0;try{no=k==='b'?((myDeck&&myDeck.mn)||(!WATCH&&HOST&&HOST.matNo?HOST.matNo():0)):((cpuDeck&&cpuDeck.mn)||0)}catch(e){}const pm=pmatBuild(v,{no});/* (10/27) the new field: the mat made in Blender (the picture printed on a cloth mat) */if(F3D&&PMAT[v].mat3d&&pm){const im=pm.querySelector('.pm-scene img');if(im)im.src=PMAT[v].mat3d}m.append(pm,el('i','mat-roll'));sg.insertBefore(m,f);matPos();matUnroll(m,k==='t'?140:0);setTimeout(()=>{try{pm.pmPlay(6000)}catch(e){}},(k==='t'?140:0)+500)}});
   f.classList.toggle('pm-b',!!matEl('b'));f.classList.toggle('pm-t',!!matEl('t'));
   if(!matSync.ro){try{matSync.ro=new ResizeObserver(()=>matPos());matSync.ro.observe(f)}catch(e){}}
   if(!matSync.tap){matSync.tap=1;f.addEventListener('pointerdown',matTap,{passive:true})}matPos()}
@@ -5003,7 +5001,7 @@ window.__tcg={bigCard,_t:{applyMove,scrMark,snap:()=>snap()},sl:{slOf,backCard:o
    when the mat is laid, at the start of your turn, when you tap her, when you win. Otherwise it is a still picture (battery).
    Looked at, not copied: real playmats (art window + logo + stitched edge), Pokémon TCG Pocket's playmats (a prize to show),
    Master Duel's fields (react to the duel), Hearthstone's boards (something to tap while waiting). ===== */
-const PMAT={hw:{art:'pm_hw_art.jpg',artPos:'78% 50%',cut:'pm_hw_chara.webp',av:'pm_hw_chara.mp4',bg:'fx_hwbg_gr2.jpg',bgv:null,bgp:'50% 8%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
+const PMAT={hw:{art:'pm_hw_art.jpg',mat3d:'tcgk/fb_pm_hw.webp',artPos:'78% 50%',cut:'pm_hw_chara.webp',av:'pm_hw_chara.mp4',bg:'fx_hwbg_gr2.jpg',bgv:null,bgp:'50% 8%',n:'夜宴の小悪魔',en:'NIGHT FEAST IMP'}};
 /* (22:05) 高級感: gold foil (like foil-stamped playmats), a numbered limited edition (only 2 exist: one per box), a double stitch */
 let pmGid=0;
 const pmGold=id=>'<linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7a5a1e"/><stop offset=".28" stop-color="#f6e2a6"/><stop offset=".45" stop-color="#c9a24e"/><stop offset=".55" stop-color="#fff4cc"/><stop offset=".7" stop-color="#b8892f"/><stop offset="1" stop-color="#f1d48a"/></linearGradient>';
