@@ -1172,6 +1172,14 @@ body.gkview .scr{display:none!important}
 @media (prefers-reduced-motion:reduce){.kwpop{animation:none}}
 .sheet>.sbk{margin-top:10px}.sheet>.sbk .sbr{grid-template-columns:1fr 70px 70px;font-size:12.5px}.sheet>.sbk .sbh b{font-size:24px}
 
+/* (10/27) the other side's card notice with its effect (.notice.full): the effect text was squeezed into a thin column next to the name
+   (the row layout of the short notice) and the bubble grew very tall. The text now goes on its own lines under the name */
+.notice.full{border-radius:16px;padding:6px 12px 7px 6px;align-items:flex-start}
+.notice.full .nt{flex-wrap:wrap;row-gap:2px}
+.notice.full span{flex:1 0 100%;min-width:0;font-size:11.5px;line-height:1.4}
+/* (10/27) the stars on a character were small and dim (grey on dark): bigger, gold, on a darker pill */
+#field .u .stars{font-size:10.5cqw;padding:1.4cqw 3.4cqw 1.6cqw;background:rgba(6,5,12,.88);color:#ffd36b;text-shadow:0 0 3px rgba(255,200,90,.55);box-shadow:inset 0 0 0 .6px rgba(255,211,107,.6),0 1px 3px rgba(0,0,0,.7);letter-spacing:.02em}
+
 /* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
    hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
 :root{--vs-a1:#8b7bff;--vs-a2:#67e8f9;--vs-pink:#ff5fb0;--vs-fg:#f4f1ea;--vs-mut:rgba(244,241,234,.55);--vs-num:"Geist","Inter Tight",-apple-system,system-ui,sans-serif}
@@ -3840,7 +3848,7 @@ function matSync(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;
   if(!matSync.tap){matSync.tap=1;f.addEventListener('pointerdown',matTap,{passive:true})}matPos()}
 /* (10/27) the field is tilted back (ui5_tilt.css): measure its untilted box and tilt the mats the same way, around the same point */
 /* (10/27) the new field (tilted + Blender board) is only on the お試し版 and the demo until it is checked on the phone; the 本番 keeps the flat field */
-const F3D=(()=>{try{if(window.__F3D===0)return false;return /\/preview\//.test(location.pathname)||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||!!window.__F3D}catch(e){return false}})();
+const F3D=(()=>{try{return window.__F3D!==0}catch(e){return true}})();/* (10/27 v142b) the new field is on for everyone (window.__F3D=0 turns it off, for tests) */
 try{if(F3D)document.documentElement.classList.add('f3d')}catch(e){}
 const TILT=!F3D?0:(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches?10:18}catch(e){return 18}})();
 function fieldBox(){const sg=$('s-game'),f=$('field');let x=0,y=0,e=f;while(e&&e!==sg){x+=e.offsetLeft;y+=e.offsetTop;e=e.offsetParent}if(e!==sg){const r=f.getBoundingClientRect(),o=sg.getBoundingClientRect();return{left:r.left-o.left,top:r.top-o.top,width:r.width,height:r.height}}return{left:x,top:y,width:f.offsetWidth,height:f.offsetHeight}}
