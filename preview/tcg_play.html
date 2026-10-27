@@ -1850,6 +1850,15 @@ body:not(.gkview){background:
 .mdlc.lock .bc{filter:grayscale(1) brightness(.45)}
 @media (prefers-reduced-motion:reduce){.mds:active,.mdadd:active{transform:none}}
 
+/* ===== (10/27) 場を奥に倒す: 相手の場が奥、自分の場が手前に見える(台の上で遊んでいる感じ)。
+   倒すのは #field だけ。プレイマット(.mat)は matPos が同じ角度で倒す。手札・ライフの帯は倒さない ===== */
+#s-game{perspective:1000px;perspective-origin:50% 30%}
+#field{transform:rotateX(var(--tilt,18deg));transform-origin:50% 100%}
+@media (prefers-reduced-motion:reduce){#field{transform:rotateX(var(--tilt,10deg))}}
+/* the acrylic stands stand up off the tilted field (turned back by the same angle, around their feet) */
+#field,#field .lane,#field .slot,#field .u{transform-style:preserve-3d}
+#field .u .stand>*{transform:rotateX(calc(-1 * var(--tilt,18deg)));transform-origin:50% 100%}
+
 </style>
 
 <div id="tcgBoot"><b>きもオタTCG</b><span role="status">読み込んでいます…</span><div class="bootActions"><button class="btn" onclick="location.reload()">もう一度読み込む</button><button class="btn sec" onclick="try{(parent.TCGWATCH||parent.TCGHOST).close()}catch(e){history.back()}">アプリに戻る</button></div></div>
@@ -3805,8 +3814,12 @@ function matSync(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;
   f.classList.toggle('pm-b',!!matEl('b'));f.classList.toggle('pm-t',!!matEl('t'));
   if(!matSync.ro){try{matSync.ro=new ResizeObserver(()=>matPos());matSync.ro.observe(f)}catch(e){}}
   if(!matSync.tap){matSync.tap=1;f.addEventListener('pointerdown',matTap,{passive:true})}matPos()}
-function matPos(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;const L=sg.querySelectorAll(':scope>.mat');if(!L.length)return;const r=f.getBoundingClientRect(),o=sg.getBoundingClientRect(),h=r.height/2;
-  L.forEach(m=>{const t=m.classList.contains('t');m.style.transform='translate('+(r.left-o.left)+'px,'+(r.top-o.top+(t?0:h))+'px)'+(t?' rotate(180deg)':'');m.style.width=r.width+'px';m.style.height=h+'px'})}
+/* (10/27) the field is tilted back (ui5_tilt.css): measure its untilted box and tilt the mats the same way, around the same point */
+const TILT=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches?10:18}catch(e){return 18}})();
+function fieldBox(){const sg=$('s-game'),f=$('field');let x=0,y=0,e=f;while(e&&e!==sg){x+=e.offsetLeft;y+=e.offsetTop;e=e.offsetParent}if(e!==sg){const r=f.getBoundingClientRect(),o=sg.getBoundingClientRect();return{left:r.left-o.left,top:r.top-o.top,width:r.width,height:r.height}}return{left:x,top:y,width:f.offsetWidth,height:f.offsetHeight}}
+function matPos(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;sg.style.setProperty('--tilt',TILT+'deg');const L=sg.querySelectorAll(':scope>.mat');if(!L.length)return;const r=fieldBox(),h=r.height/2;
+  L.forEach(m=>{const t=m.classList.contains('t'),T=r.top+(t?0:h),oy=r.top+r.height-T,w=r.width;m.style.transformOrigin='0 0';
+    m.style.transform='translate('+r.left+'px,'+T+'px) translate('+(w/2)+'px,'+oy+'px) rotateX('+TILT+'deg) translate('+(-w/2)+'px,'+(-oy)+'px)'+(t?' translate('+(w/2)+'px,'+(h/2)+'px) rotate(180deg) translate('+(-w/2)+'px,'+(-h/2)+'px)':'');m.style.width=w+'px';m.style.height=h+'px'})}
 /* the mat slides out from the player's edge with a light riding its front */
 function matUnroll(m,delay){const pm=m.querySelector('.pmat'),roll=m.querySelector('.mat-roll');if(!pm||pmRM()||!pm.animate)return;
   const e='cubic-bezier(.16,1,.3,1)',H0=m.offsetHeight||200,D=760;pm.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:D,delay:delay||0,easing:e,fill:'backwards'});
