@@ -10760,8 +10760,11 @@ async function tqGo(deck){const me=myPlayer();if(!me||!db)return;if(!tcgHasSt())
   const r0=tqRate(me.id),L=tqOpen().sort((a,b)=>Math.abs((a.r||1500)-r0)-Math.abs((b.r||1500)-r0)||a.t-b.t);
   if(L.length)return tqJoin(L[0],deck);
   const id='q'+now().toString(36)+me.id.slice(0,4),t=now();
-  try{await db.doc('tcgq/'+id).set({p:me.id,n:String(me.name||'').slice(0,40),t,end:t+TQ_WAIT,st:'open',r:r0})}catch(e){toast('さがし始められませんでした');return}
-  tqMine={id,deck,t};tqWaitModal()}
+  /* (10/27) mark it as mine BEFORE writing: the write shows up in our own list at once, and tqTick used to take it for a 募集 left over from
+     before and cancel it, so the friends' card vanished right away */
+  tqSeen['x'+id]=1;tqMine={id,deck,t};
+  try{await db.doc('tcgq/'+id).set({p:me.id,n:String(me.name||'').slice(0,40),t,end:t+TQ_WAIT,st:'open',r:r0})}catch(e){if(tqMine&&tqMine.id===id)tqMine=null;toast('さがし始められませんでした');return}
+  tqWaitModal()}
 /* join someone who is searching: a normal challenge that carries the 募集's number; their app takes it by itself */
 async function tqJoin(q,deck){const me=myPlayer();if(!me)return;const live=tqs.find(x=>x.id===q.id);if(!live||live.st!=='open'||live.end<=now()){toast('もう始まっていました');return}
   const p=players.find(x=>x.id===q.p);if(!p)return;deck=tcgPlainDeck(deck||tqDeck());if(!deck){toast('使えるデッキがありません');return}
@@ -15774,7 +15777,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=201';
+const TCG_SRC='tcg_play.html?v=202';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
