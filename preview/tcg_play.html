@@ -1851,17 +1851,17 @@ body:not(.gkview){background:
 @media (prefers-reduced-motion:reduce){.mds:active,.mdadd:active{transform:none}}
 
 /* ===== (10/27) 場を奥に倒す: 相手の場が奥、自分の場が手前に見える(台の上で遊んでいる感じ)。
-   倒すのは #field だけ。プレイマット(.mat)は matPos が同じ角度で倒す。手札・ライフの帯は倒さない ===== */
-#s-game{perspective:1000px;perspective-origin:50% 30%}
-#field{transform:rotateX(var(--tilt,18deg));transform-origin:50% 100%}
-@media (prefers-reduced-motion:reduce){#field{transform:rotateX(var(--tilt,10deg))}}
+   倒すのは #field だけ。プレイマット(.mat)と台(.board3d)は matPos が同じ角度で倒す。手札・ライフの帯は倒さない。
+   遠近は #field 自身の transform に入れる(親の #s-game に perspective を付けると、手札まで重い3Dの層になってガクガクする) ===== */
+#field{transform:perspective(1000px) rotateX(var(--tilt,18deg));transform-origin:50% 100%}
+@media (prefers-reduced-motion:reduce){#field{transform:perspective(1000px) rotateX(var(--tilt,10deg))}}
 /* the acrylic stands stand up off the tilted field (turned back by the same angle, around their feet) */
 #field,#field .lane,#field .slot,#field .u{transform-style:preserve-3d}
-#field .u .stand>*{transform:rotateX(calc(-1 * var(--tilt,18deg)));transform-origin:50% 100%}
+#field .u .stand>*{transform:rotateX(calc(-1 * var(--tilt,18deg)));transform-origin:50% 100%;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 
 /* ===== (10/27) Blender で作った場(tcgk/fb_*.webp)。台は奥に倒れた #field の下に .board3d として敷く(matPos が位置を合わせる)。
    相手の名前の帯と手札の場所は倒さない(#s-game の背景)。プレイマットを敷いた側は、今までどおりマットの置き場所を使う ===== */
-#s-game{background:url(tcgk/fb_top.webp) 50% 0/100% var(--fbT,62px) no-repeat,url(tcgk/fb_bot.webp) 50% 100%/100% var(--fbB,216px) no-repeat,#16112a!important}
+#s-game{background:url(tcgk/fb_top.webp) 50% 0/100% var(--fbT,62px) no-repeat,url(tcgk/fb_bot.webp) 50% 100%/100% var(--fbB,216px) no-repeat,url(tcgk/fb_board.webp) 50% 45%/cover no-repeat,#16112a!important}
 #s-game>.board3d{position:absolute;left:0;top:0;z-index:0;pointer-events:none;background:#1d1636 url(tcgk/fb_board.webp) 50% 50%/cover no-repeat;box-shadow:0 0 0 1px rgba(0,0,0,.5)}
 /* the line between the two sides */
 #field .midl{background:none!important;overflow:visible}
@@ -1871,8 +1871,8 @@ body:not(.gkview){background:
 #field:not(.pm-b) .lane.m .slot,#field:not(.pm-t) .lane.o .slot{border-style:solid!important;border-width:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
   border-image:url(tcgk/fb_mon.webp) 72 fill/calc(var(--cw,85px) * .15) stretch}
 #field:not(.pm-b) .lane.m .slot::before,#field:not(.pm-t) .lane.o .slot::before{content:"";position:absolute;left:50%;top:40%;width:46%;aspect-ratio:1;transform:translate(-50%,-50%);background:url(tcgk/fb_crest.webp) center/contain no-repeat;opacity:.75;pointer-events:none}
-#field:not(.pm-b) .lane.m .slot::after,#field:not(.pm-t) .lane.o .slot::after{top:auto!important;bottom:8%!important;left:50%!important;width:72%!important;height:auto!important;aspect-ratio:400/180;border-radius:0!important;transform:translate(-50%,0)!important;opacity:1!important;
-  background:url(tcgk/fb_stage.webp) center/contain no-repeat!important;box-shadow:none!important}
+#field .lane.m .slot::after,#field .lane.o .slot::after{top:auto!important;bottom:8%!important;left:50%!important;width:72%!important;height:auto!important;aspect-ratio:400/180;border-radius:0!important;transform:translate(-50%,0)!important;opacity:1!important;
+  background:url(tcgk/fb_stage.webp) center/contain no-repeat!important;box-shadow:none!important;border:0!important}
 #field:not(.pm-b) .lane.m.pick .slot{border-image-source:url(tcgk/fb_mon_on.webp);box-shadow:0 0 18px rgba(255,214,120,.55)!important}
 /* magic / trap slots */
 #field:not(.pm-b) #myST .z,#field:not(.pm-t) #oppST .z{border-style:solid!important;border-width:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;
@@ -1881,6 +1881,14 @@ body:not(.gkview){background:
 .strow .pile::after{content:"";position:absolute;inset:-8.3% -10.6%;z-index:-1;pointer-events:none;background:url(tcgk/fb_deck.webp) center/100% 100% no-repeat}
 .strow .pile.gy::after{background-image:url(tcgk/fb_gy.webp)}
 #field:not(.pm-b) #myST .z::after,#field:not(.pm-t) #oppST .z::after{display:none}
+/* ===== (10/27) プレイマットを台に合わせる: 台と同じ布目と光を薄く重ね、ゴムの厚みのふちを付ける。置き場所の枠も Blender の枠(中が透ける版) ===== */
+#s-game>.mat::after{content:"";position:absolute;inset:3px 4px;border-radius:16px;pointer-events:none;z-index:5;
+  background:linear-gradient(180deg,rgba(255,236,200,.10),transparent 38%,rgba(10,6,20,.22)),url(tcgk/fb_board.webp) 50% 50%/cover;background-blend-mode:normal;mix-blend-mode:overlay;opacity:.55}
+#s-game>.mat.t::after{background:linear-gradient(0deg,rgba(255,236,200,.10),transparent 38%,rgba(10,6,20,.22)),url(tcgk/fb_board.webp) 50% 50%/cover}
+#s-game>.mat .pmat{box-shadow:0 0 0 1px rgba(0,0,0,.7),inset 0 1.5px 0 rgba(255,240,210,.18),inset 0 -2px 3px rgba(0,0,0,.45),inset 0 0 14px rgba(0,0,0,.35)!important}
+#field.pm-b .lane.m .slot,#field.pm-t .lane.o .slot{border-style:solid!important;border-width:0!important;border-radius:0!important;box-shadow:none!important;border-image:url(tcgk/fb_mon_mat.webp) 72 fill/calc(var(--cw,85px) * .15) stretch}
+#field.pm-b #myST .z,#field.pm-t #oppST .z{border-style:solid!important;border-width:0!important;border-radius:0!important;box-shadow:none!important;border-image:url(tcgk/fb_st_mat.webp) 48 fill/7px stretch}
+#field.pm-b .lane.m.pick .slot{border-image-source:url(tcgk/fb_mon_on.webp);box-shadow:0 0 18px rgba(255,214,120,.55)!important}
 
 </style>
 
@@ -3843,11 +3851,11 @@ function fieldBox(){const sg=$('s-game'),f=$('field');let x=0,y=0,e=f;while(e&&e
 /* (10/27) the Blender board (ui5_field3d.css): one board under the field, tilted like it; the top band and the hand ledge stay flat on #s-game */
 function boardPos(sg,r){let b=sg.querySelector(':scope>.board3d');if(!b){b=el('div','board3d');sg.insertBefore(b,sg.firstChild)}
   const w=r.width,oy=r.height;b.style.transformOrigin='0 0';b.style.width=w+'px';b.style.height=r.height+'px';
-  b.style.transform='translate('+r.left+'px,'+r.top+'px) translate('+(w/2)+'px,'+oy+'px) rotateX('+TILT+'deg) translate('+(-w/2)+'px,'+(-oy)+'px)';
+  b.style.transform='translate('+r.left+'px,'+r.top+'px) translate('+(w/2)+'px,'+oy+'px) perspective(1000px) rotateX('+TILT+'deg) translate('+(-w/2)+'px,'+(-oy)+'px)';
   sg.style.setProperty('--fbT',Math.max(0,r.top)+'px');sg.style.setProperty('--fbB',Math.max(0,sg.clientHeight-(r.top+r.height))+'px')}
 function matPos(){const sg=$('s-game'),f=$('field');if(!sg||!f)return;sg.style.setProperty('--tilt',TILT+'deg');try{boardPos(sg,fieldBox())}catch(e){}const L=sg.querySelectorAll(':scope>.mat');if(!L.length)return;const r=fieldBox(),h=r.height/2;
   L.forEach(m=>{const t=m.classList.contains('t'),T=r.top+(t?0:h),oy=r.top+r.height-T,w=r.width;m.style.transformOrigin='0 0';
-    m.style.transform='translate('+r.left+'px,'+T+'px) translate('+(w/2)+'px,'+oy+'px) rotateX('+TILT+'deg) translate('+(-w/2)+'px,'+(-oy)+'px)'+(t?' translate('+(w/2)+'px,'+(h/2)+'px) rotate(180deg) translate('+(-w/2)+'px,'+(-h/2)+'px)':'');m.style.width=w+'px';m.style.height=h+'px'})}
+    m.style.transform='translate('+r.left+'px,'+T+'px) translate('+(w/2)+'px,'+oy+'px) perspective(1000px) rotateX('+TILT+'deg) translate('+(-w/2)+'px,'+(-oy)+'px)'+(t?' translate('+(w/2)+'px,'+(h/2)+'px) rotate(180deg) translate('+(-w/2)+'px,'+(-h/2)+'px)':'');m.style.width=w+'px';m.style.height=h+'px'})}
 /* the mat slides out from the player's edge with a light riding its front */
 function matUnroll(m,delay){const pm=m.querySelector('.pmat'),roll=m.querySelector('.mat-roll');if(!pm||pmRM()||!pm.animate)return;
   const e='cubic-bezier(.16,1,.3,1)',H0=m.offsetHeight||200,D=760;pm.animate([{transform:'translateY(100%)'},{transform:'translateY(0)'}],{duration:D,delay:delay||0,easing:e,fill:'backwards'});
@@ -4240,7 +4248,8 @@ const fx=(cls,css)=>{const d=el('div','fx '+cls);if(css)d.style.cssText=css;docu
 const anim=(e,k,o)=>new Promise(r=>{if(!e)return r();const a=e.animate(k,Object.assign({fill:'forwards'},o,{duration:D(o.duration||400)}));a.onfinish=()=>r();a.oncancel=()=>r()});
 function stamp(target,txt,cls){if(!target)return;const s=el('div','stamp'+(cls?' '+cls:''),txt);target.append(s);setTimeout(()=>s.remove(),D(1300))}
 function floatOn(target,txt,cls){if(!target)return;const f=el('div','float'+(cls?' '+cls:''),txt);target.append(f);setTimeout(()=>f.remove(),D(1300))}
-function shake(n){anim($('field'),[{transform:'translate(0,0)'},{transform:'translate('+(-n)+'px,'+(n*.6)+'px)'},{transform:'translate('+n+'px,'+(-n*.4)+'px)'},{transform:'translate('+(-n*.5)+'px,0)'},{transform:'none'}],{duration:280,fill:'none'})}
+/* (10/27) the field is tilted: shake keeps the tilt (it used to drop it for a moment, so the field jumped) */
+function shake(n){const B=' perspective(1000px) rotateX('+TILT+'deg)';anim($('field'),[{transform:'translate(0,0)'+B},{transform:'translate('+(-n)+'px,'+(n*.6)+'px)'+B},{transform:'translate('+n+'px,'+(-n*.4)+'px)'+B},{transform:'translate('+(-n*.5)+'px,0)'+B},{transform:'translate(0,0)'+B}],{duration:280,fill:'none'})}
 function sparks(x,y,color,n,spread){for(let i=0;i<(n||12);i++){const s=fx('spark','left:'+x+'px;top:'+y+'px;--c:'+color);const a=Math.random()*Math.PI*2,d=(spread||60)*(.5+Math.random());
   anim(s,[{transform:'translate(-50%,-50%) scale(1)',opacity:1},{transform:'translate('+(Math.cos(a)*d-2)+'px,'+(Math.sin(a)*d-2)+'px) scale(.2)',opacity:0}],{duration:500+Math.random()*350,easing:'cubic-bezier(.2,.8,.4,1)'}).then(()=>s.remove())}}
 function ring(x,y,color,size){const b=fx('ringfx','left:'+x+'px;top:'+y+'px;--c:'+color+';width:'+(size||40)+'px;height:'+(size||40)+'px');anim(b,[{transform:'translate(-50%,-50%) scale(.3)',opacity:1},{transform:'translate(-50%,-50%) scale(3)',opacity:0}],{duration:620,easing:'ease-out'}).then(()=>b.remove())}
