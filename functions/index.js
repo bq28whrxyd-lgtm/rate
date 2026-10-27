@@ -260,7 +260,7 @@ exports.pushNotice = onDocumentCreated('notices/{id}', async ev => {
 
 /* (10/25) ハロウィン後編 (10/29 5:00 - 11/8 5:00).
    HW2_LIVE = false: everything goes to the お試し版 phones only (the お試し版's 後編 starts 10/26 18:00). Set true at release. */
-const HW2_LIVE = false;
+const HW2_LIVE = true;
 const HW2_T0 = Date.UTC(2026, 9, 28, 20, 0), HW2_T1 = Date.UTC(2026, 10, 7, 20, 0), HW2_PV0 = Date.UTC(2026, 9, 26, 9, 0);
 const HW2_TM = {p: 'かぼちゃ団', b: 'こうもり団'};
 const hw2Live = t => HW2_LIVE && t >= HW2_T0 && t < HW2_T1;
