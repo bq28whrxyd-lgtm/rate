@@ -1,9 +1,5 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-<<<<<<< HEAD
 const VERSION = 'v142-2026-10-27g';
-=======
-const VERSION = 'v142-2026-10-27g';
->>>>>>> parent of 95e5d85 (v142f: いったん v142d に戻す(アプリを開いても自分のデータが0のまま、という報告のため))
 const CACHE = 'ladder-' + VERSION;
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'tcg_spectator.js', 'motion_lifecycle.js',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg',
