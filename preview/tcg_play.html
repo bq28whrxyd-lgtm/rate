@@ -1183,6 +1183,8 @@ body.gkview .scr{display:none!important}
 #field .u .stars{top:auto;bottom:18%;left:3cqw;transform:translateZ(8px)}
 #field .u .kw,#field .u .kw.stms{top:auto!important;bottom:18%!important;right:3cqw!important;left:auto!important;flex-direction:row!important;align-items:center!important;gap:1.4cqw!important;transform:translateZ(8px)}
 #field .u .awl{bottom:calc(18% + 13cqw);right:3cqw;transform:translateZ(8px)}
+/* (10/27) the ATK/DEF change number over a card on the tilted field (floatOn puts it on the page, not in the card) */
+.float.ffix{position:fixed;z-index:60;animation:none;font-size:18px}
 
 /* ===== v121 duel table (ui5_vs.css): the same language as the app's 対戦 tab — near-black ground, a violet-to-cyan aurora,
    hairline gradient edges, glass capsules, one white primary button. Layout and class names stay as they are. ===== */
@@ -4258,7 +4260,12 @@ const ctr=e=>{const r=rectOf(e);return r?[r.left+r.width/2,r.top+r.height/2]:[in
 const fx=(cls,css)=>{const d=el('div','fx '+cls);if(css)d.style.cssText=css;document.body.append(d);return d};
 const anim=(e,k,o)=>new Promise(r=>{if(!e)return r();const a=e.animate(k,Object.assign({fill:'forwards'},o,{duration:D(o.duration||400)}));a.onfinish=()=>r();a.oncancel=()=>r()});
 function stamp(target,txt,cls){if(!target)return;const s=el('div','stamp'+(cls?' '+cls:''),txt);target.append(s);setTimeout(()=>s.remove(),D(1300))}
-function floatOn(target,txt,cls){if(!target)return;const f=el('div','float'+(cls?' '+cls:''),txt);target.append(f);setTimeout(()=>f.remove(),D(1300))}
+/* (10/27) on the tilted field a float put inside the card lay flat under the standing stand and was hidden (ATK+300 etc.): it goes on top of the screen instead, over the card */
+function floatOn(target,txt,cls){if(!target)return;
+  if(F3D&&target.closest&&target.closest('#field')){const r=target.getBoundingClientRect();const f=el('div','float ffix'+(cls?' '+cls:''),txt);f.style.left=(r.left+r.width/2)+'px';f.style.top=(r.top+r.height*.12)+'px';document.body.append(f);
+    try{f.animate([{transform:'translate(-50%,-40%) scale(.8)',opacity:0},{transform:'translate(-50%,-90%) scale(1.06)',opacity:1,offset:.18},{transform:'translate(-50%,-150%) scale(1)',opacity:1,offset:.75},{transform:'translate(-50%,-190%) scale(1)',opacity:0}],{duration:D(1250),easing:'ease-out',fill:'forwards'})}catch(e){}
+    setTimeout(()=>f.remove(),D(1300));return}
+  const f=el('div','float'+(cls?' '+cls:''),txt);target.append(f);setTimeout(()=>f.remove(),D(1300))}
 /* (10/27) the field is tilted: shake keeps the tilt (it used to drop it for a moment, so the field jumped) */
 function shake(n){const B=F3D?' perspective(1000px) rotateX('+TILT+'deg)':'';anim($('field'),[{transform:'translate(0,0)'+B},{transform:'translate('+(-n)+'px,'+(n*.6)+'px)'+B},{transform:'translate('+n+'px,'+(-n*.4)+'px)'+B},{transform:'translate('+(-n*.5)+'px,0)'+B},{transform:'translate(0,0)'+B}],{duration:280,fill:'none'})}
 function sparks(x,y,color,n,spread){for(let i=0;i<(n||12);i++){const s=fx('spark','left:'+x+'px;top:'+y+'px;--c:'+color);const a=Math.random()*Math.PI*2,d=(spread||60)*(.5+Math.random());
