@@ -8806,7 +8806,7 @@ body.ui2 #lob .ktour button.ktno,body .ktour button.ktno{font-size:13.5px!import
 <div class="row" style="margin-top:8px"><select id="admTkTo" aria-label="配る相手" style="flex:1;min-width:0"></select><button id="admTkGo" style="flex:none">配布</button></div>
 <div id="admTkMsg" class="sub" style="margin-top:6px;min-height:18px"></div>
 </div>
-<div class="admcard"><div class="admct">夜宴くじ(ハロウィン後編)</div><div class="admcd">1回100pt・全551口(1箱・S賞1本入り)。用意すると 10/29 5:00 から自動で始まり、11/8 5:00 で終わります。中身(並び)は用意したときにまぜます。</div>
+<div class="admcard"><div class="admct">夜宴くじ(ハロウィン後編)</div><div class="admcd">1回150pt・全551口(1箱・S賞1本入り)。用意すると 10/29 5:00 から自動で始まり、11/8 5:00 で終わります。中身(並び)は用意したときにまぜます。</div>
 <div class="row" style="margin-top:8px"><button id="admKjGo" style="flex:1" onclick="kjAdminCreate(this)">夜宴くじを用意する</button></div>
 </div>
 <div class="admcard"><div class="admct">オリパ</div><div class="admcd">口数限定のくじ。30口の中身(1等〜5等とラストワン)を決めて出します。TCGのガチャ画面のいちばん左に出ます。</div>
@@ -11181,10 +11181,10 @@ function pmFx(sg,kind,tg,pm){try{if(!sg||!tg||pmRM())return;const o=sg.getBoundi
 
 /* ===== 夜宴くじ (ハロウィン後編 10/29 5:00 - 11/8 5:00) =====
    一番くじと同じ: 全員で同じ箱を引く。ハズレなし。(10/26) 1箱551口(S賞を足した)・1箱だけ。賞ごとの残りが見える。
-   各箱の最後の1枚を引いた人にラストワン賞(プレイマット「夜宴の小悪魔」)。1回100pt、まとめて1/5/10回。(10/26) 1日の回数の制限はなし(KJ_DAY=0)。
+   各箱の最後の1枚を引いた人にラストワン賞(プレイマット「夜宴の小悪魔」)。1回150pt(10/27 に100ptから)、まとめて1/5/10回。(10/26) 1日の回数の制限はなし(KJ_DAY=0)。
    仕組みはオリパと同じ(ori/oris/orp、ty:'kuji')。賞品は公開された札から計算する(pt・チケット・選べる券・マット)ので、持ち物に書くのは選べる券を使ったときだけ。
    くじ券(1回タダ)はチーム戦やみんなで目標のごほうび。券で引いた記録は p:0 */
-const KJ_PRICE=100,KJ_BOX=551,/* (10/26) 1回400pt・150枚×2箱 → 1回100pt・551口×1箱(S賞を足した) */KJ_BOXES=1,KJ_DAY=0;/* 0 = 1日の制限なし */
+const KJ_PRICE=150,KJ_BOX=551,/* (10/27) 100pt → 150pt (the user's call). A box made before keeps its price in ori/{id}.p: kjPriceSync fixes it while nobody has drawn yet *//* (10/26) 1回400pt・150枚×2箱 → 1回100pt・551口×1箱(S賞を足した) */KJ_BOXES=1,KJ_DAY=0;/* 0 = 1日の制限なし */
 const KJ_T=[/* (10/26) 色は演出と同じ: S虹 A金 B赤 C青 D緑 E・F白 */
   /* (10/26) S賞(虹・1本) = TCGカード「フェアリーライフ」のスペシャルアート(sx5、ここでしか手に入らない)。tc = 引いたら持ち物に入れるTCGカード */
   {n:'S賞',tc:'sx5',c:'#ffffff',c2:'#ff6ad5',x:'フェアリーライフ(スペシャルアート)',s:'SA フェアリーライフ',rb:1},
@@ -11264,7 +11264,7 @@ async function kjCreate(o){const me=myPlayer();if(!me)throw new Error('me');o=o|
 function kjPvSeed(){if(!ORI_PV)return;{const c=kjCur();
   /* (10/27) お試し版で完売したら、30秒たったら新しい箱にする(完売の画面は少しだけ見える) */
   const soldOld=c&&(+c.x||0)>=(+c.N||1)&&(()=>{let t=0;try{for(const q of ORIL.pays())if(q.o===c.id&&q.t>t)t=q.t}catch(e){}return now()-t>30000})();
-  if(c&&((+c.box||0)!==KJ_BOX||soldOld)){try{ORIL.stop(c.id)}catch(e){}}else if(c)return}/* (10/26) the お試し版 remakes an old-sized box (120→180) */try{if(myPlayer())kjCreate({})}catch(e){console.warn('kuji',e)}}
+  if(c&&((+c.box||0)!==KJ_BOX||soldOld||(+c.p||0)!==KJ_PRICE)){try{ORIL.stop(c.id)}catch(e){}}else if(c)return}/* (10/26) the お試し版 remakes an old-sized box (120→180) */try{if(myPlayer())kjCreate({})}catch(e){console.warn('kuji',e)}}
 
 /* ---------- drawing ---------- */
 async function kjTake(o,n,free){const me=myPlayer();if(!me)throw new Error('me');n=Math.max(1,Math.min(10,n|0));const cap=(kjCurBox(o)+1)*kjBox(o);
@@ -11306,7 +11306,9 @@ function kjSkin(o){return{T:g=>KJ_T[g]||{},face:(s,l)=>kjFace(l?'last':s.g),name
   logo:['NIGHT FEAST','夜宴くじ'],unit:'枚入り',unitN:kjBox(o),cls:'kj',pad:3}}
 
 /* ---------- the banner on the スキン gacha page ---------- */
-window.__kjBanner=H=>{if(!kjOn())return null;if(ORI_PV)kjPvSeed();const o=kjCur();if(!o)return null;const {mk,esc,left,ready}=H;
+/* (10/27) the price changed to 150pt after the 本番 box may already have been made at 100pt: the admin's app sets it once, only while nothing has been drawn */
+function kjPriceSync(o){try{if(ORI_PV||kjPriceSync.done||!o||+o.p===KJ_PRICE||(+o.x||0)>0||!db||!(typeof isAdmin==='function'&&isAdmin()))return;kjPriceSync.done=1;db.doc('ori/'+o.id).update({p:KJ_PRICE}).catch(()=>{kjPriceSync.done=0})}catch(e){}}
+window.__kjBanner=H=>{if(!kjOn())return null;if(ORI_PV)kjPvSeed();const o=kjCur();if(!o)return null;kjPriceSync(o);const {mk,esc,left,ready}=H;
   const m=myPlayer(),b=m?balance(m.id):0,ok=(ORI_PV||ready())&&!kjGo.busy&&now()<o.end,rm=kjRemain(o),bl=kjBoxLeft(o),day=m?kjDayLeft(m.id):0,tk=m?kjTkLeft(m.id):0,sold=o.x>=o.N;
   const ext=typeof hwExt==='function'&&hwExt(),can=n=>ok&&!ext&&!sold&&day>0&&(ORI_PV||b>=o.p*Math.min(n,bl,day));
   const acts=sold?[{l:'全部売り切れ',on:false,main:1}]:[{l:'1回',c:o.p,need:o.p-b,on:can(1),go:()=>kjGo(1)},{l:'5回',c:o.p*Math.min(5,bl),need:o.p*Math.min(5,bl)-b,on:can(5),go:()=>kjGo(5)},{l:'10回',c:o.p*Math.min(10,bl),need:o.p*Math.min(10,bl)-b,main:1,note:day<10?'今日はあと'+day+'回':'',on:can(10),go:()=>kjGo(10)}];
