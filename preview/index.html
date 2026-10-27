@@ -11261,7 +11261,10 @@ async function kjCreate(o){const me=myPlayer();if(!me)throw new Error('me');o=o|
     const p=pz[ord[i]];await db.doc('oris/'+id+'_'+i).set({o:id,i,j:ord[i],g:p.g,tb:'',tt:0,op:false})}
   await db.doc('ori/'+id).set(meta);return id}
 /* the お試し版 starts with one (this phone only) */
-function kjPvSeed(){if(!ORI_PV)return;{const c=kjCur();if(c&&(+c.box||0)!==KJ_BOX){try{ORIL.stop(c.id)}catch(e){}}else if(c)return}/* (10/26) the お試し版 remakes an old-sized box (120→180) */try{if(myPlayer())kjCreate({})}catch(e){console.warn('kuji',e)}}
+function kjPvSeed(){if(!ORI_PV)return;{const c=kjCur();
+  /* (10/27) お試し版で完売したら、30秒たったら新しい箱にする(完売の画面は少しだけ見える) */
+  const soldOld=c&&(+c.x||0)>=(+c.N||1)&&(()=>{let t=0;try{for(const q of ORIL.pays())if(q.o===c.id&&q.t>t)t=q.t}catch(e){}return now()-t>30000})();
+  if(c&&((+c.box||0)!==KJ_BOX||soldOld)){try{ORIL.stop(c.id)}catch(e){}}else if(c)return}/* (10/26) the お試し版 remakes an old-sized box (120→180) */try{if(myPlayer())kjCreate({})}catch(e){console.warn('kuji',e)}}
 
 /* ---------- drawing ---------- */
 async function kjTake(o,n,free){const me=myPlayer();if(!me)throw new Error('me');n=Math.max(1,Math.min(10,n|0));const cap=(kjCurBox(o)+1)*kjBox(o);
