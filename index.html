@@ -11675,7 +11675,7 @@ window.HW2_TILES=(tile,me,on)=>{if(!hw2Started())return;const tm=hw2Team(me.id),
   tile('team','h2t','チーム戦',!hw2Cfg?'チーム分けを待っています':(tm?'あなたは'+HW2_TM[tm].n+'  ·  ':'')+'平均 '+a.avg+' 対 '+b.avg+(hw2TeamDone()?'  ·  結果':''),'');
   tile('goal','h2g','みんなで目標',hw2GoalN()+' / 7 段  ·  合計 '+hw2Total().toLocaleString(),'');
   {const B=hw2Bingo(me.id);tile('bingo','h2b','後編ビンゴ',B.n+' 列そろった  ·  1列で お菓子+'+HW2_BINGO,'')}
-  tile(()=>{document.querySelectorAll('.hlw').forEach(x=>x.remove());document.body.classList.remove('ovl');setView('gacha');setTimeout(()=>{try{gpageSet('skin')}catch(e){}setTimeout(()=>{const c=document.querySelector('#kgu-skin .kgu-chip[data-b=kuji]');c&&c.click()},300)},300)},'h2k','夜宴くじ','1回400pt  ·  ハズレなし  ·  A賞 TCGハロウィンKMR','')};
+  /* (10/29) 夜宴くじはガチャの画面にあるので、ここには出さない */}; 
 /* the golden time strip under the night strip */
 window.HW2_STRIP=b=>{if(!hw2Started()||hw2Done())return;const on=hwGoldNow(),n=el('div','hlw-night h2-gold'+(on?' on':''));const tx=el('div');tx.append(el('b',null,'ゴールデンタイム'),el('span',null,on?'いまお菓子が1.5倍':'毎晩 21:00〜21:30  お菓子が1.5倍'));n.append(tx);
   if(on){const e=new Date(now()+9*36e5);const left=(HW2_GOLD[1]-hw2Min(now()))*60000-e.getUTCSeconds()*1000;n.append(el('em',null,'あと '+Math.max(1,Math.ceil(left/60000))+'分'))}b.append(n)};
@@ -11712,6 +11712,24 @@ window.HW2_HOME=()=>{if(!hw2Started()||!hw2Cfg||now()>hw2T1()+3*864e5)return nul
     go:()=>{try{hwOpen.sub0='team';hwOpen()}catch(e){}},h2:[A,B,tm]}};
 window.__h2Strip=(...hosts)=>{const H=window.HW2_HOME&&HW2_HOME();if(!H)return;for(const h of hosts){if(!h)continue;h.querySelectorAll('.h2s').forEach(c=>{if(c.querySelector('.h2-bar'))return;const [A,B,tm]=H.h2,bar=hw2Bar(A,B);if(tm)c.classList.add('m'+tm);(c.querySelector('.tx')||c).append(bar)})}};
 function hw2HomePaint(){}
+
+/* ===== (10/29) 管理者がチームを入れかえられる(管理 → イベントの一番上)。名前を押す → 確認 → もう片方のチームへ。
+   config/hwteam の a[pid] を書く(あとから来た人の hwp.tm より a が優先される)。ルールは管理者だけ update できる(公開済み) ===== */
+function hw2AdmTeams(){try{
+  if(!(typeof isAdmin==='function'&&isAdmin())||!db)return;const pg=document.querySelector('#adm .admpg[data-t="ev"]');if(!pg)return;
+  let c=pg.querySelector('.hw2adm');if(!c){c=document.createElement('div');c.className='admcard hw2adm';pg.prepend(c)}
+  if(!hw2Cfg){if(c.dataset.sig!=='none'){c.dataset.sig='none';c.innerHTML='<div class="admct">チーム戦のチーム</div><div class="admcd">チームはまだできていません(後編が始まって最初に開いた人のアプリが作ります)</div>'}return}
+  const L=(players||[]).filter(p=>p&&!p.ban&&hw2Team(p.id)).map(p=>({p,t:hw2Team(p.id)}));
+  const sig=JSON.stringify(L.map(x=>[x.p.id,x.p.name,x.t]));if(c.dataset.sig===sig)return;c.dataset.sig=sig;c.replaceChildren();
+  const h=document.createElement('div');h.className='admct';h.textContent='チーム戦のチーム';const d=document.createElement('div');d.className='admcd';d.textContent='名前を押すと、もう片方のチームに移ります(みんなのアプリにすぐ反映)。人数がかたよらないように、入れかえるときは2人動かしてください';
+  const row=document.createElement('div');row.style.cssText='display:flex;gap:10px;align-items:flex-start;margin-top:8px';
+  ['p','b'].forEach(k=>{const col=document.createElement('div');col.style.cssText='flex:1;min-width:0;display:flex;flex-direction:column;gap:6px';const T=HW2_TM[k],M=L.filter(x=>x.t===k);
+    const hd=document.createElement('b');hd.textContent=T.n+'('+M.length+'人)';hd.style.color=T.c2;col.append(hd);
+    M.forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x.p.name||x.p.id;b.style.cssText='width:100%;text-align:left;box-shadow:inset 3px 0 0 '+T.c;
+      const to=k==='p'?'b':'p';b.onclick=()=>askSheet({title:'チームを移す',lines:['「'+(x.p.name||x.p.id)+'」を '+T.n+' から '+HW2_TM[to].n+' に移します'],ok:HW2_TM[to].n+'に移す',run:()=>db.doc(HW2K.cfg).update({['a.'+x.p.id]:to}).then(()=>toast((x.p.name||'')+' を'+HW2_TM[to].n+'に移しました')).catch(e=>toast('移せませんでした('+(e.code||e.message)+')'))});col.append(b)});
+    row.append(col)});
+  c.append(h,d,row)}catch(e){}}
+setInterval(()=>{try{hw2AdmTeams()}catch(e){}},2500);
 /* ORIH2js:end */
 /* ORISHjs:begin */
 /* ===== (10/25) 自分のお店: ダブりに値段を付けて並べ、仲間が即決で買える。オークションとは分けない(どちらにも出せる)
