@@ -11712,6 +11712,24 @@ window.HW2_HOME=()=>{if(!hw2Started()||!hw2Cfg||now()>hw2T1()+3*864e5)return nul
     go:()=>{try{hwOpen.sub0='team';hwOpen()}catch(e){}},h2:[A,B,tm]}};
 window.__h2Strip=(...hosts)=>{const H=window.HW2_HOME&&HW2_HOME();if(!H)return;for(const h of hosts){if(!h)continue;h.querySelectorAll('.h2s').forEach(c=>{if(c.querySelector('.h2-bar'))return;const [A,B,tm]=H.h2,bar=hw2Bar(A,B);if(tm)c.classList.add('m'+tm);(c.querySelector('.tx')||c).append(bar)})}};
 function hw2HomePaint(){}
+
+/* ===== (10/29) 管理者がチームを入れかえられる(管理 → イベントの一番上)。名前を押す → 確認 → もう片方のチームへ。
+   config/hwteam の a[pid] を書く(あとから来た人の hwp.tm より a が優先される)。ルールは管理者だけ update できる(公開済み) ===== */
+function hw2AdmTeams(){try{
+  if(!(typeof isAdmin==='function'&&isAdmin())||!db)return;const pg=document.querySelector('#adm .admpg[data-t="ev"]');if(!pg)return;
+  let c=pg.querySelector('.hw2adm');if(!c){c=document.createElement('div');c.className='admcard hw2adm';pg.prepend(c)}
+  if(!hw2Cfg){if(c.dataset.sig!=='none'){c.dataset.sig='none';c.innerHTML='<div class="admct">チーム戦のチーム</div><div class="admcd">チームはまだできていません(後編が始まって最初に開いた人のアプリが作ります)</div>'}return}
+  const L=(players||[]).filter(p=>p&&!p.ban&&hw2Team(p.id)).map(p=>({p,t:hw2Team(p.id)}));
+  const sig=JSON.stringify(L.map(x=>[x.p.id,x.p.name,x.t]));if(c.dataset.sig===sig)return;c.dataset.sig=sig;c.replaceChildren();
+  const h=document.createElement('div');h.className='admct';h.textContent='チーム戦のチーム';const d=document.createElement('div');d.className='admcd';d.textContent='名前を押すと、もう片方のチームに移ります(みんなのアプリにすぐ反映)。人数がかたよらないように、入れかえるときは2人動かしてください';
+  const row=document.createElement('div');row.style.cssText='display:flex;gap:10px;align-items:flex-start;margin-top:8px';
+  ['p','b'].forEach(k=>{const col=document.createElement('div');col.style.cssText='flex:1;min-width:0;display:flex;flex-direction:column;gap:6px';const T=HW2_TM[k],M=L.filter(x=>x.t===k);
+    const hd=document.createElement('b');hd.textContent=T.n+'('+M.length+'人)';hd.style.color=T.c2;col.append(hd);
+    M.forEach(x=>{const b=document.createElement('button');b.type='button';b.textContent=x.p.name||x.p.id;b.style.cssText='width:100%;text-align:left;box-shadow:inset 3px 0 0 '+T.c;
+      const to=k==='p'?'b':'p';b.onclick=()=>askSheet({title:'チームを移す',lines:['「'+(x.p.name||x.p.id)+'」を '+T.n+' から '+HW2_TM[to].n+' に移します'],ok:HW2_TM[to].n+'に移す',run:()=>db.doc(HW2K.cfg).update({['a.'+x.p.id]:to}).then(()=>toast((x.p.name||'')+' を'+HW2_TM[to].n+'に移しました')).catch(e=>toast('移せませんでした('+(e.code||e.message)+')'))});col.append(b)});
+    row.append(col)});
+  c.append(h,d,row)}catch(e){}}
+setInterval(()=>{try{hw2AdmTeams()}catch(e){}},2500);
 /* ORIH2js:end */
 /* ORISHjs:begin */
 /* ===== (10/25) 自分のお店: ダブりに値段を付けて並べ、仲間が即決で買える。オークションとは分けない(どちらにも出せる)
@@ -17007,18 +17025,7 @@ const NEWS_EXP=typeof TCGD!=='undefined'&&!!TCGD.packs.c;
 /* (10/17) v135: when ハロウィン is in this build (the release switches HW_ON_REL on; the お試し版 always has it) the notice is the Halloween one
    and the v134 notice moves to これまでのアップデート */
 const NEWS_HW=HW_HERE()&&NEWS_EXP;
-const NEWS_ID=NEWS_HW?'2026-v142':NEWS_EXP?'2026-v134':'2026-v121';
-/* (10/28) v142: ハロウィン後編の告知(後編は 10/29 朝5時から。お知らせはその前から出る) */
-const NEWS_V142=[
- ['ハロウィン後編(10/29 朝5時〜11/8 朝5時)',['後編の間にもらったお菓子で、チーム戦・みんなで目標・ビンゴに参加できる(前編のお菓子とは別に数える)','お菓子のもらい方は前編と同じ。対戦・TCG・分身で遊ぶとたまる']],
- ['チーム戦 かぼちゃ団 vs こうもり団',['後編が始まると自動で2チームに分かれる(強さがかたよらないように)','チームの点は、メンバーの後編のお菓子の平均(0個の人は数えない)','11/7 夜9時半で締めて結果発表','勝ったチーム: '+HW2_TEAM_RW.win.x.replace('「○○団の勝利」','「かぼちゃ団の勝利」など'),'負けたチーム: '+HW2_TEAM_RW.lose.x,'各チームのエース(いちばんお菓子を集めた人): '+HW2_TEAM_RW.mvp.x.replace('「○○団のエース」','「かぼちゃ団のエース」など')]],
- ['みんなで目標',['全員の後編のお菓子の合計で、7段のごほうび','いちばん上まで行くと、称号「みんなでハロウィン」とフレーム「かぼちゃの灯火」','ごほうびがもらえるのは、自分の後編のお菓子が'+HW2_NEED+'個以上の人']],
- ['ゴールデンタイム',['毎晩 9:00〜9:30 は、もらえるお菓子が1.5倍(10/31 はハロウィンナイトなのでなし)','始まるときにお知らせが届く']],
- ['後編ビンゴ',['遊ぶとマスが開く','1列そろうごとにお菓子 +'+HW2_BINGO+'、全部開けると称号']],
- ['夜宴くじ',['1回'+KJ_PRICE+'pt、全'+KJ_BOX+'口。ハズレなし、全員で同じ箱を引く','S賞 TCG「フェアリーライフ」のスペシャルアート(ここでしか手に入らない)、A賞 KMRコイン、B賞 KMRスリーブ、C賞 TCGハロウィンKMRを選べる券など','最後の1口を引いた人に、ラストワン賞のプレイマット「夜宴の小悪魔」','チーム戦やみんなで目標のごほうびの「くじ券」で、1回タダで引ける']],
- ['TCGの対戦の場が新しく',['場が少し奥に倒れて、相手の場が奥・自分の場が手前に見える','出したキャラのアクリルスタンドは、場から立ち上がる','台・置き場所・プレイマットを3Dで作り直した','デッキは20〜30枚(同じカードは2枚まで)']],
- ['大会のお知らせ',['大会があると、ホームに大会の札と「対戦」に赤い「!」。エントリー受付と自分の試合の番のときに、1回だけお知らせが出る']]
-];
+const NEWS_ID=NEWS_HW?'2026-v141':NEWS_EXP?'2026-v134':'2026-v121';
 const NEWS_V141=[
  ['自分のお店',['取引所に「お店」。持っているカードに値段を付けて並べると、仲間がすぐ買える(オークションと違って競り合いなし)','1人6枠。同じカードは同じ枠に重ねて並べられる','売れると販売手数料15%を引いた額が入る(オークションは10%のまま)','安売りで相場が崩れないように、相場の80%より安くは並べられない']],
  ['相場の下がり方',['相場は1回の取引で最大10%しか下がらない。下がってもレアの基本の値段の半分で止まる']],
@@ -17059,7 +17066,7 @@ const NEWS_V134=NEWS_EXP?[
  ['分身バトル',['対戦タブを「ボス・クエスト・スコアアタック・仲間と戦う」の4つの大きなタイルに','スコアアタック: 平日に1日3回。ベスト記録で順位が決まり、金曜に報酬(1位500ptなど)','週末のボス: 挑むたびに参加報酬+15pt。倒したら全員に200pt+削った量で最大350pt、一番削った人は+120pt、とどめを刺した人は+80pt']],
  ['ホーム',['今日のイベントの帯(自動でスライド)。開催中のイベント・収穫・鑑定結果がひと目でわかる','新しい機能にNEWの印','iPhoneで下のバーが浮くことがあったのを直した','アップデートの通知が前の版の文で届いていたのを直した']]
 ]:null;
-const NEWS=NEWS_HW?NEWS_V142.concat(NEWS_V141,NEWS_V136,NEWS_V135):NEWS_V134||[ ['アプリの見た目を新しく',['下のメニューは「ホーム・ランキング・対戦・ガチャ・プロフィール」の5つ。TCGは「対戦」の中に入り、パックは「ガチャ」に名前が変わった','ホームはゲームのロビーのような画面に。真ん中にランクの紋章、上にレベル・ポイント・プレゼント・通知、左右にお題・MVP・シーズン・開催中のイベント・みんなの速報','「対戦」はレート対戦・TCG・デッキ・大会と履歴を上の切り替えでまとめた','ランクの紋章を新しいデザインにそろえた(ホーム・ランキング・プロフィールなど全部)','画面の切り替えやボタンの動きをなめらかに']],
+const NEWS=NEWS_HW?NEWS_V141.concat(NEWS_V136,NEWS_V135):NEWS_V134||[ ['アプリの見た目を新しく',['下のメニューは「ホーム・ランキング・対戦・ガチャ・プロフィール」の5つ。TCGは「対戦」の中に入り、パックは「ガチャ」に名前が変わった','ホームはゲームのロビーのような画面に。真ん中にランクの紋章、上にレベル・ポイント・プレゼント・通知、左右にお題・MVP・シーズン・開催中のイベント・みんなの速報','「対戦」はレート対戦・TCG・デッキ・大会と履歴を上の切り替えでまとめた','ランクの紋章を新しいデザインにそろえた(ホーム・ランキング・プロフィールなど全部)','画面の切り替えやボタンの動きをなめらかに']],
  ['ガチャ画面',['開催中のガチャが上に並び、選ぶと大きなバナーに。中身の一部、天井(GR確定まで)、1パック / 10連のボタンが1枚にまとまった','ポイントが足りないときは「あと何P」と出る']],
  ['ガチャの演出',['通常パックはメガネのレンズに光がたまり、その色が「いちばんいいレア度」の合図(白N・青R・紫SR・金UR・虹GR)。ときどき色が一段上がる','Vtuberガチャは配信画面に。スーパーチャットの色と金額がレア度の合図。KMRのときは虹色の¥1,000,000スパチャ']],
  ['起動画面とログインボーナス',['アプリを開くと、光の点がロゴを描いてからホームへ(触れると飛ばせる)','ログインボーナスは光の柱と3Dのコイン。月額パスの毎日のptも同じ演出で、パスの種類で色が変わる','効果音と振動は「設定・要望」の「効果音」でオンにできる(最初はオフ)']],
@@ -17139,7 +17146,7 @@ function showNews(){
 }
 /* v132: when the admin first opens a new version, config/update is written and a function sends the notice to every phone (push) */
 /* (10/16) the push text is made from NEWS (the first titles), so it always matches the notice of this version. v133 had sent v132's text */
-const NEWS_PUSH=NEWS_HW?{title:'ハロウィン後編 10/29 朝5時から',body:'かぼちゃ団 vs こうもり団のチーム戦、みんなで目標、夜宴くじ。TCGの対戦の場も新しくなりました'}:{title:'アップデートのお知らせ',body:(()=>{const t=NEWS.slice(0,3).map(x=>x[0]).join('・');return (t.length>60?t.slice(0,58)+'…':t)+'など。アプリを開いて確認してね'})()};
+const NEWS_PUSH=NEWS_HW?{title:'TCGに新しい5族',body:'新しい族のスターターを1人1つもらえます。カードのデザイン・図鑑・取引所も新しくなりました。アプリを開いて選んでね'}:{title:'アップデートのお知らせ',body:(()=>{const t=NEWS.slice(0,3).map(x=>x[0]).join('・');return (t.length>60?t.slice(0,58)+'…':t)+'など。アプリを開いて確認してね'})()};
 const newsNo=v=>+((String(v||'').match(/v(\d+)/)||[])[1]||0);
 /* お試し版 and the main app share this phone's storage: keep their 'seen' apart so switching between them does not show the notice every time */
 const NEWS_KEY='newsSeen'+(/\/preview\//.test(location.pathname)?'_pv':'');
