@@ -5295,7 +5295,7 @@ function ofxTick(){const now=ofxNow();OFX.raf=0;const cx=ofxCanvas(),d=OFX.dpr;c
     if(p.gl){cx.globalCompositeOperation='lighter';cx.fillStyle='#fff';cx.shadowColor=p.col;cx.shadowBlur=10;const s=q.s;cx.beginPath();cx.moveTo(q.x,q.y-s);cx.quadraticCurveTo(q.x,q.y,q.x+s,q.y);cx.quadraticCurveTo(q.x,q.y,q.x,q.y+s);cx.quadraticCurveTo(q.x,q.y,q.x-s,q.y);cx.quadraticCurveTo(q.x,q.y,q.x,q.y-s);cx.fill();cx.shadowBlur=0;cx.globalCompositeOperation='source-over';return true}
     if(p.tint){cx.globalCompositeOperation='lighter';cx.fillStyle=p.col;cx.fillRect(0,0,innerWidth,innerHeight);cx.globalCompositeOperation='source-over';return true}
     if(p.pil){cx.globalCompositeOperation='lighter';const g2=cx.createLinearGradient(q.x-q.w/2,0,q.x+q.w/2,0);g2.addColorStop(0,'rgba(0,0,0,0)');g2.addColorStop(.35,p.col);g2.addColorStop(.5,'#ffffff');g2.addColorStop(.65,p.col);g2.addColorStop(1,'rgba(0,0,0,0)');cx.fillStyle=g2;const g3=cx.createLinearGradient(0,q.y-q.h,0,q.y);cx.fillRect(q.x-q.w/2,q.y-q.h,q.w,q.h);cx.globalCompositeOperation='source-over';return true}
-    if(p.pic){const im=p.pic;if(!im.complete||!im.naturalWidth)return true;cx.globalCompositeOperation='lighter';cx.save();cx.translate(q.x,q.y);cx.rotate(q.r||0);cx.scale(q.sx||1,q.sy||1);cx.drawImage(im,-q.w/2,-q.h/2,q.w,q.h);cx.restore();cx.globalCompositeOperation='source-over';return true}
+    if(p.pic){const im=p.pic;if(!im.complete||!im.naturalWidth)return true;cx.globalCompositeOperation='lighter';cx.save();cx.translate(q.x,q.y);cx.rotate(q.r||0);cx.scale(q.sx||1,q.sy||1);if(p.fr){const fw=im.naturalWidth/p.fr,fi=Math.min(p.fr-1,Math.floor(u*p.fr));cx.drawImage(im,fi*fw,0,fw,im.naturalHeight,-q.w/2,-q.h/2,q.w,q.h)}else cx.drawImage(im,-q.w/2,-q.h/2,q.w,q.h);cx.restore();cx.globalCompositeOperation='source-over';return true}
     if(p.streak&&u>.04){const q0=p.f(Math.max(0,u-.07));cx.globalCompositeOperation='lighter';cx.strokeStyle=p.glow||'#fff';cx.lineCap='round';cx.lineWidth=Math.max(2,q.s*.22);cx.beginPath();cx.moveTo(q0.x,q0.y);cx.lineTo(q.x,q.y);cx.stroke();cx.globalCompositeOperation='source-over';cx.globalAlpha=Math.min(1,q.a)*(p.dim||1)}
     const im=ofxImg(p.k);if(!im.complete||!im.naturalWidth)return true;const fi=Math.floor(((u*p.spin+p.f0)%1+1)%1*12),s=q.s;
     cx.globalAlpha=Math.min(1,q.a)*(p.dim||1);if(p.glow){cx.shadowColor=p.glow;cx.shadowBlur=Math.max(6,s*.32)}
@@ -5316,14 +5316,13 @@ function ofxHit(tEl,K){const T=ofxRect(tEl);if(!T)return;const col=K.c[0]||'#ff8
     f:u=>{const e=ofxE.o5(u);return{x:T.x+Math.cos(a)*d*e,y:T.y+Math.sin(a)*d*.75*e+u*u*40,s:sz*(1.15-.4*u),a:(1-Math.pow(u,2)),r:a+u*3}}})}
   ofxGl(T,col,6);ofxAdd({ring:1,col,dur:420,f:u=>({x:T.x,y:T.y,s:12+ofxE.o5(u)*T.w*.5,a:(1-u),lw:3*(1-u)+1,fl:.8})})}
 /* 倒す: a big burst where the beaten one stood, in the winner's 推し */
-function ofxKo(el,K){const T=ofxRect(el);if(!T)return;const col=K.c[0]||'#ff8fd0',n=OFX_RM?8:28,bu=ovxImg('burst_'+(OVX_T[K.n]||'hood'));
+function ofxKo(el,K){const T=ofxRect(el);if(!T)return;ofxSnd(K,'ko');const col=K.c[0]||'#ff8fd0',n=OFX_RM?8:28,bu=ovxImg('burst_'+(OVX_T[K.n]||'hood'));
   ofxAdd({tint:1,col:col+'44',dur:260,f:u=>({x:0,y:0,a:1-u})});
   ofxAdd({pil:1,col,dur:760,f:u=>({x:T.x,y:T.y+T.h*.55,w:T.w*(.7+.9*ofxE.o3(Math.min(1,u*2)))*(1-u*.5),h:T.h*(1.5+4*ofxE.o3(u)),a:Math.sin(Math.min(1,u*1.3)*Math.PI)*.9})});
   ofxAdd({pic:bu,dur:620,f:u=>{const e=ofxE.o5(u),z=3*Math.max(70,T.w);return{x:T.x,y:T.y,r:-u*.6,w:z*(.2+.9*e),h:z*(.2+.9*e),a:(1-u)*1.3}}});
   ofxAdd({pic:bu,dur:700,dl:140,f:u=>{const e=ofxE.o5(u),z=2.2*Math.max(70,T.w);return{x:T.x,y:T.y,r:u*.8,w:z*(.2+.9*e),h:z*(.2+.9*e),a:(1-u)*1.1}}});
   ofxAdd({ring:1,col,dur:620,f:u=>({x:T.x,y:T.y+T.h*.25,s:14+ofxE.o5(u)*T.w*.62,a:(1-u),lw:4*(1-u)+1,fl:.6})});
-  for(let i=0;i<n;i++){const a=-Math.PI/2+ofxRnd(-1.2,1.2),v=ofxRnd(1.6,2.8)*Math.max(50,T.w),sz=ofxRnd(34,54),g0=v*2.4;ofxAdd({k:ofxPick(K,i),dur:1200,dl:i*6,spin:ofxRnd(1.2,2.4),f0:Math.random(),glow:col,streak:1,
-    f:u=>{const t=u*1.15,x=T.x+Math.cos(a)*v*t*.55,y=T.y+Math.sin(a)*v*t+.5*g0*t*t;return{x,y,s:sz*(u<.1?u*10:1),a:1-Math.pow(u,2.4),r:t*3*(i%2?1:-1)}}})}
+  ofxFin(OVX_T[K.n]||'hood',T,K,col);
   for(let i=0;i<(OFX_RM?4:10);i++){const x=T.x+ofxRnd(-T.w*.6,T.w*.6),y=T.y+ofxRnd(-T.h*.7,T.h*.3),s=ofxRnd(5,10);ofxAdd({gl:1,col,dur:520,dl:ofxRnd(60,520),f:u=>({x,y,s:s*Math.sin(u*Math.PI),a:1})})}}
 /* 倒される: her pieces drift down softly onto the one who fell */
 function ofxDown(el,K){const T=ofxRect(el);if(!T)return;const n=OFX_RM?4:9;
@@ -5333,17 +5332,18 @@ function ofxDown(el,K){const T=ofxRect(el);if(!T)return;const n=OFX_RM?4:9;
 /* (10/29) 推しの攻撃スキン: 攻撃するキャラの持ち主に応援演出があると、斬撃・当たった光・飛び散るものが、その推しの色と形になる(Blender の ovx_slash_* / ovx_burst_* と ofx_*) */
 const OVX_T={'夜宴の小悪魔':'imp','堕ちた天使':'angel','オーバーサイズ':'hood','ふくれっつら':'chibi','ためいき':'sigh','ひだまりニット':'knit','はなかんむり':'crown'};
 const OVX_IMG={};function ovxImg(n){let im=OVX_IMG[n];if(!im){im=new Image();im.src='tcgk/ovx_'+n+'.webp';OVX_IMG[n]=im}return im}
-function ofxTheme(m){try{if(!m||FAST||WATCH)return null;const K=OSK.K[m.owner];if(!K)return null;const t=OVX_T[K.n]||'hood';ovxImg('slash_'+t);ovxImg('burst_'+t);ofxKinds(K).forEach(ofxImg);return Object.assign({t},K)}catch(e){return null}}
+function ofxTheme(m){try{if(!m||FAST||WATCH)return null;const K=OSK.K[m.owner];if(!K)return null;const t=OVX_T[K.n]||'hood';ovxImg('sweep_'+t);ovxImg('burst_'+t);ofxKinds(K).forEach(ofxImg);return Object.assign({t},K)}catch(e){return null}}
 /* the charge: her pieces circle up around the attacker */
-function ofxCharge(K,st){const A=ofxRect(st);if(!A)return;const col=K.c[0]||'#ff8fd0',n=OFX_RM?6:14,R=Math.max(30,A.w*.75);
+function ofxSnd(K,ph){try{TSFX.play('o_'+(K.t||OVX_T[K.n]||'hood')+'_'+ph)}catch(e){}}
+function ofxCharge(K,st){const A=ofxRect(st);if(!A)return;ofxSnd(K,'charge');const col=K.c[0]||'#ff8fd0',n=OFX_RM?6:14,R=Math.max(30,A.w*.75);
   ofxAdd({pil:1,col,dur:420,f:u=>({x:A.x,y:A.y+A.h*.5,w:A.w*(.5+.7*Math.sin(Math.min(1,u*1.4)*Math.PI/2))*(1-u*.4),h:A.h*(1.2+2.2*ofxE.o3(u)),a:Math.sin(u*Math.PI)*.75})});
   for(let i=0;i<n;i++){const a0=i/n*Math.PI*2,sz=ofxRnd(32,46),r0=R*ofxRnd(1.5,2.1);ofxAdd({k:ofxPick(K,i),dur:520,dl:i*10,spin:ofxRnd(1,2),f0:Math.random(),glow:col,streak:1,
     f:u=>{const a=a0+u*Math.PI*1.8,e=ofxE.io(u),r=r0*(1-e)+R*.35*e;return{x:A.x+Math.cos(a)*r,y:A.y+A.h*.1-ofxE.o3(u)*A.h*.6+Math.sin(a)*r*.4,s:sz*(1-.35*u),a:Math.min(1,u*7)*(1-Math.pow(u,3)),r:a}}})}
   ofxGl(A,col,6)}
 /* the hit: her two slashes cross, her flash, her pieces burst out, a ring in her colour */
-function ofxStrike(K,ax,ay,tx,ty,rt,heavy){const col=K.c[0]||'#ff8fd0',c2=K.c[1]||'#ffffff',RW=rt.width||70,W=Math.max(200,RW*3.4),sl=ovxImg('slash_'+K.t),bu=ovxImg('burst_'+K.t),dir=tx>=ax?1:-1;
+function ofxStrike(K,ax,ay,tx,ty,rt,heavy){ofxSnd(K,'hit');const col=K.c[0]||'#ff8fd0',c2=K.c[1]||'#ffffff',RW=rt.width||70,W=Math.max(200,RW*3.4),sl=ovxImg('sweep_'+K.t),bu=ovxImg('burst_'+K.t),dir=tx>=ax?1:-1;
   ofxAdd({tint:1,col:col+'55',dur:200,f:u=>({x:0,y:0,a:1-u})});
-  [[-32,0,1],[26,50,1],[dir*-4,105,1.25]].forEach(([r,dl,k])=>ofxAdd({pic:sl,dur:400,dl,f:u=>{const e=ofxE.o5(Math.min(1,u*1.9));return{x:tx,y:ty,r:(r+dir*(1-e)*-46)*Math.PI/180,w:W*k,h:W*k/2,sx:.3+.95*e,sy:1.05-.4*u,a:u<.5?1:1-(u-.5)/.5}}}));
+  [[-32,0,1],[26,50,1],[dir*-4,105,1.25]].forEach(([r,dl,k],i)=>ofxAdd({pic:sl,fr:10,dur:420,dl,f:u=>{const e=ofxE.o5(Math.min(1,u*1.6));return{x:tx,y:ty,r:(r+dir*(1-e)*-24)*Math.PI/180,w:W*k,h:W*k/2,sx:(i%2?-1:1)*dir*(.85+.25*e),sy:1,a:1}}}));
   ofxAdd({pic:bu,dur:520,dl:20,f:u=>{const e=ofxE.o5(u),z=(heavy?2.6:2.1)*Math.max(70,RW);return{x:tx,y:ty,r:u*.6,w:z*(.2+.95*e),h:z*(.2+.95*e),a:(1-u)*1.25}}});
   ofxAdd({pic:bu,dur:300,dl:0,f:u=>{const z=1.1*Math.max(70,RW);return{x:tx,y:ty,r:-u,w:z*(.4+.6*u),h:z*(.4+.6*u),a:(1-u)*1.4}}});
   [[col,0,.85],['#ffffff',60,.6],[c2,120,1.05]].forEach(([c,dl,k])=>ofxAdd({ring:1,col:c,dur:480,dl,f:u=>({x:tx,y:ty,s:10+ofxE.o5(u)*RW*k,a:(1-u),lw:5*(1-u)+1,fl:.75})}));
@@ -5351,6 +5351,28 @@ function ofxStrike(K,ax,ay,tx,ty,rt,heavy){const col=K.c[0]||'#ff8fd0',c2=K.c[1]
   for(let i=0;i<n;i++){const a=i/n*Math.PI*2+ofxRnd(-.25,.25),d=ofxRnd(.7,1.35)*Math.max(56,T.w),sz=ofxRnd(30,48);ofxAdd({k:ofxPick(K,i),dur:820,dl:15,spin:ofxRnd(1,2.2),f0:Math.random(),glow:col,streak:1,
     f:u=>{const e=ofxE.o5(u);return{x:T.x+Math.cos(a)*d*e,y:T.y+Math.sin(a)*d*.8*e+u*u*44,s:sz*(1.15-.45*u),a:1-Math.pow(u,2),r:a+u*3}}})}
   ofxGl(T,col,heavy?12:9)}
+
+/* (10/29) 倒したときの決め: 推しごとに違う動き */
+function ofxFin(t,T,K,col){const W=Math.max(56,T.w),Hh=Math.max(70,T.h),R=OFX_RM?.5:1,P=(o)=>ofxAdd(Object.assign({spin:1,f0:Math.random(),glow:col},o));
+  if(t==='imp'){/* コウモリの渦: 回りながら広がって上へ抜けていく */const n=Math.round(22*R);for(let i=0;i<n;i++){const a0=i/n*Math.PI*2,sz=ofxRnd(34,50),sp=ofxRnd(3.2,4.4),dl=i*14;
+      P({k:'bat',dur:1250,dl,spin:ofxRnd(5,7),streak:1,f:u=>{const e=ofxE.o3(u),a=a0+u*sp,r=W*(.25+1.35*e);return{x:T.x+Math.cos(a)*r,y:T.y-u*Hh*1.1+Math.sin(a)*r*.45,s:sz*(.6+.6*Math.min(1,u*4)),a:Math.min(1,u*6)*(1-Math.pow(u,3)),r:0}}})}
+    for(let i=0;i<Math.round(8*R);i++){const a=ofxRnd(0,6.3),d=ofxRnd(.4,1.1)*W;P({k:'star',dur:900,dl:200+i*40,spin:1.5,f:u=>({x:T.x+Math.cos(a)*d*ofxE.o5(u),y:T.y-Hh*.3+Math.sin(a)*d*.6*ofxE.o5(u),s:30*(1-u*.4),a:1-u*u,r:u*4})})}}
+  else if(t==='angel'){/* 赤い光の輪が頭の上に出て、羽根が上から舞い落ちる */
+    [[col,0,1],['#ffffff',80,.82],[col,160,.64]].forEach(([c,dl,k])=>ofxAdd({ring:1,col:c,dur:1300,dl,fl:.32,f:u=>({x:T.x,y:T.y-Hh*.62-Math.sin(Math.min(1,u*2)*Math.PI/2)*8,s:W*.62*k*(.6+.4*ofxE.o5(Math.min(1,u*3))),a:Math.min(1,u*6)*(1-Math.pow(u,2)),lw:4})}));
+    const n=Math.round(18*R);for(let i=0;i<n;i++){const x0=T.x+ofxRnd(-1.3,1.3)*W,sw=ofxRnd(14,30),ph=ofxRnd(0,6),sz=ofxRnd(34,48);P({k:'feather',dur:1500,dl:120+i*30,spin:ofxRnd(.5,1),f:u=>({x:x0+Math.sin(ph+u*5)*sw,y:T.y-Hh*1.5+u*Hh*1.9,s:sz,a:Math.min(1,u*5)*(1-Math.pow(u,2)),r:Math.sin(ph+u*4)*.7})})}}
+  else if(t==='hood'){/* 泡の柱: ふくらみながら上がって、ぱちんと割れる */const n=Math.round(20*R);for(let i=0;i<n;i++){const x0=T.x+ofxRnd(-.6,.6)*W,ph=ofxRnd(0,6),s0=ofxRnd(20,30),s1=s0*ofxRnd(1.6,2.2),dl=i*35,du=ofxRnd(800,1100),top=ofxRnd(1.1,1.8);
+      const q=u=>({x:x0+Math.sin(ph+u*7)*10,y:T.y+Hh*.4-ofxE.o3(u)*Hh*top,s:s0+(s1-s0)*u,a:Math.min(1,u*6)*(u>.92?(1-u)/.08:1),r:0});P({k:'bubble',dur:du,dl,spin:.4,f:q});
+      const e=q(1);ofxAdd({gl:1,col,dur:260,dl:dl+du-30,f:u=>({x:e.x,y:e.y,s:16*Math.sin(u*Math.PI),a:1})});ofxAdd({ring:1,col:'#ffffff',dur:240,dl:dl+du-30,fl:1,f:u=>({x:e.x,y:e.y,s:s1*.4*(1+u),a:1-u,lw:2})})}
+    for(let i=0;i<Math.round(6*R);i++){const a=ofxRnd(0,6.3),d=ofxRnd(.3,1)*W;P({k:'star',dur:800,dl:100+i*60,spin:1.5,f:u=>({x:T.x+Math.cos(a)*d*ofxE.o5(u),y:T.y+Math.sin(a)*d*.6*ofxE.o5(u),s:28,a:1-u*u,r:u*4})})}}
+  else if(t==='chibi'){/* ハートの輪が広がって回る、まん中で大きなハートが2回どきんと */const n=Math.round(14*R);for(let i=0;i<n;i++){const a0=i/n*Math.PI*2;P({k:'heart',dur:1150,dl:60,spin:.6,f:u=>{const e=ofxE.o5(u),a=a0+u*1.6,r=W*(.2+1.15*e);return{x:T.x+Math.cos(a)*r,y:T.y+Math.sin(a)*r*.62,s:36*(1-u*.3),a:Math.min(1,u*8)*(1-Math.pow(u,2.5)),r:0}}})}
+    [0,280].forEach(dl=>P({k:'heart',dur:520,dl,spin:0,f0:0,f:u=>{const k=Math.sin(Math.min(1,u*1.6)*Math.PI/2);return{x:T.x,y:T.y-Hh*.1,s:W*(0.5+0.9*k),a:(1-u)*1.1,r:0}}}));
+    for(let i=0;i<Math.round(6*R);i++){const a=ofxRnd(0,6.3),d=ofxRnd(.5,1.1)*W;P({k:'star',dur:800,dl:150+i*50,spin:1.5,f:u=>({x:T.x+Math.cos(a)*d*ofxE.o5(u),y:T.y+Math.sin(a)*d*.6*ofxE.o5(u),s:26,a:1-u*u,r:u*4})})}}
+  else if(t==='sigh'||t==='crown'){/* 花びら(と葉)の渦: 足元から巻き上がる。はなかんむりは最初に花の輪になってから */const n=Math.round(28*R);for(let i=0;i<n;i++){const a0=i/n*Math.PI*2,k=t==='crown'&&i%3===2?'leaf':'petal',sz=ofxRnd(30,44),ring=t==='crown';
+      P({k,dur:1400,dl:i*12,spin:ofxRnd(.8,1.6),f:u=>{let a,r,y;if(ring&&u<.35){const v=u/.35;a=a0+v*1.2;r=W*.85*ofxE.o5(v);y=T.y+Math.sin(a)*r*.5}else{const v=ring?(u-.35)/.65:u;a=a0+(ring?1.2:0)+v*5.5;r=W*((ring?.85:.3)+.6*v);y=T.y+(ring?0:Hh*.45)-ofxE.io(v)*Hh*1.5+Math.sin(a)*r*.4}return{x:T.x+Math.cos(a)*r,y,s:sz,a:Math.min(1,u*8)*(1-Math.pow(u,3)),r:a}}})}}
+  else if(t==='knit'){/* 雪の星: 6方向に結晶が走って、きらきらしながら降る */for(let j=0;j<6;j++)for(let k=0;k<3;k++){if(R<1&&k)continue;const a=j/6*Math.PI*2-Math.PI/2,d=W*(.5+.45*k),dl=k*70;
+      P({k:k===1?'star':'snow',dur:1300,dl,spin:.8,f:u=>{const e=ofxE.o5(Math.min(1,u*2));return{x:T.x+Math.cos(a)*d*e,y:T.y+Math.sin(a)*d*.7*e+Math.max(0,u-.5)*Hh*.8,s:(k===1?30:40)*(1-u*.3),a:Math.min(1,u*8)*(1-Math.pow(u,2)),r:u*2}}})}
+    for(let i=0;i<Math.round(14*R);i++){const x=T.x+ofxRnd(-1.2,1.2)*W,y=T.y+ofxRnd(-1,.6)*Hh,s=ofxRnd(6,12);ofxAdd({gl:1,col:'#dff0ff',dur:420,dl:ofxRnd(200,1100),f:u=>({x,y,s:s*Math.sin(u*Math.PI),a:1})})}}
+}
 /* when: the attack (strike) and the fall (the 'die' event) */
 function ofxOn(){return !FAST&&!WATCH}
 {const _t=tsfxEv;tsfxEv=function(e){try{if(e&&e.t==='die'&&ofxOn()){const u=uidEl(e.uid);if(u){const Kw=OSK.K[1-e.who],Kl=OSK.K[e.who];if(Kw)ofxKo(u,Kw);if(Kl)setTimeout(()=>{try{ofxDown(u,Kl)}catch(_){}},D(260))}}}catch(_){}return _t.apply(this,arguments)}}
@@ -5401,7 +5423,29 @@ const TSFX=(()=>{let ac=null,master=null,nb=null;const last={};
     turnOpp(){tone(392,392,.12,'triangle',.07);tone(330,330,.22,'triangle',.07,.1)},
     win(){[523,659,784,1046].forEach((f,i)=>tone(f,f,.5,'triangle',.1,i*.11));glit(2093,5,.05,.46)},
     lose(){[392,349,311,262].forEach((f,i)=>tone(f,f*.98,.5,'triangle',.08,i*.16))},
-    draw0(){tone(440,440,.3,'triangle',.07);tone(440,330,.4,'triangle',.06,.2)}};
+    draw0(){tone(440,440,.3,'triangle',.07);tone(440,330,.4,'triangle',.06,.2)},
+    /* (10/29) 推しの攻撃スキンの音: o_<推し>_charge / hit / ko */
+    o_imp_charge(){tone(260,120,.45,'sine',.12);[0,.09,.17].forEach((d,i)=>tone(3400-i*300,2500,.05,'square',.025,d+.1))},
+    o_imp_hit(){tone(700,110,.28,'sawtooth',.07);noise(.18,3000,900,1.5,.1)},
+    o_imp_ko(){[523,622,784,1046].forEach((f,i)=>tone(f,f*.99,.55,'triangle',.06,i*.07));for(let i=0;i<6;i++)noise(.07,900,500,2,.06,.1+i*.08)},
+    o_angel_charge(){noise(.45,400,2600,1.6,.08);tone(330,330,.5,'sine',.06);tone(495,495,.5,'sine',.04,.05)},
+    o_angel_hit(){tone(1318,1318,.4,'sine',.06);tone(1976,1976,.35,'sine',.045,.03);noise(.14,4000,1500,1.4,.08)},
+    o_angel_ko(){[1568,1318,1046,880,784].forEach((f,i)=>tone(f,f,.5,'triangle',.06,i*.07));for(let i=0;i<4;i++)noise(.12,700,350,1.2,.06,.15+i*.14)},
+    o_hood_charge(){[0,.06,.12,.18].forEach((d,i)=>tone(380+i*120,700+i*180,.07,'sine',.08,d))},
+    o_hood_hit(){tone(520,1100,.08,'sine',.12);tone(1650,1650,.05,'sine',.05,.03);noise(.06,3000,2000,2,.05)},
+    o_hood_ko(){for(let i=0;i<9;i++){const f=500+Math.random()*700;tone(f,f*1.9,.07,'sine',.08,.1+i*.09+Math.random()*.03)}},
+    o_chibi_charge(){tone(600,1500,.22,'sine',.08);glit(1760,3,.035,.1)},
+    o_chibi_hit(){tone(300,620,.16,'sine',.12);glit(2093,4,.04,.04)},
+    o_chibi_ko(){tone(82,60,.16,'sine',.35);tone(82,60,.16,'sine',.3,.22);glit(1568,6,.045,.35)},
+    o_sigh_charge(){noise(.5,300,900,.8,.07,0,'lowpass');glit(1760,2,.025,.2)},
+    o_sigh_hit(){glit(2093,4,.045);noise(.2,2000,4000,2,.05)},
+    o_sigh_ko(){noise(.8,300,2400,1,.08);[784,988,1175,1568].forEach((f,i)=>tone(f,f,.45,'sine',.055,.15+i*.08))},
+    o_crown_charge(){noise(.5,300,900,.8,.07,0,'lowpass');tone(523,659,.3,'triangle',.04,.1)},
+    o_crown_hit(){glit(1760,4,.045);tone(659,659,.25,'triangle',.05)},
+    o_crown_ko(){noise(.8,300,2400,1,.07);[659,784,988,1318].forEach((f,i)=>tone(f,f,.45,'triangle',.055,.15+i*.08))},
+    o_knit_charge(){glit(2637,3,.03);noise(.3,6000,8000,3,.03)},
+    o_knit_hit(){tone(3520,3500,.12,'sine',.07);tone(4699,4690,.1,'sine',.04,.02);noise(.1,7000,5000,2,.06)},
+    o_knit_ko(){for(let i=0;i<8;i++){const f=2093*(1+Math.random()*1.2);tone(f,f,.35,'sine',.04,i*.07)}}};
   /* (10/25) the real sounds (tsfx/ts_*.mp3, made with a sound AI and leveled): decoded once the sound is on; the synth stays as a fallback */
   const FILES=['draw','select','place','place_secret','place_kmr','leader','spell','trap_set','trap','negate','attack','hit','clash','direct','destroy','heal','powerup','skill','guts','coin','turn_me','turn_opp','timer','win','lose','stamp'];
   const VOL={select:.55,draw:.6,trap_set:.7,stamp:.8,timer:.8,win:.9,lose:.9};
