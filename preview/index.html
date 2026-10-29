@@ -11674,7 +11674,7 @@ function hw2Redraw(){try{hwOpen.redraw&&document.querySelector('.hlw')&&hwOpen.r
 window.HW2_TILES=(tile,me,on)=>{if(!hw2Started())return;const tm=hw2Team(me.id),a=hw2TeamScore('p'),b=hw2TeamScore('b');
   tile('team','h2t','チーム戦',!hw2Cfg?'チーム分けを待っています':(tm?'あなたは'+HW2_TM[tm].n+'  ·  ':'')+'平均 '+a.avg+' 対 '+b.avg+(hw2TeamDone()?'  ·  結果':''),'');
   tile('goal','h2g','みんなで目標',hw2GoalN()+' / 7 段  ·  合計 '+hw2Total().toLocaleString(),'');
-  {const B=hw2Bingo(me.id);tile('bingo','h2b','後編ビンゴ',B.n+' 列そろった  ·  1列で お菓子+'+HW2_BINGO,'')}
+  if(!hw2Done()){const B=hw2Bingo(me.id);tile('bingo','h2b','後編ビンゴ',B.n+' 列そろった  ·  1列で お菓子+'+HW2_BINGO,'')}
   /* (10/29) 夜宴くじはガチャの画面にあるので、ここには出さない */}; 
 /* the golden time strip under the night strip */
 window.HW2_STRIP=b=>{if(!hw2Started()||hw2Done())return;const on=hwGoldNow(),n=el('div','hlw-night h2-gold'+(on?' on':''));const tx=el('div');tx.append(el('b',null,'ゴールデンタイム'),el('span',null,on?'いまお菓子が1.5倍':'毎晩 21:00〜21:30  お菓子が1.5倍'));n.append(tx);
@@ -12271,7 +12271,8 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
       const rt=el('div','hlw-cr');rt.append(el('span',null,'これまでに '+earn.toLocaleString()),el('span',null,on?'のこり '+hwLeft(hwT1()):now()<hwT0()?'始まるまで '+hwLeft(hwT0()):'交換は終了'));cb.append(ic,mid,rt);b.append(cb)}
     if(HW_PV)b.append(el('div','hlw-pv','お試し版: 今日から始まっているように見せています。ここでのお菓子・交換・ミッションは本番(10/19〜)には持ち越されず、ptとチケットは入りません。'));
     /* ハロウィンナイト: a strip of the painted moon */
-    {const nn=hwNightNow(),n=el('div','hlw-night'+(nn?' on':''));const tx=el('div');tx.append(el('b',null,'ハロウィンナイト'),el('span',null,nn?'いまお菓子が2倍':'10/31 17:00〜24:00  お菓子が2倍'));
+    /* (10/29) 終わったあとの1週間は結果だけ: ハロウィンナイト・ドアなどは出さない */
+    if(!(now()>=hwT1())){const nn=hwNightNow(),n=el('div','hlw-night'+(nn?' on':''));const tx=el('div');tx.append(el('b',null,'ハロウィンナイト'),el('span',null,nn?'いまお菓子が2倍':'10/31 17:00〜24:00  お菓子が2倍'));
       n.append(tx);const lf=nn?'あと '+hwLeft(window.__hwNight?now()+36e5:HWN1):now()<HWN0?'あと '+hwLeft(HWN0):'';if(lf)n.append(el('em',null,lf));b.append(n)}
     try{window.HW2_STRIP&&HW2_STRIP(b)}catch(e){}
     }
@@ -12281,12 +12282,14 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
         if(badge)t.append(el('em',null,String(badge)));t.append(el('i','hlw-chev'));t.onclick=()=>typeof k==='function'?k():hwOpen.go(k);g.append(t)};
       /* (10/25) 後編のタイルが先頭 */
       try{window.HW2_TILES&&HW2_TILES(tile,me,on)}catch(e){console.warn('hw2 tiles',e)}
+      if(now()<hwT1()){
       tile('tot','tt','トリック・オア・トリート',inc?inc+'人からねだられています':'今日あと '+totLeft(me.id)+' 回',inc);
       {const cu=hdCur(),lf=hdLeft();tile(()=>hdOpen(),'dg','おばけ屋敷のドア',!on?'ハロウィンの期間だけ':cu?'続きから(お菓子 '+hdPot(hdRooms(me.id,cu.d,cu.i),hdPicks(cu.r))+' 持っている)':lf?'今日あと '+lf+' 回  ·  運だめしでお菓子':'今日はおしまい(朝5時にまた3回)',on&&(cu||lf)?(cu?'続き':lf):0)}
       tile('pass','hp','スタンプカード','ランク '+hwPassLv(me.id)+' / '+HWP_N+'  ·  '+(hwPassAt(me.id)?'パスあり':'無料のカードとハロウィンパス'),'');
       tile('mis','ms','イベントミッション',L.filter(m=>m.got).length+' / '+L.length+' クリア',ready);
       tile('shop','sp','お菓子の交換所','お菓子 '+bal.toLocaleString()+' で交換',0);
       tile('how','hw','お菓子のもらい方','対戦・分身・ボス・お題・ドア','');
+      }
       b.append(g);try{hwpWatch();b.append(hwRankSec(me))}catch(e){}}
 
     if(sub==='pass'){try{hwpWatch()}catch(e){}b.append(hwPassSec(me))}
