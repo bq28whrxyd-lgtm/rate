@@ -1585,6 +1585,31 @@ body:not(.gkview){background:
 #s-game>.mat .pm-ltx b{font-size:9.5px}
 #s-game>.mat .pm-ltx small{font-size:7.5px}
 
+/* (10/29) 推しの応援カットイン */
+.oskx{position:fixed;inset:0;z-index:80;overflow:hidden;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+.oskx-dim{position:absolute;inset:0;background:radial-gradient(130% 80% at 50% 50%,rgba(10,6,20,.62),rgba(4,2,10,.95));opacity:0}
+.oskx-band{position:absolute;left:-15%;width:130%;height:38%;top:66%;transform-origin:50% 50%;overflow:hidden;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--k1) 45%,#fff) 0%,#fff 38%,color-mix(in srgb,var(--k2) 70%,#fff) 66%,color-mix(in srgb,var(--k1) 38%,#fff) 100%);
+  box-shadow:0 0 0 3px var(--k1),0 0 0 6px #fff,0 0 34px 6px var(--k1),0 0 90px 10px color-mix(in srgb,var(--k1) 55%,transparent);will-change:transform}
+.oskx.op .oskx-band{top:30%}
+.oskx-ln{position:absolute;inset:0 -160px;opacity:.55;background:repeating-linear-gradient(90deg,transparent 0 22px,color-mix(in srgb,var(--k1) 35%,transparent) 22px 26px,transparent 26px 70px);will-change:transform}
+.oskx-art{position:absolute;inset:-30% -5%;will-change:transform}
+.oskx-art img{position:absolute;max-width:none;pointer-events:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
+.oskx-art.mul{mix-blend-mode:multiply}
+.oskx-ho{position:absolute;inset:0 -40%;background:repeating-linear-gradient(115deg,rgba(255,120,200,.0) 0 40px,rgba(255,140,210,.35) 70px,rgba(255,240,150,.35) 110px,rgba(140,255,230,.35) 150px,rgba(150,170,255,.35) 190px,rgba(255,120,200,0) 230px);mix-blend-mode:soft-light;pointer-events:none;will-change:transform}
+.oskx-sh{position:absolute;top:-20%;bottom:-20%;left:0;width:34%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85) 45%,rgba(255,255,255,.95) 50%,rgba(255,255,255,.85) 55%,transparent);mix-blend-mode:screen;opacity:0}
+.oskx-fl{position:absolute;inset:0;background:#fff;opacity:0}
+.oskx-w{position:absolute;left:5%;top:66%;transform:translateY(-62%);display:flex;font:900 clamp(46px,15vw,72px)/1 'KW Maru','Hiragino Maru Gothic ProN',sans-serif;letter-spacing:-.02em;white-space:nowrap;pointer-events:none}
+.oskx.op .oskx-w{left:auto;right:5%;top:30%}
+.oskx-w span{display:inline-block;color:#fff;-webkit-text-stroke:7px var(--k3);paint-order:stroke fill;text-shadow:0 4px 0 var(--k3),0 0 22px var(--k1),0 0 42px var(--k1);opacity:0;will-change:transform}
+.oskx-nm{position:absolute;left:6%;top:calc(66% + 13%);display:flex;align-items:baseline;gap:6px;padding:5px 12px 6px;border-radius:999px;background:var(--k3);color:#fff;box-shadow:0 0 0 2px var(--k1),0 0 16px var(--k1);font:700 13px/1 'KW Maru',sans-serif;opacity:0;pointer-events:none}
+.oskx-nm b{font-weight:900;font-size:15px}.oskx-nm span{opacity:.8;font-size:11px}
+.oskx.op .oskx-nm{left:auto;right:6%;top:calc(30% + 13%)}
+.oskx-sp{position:absolute;left:30%;top:66%;width:16px;height:16px;margin:-8px;background:#fff;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);filter:drop-shadow(0 0 6px var(--k1));opacity:0;pointer-events:none}
+.oskx-sp.b{width:24px;height:24px;margin:-12px;background:var(--k2)}
+.oskx.op .oskx-sp{left:70%;top:30%}
+.oskx.rm .oskx-band{transition:none}
+
 /* ===== (10/25) プレイマット (pmat.js): one wide illustration — the whole character on the right, the night scenery on the left ===== */
 .pmat{position:relative;width:100%;height:100%;border-radius:16px;overflow:hidden;container-type:size;background:#1b1430;color:#fff;isolation:isolate;
   box-shadow:0 0 0 1px rgba(0,0,0,.6),0 12px 28px -12px rgba(0,0,0,.85)}
@@ -5262,6 +5287,63 @@ function oskAfter(S){
   if(!P){oskLater(()=>oskShow(o,OSK.K[o],0),1200);return}
   if(S.over){if(!OSK.done){OSK.done=1;oskLater(()=>oskShow(o,OSK.K[o],S.win===o?2:6),700)}return}
   if(!P.lead&&OSK.prev.lead)oskShow(o,OSK.K[o],2)}
+
+/* ===== (10/29) 推しの応援カットイン: 大事な場面で、推しが画面いっぱいに出て光る =====
+   参考(まねはしない): 格闘ゲームの必殺技のカットイン、アイドルゲームのアピール、配信の大きな投げ銭の演出。強さは変えない(見た目だけ)
+   - いつ: 相手のライフを一度に1000以上けずった / 自分のライフがはじめて1000以下になった / とどめ。種類ごとに1試合1回
+   - 自分の推しは下半分、相手の推しは上半分(友達戦では、両方の画面で同じ場面に出る。送るものはない)
+   - 1.3秒。タップで飛ばせる。動きは時間の関数(oskCutDraw)。window.__oskCutSeek(t) でコマを止めて見られる */
+const OSKW={hit:['いけー!!','そのまま!','ナイス!'],pin:['まだまだ!','負けないで!','ここから!'],fin:['やったー!!','さすが!','最高!']};
+const OSKC_T=1.3;
+function oskCutPlay(pi,kind,done){const K=OSK.K[pi];if(!K||FAST||WATCH){done&&done();return}
+  if(OSK.cutEl){try{OSK.cutEl.__end(true)}catch(e){}}
+  const me=pi===H,RMq=(()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}})();
+  const W=OSKW[kind]||OSKW.hit,word=W[Math.floor(Math.random()*W.length)];
+  const R=el('div','oskx '+(me?'me':'op'));R.style.setProperty('--k1',K.c[0]||'#ff8fd0');R.style.setProperty('--k2',K.c[1]||'#ffffff');R.style.setProperty('--k3',K.c[2]||'#2a1a33');
+  const dim=el('i','oskx-dim'),band=el('div','oskx-band'),lines=el('i','oskx-ln'),art=el('div','oskx-art'),im=el('img'),sheen=el('i','oskx-sh'),flash=el('i','oskx-fl');
+  im.alt='';im.src=K.img;if(!K.dark)art.classList.add('mul');const holo=el('i','oskx-ho');art.append(im);band.append(lines,art,holo,sheen,flash);
+  const wd=el('div','oskx-w'),chars=[...word].map(c=>{const s=el('span',null,c);wd.append(s);return s});
+  const nm=el('div','oskx-nm');nm.append(el('b',null,K.n),el('span',null,me?'の応援':'(相手の推し)'));
+  const sp=[...Array(16)].map((_,i)=>{const s=el('i','oskx-sp'+(i%3?'':' b'));const a=(i/16)*Math.PI*2+Math.random()*.4,d=70+Math.random()*120;s.__x=Math.cos(a)*d;s.__y=Math.sin(a)*d*.7;s.__r=Math.random()*180;R.append(s);return s});
+  R.prepend(dim,band);R.append(wd,nm);document.body.append(R);
+  /* the picture: her face at about 2/3 across the band (1/3 on the other side's), shown large */
+  const lay=()=>{const bw=band.offsetWidth,bh=band.offsetHeight,h=bh*1.55,w=h*(K.w/K.h),fx=(K.fx||50)/100,fy=(K.fy||30)/100;
+    im.style.height=h+'px';im.style.width=w+'px';im.style.left=((me?.64:.36)*bw-fx*w)+'px';im.style.top=(.52*bh-fy*h)+'px'};lay();
+  const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),sg=(t,a,b)=>cl((t-a)/(b-a),0,1),ex=u=>u>=1?1:1-Math.pow(2,-10*u),bk=u=>{const c=1.9;return 1+(c+1)*Math.pow(u-1,3)+c*Math.pow(u-1,2)},ei=u=>u*u*u;
+  const sx=me?1:-1;
+  function draw(t){
+    const o=sg(t,1.02,OSKC_T),open=ex(sg(t,.06,.34));
+    dim.style.opacity=String((.85*sg(t,0,.12))*(1-o));
+    band.style.transform='translate3d(0,'+(-50+0)+'%,0) rotate('+(-7*sx)+'deg) scaleY('+((.035+.965*open)*(1-ei(o)))+')';
+    band.style.opacity=String(t<.04?sg(t,0,.04):1);
+    art.style.transform='translate3d('+(sx*(1-ex(sg(t,.1,.48)))*42-sx*3*sg(t,.48,1.1))+'%,0,0) rotate('+(7*sx)+'deg) scale('+(1.06-.06*ex(sg(t,.1,.6)))+')';
+    lines.style.transform='translate3d('+(-sx*((t*260)%140))+'px,0,0)';holo.style.transform='translate3d('+(sx*(-30+60*sg(t,0,OSKC_T)))+'%,0,0)';
+    sheen.style.transform='translate3d('+(-120+260*sg(t,.3,.72))+'%,0,0) skewX(-18deg)';sheen.style.opacity=String(sg(t,.3,.36)*(1-sg(t,.66,.72)));
+    flash.style.opacity=String(sg(t,.08,.12)*(1-sg(t,.12,.3)));
+    chars.forEach((s,i)=>{const a=.2+.045*i,u=sg(t,a,a+.24);s.style.opacity=String(sg(t,a,a+.05)*(1-o));s.style.transform='translate3d(0,'+(o*-18)+'px,0) scale('+(u<=0?2.4:2.4-1.4*bk(u))+') rotate('+((i%2?4:-4)*(1-u))+'deg)'});
+    nm.style.opacity=String(sg(t,.38,.52)*(1-o));nm.style.transform='translate3d('+(sx*-14*(1-ex(sg(t,.38,.6))))+'px,0,0)';
+    sp.forEach((s,i)=>{const u=sg(t,.26+i*.012,.9+i*.012);s.style.opacity=String(u>0&&u<1?(1-u):0);s.style.transform='translate3d('+(s.__x*ex(u))+'px,'+(s.__y*ex(u))+'px,0) rotate('+(s.__r+u*90)+'deg) scale('+(1.2-u)+')'})}
+  let raf=0,t0=performance.now(),dead=false,seek=null;
+  const end=skip=>{if(dead)return;dead=true;cancelAnimationFrame(raf);R.remove();if(OSK.cutEl===R)OSK.cutEl=null;
+    const ch=OSK.chip[pi];if(ch&&!skip){ch.classList.remove('talk');void ch.offsetWidth;ch.classList.add('talk')}done&&done()};
+  R.__end=end;OSK.cutEl=R;R.onclick=e=>{e.stopPropagation();end()};
+  if(RMq){draw(.9);R.classList.add('rm');setTimeout(end,900);return}
+  window.__oskCutSeek=t=>{seek=t;draw(t)};
+  const tick=()=>{if(dead)return;const t=seek!=null?seek:(performance.now()-t0)/1000;draw(t);if(seek==null&&t>=OSKC_T)return end();raf=requestAnimationFrame(tick)};
+  try{window.KMotion&&KMotion.SFX&&KMotion.SFX.play('rare')}catch(e){}draw(0);raf=requestAnimationFrame(tick)}
+/* which moment: from the life on both sides, after each drawing */
+function oskCut(pi,kind){const k=pi+kind;OSK.cu=OSK.cu||{};if(OSK.cu[k])return;OSK.cu[k]=1;
+  const go=()=>oskCutPlay(pi,kind);if(OSK.cutEl)oskLater(go,700);else go()}
+function oskCheer(S){if(FAST||WATCH||!S||!S.p||!(OSK.K[0]||OSK.K[1]))return;const L=S.p.map(P=>+P.life||0),P=OSK.lf;OSK.lf=L;if(!P||S.over)return;
+  [H,1-H].forEach(pi=>{if(!OSK.K[pi])return;const o=1-pi;
+    if(P[o]-L[o]>=1000&&L[o]>0)oskCut(pi,'hit');
+    else if(P[pi]>1000&&L[pi]<=1000&&L[pi]>0)oskCut(pi,'pin')})}
+{const _r2=render;render=function(S){_r2.apply(this,arguments);try{if(OSK.g2!==g){OSK.g2=g;OSK.lf=null;OSK.cu={};OSK.finP=0}oskCheer(S)}catch(e){}}}
+/* とどめ: the winner's 推し first, then the result */
+{const _f=finish;finish=function(){if(OSK.finP===1)return;if(OSK.finP===2||done||FAST||WATCH||!g||!g.over)return _f.apply(this,arguments);
+  const w=g.win;if(!(w>=0)||!OSK.K[w])return _f.apply(this,arguments);OSK.finP=1;try{render(snap())}catch(e){}
+  oskCutPlay(w,'fin',()=>{OSK.finP=2;_f()})}}
+window.__oskCut=(side,kind)=>{try{oskCutPlay(side==='op'?1-H:H,kind||'hit')}catch(e){console.warn(e)}};
 
 /* ===== (10/25) TCGの効果音: アプリ本体の「効果音」スイッチ(localStorage ksfx)と同じ設定で鳴る =====
    音の素材ファイルは使わず、その場で Web Audio で作る(アプリの SFX と同じ作り方)。対戦のメニューにもスイッチ。
