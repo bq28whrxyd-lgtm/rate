@@ -272,3 +272,31 @@ exports.pushGold = onSchedule({schedule: '0 21 * * *', timeZone: 'Asia/Tokyo'}, 
   const live = hw2Live(t); if (!live && !hw2Pv(t)) return;
   await send(null, 'give', {title: 'ゴールデンタイム', body: 'いまから30分、お菓子が1.5倍。チーム戦の点を伸ばすチャンス', go: 'home', tag: 'gold' + dayNo(t)}, !live);
 });
+
+/* (10/29) 大会の連絡: 対戦相手へのひとこと・「いまなら対戦できる」を相手のスマホへ */
+exports.pushTmsg = onDocumentCreated('tmsg/{id}', async ev => {
+  const d = ev.data && ev.data.data(); if (!d || !d.to || !d.pid) return;
+  let nm = '対戦相手'; try { const p = (await db.doc('players/' + d.pid).get()).data(); if (p && p.name) nm = p.name; } catch (e) {}
+  const body = d.k === 'now' ? nm + 'さんが、いまなら対戦できます(15分)' : nm + ': ' + cut(d.x, 60);
+  await send([d.to], 'ch', {title: '大会の連絡', body, go: 'battle', tag: 'tm' + d.tid + d.key + (d.k === 'now' ? 'now' : ev.params.id)});
+});
+/* (10/29) 大会: 2人の空き時間が合った「対戦の時間」の10分前に、2人に知らせる(1回だけ) */
+exports.tourSoon = onSchedule({schedule: 'every 5 minutes', timeZone: 'Asia/Tokyo'}, async () => {
+  const ts = await db.collection('tours').where('st', '==', 'live').get(); if (ts.empty) return;
+  const now = Date.now();
+  for (const td of ts.docs) {
+    const T = td.data() || {}, over = T.over || {};
+    const av = await db.collection('tav').where('tid', '==', td.id).get();
+    const by = {};
+    av.docs.forEach(x => { const v = x.data() || {}; if (!v.key || !v.pid || !Array.isArray(v.s)) return; (by[v.key] = by[v.key] || []).push(v); });
+    for (const key of Object.keys(by)) {
+      const L = by[key]; if (L.length !== 2 || over[key]) continue;
+      const [a, b] = L, at = a.s.map(Number).filter(x => b.s.map(Number).includes(x) && x >= now - 30 * 60000).sort((x, y) => x - y)[0];
+      if (!at || at - now > 10 * 60000 || at - now < -5 * 60000) continue;
+      const ref = db.doc('tnote/' + td.id + '_' + key + '_' + at);
+      try { await ref.create({t: now}); } catch (e) { continue; } /* already sent */
+      const h = new Date(at + 9 * 36e5).getUTCHours();
+      await send([a.pid, b.pid], 'ch', {title: '大会の対戦の時間', body: (T.n || '大会') + ': ' + h + ':00 から対戦です。アプリを開いて「対戦する」', go: 'battle', tag: 'ts' + td.id + key});
+    }
+  }
+});
