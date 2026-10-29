@@ -4343,30 +4343,31 @@ function sliceApart(e){const r=rectOf(e);if(!r)return;const k=Math.random()<.5?1
   [['polygon(0 0,100% 0,100% 38%,0 62%)',-1],['polygon(0 62%,100% 38%,100% 100%,0 100%)',1]].forEach(([cp,dir])=>{const h=e.cloneNode(true);h.classList.add('ghost','half');h.style.cssText+='left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px;height:'+r.height+'px;clip-path:'+cp;document.body.append(h);
     anim(h,[{transform:'none',opacity:1,filter:'brightness(2)'},{transform:'translate('+(dir*k*6)+'px,'+(dir*4)+'px)',opacity:1,filter:'brightness(1.2)',offset:.25},{transform:'translate('+(dir*k*34)+'px,'+(dir*26)+'px) rotate('+(dir*k*14)+'deg)',opacity:0,filter:'brightness(.6)'}],{duration:620,easing:'cubic-bezier(.3,.6,.4,1)'}).then(()=>h.remove())});
   const cx=r.left+r.width/2,cy=r.top+r.height/2;const ln=fx('cutline','left:'+cx+'px;top:'+cy+'px;width:'+(r.width*1.9)+'px');anim(ln,[{transform:'translate(-50%,-50%) rotate(-14deg) scaleX(0)',opacity:1},{transform:'translate(-50%,-50%) rotate(-14deg) scaleX(1)',opacity:1,offset:.35},{transform:'translate(-50%,-50%) rotate(-14deg) scaleX(1)',opacity:0}],{duration:420}).then(()=>ln.remove())}
-async function strike(uid,t,heavy){const a=uidEl(uid);if(!a||!t)return;const st=a.querySelector('.stand')||a;const m=find0(uid);/* (10/29) 推しの攻撃スキン: その推しの色と形 */const TH=typeof ofxTheme==='function'?ofxTheme(m):null;const col=TH?TH.c[0]:(FCOL[m?FAC(m.id):'gen']||'#fff');
+async function strike(uid,t,heavy){const a=uidEl(uid);if(!a||!t)return;const st=a.querySelector('.stand')||a;const m=find0(uid);/* (10/29) 推しの攻撃スキン: その推しの色と形 */const TH=typeof ofxTheme==='function'?ofxTheme(m):null;/* (10/29) 応援演出がある人の、とどめのダイレクトアタック */const FIN=!!(TH&&t&&(t.id==='oppLife'||t.id==='myLife')&&g&&g.over&&m&&g.win===m.owner);const col=TH?TH.c[0]:(FCOL[m?FAC(m.id):'gen']||'#fff');
   const ra=rectOf(st),rt=rectOf(t.querySelector&&t.querySelector('.stand')||t);const ax=ra.left+ra.width/2,ay=ra.top+ra.height/2,tx=rt.left+rt.width/2,ty=rt.top+rt.height/2;
   const dx=tx-ax,dy=ty-ay,len=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)*180/Math.PI,KS0=(a.getAnimations().forEach(x=>x.cancel()),0),KS=Math.max(.3,(a.getBoundingClientRect().width/(a.offsetWidth||1))||1),lx=dx/KS,ly=dy/KS;a.style.zIndex=20;st.style.animation='none';
   /* 1. charge: a ring under the feet and lines rushing in */
   const [px,py]=[ra.left+ra.width/2,ra.bottom];ring(px,py,col,36);const cl=fx('chargel','left:'+ax+'px;top:'+ay+'px;--c:'+col);anim(cl,[{transform:'translate(-50%,-50%) scale(1.6)',opacity:0},{transform:'translate(-50%,-50%) scale(.6)',opacity:1,offset:.7},{transform:'translate(-50%,-50%) scale(.3)',opacity:0}],{duration:300}).then(()=>cl.remove());
   await anim(st,[{transform:'translateX(-50%)',filter:'brightness(1)'},{transform:'translateX(-50%) translateY(4px) scale(1.04,.94)',filter:'brightness(1.8) drop-shadow(0 0 8px '+col+')'}],{duration:180,fill:'forwards'});
   if(TH)try{ofxCharge(TH,st)}catch(e){}
+  if(FIN){try{ofxFinPre(TH,st)}catch(e){}await wait(D(420))}
   /* 2. dash with afterimages */
   const tr=fx('trail','left:'+ax+'px;top:'+ay+'px;width:'+len+'px;transform:rotate('+ang+'deg);--c:'+col);
   anim(tr,[{transform:'rotate('+ang+'deg) scaleX(0)',opacity:1},{transform:'rotate('+ang+'deg) scaleX(1)',opacity:1,offset:.6},{transform:'rotate('+ang+'deg) scaleX(1)',opacity:0}],{duration:460,easing:'ease-out'}).then(()=>tr.remove());
   [.25,.5,.7].forEach((k,i)=>setTimeout(()=>afterimage(st,dx,dy,k),D(40+i*55)));
   await anim(st,[{transform:'translateX(-50%) translateY(4px)'},{transform:'translateX(-50%) translate('+(lx*.45)+'px,'+(ly*.45-26)+'px) rotate('+(dx>0?8:-8)+'deg) scale(1.15)',offset:.55},{transform:'translateX(-50%) translate('+(lx*.82)+'px,'+(ly*.82)+'px) scale(1.2)'}],{duration:230,easing:'cubic-bezier(.5,0,.9,.5)',fill:'forwards'});
   /* 3. impact: hit-stop, flash, cross slash, shockwave */
-  if(TH){try{ofxStrike(TH,ax,ay,tx,ty,rt,heavy)}catch(e){}}else{
+  if(TH){try{FIN?ofxFinal(TH,ax,ay,tx,ty,rt):ofxStrike(TH,ax,ay,tx,ty,rt,heavy)}catch(e){}}else{
   const fl=fx('hitflash','left:'+tx+'px;top:'+ty+'px');anim(fl,[{transform:'translate(-50%,-50%) scale(.2)',opacity:1},{transform:'translate(-50%,-50%) scale(heavy?2.2:1.6)'.replace('heavy?2.2:1.6',heavy?'2.2':'1.6'),opacity:0}],{duration:420,easing:'ease-out'}).then(()=>fl.remove());
   [-32,28].forEach((r,i)=>{const sl=fx('slash','left:'+tx+'px;top:'+ty+'px;width:'+(Math.max(70,rt.width)*2)+'px;--c:'+col);anim(sl,[{transform:'translate(-50%,-50%) rotate('+r+'deg) scaleX(0)',opacity:1},{transform:'translate(-50%,-50%) rotate('+r+'deg) scaleX(1)',opacity:1,offset:.4},{transform:'translate(-50%,-50%) rotate('+r+'deg) scaleX(1.1)',opacity:0}],{duration:360,delay:D(i*70)}).then(()=>sl.remove())});
   ring(tx,ty,'#fff',50);setTimeout(()=>ring(tx,ty,col,80),D(90));sparks(tx,ty,'#fff',16,100);sparks(tx,ty,col,16,130);}
   if(heavy)impactFrame();focusLines(tx,ty,col,heavy);onoma(tx+(dx>0?30:-30),ty-rt.height*.45,heavy?'heavy':'light',col);
   const ts=t.querySelector&&t.querySelector('.stand');if(ts){ts.style.animation='none';anim(ts,[{transform:'translateX(-50%)',filter:'brightness(1)'},{transform:'translateX(-50%) translate('+(dx>0?10:-10)+'px,'+(dy>0?8:-8)+'px) rotate('+(dx>0?10:-10)+'deg)',filter:'brightness(3) saturate(0)',offset:.25},{transform:'translateX(-50%)',filter:'brightness(1)'}],{duration:420,fill:'none'}).then(()=>{ts.style.animation=''})}
   else anim(t,[{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'none'}],{duration:260,fill:'none'});
-  await wait((heavy?110:70)+(TH?45:0));shake((heavy?10:6)+(TH?3:0));
+  await wait((heavy?110:70)+(TH?45:0)+(FIN?260:0));shake((heavy?10:6)+(TH?3:0)+(FIN?6:0));
   /* 4. back to the card */
   await anim(st,[{transform:'translateX(-50%) translate('+(lx*.82)+'px,'+(ly*.82)+'px) scale(1.2)'},{transform:'translateX(-50%) translate('+(lx*.2)+'px,'+(ly*.2-16)+'px) scale(1.05)',offset:.5},{transform:'translateX(-50%)'}],{duration:300,easing:'ease-out',fill:'forwards'});
-  st.getAnimations().forEach(x=>x.cancel());st.style.animation='';a.style.zIndex=''}
+  st.getAnimations().forEach(x=>x.cancel());st.style.animation='';a.style.zIndex='';if(FIN)await wait(D(1300))}
 function settle(){if(aimUid){const a=uidEl(aimUid);if(a){a.getAnimations().forEach(x=>x.cancel());a.style.zIndex='';a.classList.remove('charge')}}aimUid=null;document.querySelectorAll('.aim').forEach(x=>x.classList.remove('aim'))}
 function clashChip(ev){const a=find0(ev.a),b=find0(ev.b);const be=uidEl(ev.b);const r=rectOf(be)||rectOf($('field'));const m=rectOf($('midl'));
   const w=el('div','clash');document.body.append(w);
@@ -5293,6 +5294,7 @@ function ofxTick(){const now=ofxNow();OFX.raf=0;const cx=ofxCanvas(),d=OFX.dpr;c
     cx.globalAlpha=Math.min(1,q.a);
     if(p.ring){cx.globalCompositeOperation='lighter';cx.strokeStyle=p.col;cx.lineWidth=q.lw||3;cx.shadowColor=p.col;cx.shadowBlur=14;cx.beginPath();cx.ellipse(q.x,q.y,q.s,q.s*(p.fl||.55),0,0,Math.PI*2);cx.stroke();cx.shadowBlur=0;cx.globalCompositeOperation='source-over';return true}
     if(p.gl){cx.globalCompositeOperation='lighter';cx.fillStyle='#fff';cx.shadowColor=p.col;cx.shadowBlur=10;const s=q.s;cx.beginPath();cx.moveTo(q.x,q.y-s);cx.quadraticCurveTo(q.x,q.y,q.x+s,q.y);cx.quadraticCurveTo(q.x,q.y,q.x,q.y+s);cx.quadraticCurveTo(q.x,q.y,q.x-s,q.y);cx.quadraticCurveTo(q.x,q.y,q.x,q.y-s);cx.fill();cx.shadowBlur=0;cx.globalCompositeOperation='source-over';return true}
+    if(p.dark){cx.fillStyle='rgba(6,3,14,1)';cx.fillRect(0,0,innerWidth,innerHeight);return true}
     if(p.tint){cx.globalCompositeOperation='lighter';cx.fillStyle=p.col;cx.fillRect(0,0,innerWidth,innerHeight);cx.globalCompositeOperation='source-over';return true}
     if(p.pil){cx.globalCompositeOperation='lighter';const g2=cx.createLinearGradient(q.x-q.w/2,0,q.x+q.w/2,0);g2.addColorStop(0,'rgba(0,0,0,0)');g2.addColorStop(.35,p.col);g2.addColorStop(.5,'#ffffff');g2.addColorStop(.65,p.col);g2.addColorStop(1,'rgba(0,0,0,0)');cx.fillStyle=g2;const g3=cx.createLinearGradient(0,q.y-q.h,0,q.y);cx.fillRect(q.x-q.w/2,q.y-q.h,q.w,q.h);cx.globalCompositeOperation='source-over';return true}
     if(p.pic){const im=p.pic;if(!im.complete||!im.naturalWidth)return true;cx.globalCompositeOperation='lighter';cx.save();cx.translate(q.x,q.y);cx.rotate(q.r||0);cx.scale(q.sx||1,q.sy||1);if(p.fr){const fw=im.naturalWidth/p.fr,fi=Math.min(p.fr-1,Math.floor(u*p.fr));cx.drawImage(im,fi*fw,0,fw,im.naturalHeight,-q.w/2,-q.h/2,q.w,q.h)}else cx.drawImage(im,-q.w/2,-q.h/2,q.w,q.h);cx.restore();cx.globalCompositeOperation='source-over';return true}
@@ -5342,7 +5344,7 @@ function ofxCharge(K,st){const A=ofxRect(st);if(!A)return;ofxSnd(K,'charge');con
   ofxGl(A,col,6)}
 /* the hit: her two slashes cross, her flash, her pieces burst out, a ring in her colour */
 function ofxStrike(K,ax,ay,tx,ty,rt,heavy){ofxSnd(K,'hit');const col=K.c[0]||'#ff8fd0',c2=K.c[1]||'#ffffff',RW=rt.width||70,W=Math.max(200,RW*3.4),sl=ovxImg('sweep_'+K.t),bu=ovxImg('burst_'+K.t),dir=tx>=ax?1:-1;
-  ofxAdd({tint:1,col:col+'55',dur:200,f:u=>({x:0,y:0,a:1-u})});
+  if(!OFX.noTint)ofxAdd({tint:1,col:col+'55',dur:200,f:u=>({x:0,y:0,a:1-u})});
   [[-32,0,1],[26,50,1],[dir*-4,105,1.25]].forEach(([r,dl,k],i)=>ofxAdd({pic:sl,fr:10,dur:420,dl,f:u=>{const e=ofxE.o5(Math.min(1,u*1.6));return{x:tx,y:ty,r:(r+dir*(1-e)*-24)*Math.PI/180,w:W*k,h:W*k/2,sx:(i%2?-1:1)*dir*(.85+.25*e),sy:1,a:1}}}));
   ofxAdd({pic:bu,dur:520,dl:20,f:u=>{const e=ofxE.o5(u),z=(heavy?2.6:2.1)*Math.max(70,RW);return{x:tx,y:ty,r:u*.6,w:z*(.2+.95*e),h:z*(.2+.95*e),a:(1-u)*1.25}}});
   ofxAdd({pic:bu,dur:300,dl:0,f:u=>{const z=1.1*Math.max(70,RW);return{x:tx,y:ty,r:-u,w:z*(.4+.6*u),h:z*(.4+.6*u),a:(1-u)*1.4}}});
@@ -5373,6 +5375,20 @@ function ofxFin(t,T,K,col){const W=Math.max(56,T.w),Hh=Math.max(70,T.h),R=OFX_RM
       P({k:k===1?'star':'snow',dur:1300,dl,spin:.8,f:u=>{const e=ofxE.o5(Math.min(1,u*2));return{x:T.x+Math.cos(a)*d*e,y:T.y+Math.sin(a)*d*.7*e+Math.max(0,u-.5)*Hh*.8,s:(k===1?30:40)*(1-u*.3),a:Math.min(1,u*8)*(1-Math.pow(u,2)),r:u*2}}})}
     for(let i=0;i<Math.round(14*R);i++){const x=T.x+ofxRnd(-1.2,1.2)*W,y=T.y+ofxRnd(-1,.6)*Hh,s=ofxRnd(6,12);ofxAdd({gl:1,col:'#dff0ff',dur:420,dl:ofxRnd(200,1100),f:u=>({x,y,s:s*Math.sin(u*Math.PI),a:1})})}}
 }
+
+/* (10/29) とどめのダイレクトアタック(応援演出がある人だけ): ため → 画面が強く光る → ライフから大きな光の柱 → いつもより大きな決め */
+function ofxFinPre(K,st){const A=ofxRect(st);if(!A)return;const col=K.c[0]||'#ff8fd0';
+  ofxAdd({dark:1,dur:1700,f:u=>({x:0,y:0,a:.42*Math.min(1,u*6)*(u>.75?(1-u)/.25:1)})});
+  ofxAdd({pil:1,col,dur:520,f:u=>({x:A.x,y:A.y+A.h*.5,w:A.w*(.9+.6*Math.sin(u*Math.PI)),h:A.h*(1.4+3*ofxE.o3(u)),a:Math.sin(u*Math.PI)*.95})});
+  const n=OFX_RM?8:20;for(let i=0;i<n;i++){const a0=i/n*Math.PI*2,r0=Math.max(80,A.w*2.4);ofxAdd({k:ofxPick(K,i),dur:480,dl:i*6,spin:2,f0:Math.random(),glow:col,streak:1,
+    f:u=>{const e=ofxE.io(u),a=a0+u*2,r=r0*(1-e);return{x:A.x+Math.cos(a)*r,y:A.y+Math.sin(a)*r*.5,s:40*(1-.5*u),a:Math.min(1,u*5)*(1-Math.pow(u,4)),r:a}}})}}
+function ofxFinal(K,ax,ay,tx0,ty0,rt){ofxSnd(K,'ko');try{window.__ofxFinAt=Date.now()}catch(e){}const ty=Math.min(innerHeight-160,Math.max(170,ty0)),tx=(tx0+innerWidth/2)/2;OFX.noTint=1;ofxStrike(K,ax,ay,tx,ty,{width:Math.max(90,(rt.width||90)*.7),height:110},true);OFX.noTint=0;const col=K.c[0]||'#ff8fd0',t=OVX_T[K.n]||'hood',bu=ovxImg('burst_'+t);
+  ofxAdd({tint:1,col:col+'40',dur:360,f:u=>({x:0,y:0,a:Math.pow(1-u,1.6)})});
+  ofxAdd({pil:1,col,dur:1100,f:u=>({x:tx,y:ty+60,w:140*(.6+.9*ofxE.o3(Math.min(1,u*2)))*(1-u*.4),h:innerHeight*(.5+.7*ofxE.o3(u)),a:Math.sin(Math.min(1,u*1.2)*Math.PI)})});
+  [0,160,320].forEach((dl,i)=>ofxAdd({pic:bu,dur:800,dl,f:u=>{const e=ofxE.o5(u),z=(3.6-i*.6)*110;return{x:tx,y:ty,r:(i%2?1:-1)*u*.8,w:z*(.15+.9*e),h:z*(.15+.9*e),a:(1-u)*1.3}}}));
+  [[col,0,1.4],['#ffffff',90,1.1],[K.c[1]||'#ffffff',180,1.8]].forEach(([c,dl,k])=>ofxAdd({ring:1,col:c,dur:700,dl,f:u=>({x:tx,y:ty,s:20+ofxE.o5(u)*110*k,a:1-u,lw:6*(1-u)+1,fl:.7})}));
+  const T={x:tx,y:ty,w:110,h:150};setTimeout(()=>{try{ofxFin(t,T,K,col);ofxFin(t,{x:tx,y:ty,w:160,h:200},K,col)}catch(e){}},D(120));
+  ofxGl({x:tx,y:ty,w:180,h:180},col,OFX_RM?4:18)}
 /* when: the attack (strike) and the fall (the 'die' event) */
 function ofxOn(){return !FAST&&!WATCH}
 {const _t=tsfxEv;tsfxEv=function(e){try{if(e&&e.t==='die'&&ofxOn()){const u=uidEl(e.uid);if(u){const Kw=OSK.K[1-e.who],Kl=OSK.K[e.who];if(Kw)ofxKo(u,Kw);if(Kl)setTimeout(()=>{try{ofxDown(u,Kl)}catch(_){}},D(260))}}}catch(_){}return _t.apply(this,arguments)}}
