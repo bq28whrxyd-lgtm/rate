@@ -4574,6 +4574,7 @@ body.ui2 :is(#lob,#ktop) .lbar .lwal .lpp::before{content:"";position:absolute;i
 /* ---- (10/18) ショップ v2: tabs (ポイント / パス), rows = what you get on the left, the price pill on the right ---- */
 .pts-b{gap:14px}
 .shp-top{display:flex;align-items:center;gap:10px}
+.pts-b:has(> .txw.full) .shp-top{padding-right:92px}/* (10/29) the common 閉じる sits at the top right: keep the pt count clear of it */
 .shp-top h2{margin:0;flex:1;font-size:26px;font-weight:900;letter-spacing:.02em;color:#f6f0e4}
 .shp-bal{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px 0 5px;border-radius:999px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
 .shp-bal u{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;text-decoration:none;font:900 10px/1 var(--num,system-ui);background:radial-gradient(circle at 35% 30%,#fff3cf,#e2bf72 55%,#8f6a22);color:#4a3307}
@@ -8663,6 +8664,8 @@ body.kpc .tcgw iframe{width:min(100vw,calc(100vh * .66),720px)!important;height:
 .ktour .ktb.done{background:rgba(255,255,255,.12);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
 .ktour.k-mine .ktb{background:linear-gradient(180deg,#ff9a88,#e2361b);color:#fff;box-shadow:0 3px 12px rgba(226,54,27,.45)}
 .ktour:active{transform:scale(.98)}
+@media (max-height:720px){body.ui2 #lob .lside{top:64px!important;gap:6px!important}}/* (10/29) 小さい画面: 左右のアイコンを詰めて、下のバナーと重ならないように */
+.ktour.ktn{margin-left:82px;margin-right:82px;gap:8px;padding:9px 9px 9px 11px}.ktour.ktn .kti{display:none}.ktour.ktn .ktt span{display:none}.ktour.ktn .ktx b{font-size:13px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.25}.ktour.ktn .ktx small{display:none}.ktour.ktn .ktb{height:32px;padding:0 11px;font-size:12px}.ktour.ktn .ktno{display:none}
 .bnav [data-v=battle]{position:relative}
 .ktbd{position:absolute;top:2px;right:calc(50% - 22px);min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;font:900 12px/1 system-ui,sans-serif;font-style:normal;color:#fff;background:#e2361b;box-shadow:0 0 0 2px rgba(10,8,20,.9);animation:ktBd 1.8s ease-in-out infinite}
 @keyframes ktBd{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
@@ -15416,6 +15419,10 @@ function tourPop(st){document.querySelectorAll('body>.tcpop').forEach(x=>x.remov
   const close=()=>{o.classList.add('out');setTimeout(()=>o.remove(),260)};
   go.onclick=async()=>{close();if(st.k==='entry'&&st.done)tourGo();else await tourAct(st,null)};lt.onclick=close;o.onclick=e=>{if(e.target===o)close()};
   bs.append(go,lt);w.append(tr,ey,ch,nm,sb,msg,bs);o.append(w);document.body.append(o);requestAnimationFrame(()=>o.classList.add('in'))}
+/* (10/29) 小さい画面(iPhone SE など): 大会バナーが左右のアイコンに重なるときは、アイコンの間に収まる細い形にする */
+function ktFit(bn){try{bn.classList.remove('ktn');const lob=document.getElementById('lob');if(!lob)return;const r=bn.getBoundingClientRect();if(!r.height)return;
+  const hit=[...lob.querySelectorAll('.lgl')].some(x=>{const q=x.getBoundingClientRect();return q.height&&q.bottom>r.top+2&&q.top<r.bottom-2});if(hit)bn.classList.add('ktn')}catch(e){}}
+addEventListener('resize',()=>{const b=document.querySelector('#lob .ktour');if(b)ktFit(b)});
 function tourCall(){let st=null;try{st=tourState()}catch(e){st=null}
   /* 1) home banner (above the event strip) */
   const lob=document.getElementById('lob'),strip=lob&&lob.querySelector('.lstrip');let bn=lob&&lob.querySelector('.ktour');
@@ -15425,6 +15432,7 @@ function tourCall(){let st=null;try{st=tourState()}catch(e){st=null}
       const b=el('button','ktb'+(st.done?' done':''),st.cta);b.type='button';b.onclick=e=>{e.stopPropagation();tourAct(st,b)};
       let act=b;if(st.k==='entry'&&!st.done){act=el('div','ktbs');const no=el('button','ktno','エントリーしない');no.type='button';no.onclick=e=>{e.stopPropagation();tourSkip(st)};act.append(b,no)}
       bn.replaceChildren(ic,tx,act);bn.onclick=()=>tourGo();bn.onkeydown=e=>{if(e.key==='Enter')tourGo()}}}
+  if(bn)ktFit(bn);
   /* 2) the 対戦 tab: a "!" while you can enter, or when it is your match */
   const nb=document.querySelector('.bnav [data-v=battle]');if(nb){let bd=nb.querySelector('.ktbd');const need=!!st&&((st.k==='entry'&&!st.done)||st.k==='mine');if(need&&!bd){bd=el('i','ktbd','!');nb.append(bd)}else if(!need&&bd)bd.remove()}
   /* 3) once: when entry opens, and when your match comes */
