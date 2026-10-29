@@ -751,6 +751,33 @@ service cloud.firestore {
       allow read: if signedIn();
       allow write: if isAdmin();
     }
+    // ---- (10/29) 大会の連絡: 試合ごとの空き時間(だれでも見られる)と、相手へのひとこと(2人と管理者だけ) ----
+    match /tav/{id} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && myPid() != '' && request.resource.data.pid == myPid()
+        && request.resource.data.keys().hasOnly(['tid', 'key', 'pid', 's', 't'])
+        && request.resource.data.tid is string && request.resource.data.key is string && request.resource.data.key.size() <= 12
+        && id == request.resource.data.tid + '_' + request.resource.data.key + '_' + myPid()
+        && request.resource.data.s is list && request.resource.data.s.size() <= 60
+        && request.resource.data.t is int
+        && get(/databases/$(database)/documents/tours/$(request.resource.data.tid)).data.st == 'live'
+        && myPid() in get(/databases/$(database)/documents/tours/$(request.resource.data.tid)).data.ps;
+      allow delete: if isAdmin();
+    }
+    match /tmsg/{id} {
+      allow read: if signedIn() && (resource.data.pid == myPid() || resource.data.to == myPid() || isAdmin());
+      allow create: if signedIn() && myPid() != '' && request.resource.data.pid == myPid()
+        && request.resource.data.keys().hasOnly(['tid', 'key', 'pid', 'to', 'x', 'k', 't'])
+        && request.resource.data.tid is string && request.resource.data.key is string && request.resource.data.key.size() <= 12
+        && request.resource.data.to is string && request.resource.data.to != myPid()
+        && request.resource.data.x is string && request.resource.data.x.size() <= 50
+        && request.resource.data.k in ['m', 'now']
+        && request.resource.data.t is int && math.abs(request.resource.data.t - request.time.toMillis()) < 300000
+        && get(/databases/$(database)/documents/tours/$(request.resource.data.tid)).data.st == 'live'
+        && get(/databases/$(database)/documents/tours/$(request.resource.data.tid)).data.ps.hasAll([myPid(), request.resource.data.to]);
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
     match /tentry/{id} {
       allow read: if signedIn();
       allow create: if signedIn() && myPid() != '' && request.resource.data.pid == myPid()
