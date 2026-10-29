@@ -9153,7 +9153,7 @@ function cheerK(p){const e=p&&p.eq||{},x=e.x&&ITEM(e.x),v=e.v&&ITEM(e.v);return 
 /* (10/24) the cheer KMR also shows up in 分身バトル and TCG (推しの応援). Plain data for the game frames; window.__oshiDemo = a KMR index for the demo */
 /* stickers cut out of the 推しスキン picture (TCG stamps); added as each picture arrives */
 const KMR_ST={'オーバーサイズ':'kst_hood.webp','ふくれっつら':'kst_chibi.webp','ひだまりニット':'kst_vt1.webp','はなかんむり':'kst_vt2.webp','堕ちた天使':'kst_vt3.webp','夜宴の小悪魔':'kst_hw.webp'};
-function oshiInfo(K){if(!K)return null;return {st:KMR_ST[K.n]||'',n:K.n,img:K.img,vid:K.vid||'',w:K.w,h:K.h,fx:K.fx,fy:K.fy,z:K.z||1,c:(K.c||[]).slice(),dark:!!K.dark,whole:!!K.whole,cheers:(K.cheers||[]).slice()}}
+function oshiInfo(K){if(!K)return null;return {st:KMR_ST[K.n]||'',n:K.n,img:K.img,vid:K.vid||'',w:K.w,h:K.h,fx:K.fx,fy:K.fy,z:K.z||1,c:(K.c||[]).slice(),dark:!!K.dark,whole:!!K.whole,cheers:(K.cheers||[]).slice(),ex:(K.ex||[]).map(x=>x[0])}}
 function myOshi(){try{if(window.__oshiDemo!=null)return oshiInfo(KMRS[window.__oshiDemo]);const me=typeof myPlayer==='function'&&myPlayer();return oshiInfo(cheerK(me))}catch(e){return null}}
 function oshiByName(n){try{return oshiInfo(KMRS.find(K=>K.n===n))}catch(e){return null}}
 /* (10/24) the KMRs whose cheer (対戦演出+勝利演出) you own: TCG stamps and 分身 skins. window.__oshiSetDemo = [KMR index…] for the demo */
@@ -11674,7 +11674,7 @@ function hw2Redraw(){try{hwOpen.redraw&&document.querySelector('.hlw')&&hwOpen.r
 window.HW2_TILES=(tile,me,on)=>{if(!hw2Started())return;const tm=hw2Team(me.id),a=hw2TeamScore('p'),b=hw2TeamScore('b');
   tile('team','h2t','チーム戦',!hw2Cfg?'チーム分けを待っています':(tm?'あなたは'+HW2_TM[tm].n+'  ·  ':'')+'平均 '+a.avg+' 対 '+b.avg+(hw2TeamDone()?'  ·  結果':''),'');
   tile('goal','h2g','みんなで目標',hw2GoalN()+' / 7 段  ·  合計 '+hw2Total().toLocaleString(),'');
-  {const B=hw2Bingo(me.id);tile('bingo','h2b','後編ビンゴ',B.n+' 列そろった  ·  1列で お菓子+'+HW2_BINGO,'')}
+  if(!hw2Done()){const B=hw2Bingo(me.id);tile('bingo','h2b','後編ビンゴ',B.n+' 列そろった  ·  1列で お菓子+'+HW2_BINGO,'')}
   /* (10/29) 夜宴くじはガチャの画面にあるので、ここには出さない */}; 
 /* the golden time strip under the night strip */
 window.HW2_STRIP=b=>{if(!hw2Started()||hw2Done())return;const on=hwGoldNow(),n=el('div','hlw-night h2-gold'+(on?' on':''));const tx=el('div');tx.append(el('b',null,'ゴールデンタイム'),el('span',null,on?'いまお菓子が1.5倍':'毎晩 21:00〜21:30  お菓子が1.5倍'));n.append(tx);
@@ -12014,6 +12014,7 @@ const hwOrdCode=()=>'HW-'+String(1000+Math.floor(Math.random()*9000));
 const hwPayTo=()=>String((hwPayCfg&&hwPayCfg.to)||'').slice(0,80);
 function hwOrderBox(me,kind){const K=HWO[kind];if(!K||K.has(me.id))return null;hwOrdWatch();const box=el('div','hwo'),u=typeof passUnit==='function'?passUnit():'応援値',to=hwPayTo();
   const L=hwOrders.filter(o=>o.kind===kind).sort((a,b)=>(b.t||0)-(a.t||0)),cur=L.find(o=>o.st==='wait'||o.st==='go'),last=L[0];
+  if(!cur&&now()>=hwT1())return null;/* (10/29) 終わったあとは新しく申し込めない(申し込み中のものだけ見せる) */
   if(cur){box.classList.add('wait');box.append(el('b','hwo-h','申し込み中  ·  番号 '+cur.code),
       el('p',null,K.price().toLocaleString()+' '+u+'を送って、メッセージに番号「'+cur.code+'」を書いてください。管理者が確かめると、すぐに入ります。'));
     if(to)box.append(el('p','hwo-to','送り先: '+to));
@@ -12024,7 +12025,7 @@ function hwOrderBox(me,kind){const K=HWO[kind];if(!K||K.has(me.id))return null;h
   const b=el('button','hwo-go','申し込む');b.disabled=!!HW_PV;
   b.onclick=()=>askSheet({title:K.n+'を申し込む',lines:[K.price().toLocaleString()+' '+u,['sub','1. 申し込むと、番号が出ます'],['sub','2. '+u+'を送って、メッセージにその番号を書きます'+(to?'(送り先: '+to+')':'')],['sub','3. 管理者が確かめると、アプリにすぐ入ります']],ok:'申し込む',run:()=>hwOrder(me,kind)});
   box.append(b);if(HW_PV)box.append(el('p','hwo-ng','お試し版では申し込めません(本番のアプリから申し込んでください)'));return box}
-async function hwOrder(me,kind){if(HW_PV||hwOrders.some(o=>o.kind===kind&&(o.st==='wait'||o.st==='go')))return;
+async function hwOrder(me,kind){if(now()>=hwT1()){toast('販売は終わりました');return}if(HW_PV||hwOrders.some(o=>o.kind===kind&&(o.st==='wait'||o.st==='go')))return;
   try{await db.collection('orders').add({pid:me.id,pn:String(me.name||'').slice(0,40),kind,code:hwOrdCode(),t:now(),st:'wait'});toast('申し込みました。送るときのメッセージに番号を書いてください')}
   catch(e){toast('申し込めませんでした('+(e.code||e.message)+')')}}
 /* the admin card's give, also used to approve an order from the app. k: 'pass' | 'set'. Returns {msg, dup} */
@@ -12271,7 +12272,8 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
       const rt=el('div','hlw-cr');rt.append(el('span',null,'これまでに '+earn.toLocaleString()),el('span',null,on?'のこり '+hwLeft(hwT1()):now()<hwT0()?'始まるまで '+hwLeft(hwT0()):'交換は終了'));cb.append(ic,mid,rt);b.append(cb)}
     if(HW_PV)b.append(el('div','hlw-pv','お試し版: 今日から始まっているように見せています。ここでのお菓子・交換・ミッションは本番(10/19〜)には持ち越されず、ptとチケットは入りません。'));
     /* ハロウィンナイト: a strip of the painted moon */
-    {const nn=hwNightNow(),n=el('div','hlw-night'+(nn?' on':''));const tx=el('div');tx.append(el('b',null,'ハロウィンナイト'),el('span',null,nn?'いまお菓子が2倍':'10/31 17:00〜24:00  お菓子が2倍'));
+    /* (10/29) 終わったあとの1週間は結果だけ: ハロウィンナイト・ドアなどは出さない */
+    if(!(now()>=hwT1())){const nn=hwNightNow(),n=el('div','hlw-night'+(nn?' on':''));const tx=el('div');tx.append(el('b',null,'ハロウィンナイト'),el('span',null,nn?'いまお菓子が2倍':'10/31 17:00〜24:00  お菓子が2倍'));
       n.append(tx);const lf=nn?'あと '+hwLeft(window.__hwNight?now()+36e5:HWN1):now()<HWN0?'あと '+hwLeft(HWN0):'';if(lf)n.append(el('em',null,lf));b.append(n)}
     try{window.HW2_STRIP&&HW2_STRIP(b)}catch(e){}
     }
@@ -12281,12 +12283,14 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
         if(badge)t.append(el('em',null,String(badge)));t.append(el('i','hlw-chev'));t.onclick=()=>typeof k==='function'?k():hwOpen.go(k);g.append(t)};
       /* (10/25) 後編のタイルが先頭 */
       try{window.HW2_TILES&&HW2_TILES(tile,me,on)}catch(e){console.warn('hw2 tiles',e)}
+      if(now()<hwT1()){
       tile('tot','tt','トリック・オア・トリート',inc?inc+'人からねだられています':'今日あと '+totLeft(me.id)+' 回',inc);
       {const cu=hdCur(),lf=hdLeft();tile(()=>hdOpen(),'dg','おばけ屋敷のドア',!on?'ハロウィンの期間だけ':cu?'続きから(お菓子 '+hdPot(hdRooms(me.id,cu.d,cu.i),hdPicks(cu.r))+' 持っている)':lf?'今日あと '+lf+' 回  ·  運だめしでお菓子':'今日はおしまい(朝5時にまた3回)',on&&(cu||lf)?(cu?'続き':lf):0)}
       tile('pass','hp','スタンプカード','ランク '+hwPassLv(me.id)+' / '+HWP_N+'  ·  '+(hwPassAt(me.id)?'パスあり':'無料のカードとハロウィンパス'),'');
       tile('mis','ms','イベントミッション',L.filter(m=>m.got).length+' / '+L.length+' クリア',ready);
       tile('shop','sp','お菓子の交換所','お菓子 '+bal.toLocaleString()+' で交換',0);
       tile('how','hw','お菓子のもらい方','対戦・分身・ボス・お題・ドア','');
+      }
       b.append(g);try{hwpWatch();b.append(hwRankSec(me))}catch(e){}}
 
     if(sub==='pass'){try{hwpWatch()}catch(e){}b.append(hwPassSec(me))}
@@ -15795,7 +15799,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=202';
+const TCG_SRC='tcg_play.html?v=203';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
