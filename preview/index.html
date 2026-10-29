@@ -12014,6 +12014,7 @@ const hwOrdCode=()=>'HW-'+String(1000+Math.floor(Math.random()*9000));
 const hwPayTo=()=>String((hwPayCfg&&hwPayCfg.to)||'').slice(0,80);
 function hwOrderBox(me,kind){const K=HWO[kind];if(!K||K.has(me.id))return null;hwOrdWatch();const box=el('div','hwo'),u=typeof passUnit==='function'?passUnit():'応援値',to=hwPayTo();
   const L=hwOrders.filter(o=>o.kind===kind).sort((a,b)=>(b.t||0)-(a.t||0)),cur=L.find(o=>o.st==='wait'||o.st==='go'),last=L[0];
+  if(!cur&&now()>=hwT1())return null;/* (10/29) 終わったあとは新しく申し込めない(申し込み中のものだけ見せる) */
   if(cur){box.classList.add('wait');box.append(el('b','hwo-h','申し込み中  ·  番号 '+cur.code),
       el('p',null,K.price().toLocaleString()+' '+u+'を送って、メッセージに番号「'+cur.code+'」を書いてください。管理者が確かめると、すぐに入ります。'));
     if(to)box.append(el('p','hwo-to','送り先: '+to));
@@ -12024,7 +12025,7 @@ function hwOrderBox(me,kind){const K=HWO[kind];if(!K||K.has(me.id))return null;h
   const b=el('button','hwo-go','申し込む');b.disabled=!!HW_PV;
   b.onclick=()=>askSheet({title:K.n+'を申し込む',lines:[K.price().toLocaleString()+' '+u,['sub','1. 申し込むと、番号が出ます'],['sub','2. '+u+'を送って、メッセージにその番号を書きます'+(to?'(送り先: '+to+')':'')],['sub','3. 管理者が確かめると、アプリにすぐ入ります']],ok:'申し込む',run:()=>hwOrder(me,kind)});
   box.append(b);if(HW_PV)box.append(el('p','hwo-ng','お試し版では申し込めません(本番のアプリから申し込んでください)'));return box}
-async function hwOrder(me,kind){if(HW_PV||hwOrders.some(o=>o.kind===kind&&(o.st==='wait'||o.st==='go')))return;
+async function hwOrder(me,kind){if(now()>=hwT1()){toast('販売は終わりました');return}if(HW_PV||hwOrders.some(o=>o.kind===kind&&(o.st==='wait'||o.st==='go')))return;
   try{await db.collection('orders').add({pid:me.id,pn:String(me.name||'').slice(0,40),kind,code:hwOrdCode(),t:now(),st:'wait'});toast('申し込みました。送るときのメッセージに番号を書いてください')}
   catch(e){toast('申し込めませんでした('+(e.code||e.message)+')')}}
 /* the admin card's give, also used to approve an order from the app. k: 'pass' | 'set'. Returns {msg, dup} */
