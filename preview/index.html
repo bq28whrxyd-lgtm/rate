@@ -11549,7 +11549,7 @@ function kjShow(o,L,last,done){const RM=(()=>{try{return matchMedia('(prefers-re
    後編のお菓子 = 後編の間にもらったお菓子(時刻のあるものだけ)。各アプリが自分の数を hwp/{pid} に公開する(c2 = 合計、dd = 日ごと)。
    チーム: config/hwteam (お試し版は hwteampv) を後編が始まって最初に開いた人のアプリが作る(レートとレベルをならして、交互に分ける)。
    あとから来た人は自分のアプリが少ない方を選んで hwp.tm に書く。
-   チームの点 = 後編のお菓子の平均(0の人は入れない)。みんなで目標 = 全員の後編のお菓子の合計。
+   チームの点 = 後編のお菓子の合計(10/30に平均から変更)。みんなで目標 = 全員の後編のお菓子の合計。
    ごほうびは全部、公開されている数から計算する(pt・チケット・くじ券)。持ち物に書くのはフレームを受け取るときだけ */
 const HW2_GOLD=[21*60,21*60+30];/* 毎晩 21:00-21:30 (JST) */
 const HW2_TM={p:{n:'かぼちゃ団',c:'#ff8a2a',c2:'#ffcf8a',e:'🎃'},b:{n:'こうもり団',c:'#a35cff',c2:'#d4b4ff',e:'🦇'}};
@@ -11620,7 +11620,7 @@ function hw2JoinLate(){const me=myPlayer();if(!me||!hw2Cfg||hw2Team(me.id)||!db|
   db.doc('hwp/'+me.id).set({[HW2K.tm]:tm,u:now()},{merge:true}).then(()=>{hwps[me.id]=Object.assign({},hwps[me.id]||{},{[HW2K.tm]:tm})}).catch(()=>{}).finally(()=>{hw2JoinLate.busy=0})}
 const hw2Members=tm=>hw2Elig().filter(p=>hw2Team(p.id)===tm);
 /* a team's score: the average 後編 candy of those who have any */
-function hw2TeamScore(tm,day){const L=hw2Members(tm).map(p=>day==null?hw2CT(p.id):hw2Day(p.id,day)).filter(v=>v>0);return {avg:L.length?Math.round(L.reduce((a,v)=>a+v,0)/L.length):0,n:L.length,all:hw2Members(tm).length}}
+function hw2TeamScore(tm,day){const L=hw2Members(tm).map(p=>day==null?hw2CT(p.id):hw2Day(p.id,day)).filter(v=>v>0);/* (10/30) 平均ではなく合計で競う(avg の名前のまま、中身はチームの合計) */return {avg:L.reduce((a,v)=>a+v,0),n:L.length,all:hw2Members(tm).length}}
 function hw2Mvp(tm){let best=null;for(const p of hw2Members(tm)){const v=hw2CT(p.id);if(v>0&&(!best||v>best.v||(v===best.v&&p.id<best.p.id)))best={p,v}}return best}
 const hw2Winner=day=>{const a=hw2TeamScore('p',day),b=hw2TeamScore('b',day);return a.avg===b.avg?null:a.avg>b.avg?'p':'b'};
 
@@ -11711,7 +11711,7 @@ function hw2Redraw(){try{hwOpen.redraw&&document.querySelector('.hlw')&&hwOpen.r
 
 /* ---------- the pages in the ハロウィン sheet ---------- */
 window.HW2_TILES=(tile,me,on)=>{if(!hw2Started())return;const tm=hw2Team(me.id),a=hw2TeamScore('p'),b=hw2TeamScore('b');
-  tile('team','h2t','チーム戦',!hw2Cfg?'チーム分けを待っています':(tm?'あなたは'+HW2_TM[tm].n+'  ·  ':'')+'平均 '+a.avg+' 対 '+b.avg+(hw2TeamDone()?'  ·  結果':''),'');
+  tile('team','h2t','チーム戦',!hw2Cfg?'チーム分けを待っています':(tm?'あなたは'+HW2_TM[tm].n+'  ·  ':'')+'合計 '+a.avg.toLocaleString()+' 対 '+b.avg.toLocaleString()+(hw2TeamDone()?'  ·  結果':''),'');
   tile('goal','h2g','みんなで目標',hw2GoalN()+' / 7 段  ·  合計 '+hw2Total().toLocaleString(),'');
   if(!hw2Done()){const B=hw2Bingo(me.id);tile('bingo','h2b','後編ビンゴ',B.n+' 列そろった  ·  1列で お菓子+'+HW2_BINGO,'')}
   /* (10/29) 夜宴くじはガチャの画面にあるので、ここには出さない */}; 
@@ -11720,10 +11720,10 @@ window.HW2_STRIP=b=>{if(!hw2Started()||hw2Done())return;const on=hwGoldNow(),n=e
   if(on){const e=new Date(now()+9*36e5);const left=(HW2_GOLD[1]-hw2Min(now()))*60000-e.getUTCSeconds()*1000;n.append(el('em',null,'あと '+Math.max(1,Math.ceil(left/60000))+'分'))}b.append(n)};
 window.HW2_SUB=(sub,b,me,draw)=>{if(sub==='team'){b.append(hw2TeamSec(me,draw));return true}if(sub==='goal'){b.append(hw2GoalSec(me,draw));return true}if(sub==='bingo'){b.append(hw2BingoSec(me));return true}return false};
 const hw2Bar=(a,b)=>{const w=el('div','h2-bar'),t=a+b||1;const pa=el('i','p'),pb=el('i','b');pa.style.flexGrow=String(Math.max(.02,a/t));pb.style.flexGrow=String(Math.max(.02,b/t));w.append(pa,pb);return w};
-function hw2TeamSec(me,draw){const s=el('div','hlw-sec h2-team');const hd=el('h3',null,'チーム戦');hd.append(el('small',null,hw2TeamDone()?'結果':'後編のお菓子の平均で競う'));s.append(hd);
+function hw2TeamSec(me,draw){const s=el('div','hlw-sec h2-team');const hd=el('h3',null,'チーム戦');hd.append(el('small',null,hw2TeamDone()?'結果':'後編のお菓子の合計で競う'));s.append(hd);
   if(!hw2Cfg){s.append(el('div','sub','10/29 朝5時のあと、最初にアプリを開いた人のところで自動でチームが分かれます(レートとレベルをならして半分ずつ)。'));return s}
   const tm=hw2Team(me.id),A=hw2TeamScore('p'),B=hw2TeamScore('b'),w=hw2TeamDone()?hw2Winner(null):null;
-  const top=el('div','h2-vs');[['p',A],['b',B]].forEach(([k,S])=>{const c=el('div','h2-tc '+k+(tm===k?' me':'')+(w===k?' win':''));c.append(el('small',null,tm===k?'あなたのチーム':''),el('b',null,HW2_TM[k].n),el('strong',null,S.avg.toLocaleString()),el('span',null,'平均  ·  '+S.n+' / '+S.all+'人が参加'));top.append(c)});
+  const top=el('div','h2-vs');[['p',A],['b',B]].forEach(([k,S])=>{const c=el('div','h2-tc '+k+(tm===k?' me':'')+(w===k?' win':''));c.append(el('small',null,tm===k?'あなたのチーム':''),el('b',null,HW2_TM[k].n),el('strong',null,S.avg.toLocaleString()),el('span',null,'合計  ·  '+S.n+' / '+S.all+'人が参加'));top.append(c)});
   s.append(top,hw2Bar(A.avg,B.avg));
   if(hw2TeamDone())s.append(el('div','h2-res',w?HW2_TM[w].n+'の勝ち!':'引き分け'));
   if(hw2TeamDone()){const L=hw2TeamRw(me.id);if(L.length){const r=el('div','h2-my');r.append(el('b',null,'あなたのごほうび'));L.forEach(x=>r.append(el('span',null,(x.k==='mvp'?'エース: ':x.k==='win'?'勝ち: ':'参加: ')+x.x.replace('○○',HW2_TM[tm].n.replace('団','')))));r.append(el('small',null,''));s.append(r)}else if(tm)s.append(el('div','sub','後編のお菓子が0だったので、チーム戦のごほうびはありません。'))}
@@ -11747,7 +11747,7 @@ function hw2TitleBtns(s,me){const L=hw2Titles(me.id);if(!L.length)return;const r
 
 /* ---------- ホーム: 2色のバー(チーム戦)。今日のイベントの先頭のカード ---------- */
 window.HW2_HOME=()=>{if(!hw2Started()||!hw2Cfg||now()>hw2T1()+3*864e5)return null;const me=myPlayer(),tm=me?hw2Team(me.id):null,A=hw2TeamScore('p').avg,B=hw2TeamScore('b').avg,dn=hw2TeamDone(),win=dn?hw2Winner(null):null;
-  return{c:'e9 h2s',k:'TEAM BATTLE',t:HW2_TM.p.n+' '+A+'  対  '+B+' '+HW2_TM.b.n,s:dn?(win?HW2_TM[win].n+'の勝ち':'引き分け'):(tm?'あなたは'+HW2_TM[tm].n+'  ·  後編のお菓子の平均':'後編のお菓子の平均で競う'),chip:dn?'結果':hwGoldNow()?'ゴールデンタイム中':'チーム戦',
+  return{c:'e9 h2s',k:'TEAM BATTLE',t:HW2_TM.p.n+' '+A.toLocaleString()+'  対  '+B.toLocaleString()+' '+HW2_TM.b.n,s:dn?(win?HW2_TM[win].n+'の勝ち':'引き分け'):(tm?'あなたは'+HW2_TM[tm].n+'  ·  後編のお菓子の合計':'後編のお菓子の合計で競う'),chip:dn?'結果':hwGoldNow()?'ゴールデンタイム中':'チーム戦',
     go:()=>{try{hwOpen.sub0='team';hwOpen()}catch(e){}},h2:[A,B,tm]}};
 window.__h2Strip=(...hosts)=>{const H=window.HW2_HOME&&HW2_HOME();if(!H)return;for(const h of hosts){if(!h)continue;h.querySelectorAll('.h2s').forEach(c=>{if(c.querySelector('.h2-bar'))return;const [A,B,tm]=H.h2,bar=hw2Bar(A,B);if(tm)c.classList.add('m'+tm);(c.querySelector('.tx')||c).append(bar)})}};
 function hw2HomePaint(){}
