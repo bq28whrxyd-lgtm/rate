@@ -2410,7 +2410,7 @@ function subSet(k){const home=!k;if(!k)k='quest';SUB=k;$('modes').hidden=true;$(
 $('spback').onclick=()=>subSet(null);
 document.querySelectorAll('.tmb').forEach(b=>b.onclick=()=>b.dataset.m==='turn'?trStart():tbStart(b.dataset.m));
 function headCv(draw,sz){const c=document.createElement('canvas');c.width=sz;c.height=sz;ready.then(()=>{const g=c.getContext('2d');g.imageSmoothingEnabled=false;try{draw(g,sz)}catch(e){}});return c}
-const lookHead=(look,tone)=>(g,z)=>{if(look&&look.pk){const V=bossV(PKSKIN),I=bossIc(PKSKIN);if(V){g.drawImage(V.c,I[0],I[1],I[2],I[2],0,0,z,z);return}}const s=sprite(look);g.drawImage(s.base,Math.round(s.cx-15),Math.max(0,s.d.top-2),30,30,0,0,z,z);if(tone){g.globalCompositeOperation='source-atop';g.fillStyle=tone;g.fillRect(0,0,z,z);g.globalCompositeOperation='source-over'}};
+const lookHead=(look,tone)=>(g,z)=>{if(look&&look.km&&typeof tksHead==='function'&&tksHead(look,g,z))return;if(look&&look.pk){const V=bossV(PKSKIN),I=bossIc(PKSKIN);if(V){g.drawImage(V.c,I[0],I[1],I[2],I[2],0,0,z,z);return}}const s=sprite(look);g.drawImage(s.base,Math.round(s.cx-15),Math.max(0,s.d.top-2),30,30,0,0,z,z);if(tone){g.globalCompositeOperation='source-atop';g.fillStyle=tone;g.fillRect(0,0,z,z);g.globalCompositeOperation='source-over'}};
 function renderModes(){const box=$('modes');if(!box)return;box.replaceChildren();const T=(k,cls,title,sub,art,dot,extra)=>{const b=mk('button','mode '+cls+(dot?' dot':''));b.type='button';const tx=mk('div','mtx');tx.innerHTML='<b>'+title+'</b><small>'+sub+'</small>';b.append(tx);if(extra)b.append(extra);const a=mk('div','mart');art.forEach(c=>a.append(c));b.append(a,mk('i','mdot'));b.onclick=()=>subSet(k);return b};
   const HB=HOST&&HOST.hboss&&HOST.hboss();
   if(HB){const rb=raidBoss(HB);const c=document.createElement('canvas');c.width=72;c.height=72;const pic=()=>{const V=bossV(rb),I=bossIc(rb);if(!V)return false;const g=c.getContext('2d');g.imageSmoothingEnabled=false;g.drawImage(V.c,I[0],I[1],I[2],I[2],0,0,72,72);return true};if(!pic())bossImg(rb).addEventListener('load',pic,{once:true});
@@ -4097,17 +4097,25 @@ let TKSC={t:0,set:[],all:[]};
 /* asked each time (a few items): a short cache only, so a cheer just bought shows at once */
 function tksLists(){const n=performance.now();if(n-TKSC.t>400){TKSC.t=n;try{TKSC.set=HOST&&HOST.oshiSet?HOST.oshiSet()||[]:[];TKSC.all=HOST&&HOST.oshiAll?HOST.oshiAll()||[]:[]}catch(e){}}return TKSC}
 const tksOwn=n=>!!n&&tksLists().set.some(k=>k.n===n);
+/* (10/30) 外すかどうかは、その場で聞き直す(キャッシュは使わない)。アプリの持ち物が読み込まれる前の空のリストで外してしまうことがあった */
+const tksOwnNow=n=>{try{TKSC.t=0;return tksOwn(n)}catch(e){return true}};
+let TKSDROP=0;
+function tksMaybeDrop(){if(TKSDROP||!S.look.km)return;const n=S.look.km;
+  const sure=()=>{try{return HOST&&HOST.oshiReady&&HOST.oshiReady()&&HOST.oshiAll&&(HOST.oshiAll()||[]).length>0&&!tksOwnNow(n)}catch(e){return false}};
+  if(!sure())return;TKSDROP=setTimeout(()=>{TKSDROP=0;if(S.look.km===n&&sure()){S.look.km='';try{save()}catch(e){}}},4000)}
 const tksArt=n=>{const d=TKS[n];return d&&HWB[d.img]&&HWB[d.img].I&&HWB[d.img].I.complete?d.img:null};
 /* a fighter wearing a skin: the drawing is the picture, or the parts in her colors */
 function tksDress(f){const n=f&&f.look&&f.look.km,d=n&&TKS[n];if(!d||f.ch||f.boss)return f;const a=tksArt(n);
   if(a)return Object.assign({},f,{boss:{img:a,pal:null,tint:0},km:n});
-  return Object.assign({},f,{look:Object.assign({},f.look,{g:d.g,hs:0,ec:d.ec,pk:0,chf:d.g==='f'?1:0}),chc:d.hair,cv:d.vest,km:n})}
+  /* (10/30) 絵がまだ読み込めていないときは仮の姿。元の姿を kmRaw に残して、絵が来たら描くときに着せ直す */
+  return Object.assign({},f,{look:Object.assign({},f.look,{g:d.g,hs:0,ec:d.ec,pk:0,chf:d.g==='f'?1:0}),chc:d.hair,cv:d.vest,km:n,kmRaw:f.kmRaw||f})}
 /* my own fighter: a skin I no longer have is dropped (like the pumpkin knight) */
 {const _fm=fighterMe;fighterMe=function(){const f=_fm.apply(this,arguments);if(f&&f.look&&f.look.km&&!tksOwn(f.look.km)){f.look=Object.assign({},f.look,{km:''});
     /* (10/24) no longer owned (and the app's inventory has loaded): take it off for good, so friends stop seeing it too */
-    try{if(S.look.km&&HOST&&HOST.oshiReady&&HOST.oshiReady()&&!tksOwn(S.look.km)){S.look.km='';setTimeout(()=>{try{save()}catch(e){}},0)}}catch(e){}}
+    try{tksMaybeDrop()}catch(e){}}
   return tksDress(f)}}
 {const _df=drawFighter;drawFighter=function(f,x,y,o){if(f&&!f.km&&f.look&&f.look.km&&TKS[f.look.km])f=tksDress(f);
+  else if(f&&f.km&&!f.boss&&f.kmRaw&&tksArt(f.km)){const r=tksDress(Object.assign({},f.kmRaw,{km:null}));try{if(r.boss){f.boss=r.boss;f.look=r.look;delete f.kmRaw}}catch(e){}f=r}
   if(f&&f.km&&f.boss){G.save();G.translate(x,y);G.scale(TCART,TCART);const r=_df.call(this,f,0,0,o);G.restore();if(r!==false)try{tksWeapon(f,x,y,o||{})}catch(e){}return r}return _df.call(this,f,x,y,o)}}
 /* the equipped weapon in her hand: the same weapon drawing as the parts avatar, at its usual size (not shrunk with the picture) */
 function tksWeapon(f,x,y,o){const V=bossV(f.boss),d=TKS[f.km];if(!V||!d||d.noW||!f.wt||f.wt==='fist')return;const h=d.hand||[V.w*.85,V.h*.3,-72],cx=bossCX(f.boss);
@@ -4134,6 +4142,12 @@ function tksRender(){const s=$('kmsec');if(s)s.hidden=true}
 {const _pf=ptFighter;ptFighter=function(i){let f=_pf.apply(this,arguments);if(!i&&f&&f.look&&f.look.km&&!f.boss&&tksOwn(f.look.km)){f=Object.assign({},f,{km:null});f=tksDress(f)}return f}}
 /* choosing the pumpkin knight in 見た目 takes the skin off */
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#pksel button');if(b&&S.look.km){S.look.km='';setTimeout(()=>{try{changed()}catch(_){}},0)}},true);
+
+/* (10/30) 推しスキンの絵を早めに読み込んでおく(最初のバトルで仮の姿にならないように) */
+try{Object.values(TKS).forEach(d=>{const B=HWB[d.img];if(B&&B.I&&B.I.decode)B.I.decode().catch(()=>{})})}catch(e){}
+
+/* (10/30) 顔のアイコン(行動順・パーティの欄など)も推しスキンの顔に。絵がまだのときは今までの顔 */
+function tksHead(L,g,z){const d=TKS[L.km];if(!d||!tksArt(L.km))return false;const b={img:d.img},V=bossV(b),I=bossIc(b);if(!V||!I)return false;g.drawImage(V.c,I[0],I[1],I[2],I[2],0,0,z,z);return true}
 
 /* ================= (10/24) キャラをサーバーに保存(本番に出す前に) =================
    - 持っているキャラ・レベル(xp)・重ね・パーティの3枠を、分身の記録(bunshin/{pid})の ch / cs に入れる。ほかのスマホでも同じ
