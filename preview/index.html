@@ -3435,7 +3435,9 @@ button.tcgkeep{width:100%;margin-top:8px}
 .hlw-shop{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .hlw-it{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px 12px;border-radius:18px;background:linear-gradient(170deg,#2c1538,#170b1f);box-shadow:inset 0 0 0 1px #ffffff14;text-align:center}
 .hlw-it.full{opacity:.6}
-.hlw-ia{height:64px;display:grid;place-items:center}.hlw-buy:not(:disabled) svg{filter:brightness(0) opacity(.72)}.hlw-coin{width:64px;height:64px;filter:drop-shadow(0 4px 10px rgba(255,120,30,.35))}.hlw-coin svg{width:100%;height:100%;display:block}.hlw-ia .hlw-gf{position:relative;inset:auto;height:64px;width:auto;aspect-ratio:3/4}.hlw-ia .tcf,.hlw-ia .card{max-height:64px;width:auto}
+.hlw-ia{height:64px;display:grid;place-items:center}.hlw-buy:not(:disabled) svg{filter:brightness(0) opacity(.72)}.hlw-coin{width:64px;height:64px;filter:drop-shadow(0 4px 10px rgba(255,120,30,.35))}
+.hlw-ia:has(.hlw-sl){height:104px}
+.hlw-sl{display:block;width:66px;height:96px;object-fit:cover;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.18);transform:rotate(-4deg)}.hlw-coin svg{width:100%;height:100%;display:block}.hlw-ia .hlw-gf{position:relative;inset:auto;height:64px;width:auto;aspect-ratio:3/4}.hlw-ia .tcf,.hlw-ia .card{max-height:64px;width:auto}
 .hlw-itx b{display:block;font-size:13px;line-height:1.3}.hlw-itd{display:block;font-size:10.5px;line-height:1.45;color:#cdb8da;margin:3px 0 2px}
 .hlw-x2{position:relative;display:grid;place-items:center}.hlw-x2 b{position:absolute;right:-12px;bottom:-4px;font:900 15px/1 var(--k-num,inherit);color:#ffd36a;text-shadow:0 2px 0 #2a1206}
 .hlw-xpc{background:radial-gradient(circle at 35% 30%,#e9dcff,#a77bff 55%,#4b2397)!important;color:#fff!important;font-size:14px!important}
@@ -9303,7 +9305,7 @@ const RAR=[{k:'N',c:'#a3a9b4',p:59.95,sh:1,cost:20},{k:'R',c:'#4aa3ff',p:30,sh:3
 const RATE_G=[0,79.95,15.5,4.2,.3,.05],PACK=100,START_PT=300,PITY=100,TPACK=100,TXP=180,NPK=150;
 const KIND={t:'称号',a:'アイコン',f:'フレーム',x:'対戦演出',b:'背景',v:'勝利演出',c:'コイン',sl:'スリーブ',bun:'分身の装備'};
 /* (10/18) TCGのスリーブ (kind sl): the picture of each. Set per deck in the TCG deck builder; eq.sl is the usual one */
-const SLV={slbat:{img:'sl_bat.webp'},sljol:{img:'sl_jol.webp'},slimp:{img:'sl_imp.webp'}};
+const SLV={slbat:{img:'sl_bat.webp'},sljol:{img:'sl_jol.webp'},slimp:{img:'sl_imp.webp'},slheta:{img:'sl_heta.webp'}};
 const TITLES=[
   ['駆け出しデュエリスト','見習い決闘者','デッキ調整中','引きが弱い人','手札事故常連','シャッフル職人','放課後の挑戦者','ルール確認係'],
   ['逆転の使い手','読み合い上手','先攻の申し子','粘りの鬼','冷静沈着','初手の魔術師','深淵を覗く者'],
@@ -9375,6 +9377,8 @@ COINS.forEach((L,r)=>L.forEach((a,i)=>ITEMS.push({id:'c'+r+i,k:'c',r,n:a[0]+'コ
    HW_ON_REL: the event is switched on in the main app only when it is released (true at the v135 release); the お試し版 and the demo always have it */
 var HW_ON_REL=true;const HW_HERE=()=>HW_ON_REL||/\/preview\//.test(location.pathname)||/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 if(HW_HERE())ITEMS.push({id:'chw0',k:'c',r:4,n:'ジャック・オ・ランタンコイン',v:'hw',lim:'hwshop'});
+/* (10/30) 交換所だけのスリーブ: 白い紙に下手くそな字で「ハロウィン」(hwart/sleeve/heta.py) */
+if(HW_HERE())ITEMS.push({id:'slheta',k:'sl',r:1,n:'てがきのハロウィン',v:'slheta',lim:'hwshop'});
 /* (10/26) 夜宴くじのA賞・B賞: ハロウィンのKMR「夜宴の小悪魔」のスリーブとコイン(くじでしか手に入らない) */
 if(HW_HERE())ITEMS.push({id:'slimp',k:'sl',r:5,n:'夜宴の小悪魔',v:'slimp',lim:'kuji'},{id:'cimp',k:'c',r:5,n:'夜宴の小悪魔コイン',v:'imp',lim:'kuji'});
 /* limited sets: these only drop from their own banner pack. Never reorder a set's list (ids are positions). */
@@ -10260,6 +10264,7 @@ function hwShop(){const L=[{id:'ptk',k:'tk',tk:'ptk',n:'通常パックチケッ
   try{const tp=Object.keys(TCG_TK).filter(k=>TCG_TK[k].k===1).slice(-1)[0];if(tp)L.push({id:'tcg1',k:'tk',tk:tp,n:'TCG '+TCG_TK[tp].n,c:90,max:10})}catch(e){}
   Object.keys(HW_TTL).forEach((id,i)=>L.push({id,k:'t',n:HW_TTL[id].n,c:[150,400,1000][i],max:1}));
   L.unshift({id:'coin',k:'g',ref:'chw0',n:'ジャック・オ・ランタンコイン(限定)',c:3000,max:1});
+  /* (10/30) 交換所だけのスリーブ */L.splice(1,0,{id:'slheta',k:'g',ref:'slheta',n:'スリーブ「てがきのハロウィン」(限定)',d:'TCGのデッキに付けられる。白い紙に、下手くそな字で「ハロウィン」',c:300,max:1});
   L.push({id:'np',k:'np',n:'かぼちゃのネームプレート',d:'期間中、名前の横にかぼちゃ',c:500,max:1},
     {id:'seed',k:'seed',n:'かぼちゃの種',d:'畑に植えられる限定の作物。よく育つ',c:80,max:5},
     {id:'boost',k:'boost',n:'お菓子2倍券',d:'交換したときから1時間、もらえるお菓子が2倍',c:100,max:5},
@@ -12362,7 +12367,7 @@ function hwOpen(){const me=myPlayer();if(!me)return;try{newSeen('hw135')}catch(e
     /* 交換所 */
     if(sub==='shop'){const sh=el('div','hlw-sec');sh.append(el('h3',null,'お菓子の交換所'));const g=el('div','hlw-shop');
     hwShop().forEach(it=>{const have=hwHave(it.id),full=have>=it.max,c=el('div','hlw-it'+(full?' full':'')),art=el('div','hlw-ia');
-      if(it.k==='t'){const ch=titleChip(it.id);if(ch)art.append(ch)}else if(it.k==='g'||it.k==='c'){/* (10/17) the item itself (the old cardInfo() did not exist, so the coin had no picture) */try{if(it.k==='g'){const I=ITEMS.find(x=>x.id===it.ref);if(I&&I.k==='c')art.innerHTML='<div class="hlw-coin">'+coinFace(I.v)+'</div>';else if(I){const f=cardFace(I);f.classList.add('hlw-gf');art.append(f)}}else{const f=tcgFace(it.ref,'',false);f.classList.add('hlw-gf');art.append(f)}}catch(e){}}else if(it.k==='seed'||it.k==='np')art.innerHTML=hwPumpkinSvg(it.k==='np'?40:52);else if(it.k==='boost')art.innerHTML='<div class="hlw-x2">'+hwCandySvg(40)+'<b>×2</b></div>';else if(it.k==='guard')art.innerHTML='<svg viewBox="0 0 40 40" width="50" aria-hidden="true"><path d="M20 4l13 5v9c0 9-6 15-13 18C13 33 7 27 7 18V9z" fill="#3a1846" stroke="#ffb15c" stroke-width="2"/><path d="M14 20l4 4 8-9" stroke="#ffb15c" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>';else if(it.k==='pt')art.innerHTML='<div class="hlw-ptc">pt</div>';else if(it.k==='xp')art.innerHTML='<div class="hlw-ptc hlw-xpc">XP</div>';else if(it.k==='sta')art.innerHTML='<div class="hlw-ptc hlw-stc"><svg viewBox="0 0 24 24" width="24" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="#fff"/></svg></div>';else if(it.k==='dog')art.innerHTML='<div class="hlw-dog">'+dogSvg(true)+'</div>';else if(it.k==='grt')art.innerHTML='<svg viewBox="0 0 40 48" width="40" aria-hidden="true"><rect x="3" y="2" width="34" height="44" rx="4" fill="#24142e" stroke="#ffb15c" stroke-width="2"/><rect x="7" y="6" width="26" height="8" rx="2" fill="#ff8a2a"/><text x="20" y="12.6" text-anchor="middle" font-size="6" font-weight="900" fill="#2a1240">GRADE</text><rect x="9" y="17" width="22" height="25" rx="2" fill="#3a1846" stroke="#c99bff" stroke-width="1"/><text x="20" y="34" text-anchor="middle" font-size="12" font-weight="900" fill="#ffd29a">10</text></svg>';else art.innerHTML='<svg viewBox="0 0 40 28" width="54" aria-hidden="true"><rect x="1" y="1" width="38" height="26" rx="5" fill="#2b1838" stroke="#ff9d3c" stroke-width="1.5"/><path d="M28 1v26" stroke="#ff9d3c" stroke-dasharray="2 2"/><circle cx="14" cy="14" r="5" fill="#ff8a2a"/></svg>';
+      if(it.k==='t'){const ch=titleChip(it.id);if(ch)art.append(ch)}else if(it.k==='g'||it.k==='c'){/* (10/17) the item itself (the old cardInfo() did not exist, so the coin had no picture) */try{if(it.k==='g'){const I=ITEMS.find(x=>x.id===it.ref);if(I&&I.k==='c')art.innerHTML='<div class="hlw-coin">'+coinFace(I.v)+'</div>';else if(I&&I.k==='sl'){/* (10/30) スリーブはその絵をそのまま */const im=el('img','hlw-sl');im.src=(SLV[I.v]||{}).img||'';im.alt='';art.append(im)}else if(I){const f=cardFace(I);f.classList.add('hlw-gf');art.append(f)}}else{const f=tcgFace(it.ref,'',false);f.classList.add('hlw-gf');art.append(f)}}catch(e){}}else if(it.k==='seed'||it.k==='np')art.innerHTML=hwPumpkinSvg(it.k==='np'?40:52);else if(it.k==='boost')art.innerHTML='<div class="hlw-x2">'+hwCandySvg(40)+'<b>×2</b></div>';else if(it.k==='guard')art.innerHTML='<svg viewBox="0 0 40 40" width="50" aria-hidden="true"><path d="M20 4l13 5v9c0 9-6 15-13 18C13 33 7 27 7 18V9z" fill="#3a1846" stroke="#ffb15c" stroke-width="2"/><path d="M14 20l4 4 8-9" stroke="#ffb15c" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg>';else if(it.k==='pt')art.innerHTML='<div class="hlw-ptc">pt</div>';else if(it.k==='xp')art.innerHTML='<div class="hlw-ptc hlw-xpc">XP</div>';else if(it.k==='sta')art.innerHTML='<div class="hlw-ptc hlw-stc"><svg viewBox="0 0 24 24" width="24" aria-hidden="true"><path d="M13 2L4 14h6l-1 8 9-12h-6z" fill="#fff"/></svg></div>';else if(it.k==='dog')art.innerHTML='<div class="hlw-dog">'+dogSvg(true)+'</div>';else if(it.k==='grt')art.innerHTML='<svg viewBox="0 0 40 48" width="40" aria-hidden="true"><rect x="3" y="2" width="34" height="44" rx="4" fill="#24142e" stroke="#ffb15c" stroke-width="2"/><rect x="7" y="6" width="26" height="8" rx="2" fill="#ff8a2a"/><text x="20" y="12.6" text-anchor="middle" font-size="6" font-weight="900" fill="#2a1240">GRADE</text><rect x="9" y="17" width="22" height="25" rx="2" fill="#3a1846" stroke="#c99bff" stroke-width="1"/><text x="20" y="34" text-anchor="middle" font-size="12" font-weight="900" fill="#ffd29a">10</text></svg>';else art.innerHTML='<svg viewBox="0 0 40 28" width="54" aria-hidden="true"><rect x="1" y="1" width="38" height="26" rx="5" fill="#2b1838" stroke="#ff9d3c" stroke-width="1.5"/><path d="M28 1v26" stroke="#ff9d3c" stroke-dasharray="2 2"/><circle cx="14" cy="14" r="5" fill="#ff8a2a"/></svg>';
       const tx=el('div','hlw-itx'),act=it.k==='boost'?hwBoostLeft():it.k==='guard'?hwGuardLeft(me.id):0;tx.append(el('b',null,it.n));if(it.d)tx.append(el('span','hlw-itd',it.d));tx.append(el('small',null,(it.k==='sta'?(()=>{let st=0;try{st=hbInfo(me.id).st}catch(e){}return'今のスタミナ '+st+' / '+HB_ST+'  ·  交換 '+have+' 回'})():it.k==='xp'?'交換 '+have+' 回  ·  今 Lv'+lvOf(me.id).L:(act?'使用中 あと '+hwLeft(act)+'  ·  ':'')+(it.k==='seed'?'持っている種 '+hwSeeds()+'  ·  ':'')+(it.k==='pt'?'何回でも':it.max>1?'交換 '+have+' / '+it.max:have?'交換済み':'1回だけ'))));
       const bt=el('button','hlw-buy');bt.innerHTML=hwCandySvg(16);bt.append(document.createTextNode(it.c.toLocaleString()));bt.disabled=!on||full||bal<it.c||(it.k==='sta'&&!!hbRefBlock(me.id));
       bt.onclick=()=>askSheet({title:'交換する',ok:'お菓子 '+it.c+' で交換',lines:[it.n+' と交換します。','交換したあとのお菓子 '+(bal-it.c).toLocaleString()],run:async()=>{try{await hwBuy(it);toast(it.n+'と交換しました'+(HW_PV&&it.k==='tk'?'(お試し版なのでチケットは入りません)':''));draw();try{renderGacha()}catch(e){}}catch(e){toast(e.message==='candy'?'お菓子が足りません':e.message==='max'?'もう交換できません':e.message==='sta'?(hbRefBlock(me.id)||'今は回復できません'):'交換できませんでした')}}});
@@ -13522,7 +13527,7 @@ function collectionView(inv,eq,h,info){
   [['all','すべて'],...Object.entries(KIND)].forEach(([k,n])=>{const b=el('button','tab',n);b.dataset.k=k;b.onclick=()=>{cat=k;draw()};tabs.append(b)});
   box.append(hd,stat,seg,tabs,filt,body,msg);
   let dexMiss=false;
-  const src=it=>it.lim==='sup'?'サポーターランク「'+supNames()[it.sup-1]+'」の特典':it.lim==='coin'?'コインガチャ(開催中に、勝った宝箱から出るチケットで引ける)でしか手に入らない':it.lim==='hwshop'?'ハロウィンのお菓子の交換所(3,000個)でしか手に入らない':it.lim==='kuji'?'夜宴くじ(ハロウィン後編)でしか手に入らない':it.lim?'期間限定「'+((LIMS[it.lim]||{}).name||'限定')+'」のパックで出る':it.K?'パックでKMRが出たときの選択チケットで選べる(かけらでも交換できる)':'通常パックで出る  ·  かけらでも交換できる';
+  const src=it=>it.lim==='sup'?'サポーターランク「'+supNames()[it.sup-1]+'」の特典':it.lim==='coin'?'コインガチャ(開催中に、勝った宝箱から出るチケットで引ける)でしか手に入らない':it.lim==='hwshop'?'ハロウィンのお菓子の交換所でしか手に入らない':it.lim==='kuji'?'夜宴くじ(ハロウィン後編)でしか手に入らない':it.lim?'期間限定「'+((LIMS[it.lim]||{}).name||'限定')+'」のパックで出る':it.K?'パックでKMRが出たときの選択チケットで選べる(かけらでも交換できる)':'通常パックで出る  ·  かけらでも交換できる';
   function drawFilt(){filt.replaceChildren();const g1=el('div','cfg');
     [['all','すべて'],['have','持っている'],['miss','持っていない']].forEach(([k,n])=>{const b=el('button','cchip'+(own===k?' on':''),n);b.onclick=()=>{own=k;draw()};g1.append(b)});
     const g2=el('div','cfg');[-1,0,1,2,3,4,5].forEach(r=>{const b=el('button','cchip rc'+(rar===r?' on':''),r<0?'全レア':RAR[r].k);if(r>=0)b.style.setProperty('--rc',RAR[r].c);b.onclick=()=>{rar=r;draw()};g2.append(b)});
@@ -14488,7 +14493,7 @@ const admInv={};
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
 const BUN_GIRL=false;/* 分身の女の子(一旦お休み)。bunshin の GIRL_ON と合わせる */
-const BUN_SRC='bunshin.html?v=76',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=77',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
