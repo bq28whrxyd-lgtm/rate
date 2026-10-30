@@ -14305,7 +14305,7 @@ function render(){
   if(sorted.length>=4){const mb=el('button','more',HM.rank?'1〜3位の詳細をとじる':'1〜3位の詳細も見る');mb.onclick=()=>{HM.rank=!HM.rank;render()};rk.append(mb)}
   rk.querySelectorAll('[data-pid]').forEach(e=>{e.style.cursor='pointer';e.onclick=()=>{const q=players.find(x=>x.id===e.dataset.pid);if(q)showProfile(q,statLine(q))}});
   {const h=sigOf(rk.innerHTML);if(rkLive.__h!==h){rkLive.__h=h;rkLive.replaceChildren(...rk.childNodes)}}
-  renderMine();try{renderSurprise();renderWanted();bountyFeed();paintNew();likesWatch();farmWatch();mentorWatch();mtGradShow();if(!mtGradCheck.t||now()-mtGradCheck.t>30000){mtGradCheck.t=now();mtGradCheck()}}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();try{ptGuide()}catch(e){}try{stkCheck()}catch(e){}try{invCamp()}catch(e){}passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews();try{kmrPromo()}catch(e){}}$('acct').hidden=!myPlayer();
+  renderMine();try{renderSurprise();renderWanted();bountyFeed();paintNew();likesWatch();farmWatch();mentorWatch();mtGradShow();if(!mtGradCheck.t||now()-mtGradCheck.t>30000){mtGradCheck.t=now();mtGradCheck()}}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();try{ptGuide()}catch(e){}try{stkCheck()}catch(e){}try{invCamp()}catch(e){}passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews();try{kmrPromo()}catch(e){}try{hetaNote()}catch(e){}}$('acct').hidden=!myPlayer();
   {const me=myPlayer(),pc=$('pcard'),nc=me?profileCard(me,statLine(me)):el('div','empty','アカウントを設定すると、ここにプロフィールが出ます'),h=sigOf(nc.outerHTML);if(pc.__h!==h){pc.__h=h;pc.replaceChildren(nc)}$('pedit').hidden=!me}
   if(typeof watchInv==='function'){watchInv();renderGacha()}
   {const s=$('opp'),v=s.value,me=myPlayer();s.replaceChildren();
@@ -17376,6 +17376,28 @@ function kmrPromoShow(){
   v.addEventListener('ended',()=>setTimeout(close,600));v.addEventListener('error',close);
   o.append(v,skip,snd);document.body.append(o);requestAnimationFrame(()=>o.classList.add('on'));
   const p=v.play();if(p&&p.catch)p.catch(()=>{/* autoplay refused: the sound button starts it */snd.textContent='再生する'})}
+/* (10/30) 交換所の新入荷のお知らせ: アプリを開いたら1回だけ、写真(note_heta.webp)を出す。ホームがあいているときだけ。押すと交換所へ */
+const HETA_NOTE_END=Date.parse('2026-11-08T05:00:00+09:00');
+function hetaNoteKey(){return 'hetaNote1_'+((typeof me!=='undefined'&&me&&me.id)||'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
+function hetaNote(force){
+  if(!force){if(hetaNote.started||Date.now()>HETA_NOTE_END||!myPlayer()||navigator.webdriver)return;let seen=0;try{seen=+localStorage.getItem(hetaNoteKey())||0}catch(e){}if(seen)return;hetaNote.started=true;
+    let n=0;const tick=()=>{if(document.querySelector('.kpromo,.hnote'))return setTimeout(tick,1500);if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){hetaNoteShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,3000);return}
+  hetaNoteShow()}
+function hetaNoteShow(){if(document.querySelector('.hnote'))return;try{localStorage.setItem(hetaNoteKey(),String(Date.now()))}catch(e){}
+  if(!document.getElementById('hnoteCss')){const st=document.createElement('style');st.id='hnoteCss';st.textContent=`
+.hnote{position:fixed;inset:0;z-index:8990;display:flex;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 20px) 18px calc(env(safe-area-inset-bottom,0px) + 20px);background:rgba(6,4,12,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .3s ease}
+.hnote.on{opacity:1}
+.hnote .hnb{position:relative;width:min(100%,420px);display:flex;flex-direction:column;gap:12px;transform:translateY(14px) scale(.97);transition:transform .45s cubic-bezier(.2,.9,.25,1.15)}
+.hnote.on .hnb{transform:none}
+.hnote img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 0 1px rgba(255,200,130,.3)}
+.hnote .hnx{position:absolute;top:-10px;right:-6px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(20,14,30,.9);color:#fff;font:700 20px/1 sans-serif;box-shadow:0 0 0 1px rgba(255,255,255,.25)}
+.hnote .hngo{border:0;border-radius:999px;padding:15px;font:800 16px/1 -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;color:#2a1404;background:linear-gradient(180deg,#ffc06a,#ff8a2a);box-shadow:0 8px 22px rgba(255,120,30,.35)}
+.hnote .hnno{border:0;background:none;color:#cbbbe0;font:700 14px/1 -apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;padding:8px}`;document.head.append(st)}
+  const o=el('div','hnote'),b=el('div','hnb'),im=document.createElement('img');im.src='note_heta.webp';im.alt='お菓子の交換所に新入荷: 限定スリーブ「てがきのハロウィン」お菓子3,000、1人1回だけ。11月8日朝5時まで';
+  const x=el('button','hnx','×'),go=el('button','hngo','交換所を見る'),no=el('button','hnno','閉じる');x.setAttribute('aria-label','閉じる');
+  const close=()=>{o.classList.remove('on');setTimeout(()=>o.remove(),320)};x.onclick=no.onclick=close;o.onclick=e=>{if(e.target===o)close()};
+  go.onclick=()=>{close();setTimeout(()=>{try{hwOpen.sub0='shop';hwOpen()}catch(e){}},200)};
+  b.append(im,go,no);o.append(b);document.body.append(o);requestAnimationFrame(()=>o.classList.add('on'))}
 let newsChecked=false;
 function statLine(p){let w=0,l=0;Object.keys(GAMES).forEach(g=>{w+=p[g+'_wins']||0;l+=p[g+'_losses']||0});return '通算 '+w+'勝 '+l+'敗'+(w+l?'  ·  勝率 '+Math.round(w/(w+l)*100)+'%':'')}
 const VTITLE={home:'きもオタレート',rank:'ランキング',battle:'対戦',gacha:'パック',tcg:'きもオタTCG',profile:'プロフィール'};
