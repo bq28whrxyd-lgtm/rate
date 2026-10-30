@@ -5770,7 +5770,7 @@ function ofxCharge(K,st){const A=ofxRect(st);if(!A)return;ofxSnd(K,'charge');con
     f:u=>{const a=a0+u*Math.PI*1.8,e=ofxE.io(u),r=r0*(1-e)+R*.35*e;return{x:A.x+Math.cos(a)*r,y:A.y+A.h*.1-ofxE.o3(u)*A.h*.6+Math.sin(a)*r*.4,s:sz*(1-.35*u),a:Math.min(1,u*7)*(1-Math.pow(u,3)),r:a}}})}
   ofxGl(A,col,6)}
 /* the hit: her two slashes cross, her flash, her pieces burst out, a ring in her colour */
-function ofxStrike(K,ax,ay,tx,ty,rt,heavy){ofxSnd(K,'hit');const col=K.c[0]||'#ff8fd0',c2=K.c[1]||'#ffffff',RW=rt.width||70,W=Math.max(200,RW*3.4),sl=ovxImg('sweep_'+K.t),bu=ovxImg('burst_'+K.t),dir=tx>=ax?1:-1;
+function ofxStrikeImp(K,ax,ay,tx,ty,rt,heavy){ofxSnd(K,'hit');const col=K.c[0]||'#ff8fd0',c2=K.c[1]||'#ffffff',RW=rt.width||70,W=Math.max(200,RW*3.4),sl=ovxImg('sweep_'+K.t),bu=ovxImg('burst_'+K.t),dir=tx>=ax?1:-1;
   if(!OFX.noTint)ofxAdd({tint:1,col:col+'55',dur:200,f:u=>({x:0,y:0,a:1-u})});
   [[-32,0,1],[26,50,1],[dir*-4,105,1.25]].forEach(([r,dl,k],i)=>ofxAdd({pic:sl,fr:10,dur:420,dl,f:u=>{const e=ofxE.o5(Math.min(1,u*1.6));return{x:tx,y:ty,r:(r+dir*(1-e)*-24)*Math.PI/180,w:W*k,h:W*k/2,sx:(i%2?-1:1)*dir*(.85+.25*e),sy:1,a:1}}}));
   ofxAdd({pic:bu,dur:520,dl:20,f:u=>{const e=ofxE.o5(u),z=(heavy?2.6:2.1)*Math.max(70,RW);return{x:tx,y:ty,r:u*.6,w:z*(.2+.95*e),h:z*(.2+.95*e),a:(1-u)*1.25}}});
@@ -5780,6 +5780,63 @@ function ofxStrike(K,ax,ay,tx,ty,rt,heavy){ofxSnd(K,'hit');const col=K.c[0]||'#f
   for(let i=0;i<n;i++){const a=i/n*Math.PI*2+ofxRnd(-.25,.25),d=ofxRnd(.7,1.35)*Math.max(56,T.w),sz=ofxRnd(30,48);ofxAdd({k:ofxPick(K,i),dur:820,dl:15,spin:ofxRnd(1,2.2),f0:Math.random(),glow:col,streak:1,
     f:u=>{const e=ofxE.o5(u);return{x:T.x+Math.cos(a)*d*e,y:T.y+Math.sin(a)*d*.8*e+u*u*44,s:sz*(1.15-.45*u),a:1-Math.pow(u,2),r:a+u*3}}})}
   ofxGl(T,col,heavy?12:9)}
+
+
+/* (10/31) 推しごとに違う攻撃のかたち。小悪魔=三日月を3回 / 天使=上から光の槍 / オーバーサイズ=足元に丸い衝撃波 / ふくれっつら=ハート5連発 /
+   ためいき=つむじ風 / ニット=毛糸が巻きついて締まる / はなかんむり=足元から花が咲く。絵は Blender の ovx_sweep_<t>(10コマ) と ovx_burst_<t> */
+function ofxShk(n,dl){setTimeout(()=>{try{shake(n)}catch(e){}},D(dl||0))}
+function ofxBu(bu,x,y,z,dl,dur,spin){ofxAdd({pic:bu,dur:dur||520,dl:dl||0,f:u=>{const e=ofxE.o5(u);return{x,y,r:u*(spin||.5),w:z*(.2+.95*e),h:z*(.2+.95*e),a:(1-u)*1.25}}})}
+function ofxStrike(K,ax,ay,tx,ty,rt,heavy){const t=K.t||OVX_T[K.n]||'imp';if(t==='imp'||!OFX_MV[t])return ofxStrikeImp(K,ax,ay,tx,ty,rt,heavy);
+  ofxSnd(K,'hit');const col=K.c[0]||'#ff8fd0',c2=K.c[1]||'#ffffff',RW=Math.max(56,rt.width||70),RH=Math.max(70,rt.height||90),sl=ovxImg('sweep_'+t),bu=ovxImg('burst_'+t),dir=tx>=ax?1:-1,hv=heavy?1.25:1;
+  if(!OFX.noTint)ofxAdd({tint:1,col:col+'44',dur:200,f:u=>({x:0,y:0,a:1-u})});
+  OFX_MV[t]({K,col,c2,RW,RH,sl,bu,dir,hv,ax,ay,tx,ty,feet:ty+RH*.46,n:OFX_RM?.5:1});
+  ofxGl({x:tx,y:ty,w:RW,h:RH},col,heavy?10:7)}
+const OFX_MV={
+  angel(o){/* 光の線が上から差して、槍が落ちて刺さる */const W=Math.max(300,o.RW*4.4)*o.hv,r=Math.PI/2+o.dir*.16,ox=Math.cos(r)*.344*W,oy=Math.sin(r)*.344*W;
+    ofxAdd({pil:1,col:o.col,dur:260,f:u=>({x:o.tx,y:o.ty,w:14*(1-u)+4,h:innerHeight,a:Math.sin(u*Math.PI)*.8})});
+    ofxAdd({pic:o.sl,fr:10,dur:560,dl:40,f:u=>({x:o.tx-ox,y:o.ty-oy,r,w:W,h:W/2,a:1})});
+    ofxBu(o.bu,o.tx,o.ty,2.1*o.RW*o.hv,150,560,.25);
+    ofxAdd({ring:1,col:o.col,dur:620,dl:150,fl:.28,f:u=>({x:o.tx,y:o.feet,s:10+ofxE.o5(u)*o.RW*1.3,a:1-u,lw:4*(1-u)+1})});
+    for(let i=0;i<Math.round(9*o.n);i++){const x0=o.tx+ofxRnd(-1.1,1.1)*o.RW,sw=ofxRnd(10,24),ph=ofxRnd(0,6),sz=ofxRnd(30,42);ofxAdd({k:'feather',dur:1100,dl:180+i*35,spin:ofxRnd(.4,.8),f0:Math.random(),glow:o.col,
+      f:u=>({x:x0+Math.sin(ph+u*5)*sw,y:o.ty-o.RH*1.1+u*o.RH*1.5,s:sz,a:Math.min(1,u*5)*(1-Math.pow(u,2)),r:Math.sin(ph+u*4)*.6})})}
+    ofxShk(9,160)},
+  hood(o){/* ぶかぶかの袖でドン: 足元に丸い衝撃波が「ぼよん」と広がる */const W=Math.max(320,o.RW*4.8)*o.hv,h=W/2,cy=o.feet-.156*h;
+    ofxAdd({pic:o.sl,fr:10,dur:760,f:u=>({x:o.tx,y:cy,w:W,h,sx:1,sy:1,a:1})});
+    ofxAdd({pic:o.bu,dur:460,f:u=>{const e=ofxE.o3(u),z=1.9*o.RW*o.hv,q=1+.25*Math.sin(u*Math.PI*3)*(1-u);return{x:o.tx,y:o.ty,w:z*(.3+.8*e)*q,h:z*(.3+.8*e)/q,a:(1-u)*1.2}}});
+    for(let i=0;i<Math.round(10*o.n);i++){const a=i/10*Math.PI*2,d=ofxRnd(.6,1.3)*o.RW,sz=ofxRnd(24,40),top=ofxRnd(.8,1.5);ofxAdd({k:'bubble',dur:ofxRnd(800,1000),dl:120+i*25,spin:.3,f0:Math.random(),glow:o.col,
+      f:u=>({x:o.tx+Math.cos(a)*d*(.5+.5*ofxE.o3(u)),y:o.feet+Math.sin(a)*d*.3-ofxE.o3(u)*o.RH*top,s:sz*(.6+.6*u),a:Math.min(1,u*6)*(1-Math.pow(u,4)),r:0})})}
+    ofxShk(13,10);ofxShk(6,240)},
+  chibi(o){/* ハートの弾を5連発。当たるたびに「ぽんっ」 */const sx=o.tx-(o.tx-o.ax)*.55,sy=o.ty-(o.ty-o.ay)*.55-24,N=5;
+    for(let i=0;i<N;i++){const last=i===N-1,dl=i*90+(last?50:0),du=last?200:170,side=(i%2?1:-1)*(26+i*8),W=last?320:240,dx=o.tx-sx,dy=o.ty-sy,L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L;
+      const P=u=>{const v=1-u;return{x:v*v*sx+2*v*u*((sx+o.tx)/2+nx*side)+u*u*o.tx,y:v*v*sy+2*v*u*((sy+o.ty)/2+ny*side)+u*u*o.ty}};
+      ofxAdd({pic:o.sl,fr:10,dur:du,dl,f:u=>{const e=ofxE.io(Math.min(1,u)),p=P(e),q=P(Math.min(1,e+.04)),r=Math.atan2(q.y-p.y,q.x-p.x);return{x:p.x-Math.cos(r)*.28*W,y:p.y-Math.sin(r)*.28*W,r,w:W,h:W/2,a:Math.min(1,u*5)}}});
+      const hx=o.tx+ofxRnd(-.2,.2)*o.RW,hy=o.ty+ofxRnd(-.2,.15)*o.RH;
+      ofxBu(o.bu,hx,hy,(last?2.2:1.05)*o.RW*o.hv,dl+du-10,last?520:300,.8);
+      ofxAdd({ring:1,col:o.col,dur:300,dl:dl+du-10,f:u=>({x:hx,y:hy,s:8+ofxE.o5(u)*o.RW*(last?.9:.45),a:1-u,lw:3*(1-u)+1,fl:.8})});
+      if(i)setTimeout(()=>ofxSnd(o.K,'hit'),D(dl+du-10));ofxShk(last?9:3,dl+du);
+      for(let k=0;k<(last?Math.round(8*o.n):2);k++){const a=ofxRnd(0,6.3),d=ofxRnd(.5,1.1)*o.RW*(last?1.2:.7);ofxAdd({k:'heart',dur:600,dl:dl+du,spin:.5,f0:Math.random(),glow:o.col,f:u=>{const e=ofxE.o5(u);return{x:hx+Math.cos(a)*d*e,y:hy+Math.sin(a)*d*.8*e-u*20,s:(last?34:24)*(1-.3*u),a:1-u*u,r:Math.cos(a)*.4}}})}}},
+  sigh(o){/* ため息の風が届いて、つむじ風が巻き上がる */const W=Math.max(280,o.RH*3)*o.hv,sx=o.tx-(o.tx-o.ax)*.6,sy=o.ty-(o.ty-o.ay)*.6;
+    for(let i=0;i<Math.round(8*o.n);i++){const ph=ofxRnd(0,6),amp=ofxRnd(14,34),sz=ofxRnd(26,36);ofxAdd({k:'petal',dur:300,dl:i*18,spin:2,f0:Math.random(),glow:o.col,streak:1,
+      f:u=>{const e=ofxE.io(u),x=sx+(o.tx-sx)*e,y=sy+(o.ty-sy)*e;return{x:x+Math.sin(ph+u*9)*amp*(1-u),y:y+Math.cos(ph+u*9)*amp*(1-u),s:sz,a:Math.min(1,u*6)*(1-Math.pow(u,6)),r:u*6}}})}
+    ofxAdd({pic:o.sl,fr:10,dur:860,dl:170,f:u=>({x:o.tx,y:o.feet-.422*W,r:-Math.PI/2,w:W,h:W/2,a:1})});
+    ofxBu(o.bu,o.tx,o.ty,1.7*o.RW*o.hv,200,640,1.6);
+    ofxAdd({ring:1,col:o.col,dur:700,dl:170,fl:.3,f:u=>({x:o.tx,y:o.feet,s:10+ofxE.o5(u)*o.RW*.9,a:1-u,lw:3})});
+    for(let i=0;i<Math.round(8*o.n);i++){const a0=i/8*Math.PI*2,sz=ofxRnd(26,36);ofxAdd({k:'petal',dur:900,dl:300+i*20,spin:1,f0:Math.random(),glow:o.col,
+      f:u=>{const a=a0+u*7,r=o.RW*(.45+.3*u);return{x:o.tx+Math.cos(a)*r,y:o.feet-ofxE.o3(u)*o.RH*1.6+Math.sin(a)*r*.3,s:sz,a:Math.min(1,u*6)*(1-Math.pow(u,2)),r:a}}})}
+    ofxShk(5,220)},
+  knit(o){/* 毛糸がしゅるしゅる巻きついて、きゅっと締まって、雪の結晶がはじける */const W=Math.max(200,o.RH*1.85)*o.hv;
+    ofxAdd({pic:o.sl,fr:10,dur:980,f:u=>({x:o.tx,y:o.ty,r:-Math.PI/2,w:W,h:W/2,a:1})});
+    ofxAdd({gl:1,col:'#ffffff',dur:240,dl:470,f:u=>({x:o.tx,y:o.ty,s:40*Math.sin(u*Math.PI),a:1})});
+    ofxBu(o.bu,o.tx,o.ty,2.1*o.RW*o.hv,480,620,.4);
+    ofxAdd({ring:1,col:o.col,dur:420,dl:480,f:u=>({x:o.tx,y:o.ty,s:12+ofxE.o5(u)*o.RW*1.1,a:1-u,lw:4*(1-u)+1,fl:.8})});
+    setTimeout(()=>ofxSnd(o.K,'hit'),D(480));ofxShk(8,490)},
+  crown(o){/* 相手の足元からつるが伸びて、花が咲いて、花びらが舞い上がる */const W=Math.max(320,o.RW*4.6)*o.hv,h=W/2;
+    ofxAdd({ring:1,col:o.c2,dur:600,f:u=>({x:o.tx,y:o.feet,s:10+ofxE.o5(u)*o.RW*.9,a:1-u*u,lw:3,fl:.25})});
+    ofxAdd({pic:o.sl,fr:10,dur:1050,f:u=>({x:o.tx,y:o.feet-.3875*h,w:W,h,a:1})});
+    ofxBu(o.bu,o.tx,o.ty-o.RH*.15,1.6*o.RW*o.hv,330,680,.3);
+    for(let i=0;i<Math.round(14*o.n);i++){const vx=ofxRnd(-1.2,1.2)*o.RW,vy=ofxRnd(1,1.8)*o.RH,sz=ofxRnd(24,36),k=i%3?'petal':'leaf';ofxAdd({k,dur:1000,dl:420+i*14,spin:ofxRnd(.6,1.4),f0:Math.random(),glow:o.col,
+      f:u=>{const e=ofxE.o3(u);return{x:o.tx+vx*e,y:o.ty-o.RH*.2-vy*e+u*u*40,s:sz,a:Math.min(1,u*6)*(1-Math.pow(u,2)),r:u*5}}})}
+    ofxShk(5,340)}};
 
 /* (10/29) 倒したときの決め: 推しごとに違う動き */
 function ofxFin(t,T,K,col){const W=Math.max(56,T.w),Hh=Math.max(70,T.h),R=OFX_RM?.5:1,P=(o)=>ofxAdd(Object.assign({spin:1,f0:Math.random(),glow:col},o));
