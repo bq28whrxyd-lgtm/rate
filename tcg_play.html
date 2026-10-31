@@ -2243,7 +2243,7 @@ PR([
  {id:'p3',n:'ちいさな船医 ミモ',r:'R',type:'chara',c:2,atk:1300,def:1600,kw:{role:'船医',medic:500},aw:{k:'heal',n:1500}},
  {id:'p4',n:'賭け撃ちの狙撃手 ヴァロ',r:'R',type:'chara',c:3,atk:1800,def:1200,kw:{role:'狙撃手',gamble:1,yomi:600},aw:{k:'atk',n:600}},
  {id:'p5',n:'裏切りの航海士 セラ',r:'R',type:'chara',c:3,atk:1700,def:1900,kw:{role:'航海士',decoy:1},onPlay:[{op:'draw',n:1}],aw:{k:'def',n:600}},
- {id:'p6',n:'秘宝 霧蜜果',r:'R',type:'spell',c:2,tgt:'allyNoHi',ops:[{op:'hi',k:'mist'}]},
+ {id:'p6',n:'秘宝 霧隠れの蜜酒',r:'R',type:'spell',c:2,tgt:'allyNoHi',ops:[{op:'hi',k:'mist'}]},
  {id:'p7',n:'偽装宝箱',r:'R',type:'trap',c:1,when:'spell',needHi:1,ops:[{op:'dropHi'},{op:'negate'}]},
  {id:'p8',n:'潮渡りの船長 ノイラ',r:'SR',type:'chara',c:4,trib:1,atk:2600,def:2100,kw:{role:'船長',crew:150,birthHi:'gum'},aw:{k:'haoh',max:1500}},
  {id:'p9',n:'三本刀の剣士',r:'HR',type:'chara',c:3,atk:2000,def:1400,kw:{role:'剣士',hard:1,tri:1},aw:{k:'atk',n:800}},
@@ -2254,14 +2254,14 @@ PR([
  {id:'p14',n:'鋼の腕の海軍中将',r:'HR',type:'chara',c:4,atk:2500,def:2300,kw:{hunt:600,hard:1},aw:{k:'atk',n:800}},
  {id:'p15',n:'封潮石の手錠',r:'R',type:'trap',c:2,when:'attack',ops:[{op:'negate'},{op:'cuff'}]},
  {id:'p16',n:'意志の目覚め',r:'N',type:'spell',c:1,tgt:'ally',ops:[{op:'giveHard',n:300}]},
- {id:'p17',n:'秘宝 鏡種果',r:'R',type:'spell',c:1,tgt:'allyNoHi',ops:[{op:'hi',k:'mirror'}]},
- {id:'p18',n:'秘宝 錨殻果',r:'N',type:'spell',c:1,tgt:'allyNoHi',ops:[{op:'hi',k:'anchor'}]},
+ {id:'p17',n:'秘宝 鏡映しの雫酒',r:'R',type:'spell',c:1,tgt:'allyNoHi',ops:[{op:'hi',k:'mirror'}]},
+ {id:'p18',n:'秘宝 錨潮の黒ラム',r:'N',type:'spell',c:1,tgt:'allyNoHi',ops:[{op:'hi',k:'anchor'}]},
  {id:'p19',n:'秘宝 千鳥の古酒',r:'HR',type:'spell',c:1,tgt:'allyNoHi',ops:[{op:'hi',k:'gum'}]},
 ]);
 /* 秘宝: the name and what each one does (the engine reads R.HI_* for the numbers) */
-const HIDE={mist:{f:'霧蜜果',n:'霧化',t:'1ターンに1回、バトルで倒されるとき、かわりに倒れない(【鋼纏】のキャラには効かない)'},
- mirror:{f:'鏡種果',n:'写し身',t:'元のATKが、相手のキャラで一番高い元のATKと同じになる(最大2200。低くはならない)'},
- anchor:{f:'錨殻果',n:'錨の体',t:'ATK・DEF+400。そのかわり、このキャラを育てる熱量が1多い'},
+const HIDE={mist:{f:'霧隠れの蜜酒',n:'霧化',t:'1ターンに1回、バトルで倒されるとき、かわりに倒れない(【鋼纏】のキャラには効かない)'},
+ mirror:{f:'鏡映しの雫酒',n:'写し身',t:'元のATKが、相手のキャラで一番高い元のATKと同じになる(最大2200。低くはならない)'},
+ anchor:{f:'錨潮の黒ラム',n:'錨の体',t:'ATK・DEF+400。そのかわり、このキャラを育てる熱量が1多い'},
  gum:{f:'千鳥の古酒',n:'千鳥足',t:'攻撃する相手を【かばう】に関係なく選べる。反撃で自分のライフにダメージを受けない'}};
 /* ===== (10/22) 巡生族「魔ノ森の盟約」(set 'rc'): 名付け (the trait: once a turn, 熱量2) names an ally; a card with kw.evo turns into its evolved form
    (a token card that is not collectible, m.base keeps the real card), anything else gets ★+1. Named: ATK・DEF+200 (加護).
@@ -2621,8 +2621,8 @@ function statParts(g,m){const P=g.p[m.owner],k=KW(m),L=[],add=(n,a,d)=>{a=a||0;d
   add('操縦者',m.pa||0,m.pd||0);add('しばらく続く強化',tbSum(g,m,'a'),tbSum(g,m,'d'));if(m.kan&&g.turns<=m.kan.u)add('換装',m.kan.a,m.kan.d);
   add('艦長',0,isMech(m)&&units(g,m.owner).some(x=>x!==m&&(KW(x)).captain)?300:0);
   {const n=roleN(g,m.owner),c=k.crew?k.crew*n:(k.role&&R.CREW_ALL?R.CREW_ALL*n:0);add('【一味】'+n+'種類',c,c)}
-  if(m.hi==='anchor')add('秘宝「錨殻果」',R.HI_A,R.HI_A);if(m.hi&&!m.hiB)add('秘宝',R.HI_B,R.HI_B);
-  if(m.hi==='mirror'){const b=Math.min(R.MIRMAX,Math.max(0,...units(g,opp(m.owner)).map(x=>x.atk0)));if(b>m.atk0)add('秘宝「鏡種果」',b-m.atk0,0)}
+  if(m.hi==='anchor')add('秘宝「錨潮の黒ラム」',R.HI_A,R.HI_A);if(m.hi&&!m.hiB)add('秘宝',R.HI_B,R.HI_B);
+  if(m.hi==='mirror'){const b=Math.min(R.MIRMAX,Math.max(0,...units(g,opp(m.owner)).map(x=>x.atk0)));if(b>m.atk0)add('秘宝「鏡映しの雫酒」',b-m.atk0,0)}
   if(tr(g,m.owner,'pirate'))add('懸賞金 Lv'+bty(m),R.BTY*bty(m),0);
   add('真名',m.named?R.NAME_B:0,m.named?R.NAME_B:0);add('騎乗',rideB(g,m),0);
   {let w=0;units(g,m.owner).forEach(x=>{if(x!==m){const v=(KW(x)).ward;if(v)w+=v}});add('味方の守り',0,w)}
