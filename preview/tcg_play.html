@@ -5721,10 +5721,11 @@ function ofxTick(){const now=ofxNow();OFX.raf=0;const cx=ofxCanvas(),d=OFX.dpr;c
     cx.globalAlpha=Math.min(1,q.a);
     if(p.ring){cx.globalCompositeOperation='lighter';cx.strokeStyle=p.col;cx.lineWidth=q.lw||3;cx.shadowColor=p.col;cx.shadowBlur=14;cx.beginPath();cx.ellipse(q.x,q.y,q.s,q.s*(p.fl||.55),0,0,Math.PI*2);cx.stroke();cx.shadowBlur=0;cx.globalCompositeOperation='source-over';return true}
     if(p.gl){cx.globalCompositeOperation='lighter';cx.fillStyle='#fff';cx.shadowColor=p.col;cx.shadowBlur=10;const s=q.s;cx.beginPath();cx.moveTo(q.x,q.y-s);cx.quadraticCurveTo(q.x,q.y,q.x+s,q.y);cx.quadraticCurveTo(q.x,q.y,q.x,q.y+s);cx.quadraticCurveTo(q.x,q.y,q.x-s,q.y);cx.quadraticCurveTo(q.x,q.y,q.x,q.y-s);cx.fill();cx.shadowBlur=0;cx.globalCompositeOperation='source-over';return true}
+    if(p.cf){cx.globalCompositeOperation='lighter';cx.fillStyle=p.col;cx.shadowColor=p.col;cx.shadowBlur=24;const w=q.w,h=q.h,x=q.x-w/2,y=q.y-h/2,r=Math.min(w,h)*.08;cx.beginPath();cx.moveTo(x+r,y);cx.arcTo(x+w,y,x+w,y+h,r);cx.arcTo(x+w,y+h,x,y+h,r);cx.arcTo(x,y+h,x,y,r);cx.arcTo(x,y,x+w,y,r);cx.closePath();cx.fill();cx.shadowBlur=0;cx.globalCompositeOperation='source-over';return true}
     if(p.dark){cx.fillStyle='rgba(6,3,14,1)';cx.fillRect(0,0,innerWidth,innerHeight);return true}
     if(p.tint){cx.globalCompositeOperation='lighter';cx.fillStyle=p.col;cx.fillRect(0,0,innerWidth,innerHeight);cx.globalCompositeOperation='source-over';return true}
     if(p.pil){cx.globalCompositeOperation='lighter';const g2=cx.createLinearGradient(q.x-q.w/2,0,q.x+q.w/2,0);g2.addColorStop(0,'rgba(0,0,0,0)');g2.addColorStop(.35,p.col);g2.addColorStop(.5,'#ffffff');g2.addColorStop(.65,p.col);g2.addColorStop(1,'rgba(0,0,0,0)');cx.fillStyle=g2;const g3=cx.createLinearGradient(0,q.y-q.h,0,q.y);cx.fillRect(q.x-q.w/2,q.y-q.h,q.w,q.h);cx.globalCompositeOperation='source-over';return true}
-    if(p.pic){const im=p.pic;if(!im.complete||!im.naturalWidth)return true;cx.globalCompositeOperation='lighter';cx.save();cx.translate(q.x,q.y);cx.rotate(q.r||0);cx.scale(q.sx||1,q.sy||1);if(p.fr){const fw=im.naturalWidth/p.fr,fi=Math.min(p.fr-1,Math.floor(u*p.fr));cx.drawImage(im,fi*fw,0,fw,im.naturalHeight,-q.w/2,-q.h/2,q.w,q.h)}else cx.drawImage(im,-q.w/2,-q.h/2,q.w,q.h);cx.restore();cx.globalCompositeOperation='source-over';return true}
+    if(p.pic){const im=p.pic;if(!im.complete||!im.naturalWidth)return true;cx.globalCompositeOperation='lighter';cx.save();cx.translate(q.x,q.y);cx.rotate(q.r||0);cx.scale(q.sx||1,q.sy||1);if(p.fr){const co=p.cols||p.fr,ro=Math.ceil(p.fr/co),fw=im.naturalWidth/co,fh=im.naturalHeight/ro,fi=q.fi!=null?Math.max(0,Math.min(p.fr-1,q.fi|0)):Math.min(p.fr-1,Math.floor(u*p.fr));cx.drawImage(im,(fi%co)*fw,Math.floor(fi/co)*fh,fw,fh,-q.w/2,-q.h/2,q.w,q.h)}else cx.drawImage(im,-q.w/2,-q.h/2,q.w,q.h);cx.restore();cx.globalCompositeOperation='source-over';return true}
     if(p.streak&&u>.04){const q0=p.f(Math.max(0,u-.07));cx.globalCompositeOperation='lighter';cx.strokeStyle=p.glow||'#fff';cx.lineCap='round';cx.lineWidth=Math.max(2,q.s*.22);cx.beginPath();cx.moveTo(q0.x,q0.y);cx.lineTo(q.x,q.y);cx.stroke();cx.globalCompositeOperation='source-over';cx.globalAlpha=Math.min(1,q.a)*(p.dim||1)}
     const im=ofxImg(p.k);if(!im.complete||!im.naturalWidth)return true;const fi=Math.floor(((u*p.spin+p.f0)%1+1)%1*12),s=q.s;
     cx.globalAlpha=Math.min(1,q.a)*(p.dim||1);if(p.glow){cx.shadowColor=p.glow;cx.shadowBlur=Math.max(6,s*.32)}
@@ -5760,8 +5761,10 @@ function ofxDown(el,K){const T=ofxRect(el);if(!T)return;const n=OFX_RM?4:9;
 
 /* (10/29) 推しの攻撃スキン: 攻撃するキャラの持ち主に応援演出があると、斬撃・当たった光・飛び散るものが、その推しの色と形になる(Blender の ovx_slash_* / ovx_burst_* と ofx_*) */
 const OVX_T={'夜宴の小悪魔':'imp','堕ちた天使':'angel','オーバーサイズ':'hood','ふくれっつら':'chibi','ためいき':'sigh','ひだまりニット':'knit','はなかんむり':'crown'};
-const OVX_IMG={};function ovxImg(n){let im=OVX_IMG[n];if(!im){im=new Image();im.src='tcgk/ovx_'+n+'.webp';OVX_IMG[n]=im}return im}
-function ofxTheme(m){try{if(!m||FAST||WATCH)return null;const K=OSK.K[m.owner];if(!K)return null;const t=OVX_T[K.n]||'hood';ovxImg('sweep_'+t);ovxImg('burst_'+t);ofxKinds(K).forEach(ofxImg);return Object.assign({t},K)}catch(e){return null}}
+/* v4: 推しごとの16コマ縦長シート(4x4)。st=止めるコマ、hits=当たるコマ、ft=1コマの長さ、hold=止める長さ、flip=向きで左右反転 */
+const OFX_V4={angel:{st:3,hits:[3],ft:46,hold:95},imp:{st:5,hits:[1,3,5],ft:46,hold:90},hood:{st:2,hits:[2],ft:50,hold:100},chibi:{st:9,hits:[1,3,5,7,9],ft:48,hold:90},
+  sigh:{st:3,hits:[3],ft:52,hold:70,flip:1},knit:{st:4,hits:[4],ft:50,hold:90},crown:{st:5,hits:[5],ft:50,hold:80}};const OVX_IMG={};function ovxImg(n){let im=OVX_IMG[n];if(!im){im=new Image();im.src='tcgk/ovx_'+n+'.webp';OVX_IMG[n]=im}return im}
+function ofxTheme(m){try{if(!m||FAST||WATCH)return null;const K=OSK.K[m.owner];if(!K)return null;const t=OVX_T[K.n]||'hood';ovxImg('sweep_'+t);ovxImg('burst_'+t);if(OFX_V4[t])ovxImg('v4_'+t);ofxKinds(K).forEach(ofxImg);return Object.assign({t},K)}catch(e){return null}}
 /* the charge: her pieces circle up around the attacker */
 function ofxSnd(K,ph){try{TSFX.play('o_'+(K.t||OVX_T[K.n]||'hood')+'_'+ph)}catch(e){}}
 function ofxCharge(K,st){const A=ofxRect(st);if(!A)return;ofxSnd(K,'charge');const col=K.c[0]||'#ff8fd0',n=OFX_RM?6:14,R=Math.max(30,A.w*.75);
@@ -5786,20 +5789,27 @@ function ofxStrikeImp(K,ax,ay,tx,ty,rt,heavy){ofxSnd(K,'hit');const col=K.c[0]||
    ためいき=つむじ風 / ニット=毛糸が巻きついて締まる / はなかんむり=足元から花が咲く。絵は Blender の ovx_sweep_<t>(10コマ) と ovx_burst_<t> */
 function ofxShk(n,dl){setTimeout(()=>{try{shake(n)}catch(e){}},D(dl||0))}
 function ofxBu(bu,x,y,z,dl,dur,spin){ofxAdd({pic:bu,dur:dur||520,dl:dl||0,f:u=>{const e=ofxE.o5(u);return{x,y,r:u*(spin||.5),w:z*(.2+.95*e),h:z*(.2+.95*e),a:(1-u)*1.25}}})}
-function ofxStrike(K,ax,ay,tx,ty,rt,heavy){const t=K.t||OVX_T[K.n]||'imp';if(t==='imp'||!OFX_MV[t])return ofxStrikeImp(K,ax,ay,tx,ty,rt,heavy);
-  ofxSnd(K,'hit');const col=K.c[0]||'#ff8fd0',c2=K.c[1]||'#ffffff',RW=Math.max(56,rt.width||70),RH=Math.max(70,rt.height||90),sl=ovxImg('sweep_'+t),bu=ovxImg('burst_'+t),dir=tx>=ax?1:-1,hv=heavy?1.25:1;
-  if(!OFX.noTint)ofxAdd({tint:1,col:col+'44',dur:200,f:u=>({x:0,y:0,a:1-u})});
-  OFX_MV[t]({K,col,c2,RW,RH,sl,bu,dir,hv,ax,ay,tx,ty,feet:ty+RH*.46,n:OFX_RM?.5:1});
-  ofxGl({x:tx,y:ty,w:RW,h:RH},col,heavy?10:7)}
+function ofxV4(o,t){const c=OFX_V4[t],H=Math.max(330,o.RH*2.75)*o.hv,W=H*2/3,cy=o.ty-.1*H,im=ovxImg('v4_'+t),ft=c.ft,st=c.st,hold=c.hold,TOT=16*ft+hold,sx=c.flip?o.dir:1;
+  const fi=ms=>ms<(st+1)*ft?ms/ft:ms<(st+1)*ft+hold?st:(ms-hold)/ft,at=k=>k*ft+(k>st?hold:0);
+  ofxAdd({pic:im,fr:16,cols:4,dur:TOT,f:u=>({x:o.tx,y:cy,w:W,h:H,sx,fi:fi(u*TOT),a:1})});
+  c.hits.forEach(k=>{const big=k===st,T0=at(k);
+    setTimeout(()=>ofxSnd(o.K,'hit'),D(T0));ofxShk(big?11:5,T0);
+    if(big)ofxAdd({tint:1,col:'#ffffff40',dur:110,dl:T0,f:u=>({x:0,y:0,a:1-u})});
+    ofxAdd({cf:1,col:'#ffffff',dur:big?200:130,dl:T0,f:u=>({x:o.tx,y:o.ty,w:o.RW*(1+.06*u),h:o.RH*(1+.06*u),a:(1-u)*(1-u)*(big?.75:.45)})})});
+  ofxShk(5,at(st)+hold+60);return at(st)}
+function ofxStrike(K,ax,ay,tx,ty,rt,heavy){const t=K.t||OVX_T[K.n]||'imp';if(!OFX_V4[t]&&(t==='imp'||!OFX_MV[t]))return ofxStrikeImp(K,ax,ay,tx,ty,rt,heavy);
+  const v4=!!OFX_V4[t];if(!v4)ofxSnd(K,'hit');const col=K.c[0]||'#ff8fd0',c2=K.c[1]||'#ffffff',RW=Math.max(56,rt.width||70),RH=Math.max(70,rt.height||90),sl=ovxImg('sweep_'+t),bu=ovxImg('burst_'+t),dir=tx>=ax?1:-1,hv=heavy?1.25:1;
+  if(!OFX.noTint&&!v4)ofxAdd({tint:1,col:col+'44',dur:200,f:u=>({x:0,y:0,a:1-u})});
+  const o={K,col,c2,RW,RH,sl,bu,dir,hv,ax,ay,tx,ty,feet:ty+RH*.46,n:OFX_RM?.5:1},T0=v4?ofxV4(o,t):0;if(!v4)OFX_MV[t](o);
+  ofxGl({x:tx,y:ty,w:RW,h:RH},col,heavy?10:7,T0)}
 const OFX_MV={
-  angel(o){/* 光の線が上から差して、槍が落ちて刺さる */const W=Math.max(300,o.RW*4.4)*o.hv,r=Math.PI/2+o.dir*.16,ox=Math.cos(r)*.344*W,oy=Math.sin(r)*.344*W;
-    ofxAdd({pil:1,col:o.col,dur:260,f:u=>({x:o.tx,y:o.ty,w:14*(1-u)+4,h:innerHeight,a:Math.sin(u*Math.PI)*.8})});
-    ofxAdd({pic:o.sl,fr:10,dur:560,dl:40,f:u=>({x:o.tx-ox,y:o.ty-oy,r,w:W,h:W/2,a:1})});
-    ofxBu(o.bu,o.tx,o.ty,2.1*o.RW*o.hv,150,560,.25);
-    ofxAdd({ring:1,col:o.col,dur:620,dl:150,fl:.28,f:u=>({x:o.tx,y:o.feet,s:10+ofxE.o5(u)*o.RW*1.3,a:1-u,lw:4*(1-u)+1})});
-    for(let i=0;i<Math.round(9*o.n);i++){const x0=o.tx+ofxRnd(-1.1,1.1)*o.RW,sw=ofxRnd(10,24),ph=ofxRnd(0,6),sz=ofxRnd(30,42);ofxAdd({k:'feather',dur:1100,dl:180+i*35,spin:ofxRnd(.4,.8),f0:Math.random(),glow:o.col,
-      f:u=>({x:x0+Math.sin(ph+u*5)*sw,y:o.ty-o.RH*1.1+u*o.RH*1.5,s:sz,a:Math.min(1,u*5)*(1-Math.pow(u,2)),r:Math.sin(ph+u*4)*.6})})}
-    ofxShk(9,160)},
+  angel(o){/* v4: 天使の輪 → 光の槍が落ちて刺さる(止め) → 柱・衝撃の輪・羽根 → 欠けて消える。16コマの縦長シート */
+    const H=Math.max(330,o.RH*2.75)*o.hv,W=H*2/3,cy=o.ty-.1*H,im=ovxImg('v4_angel'),HIT=135,HOLD=95,FT=46;
+    const fi=ms=>ms<HIT?ms/45:ms<HIT+HOLD?3:4+(ms-HIT-HOLD)/FT,TOT=HIT+HOLD+12*FT;
+    ofxAdd({pic:im,fr:16,cols:4,dur:TOT,f:u=>({x:o.tx,y:cy,w:W,h:H,fi:fi(u*TOT),a:1})});
+    ofxAdd({tint:1,col:'#ffffff40',dur:110,dl:HIT,f:u=>({x:0,y:0,a:1-u})});
+    ofxAdd({cf:1,col:'#ffffff',dur:200,dl:HIT,f:u=>({x:o.tx,y:o.ty,w:o.RW*(1+.06*u),h:o.RH*(1+.06*u),a:(1-u)*(1-u)*.75})});
+    setTimeout(()=>ofxSnd(o.K,'hit'),D(HIT));ofxShk(11,HIT);ofxShk(5,HIT+HOLD+60)},
   hood(o){/* ぶかぶかの袖でドン: 足元に丸い衝撃波が「ぼよん」と広がる */const W=Math.max(320,o.RW*4.8)*o.hv,h=W/2,cy=o.feet-.156*h;
     ofxAdd({pic:o.sl,fr:10,dur:760,f:u=>({x:o.tx,y:cy,w:W,h,sx:1,sy:1,a:1})});
     ofxAdd({pic:o.bu,dur:460,f:u=>{const e=ofxE.o3(u),z=1.9*o.RW*o.hv,q=1+.25*Math.sin(u*Math.PI*3)*(1-u);return{x:o.tx,y:o.ty,w:z*(.3+.8*e)*q,h:z*(.3+.8*e)/q,a:(1-u)*1.2}}});
