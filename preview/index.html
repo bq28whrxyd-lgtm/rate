@@ -14305,7 +14305,7 @@ function render(){
   if(sorted.length>=4){const mb=el('button','more',HM.rank?'1〜3位の詳細をとじる':'1〜3位の詳細も見る');mb.onclick=()=>{HM.rank=!HM.rank;render()};rk.append(mb)}
   rk.querySelectorAll('[data-pid]').forEach(e=>{e.style.cursor='pointer';e.onclick=()=>{const q=players.find(x=>x.id===e.dataset.pid);if(q)showProfile(q,statLine(q))}});
   {const h=sigOf(rk.innerHTML);if(rkLive.__h!==h){rkLive.__h=h;rkLive.replaceChildren(...rk.childNodes)}}
-  renderMine();try{renderSurprise();renderWanted();bountyFeed();paintNew();likesWatch();farmWatch();mentorWatch();mtGradShow();if(!mtGradCheck.t||now()-mtGradCheck.t>30000){mtGradCheck.t=now();mtGradCheck()}}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();try{ptGuide()}catch(e){}try{stkCheck()}catch(e){}try{invCamp()}catch(e){}passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews();try{kmrPromo()}catch(e){}try{hetaNote()}catch(e){}}$('acct').hidden=!myPlayer();
+  renderMine();try{renderSurprise();renderWanted();bountyFeed();paintNew();likesWatch();farmWatch();mentorWatch();mtGradShow();if(!mtGradCheck.t||now()-mtGradCheck.t>30000){mtGradCheck.t=now();mtGradCheck()}}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();try{ptGuide()}catch(e){}try{stkCheck()}catch(e){}try{invCamp()}catch(e){}passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews();try{kmrPromo()}catch(e){}try{atkPromo()}catch(e){}try{hetaNote()}catch(e){}}$('acct').hidden=!myPlayer();
   {const me=myPlayer(),pc=$('pcard'),nc=me?profileCard(me,statLine(me)):el('div','empty','アカウントを設定すると、ここにプロフィールが出ます'),h=sigOf(nc.outerHTML);if(pc.__h!==h){pc.__h=h;pc.replaceChildren(nc)}$('pedit').hidden=!me}
   if(typeof watchInv==='function'){watchInv();renderGacha()}
   {const s=$('opp'),v=s.value,me=myPlayer();s.replaceChildren();
@@ -17356,8 +17356,8 @@ function kmrPromo(force){
   if(!force){if(kmrPromo.started||Date.now()>KMR_PROMO_END||!myPlayer()||navigator.webdriver/* automated tests */)return;let seen=0;try{seen=+localStorage.getItem(kmrPromoKey())||0}catch(e){}if(seen)return;kmrPromo.started=true;
     let n=0;const tick=()=>{if(document.querySelector('.kpromo'))return;if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){kmrPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,2500);return}
   kmrPromoShow()}
-function kmrPromoShow(){
-  if(document.querySelector('.kpromo'))return;try{localStorage.setItem(kmrPromoKey(),String(Date.now()))}catch(e){}
+function kmrPromoShow(P){P=P||{src:'promo_kmr.mp4',poster:'promo_kmr.jpg',key:kmrPromoKey()};
+  if(document.querySelector('.kpromo'))return;try{localStorage.setItem(P.key,String(Date.now()))}catch(e){}
   if(!document.getElementById('kpromoCss')){const st=document.createElement('style');st.id='kpromoCss';st.textContent=`
 .kpromo{position:fixed;inset:0;z-index:9000;background:#000;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .35s ease}
 .kpromo.on{opacity:1}.kpromo.off{opacity:0}
@@ -17368,7 +17368,7 @@ function kmrPromoShow(){
 .kpromo .kpsnd{left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 26px);transform:translateX(-50%);padding:14px 22px;color:#2a1a04;background:linear-gradient(100deg,#c39233,#f6dc8e 40%,#fff6d8 50%,#f3d37e 60%,#c39233);box-shadow:0 6px 20px rgba(0,0,0,.45)}
 .kpromo .kpsnd:active{transform:translateX(-50%) scale(.96)}
 .kpromo .kpsnd[hidden]{display:none}`;document.head.append(st)}
-  const o=el('div','kpromo'),v=document.createElement('video');v.src='promo_kmr.mp4';v.poster='promo_kmr.jpg';v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.autoplay=true;
+  const o=el('div','kpromo'),v=document.createElement('video');v.src=P.src;v.poster=P.poster;v.muted=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.preload='auto';v.autoplay=true;
   const skip=el('button','kpb kpskip','スキップ'),snd=el('button','kpb kpsnd','音を出す');
   let closed=false;const close=()=>{if(closed)return;closed=true;o.classList.add('off');try{v.pause()}catch(e){}setTimeout(()=>o.remove(),380)};
   skip.onclick=e=>{e.stopPropagation();close()};
@@ -17376,6 +17376,17 @@ function kmrPromoShow(){
   v.addEventListener('ended',()=>setTimeout(close,600));v.addEventListener('error',close);
   o.append(v,skip,snd);document.body.append(o);requestAnimationFrame(()=>o.classList.add('on'));
   const p=v.play();if(p&&p.catch)p.catch(()=>{/* autoplay refused: the sound button starts it */snd.textContent='再生する'})}
+/* (10/31) 推しの攻撃リニューアルの紹介動画(パソコンの Blender で作った promo_atk.mp4)。アプリを開いたら1回だけ。
+   KMRの紹介動画や他のお知らせが先に出ているときは、それが閉じてホームがあいてから出す */
+const ATK_PROMO_END=Date.parse('2026-12-31T23:59:59+09:00');
+function atkPromoKey(){return 'atkPromo1_'+((typeof me!=='undefined'&&me&&me.id)||'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
+function atkPromoShow(){kmrPromoShow({src:'promo_atk.mp4',poster:'promo_atk.jpg',key:atkPromoKey()})}
+function atkPromo(force){
+  if(force){atkPromoShow();return}
+  if(atkPromo.started||Date.now()>ATK_PROMO_END||!myPlayer()||navigator.webdriver)return;let seen=0;try{seen=+localStorage.getItem(atkPromoKey())||0}catch(e){}if(seen)return;atkPromo.started=true;
+  let n=0;const kmrPending=()=>{if(Date.now()>KMR_PROMO_END)return false;try{return !(+localStorage.getItem(kmrPromoKey())||0)}catch(e){return false}};
+  const tick=()=>{if(document.querySelector('.kpromo,.hnote,.tqi')||kmrPending()){n=0;return setTimeout(tick,1500)}
+    if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){atkPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,4500)}
 /* (10/30) 交換所の新入荷のお知らせ: アプリを開いたら1回だけ、写真(note_heta.webp)を出す。ホームがあいているときだけ。押すと交換所へ */
 const HETA_NOTE_END=Date.parse('2026-11-08T05:00:00+09:00');
 function hetaNoteKey(){return 'hetaNote1_'+((typeof me!=='undefined'&&me&&me.id)||'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
