@@ -4547,6 +4547,50 @@ function tuInfoHTML(id){const U=TCU[id],C=TCCE[id],tk=TCTK[id],pr=TCPAIR.filter(
 .tubox{display:grid;gap:5px;margin-top:8px;padding:10px 12px;border-radius:12px;background:rgba(255,224,102,.06);box-shadow:inset 0 0 0 1px rgba(255,224,102,.2)}
 .tubox p{margin:0;font:500 12px/1.5 var(--jp,sans-serif);color:#f2ecff}.tubox .tut{display:inline-block;margin-right:7px;padding:0 7px;border-radius:7px;background:#ffe066;color:#2a1a00;font:800 10.5px/1.6 var(--jp,sans-serif)}.tubox .tup{background:#ff9ad0;color:#2a0618}`;document.head.append(st)})();
 
+/* ================= (11/1) 自分で操作する: タイミングでタップ(ユーザー「パズドラモンストみたいに何か自分でする要素」) =================
+   参考にした考え方(まねはしない): ペーパーマリオのアクションコマンド、Clair Obscur のパリィ、音ゲーの判定
+   - 攻撃: 敵の上に金の輪。輪が小さくなって内側の円に重なった瞬間に画面をタップ → ジャスト(ダメージ1.3倍・シールド+1)/ナイス(1.12倍)
+   - 敵の攻撃: ねらわれた仲間に赤い輪。重なった瞬間にタップ → ジャストガード(ダメージ1/4)/ガード(半分)
+   - ジャスト・ナイスのときは攻撃が必ず当たる。外しても損はしない(ふつうのダメージ)。オートのときは輪も出ない
+   - 判定は当たる瞬間に「最後にタップした時刻」で決める(ボタンを押したタップは数えない) */
+const TJ={ring:.55,close:.05,perfect:.075,good:.24};
+const tjOn=()=>TR&&!TR.sim&&!TR.tpm&&!TR.auto&&!TR.end;
+document.addEventListener('pointerdown',e=>{try{if(!TR||TR.sim||TR.auto||TR.end)return;if(e.target&&e.target.closest&&e.target.closest('button,a,input,.thw,.tnsh'))return;TR.tapC=TR.c;TR.tapR=trNow();
+  if((TR.qa&&TR.qa.res==null&&TR.c>TR.qa.t-TJ.ring-.1&&TR.c<TR.qa.t+.1)||(TR.qe||[]).some(q=>TR.c>q.t-TJ.ring-.1&&TR.c<q.t+.1)){TR.tapFx={c:TR.c};if(typeof SFX!=='undefined'&&SFX.tap)SFX.tap()}}catch(x){}},{capture:true,passive:true});
+function tjJudge(t){const tp=TR.tapC;if(tp==null)return 0;const d=t-tp;if(d<-.001||d>TJ.good)return 0;return Math.abs((t-TJ.close)-tp)<=TJ.perfect?2:1}
+/* 攻撃の輪: 仲間の行動が始まったら、最初の1発が当たる時刻を覚える */
+{const _a=trActAnim;trActAnim=function(i,o){const r=_a.apply(this,arguments);try{if(tjOn()&&i>=0&&TR.P[i]){const a=TR.an[TR.an.length-1];if(a&&a.i===i){TR.qa={i,t:a.t0+a.hitAt,res:null,E:TR.E}}}}catch(e){}return r}}
+{const _d=trDamage;trDamage=function(i,mul,o){if(!tjOn()||!TR.qa||TR.qa.i!==i)return _d.apply(this,arguments);const q=TR.qa;o=o||{};let m=mul;
+  if(q.res==null&&!o.splash){q.res=tjJudge(q.t);if(q.res){const E=TR.E,x=typeof tgX==='function'?tgX(E):E.x-20;TR.fx.push({k:'txt',c:TR.c,s:q.res===2?'ジャスト!':'ナイス',x,y:E.y-E.ey*.25,col:q.res===2?'#ffe066':'#ffffff',sz:q.res===2?17:12,d:.9});
+      if(q.res===2){TR.stop=Math.max(TR.stop,.12);TR.shake=Math.max(TR.shake,5);if(typeof SFX!=='undefined'&&SFX.chain)SFX.chain(3);o=Object.assign({},o,{shield:(o.shield!=null?o.shield:(E.weak.includes(TR.P[i].wt)?1:0))+1})}
+      TR.tjN=(TR.tjN||0)+1;TR.tjP=(TR.tjP||0)+(q.res===2?1:0)}}
+  if(q.res===2)m*=1.3;else if(q.res===1)m*=1.12;if(q.res)o=Object.assign({},o,{sure:true});return _d.call(this,i,m,o)}}
+/* 敵の攻撃の輪: 敵の行動の中身から、当たる時刻を見積もる(当たったときの判定は実際の時刻で) */
+const TJNOHIT=['eheal','tick','flee','idle','charge','guard','poison'];
+{const _ea=trEnemyAct;trEnemyAct=function(){const E0=TR&&(TR.ES&&TR.actE!=null&&TR.ES.length>1?TR.ES[TR.actE]:TR.E),mk0=E0&&E0.mv&&E0.mv.k;const c0=TR?TR.c:0;const r=_ea.apply(this,arguments);
+  try{if(!tjOn()||!E0)return r;const E=E0;let ts=[];if(TJNOHIT.includes(mk0)&&!E.big)ts=[];else if(mk0==='boom')ts=[.35];else if(mk0==='volley')ts=[.25,.47,.69];else if(E.big)ts=[.45];else ts=[.3];
+    const all=E.big||mk0==='boom';let j=null;if(!all){j=TR.taunt>=0&&trAlive(TR.taunt)?TR.taunt:(E.mv&&E.mv.j!=null?E.mv.j:E.int)}
+    TR.qe=ts.map(t=>({t:c0+t,j,all}))}catch(e){}return r}}
+{const _h=trHurt;trHurt=function(j,h,tank){if(!tjOn()||!h||h.miss||!trAlive(j))return _h.apply(this,arguments);const q=(TR.qe||[]).find(x=>Math.abs(x.t-TR.c)<.2);
+  const res=q?tjJudge(q.t):tjJudge(TR.c);if(!res)return _h.apply(this,arguments);const [x,y]=TR.home[j],yy=TR.dq?H-96:y-TR.hd-40;
+  TR.fx.push({k:'txt',c:TR.c,s:res===2?'ジャストガード!':'ガード',x:TR.dq?x:x,y:yy,col:res===2?'#9fe8ff':'#d8e4ff',sz:res===2?14:11,d:.9});if(typeof SFX!=='undefined'&&SFX.guard)SFX.guard();
+  if(res===2)TR.stop=Math.max(TR.stop,.1);TR.tjG=(TR.tjG||0)+1;return _h.call(this,j,Object.assign({},h,{dmg:Math.max(1,Math.round(h.dmg*(res===2?.25:.5)))}),tank)}}
+/* 輪を描く */
+function tjRing(x,y,v,col,inner){/* v: 0→1 で輪が縮む。1で内側の円に重なる */const R0=inner*3.2,r=inner+(R0-inner)*(1-v),hot=v>.82;G.save();G.imageSmoothingEnabled=true;
+  G.globalAlpha=.9;G.lineWidth=2;G.strokeStyle='rgba(12,9,18,.6)';G.beginPath();G.arc(x,y,inner,0,Math.PI*2);G.stroke();G.lineWidth=1.4;G.strokeStyle=hot?'#ffffff':col;G.beginPath();G.arc(x,y,inner,0,Math.PI*2);G.stroke();
+  G.globalAlpha=Math.min(1,v*2.2);G.lineWidth=hot?3.2:2.4;G.strokeStyle=hot?'#ffffff':col;G.shadowColor=col;G.shadowBlur=hot?10:5;G.beginPath();G.arc(x,y,r,0,Math.PI*2);G.stroke();G.restore()}
+{const _dr=trDraw;trDraw=function(){_dr.apply(this,arguments);if(!tjOn())return;
+  const q=TR.qa;if(q&&q.res==null&&q.E&&trELive(q.E)){const tc=q.t-TJ.close,v=(TR.c-(tc-TJ.ring))/TJ.ring;if(v>=0&&v<=1.15){const E=q.E,x=typeof tgX==='function'?tgX(E):E.x-20;tjRing(x,E.y-E.ey*.85,Math.min(1,v),'#ffd34a',13)}}
+  for(const e of TR.qe||[]){const tc=e.t-TJ.close,v=(TR.c-(tc-TJ.ring))/TJ.ring;if(v<0||v>1.15)continue;const pts=e.all?TR.P.map((_,k)=>k).filter(trAlive):(e.j!=null&&trAlive(e.j)?[e.j]:[]);
+    for(const k of pts){const [x,y]=TR.home[k];tjRing(x,TR.dq?H-70:y-TR.hd*.5,Math.min(1,v),'#ff5a5a',TR.dq?15:12)}}
+  if(TR.tapFx&&TR.c-TR.tapFx.c<.15){/* タップした手ごたえ */const k=1-(TR.c-TR.tapFx.c)/.15;G.save();G.globalAlpha=.18*k;G.fillStyle='#fff';G.fillRect(0,0,W,H);G.restore()}}}
+/* 結果の画面に、ジャストの数 */
+{const _ui=trUI;trUI=function(){_ui.apply(this,arguments);try{if(!TR||TR.sim||!TR.end||!(TR.tjN||TR.tjG))return;const b=document.querySelector('#tbui .tbend');if(b&&!b.querySelector('.tjres')){b.insertBefore(Object.assign(mk('p','tjres'),{textContent:'ジャスト '+(TR.tjP||0)+'回 ・ ガード '+(TR.tjG||0)+'回'}),b.children[1]||null)}}catch(e){}}}
+/* ヒント: はじめの数回は、タイミングのやり方を出す */
+if(typeof bxHint==='function'){const _bh=bxHint;bxHint=function(){let n=0;try{n=+localStorage.getItem('tjSeen')||0}catch(e){}if(n<3&&TR&&TR.turn<=3)return '攻撃のとき、敵の上の<b>金の輪</b>が小さくなって円に重なった瞬間に<b>画面をタップ</b>するとジャスト(1.3倍)。敵の攻撃は<b>赤い輪</b>でガード';return _bh.apply(this,arguments)}}
+{const _e=trEnd;trEnd=function(win){const first=TR&&!TR.end;_e.apply(this,arguments);try{if(first&&TR&&!TR.sim&&!TR.auto){const n=+localStorage.getItem('tjSeen')||0;localStorage.setItem('tjSeen',String(n+1))}}catch(e){}}}
+(()=>{const st=document.createElement('style');st.textContent=`#tbui .tjres{margin:4px 0;font:800 13px/1.5 var(--jp,sans-serif);color:#ffe066}`;document.head.append(st)})();
+
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
