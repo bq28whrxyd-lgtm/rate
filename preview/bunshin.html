@@ -3697,12 +3697,12 @@ const TGMV={big:['全体攻撃!','#ff8a80'],charge:['力をためる','#ffb070']
 {const _h=trHud;trHud=function(){_h.apply(this,arguments);if(!tgOn()||TR.tpm||TR.phase==='prep')return;
   for(const E of TR.ES){if(!trELive(E))continue;const x=tgX(E),top=E.y-E.ey*1.38,mv=E.mv||{};
     G.save();G.fillStyle='rgba(10,8,16,.78)';G.fillRect(x-18,top-7,36,5);G.fillStyle='#ff5a6a';G.fillRect(x-17,top-6,Math.round(34*E.hp/E.max),3);
-    if(!(typeof TNQUIET!=='undefined'&&TNQUIET))E.weak.forEach((w,k)=>{G.fillStyle='rgba(10,8,16,.9)';G.fillRect(x+19+k*6,top-8,6,6);G.fillStyle=TRWC[w];G.fillRect(x+20+k*6,top-7,4,4)});G.restore();
+    G.restore();
     if(!TR.end){let s,col;if(mv.k==='tick'||mv.k==='boom'){s=mv.k==='boom'?'次に爆発!':'爆発まで'+E.cd;col='#ff6a4a'}else if(TGMV[mv.k]){[s,col]=TGMV[mv.k]}
-      if(s){const blink=mv.k==='boom'||mv.k==='big'?.6+.4*Math.sin(TR.c*10):1;tbTxt(s,x,top-22,7.5,col,null,blink)}
-      else{const j=TR.taunt>=0&&trAlive(TR.taunt)?TR.taunt:mv.j!=null?mv.j:E.int;if(j!=null&&j>=0&&TR.P[j]){const rel=mv.k==='release';tbTxt(rel?'大技':'攻撃',x-7,top-22,7.5,rel?'#ff8a80':'#ffe9c0');G.save();G.imageSmoothingEnabled=false;G.drawImage(trFace(j),x+5,top-28,11,11);G.restore()}}}
+      if(s){const blink=mv.k==='boom'||mv.k==='big'?.6+.4*Math.sin(TR.c*10):1;tbTxt(s,x,top-24,9.5,col,null,blink)}
+      else{const j=TR.taunt>=0&&trAlive(TR.taunt)?TR.taunt:mv.j!=null?mv.j:E.int;if(j!=null&&j>=0&&TR.P[j]){const rel=mv.k==='release';tbTxt(rel?'大技→':'攻撃→',x-8,top-24,9.5,rel?'#ff8a80':'#ffe9c0');G.save();G.imageSmoothingEnabled=false;G.drawImage(trFace(j),x+10,top-31,13,13);G.restore()}}}
     if(E.role==='bomb'){const p=E.cd<=1?1+.12*Math.sin(TR.c*12):1,M=E.mon&&TGMON[E.mon],pn=M&&M.panel;const bx=pn?E.x+(pn[0]-M.cx)*E.s:x,by=pn?E.y-(M.h-pn[1])*E.s:E.y-E.ey*.75;tbTxt(String(E.cd),bx,by,15*p,E.cd<=1?'#ff3a2a':'#ff8a3a')}
-    if(!(typeof TNQUIET!=='undefined'&&TNQUIET)||(E.role!=='lead'&&E.role!=='atk'))tbTxt(E.role==='lead'?'リーダー':TGR[E.role].n,x,top-12,6.5,E.role==='lead'?'#ffe9c0':TGR[E.role].col);
+    if(!(typeof TNQUIET!=='undefined'&&TNQUIET)||(E.role!=='lead'&&E.role!=='atk'))tbTxt(E.role==='lead'?'リーダー':TGR[E.role].n,x,top-13,8,E.role==='lead'?'#ffe9c0':TGR[E.role].col);
     if(E.charging){const k=.5+.5*Math.sin(TR.c*9);G.save();G.globalAlpha=.25+.25*k;glow(x,E.y-E.ey,60,'rgba(255,120,60,1)',.6);G.restore()}
     if(E.guardN>0)tbTxt('守り',x+24,E.y-E.ey,7,'#a6c8ff');
     if(E.role==='rare'){const rr=rngOf(Math.floor(TR.c*8)+E.k);G.save();for(let n=0;n<5;n++){G.fillStyle=n%2?'#fff3c4':'#ffe066';G.fillRect(Math.round(x+(rr()-.5)*40),Math.round(E.y-rr()*E.ey*1.6),2,2)}G.restore()}
@@ -4190,7 +4190,7 @@ function renderGachaTab(){const p=$('p-gacha');if(!p)return;const eg=p.querySele
   const d=document.createElement('details');d.className='tnrate';d.innerHTML='<summary>出る確率と「重ね」</summary><p>KMR 0.5%・GR 2.5%・UR 6%・SR 18%・R 33%・N 40%。10連はSR以上が1人以上。同じキャラが出ると「重ね」で全部の数字が4%上がります(5回まで)。上限のあとにまた出たら pt が返ります(N5・R10・SR25・UR60・GR150・KMR400)。はじめの10連は無料、そのあとは1回100pt・10連900pt。キャラはアカウントに保存されるので、ほかのスマホでも使えます。</p>';p.insertBefore(d,eg||null);
   if(eg&&!eg.querySelector('.tnegh')){const h=eg.querySelector('h2');if(h)h.classList.add('tnegh')}}
 /* (10/24) the party, the BOX and the gacha stage draw the fighters every frame: build them again only when something they show has changed */
-{const _tp=tbParty3;let key='',val=null,at=0;tbParty3=function(){if(TR&&!TR.end)return _tp.apply(this,arguments);const k=JSON.stringify([S.lv,S.look,S.eq,S.cs,S.ch,S.al,S.nid,typeof LKD!=='undefined'?LKD:null,typeof PTSEL!=='undefined'?PTSEL:0]),n=performance.now();
+{const _tp=tbParty3;let key='',val=null,at=0;tbParty3=function(){if(TR&&!TR.end)return _tp.apply(this,arguments);const k=JSON.stringify([S.lv,S.look,S.eq,S.cs,S.ch,S.al,S.nid,typeof LKD!=='undefined'?LKD:null,typeof PTSEL!=='undefined'?PTSEL:0,typeof tcSlots==='function'?tcSlots():0,(()=>{try{return JSON.stringify(tcLoad().own)}catch(e){return 0}})()]),n=performance.now();
   if(k!==key||!val||n-at>2000){val=_tp.apply(this,arguments);key=k;at=n}return val.map(f=>f&&Object.assign({},f,{st:Object.assign({},f.st),look:Object.assign({},f.look)}))}}
 {const _tf=tcFighter;const C={};tcFighter=function(id,lv){if(TR&&!TR.end)return _tf.apply(this,arguments);const own=tcLoad().own[id],k=id+'|'+lv+'|'+S.lv+'|'+(own?own.n+'/'+own.xp:'-'),c=C[id],n=performance.now();
   if(!c||c.k!==k||n-c.at>2000)C[id]={k,at:n,f:_tf.apply(this,arguments)};const f=C[id].f;return f&&Object.assign({},f,{st:Object.assign({},f.st),look:Object.assign({},f.look)})}}
@@ -4291,6 +4291,131 @@ bvPush=function(){};teBurst=function(){};
   const F=Math.floor(v/.065);if(F<10)bhCell('brk',F,0,BH_CS.brk,b.x,b.y,b.D,0,false,.92);
   /* BREAK! の文字: 敵の足元に、はねて出て止まる */
   if(v<.95){const k=v<.1?eo(v/.1):1,a=v>.75?1-(v-.75)/.2:1,s=v<.1?1.5-.5*eo(v/.1):1;G.save();G.translate(b.x,Math.min(H-40,b.y+b.D*.32));G.scale(s,s);tbTxt('BREAK!',0,0,20,'#ffe680',null,a*k);G.restore()}}}
+
+/* ================= (11/1) 分身バトル わかりやすく(ユーザー「何がどうなってるかわからない、戦い方がわからない」) =================
+   参考にした考え方(まねはしない): ドラクエのメッセージ欄(1行で何が起きたか)、ポケモンの「こうかはばつぐん」、Slay the Spire の行動予告、
+   ファイアーエムブレムの「押す前に結果が見える」、ソシャゲの「おすすめ」表示
+   1 実況: 画面のすぐ下に、いまの行動と結果を1〜2行(だれが・何を・何ダメージ・弱点か・シールドがいくつ減ったか・ブレイク・倒した)
+   2 当てた瞬間: 数字の横に「弱点!」「有利」「いまひとつ」
+   3 敵の頭の上: 弱点の武器を読める大きさの丸で、シールドの残りも。文字も大きく
+   4 自分の番: 技のボタンに「弱点 シールド−2」などの予告、おすすめの行動が光る、次の一手のヒント */
+const BXW=w=>(typeof TRW!=='undefined'&&TRW[w])||w;
+function bxOn(){return TR&&!TR.sim&&!TR.tpm}
+/* ---------- 1 実況 ---------- */
+function bxLogEl(){let el=$('bxlog');if(!el){const st=$('stage');if(!st)return null;el=document.createElement('div');el.id='bxlog';st.after(el)}return el}
+function bxSay(html,cls){if(!bxOn())return null;const el=bxLogEl();if(!el)return null;const p=document.createElement('p');p.className='bxl '+(cls||'');p.innerHTML=html;el.append(p);while(el.children.length>2)el.firstChild.remove();
+  [...el.children].forEach((c,k)=>c.classList.toggle('old',k<el.children.length-1));return p}
+function bxTags(a){const t=[];if(a.weak)t.push('<em class="bxw">弱点</em>');if(a.adv>1)t.push('<em class="bxa">属性有利</em>');if(a.adv<1)t.push('<em class="bxd">いまひとつ</em>');if(a.crit)t.push('<em class="bxc">会心</em>');return t.join('')}
+function bxDraw(a){if(!a||!a.p)return;const f=TR.P[a.i];let s='<b>'+f.name+'</b>の'+a.nm;if(a.dmg>0)s+=' → <b>'+a.dmg.toLocaleString()+'</b>ダメージ';if(a.miss&&!a.dmg)s+=' → はずれ';if(a.heal>0)s+=' → みんなのHPを回復';
+  s+=bxTags(a);if(a.sh>0)s+='<span class="bxs">シールド −'+a.sh+'</span>';a.p.innerHTML=s}
+function bxStart(i,nm){if(!bxOn())return;const f=TR.P[i];if(!f)return;TR.bxA={i,nm,dmg:0,heal:0,weak:false,adv:1,crit:false,miss:false,sh:0,p:null};TR.bxA.p=bxSay('<b>'+f.name+'</b>の'+nm,'me')}
+{const _b=trBasic;trBasic=function(){if(TR&&TR.phase==='cmd'&&TR.cur>=0)bxStart(TR.cur,'通常攻撃');return _b.apply(this,arguments)}}
+{const _s=trSkill;trSkill=function(){if(TR&&TR.phase==='cmd'&&TR.cur>=0&&TR.sp>=1)bxStart(TR.cur,TRSK[TR.role[TR.cur]][0]);return _s.apply(this,arguments)}}
+{const _u=trUlt;trUlt=function(i){if(TR&&!TR.end&&TR.en[i]>=100&&trAlive(i)&&(TR.phase==='cmd'||TR.phase==='enemyWait')){let nm='必殺技';try{nm='必殺「'+spOf(TR.P[i].wt,TR.P[i].wr).sp+'」'}catch(e){}bxStart(i,nm)}return _u.apply(this,arguments)}}
+if(typeof trChase==='function'){const _c=trChase;trChase=function(){if(TR&&TR.phase==='cmd'&&TR.E&&TR.E.broken&&!TR.E.chased&&bxOn()){TR.bxA=null;TR.bxChase={dmg:0,p:bxSay('<b>みんなで追撃!</b>','me')}}return _c.apply(this,arguments)}}
+{const _d=trDamage;trDamage=function(i,mul,o){if(!bxOn())return _d.apply(this,arguments);const E=TR.E,sh0=E?E.sh:0,br0=E?E.broken:false,n0=TR.nums.length,f0=TR.fx.length,d=_d.apply(this,arguments);
+  try{const f=TR.P[i];if(!f||!E)return d;const weak=E.weak.includes(f.wt),adv=typeof tcAdv==='function'?tcAdv(f.el,E.el):1,crit=TR.fx.slice(f0).some(x=>x.k==='txt'&&x.s==='会心'),cut=Math.max(0,sh0-E.sh)+(!br0&&E.broken&&sh0>0?0:0);
+    /* 2 当てた瞬間の一言(数字の上) */
+    const nn=TR.nums[TR.nums.length-1];if(d>0&&nn&&TR.nums.length>n0){const L=weak?['弱点!','#ffe066']:adv>1?['有利','#ffb05a']:adv<1?['いまひとつ','#a8b4cc']:null;if(L)TR.fx.push({k:'txt',c:TR.c,s:L[0],x:nn.x+(weak?22:24),y:nn.y-4,col:L[1],sz:weak?11:9,d:.9})}
+    const a=TR.bxA&&TR.bxA.i===i?TR.bxA:null;if(a){a.dmg+=d;a.weak=a.weak||weak;if(d>0)a.adv=adv;a.crit=a.crit||crit;a.miss=a.miss||d===0;a.sh+=cut;bxDraw(a)}
+    else if(TR.bxChase){const c=TR.bxChase;c.dmg+=d;if(c.p)c.p.innerHTML='<b>みんなで追撃!</b> → <b>'+c.dmg.toLocaleString()+'</b>ダメージ'}}catch(e){}
+  return d}}
+{const _h=trHeal;trHeal=function(j,v){const r=_h.apply(this,arguments);if(TR&&TR.bxA&&TR.bxA.i>=0){TR.bxA.heal++;bxDraw(TR.bxA)}return r}}
+{const _b=trBreak;trBreak=function(){const E=TR&&TR.E;_b.apply(this,arguments);if(E&&bxOn())bxSay('<b class="bxbk">ブレイク!</b> '+E.name+'は行動がおくれて、受けるダメージが<b>1.5倍</b>','bk')}}
+{const _k=trKill;trKill=function(E){const first=E&&!E.dead;_k.apply(this,arguments);if(first&&bxOn()&&!TR.end)bxSay('<b>'+E.name+'</b>をたおした!','kill')}}
+/* 敵の番: だれに何ダメージ */
+{const _ea=trEnemyAct;trEnemyAct=function(){if(bxOn()&&!TR.end){const E=TR.ES&&TR.actE!=null&&TR.ES.length>1?TR.ES[TR.actE]:TR.E;TR.bxA=null;TR.bxChase=null;TR.bxE={E,hit:{},p:null}}return _ea.apply(this,arguments)}}
+{const _h=trHurt;trHurt=function(j,h,tank){const before=TR&&TR.mh?TR.mh[j]:0;const r=_h.apply(this,arguments);try{const e=TR&&TR.bxE;if(e&&bxOn()&&TR.P[j]){const dm=Math.max(0,before-TR.mh[j]);e.hit[j]=(e.hit[j]||0)+dm;
+  const ks=Object.keys(e.hit),nm=e.E?e.E.name:'敵',tot=ks.reduce((s,k)=>s+e.hit[k],0);const who=ks.length>=3?'みんな':ks.map(k=>TR.P[k].name).join('と');const s='<b>'+nm+'</b>の攻撃 → '+who+'に<b>'+tot+'</b>'+(tot===0?'(防いだ)':'')+(TR.mh[j]<=0?' <em class="bxd">'+TR.P[j].name+'がたおれた</em>':'');if(!e.p)e.p=bxSay(s,'en');else e.p.innerHTML=s}}catch(x){}return r}}
+/* 敵のことば(怒り・回復・守るなど)も実況へ */
+{const _l=trLabel;trLabel=function(s,col,sz){const r=_l.apply(this,arguments);try{if(bxOn()&&s&&!/追撃!$/.test(s))bxSay(String(s),'lb')}catch(e){}return r}}
+{const _q=trQuit;trQuit=function(){const r=_q.apply(this,arguments);if(!TR){const el=$('bxlog');if(el)el.remove()}return r}}
+/* ---------- 3 敵の頭の上: 弱点の丸とシールド ---------- */
+{const _h=trHud;trHud=function(){_h.apply(this,arguments);if(!bxOn()||TR.phase==='prep'||TR.end)return;const L=TR.ES&&TR.ES.length>1?TR.ES:[TR.E];
+  for(const E of L){if(!E||!trELive(E))continue;const x=typeof tgX==='function'?tgX(E):E.x-20,top=E.y-E.ey*1.38,y=top+5;
+    /* 弱点の武器(丸に字) */const n=E.weak.length,x0=x-(n-1)*8;E.weak.forEach((w,k)=>{const cx=x0+k*16;G.save();G.imageSmoothingEnabled=true;G.fillStyle='rgba(12,9,18,.92)';G.beginPath();G.arc(cx,y+4,7,0,Math.PI*2);G.fill();G.strokeStyle=TRWC[w]||'#fff';G.lineWidth=1.6;G.stroke();G.restore();tbTxt(BXW(w),cx,y+4.5,8.5,'#ffffff')});
+    /* シールド(六角)の残り */const sm=E.shMax||0;if(sm>0&&!E.broken){const w=6,xs=x-(sm-1)*w/2;for(let k=0;k<sm;k++){const cx=xs+k*w,cy=y+15,on=k<E.sh;G.save();G.fillStyle=on?'#e8f0ff':'rgba(255,255,255,.18)';G.strokeStyle='#160d14';G.lineWidth=1;G.beginPath();for(let q=0;q<6;q++){const a=Math.PI/6+q*Math.PI/3;G.lineTo(cx+Math.cos(a)*2.8,cy+Math.sin(a)*2.8)}G.closePath();G.stroke();G.fill();G.restore()}}
+    else if(E.broken)tbTxt('ブレイク中',x,y+15,8,'#ffe066')}}}
+/* ---------- 4 自分の番: 予告・おすすめ・ヒント ---------- */
+function bxPick(){/* オートと同じ決め方(どの行動を選ぶか) */const u=TR.P.map((_,i)=>i).find(i=>trAlive(i)&&TR.en[i]>=100);if(u!=null)return {ult:u};const i=TR.cur,ro=TR.role[i],low=TR.mh.some((v,j)=>v>0&&v<TR.mmax[j]*.5);
+  const sk=TR.sp>=1&&((ro==='priest'&&low)||(ro!=='priest'&&ro!=='knight'&&ro!=='guard'&&ro!=='cheer')||((ro==='knight'||ro==='guard')&&TR.taunt<0)||(ro==='cheer'&&TR.atkUp<=0));return {skill:sk}}
+function bxHint(){const E=TR.E,f=TR.P[TR.cur],L=TR.ES&&TR.ES.length>1?TR.ES.filter(trELive):[E],R=r=>L.find(e=>e.role===r);
+  const bomb=L.find(e=>e.role==='bomb'&&e.cd<=1);if(bomb)return bomb===E?'カプセル爆弾が次の番で<b>爆発</b>! いまねらっているので、このまま倒そう':'カプセル爆弾が次の番で<b>爆発</b>! 爆弾を<b>タップ</b>してねらいを変えよう';
+  if(E&&E.broken)return '<b>ブレイク中!</b> いまは受けるダメージ1.5倍。強い技を当てるチャンス';
+  const u=TR.P.findIndex((_,i)=>trAlive(i)&&TR.en[i]>=100);if(u>=0)return '<b>'+TR.P[u].name+'</b>の顔が金色: 下の顔を<b>タップ</b>すると必殺技';
+  const h=R('heal');if(h&&E!==h)return 'いやし係(つぎはぎナース)が敵を回復してしまう。<b>タップ</b>してねらうと楽';
+  const w=R('wall');if(w&&E!==w)return 'かべ係がいる間、ほかの敵へのダメージは半分。先に倒すと楽';
+  if(E&&f){const ws=E.weak.map(BXW).join('・');if(E.weak.includes(f.wt))return 'この敵の弱点は<b>'+ws+'</b>。'+f.name+'の'+BXW(f.wt)+'で当てると<b>シールドが削れる</b>(0でブレイク)';
+    const who=TR.P.filter((p,j)=>trAlive(j)&&E.weak.includes(p.wt)).map(p=>p.name);if(who.length)return 'この敵の弱点は<b>'+ws+'</b>。'+who.join('・')+'の番で当てるとシールドが削れる';
+    if(TR.sp<1)return '通常攻撃で<b>推しポイント</b>をためると、スキルが使える';return 'この敵の弱点は<b>'+ws+'</b>。パーティに'+ws+'の仲間がいないので、ダメージで押そう'}
+  return ''}
+{const _ui=trUI;trUI=function(){_ui.apply(this,arguments);if(!bxOn())return;const u=$('tbui');if(!u)return;
+  if(TR.end||TR.phase==='prep')return;if(!(TR.phase==='cmd'&&TR.cur>=0))return;const f=TR.P[TR.cur],E=TR.E,ro=TR.role[TR.cur];if(!f||!E)return;
+  const weak=E.weak.includes(f.wt),adv=typeof tcAdv==='function'?tcAdv(f.el,E.el):1,pk=bxPick();
+  const tag=(el,txt,cls)=>{if(!el||!txt)return;const t=mk('span','bxt '+(cls||''));t.innerHTML=txt;el.append(t)};
+  const ba=u.querySelector('.trb.basic'),sk=u.querySelector('.trb.skill');
+  const cutB=weak||(TR.pas[TR.cur]&&TR.pas[TR.cur].smx)?1:0,cutS=ro==='priest'?0:weak?(ro==='sword'||ro==='warrior'?2:1):0;
+  const at=adv>1?'<i class="bxa">有利</i>':adv<1?'<i class="bxd">いまひとつ</i>':'';
+  /* 技のボタンの予告(シールド−1・有利)は前からあるので、ここではおすすめだけ */
+  if(!TR.auto){if(pk.ult!=null){const c=u.querySelector('.trm[data-i="'+pk.ult+'"]');if(c)c.classList.add('bxrec')}else{const b=pk.skill?sk:ba;if(b&&!b.disabled){b.classList.add('bxrec');b.append(mk('span','bxok','おすすめ'))}}}
+  const hs=bxHint();u.querySelectorAll('.tbnote').forEach(n=>n.remove());if(hs){const h=mk('div','bxhint');h.innerHTML='<b>ヒント</b><span>'+hs+'</span>';const c=u.querySelector('.trcmd');if(c)c.after(h);else u.append(h)}}}
+/* 見た目 */
+(()=>{const st=document.createElement('style');st.textContent=`
+#bxlog{display:grid;gap:3px;min-height:46px;margin:6px 2px 0;padding:7px 10px;border-radius:12px;background:rgba(10,8,16,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+#bxlog .bxl{margin:0;font:600 12.5px/1.45 var(--jp,sans-serif);color:#f2ecff;animation:bxin .18s ease-out}
+#bxlog .bxl.old{opacity:.5;font-size:11.5px}
+#bxlog .bxl b{color:#fff;font-weight:800}#bxlog .bxl.en b{color:#ffb4a8}#bxlog .bxl.kill{color:#ffe9a0}#bxlog .bxl.lb{color:#c9d4ff}
+#bxlog .bxbk{color:#ffe066!important}
+#bxlog em,#tbui .bxf i{font-style:normal;display:inline-block;margin-left:6px;padding:1px 6px;border-radius:6px;font:800 10.5px/1.5 var(--jp,sans-serif)}
+.bxw{background:#ffe066;color:#2a1a00}.bxa{background:#ff9a4a;color:#2a0e00}.bxd{background:#4a5266;color:#e6ecff}.bxc{background:#ff5a8a;color:#fff}.bxh{background:#7affb8;color:#062a14}
+#bxlog .bxs{margin-left:6px;color:#bcd2ff;font-weight:800}
+#tbui .trb .bxf{position:static!important;display:flex;flex-wrap:wrap;gap:4px;margin-top:2px;width:auto;height:auto;background:none;transform:none}#tbui .trb .bxf i{margin-left:0;position:static!important;color:inherit;box-shadow:none}#tbui .trb .bxf i.bxw{color:#2a1a00}#tbui .trb .bxf i.bxa{color:#2a0e00}#tbui .trb .bxf i.bxd{color:#e6ecff}
+#tbui .trb.bxrec{box-shadow:0 0 0 2px #ffe066,0 0 18px rgba(255,224,102,.45)!important;animation:bxrec 1.2s ease-in-out infinite}
+#tbui .trb .bxok{position:absolute!important;top:10px!important;left:auto!important;bottom:auto!important;right:50px!important;width:auto;height:auto;transform:none;z-index:2;padding:1px 7px;border-radius:8px;background:#ffe066;color:#2a1a00;font:800 10px/1.5 var(--jp,sans-serif)}
+#tbui .trm.bxrec{box-shadow:0 0 0 2px #ffe066,0 0 16px rgba(255,224,102,.5)!important}
+#tbui .bxhint{display:flex;gap:8px;align-items:flex-start;margin-top:8px;padding:9px 11px;border-radius:12px;background:rgba(255,224,102,.08);box-shadow:inset 0 0 0 1px rgba(255,224,102,.25);font:500 12px/1.5 var(--jp,sans-serif);color:#f2ecff}
+#tbui .bxhint>b{flex:none;padding:1px 7px;border-radius:7px;background:#ffe066;color:#2a1a00;font:800 10.5px/1.6 var(--jp,sans-serif)}#tbui .bxhint span b{color:#ffe066}
+@keyframes bxin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes bxrec{50%{box-shadow:0 0 0 2px #ffe066,0 0 26px rgba(255,224,102,.7)}}
+@media (prefers-reduced-motion:reduce){#bxlog .bxl,#tbui .trb.bxrec{animation:none}}`;document.head.append(st)})();
+
+/* ================= (11/1) 編成で迷わないように(ユーザー「戦い方がよくわかんない、キャラ編成とか」) =================
+   参考にした考え方(まねはしない): ソシャゲの「出現する敵」表示と「おすすめ編成」ボタン、ポケモンのタイプ相性
+   - ステージを開くと「出てくる敵(リーダーの属性・まざることがある役)」と、いまのパーティとの相性(◎○△)・回復役/守り役のあるなし
+   - パーティのタブにも、次のステージとの相性
+   - 「おすすめ編成にする」: 持っているキャラから、属性の相性と強さで3人を選ぶ(回復役を1人は入れる) */
+const BPROLE={sword:'強い1撃でシールドを削る',knight:'仲間をかばう守り役',guard:'仲間をかばう守り役',lancer:'敵の防御を下げる',priest:'みんなを回復する',mage:'3回攻撃でシールドを削る',hunter:'敵の行動をおくらせる',monk:'4回攻撃',warrior:'強い1撃',cheer:'みんなの攻撃を上げる'};
+const BPEL=e=>e&&TEL[e]?'<em class="tcel" style="--ec:'+TEL[e][1]+'">'+TEL[e][0]+'</em>':'';
+function bpFoes(s){const o=questOpp(s);let lead;if(o.boss)lead={n:o.name,el:null,boss:true};else{const lm=tgLeadMon(s);lead={n:lm[1],el:TCMEL[lm[0]]||null}}
+  const may=[];if(s>=2)may.push(['atk','とりまき']);if(s>=3)may.push(['heal','いやし係']);if(s>=5)may.push(['bomb','ばくはつ係']);if(s>=7)may.push(['wall','かべ係']);
+  return {lead,may:may.map(([r,n])=>({r,n,el:TCMEL[(TGMN[r]||[])[0]]||null}))}}
+const BPBEAT={wood:'fire',water:'wood',fire:'water',light:'dark',dark:'light'};/* その属性に強い属性 */
+function bpMark(f,el){if(!el||!f.el)return ['○','mid'];const a=tcAdv(f.el,el);return a>1?['◎','good']:a<1?['△','bad']:['○','mid']}
+function bpPick(s){/* 持っているキャラから3人 */const F=bpFoes(s),el=F.lead.el,o=tcLoad(),C=TCH.filter(c=>o.own[c.id]).map(c=>{const f=tcFighter(c.id);return f&&{id:c.id,f,ro:tbRole(f),sc:power(f.st)*(el&&f.el?tcAdv(f.el,el):1)}}).filter(Boolean).sort((a,b)=>b.sc-a.sc);
+  if(!C.length)return null;const out=[];const pr=C.find(x=>x.ro==='priest');const top=C.slice(0,3);if(pr&&!top.includes(pr)&&C.length>3){out.push(...C.filter(x=>x!==pr).slice(0,2),pr)}else out.push(...top);return out}
+function bpPanel(s,opt){opt=opt||{};const F=bpFoes(s),el=F.lead.el,P=tbParty3(),box=mk('div','bp');
+  const h=mk('div','bph');h.innerHTML='<b>出てくる敵</b><span>リーダー '+F.lead.n+BPEL(el)+'</span>'+(F.may.length?'<span class="bpmay">まざることがある: '+F.may.map(m=>m.n+BPEL(m.el)).join(' ')+'</span>':'');box.append(h);
+  if(el)box.append(Object.assign(mk('p','bptip'),{innerHTML:TEL[el][0]+'の敵には <b>'+TEL[BPBEAT[el]][0]+'</b> が有利(1.3倍)'+(el==='light'||el==='dark'?'':'、<b>'+TEL[{fire:'wood',wood:'water',water:'fire'}[el]][0]+'</b> は不利(0.8倍)')}));
+  const ls=mk('div','bpls');P.forEach((f,k)=>{const ro=tbRole(f),mk2=bpMark(f,el),r=mk('div','bpr');r.innerHTML='<i class="bpm '+mk2[1]+'">'+mk2[0]+'</i><b>'+f.name+'</b>'+BPEL(f.el)+'<span class="tbrole" style="--rc:'+TBROLE[ro][1]+'">'+TBROLE[ro][0]+'</span><small>'+(BPROLE[ro]||'')+'</small>';ls.append(r)});box.append(ls);
+  const ros=P.map(tbRole),heal=ros.includes('priest'),tank=ros.some(r=>r==='knight'||r==='guard'),ws=new Set(P.map(f=>f.wt)).size;
+  const ck=mk('div','bpck');ck.innerHTML='<span class="'+(heal?'ok':'ng')+'">回復役 '+(heal?'あり':'なし')+'</span><span class="'+(tank?'ok':'ng')+'">守り役 '+(tank?'あり':'なし')+'</span><span class="'+(ws>=3?'ok':'mid')+'">武器 '+ws+'種類</span>';box.append(ck);
+  const pk=bpPick(s);if(pk){const cur=tcSlots(),same=pk.every((x,k)=>cur.includes('ch:'+x.id));const b=mk('button','btn bpgo'+(same?' done':''),same?'おすすめ編成になっています':'おすすめ編成にする');b.type='button';b.disabled=same;
+    b.onclick=()=>{pk.forEach((x,k)=>tcSetSlot(k,'ch:'+x.id));try{toast('おすすめの3人にしました: '+pk.map(x=>x.f.name).join('・'))}catch(e){}try{refresh()}catch(e){}if(opt.after)opt.after()};box.append(b)}
+  else box.append(mk('p','bptip','ガチャでキャラを仲間にすると、おすすめ編成が使えます'));
+  return box}
+/* ステージを開いたとき(挑戦するボタンの上) */
+{const _q=qsBody;qsBody=function(){_q.apply(this,arguments);try{const d=document.querySelector('#quest .qs.open .qsd');if(d&&QSEL&&!d.querySelector('.bp')){const go=d.querySelector('.btn.main');d.insertBefore(bpPanel(QSEL,{after:()=>renderQuest()}),go)}}catch(e){console.error(e)}}}
+/* パーティのタブ: 次のステージとの相性 */
+{const _p=renderPartyTab;renderPartyTab=function(){_p.apply(this,arguments);try{const p=$('p-party');if(!p)return;const s=Math.min(QMAX,S.qs+1),sec=mk('div','sec');sec.append(mk('h2',null,'次のステージとの相性<small>ステージ'+s+'</small>'));sec.append(bpPanel(s,{after:()=>renderPartyTab()}));p.append(sec)}catch(e){console.error(e)}}}
+(()=>{const st=document.createElement('style');st.textContent=`
+.bp{display:grid;gap:8px;margin:8px 0;padding:11px 12px;border-radius:14px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);text-align:left}
+.bp .bph{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font:600 12.5px/1.5 var(--jp,sans-serif);color:#f2ecff}.bp .bph>b{padding:1px 7px;border-radius:7px;background:#ff8a80;color:#2a0606;font:800 10.5px/1.6 var(--jp,sans-serif)}
+.bp .bpmay{color:#c9c3d6;font-size:11.5px}.bp .tcel{position:static;display:inline-grid;place-items:center;width:17px;height:17px;margin-left:3px;border-radius:50%;background:var(--ec);color:#140c10;font:800 10px/1 var(--jp,sans-serif);font-style:normal;vertical-align:-3px}
+.bp .bptip{margin:0;font:500 12px/1.5 var(--jp,sans-serif);color:#e6dff4}.bp .bptip b{color:#ffe066}
+.bp .bpls{display:grid;gap:4px}.bp .bpr{display:flex;align-items:center;gap:6px;min-width:0;font:600 12.5px/1.4 var(--jp,sans-serif);color:#fff}.bp .bpr small{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#b9b2c8;font:500 11px/1.4 var(--jp,sans-serif)}
+.bp .bpr .tbrole{flex:none}.bp .bpm{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:6px;font:900 12px/1 var(--jp,sans-serif);font-style:normal}.bp .bpm.good{background:#ffe066;color:#2a1a00}.bp .bpm.mid{background:#3a3448;color:#e6dff4}.bp .bpm.bad{background:#4a5266;color:#c9d4ff}
+.bp .bpck{display:flex;flex-wrap:wrap;gap:6px}.bp .bpck span{padding:2px 8px;border-radius:8px;font:700 11px/1.6 var(--jp,sans-serif)}.bp .bpck .ok{background:rgba(122,255,184,.16);color:#9fffc8}.bp .bpck .ng{background:rgba(255,120,110,.16);color:#ffb0a8}.bp .bpck .mid{background:rgba(255,255,255,.08);color:#d8d0e8}
+.bp .bpgo{justify-self:start}.bp .bpgo.done{opacity:.6}`;document.head.append(st)})();
 
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
