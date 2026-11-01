@@ -4208,7 +4208,7 @@ const THW=[
  {t:'敵の役割',b:['敵を全員倒すと勝ち。敵をタップすると、ねらう相手が変わります。頭の上は次の行動です。'],L:[['リーダー','いちばん強い。半分を切ると怒る'],['とりまき','ふつうに攻撃する'],['いやし係','仲間の敵を回復する。先に倒したい'],['ばくはつ係','数字が0になると全員に大ダメージ'],['かべ係','生きている間、ほかの敵のダメージが半分'],['きらきら','すぐ逃げる。倒すと経験値2倍']]},
  {t:'属性',b:['キャラにはそれぞれ属性があります(顔の右上の丸)。','<b class="thf">火</b> → <b class="thg">木</b> → <b class="thr">水</b> → <b class="thf">火</b> の順に強い: 有利は1.3倍、不利は0.8倍。','<b class="thl">光</b>と<b class="thk">闇</b>は、おたがいに1.3倍。','敵にも属性があります。有利なキャラを入れると楽になります。']},
  {t:'キャラガチャ',b:['出るのは20人。KMR 0.5%・GR 2.5%・UR 6%・SR 18%・R 33%・N 40%。10連はSR以上が1人以上。','<b>はじめの10連は無料</b>。そのあとは1回100pt・10連900pt。','引いたキャラはアカウントに保存されるので、ほかのスマホでも使えます。','KMRとGRは、出たときに特別な演出があります。']},
- {t:'キャラを育てる',b:['新しく引いたキャラは<b>Lv1</b>から。パーティに入れて戦うと経験値が入ります(勝ち80・負け25)。','自分のレベルの6割までは経験値3倍。自分のレベルより上にはなりません。','<b>重ね</b>: 同じキャラがまた出ると、全部の数字が4%上がります(5回まで)。','5回のあとにまた出たら pt が返ります(N5・R10・SR25・UR60・GR150・KMR400)。']},
+ {t:'キャラを育てる',b:['新しく引いたキャラは<b>Lv1</b>から。パーティに入れて戦うと経験値が入ります(勝ち80・負け25)。','自分のレベルの6割までは経験値3倍。自分のレベルより上にはなりません。','<b>レベル</b>: 1つ上がるごとに、全部の数字が1.5%上がります(Lv60まで)。自分の分身も同じです。','<b>重ね</b>: 同じキャラがまた出ると、全部の数字が4%上がります(5回まで)。','5回のあとにまた出たら pt が返ります(N5・R10・SR25・UR60・GR150・KMR400)。']},
  {t:'装備と推しスキン',b:['自分 > 装備: 武器・防具・アクセ。同じシリーズを2つ・3つそろえると効果がつきます。','<b>服装</b>は見た目だけ。スキンガチャのKMRで「対戦演出」と「勝利演出」をそろえると、その子の姿(<b>推しスキン</b>)で戦えます。装備した武器を手に持ちます。','同じKMRで、TCGの対戦中に<b>推しスタンプ</b>も送れます。']},
  {t:'見え方',b:['上の「向き」ボタンで、<b>正面</b>(敵がまん中、味方は下の欄)と<b>横</b>を切りかえられます。','KMRの必殺技は虹色、GRはピンクに光ります。','この説明は、上の「?」ボタンからいつでも見られます。']}];
 let THWI=0;
@@ -4440,6 +4440,16 @@ const bbRaid=()=>!!(TR&&TR.o&&TR.o.ctx&&(TR.o.ctx.raid||TR.o.ctx.sa||TR.o.ctx.hw
   TR.ES.forEach((E,k)=>{const i=L+k;if(TR.spd[i]==null)return;let s;if(E.role==='lead'||k===0)s=clamp(TR.spd[i],avg*.8,avg*1.1);else{const R=(typeof TGR!=='undefined'&&TGR[E.role])||{sp:1},nh=TR.ES.length-1;s=clamp(avg*(nh<=1?.8:nh===2?.65:.55)*R.sp,10,avg*1.2)}
     const ratio=TR.next[i]*TR.spd[i]/10000;TR.spd[i]=Math.max(10,s);TR.next[i]=10000/TR.spd[i]*ratio})}catch(e){}}}
 {const _k=trKill;trKill=function(E){_k.apply(this,arguments);try{if(!TR||TR.end||TR.tpm||!TR.ES||TR.ES.length<2||bbRaid())return;const live=TR.ES.filter(trELive);if(live.length===1&&!TR.soloUp){const L=live[0],i=TR.P.length+TR.ES.indexOf(L);if(TR.spd[i]!=null){TR.soloUp=1;TR.spd[i]*=1.35}}}catch(e){}}}
+
+/* ================= (11/1) レベルで強くなる(ユーザー: レベルを上げても強くならない → 「うん」育てがいを出す) =================
+   前: Lv1→Lv30 で16%しか強くならず、強さはほぼレア度だけで決まっていた(自分の分身がパーティで一番弱い)
+   今: パーティで戦うとき(自分・キャラ・分身)、レベル1つにつき全部の数字が1.5%上がる(Lv60まで、最大1.885倍)
+       例: Lv30の★3ソウタ(674)は、Lv1の★5ミヤビ(502)より強い
+   対戦(相手の分身と戦う昔のバトル)は自分も相手も同じ式なので、ここでは変えない */
+const blMul=lv=>1+.015*(Math.max(1,Math.min(60,lv||1))-1);
+function blApply(f){if(!f||!f.st||f._bl)return f;const m=blMul(f.lv);const st={};for(const k in f.st)st[k]=Math.max(1,Math.round(f.st[k]*m));return Object.assign({},f,{st,_bl:1})}
+{const _t=tcFighter;tcFighter=function(){return blApply(_t.apply(this,arguments))}}
+{const _p=ptFighter;ptFighter=function(){return blApply(_p.apply(this,arguments))}}
 
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
