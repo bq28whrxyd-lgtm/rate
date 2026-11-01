@@ -4602,7 +4602,8 @@ if(typeof bxHint==='function'){const _bh=bxHint;bxHint=function(){let n=0;try{n=
    役: ワンペア(同じ数字2枚)×1.1 / ツーペア ×1.2 / スリーカード ×1.35・シールド+1 / ストレート(数字5つ連続) ×1.5・敵全員に当たる /
        フラッシュ(同じ仲間5枚) ×1.5・その仲間の必殺ゲージ満タン / フルハウス ×1.6・全員の必殺ゲージ+30 / フォーカード ×2・すぐブレイク /
        ストレートフラッシュ ×2.6・敵全員+すぐブレイク */
-let PKMODE=false;try{PKMODE=localStorage.getItem('bunPk')==='1'}catch(e){}
+/* (11/1) ユーザー「ポーカーはもういいかな」→ 試作は止めた(スイッチも消した)。コードは残すが使われない */
+let PKMODE=false;try{localStorage.removeItem('bunPk')}catch(e){}
 const PKH=[['sf','ストレートフラッシュ',2.6,'敵全員に当たる・すぐブレイク'],['four','フォーカード',2,'すぐブレイク'],['fh','フルハウス',1.6,'全員の必殺ゲージ+30'],['flush','フラッシュ',1.5,'その仲間の必殺ゲージ満タン'],['st','ストレート',1.5,'敵全員に当たる'],['three','スリーカード',1.35,'シールドをもう1つ削る'],['two','ツーペア',1.2,''],['pair','ワンペア',1.1,''],['none','役なし',1,'']];
 const pkOn=()=>TR&&TR.pk&&!TR.sim&&!TR.end;
 function pkEval(cs){const byN={},byI={};cs.forEach(c=>{byN[c.n]=(byN[c.n]||0)+1;byI[c.i]=(byI[c.i]||0)+1});const cnt=Object.values(byN).sort((a,b)=>b-a),ns=Object.keys(byN).map(Number).sort((a,b)=>a-b);
@@ -4651,7 +4652,7 @@ function pkNextEnemy(){if(!TR||TR.end)return;const q=TR.pkEQ||[];while(q.length&
   G.save();G.globalAlpha=.55*a;G.fillStyle='rgba(10,6,16,1)';G.fillRect(0,H*.36,W,44);G.restore();G.save();G.translate(W/2,H*.36+22);G.scale(k,k);tbTxt(s.ev.name+'!',0,-2,s.ev.k==='pair'||s.ev.k==='two'?16:22,s.ev.mul>=2?'#ffe066':'#ffffff',null,a);G.restore();tbTxt('攻撃×'+s.ev.mul,W/2,H*.36+38,8,'#fff3c4',null,a)}catch(e){}}}
 /* クエストの画面に、試作を使うスイッチ */
 function pkToggleRow(){const w=mk('div','pktog');w.innerHTML='<div><b>推しポーカー(試作)</b><small>カードの役で戦う新しいバトル。オンにするとクエストがこの形になる</small></div>';const b=mk('button','tbq'+(PKMODE?' on':''),PKMODE?'オン':'オフ');b.type='button';b.onclick=()=>{PKMODE=!PKMODE;try{localStorage.setItem('bunPk',PKMODE?'1':'0')}catch(e){}renderQuest()};w.append(b);return w}
-{const _q=qsBody;qsBody=function(){_q.apply(this,arguments);try{const box=$('quest');if(box&&!box.querySelector('.pktog'))box.prepend(pkToggleRow())}catch(e){}}}
+
 (()=>{const st=document.createElement('style');st.textContent=`
 #tbui .trcmd.pkcmd{display:flex!important;flex-direction:column;align-items:stretch;gap:8px;grid-template-columns:none!important}#tbui .trcmd.pkcmd>*{width:100%;min-width:0}
 #tbui .pkrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
