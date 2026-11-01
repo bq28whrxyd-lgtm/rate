@@ -2827,8 +2827,9 @@ function trSkill(){if(TR.phase!=='cmd'||TR.sp<1)return;const i=TR.cur,f=TR.P[i],
   else if(ro==='cheer')trActAnim(i,{n:1,hit:k=>{trDamage(i,1,{k,shield:w?1:0});for(let j=0;j<TR.P.length;j++)if(trAlive(j)){trGain(j,15);TR.fx.push({k:'gold',c:TR.c,x:TR.home[j][0],y:TR.home[j][1],seed:j+5,d:.9})}TR.atkUp=2},done:trAfter});
   else trActAnim(i,{n:1,hit:k=>trDamage(i,1.8,{k,shield:w?1:0}),done:trAfter})}
 function trUlt(i){if(!TR||TR.end||TR.en[i]<100||!trAlive(i)||(TR.phase!=='cmd'&&TR.phase!=='enemyWait'))return;const f=TR.P[i],ro=TR.role[i],back=TR.phase;TR.en[i]=0;TR.phase='anim';TR.ultBy=i;trUI();
-  TR.ov.push({k:'cut',f,name:spOf(f.wt,f.wr).sp,C:['#1a0f06','#6a3a10','#ffd36b','#ffffff'],rt0:trNow(),d:1.06});TR.stop=Math.max(TR.stop,1.02);
+  TR.ov.push({k:'cut',f,name:typeof tuName==='function'?tuName(f):spOf(f.wt,f.wr).sp,C:['#1a0f06','#6a3a10','#ffd36b','#ffffff'],rt0:trNow(),d:1.06});TR.stop=Math.max(TR.stop,1.02);
   const fin=()=>{TR.ultBy=-1;if(back==='cmd'){TR.phase='cmd';trUI()}else trAfter()};
+  if(typeof TCU!=='undefined'&&f.ch&&TCU[f.ch]&&!TR.tpm){TCU[f.ch].fx(i,f,fin);return}
   if(ro==='priest'){TR.an.push({i,t0:TR.c,dur:.7,buff:true,col:'#7affb8'});trAt(.3,()=>{for(let j=0;j<TR.P.length;j++){if(!trAlive(j)){TR.mh[j]=1}trHeal(j,.5)}trLabel('みんな回復!','#a6ffb0',12)});trAt(.9,fin);return}
   if(ro==='knight'||ro==='guard'){TR.half=TR.P.map((_,j)=>trAlive(j)?1:((TR.half&&TR.half[j])||0));trLabel('みんなに守りの光(次の1回のダメージ半分)','#a6e4ff',11);trActAnim(i,{n:1,hit:k=>trDamage(i,3,{k,big:true,crit:true,shield:TR.E.weak.includes(f.wt)?3:1}),done:fin});return}
   trActAnim(i,{n:1,hit:k=>trDamage(i,4.2,{k,big:true,crit:true,shield:TR.E.weak.includes(f.wt)?3:1}),done:fin})}
@@ -3612,7 +3613,7 @@ function trCut2(f,v,name,C){if(f.boss||(f.look&&f.look.pk))return cutIn(f,v,1,na
   const bb=u.querySelector('.trb.basic');if(bb){const n=f.wt==='fist'?2:1,est=trEst(i,n>1?.6:1)*n;bb.innerHTML='<span class="tuic">'+icon(f.wt)+'</span><b>通常攻撃</b><strong>'+est.toLocaleString()+'</strong><span class="tuch"><em class="g">●+1</em>'+(w||TR.pas[i].smx?'<em class="s">シールド−1</em>':'')+'</span>'}
   const sb=u.querySelector('.trb.skill');if(sb){const q=TQSK[ro],est=q?trEst(i,q[0])*q[1]:0,cut=w&&q?(ro==='sword'||ro==='warrior'||ro==='monk'?2:q[1]>1?q[1]:1):0;sb.style.setProperty('--c',R[1]);
     sb.innerHTML='<i class="tucost">●1</i><b>'+TRSK[ro][0]+'</b><small>'+TRSK[ro][1]+'</small>'+(q?'<strong>'+est.toLocaleString()+'</strong>':'<strong class="tufx">'+(ro==='priest'?'みんな回復':ro==='cheer'?'みんな強化':'')+'</strong>')+(cut?'<span class="tuch"><em class="s">シールド−'+cut+'</em></span>':'')+(TR.sp<1?'<span class="tuno">推しポイントが足りない</span>':'')}
-  if(TR.en[i]>=100&&!u.querySelector('.tuult')){const cmd=u.querySelector('.trcmd'),b=mk('button','trb tuult');b.type='button';b.innerHTML='<b>必殺「'+spOf(f.wt,f.wr).sp+'」</b><small>'+f.name+'の必殺がたまった! 押すとすぐ出せる(番は使わない)</small>';b.onclick=()=>trUlt(i);if(cmd)cmd.prepend(b)}}}
+  if(TR.en[i]>=100&&!u.querySelector('.tuult')){const cmd=u.querySelector('.trcmd'),b=mk('button','trb tuult');b.type='button';b.innerHTML='<b>必殺「'+(typeof tuName==='function'?tuName(f):spOf(f.wt,f.wr).sp)+'」</b><small>'+f.name+'の必殺がたまった! 押すとすぐ出せる(番は使わない)</small>';b.onclick=()=>trUlt(i);if(cmd)cmd.prepend(b)}}}
 
 /* ================= (10/23) 敵のグループ: 2〜4体の敵に、それぞれ役がある =================
    参考(まねはしない・名前も絵も独自): ドラクエの「誰から倒すか」、Slay the Spire の行動予告、メガテンの「まちがえると損」
@@ -4311,7 +4312,7 @@ function bxDraw(a){if(!a||!a.p)return;const f=TR.P[a.i];let s='<b>'+f.name+'</b>
 function bxStart(i,nm){if(!bxOn())return;const f=TR.P[i];if(!f)return;TR.bxA={i,nm,dmg:0,heal:0,weak:false,adv:1,crit:false,miss:false,sh:0,p:null};TR.bxA.p=bxSay('<b>'+f.name+'</b>の'+nm,'me')}
 {const _b=trBasic;trBasic=function(){if(TR&&TR.phase==='cmd'&&TR.cur>=0)bxStart(TR.cur,'通常攻撃');return _b.apply(this,arguments)}}
 {const _s=trSkill;trSkill=function(){if(TR&&TR.phase==='cmd'&&TR.cur>=0&&TR.sp>=1)bxStart(TR.cur,TRSK[TR.role[TR.cur]][0]);return _s.apply(this,arguments)}}
-{const _u=trUlt;trUlt=function(i){if(TR&&!TR.end&&TR.en[i]>=100&&trAlive(i)&&(TR.phase==='cmd'||TR.phase==='enemyWait')){let nm='必殺技';try{nm='必殺「'+spOf(TR.P[i].wt,TR.P[i].wr).sp+'」'}catch(e){}bxStart(i,nm)}return _u.apply(this,arguments)}}
+{const _u=trUlt;trUlt=function(i){if(TR&&!TR.end&&TR.en[i]>=100&&trAlive(i)&&(TR.phase==='cmd'||TR.phase==='enemyWait')){let nm='必殺技';try{nm='必殺「'+(typeof tuName==='function'?tuName(TR.P[i]):spOf(TR.P[i].wt,TR.P[i].wr).sp)+'」'}catch(e){}bxStart(i,nm)}return _u.apply(this,arguments)}}
 if(typeof trChase==='function'){const _c=trChase;trChase=function(){if(TR&&TR.phase==='cmd'&&TR.E&&TR.E.broken&&!TR.E.chased&&bxOn()){TR.bxA=null;TR.bxChase={dmg:0,p:bxSay('<b>みんなで追撃!</b>','me')}}return _c.apply(this,arguments)}}
 {const _d=trDamage;trDamage=function(i,mul,o){if(!bxOn())return _d.apply(this,arguments);const E=TR.E,sh0=E?E.sh:0,br0=E?E.broken:false,n0=TR.nums.length,f0=TR.fx.length,d=_d.apply(this,arguments);
   try{const f=TR.P[i];if(!f||!E)return d;const weak=E.weak.includes(f.wt),adv=typeof tcAdv==='function'?tcAdv(f.el,E.el):1,crit=TR.fx.slice(f0).some(x=>x.k==='txt'&&x.s==='会心'),cut=Math.max(0,sh0-E.sh)+(!br0&&E.broken&&sh0>0?0:0);
@@ -4450,6 +4451,101 @@ const blMul=lv=>1+.015*(Math.max(1,Math.min(60,lv||1))-1);
 function blApply(f){if(!f||!f.st||f._bl)return f;const m=blMul(f.lv);const st={};for(const k in f.st)st[k]=Math.max(1,Math.round(f.st[k]*m));return Object.assign({},f,{st,_bl:1})}
 {const _t=tcFighter;tcFighter=function(){return blApply(_t.apply(this,arguments))}}
 {const _p=ptFighter;ptFighter=function(){return blApply(_p.apply(this,arguments))}}
+
+/* ================= (11/1) キャラの個性(ユーザー「パズドラとかモンストみたいなキャラの個性が少ない」) =================
+   参考にした考え方(まねはしない・名前も中身も独自): パズドラのリーダースキル(先頭のキャラがパーティ全体を強くする)と固有のスキル、
+   モンストのキャラごとのストライクショット・ギミック対応(アビリティ・キラー)、ソシャゲの「この2人を組ませると」という掛け合い
+   1 固有の必殺技: 20人それぞれ別の名前と効果(前は武器ごとに同じ必殺だった)
+   2 センター効果: パーティの最初のキャラ枠(2人目)に入れたキャラが、パーティ全体を強くする
+   3 特性: 敵の役(いやし係・リーダー・きらきら・かべ係・ばくはつ係)への強さ
+   4 仲よしコンビ: 決まった2人を一緒に入れると、2人とも全部の数字+10%。バトルの最初に一言 */
+function tuAll(i,mul,o){const keep=TR.tgt;for(const E of TR.ES.filter(trELive)){if(TR.end)break;trSetE(E);trDamage(i,mul,Object.assign({},o,{splash:true}))}if(TR.end)return;const t=trELive(keep)?keep:TR.ES.find(trELive);if(t){TR.tgt=t;trSetE(t)}}
+function tuBuff(i,col,fn,fin){TR.an.push({i,t0:TR.c,dur:.7,buff:true,col});trAt(.3,fn);trAt(.9,fin)}
+const tuAlive=()=>TR.P.map((_,j)=>j).filter(trAlive);
+const tuW=(f)=>TR.E&&TR.E.weak.includes(f.wt);
+const TCU={
+ miyabi:{n:'神絵の一筆',d:'敵全員に光の魔法(2.4倍・会心)、全員のシールドを2削る',fx:(i,f,fin)=>trActAnim(i,{n:1,hit:()=>{tuAll(i,2.4,{big:true,crit:true,shield:2})},done:fin})},
+ ayame:{n:'千変万化',d:'ねらった敵を3回斬る(1.6倍・会心確定)、1回ごとにシールドを1削る',fx:(i,f,fin)=>trActAnim(i,{n:3,gap:.14,hit:k=>trDamage(i,1.6,{k,big:k===2,crit:true,shield:1}),done:fin})},
+ seira:{n:'アンコール',d:'ほかの仲間の必殺ゲージ+40、みんなの攻撃アップ3回、みんなHP15%回復',fx:(i,f,fin)=>tuBuff(i,'#ffe9a0',()=>{for(const j of tuAlive()){if(j!==i)trGain(j,40);trHeal(j,.15)}TR.atkUp=Math.max(TR.atkUp,3);trLabel('アンコール! みんなの必殺ゲージ+40','#ffe9a0',12)},fin)},
+ jin:{n:'全公演皆勤',d:'敵全員を4回斬る(1回1.2倍)、1回ごとにシールドを1削る',fx:(i,f,fin)=>trActAnim(i,{n:4,gap:.12,hit:k=>tuAll(i,1.2,{k,big:k===3,shield:1}),done:fin})},
+ gekka:{n:'完結編',d:'敵全員に大きな魔法(3倍)、敵の防御ダウン3回',fx:(i,f,fin)=>trActAnim(i,{n:1,hit:()=>{tuAll(i,3,{big:true,shield:1});if(!TR.end){TR.defDown=Math.max(TR.defDown,3);trLabel('敵全員の防御ダウン','#a6e4ff',11)}},done:fin})},
+ riz:{n:'フルコンボ',d:'ねらった敵に8連射(1回0.6倍・会心)、最初の3回でシールドを3削る',fx:(i,f,fin)=>trActAnim(i,{n:8,gap:.08,hit:k=>trDamage(i,.6,{k,big:k===7,crit:true,shield:k<3?1:0}),done:fin})},
+ hinata:{n:'全力コール',d:'みんなの攻撃アップ3回、推しポイント+2',fx:(i,f,fin)=>tuBuff(i,'#ff9a5a',()=>{TR.atkUp=Math.max(TR.atkUp,3);TR.sp=Math.min(TR.spMax,TR.sp+2);for(const j of tuAlive())TR.fx.push({k:'gold',c:TR.c,x:TR.home[j][0],y:TR.home[j][1],seed:j+5,d:.9});trLabel('全力コール! 攻撃アップ・推しポイント+2','#ffb07a',12)},fin)},
+ genji:{n:'初版の盾',d:'2回仲間をかばう、みんなの次の2回のダメージ半分',fx:(i,f,fin)=>tuBuff(i,'#a6e4ff',()=>{TR.taunt=i;TR.tauntN=2;TR.half=TR.P.map((_,j)=>trAlive(j)?2:((TR.half&&TR.half[j])||0));trLabel('初版の盾! みんなの次の2回はダメージ半分','#a6e4ff',11)},fin)},
+ minato:{n:'始発ダッシュ',d:'ねらった敵に2倍の矢、敵全員の行動をおくらせる',fx:(i,f,fin)=>trActAnim(i,{n:1,hit:()=>{trDamage(i,2,{big:true,crit:true,shield:1});if(!TR.end){for(const E of TR.ES.filter(trELive))trDelayE(E,.45);trLabel('敵全員の行動がおくれる','#c9a0ff',11)}},done:fin})},
+ kuroe:{n:'限定品の争奪戦',d:'6連打(1回0.6倍・会心)。弱点なら1回おきにシールドを削る',fx:(i,f,fin)=>trActAnim(i,{n:6,gap:.08,hit:k=>trDamage(i,.6,{k,big:k===5,crit:true,shield:tuW(f)&&k%2===0?1:0}),done:fin})},
+ shiori:{n:'新刊を落とさない',d:'魔法弾5発(1発0.8倍・会心)、最初の1発でシールドを1削る',fx:(i,f,fin)=>trActAnim(i,{n:5,gap:.12,hit:k=>trDamage(i,.8,{k,big:k===4,crit:true,shield:k===0?1:0}),done:fin})},
+ sota:{n:'神回の実況',d:'強い1撃(4.2倍・会心)、推しポイント+1',fx:(i,f,fin)=>trActAnim(i,{n:1,hit:()=>{trDamage(i,4.2,{big:true,crit:true,shield:tuW(f)?2:1});TR.sp=Math.min(TR.spMax,TR.sp+1)},done:fin})},
+ yui:{n:'最高の1枚',d:'みんなHP50%回復、たおれた仲間を1人HP30%で起こす',fx:(i,f,fin)=>tuBuff(i,'#7affb8',()=>{const dn=TR.P.map((_,j)=>j).find(j=>!trAlive(j));if(dn!=null){TR.mh[dn]=Math.max(1,Math.round(TR.mmax[dn]*.3));trLabel(TR.P[dn].name+'が起き上がった!','#a6ffb0',12)}for(const j of tuAlive())trHeal(j,.5)},fin)},
+ go:{n:'最後尾はこちら',d:'3回仲間をかばう、自分の次の3回のダメージ半分',fx:(i,f,fin)=>tuBuff(i,'#a6c8ff',()=>{TR.taunt=i;TR.tauntN=3;TR.half=TR.half||TR.P.map(()=>0);TR.half[i]=3;trLabel('最後尾はこちら! ゴウが3回かばう','#a6c8ff',11)},fin)},
+ tetsu:{n:'渾身の新作',d:'会心確定の強い1撃(4.6倍)',fx:(i,f,fin)=>trActAnim(i,{n:1,hit:()=>trDamage(i,4.6,{big:true,crit:true,shield:tuW(f)?3:1}),done:fin})},
+ ren:{n:'長距離遠征',d:'敵全員に槍の1撃(1.6倍・会心)、敵の防御ダウン3回',fx:(i,f,fin)=>trActAnim(i,{n:1,hit:()=>{tuAll(i,1.6,{big:true,crit:true,shield:1});if(!TR.end)TR.defDown=Math.max(TR.defDown,3)},done:fin})},
+ haru:{n:'はじめての全力',d:'強い1撃(3.6倍・会心)。自分のHPが半分以下なら5倍',fx:(i,f,fin)=>trActAnim(i,{n:1,hit:()=>trDamage(i,TR.mh[i]<TR.mmax[i]*.5?5:3.6,{big:true,crit:true,shield:1}),done:fin})},
+ mio:{n:'始発の差し入れ',d:'みんなHP35%回復',fx:(i,f,fin)=>tuBuff(i,'#7affb8',()=>{for(const j of tuAlive())trHeal(j,.35);trLabel('差し入れ! みんな回復','#a6ffb0',11)},fin)},
+ taku:{n:'ペンライト全振り',d:'2倍の1撃、みんなの攻撃アップ1回',fx:(i,f,fin)=>trActAnim(i,{n:1,hit:()=>{trDamage(i,2,{big:true,crit:true,shield:1});TR.atkUp=Math.max(TR.atkUp,1)},done:fin})},
+ nana:{n:'交換成立',d:'1.5倍の矢、ねらった敵の行動をおくらせる、推しポイント+2',fx:(i,f,fin)=>trActAnim(i,{n:1,hit:()=>{const E=TR.E;trDamage(i,1.5,{big:true,crit:true,shield:1});if(!TR.end&&trELive(E))trDelayE(E,.45);TR.sp=Math.min(TR.spMax,TR.sp+2)},done:fin})},
+};
+function tuName(f){return f&&f.ch&&TCU[f.ch]?TCU[f.ch].n:spOf(f.wt,f.wr).sp}
+/* ---------- 2 センター効果 ---------- */
+const TCCE={
+ miyabi:{n:'神絵の表紙',d:'光の仲間の全部の数字+20%',el:'light',st:{hp:1.2,atk:1.2,def:1.2,spd:1.2,mag:1.2}},
+ ayame:{n:'衣装合わせ',d:'剣の仲間の攻撃+20%',wt:'sword',st:{atk:1.2}},
+ seira:{n:'センターの輝き',d:'みんなの全部の数字+15%、最初に必殺ゲージ+20',st:{hp:1.15,atk:1.15,def:1.15,spd:1.15,mag:1.15},gauge:20},
+ jin:{n:'全通の熱',d:'火の仲間の攻撃+30%',el:'fire',st:{atk:1.3}},
+ gekka:{n:'大御所の監修',d:'みんなの魔力+25%',st:{mag:1.25}},
+ riz:{n:'BPM上昇',d:'みんなの素早さ+20%',st:{spd:1.2}},
+ hinata:{n:'最前列コール',d:'火の仲間の攻撃と魔力+15%',el:'fire',st:{atk:1.15,mag:1.15}},
+ genji:{n:'古参の貫禄',d:'みんなの防御+20%',st:{def:1.2}},
+ minato:{n:'遠征の段取り',d:'水の仲間の素早さ+15%・攻撃+10%',el:'water',st:{spd:1.15,atk:1.1}},
+ kuroe:{n:'限定品の目利き',d:'闇の仲間の攻撃+15%',el:'dark',st:{atk:1.15}},
+ shiori:{n:'合同誌',d:'水の仲間の魔力+15%',el:'water',st:{mag:1.15}},
+ sota:{n:'実況で盛り上げ',d:'火の仲間の攻撃+10%',el:'fire',st:{atk:1.1}},
+ yui:{n:'記念撮影',d:'回復の量+20%',heal:1.2},
+ go:{n:'整列完了',d:'みんなのHP+10%',st:{hp:1.1}},
+ tetsu:{n:'手作りうちわ',d:'みんなの攻撃+8%',st:{atk:1.08}},
+ ren:{n:'遠征の体力',d:'光の仲間のHP+15%',el:'light',st:{hp:1.15}},
+ haru:{n:'はじめての現場',d:'木の仲間の攻撃+10%',el:'wood',st:{atk:1.1}},
+ mio:{n:'差し入れ係',d:'回復の量+10%',heal:1.1},
+ taku:{n:'振りコピ',d:'みんなの素早さ+5%',st:{spd:1.05}},
+ nana:{n:'交換会',d:'みんなのHP+5%',st:{hp:1.05}},
+};
+/* ---------- 3 特性 ---------- */
+const TCTKN={heal:['いやし係キラー','いやし係に1.5倍'],lead:['リーダーキラー','リーダーに1.25倍'],rare:['きらきらキラー','きらきらに2倍'],wall:['かべ無視','かべ係がいてもダメージが半分にならない'],bomb:['爆弾のばし','ばくはつ係に当てると、爆発まで+1(5まで)']};
+const TCTK={miyabi:'wall',ayame:'lead',seira:'bomb',jin:'wall',gekka:'heal',riz:'rare',hinata:'bomb',genji:'bomb',minato:'heal',kuroe:'rare',shiori:'heal',sota:'lead',yui:'bomb',go:'bomb',tetsu:'wall',ren:'lead',haru:'rare',mio:'heal',taku:'bomb',nana:'heal'};
+/* ---------- 4 仲よしコンビ ---------- */
+const TCPAIR=[['sota','yui','幼なじみ'],['shiori','gekka','同人の師弟'],['miyabi','ayame','表紙と衣装'],['kuroe','nana','限定品とグッズ交換'],['hinata','taku','最前列とペンライト'],['genji','haru','古参と新人'],['minato','ren','遠征仲間'],['go','mio','列整理と物販の列'],['seira','jin','アイドルと全通'],['tetsu','riz','職人の自作コントローラ']];
+function tuCenter(){const s=tcSlots()[0];return s&&s.startsWith('ch:')?s.slice(3):null}
+function tuPairs(ids){return TCPAIR.filter(([a,b])=>ids.includes(a)&&ids.includes(b))}
+function tuMul(f,m){const st={};for(const k in f.st)st[k]=Math.max(1,Math.round(f.st[k]*(m[k]||1)));return st}
+{const _p=tbParty3;tbParty3=function(){const P=_p.apply(this,arguments);try{const ids=P.map(f=>f&&f.ch).filter(Boolean),c=tuCenter(),C=c&&ids.includes(c)?TCCE[c]:null,pr=tuPairs(ids);
+  return P.map(f=>{if(!f)return f;let g=Object.assign({},f);if(C&&C.st&&(!C.el||f.el===C.el)&&(!C.wt||f.wt===C.wt))g.st=tuMul(g,C.st);if(f.ch===c)g.center=1;
+    const myp=pr.filter(p=>p[0]===f.ch||p[1]===f.ch);if(myp.length){g.st=tuMul(g,{hp:1.1,atk:1.1,def:1.1,spd:1.1,mag:1.1});g.pair=myp.map(p=>p[2])}return g})}catch(e){return P}}}
+/* 特性: 敵の役へのダメージ */
+{const _d=trDamage;trDamage=function(i,mul,o){if(!TR||TR.tpm)return _d.apply(this,arguments);const f=TR.P[i],E=TR.E,tk=f&&f.ch&&TCTK[f.ch];let m=mul;
+  if(tk&&E){if(tk==='heal'&&E.role==='heal')m*=1.5;if(tk==='lead'&&E.role==='lead'&&TR.ES&&TR.ES.length>1)m*=1.25;if(tk==='rare'&&E.role==='rare')m*=2;if(tk==='wall'&&typeof tgWall==='function'&&tgWall(E))m*=2}
+  const d=_d.call(this,i,m,o);try{if(tk==='bomb'&&d>0&&E&&E.role==='bomb'&&trELive(E)&&E.cd<5){E.cd++;if(!TR.sim)TR.fx.push({k:'txt',c:TR.c,s:'爆弾のばし',x:(typeof tgX==='function'?tgX(E):E.x),y:E.y-E.ey-20,col:'#ff9a5a',sz:9,d:.8})}}catch(e){}return d}}
+/* 回復の量(センター) */
+{const _h=trHeal;trHeal=function(j,v){return _h.call(this,j,v*((TR&&TR.healMul)||1))}}
+/* バトルの最初: センター・コンビの一言、必殺ゲージ */
+{const _s=trSetup;trSetup=function(){_s.apply(this,arguments);try{if(!TR||TR.tpm)return;const c=TR.P.find(f=>f.center),C=c&&TCCE[c.ch];TR.healMul=C&&C.heal||1;
+  if(C&&C.gauge)TR.en=TR.en.map(v=>Math.min(100,v+C.gauge));
+  const me=TR;if(!TR.sim)setTimeout(()=>{if(TR!==me||TR.tuSaid||TR.phase==='prep')return;TR.tuSaid=1;const said=[];if(C)said.push('<b>センター '+c.name+'</b>「'+C.n+'」 '+C.d);const pr=tuPairs(TR.P.map(f=>f.ch).filter(Boolean));pr.forEach(p=>said.push('<b>仲よしコンビ</b> '+tcC(p[0]).n+'と'+tcC(p[1]).n+'(' +p[2]+') 2人とも全部の数字+10%'));
+    if(said.length&&typeof bxSay==='function')said.forEach(s=>bxSay(s,'lb'))},400)}catch(e){}}}
+/* ---------- 見せる: キャラの詳しい欄・パーティのタブ ---------- */
+function tuInfoHTML(id){const U=TCU[id],C=TCCE[id],tk=TCTK[id],pr=TCPAIR.filter(p=>p[0]===id||p[1]===id);let h='';
+  if(U)h+='<div><i>必殺技</i><b>'+U.n+'</b><span>'+U.d+'</span></div>';if(C)h+='<div><i>センター</i><b>'+C.n+'</b><span>'+C.d+'(パーティの2人目の枠に入れたとき)</span></div>';
+  if(tk)h+='<div><i>特性</i><b>'+TCTKN[tk][0]+'</b><span>'+TCTKN[tk][1]+'</span></div>';pr.forEach(p=>{const o=p[0]===id?p[1]:p[0];h+='<div><i>コンビ</i><b>'+tcC(o).n+'</b><span>'+p[2]+'。一緒に入れると2人とも全部の数字+10%</span></div>'});return h}
+{const _t=tnSheet;tnSheet=function(id){_t.apply(this,arguments);try{const inf=document.querySelector('#tnsheet .tninfo');if(inf){const w=document.createElement('div');w.className='tuinfo';w.innerHTML=tuInfoHTML(id);const ref=inf.children[1]||null;while(w.firstChild)inf.insertBefore(w.firstChild,ref)}}catch(e){}}}
+{const _p=renderPartyTab;renderPartyTab=function(){_p.apply(this,arguments);try{const p=$('p-party');if(!p)return;const row=p.querySelector('.tnparty');const c=tuCenter();
+  if(row&&c){const cards=row.querySelectorAll('.tnpc');const cd=cards[1];if(cd&&!cd.querySelector('.tucen'))cd.append(mk('i','tucen','センター'))}
+  const P=tbParty3(),ids=P.map(f=>f.ch).filter(Boolean),box=mk('div','tubox');const C=c&&ids.includes(c)?TCCE[c]:null;
+  box.innerHTML='<p><b class="tut">センター</b>'+(C?tcC(c).n+'「'+C.n+'」 '+C.d:'2人目の枠にキャラを入れると、そのキャラのセンター効果がつきます')+'</p>';
+  const pr=tuPairs(ids);box.innerHTML+=pr.length?pr.map(q=>'<p><b class="tut tup">仲よしコンビ</b>'+tcC(q[0]).n+'と'+tcC(q[1]).n+'('+q[2]+') 2人とも+10%</p>').join(''):'<p><b class="tut tup">仲よしコンビ</b>'+(()=>{const o=tcLoad(),hint=TCPAIR.find(([a,b])=>(ids.includes(a)&&o.own[b])||(ids.includes(b)&&o.own[a]));return hint?(ids.includes(hint[0])?tcC(hint[1]).n+'を入れると'+tcC(hint[0]).n+'とコンビ('+hint[2]+')':tcC(hint[0]).n+'を入れると'+tcC(hint[1]).n+'とコンビ('+hint[2]+')'):'決まった2人を一緒に入れると、2人とも全部の数字+10%'})()+'</p>';
+  const sec=row&&row.closest('.sec');const sum=sec&&sec.querySelector('.tnsum');if(sum)sum.after(box);else if(sec)sec.append(box)}catch(e){console.error(e)}}}
+(()=>{const st=document.createElement('style');st.textContent=`
+.tnpc .tucen{position:absolute;top:-8px;right:6px;padding:1px 6px;border-radius:7px;background:linear-gradient(135deg,#fff3c4,#ffc84a);color:#2a1a00;font:800 9.5px/1.6 var(--jp,sans-serif);font-style:normal;z-index:2}
+.tubox{display:grid;gap:5px;margin-top:8px;padding:10px 12px;border-radius:12px;background:rgba(255,224,102,.06);box-shadow:inset 0 0 0 1px rgba(255,224,102,.2)}
+.tubox p{margin:0;font:500 12px/1.5 var(--jp,sans-serif);color:#f2ecff}.tubox .tut{display:inline-block;margin-right:7px;padding:0 7px;border-radius:7px;background:#ffe066;color:#2a1a00;font:800 10.5px/1.6 var(--jp,sans-serif)}.tubox .tup{background:#ff9ad0;color:#2a0618}`;document.head.append(st)})();
 
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
