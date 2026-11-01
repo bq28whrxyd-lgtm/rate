@@ -10208,7 +10208,7 @@ function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms
     (R.hits||[]).forEach(h=>{if(h.a===pid&&hwIn(h.t))add(HW_C.rt,h.t)});
     if(R.dead&&hwIn(R.killT)&&R.rank.some(x=>x.a===pid)){add(HW_C.rk,R.killT);if(R.rank[0]&&R.rank[0].a===pid)add(HW_C.rtop,R.killT);if(R.killer===pid)add(HW_C.rlast,R.killT)}}
   try{hbCandyEv(pid).forEach(([n,t])=>add(n,t))}catch(e){}
-  try{const N=nightInfo();N.hits.forEach(h=>{if(h.a===pid&&hwIn(h.t))add(HW_C.nbt,h.t)});if(N.dead&&hwIn(N.killT)&&N.rank.some(x=>x.a===pid))add(HW_C.nbk,N.killT)}catch(e){}
+  try{[1,2].forEach(w=>{const N=nightInfo(w);N.hits.forEach(h=>{if(h.a===pid&&hwIn(h.t))add(HW_C.nbt,h.t)});if(N.dead&&hwIn(N.killT)&&N.rank.some(x=>x.a===pid))add(HW_C.nbk,N.killT)})}catch(e){}
   if(pid===invFor){((inv.tcg||{})[HWK.s]||[]).forEach(t=>{if(hwIn(+t))add(HW_C.cpu,+t)});c+=+inv[HWK.q]||0;try{hdEv(pid).forEach(([n,t])=>add(n,t))}catch(e){}}
   /* (10/25) 後編: the timed candy is kept (hwMemo.e), and the bingo lines and wakes are added raw (hwMemo.x) */
   hwMemo.e[pid]=ev;if(window.HW2_EV&&!hwMemo.b[pid]){hwMemo.b[pid]=1;try{const X=window.HW2_EV(pid).filter(([n,t])=>hwIn(+t||0));hwMemo.x[pid]=X;X.forEach(([n])=>{c+=n})}catch(e){console.warn('hw2 ev',e)}finally{hwMemo.b[pid]=0}}
@@ -10218,14 +10218,18 @@ function hwEarn(pid){const key=[matches.length,(typeof tcgms!=='undefined'?tcgms
 /* ---- 夜のボス (ハロウィンナイト 10/31 17:00〜24:00): everyone hits one boss in 分身 (bunlog d:HW_NB, s:damage), HW_NB_DAY tries each.
    Candy only: every try HW_C.nbt, a kill HW_C.nbk to everyone who hit it (the night doubles both: 40 and 600) ---- */
 const HW_NB='xn2026',HW_NB_DAY=5,HW_NB_HP=.8;Object.assign(HW_C,{nbt:20,nbk:300});
+/* (11/1) 夜のボスをもう1回: 11/1 13:00〜24:00 (お菓子2倍はなし、ボスは新しく1体) */
+const NB2_0=Date.UTC(2026,10,1,4,0),NB2_1=Date.UTC(2026,10,1,15,0);
+const nbWin=t=>hwNightAt(t)?1:(t>=NB2_0&&t<NB2_1)?2:0;
+const nbCur=()=>nbWin(now())||(now()>=NB2_0?2:1);
 let nbC={k:'',v:null};
-function nightInfo(){const key=bunLogs.length+'|'+players.length+'|'+Object.keys(bunDocs).length+'|'+!!window.__hwNight;if(nbC.k===key&&nbC.v)return nbC.v;
-  const max=Math.max(1000,Math.round(raidMax()*HW_NB_HP)),L=bunLogs.filter(l=>l.d===HW_NB&&hwNightAt(l.t)).sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));
+function nightInfo(w){w=w||nbCur();const key=w+'|'+bunLogs.length+'|'+players.length+'|'+Object.keys(bunDocs).length+'|'+!!window.__hwNight;if(nbC.k===key&&nbC.v)return nbC.v;
+  const max=Math.max(1000,Math.round(raidMax()*HW_NB_HP)),L=bunLogs.filter(l=>l.d===HW_NB&&nbWin(l.t)===w).sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));
   let sum=0,killer=null,killT=0;const by={},n={},hits=[];
   for(const l of L){if(sum>=max)break;n[l.a]=(n[l.a]||0)+1;if(n[l.a]>HW_NB_DAY)continue;const d=Math.max(0,Math.min(Math.round(+l.s||0),RAID_HITMAX,max-sum));sum+=d;by[l.a]=(by[l.a]||0)+d;hits.push({a:l.a,d,t:l.t});if(sum>=max){killer=l.a;killT=l.t}}
   const rank=Object.keys(by).map(a=>({a,dmg:by[a]})).sort((x,y)=>y.dmg-x.dmg);
   return (nbC={k:key,v:{max,hp:Math.max(0,max-sum),dead:sum>=max,killer,killT,rank,hits}}).v}
-const hwNbCandy=pid=>{try{const N=nightInfo();return N.hits.filter(h=>h.a===pid).reduce((a,h)=>a+HW_C.nbt*hwMul(h.t),0)+(N.dead&&N.rank.some(x=>x.a===pid)?HW_C.nbk*hwMul(N.killT):0)}catch(e){return 0}};
+const hwNbCandy=(pid,w)=>{try{const N=nightInfo(w);return N.hits.filter(h=>h.a===pid).reduce((a,h)=>a+HW_C.nbt*hwMul(h.t),0)+(N.dead&&N.rank.some(x=>x.a===pid)?HW_C.nbk*hwMul(N.killT):0)}catch(e){return 0}};
 /* ---- (10/17) ハロウィンの個人ボス戦 (in 分身): each player climbs their own chain. Knights 5 times, then a witch, again and again; each
    one is 1.2x the one before (a witch 2x more). Stamina 5, one back every 3 hours; a try (bunlog d:HB_D, s:damage) costs 1. お助け:
    a friend's avatar fights once with you (d:HB_D+'~'+their id) for 200pt; they get 50pt. Every try gives candy; a kill gives candy and
@@ -14605,10 +14609,10 @@ window.BUNSHINHOST={
       last:last.rank.length?{name:'',dead:last.dead,myPts:last.pts[me]||0}:null}},
   raidLog:dmg=>{const me=myPlayer().id,wk=weekNo(now());return BUNSHINHOST.log({d:'xr'+wk,w:0,s:Math.max(0,Math.round(+dmg||0))}).then(()=>{raidC.k='';const q=BUNSHINHOST.raid();q.killer=q.killer;return q})},
   /* ハロウィンナイトの夜のボス: null outside the event */
-  night:()=>{if(typeof hwOn!=='function'||!hwOn())return null;const me=myPlayer().id,t=now(),N=nightInfo(),open=hwNightAt(t),nm=a=>(players.find(p=>p.id===a)||{}).name||'だれか';
-    const used=bunLogs.filter(l=>l.a===me&&l.d===HW_NB&&hwNightAt(l.t)).length;
-    return {night:1,boss:0,open,soon:!open&&t<HWN0,start:HWN0,end:window.__hwNight?t+36e5:HWN1,max:N.max,hp:N.hp,dead:N.dead,killer:N.killer?nm(N.killer):'',me:nm(me),left:Math.max(0,HW_NB_DAY-used),tries:HW_NB_DAY,
-      rank:N.rank.map(x=>({name:nm(x.a),dmg:x.dmg,me:x.a===me})),feed:N.hits.slice(-5).reverse().map(h=>({name:nm(h.a),dmg:h.d,ago:bunAgo(h.t)})),myCandy:hwNbCandy(me),cTry:HW_C.nbt*2,cKill:HW_C.nbk*2}},
+  night:()=>{if(typeof hwOn!=='function'||!hwOn())return null;const me=myPlayer().id,t=now(),w=nbCur(),N=nightInfo(w),open=nbWin(t)>0,nm=a=>(players.find(p=>p.id===a)||{}).name||'だれか';
+    const used=bunLogs.filter(l=>l.a===me&&l.d===HW_NB&&nbWin(l.t)===w).length;
+    return {night:1,boss:0,open,soon:!open&&t<HWN0,start:w===2?NB2_0:HWN0,end:w===2?NB2_1:window.__hwNight?t+36e5:HWN1,max:N.max,hp:N.hp,dead:N.dead,killer:N.killer?nm(N.killer):'',me:nm(me),left:Math.max(0,HW_NB_DAY-used),tries:HW_NB_DAY,
+      rank:N.rank.map(x=>({name:nm(x.a),dmg:x.dmg,me:x.a===me})),feed:N.hits.slice(-5).reverse().map(h=>({name:nm(h.a),dmg:h.d,ago:bunAgo(h.t)})),myCandy:hwNbCandy(me,w),cTry:HW_C.nbt*(w===2?1:2),cKill:HW_C.nbk*(w===2?1:2)}},
   /* ハロウィンの個人ボス戦 (null outside the event) */
   hboss:()=>{if(typeof hwOn!=='function'||!hwOn())return null;const me=myPlayer().id,I=hbInfo(me),nm=a=>(players.find(p=>p.id===a)||{}).name||'だれか';
     const all=hbAll().filter(x=>x.I.tries.length||x.p.id===me).map(x=>({name:x.p.name,me:x.p.id===me,n:x.I.n,kills:x.I.kills.length,dmg:x.I.max-x.I.hp,max:x.I.max,skin:x.I.skin})).sort((a,b)=>b.kills-a.kills||b.dmg/b.max-a.dmg/a.max);
