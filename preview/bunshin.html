@@ -4591,6 +4591,83 @@ if(typeof bxHint==='function'){const _bh=bxHint;bxHint=function(){let n=0;try{n=
 {const _e=trEnd;trEnd=function(win){const first=TR&&!TR.end;_e.apply(this,arguments);try{if(first&&TR&&!TR.sim&&!TR.auto){const n=+localStorage.getItem('tjSeen')||0;localStorage.setItem('tjSeen',String(n+1))}}catch(e){}}}
 (()=>{const st=document.createElement('style');st.textContent=`#tbui .tjres{margin:4px 0;font:800 13px/1.5 var(--jp,sans-serif);color:#ffe066}`;document.head.append(st)})();
 
+/* ================= (11/1) 試作: 推しポーカー(ユーザー「ポーカー気になる」「カードを選ぶ」) =================
+   参考にした考え方(まねはしない): ドラゴンポーカーの「カードの役で強くなる」、FGOの「配られたカードで行動が決まる」、ポーカーの交換
+   遊び方:
+   - 毎ラウンド、仲間のカードが5枚配られる。カード = その仲間の行動。数字は1〜7(6・7はスキルになる強いカード)
+   - 交換したいカードをタップして「交換」(1ラウンド1回)。そのあと「勝負!」
+   - 5枚の役で全員の攻撃が強くなる。カードは左から順に、その仲間が行動する(タイミングでタップも使える)
+   - 全員の行動が終わったら、敵が1体ずつ動く。ブレイクした敵は次の番を休む
+   - 必殺は、ゲージが満タンの顔をいつでもタップ(カードを選んでいる間)
+   役: ワンペア(同じ数字2枚)×1.1 / ツーペア ×1.2 / スリーカード ×1.35・シールド+1 / ストレート(数字5つ連続) ×1.5・敵全員に当たる /
+       フラッシュ(同じ仲間5枚) ×1.5・その仲間の必殺ゲージ満タン / フルハウス ×1.6・全員の必殺ゲージ+30 / フォーカード ×2・すぐブレイク /
+       ストレートフラッシュ ×2.6・敵全員+すぐブレイク */
+let PKMODE=false;try{PKMODE=localStorage.getItem('bunPk')==='1'}catch(e){}
+const PKH=[['sf','ストレートフラッシュ',2.6,'敵全員に当たる・すぐブレイク'],['four','フォーカード',2,'すぐブレイク'],['fh','フルハウス',1.6,'全員の必殺ゲージ+30'],['flush','フラッシュ',1.5,'その仲間の必殺ゲージ満タン'],['st','ストレート',1.5,'敵全員に当たる'],['three','スリーカード',1.35,'シールドをもう1つ削る'],['two','ツーペア',1.2,''],['pair','ワンペア',1.1,''],['none','役なし',1,'']];
+const pkOn=()=>TR&&TR.pk&&!TR.sim&&!TR.end;
+function pkEval(cs){const byN={},byI={};cs.forEach(c=>{byN[c.n]=(byN[c.n]||0)+1;byI[c.i]=(byI[c.i]||0)+1});const cnt=Object.values(byN).sort((a,b)=>b-a),ns=Object.keys(byN).map(Number).sort((a,b)=>a-b);
+  const flush=cs.length===5&&Object.keys(byI).length===1,st=cs.length===5&&ns.length===5&&ns[4]-ns[0]===4;let k='none';
+  if(st&&flush)k='sf';else if(cnt[0]>=4)k='four';else if(cnt[0]===3&&cnt[1]===2)k='fh';else if(flush)k='flush';else if(st)k='st';else if(cnt[0]===3)k='three';else if(cnt[0]===2&&cnt[1]===2)k='two';else if(cnt[0]===2)k='pair';
+  const h=PKH.find(x=>x[0]===k);return {k,name:h[1],mul:h[2],eff:h[3],fi:flush?cs[0].i:null,pairN:Object.keys(byN).filter(n=>byN[n]>=2).map(Number)}}
+function pkDeck(){const d=[];TR.P.forEach((f,i)=>{if(!trAlive(i))return;for(let n=1;n<=7;n++)d.push({i,n,id:i*10+n})});for(let k=d.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[d[k],d[j]]=[d[j],d[k]]}return d}
+function pkRound(){if(!TR||TR.end)return;TR.pkDeck=pkDeck();TR.pkHand=TR.pkDeck.splice(0,5);TR.pkSel=new Set();TR.pkSwapped=false;TR.pkRun=null;TR.pkEQ=null;TR.round=(TR.round||0)+1;TR.cur=-1;TR.phase='cmd';
+  for(let b=0;b<TR.P.length;b++){if(!trAlive(b))continue;if(TR.pas[b].tca)trHeal(b,.06*TR.pas[b].tca)}if(TR.round>1&&typeof SFX!=='undefined'&&SFX.turn)SFX.turn();trUI()}
+function pkSwap(){if(!pkOn()||TR.pkSwapped||TR.pkRun||!TR.pkSel.size)return;TR.pkHand=TR.pkHand.map((c,k)=>TR.pkSel.has(k)&&TR.pkDeck.length?TR.pkDeck.shift():c);TR.pkSel=new Set();TR.pkSwapped=true;if(typeof SFX!=='undefined'&&SFX.swish)SFX.swish();trUI()}
+function pkGo(){if(!pkOn()||TR.pkRun||TR.phase!=='cmd'||TR.ultBy>=0)return;const ev=pkEval(TR.pkHand);TR.pkRun={cards:TR.pkHand.slice(),k:0,ev};TR.pkShow={c:TR.c,rt:trNow(),ev};
+  if(ev.k==='fh')TR.P.forEach((_,j)=>{if(trAlive(j))trGain(j,30)});if(ev.k==='flush'&&ev.fi!=null&&trAlive(ev.fi))TR.en[ev.fi]=100;
+  if((ev.k==='four'||ev.k==='sf')){for(const E of (TR.ES||[TR.E]).filter(trELive)){if(!E.broken){trSetE(E);E.sh=0;trBreak()}}trSetE(trELive(TR.tgt)?TR.tgt:TR.ES.find(trELive))}
+  if(typeof bxSay==='function')bxSay('<b class="bxbk">'+ev.name+'!</b> 攻撃×'+ev.mul+(ev.eff?' ・'+ev.eff:''),'bk');if(typeof SFX!=='undefined'&&ev.k!=='none'&&SFX.chain)SFX.chain(Math.min(6,2+PKH.length-PKH.findIndex(x=>x[0]===ev.k)-3));
+  TR.phase='anim';trUI();trAt(ev.k==='none'?.25:.75,pkNext)}
+function pkNext(){if(!TR||TR.end)return;const R=TR.pkRun;if(!R)return;while(R.k<R.cards.length&&!trAlive(R.cards[R.k].i))R.k++;if(R.k>=R.cards.length||!TR.ES.some(trELive)){TR.pkRun=null;pkEnemies();return}
+  const c=R.cards[R.k++];TR.pkCard=c;TR.cur=c.i;TR.turn=(TR.turn||0)+1;TR.phase='cmd';const ro=TR.role[c.i];if(c.n>=6){TR.sp=Math.max(TR.sp,1);trSkill()}else trBasic();if(TR.phase==='cmd'){TR.phase='anim';trAt(.1,pkNext)}}
+function pkEnemies(){if(!TR||TR.end)return;TR.pkCard=null;TR.cur=-1;TR.pkEQ=(TR.ES||[TR.E]).map((E,k)=>k).filter(k=>trELive(TR.ES[k]));pkNextEnemy()}
+function pkNextEnemy(){if(!TR||TR.end)return;const q=TR.pkEQ||[];while(q.length&&!trELive(TR.ES[q[0]]))q.shift();if(!q.length){TR.pkEQ=null;trAt(.3,pkRound);return}const k=q.shift(),E=TR.ES[k];TR.actE=k;trSetE(E);
+  if(E.broken){E.broken=false;E.sh=E.shMax;E.chased=false;if(typeof bxSay==='function')bxSay(E.name+'はブレイクで休み(シールドが戻った)','lb');TR.phase='enemy';trUI();trAt(.5,pkNextEnemy);return}
+  TR.phase='enemy';trUI();trAt(.35,trEnemyAct)}
+/* エンジンへのつなぎ(TR.pk のバトルだけ) */
+{const _s=trSetup;trSetup=function(){_s.apply(this,arguments);try{if(TR&&PKMODE&&!TR.sim&&!TR.tpm&&!(TR.o&&TR.o.ctx&&(TR.o.ctx.raid||TR.o.ctx.sa||TR.o.ctx.hw)))TR.pk=1}catch(e){}}}
+{const _adv=trAdvance;trAdvance=function(){if(TR&&TR.pk&&!TR.sim){if(TR.end)return;if(TR.pkEQ)return pkNextEnemy();if(TR.pkRun)return;return pkRound()}return _adv.apply(this,arguments)}}
+{const _af=trAfter;trAfter=function(){if(TR&&TR.pk&&!TR.sim){if(TR.end)return;if(TR.pkRun){trAt(.15,pkNext);return}return}return _af.apply(this,arguments)}}
+{const _am=trAutoMove;trAutoMove=function(){if(!(TR&&TR.pk&&!TR.sim))return _am.apply(this,arguments);if(TR.phase!=='cmd'||TR.pkRun||TR.ultBy>=0)return;const u=TR.P.map((_,i)=>i).find(i=>trAlive(i)&&TR.en[i]>=100);if(u!=null){trUlt(u);return}
+  if(!TR.pkSwapped){/* オート: 役に関係ないカードを交換 */const ev=pkEval(TR.pkHand),byN={},byI={};TR.pkHand.forEach(c=>{byN[c.n]=(byN[c.n]||0)+1;byI[c.i]=(byI[c.i]||0)+1});const fi=Object.keys(byI).find(i=>byI[i]>=4);
+    TR.pkSel=new Set();if(!['sf','four','fh','flush','st'].includes(ev.k)){TR.pkHand.forEach((c,k)=>{if(fi!=null){if(String(c.i)!==fi)TR.pkSel.add(k)}else if(byN[c.n]<2&&c.n<6)TR.pkSel.add(k)})}if(TR.pkSel.size){pkSwap();return}TR.pkSwapped=true}
+  pkGo()}}
+/* カードを並べる画面(下の欄) */
+{const _ui=trUI;trUI=function(){_ui.apply(this,arguments);try{if(!TR||!TR.pk||TR.sim||TR.end)return;const u=$('tbui');if(!u)return;u.querySelectorAll('.bxhint,.tbnote,.tgnote').forEach(x=>x.remove());const cmd=u.querySelector('.trcmd');if(!cmd)return;cmd.replaceChildren();cmd.classList.add('pkcmd');
+  if(TR.phase==='enemy'){cmd.append(mk('div','trwait','敵の番'));return}
+  const H=TR.pkRun?TR.pkRun.cards:TR.pkHand||[],ev=pkEval(H),row=mk('div','pkrow');
+  H.forEach((c,k)=>{const f=TR.P[c.i],b=mk('button','pkc'+(TR.pkSel&&TR.pkSel.has(k)?' sel':'')+(c.n>=6?' hi':'')+(ev.pairN.includes(c.n)?' pr':'')+(TR.pkRun&&k<TR.pkRun.k?' done':'')+(TR.pkRun&&k===TR.pkRun.k-1?' now':''));b.type='button';b.style.setProperty('--c',(typeof TEL!=='undefined'&&f.el&&TEL[f.el])?TEL[f.el][1]:'#d8d0e8');
+    const fc=mk('div','pkf');fc.append(tbFace(f,34));b.append(mk('b','pkn',String(c.n)),fc,mk('small',null,f.name),mk('em',null,c.n>=6?TRSK[TR.role[c.i]][0]:'攻撃'));
+    b.onclick=()=>{if(TR.pkRun||TR.pkSwapped||TR.phase!=='cmd')return;TR.pkSel.has(k)?TR.pkSel.delete(k):TR.pkSel.add(k);if(typeof SFX!=='undefined'&&SFX.tap)SFX.tap();trUI()};row.append(b)});cmd.append(row);
+  const info=mk('div','pkev');info.innerHTML='<b>'+ev.name+'</b><span>攻撃×'+ev.mul+(ev.eff?' ・'+ev.eff:'')+'</span>';cmd.append(info);
+  if(!TR.pkRun&&TR.phase==='cmd'){const bt=mk('div','pkbt'),sw=mk('button','btn pksw',TR.pkSwapped?'交換ずみ':TR.pkSel.size?TR.pkSel.size+'枚を交換':'交換するカードをタップ'),go=mk('button','btn main pkgo','勝負!');sw.type=go.type='button';sw.disabled=TR.pkSwapped||!TR.pkSel.size;sw.onclick=pkSwap;go.onclick=pkGo;bt.append(sw,go);cmd.append(bt);
+    const tb=mk('details','pktbl');tb.innerHTML='<summary>役の一覧</summary>'+PKH.filter(h=>h[0]!=='none').map(h=>'<p><b>'+h[1]+'</b> 攻撃×'+h[2]+(h[3]?' ・'+h[3]:'')+'</p>').join('')+'<p class="pkn2">ペア=同じ数字 / ストレート=数字5つ連続 / フラッシュ=同じ仲間5枚 / 6と7はスキルになる</p>';cmd.append(tb)}}catch(e){console.error(e)}}}
+/* ダメージ: 役の倍率と、数字(1〜7)の強さ。ストレートは敵全員に */
+{const _d=trDamage;trDamage=function(i,mul,o){if(!(TR&&TR.pk&&!TR.sim&&TR.pkRun))return _d.apply(this,arguments);o=o||{};const ev=TR.pkRun.ev,c=TR.pkCard,m=mul*ev.mul*(c&&c.i===i?.75+.06*c.n:1);
+  if(ev.k==='three'&&!o.splash&&!TR.pkRun.sh3){TR.pkRun.sh3=1;o=Object.assign({},o,{shield:(o.shield!=null?o.shield:(TR.E.weak.includes(TR.P[i].wt)?1:0))+1})}
+  const main=TR.E,d=_d.call(this,i,m,o);if((ev.k==='st'||ev.k==='sf')&&!o.splash&&!TR.end){for(const e of TR.ES.filter(x=>x!==main&&trELive(x))){if(TR.end)break;trSetE(e);_d.call(this,i,m*.7,Object.assign({},o,{splash:true,big:false,crit:false,sure:true,shield:0}))}if(!TR.end)trSetE(trELive(main)?main:TR.ES.find(trELive))}return d}}
+/* 役の名前を画面に大きく */
+{const _f=trFrame;trFrame=function(){_f.apply(this,arguments);try{const s=TR&&TR.pkShow;if(!s||TR.sim)return;const v=trNow()-s.rt;if(v>1.1){TR.pkShow=null;return}if(s.ev.k==='none')return;G.setTransform(SC,0,0,SC,0,0);const k=v<.12?1.5-.5*eo(v/.12):1,a=v>.85?1-(v-.85)/.25:1;
+  G.save();G.globalAlpha=.55*a;G.fillStyle='rgba(10,6,16,1)';G.fillRect(0,H*.36,W,44);G.restore();G.save();G.translate(W/2,H*.36+22);G.scale(k,k);tbTxt(s.ev.name+'!',0,-2,s.ev.k==='pair'||s.ev.k==='two'?16:22,s.ev.mul>=2?'#ffe066':'#ffffff',null,a);G.restore();tbTxt('攻撃×'+s.ev.mul,W/2,H*.36+38,8,'#fff3c4',null,a)}catch(e){}}}
+/* クエストの画面に、試作を使うスイッチ */
+function pkToggleRow(){const w=mk('div','pktog');w.innerHTML='<div><b>推しポーカー(試作)</b><small>カードの役で戦う新しいバトル。オンにするとクエストがこの形になる</small></div>';const b=mk('button','tbq'+(PKMODE?' on':''),PKMODE?'オン':'オフ');b.type='button';b.onclick=()=>{PKMODE=!PKMODE;try{localStorage.setItem('bunPk',PKMODE?'1':'0')}catch(e){}renderQuest()};w.append(b);return w}
+{const _q=qsBody;qsBody=function(){_q.apply(this,arguments);try{const box=$('quest');if(box&&!box.querySelector('.pktog'))box.prepend(pkToggleRow())}catch(e){}}}
+(()=>{const st=document.createElement('style');st.textContent=`
+#tbui .trcmd.pkcmd{display:flex!important;flex-direction:column;align-items:stretch;gap:8px;grid-template-columns:none!important}#tbui .trcmd.pkcmd>*{width:100%;min-width:0}
+#tbui .pkrow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+#tbui .pkc{position:relative;display:grid;justify-items:center;gap:2px;padding:8px 2px 7px;border-radius:12px;background:linear-gradient(180deg,#2a2436,#17121f);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--c) 70%,transparent);transition:transform .12s ease-out}
+#tbui .pkc .pkn{font:900 22px/1 var(--jp,sans-serif);color:#fff}#tbui .pkc.hi .pkn{color:#ffe066}#tbui .pkc small{font:700 10px/1.2 var(--jp,sans-serif);color:#e6dff4;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tbui .pkc em{font:700 9px/1.2 var(--jp,sans-serif);font-style:normal;color:#b9b2c8}#tbui .pkc.hi em{color:#ffe066}
+#tbui .pkc .pkf canvas{width:34px;height:34px;border-radius:8px}
+#tbui .pkc.pr{box-shadow:inset 0 0 0 2px #ffe066,0 0 12px rgba(255,224,102,.35)}
+#tbui .pkc.sel{transform:translateY(8px);opacity:.55}#tbui .pkc.sel::after{content:'交換';position:absolute;top:-9px;padding:0 6px;border-radius:6px;background:#ff8a80;color:#2a0606;font:800 9.5px/1.6 var(--jp,sans-serif)}
+#tbui .pkc.done{opacity:.35}#tbui .pkc.now{transform:translateY(-6px);box-shadow:inset 0 0 0 2px #fff,0 0 16px rgba(255,255,255,.4)}
+#tbui .pkev{display:flex;gap:8px;align-items:baseline;justify-content:center;font:600 12px/1.4 var(--jp,sans-serif);color:#e6dff4}#tbui .pkev b{font:900 16px/1.2 var(--jp,sans-serif);color:#ffe066}
+#tbui .pkbt{display:grid;grid-template-columns:1fr 1fr;gap:8px}#tbui .pkbt .btn{min-height:46px}
+#tbui .pktbl{font:500 11.5px/1.5 var(--jp,sans-serif);color:#d8d0e8}#tbui .pktbl summary{cursor:pointer;color:#b9b2c8}#tbui .pktbl p{margin:2px 0}#tbui .pktbl b{color:#fff}#tbui .pktbl .pkn2{color:#b9b2c8}
+.pktog{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:10px 12px;border-radius:12px;background:rgba(255,224,102,.07);box-shadow:inset 0 0 0 1px rgba(255,224,102,.25)}
+.pktog b{display:block;font:800 13px/1.4 var(--jp,sans-serif);color:#ffe066}.pktog small{font:500 11px/1.4 var(--jp,sans-serif);color:#c9c3d6}`;document.head.append(st)})();
+
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
 </script>
