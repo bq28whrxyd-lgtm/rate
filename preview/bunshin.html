@@ -5428,16 +5428,16 @@ function ax3ImpTex(col,seed){const k='imp'+col+seed;if(A3.tex[k])return A3.tex[k
   const path=sc=>{g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x*sc,y*sc):g.moveTo(x*sc,y*sc));g.closePath()};
   g.lineJoin='miter';path(1);g.fillStyle='#120a10';g.fill();g.lineWidth=w*.045;g.strokeStyle='#120a10';g.stroke();path(.86);g.fillStyle=col;g.fill();path(.6);g.fillStyle='#ffffff';g.fill()},256)}
 function ax3LinesTex(){if(A3.tex.slines)return A3.tex.slines;return A3.tex.slines=ax3Tex((g,w)=>{g.translate(w/2,w/2);let s=5;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};
-  for(let i=0;i<40;i++){const a=r()*Math.PI*2,r0=w*(.2+r()*.12),r1=w*(.42+r()*.08),wd=w*(.004+r()*.012);g.fillStyle=i%3?'#ffffff':'#1a1014';g.beginPath();g.moveTo(Math.cos(a-wd/r0)*r0,Math.sin(a-wd/r0)*r0);g.lineTo(Math.cos(a)*r1,Math.sin(a)*r1);g.lineTo(Math.cos(a+wd/r0)*r0,Math.sin(a+wd/r0)*r0);g.fill()}},256)}
+  for(let i=0;i<26;i++){const a=r()*Math.PI*2,r0=w*(.24+r()*.12),r1=w*(.42+r()*.08),wd=w*(.004+r()*.012);g.fillStyle=i%3?'#ffffff':'#1a1014';g.beginPath();g.moveTo(Math.cos(a-wd/r0)*r0,Math.sin(a-wd/r0)*r0);g.lineTo(Math.cos(a)*r1,Math.sin(a)*r1);g.lineTo(Math.cos(a+wd/r0)*r0,Math.sin(a+wd/r0)*r0);g.fill()}},256)}
 function ax3Impacts(t){const T=A3.T,A=AXB;A3.imp=A3.imp||[];A3.impSeen=A3.impSeen||new WeakSet();
   for(const q of A.nums){if(A3.impSeen.has(q))continue;A3.impSeen.add(q);if(t-q.t>.05||/^\+/.test(q.v))continue;const big=!!q.big,col=big?'#ffd23a':(q.col==='#ff8a8a'?'#ff7a7a':'#fff2b0'),gy=q.gy!=null?q.gy:q.y;
     const sp=new T.Sprite(new T.SpriteMaterial({map:ax3ImpTex(col,(A3.imp.length%4)+1),transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));sp.material.rotation=Math.random()*6.28;sp.renderOrder=20;
     const h=(gy-q.y)*AXM*.8+2.5;sp.position.set(a3X(q.x),h,a3Z(gy)+.5);A3.S.add(sp);const o={sp,t,big,ln:null};
-    if(big){const l=new T.Sprite(new T.SpriteMaterial({map:ax3LinesTex(),transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));l.renderOrder=19;l.position.copy(sp.position);A3.S.add(l);o.ln=l}
+    if(big&&!A3.imp.some(z=>z.ln)&&!(A3.afx||[]).some(z=>z.kind==='lines')){const l=new T.Sprite(new T.SpriteMaterial({map:ax3LinesTex(),transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));l.renderOrder=19;l.position.copy(sp.position);A3.S.add(l);o.ln=l}
     A3.imp.push(o)}
   A3.imp=A3.imp.filter(o=>{const a=t-o.t,D=o.big?.26:.17;if(a>D||a<0){A3.S.remove(o.sp);o.sp.material.dispose();if(o.ln){A3.S.remove(o.ln);o.ln.material.dispose()}return false}
     const k=a<.05?a/.05:1,S=(o.big?7:4.2)*(k<1?.4+.8*k:1.2-.35*(a-.05)/(D-.05));o.sp.scale.set(S,S,1);o.sp.material.opacity=a<D*.6?1:1-(a-D*.6)/(D*.4);
-    if(o.ln){const L=16+a*40;o.ln.scale.set(L,L,1);o.ln.material.opacity=1-a/D;o.ln.material.rotation=a*2}return true})}
+    if(o.ln){const L=13+a*30;o.ln.scale.set(L,L,1);o.ln.material.opacity=.8*(1-a/D);o.ln.material.rotation=a*2}return true})}
 /* ---------- 技の見た目をアニメ風に(黒いふち+白い芯+色。光で白飛びしない) ---------- */
 function ax3RingTex(col){const k='ring'+col;if(A3.tex[k])return A3.tex[k];return A3.tex[k]=ax3Tex((g,w)=>{const c=w/2;g.translate(c,c);
   for(let i=0;i<120;i++){const a0=i/120*Math.PI*2,a1=(i+1.2)/120*Math.PI*2,f=i/120,th=.1+.9*f;if(i%40>34)continue;
