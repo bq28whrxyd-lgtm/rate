@@ -5839,7 +5839,7 @@ function ax3EfkUpd(t,dt){const E=A3&&A3.efk;if(!E||!E.ctx)return;const ctx=E.ctx
 /* 技ごとの Effekseer 演出。出せたら true(今までの演出は出さない) */
 function ax3EfkRole(k,o){if(!ax3EfkOk())return false;const {cx,cz,ux,uz,col,dl,ult,f}=o,R=(f.r||50)*AXM*1.2,hits=f.hits||1,gap=f.gap||.1,el=f.el||(f.u&&f.u.f&&f.u.f.el)||'';
   const ang=Math.atan2(cz-uz,cx-ux),ry=-ang,rnd=r=>[cx+(Math.random()-.5)*r*2,cz+(Math.random()-.5)*r*1.4];
-  const hit=(x,z,s,d,c)=>ax3E('ToonHit',x,z,{s:s*1.8,dl:d,sp:1.6,skip:18,y:3,col:c});
+  const hit=(x,z,s,d,c)=>(typeof axvHit==='function'&&s<.8)?0:ax3E('ToonHit',x,z,{s:s*1.8,dl:d,sp:1.6,skip:18,y:3,col:c});
   switch(k){
   /* 必殺: 当たり(0.06・0.15・0.24秒)に合わせて小さい光、0.33秒の決めの1発で一番大きい演出が最大になる */
   case 'ult_quake':ax3E('MagicTornade',cx,cz,{s:1.4,sp:2.6,skip:4,col:'#ffe8c8'});for(let i=0;i<4;i++){const [x,z]=rnd(R);ax3E('KM_Spike',x,z,{s:.99,dl:i*.07,sp:2.4,skip:120})}for(let h=0;h<3;h++)hit(cx+(Math.random()-.5)*4,cz,.6,.06+h*.09,'#ffd0a0');hit(cx,cz,.8,.33,'#ffd0a0');return true;
