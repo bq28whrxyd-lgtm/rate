@@ -4787,7 +4787,7 @@ function axDmg(a,d,m,o){o=o||{};const t=AXB.t;let v=a.pow*m*.7*(.85+Math.random(
   const fc=a.buff&&a.buff.focus>t;const cr=a.side==='P'&&(o.crit||Math.random()<(fc?.6:.08));if(cr)v*=fc?1.8:1.6;return {v:Math.max(1,Math.round(v)),cr}}
 let AXEN=2.2;
 function axHit(a,d,m,o){o=o||{};if(!axLive(d))return 0;const A=AXB;if(d.side==='P'&&d.inv>A.t){axTxt('回避',d.x,d.y-60,'#c9e4ff',9);return 0}const r=axDmg(a,d,m,o);d.hp=Math.max(0,d.hp-r.v);d.hitT=A.t;
-  const ln=A.nums.filter(q=>A.t-q.t<.45&&Math.abs(q.x-d.x)<40&&Math.abs((q.gy!=null?q.gy:q.y)-d.y)<24).length%4;A.nums.push({ln,u:d,v:String(r.v),x:d.x+(ln%2?16:-6)+(Math.random()-.5)*8,y:d.y-(d.side==='E'?d.ey*1.15:64),gy:d.y,t:A.t,col:d.side==='P'?'#ff8a8a':r.cr||o.big?'#ffe066':'#fff',big:r.cr||o.big});
+  /* (11/2) 数字はその敵の頭の上に縦に積む(サウスト風: 誰に何回当たったか分かる) */const ln=A.nums.filter(q=>q.u===d&&A.t-q.t<.6).length%6;A.nums.push({ln,u:d,v:String(r.v),x:d.x+(Math.random()-.5)*4,y:d.y-(d.side==='E'?d.ey*1.15:64),gy:d.y,t:A.t,col:d.side==='P'?'#ff8a8a':r.cr||o.big?'#ffe066':'#fff',big:r.cr||o.big});
   if(d.side==='P'&&r.v>0)A.fx.push({k:'bh',pc:1,x:d.x,y:d.y-40,gy:d.y,t:A.t,sheet:'hit'});
   if(d.side==='E'){A.sp=Math.min(100,A.sp+1.2);A.rush=Math.min(200,A.rush+(A.rushOn?0:1));if(A.t-A.comboT>2.2)A.combo=0;A.combo++;A.comboT=A.t;A.maxCombo=Math.max(A.maxCombo,A.combo);
     const weak=d.weak.includes(a.f.wt);if(d.shMax&&d.brk<=A.t&&(d.brkCool||0)<=A.t&&(weak||o.shield>1)&&A.t-d.lastSh>.9){d.lastSh=A.t;d.sh=Math.max(0,d.sh-(o.shield||1));if(d.sh<=0){d.brk=A.t+2.6;d.brkCool=A.t+8.6;d.tel=null;A.tel=A.tel.filter(z=>z.by!==d);A.stop=Math.max(A.stop,.2);A.shake=6;A.flash=.12;axTxt('BREAK!',d.x,d.y-d.ey*1.4,'#ffe066',18);A.fx.push({k:'burst',x:d.x,y:d.y-d.ey*.5,gy:d.y,r:34,t:A.t,d:.45,col:'#ffe066'});axSay(d.name+'をブレイク! 少しの間動けない・ダメージ1.5倍');if(typeof SFX!=='undefined'&&SFX.brk)SFX.brk()}}
@@ -5116,7 +5116,7 @@ function ax3Init(){const T=AX3.THREE,A=AXB;if(!A)return;const dusk=A.bg==='dusk'
   const sprM=new T.MeshBasicMaterial({map:atl,alphaTest:.5,side:T.DoubleSide,color:0xf2f2f2,fog:true});
   const soft=ax3Tex((g,w)=>{const gr=g.createRadialGradient(w/2,w/2,0,w/2,w/2,w/2);gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.35,'rgba(255,255,255,.6)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,w,w)},64);
   const shadM=new T.MeshBasicMaterial({map:soft,color:0x000000,transparent:true,opacity:.42,depthWrite:false});
-  /* 光のにじみ */const comp=new AX3.EffectComposer(R);comp.addPass(new AX3.RenderPass(S3,cam));const bloom=new AX3.UnrealBloomPass(new T.Vector2(256,256),.42,.35,.95);comp.addPass(bloom);const out=new AX3.OutputPass();comp.addPass(out);R.toneMapping=T.NeutralToneMapping;R.toneMappingExposure=1.05;
+  /* 光のにじみ */const comp=new AX3.EffectComposer(R);comp.addPass(new AX3.RenderPass(S3,cam));const bloom=new AX3.UnrealBloomPass(new T.Vector2(256,256),.3,.3,.97);comp.addPass(bloom);const out=new AX3.OutputPass();comp.addPass(out);R.toneMapping=T.NeutralToneMapping;R.toneMappingExposure=1.05;
   /* 2Dの文字を重ねるキャンバス */const ov=document.createElement('canvas');ov.id='ax3ov';$('stage').append(ov);
   A3={T,R,S:S3,cam,sun,hemi,sunI:sun.intensity,hemiI:hemi.intensity,sky0:sky.clone(),comp,bloom,atl,sprM,shadM,soft,ov,O:ov.getContext('2d'),units:new Map(),fx:new Map(),tel:new Map(),pts:null,tex:{},mats:{},camP:new T.Vector3(),camL:new T.Vector3(),first:true,cells:[]};
   try{ax3EfkInit(R,comp)}catch(e){console.log('efk init',e)}
@@ -5454,7 +5454,7 @@ function ax3ImpTex(col,seed){const k='imp'+col+seed;if(A3.tex[k])return A3.tex[k
 function ax3LinesTex(){if(A3.tex.slines)return A3.tex.slines;return A3.tex.slines=ax3Tex((g,w)=>{g.translate(w/2,w/2);let s=5;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};
   for(let i=0;i<26;i++){const a=r()*Math.PI*2,r0=w*(.24+r()*.12),r1=w*(.42+r()*.08),wd=w*(.004+r()*.012);g.fillStyle=i%3?'#ffffff':'#1a1014';g.beginPath();g.moveTo(Math.cos(a-wd/r0)*r0,Math.sin(a-wd/r0)*r0);g.lineTo(Math.cos(a)*r1,Math.sin(a)*r1);g.lineTo(Math.cos(a+wd/r0)*r0,Math.sin(a+wd/r0)*r0);g.fill()}},256)}
 function ax3Impacts(t){const T=A3.T,A=AXB;A3.imp=A3.imp||[];A3.impSeen=A3.impSeen||new WeakSet();
-  for(const q of A.nums){if(A3.impSeen.has(q))continue;A3.impSeen.add(q);if(t-q.t>.05||/^\+/.test(q.v))continue;if(q.big){A3.punchN=performance.now()}if(q.u&&q.u.side==='E'&&q.col!=='#ff8a8a'&&!(A3.onoT>t-.32)){A3.onoT=t;A3.ono=A3.ono||[];const W=['ガッ','ドッ','バキッ','ズバッ','ドゴッ'];A3.ono.push({x:q.x,gy:q.gy!=null?q.gy:q.y,y:q.y,t,s:q.big?'ドゴォッ':W[Math.floor(Math.random()*W.length)],big:!!q.big,r:(Math.random()-.5)*.5});if(A3.ono.length>6)A3.ono.shift()}const big=!!q.big,col=big?'#ffd23a':(q.col==='#ff8a8a'?'#ff7a7a':'#fff2b0'),gy=q.gy!=null?q.gy:q.y;
+  for(const q of A.nums){if(A3.impSeen.has(q))continue;A3.impSeen.add(q);if(t-q.t>.05||/^\+/.test(q.v))continue;if(q.big){A3.punchN=performance.now()}const inSk=!!(A3.act&&(performance.now()-A3.act.n)<1100*(A.speed||1));if(q.u&&q.u.side==='E'&&q.col!=='#ff8a8a'&&!inSk&&!(A3.onoT>t-.32)){A3.onoT=t;A3.ono=A3.ono||[];const W=['ガッ','ドッ','バキッ','ズバッ','ドゴッ'];A3.ono.push({x:q.x,gy:q.gy!=null?q.gy:q.y,y:q.y,t,s:q.big?'ドゴォッ':W[Math.floor(Math.random()*W.length)],big:!!q.big,r:(Math.random()-.5)*.5});if(A3.ono.length>6)A3.ono.shift()}const big=!!q.big,col=big?'#ffd23a':(q.col==='#ff8a8a'?'#ff7a7a':'#fff2b0'),gy=q.gy!=null?q.gy:q.y;
     const sp=new T.Sprite(new T.SpriteMaterial({map:ax3ImpTex(col,(A3.imp.length%4)+1),transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));sp.material.rotation=Math.random()*6.28;sp.renderOrder=20;
     const h=(gy-q.y)*AXM*.8+2.5;sp.position.set(a3X(q.x),h,a3Z(gy)+.5);A3.S.add(sp);const o={sp,t,big,ln:null};
     if(big&&!A3.imp.some(z=>z.ln)&&!(A3.afx||[]).some(z=>z.kind==='lines')){const l=new T.Sprite(new T.SpriteMaterial({map:ax3LinesTex(),transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));l.renderOrder=19;l.position.copy(sp.position);A3.S.add(l);o.ln=l}
@@ -5729,7 +5729,7 @@ function ax3Pup(u,t){/* 動きの量: 呼吸・前のめり・つぶれ・のび
 function ax3Frame(){const A=AXB,T=A3.T,t=A.t,n=performance.now();if(!A3)return;
   /* カメラ: 自分を斜め上から追う。必殺は寄って回り込む */const me=A.me,px=a3X(me.x),pz=a3Z(me.y);const asp=A3.cam.aspect,vf=A3.cam.fov*Math.PI/180,hf=2*Math.atan(Math.tan(vf/2)*asp);
   /* サウスト風: 自分の後ろ・少し低いところから、ねらっている敵の方を見る。キャラは画面の下寄り */
-  let D=(asp<1?29:23)/Math.tan(vf/2);if(A3.punchN){D*=1-.06*Math.max(0,1-(n-A3.punchN)/220)}const pitch=.62;
+  let D=(asp<1?22:18)/Math.tan(vf/2);if(A3.punchN){D*=1-.06*Math.max(0,1-(n-A3.punchN)/220)}const pitch=.82;
   let ey=0;{const L=(A.lock&&axLive(A.lock))?A.lock:A.E.filter(e=>axLive(e)&&e.spawnT<=t).sort((a,b)=>Math.hypot(a.x-me.x,a.y-me.y)-Math.hypot(b.x-me.x,b.y-me.y))[0];if(L&&!A.trans){const dx=a3X(L.x)-px,dz=a3Z(L.y)-pz;if(Math.hypot(dx,dz)>2.5)ey=clamp(Math.atan2(-dx,-dz),-.15,.15)}}
   const rdt0=Math.min(.05,(n-(A3.ln||n))/1000);A3.yaw=(A3.yaw||0)+(ey-(A3.yaw||0))*Math.min(1,rdt0*1.5);let yaw=A3.yaw,push=0;
   /* 技: 一瞬 本人に寄ってから、技が出ると引く */if(A.ban&&A.ban.n&&!A.ban.ult){const v=(n-A.ban.n)/1000;if(v<.8){push=v<.1?eo(v/.1):v<.32?1:1-eo(Math.min(1,(v-.32)/.45));D*=1-.1*push}}
@@ -5767,8 +5767,8 @@ function ax3Frame(){const A=AXB,T=A3.T,t=A.t,n=performance.now();if(!A3)return;
   /* エフェクト */const fs=new Set(A.fx);for(const f of A.fx){if(f.k==='txt')continue;let E=A3.fx.get(f);if(E===undefined){const v=t-f.t;if(v<0)continue;E=ax3MakeFx(f);A3.fx.set(f,E);if(E)A3.S.add(E.o)}if(E){const v=t-f.t;E.u(clamp(v/(f.d||.5),0,1.2),v)}}
   for(const [f,E] of A3.fx)if(!fs.has(f)||t-f.t>(f.d||.5)+.05){if(E){A3.S.remove(E.o);E.o.traverse(o=>{if(o.material&&o.material.dispose&&o.material!==A3.sprM)o.material.dispose()})}A3.fx.delete(f)}
   ax3PtsUpd();A.fx=A.fx.filter(f=>t-f.t<(f.d||.6)+.1);A.nums=A.nums.filter(q=>t-q.t<.95);
-  A3.bloom.strength=.42+(A.rushOn?.1:0)+(A.cut?.08:0);
-  /* 技の間は背景を暗く(エフェクトが映える。サウスト風) */{let dk=0;if(A3.act){const g=A3.act,v=(n-g.n)/1000/(A.speed||1),hold=g.ult?1.2:.5;dk=(v<.1?v/.1:v<hold?1:Math.max(0,1-(v-hold)/.5))*(g.ult?.5:.28)}A3.dk=(A3.dk||0)+(dk-(A3.dk||0))*.3;A3.sun.intensity=A3.sunI*(1-A3.dk);A3.hemi.intensity=A3.hemiI*(1-A3.dk*.8);A3.S.background.copy(A3.sky0).multiplyScalar(1-A3.dk*.7);if(A3.S.fog)A3.S.fog.color.copy(A3.S.background)}
+  A3.bloom.strength=.3+(A.rushOn?.06:0)+(A.cut?.06:0);
+  /* 技の間は背景を暗く(エフェクトが映える。サウスト風) */{let dk=0;if(A3.act){const g=A3.act,v=(n-g.n)/1000/(A.speed||1),hold=g.ult?1.2:.5;dk=(v<.1?v/.1:v<hold?1:Math.max(0,1-(v-hold)/.5))*(g.ult?.45:.12)}A3.dk=(A3.dk||0)+(dk-(A3.dk||0))*.3;A3.sun.intensity=A3.sunI*(1-A3.dk);A3.hemi.intensity=A3.hemiI*(1-A3.dk*.8);A3.S.background.copy(A3.sky0).multiplyScalar(1-A3.dk*.7);if(A3.S.fog)A3.S.fog.color.copy(A3.S.background)}
   if(!ax3CutR(A))A3.comp.render();
   ax3Overlay()}
 /* ---------- 文字・数字・帯(2Dで重ねる) ---------- */
@@ -5823,7 +5823,7 @@ function ax3EfkLoad(){if(window.effekseer)return Promise.resolve(true);const L=$
 function ax3EfkInit(R,comp){if(!Object.keys(AXEFKD).length)return;const E={ctx:null,ef:{},q:[],hs:[]};A3.efk=E;
   /* 描く場所: ふつうの3Dを描いた直後(光のにじみの前) */
   const pass={enabled:true,needsSwap:false,clear:false,renderToScreen:false,setSize(){},dispose(){},render(r,wb,rb){if(!E.ctx||!E.live)return;r.setRenderTarget(rb);r.clearDepth();const c=A3.cam;E.ctx.setProjectionMatrix(c.projectionMatrix.elements);E.ctx.setCameraMatrix(c.matrixWorldInverse.elements);E.ctx.draw();r.resetState()}};
-  comp.insertPass(pass,1);
+  /* (11/2) 光のにじみの後に描く(にじみで白く飛ばさない。サウストは色つきで背景が見える) */comp.insertPass(pass,2);
   ax3EfkLoad().then(ok=>{if(!ok||!A3||A3.efk!==E)return;const ctx=effekseer.createContext();if(!ctx)return;ctx.init(R.getContext(),{instanceMaxCount:6000,squareMaxCount:12000});ctx.setRestorationOfStatesFlag(false);E.ctx=ctx;
     for(const k in AXEFKD){const D=AXEFKD[k],bin=Uint8Array.from(atob(D.e),c=>c.charCodeAt(0)).buffer;
       const red=p=>{const o=[];for(const s of p.replace(/\\/g,'/').split('/')){if(s==='..')o.pop();else if(s&&s!=='.')o.push(s)}const q=o.join('/');return D.r[q]||D.r[Object.keys(D.r).find(x=>x.toLowerCase()===q.toLowerCase())]||p};
@@ -5913,7 +5913,7 @@ let AXVG=null;function axvGeo(){if(AXVG)return AXVG;const T=A3.T;if(typeof axv3L
   /* 三日月(弧)の形: u=弧に沿って0→1、v=内側0→外側1 */const arc=(a0,a1,ri,ro,N)=>{const pos=[],uv=[],idx=[];for(let i=0;i<=N;i++){const u=i/N,a=a0+(a1-a0)*u;for(let j=0;j<=1;j++){const r=j?ro:ri;pos.push(Math.cos(a)*r,Math.sin(a)*r,0);uv.push(u,j)}}for(let i=0;i<N;i++){const k=i*2;idx.push(k,k+1,k+2,k+1,k+3,k+2)}const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);return g};
   return AXVG={arc:arc(-1.35,1.35,.5,1,64),arcG:arc(-1.4,1.4,.35,1.12,64),quad:new T.PlaneGeometry(1,1)}}
 function axvAdd(o){A3.vx=A3.vx||[];o.t0=AXB.t+(o.dl||0);if(o.o)o.o.visible=false;A3.S.add(o.o);A3.vx.push(o);return o}
-function axvUpd(t){if(!A3.vx||!A3.vx.length)return;const q=A3.cam.quaternion;A3.vx=A3.vx.filter(e=>{const k=(t-e.t0)/e.d;if(k<0){e.o.visible=false;return true}if(k>1){A3.S.remove(e.o);e.o.traverse(m=>{if(m.material)m.material.dispose()});return false}
+function axvUpd(t){try{axvLockUpd(t)}catch(e){}if(!A3.vx||!A3.vx.length)return;const q=A3.cam.quaternion;A3.vx=A3.vx.filter(e=>{const k=(t-e.t0)/e.d;if(k<0){e.o.visible=false;return true}if(k>1){A3.S.remove(e.o);e.o.traverse(m=>{if(m.material)m.material.dispose()});return false}
   e.o.visible=true;if(e.bb){e.o.quaternion.copy(q);if(e.roll)e.o.rotateZ(e.roll)}e.o.traverse(m=>{if(m.material&&m.material.uniforms)m.material.uniforms.uT.value=k});if(e.u)e.u(k);return true})}
 /* 斬撃: x,y,z(3Dの位置) / r 大きさ / tilt 傾き(画面の中で回す) / flip 向き / col 色 */
 function axvSlash(x,y,z,o){o=o||{};const G=axvGeo(),T=A3.T,g=new T.Group();const r=o.r||5;
@@ -5954,7 +5954,7 @@ function axvSwirl(x,z,o){o=o||{};const T=A3.T,r=o.r||4,h=o.h||7;const geo=new T.
 function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||50)*AXM*1.2,big=ult?1.35:1;
   const slashes=(n,x,z,r,gap)=>{for(let i=0;i<n;i++)axvSlash(x+(Math.random()-.5)*2,3.2+Math.random()*1.6,z+(Math.random()-.5),{r:r*(.85+Math.random()*.3),col,tilt:AXVTILT[i%4]+(Math.random()-.5)*.4,flip:i%2===1,d:.3,dl:dl+i*gap})};
   const kind=k.replace(/^ult_/,'');if(!ult&&f.sk)try{axvArea(f,{col,d:.5})}catch(e){}
-  if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.45,ca:.5,wave:.9,d:.4,dl:.3});else if(!/^(heal|cheerup|taunt)$/.test(k))axvPost(cx,cz,{blur:.35,ca:.4,wave:.7,d:.28,dl:dl+.04})}
+  if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.25,ca:.25,wave:.6,d:.35,dl:.3});else if(!/^(heal|cheerup|taunt)$/.test(k))axvPost(cx,cz,{blur:.12,ca:.15,wave:.4,d:.22,dl:dl+.04})}
   switch(k){
   case 'spinblade':case 'sweep':for(let i=0;i<3;i++)axvSlash(ux,3.2,uz,{r:9*big,col,tilt:i*2.09,d:.3,dl:dl+i*.05,sq:.4});axvSwirl(ux,uz,{r:5,h:6,col:'#ffffff',d:.55,dl});axvRing(ux,uz,{r:8,col,dl:dl+.05});break;
   case 'dashcut':axvSlash(cx,3.4,cz,{r:12,col,tilt:-.08,sq:.22,d:.28,dl});axvSlash(cx,3.4,cz,{r:10,col:'#ffffff',tilt:-.08,sq:.12,d:.22,dl:dl+.03});axvHit(cx,3.2,cz+.5,{big:true,col,dl:dl+.06});break;
@@ -6051,6 +6051,17 @@ const AXV_AREA=`uniform float uK,uR,uAng,uHa,uLen,uW;void main(){vec2 p=(vU*2.-1
 function axvArea(f,o){if(!f||f.r==null&&f.len==null)return;const T=A3.T,G=axvGeo();const k=f.sk==='fan'?1:f.sk==='line'?2:0,R=(k===2?Math.max(f.len||0,(f.w||0)):f.r||40)*AXM*(k===2?1:1.0)+.2;
   const m=axvMesh(G.quad,AXV_AREA,true,{col:o.col});const U=m.material.uniforms;U.uK={value:k};U.uR={value:R};U.uAng={value:f.ang||0};U.uHa={value:f.a||.8};U.uLen={value:(f.len||0)*AXM};U.uW={value:(f.w||0)*AXM};
   m.scale.set(R*2,R*2,1);m.rotation.x=-Math.PI/2;m.position.set(a3X(f.x),.1,a3Z(f.y));m.renderOrder=17;return axvAdd({o:m,d:o.d||.5,dl:o.dl||0})}
+
+/* ---------- (11/2) ねらっている敵の足元に水色の輪(サウスト風のロックオン印) ---------- */
+const AXV_LOCK=`void main(){vec2 p=vU*2.-1.;float d=length(p);float a=atan(p.y,p.x);float ring=smoothstep(.80,.84,d)*(1.-smoothstep(.92,.96,d));
+ float tick=step(.5,fract(a/6.28318*3.-uT*.35))*smoothstep(.62,.66,d)*(1.-smoothstep(.74,.78,d));float fill=(1.-smoothstep(.0,.96,d))*.10;
+ float al=max(max(ring,tick*.85),fill)*uA;if(al<.01)discard;vec3 c=mix(uC,vec3(1.),ring*.35);gl_FragColor=vec4(c,al);}`;
+function axvLockUpd(t){const A=AXB;if(!A3||!A3.S||!A||!A.me)return;let m=A3.lockM;
+  if(!m){const G=axvGeo();m=A3.lockM=axvMesh(G.quad,AXV_LOCK,false,{col:'#4fd8ff',ro:15});m.rotation.x=-Math.PI/2;A3.S.add(m)}
+  const L=(A.lock&&axLive(A.lock))?A.lock:(typeof axTarget==='function'&&axLive(A.me)?axTarget(A.me):null);
+  if(!L||A.trans||A.over||A.cut){m.visible=false;A3.lockU=null;return}
+  if(A3.lockU!==L){A3.lockU=L;A3.lockT=t}const k=Math.min(1,(t-A3.lockT)/.15),R=((L.mon&&!L.mob)?7.5:L.role==='lead'?6:4)*(1.25-.25*k)*(1+.04*Math.sin(t*6));
+  m.visible=true;m.scale.set(R,R,1);m.position.set(a3X(L.x),.08,a3Z(L.y));m.rotation.z=t*.8;m.material.uniforms.uT.value=t;m.material.uniforms.uA.value=.95*k}
 
 
 
