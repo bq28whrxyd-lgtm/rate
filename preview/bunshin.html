@@ -6108,11 +6108,11 @@ function axvGraySmoke(x,z,o){o=o||{};const n=o.n||2;for(let i=0;i<n;i++)axv3('pu
 function axvSwordHit(x,z,o){o=o||{};const s=o.s||1,dl=o.dl||0;axvSpike(x,3.1,z+.8,{s:9.5*s,dl,d:.3+.05*s});axvDebris(x,z+.3,{n:Math.round(3*s+2),dl:dl+.03,s:.9*s,sp:10*s});axvGraySmoke(x,z-.6,{n:s>1.2?3:2,s:1.5*s,r:3*s,dl:dl+.1})}
 
 /* ================= (11/2) 剣(大技): 画面を横切る太い刀の軌跡 / 地面に広がる円盤の斬撃(サウストの作り方) ================= */
-const AXV_TRAIL=`void main(){vec2 p=vU*2.-1.;vec2 c=vec2(0.,-1.45);float Rr=1.85;vec2 q=p-c;float a=atan(q.x,q.y);float s=clamp((a+.78)/1.56,0.,1.);if(a<-.78||a>.78)discard;
+const AXV_BTRAIL=`void main(){vec2 p=vU*2.-1.;vec2 c=vec2(0.,-1.45);float Rr=1.85;vec2 q=p-c;float a=atan(q.x,q.y);float s=clamp((a+.78)/1.56,0.,1.);if(a<-.78||a>.78)discard;
  float head=clamp(uT*7.,0.,1.);if(s>head)discard;float th=.24*pow(sin(3.14159*s),.6)*(1.-uT*.25);float d=abs(length(q)-Rr);if(d>th)discard;
  float n=fbm(vec2(s*6.+uS,d*8.));if(uT>.3&&n<(uT-.3)*1.5)discard;float k=d/max(th,.001);
  vec3 c2=k<.45?vec3(1.):k<.8?mix(vec3(1.),uC,.75):uE;if(k<.45&&s>head-.08)c2=vec3(1.);gl_FragColor=vec4(c2,uA);}`;
-function axvTrail(x,y,z,o){o=o||{};const G=axvGeo(),col=o.col||'#7ac8ff',m=axvMesh(G.quad,AXV_TRAIL,false,{col,edge:o.edge||'#14204a',ro:25});const s=o.s||16;m.scale.set(s,s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.42,dl:o.dl,bb:1,roll:o.roll!=null?o.roll:-.5})}
+function axvTrail(x,y,z,o){o=o||{};const G=axvGeo(),col=o.col||'#7ac8ff',m=axvMesh(G.quad,AXV_BTRAIL,false,{col,edge:o.edge||'#14204a',ro:25});const s=o.s||16;m.scale.set(s,s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.42,dl:o.dl,bb:1,roll:o.roll!=null?o.roll:-.5})}
 const AXV_GDISC=`void main(){vec2 p=vU*2.-1.;float r=length(p),a=atan(p.y,p.x);float g=1.-pow(1.-clamp(uT*4.5,0.,1.),3.);float R=.3+.68*g;if(r>R)discard;
  float sw=fract((a/6.28318+r*.55-uT*.4)*7.+uS);float cut=smoothstep(.0,.08,sw)*(1.-smoothstep(.12,.22,sw));
  float n=fbm(p*2.6+uS);if(uT>.32&&n<(uT-.32)*1.45)discard;float k=r/R;
