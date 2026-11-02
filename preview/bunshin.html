@@ -6121,12 +6121,12 @@ function axvGraySmoke(x,z,o){o=o||{};const n=o.n||2;if(typeof axvSmokeFB==='func
 function axvSwordHit(x,z,o){o=o||{};const s=o.s||1,dl=o.dl||0;axvSpike(x,3.1,z+.8,{s:9.5*s,dl,d:.3+.05*s});axvDebris(x,z+.3,{n:Math.round(3*s+2),dl:dl+.03,s:.9*s,sp:10*s});axvGraySmoke(x,z-.6,{n:s>1.2?3:2,s:1.5*s,r:3*s,dl:dl+.1})}
 
 /* ================= (11/2) 剣(大技): 画面を横切る太い刀の軌跡 / 地面に広がる円盤の斬撃(サウストの作り方) ================= */
-const AXV_BTRAIL=`void main(){vec2 p=vU*2.-1.;vec2 c=vec2(0.,-1.45);float Rr=1.85;vec2 q=p-c;float a=atan(q.x,q.y);float s=clamp((a+.8)/1.6,0.,1.);if(a<-.8||a>.8)discard;
+const AXV_BTRAIL=`void main(){vec2 p=(vU*2.-1.)*1.45;vec2 c=vec2(0.,-1.45);float Rr=1.85;vec2 q=p-c;float a=atan(q.x,q.y);float s=clamp((a+.8)/1.6,0.,1.);if(a<-.8||a>.8)discard;
  float head=clamp(uT*8.,0.,1.),tail=clamp((uT-.3)*1.5,0.,1.);if(s>head||s<tail)discard;float sk=(s-tail)/max(head-tail,.001);
  float th=.4*pow(sin(3.14159*sk),.55)*(1.-uT*.3);float r=length(q)-Rr;if(abs(r)>th)discard;float k=.3+.7*(r/th*.5+.5);
  vec4 o=swLook(sk,k,uT,uC,uS);if(o.a<.02)discard;gl_FragColor=vec4(o.rgb,o.a*uA);}`;
 /* 2点(地面)を結ぶ向きを画面上の角度にする */function axvScrAng(x0,z0,x1,z1,y){const T=A3.T,a=new T.Vector3(x0,y||3,z0).project(A3.cam),b=new T.Vector3(x1,y||3,z1).project(A3.cam);return Math.atan2((b.y-a.y),(b.x-a.x)*A3.cam.aspect)}
-function axvTrail(x,y,z,o){o=o||{};if(o.from&&o.to){const [x0,z0]=o.from,[x1,z1]=o.to;o.roll=axvScrAng(x0,z0,x1,z1,y);x=(x0+x1)/2;z=(z0+z1)/2;if(!o.s)o.s=Math.max(10,Math.hypot(x1-x0,z1-z0)*1.5)}const G=axvGeo(),col=o.col||'#7ac8ff',m=axvMesh(G.quad,AXV_BTRAIL,false,{col,edge:o.edge||'#14204a',ro:25});const s=o.s||16;m.scale.set(s,s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.5,dl:o.dl,bb:1,roll:o.roll!=null?o.roll:-.5})}
+function axvTrail(x,y,z,o){o=o||{};if(o.from&&o.to){const [x0,z0]=o.from,[x1,z1]=o.to;o.roll=axvScrAng(x0,z0,x1,z1,y);x=(x0+x1)/2;z=(z0+z1)/2;if(!o.s)o.s=Math.max(10,Math.hypot(x1-x0,z1-z0)*1.5)}const G=axvGeo(),col=o.col||'#7ac8ff',m=axvMesh(G.quad,AXV_BTRAIL,false,{col,edge:o.edge||'#14204a',ro:25});const s=(o.s||16)*1.45;m.scale.set(s,s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.5,dl:o.dl,bb:1,roll:o.roll!=null?o.roll:-.5})}
 const AXV_GDISC=`void main(){vec2 p=vU*2.-1.;float r=length(p),an=atan(p.y,p.x);float g=1.-pow(1.-clamp(uT*4.,0.,1.),3.);
  float R0=.22+.62*g,w=.42*(1.-uT*.3);float k=1.-abs(r-R0)/w;if(k<0.)discard;float s=fract(an/6.28318+uT*.35+r*.25);
  vec4 o=swLook(s,k,uT*.9,uC,uS);if(o.a<.02)discard;gl_FragColor=vec4(o.rgb,o.a*uA);}`;
