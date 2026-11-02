@@ -5091,8 +5091,8 @@ function ax3Tex(draw,w,h){const c=document.createElement('canvas');c.width=w;c.h
 function ax3Init(){const T=AX3.THREE,A=AXB;if(!A)return;const dusk=A.bg==='dusk';
   const cvs=document.createElement('canvas');cvs.id='ax3cv';$('stage').append(cvs);
   const R=new T.WebGLRenderer({canvas:cvs,antialias:false,powerPreference:'high-performance'});R.setPixelRatio(Math.min(1.75,window.devicePixelRatio||1));R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;R.outputColorSpace=T.SRGBColorSpace;
-  const S3=new T.Scene();const sky=new T.Color(dusk?0xe8a07a:0xa8d0f0);S3.background=sky;S3.fog=new T.Fog(sky,80,170);
-  const cam=new T.PerspectiveCamera(55,1,.5,300);
+  const S3=new T.Scene();const sky=new T.Color(dusk?0xe8a07a:0xa8d0f0);S3.background=sky;S3.fog=new T.Fog(sky,130,280);
+  const cam=new T.PerspectiveCamera(55,1,.5,420);
   const hemi=new T.HemisphereLight(dusk?0xffd0b0:0xcfe8ff,dusk?0x4a3020:0x3a5a2a,dusk?1.1:1.25);S3.add(hemi);
   const sun=new T.DirectionalLight(dusk?0xffa070:0xfff2dc,dusk?2.4:2.6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);const sc=sun.shadow.camera;sc.left=-26;sc.right=26;sc.top=26;sc.bottom=-26;sc.near=1;sc.far=120;sun.shadow.bias=-.0006;sun.shadow.normalBias=.04;S3.add(sun,sun.target);
   /* 地面 */const gtex=new T.TextureLoader().load(AXGBG[A.bg]||AXGBG.meadow||'');gtex.colorSpace=T.SRGBColorSpace;gtex.anisotropy=4;
@@ -5287,7 +5287,7 @@ function ax3CharMake(u){const T=A3.T,C=A3.chr.chrs[ax3VKey(u)];const root=AX3.sk
   const outl=[];let face=null;root.traverse(o=>{if(!o.isMesh)return;o.frustumCulled=false;o.castShadow=true;if(o.morphTargetDictionary&&o.morphTargetDictionary.Fcl_EYE_Close!=null)face=o;
     const n=(Array.isArray(o.material)?o.material[0]:o.material).name||'';if(o.isSkinnedMesh&&!/EYE|FACE\b|Brow|Eyeline|FaceMouth/.test(n))outl.push(o)});
   for(const o of outl){const ol=new T.SkinnedMesh(o.geometry,OLM);ol.bind(o.skeleton,o.bindMatrix);ol.frustumCulled=false;ol.morphTargetInfluences=o.morphTargetInfluences;o.add(ol)}
-  const B={},rest={};for(const k in AXVB){const b=root.getObjectByName(AXVB[k]);B[k]=b;if(b)rest[k]={q:b.quaternion.clone(),p:b.position.clone()}}if(B.head)B.head.scale.setScalar(1.08);
+  const B={},rest={};for(const k in AXVB){const b=root.getObjectByName(AXVB[k]);B[k]=b;if(b)rest[k]={q:b.quaternion.clone(),p:b.position.clone()}}if(B.head)B.head.scale.setScalar(1.38);
   const fing=[];root.traverse(o=>{const m=/^J_Bip_([LR])_(Index|Middle|Ring|Little|Thumb)(\d)$/.exec(o.name||'');if(m)fing.push({b:o,s:m[1]==='L'?-1:1,th:m[2]==='Thumb',q:o.quaternion.clone()})});
   const hair=[];root.traverse(o=>{if(/^J_Sec_Hair/.test(o.name||''))hair.push({b:o,q:o.quaternion.clone()})});
   const wp=ax3Weapon(u.f.wt);const hb=wp.userData.left?B.lH:B.rH;if(hb){root.updateMatrixWorld(true);const rq=new T.Quaternion();hb.getWorldQuaternion(rq);rq.premultiply(root.quaternion.clone().invert()).invert();wp.quaternion.copy(rq);wp.position.set(wp.userData.left?.075:-.075,-.02,0).applyQuaternion(rq);hb.add(wp)}
@@ -5393,7 +5393,7 @@ function ax3MonUpd(u){if(!A3.mon)return false;let R=A3.monU.get(u);if(!R){R=ax3M
   const T=A3.T,A=AXB,t=A.t,dt=Math.min(.1,Math.max(0,t-R.lt));R.lt=t;R.root.visible=true;
   const mx=u.x-R.lx,my=(u.y-R.ly)/AXSQ;R.lx=u.x;R.ly=u.y;const tg=axTarget(u);let ty=R.yaw;
   if(Math.hypot(mx,my)>.25)ty=Math.atan2(mx,my);else if(tg)ty=Math.atan2(tg.x-u.x,(tg.y-u.y)/AXSQ);let d=ty-R.yaw;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;if(!u.dead)R.yaw+=d*Math.min(1,dt*10);
-  if(u.dead){if(R.st!=='die'){ax3MonPlay(R,'die',1.3,.08);R.dT=t}}
+  if(u.dead){if(R.st!=='die'){ax3MonPlay(R,'die',1.3,.08);R.dT=t;R.pf=0}if(!R.pf&&t-R.dT>.75){R.pf=1;ax3PuffRing(a3X(u.x),a3Z(u.y),1.5,8,u.mob?4:6,1);ax3Puff(a3X(u.x),2,a3Z(u.y),u.mob?6:9,{vy:1.5})}}
   else if(u.pose==='p6'&&u.poseT>t&&R.aT!==u.poseT){R.aT=u.poseT;const a=R.acts.atk;if(a){const left=Math.max(.15,u.poseT-t);ax3MonPlay(R,'atk',Math.max(.6,Math.min(2.2,a.getClip().duration*.55/left)),.08);R.busy=t+left+.25}}
   else if(t-u.hitT<.05&&R.hT!==u.hitT&&R.busy<t){R.hT=u.hitT;ax3MonPlay(R,'hit',1.6,.05);R.busy=t+.35}
   else if(R.busy<t){const want=Math.hypot(mx,my)/Math.max(dt,.016)>8||u.pose==='p2'?'move':'idle';if(want!==R.st)ax3MonPlay(R,want,1,.15)}
@@ -5433,7 +5433,7 @@ function ax3ImpTex(col,seed){const k='imp'+col+seed;if(A3.tex[k])return A3.tex[k
 function ax3LinesTex(){if(A3.tex.slines)return A3.tex.slines;return A3.tex.slines=ax3Tex((g,w)=>{g.translate(w/2,w/2);let s=5;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};
   for(let i=0;i<26;i++){const a=r()*Math.PI*2,r0=w*(.24+r()*.12),r1=w*(.42+r()*.08),wd=w*(.004+r()*.012);g.fillStyle=i%3?'#ffffff':'#1a1014';g.beginPath();g.moveTo(Math.cos(a-wd/r0)*r0,Math.sin(a-wd/r0)*r0);g.lineTo(Math.cos(a)*r1,Math.sin(a)*r1);g.lineTo(Math.cos(a+wd/r0)*r0,Math.sin(a+wd/r0)*r0);g.fill()}},256)}
 function ax3Impacts(t){const T=A3.T,A=AXB;A3.imp=A3.imp||[];A3.impSeen=A3.impSeen||new WeakSet();
-  for(const q of A.nums){if(A3.impSeen.has(q))continue;A3.impSeen.add(q);if(t-q.t>.05||/^\+/.test(q.v))continue;if(q.big)A3.punchN=performance.now();const big=!!q.big,col=big?'#ffd23a':(q.col==='#ff8a8a'?'#ff7a7a':'#fff2b0'),gy=q.gy!=null?q.gy:q.y;
+  for(const q of A.nums){if(A3.impSeen.has(q))continue;A3.impSeen.add(q);if(t-q.t>.05||/^\+/.test(q.v))continue;if(q.big){A3.punchN=performance.now();const gq=q.gy!=null?q.gy:q.y;ax3PuffRing(a3X(q.x),a3Z(gq),1.6,5,3.4,1.2)}const big=!!q.big,col=big?'#ffd23a':(q.col==='#ff8a8a'?'#ff7a7a':'#fff2b0'),gy=q.gy!=null?q.gy:q.y;
     const sp=new T.Sprite(new T.SpriteMaterial({map:ax3ImpTex(col,(A3.imp.length%4)+1),transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));sp.material.rotation=Math.random()*6.28;sp.renderOrder=20;
     const h=(gy-q.y)*AXM*.8+2.5;sp.position.set(a3X(q.x),h,a3Z(gy)+.5);A3.S.add(sp);const o={sp,t,big,ln:null};
     if(big&&!A3.imp.some(z=>z.ln)&&!(A3.afx||[]).some(z=>z.kind==='lines')){const l=new T.Sprite(new T.SpriteMaterial({map:ax3LinesTex(),transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));l.renderOrder=19;l.position.copy(sp.position);A3.S.add(l);o.ln=l}
@@ -5455,10 +5455,10 @@ function ax3AnimeFx(t){const T=A3.T,A=AXB;A3.afx=A3.afx||[];A3.afxSeen=A3.afxSee
   const mk=(map,o)=>{const m=new T.MeshBasicMaterial({map,transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:T.DoubleSide});const ms=new T.Mesh(o.geo||new T.PlaneGeometry(1,1),m);ms.renderOrder=17;A3.S.add(ms);return ms};
   const spr=(map)=>{const s=new T.Sprite(new T.SpriteMaterial({map,transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));s.renderOrder=18;A3.S.add(s);return s};
   for(const f of A.fx){if(A3.afxSeen.has(f))continue;A3.afxSeen.add(f);if(t-f.t>.1)continue;const col=f.col||'#ffd84a';
-    if(f.k==='spinblade'){const X=a3X(f.x!=null?f.x:f.ux),Z=a3Z(f.y!=null?f.y:f.uy),r=(f.r||58)*AXM*1.25;for(let h=0;h<2;h++){const ms=mk(ax3RingTex(h?'#ffffff':col),{});ms.rotation.x=-Math.PI/2;ms.position.set(X,H+h*.8,Z);A3.afx.push({o:ms,t:t+h*.1,d:.42,kind:'ring',r:r*(1+h*.12),sp:h?-1:1})}}
+    if(f.k==='spinblade'){const X=a3X(f.x!=null?f.x:f.ux),Z=a3Z(f.y!=null?f.y:f.uy),r=(f.r||58)*AXM*1.25;ax3PuffRing(X,Z,r*.85,10,4.2,.8);for(let h=0;h<2;h++){const ms=mk(ax3RingTex(h?'#ffffff':col),{});ms.rotation.x=-Math.PI/2;ms.position.set(X,H+h*.8,Z);A3.afx.push({o:ms,t:t+h*.1,d:.42,kind:'ring',r:r*(1+h*.12),sp:h?-1:1})}}
     else if(f.k==='dashcut'){const L=(f.len||140)*AXM*.85,ang=f.ang||0;const g=new T.PlaneGeometry(1,1);g.translate(.5,0,0);g.rotateX(-Math.PI/2);const ms=mk(ax3StreakTex(col),{geo:g});ms.position.set(a3X(f.ux),H-.6,a3Z(f.uy));ms.rotation.y=-ang;A3.afx.push({o:ms,t,d:.5,kind:'strk',L});
-      const ex=a3X(f.ux)+Math.cos(ang)*L,ez=a3Z(f.uy)+Math.sin(ang)*L;for(let h=0;h<2;h++){const s=spr(ax3CresTex(h?'#ffffff':col));s.position.set(ex,H,ez);s.material.rotation=h?2.2:-.6;A3.afx.push({o:s,t:t+.12+h*.06,d:.32,kind:'cres',S:7})}}
-    else if(f.k==='ult_slash'){const X=a3X(f.x),Z=a3Z(f.y);[-.6,.7,1.5,-1.4,.1].forEach((r,h)=>{const s=spr(ax3CresTex(h%2?'#ffffff':col));s.position.set(X+(Math.random()-.5)*2,H+.6,Z+(Math.random()-.5)*2);s.material.rotation=r;A3.afx.push({o:s,t:t+.25+h*.09,d:.4,kind:'cres',S:11+h})});
+      const ex=a3X(f.ux)+Math.cos(ang)*L,ez=a3Z(f.uy)+Math.sin(ang)*L;for(let i=0;i<7;i++){const q=i/6;ax3Puff(a3X(f.ux)+Math.cos(ang)*L*q,.8,a3Z(f.uy)+Math.sin(ang)*L*q,3.2+q*2,{delay:q*.12,vy:.6})}ax3PuffRing(ex,ez,2.5,7,5,1.2);for(let h=0;h<2;h++){const s=spr(ax3CresTex(h?'#ffffff':col));s.position.set(ex,H,ez);s.material.rotation=h?2.2:-.6;A3.afx.push({o:s,t:t+.12+h*.06,d:.32,kind:'cres',S:7})}}
+    else if(f.k==='ult_slash'){const X=a3X(f.x),Z=a3Z(f.y);ax3PuffRing(X,Z,4,12,7,1.2);for(let i=0;i<6;i++)ax3Puff(X+(Math.random()-.5)*6,2+Math.random()*3,Z+(Math.random()-.5)*6,8,{delay:.3+i*.06,vy:2});[-.6,.7,1.5,-1.4,.1].forEach((r,h)=>{const s=spr(ax3CresTex(h%2?'#ffffff':col));s.position.set(X+(Math.random()-.5)*2,H+.6,Z+(Math.random()-.5)*2);s.material.rotation=r;A3.afx.push({o:s,t:t+.25+h*.09,d:.4,kind:'cres',S:11+h})});
       const l=spr(ax3LinesTex());l.position.set(X,H,Z);A3.afx.push({o:l,t:t+.2,d:.9,kind:'lines'})}}
   A3.afx=A3.afx.filter(e=>{const a=t-e.t,o=e.o,m=o.material;if(a>e.d){A3.S.remove(o);m.dispose();if(o.geometry&&!o.isSprite)o.geometry.dispose();return false}if(a<0){o.visible=false;return true}o.visible=true;const k=a/e.d,fade=k<.6?1:1-(k-.6)/.4;m.opacity=fade;
     if(e.kind==='ring'){const s=e.r*2*(.75+.35*Math.min(1,a/.12));o.scale.set(s,s,1);o.rotation.z=e.sp*a*16}
@@ -5474,6 +5474,14 @@ function ax3TrailMake(R,col){const T=A3.T,N=22,pos=new Float32Array(N*2*3),uv=ne
 function ax3TrailUpd(R,t,on){const Tr=R.trail;if(!Tr)return;const T=A3.T;if(on){R.wp.updateWorldMatrix(true,false);Tr.h.unshift({t,a:Tr.tip.clone().applyMatrix4(R.wp.matrixWorld),b:Tr.base.clone().applyMatrix4(R.wp.matrixWorld)})}
   Tr.h=Tr.h.filter(s=>t-s.t<.18).slice(0,240);const p=Tr.ms.geometry.attributes.position;const L=Tr.h.length;Tr.ms.visible=L>1;if(L<2)return;
   for(let i=0;i<Tr.N;i++){const s=Tr.h[Math.min(L-1,Math.floor(i*(L-1)/(Tr.N-1)))];p.setXYZ(i*2,s.b.x,s.b.y,s.b.z);p.setXYZ(i*2+1,s.a.x,s.a.y,s.a.z)}p.needsUpdate=true}
+/* ---------- 煙と土ぼこり(アニメ調。黒いふち+下が少し暗い白い雲) ---------- */
+function ax3PuffTex(k){const key='puff'+k;if(A3.tex[key])return A3.tex[key];return A3.tex[key]=ax3Tex((g,w)=>{let s=k*131+7;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};const bl=[];for(let i=0;i<7;i++){const a=r()*Math.PI*2,d=r()*w*.17;bl.push([w/2+Math.cos(a)*d,w/2+Math.sin(a)*d*.8,w*(.15+r()*.1)])}
+  g.fillStyle='#1a1014';for(const [x,y,R] of bl){g.beginPath();g.arc(x,y,R+w*.022,0,7);g.fill()}g.fillStyle='#c9c2cc';for(const [x,y,R] of bl){g.beginPath();g.arc(x,y,R,0,7);g.fill()}g.fillStyle='#fbf8f4';for(const [x,y,R] of bl){g.beginPath();g.arc(x-R*.18,y-R*.22,R*.78,0,7);g.fill()}},128)}
+function ax3Puff(x,y,z,s,o){o=o||{};const T=A3.T;A3.puffs=A3.puffs||[];if(A3.puffs.length>90)return;const sp=new T.Sprite(new T.SpriteMaterial({map:ax3PuffTex(1+Math.floor(Math.random()*4)),color:new T.Color(o.col||'#ffffff'),transparent:true,depthWrite:false,toneMapped:false}));
+  sp.material.rotation=Math.random()*6.28;sp.position.set(x,y,z);sp.renderOrder=14;A3.S.add(sp);A3.puffs.push({sp,t:AXB.t+(o.delay||0),d:o.d||(.55+Math.random()*.3),s,vx:o.vx||0,vz:o.vz||0,vy:o.vy!=null?o.vy:1.2})}
+function ax3PuffUpd(t,dt){if(!A3.puffs)return;A3.puffs=A3.puffs.filter(p=>{const a=t-p.t;if(a<0){p.sp.visible=false;return true}p.sp.visible=true;if(a>p.d){A3.S.remove(p.sp);p.sp.material.dispose();return false}const k=a/p.d,S=p.s*(.45+.75*Math.min(1,a/.12)+.25*k);p.sp.scale.set(S,S,1);
+  p.sp.position.x+=p.vx*dt;p.sp.position.z+=p.vz*dt;p.sp.position.y+=p.vy*dt*(1-k);p.sp.material.opacity=k<.55?1:1-(k-.55)/.45;return true})}
+function ax3PuffRing(x,z,r,n,s,y){for(let i=0;i<n;i++){const a=i/n*Math.PI*2+Math.random()*.3;ax3Puff(x+Math.cos(a)*r,y||1,z+Math.sin(a)*r,s*(.8+Math.random()*.4),{vx:Math.cos(a)*6,vz:Math.sin(a)*6,vy:.8,delay:Math.random()*.05})}}
 /* ---------- ドット絵を3Dの中で動かす(板を細かく分けて、上の方ほど大きく曲げる) ---------- */
 function ax3SprMat(H){const T=A3.T,dusk=AXB&&AXB.bg==='dusk';const m=new T.ShaderMaterial({uniforms:{map:{value:A3.atl},uH:{value:H},uT:{value:0},uLean:{value:0},uSway:{value:0},uBreath:{value:0},uSq:{value:0},uSx:{value:1},uFlash:{value:0},uA:{value:1},uTex:{value:new T.Vector2(1/1024,1/1024)},uTint:{value:new T.Color(dusk?'#ffe2cc':'#ffffff')},uRim:{value:new T.Color(dusk?'#ffc080':'#fff4d8')}},side:T.DoubleSide,
   vertexShader:'uniform float uH,uT,uLean,uSway,uBreath,uSq,uSx;varying vec2 vUv;void main(){vUv=uv;vec3 p=position;float k=clamp(p.y/uH,0.,1.);p.y*=(1.-uSq);p.x*=uSx*(1.+uSq*.5);p.y+=uBreath*k*uH*.014;p.x+=uLean*k*k*uH*.45;p.x+=uSway*sin(uT*3.1+k*5.)*smoothstep(.2,1.,k)*uH*.012;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}',
@@ -5494,7 +5502,7 @@ function ax3Pup(u,t){/* 動きの量: 呼吸・前のめり・つぶれ・のび
 /* ---------- 毎フレーム ---------- */
 function ax3Frame(){const A=AXB,T=A3.T,t=A.t,n=performance.now();if(!A3)return;
   /* カメラ: 自分を斜め上から追う。必殺は寄って回り込む */const me=A.me,px=a3X(me.x),pz=a3Z(me.y);const asp=A3.cam.aspect,vf=A3.cam.fov*Math.PI/180,hf=2*Math.atan(Math.tan(vf/2)*asp);
-  let D=asp<1?(10/Math.tan(hf/2)):(8.5/Math.tan(vf/2));if(A3.punchN){D*=1-.08*Math.max(0,1-(n-A3.punchN)/220)}const pitch=.64;let yaw=0;
+  let D=asp<1?(16.5/Math.tan(hf/2)):(13/Math.tan(vf/2));if(A3.punchN){D*=1-.08*Math.max(0,1-(n-A3.punchN)/220)}const pitch=.9;let yaw=0;
   if(A.cut){const v=(n-A.cut.t)/1000;const k=v<.25?eo(v/.25):v>.9?1-eo(Math.min(1,(v-.9)/.3)):1;D*=1-.35*k;yaw=.35*k*(A.cut.u.face>0?-1:1)}
   const hudK=.13;if(A3.fx0==null){A3.fx0=px;A3.fz0=pz}const DZx=2.2,DZz=3;if(px>A3.fx0+DZx)A3.fx0=px-DZx;if(px<A3.fx0-DZx)A3.fx0=px+DZx;if(pz>A3.fz0+DZz)A3.fz0=pz-DZz;if(pz<A3.fz0-DZz)A3.fz0=pz+DZz;const tx=clamp(A3.fx0,-9,9),tz=clamp(A3.fz0,-22,24)+D*Math.tan(vf/2)*hudK*2.2;
   const tgt=new T.Vector3(tx,1.2,tz),pos=new T.Vector3(tx+Math.sin(yaw)*Math.cos(pitch)*D,1.2+Math.sin(pitch)*D,tz+Math.cos(yaw)*Math.cos(pitch)*D);
@@ -5515,7 +5523,7 @@ function ax3Frame(){const A=AXB,T=A3.T,t=A.t,n=performance.now();if(!A3)return;
     const sw=(u.side==='E'?(u.mon?3.0:2.0)*(u.mob?.7:1):1.8)*dk;U.shd.position.set(a3X(u.x),.03,a3Z(u.y));U.shd.scale.set(sw,1,sw*.6);U.shd.visible=!u.dead||!u.fly;U.shd.material=A3.shadM}
   ax3CharHideOthers(live3);ax3MonHide(liveM);
   for(const [u,U] of A3.units)if(!live.has(u)){A3.S.remove(U.spr,U.shd);U.spr.geometry.dispose();U.spr.material.dispose();A3.units.delete(u)}
-  A3.atl.needsUpdate=true;ax3Impacts(t);ax3AnimeFx(t);
+  A3.atl.needsUpdate=true;ax3Impacts(t);ax3AnimeFx(t);ax3PuffUpd(t,Math.min(.05,t-(A3.pT||t)));A3.pT=t;
   /* 地面の印 */A3.meRing.visible=axLive(me);A3.meRing.position.set(px,.04,pz);A3.meRing.scale.set(1.7,1,1.2);A3.meRing.material.uniforms.a.value=.75+.25*Math.sin(t*5);
   A3.lockRing.visible=axLive(A.lock);if(A3.lockRing.visible){const e=A.lock,r=(e.mon?2.4:1.6)+Math.sin(t*6)*.08;A3.lockRing.position.set(a3X(e.x),.05,a3Z(e.y));A3.lockRing.scale.set(r,1,r*.8)}
   A3.mkRing.visible=!!(A.mk&&t-A.mk.t<.6);if(A3.mkRing.visible){const v=(t-A.mk.t)/.6;A3.mkRing.position.set(a3X(A.mk.x),.05,a3Z(A.mk.y));A3.mkRing.scale.setScalar(.6+v*.8);A3.mkRing.material.uniforms.a.value=1-v}
