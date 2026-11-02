@@ -5544,7 +5544,7 @@ function ax3SkillBig(t){const A=AXB;A3.sbSeen=A3.sbSeen||new WeakSet();for(const
   if(AXSLK[f.k]&&ult)A3.ultSl={t:AXB.t+.06,col};
   /* (11/2) サウスト風のアクションカメラ: 技が出たら、本人と当たる所の間へ寄って低く構える。必殺は長め・強め */A3.act={n:performance.now(),x:(cx+ux)/2,z:(cz+uz)/2,ult,side:Math.random()<.5?-1:1,col};
   const efkOn=typeof ax3EfkOk==='function'&&ax3EfkOk();ax3SkFxRole(f.k,{cx,cz,ux,uz,col,dl,ult,f});
-  /* (11/2) 自作のアニメ調の斬撃と衝撃の輪を重ねる(サウストの技は斬撃が何本も走って地面に輪が出る) */if(typeof axvSlash==='function'){const sw=/^(spinblade|sweep|dashcut|heavy|ult_slash|shieldbash)$/.test(f.k),n=ult?5:sw?3:0;for(let i=0;i<n;i++)axvSlash(cx+(Math.random()-.5)*2,3.4+Math.random()*1.5,cz+(Math.random()-.5),{r:(ult?11:8)*(.85+Math.random()*.3),col,tilt:AXVTILT[i%4]+(Math.random()-.5)*.4,flip:i%2===1,d:.32,dl:dl+i*(ult?.09:.07)});if(!/^(heal|cheerup|taunt)$/.test(f.k)){axvRing(cx,cz,{r:ult?10:6.5,col,d:.45,dl:dl+.05});axvHit(cx,3.2,cz+.5,{big:true,col,dl:dl+.06})}}
+  /* (11/2) 自作のアニメ調エフェクトを技ごとに重ねる(axvSkill) */if(typeof axvSkill==='function')try{axvSkill(f.k,{cx,cz,ux,uz,col,dl,ult,f})}catch(e){console.error(e)}
   if(!efkOn&&!/^(heal|cheerup|taunt)$/.test(f.k))ax3SkFx({k:'flash',d:.01,dl:dl,v:ult?.45:.16})}}
 /* 技ごとの演出(サウストのキャラを見て決めた): 剣=斬撃と渦 / 拳=放射状の光と赤黒い煙 / 回復=空からの光の柱 / 魔法=爆炎・爆発 / 弓=雷の矢 / 応援=光の輪とオーラ / 盾=オーラと衝撃 */
 const AXSKALL={spinblade:1,dashcut:1,heavy:1,quake:1,shieldbash:1,taunt:1,sweep:1,thrusts:1,fists:1,beam:1,heal:1,pillar:1,orb:1,meteor:1,arrow:1,rain:1,cheerup:1,soundwave:1};
@@ -5925,6 +5925,49 @@ function axvSmoke(x,y,z,o){o=o||{};const G=axvGeo(),m=axvMesh(G.quad,AXV_SMOKE,f
 function axvHit(x,y,z,o){o=o||{};const big=!!o.big,col=o.col||'#ffd060';axvStar(x,y,z,{s:big?5.2:3.4,col,d:big?.3:.2,dl:o.dl});if(typeof ax3Sparks==='function')ax3Sparks(x,z,big?9:5,big?1.2:.8,o.dl||0,col);
   if(big)for(let i=0;i<3;i++){const a=Math.random()*6.28;axvSmoke(x+Math.cos(a)*.8,Math.max(.6,y-1.2),z+Math.sin(a)*.5,{s:2+Math.random(),d:.5+Math.random()*.2,dl:(o.dl||0)+.04,vx:Math.cos(a)*2.4,vz:Math.sin(a)*1.2,vy:1.2})}}
 const AXVTILT=[.55,-.5,1.25,-.15];
+
+/* 魔法陣: 外の二重の輪 → 目盛り → 六芒星が線を引くように描かれて回り、光ってから消える(地面に置く) */
+const AXV_CIRCLE=`void main(){vec2 p=vU*2.-1.;float r=length(p),th=atan(p.y,p.x);float ap=clamp(uT*3.,0.,1.),fd=1.-clamp((uT-.7)/.3,0.,1.);
+ float ang=fract((th/6.28318)+.5);if(ang>ap)discard;float rot=uT*1.2;float a=0.;
+ a=max(a,step(abs(r-.95),.025));a=max(a,step(abs(r-.84),.012));a=max(a,step(abs(r-.5),.015));
+ float tk=step(.86,r)*step(r,.93)*step(.82,abs(cos((th+rot)*24.)));a=max(a,tk);
+ for(int i=0;i<6;i++){float t1=float(i)*1.0472+rot;vec2 d=vec2(cos(t1),sin(t1)),q=vec2(cos(t1+2.0944),sin(t1+2.0944))*.84;vec2 o=d*.84;vec2 e=q-o;float h=clamp(dot(p-o,e)/dot(e,e),0.,1.);a=max(a,step(length(p-o-e*h),.012));}
+ float rn=step(.62,r)*step(r,.76)*step(.5,vn(vec2((th+rot)*9.,uS)))*step(.3,fract(r*14.));a=max(a,rn*.8);
+ if(a<.5)discard;float gl=.6+.4*sin(uT*30.);vec3 c=mix(uC,vec3(1.),.45*gl);gl_FragColor=vec4(c,uA*fd);}`;
+/* 光の柱: 下から伸びて、縦の筋が上へ流れる。芯は白、外は色。上と下はぼかす */
+const AXV_PILLAR=`void main(){float u=vU.x,v=vU.y;float up=clamp(uT*3.,0.,1.);if(v>up)discard;float w=abs(u-.5)*2.;float th=(1.-uT*.6);if(w>th)discard;
+ float st=vn(vec2(u*20.+uS,v*3.-uT*8.));float e=w/th;float a=(1.-e)*(.6+.6*st)*smoothstep(0.,.08,v)*smoothstep(up,up-.25,v)*(1.-clamp((uT-.6)/.4,0.,1.));
+ vec3 c=e<.35?vec3(1.):mix(uC,vec3(1.),.3*st);gl_FragColor=vec4(c*a*1.6,1.);}`;
+/* 風の渦: 円柱に斜めのしまが上へ流れ、ノイズで切れる(サウストの白い竜巻) */
+const AXV_SWIRL=`void main(){float u=vU.x,v=vU.y;float s=fract(u*3.+v*1.6-uT*2.6);float n=fbm(vec2(u*8.+uS,v*3.-uT*3.));float band=smoothstep(.0,.08,s)*smoothstep(.55,.35,s);
+ float a=band*(n*.9+.3)*sin(3.14159*v)*(1.-uT)*min(1.,uT*6.);if(a<.08)discard;vec3 c=a>.5?vec3(1.):mix(uC,vec3(1.),.5);gl_FragColor=vec4(c,a*uA);}`;
+function axvCircle(x,z,o){o=o||{};const G=axvGeo(),m=axvMesh(G.quad,AXV_CIRCLE,true,o);const s=(o.r||5)*2;m.scale.set(s,s,s);m.rotation.x=-Math.PI/2;m.position.set(x,.12,z);m.renderOrder=18;return axvAdd({o:m,d:o.d||1,dl:o.dl})}
+function axvPillar(x,z,o){o=o||{};const T=A3.T,r=o.r||2,h=o.h||14;const geo=new T.CylinderGeometry(r,r*1.1,h,24,1,true);geo.translate(0,h/2,0);
+  const m=axvMesh(geo,AXV_PILLAR,true,o);m.position.set(x,0,z);m.renderOrder=22;return axvAdd({o:m,d:o.d||.8,dl:o.dl,u:k=>{m.rotation.y=k*3}})}
+function axvSwirl(x,z,o){o=o||{};const T=A3.T,r=o.r||4,h=o.h||7;const geo=new T.CylinderGeometry(r*1.15,r*.75,h,32,1,true);geo.translate(0,h/2,0);
+  const m=axvMesh(geo,AXV_SWIRL,false,o);m.material.side=T.DoubleSide;m.position.set(x,0,z);m.renderOrder=21;return axvAdd({o:m,d:o.d||.6,dl:o.dl,u:k=>{m.rotation.y=-k*9;m.scale.set(1+k*.3,1,1+k*.3)}})}
+/* 技ごとの組み合わせ(サウストの技の見た目を参考に)。Effekseer の演出の上に重ねる */
+function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||50)*AXM*1.2,big=ult?1.35:1;
+  const slashes=(n,x,z,r,gap)=>{for(let i=0;i<n;i++)axvSlash(x+(Math.random()-.5)*2,3.2+Math.random()*1.6,z+(Math.random()-.5),{r:r*(.85+Math.random()*.3),col,tilt:AXVTILT[i%4]+(Math.random()-.5)*.4,flip:i%2===1,d:.3,dl:dl+i*gap})};
+  const kind=k.replace(/^ult_/,'');
+  switch(k){
+  case 'spinblade':case 'sweep':for(let i=0;i<3;i++)axvSlash(ux,3.2,uz,{r:9*big,col,tilt:i*2.09,d:.3,dl:dl+i*.05,sq:.4});axvSwirl(ux,uz,{r:5,h:6,col:'#ffffff',d:.55,dl});axvRing(ux,uz,{r:8,col,dl:dl+.05});break;
+  case 'dashcut':axvSlash(cx,3.4,cz,{r:12,col,tilt:-.08,sq:.22,d:.28,dl});axvSlash(cx,3.4,cz,{r:10,col:'#ffffff',tilt:-.08,sq:.12,d:.22,dl:dl+.03});axvHit(cx,3.2,cz+.5,{big:true,col,dl:dl+.06});break;
+  case 'heavy':slashes(1,cx,cz,13,0);axvRing(cx,cz,{r:7,col,dl:dl+.05});axvHit(cx,3,cz+.5,{big:true,col,dl:dl+.05});break;
+  case 'ult_slash':slashes(6,cx,cz,12,.055);axvSwirl(cx,cz,{r:6,h:9,col:'#ffffff',d:.8,dl});axvRing(cx,cz,{r:11,col,dl:dl+.3});axvHit(cx,3.5,cz+.5,{big:true,col,dl:.33});break;
+  case 'quake':case 'ult_quake':{const L=(f.len||150)*AXM,a=f.ang||0,n=ult?5:3;for(let i=0;i<n;i++){const q=(i+.6)/n,x=ult?cx+(Math.random()-.5)*R*2:ux+Math.cos(a)*L*q,z=ult?cz+(Math.random()-.5)*R:uz+Math.sin(a)*L*q;axvRing(x,z,{r:4.5,col:'#ffd8a0',edge:'#4a2a10',dl:dl+i*.08});for(let j=0;j<2;j++)axvSmoke(x,1,z,{s:3,col:'#d8b890',edge:'#4a3020',d:.7,dl:dl+i*.08,vx:(Math.random()-.5)*4,vy:2})}break}
+  case 'shieldbash':axvHit(cx,3,cz+.5,{big:true,col,dl});axvRing(cx,cz,{r:5,col,dl});break;
+  case 'taunt':case 'ult_shield':axvCircle(ux,uz,{r:ult?9:7,col,d:1.1});axvRing(ux,uz,{r:ult?10:7,col,dl:.15});break;
+  case 'thrusts':case 'ult_drill':{const n=ult?8:Math.min(6,f.hits||5);for(let i=0;i<n;i++){const x=cx+(Math.random()-.5)*3,z=cz+(Math.random()-.5)*2;axvSlash(x,3.4,z,{r:5,col,tilt:Math.random()*.4-.2,sq:.14,d:.16,dl:dl+i*(f.gap||.08)});axvStar(x,3.4,z+.5,{s:2.6,col,dl:dl+i*(f.gap||.08)+.04})}break}
+  case 'fists':{const n=Math.min(6,f.hits||6);for(let i=0;i<n;i++){const x=cx+(Math.random()-.5)*2.5,z=cz+(Math.random()-.5)*1.5;axvStar(x,2.6+Math.random()*2,z+.5,{s:3+Math.random(),col:'#ffd860',dl:dl+i*(f.gap||.06)})}axvRing(cx,cz,{r:5,col:'#ffd860',dl:dl+.2});break}
+  case 'beam':axvCircle(ux,uz,{r:4,col,d:.7});axvHit(cx,3,cz+.5,{big:true,col,dl:dl+.1});break;
+  case 'heal':case 'cheerup':axvCircle(ux,uz,{r:6,col:k==='heal'?'#7dffa0':'#ff9ad8',d:1.1});axvPillar(ux,uz,{r:2.4,h:13,col:k==='heal'?'#7dffa0':'#ff9ad8',d:.9,dl:.1});break;
+  case 'pillar':case 'ult_holy':{const n=ult?5:Math.max(1,Math.min(3,f.hits||1));for(let i=0;i<n;i++){const x=i?cx+(Math.random()-.5)*R*2:cx,z=i?cz+(Math.random()-.5)*R:cz;axvCircle(x,z,{r:4.5,col:'#ffe27a',d:.9,dl:dl+i*.1-.1});axvPillar(x,z,{r:2.2,h:16,col:'#ffe27a',d:.8,dl:dl+i*.1})}break}
+  case 'orb':axvCircle(ux,uz,{r:4,col,d:.7});axvHit(cx,3,cz+.5,{big:false,col,dl:dl+.05});axvRing(cx,cz,{r:4,col,dl:dl+.05});break;
+  case 'meteor':case 'ult_meteor':{const n=ult?5:1;for(let i=0;i<n;i++){const x=i?cx+(Math.random()-.5)*R*2:cx,z=i?cz+(Math.random()-.5)*R:cz;axvCircle(x,z,{r:5,col,d:.9,dl:i*.06});axvRing(x,z,{r:7,col,dl:(ult?.3:dl+.25)+i*.06});for(let j=0;j<3;j++)axvSmoke(x,1.2,z,{s:3.5,d:.8,dl:(ult?.32:dl+.27)+i*.06,vx:(Math.random()-.5)*6,vy:2.5})}break}
+  case 'arrow':case 'rain':case 'ult_arrows':axvCircle(cx,cz,{r:ult?8:5,col,d:.9});break;
+  case 'soundwave':case 'ult_stage':['#ff8ad0','#8ad8ff','#ffe066'].forEach((c,i)=>axvRing(ux,uz,{r:(ult?11:8)+i*1.5,col:c,d:.5,dl:i*.1}));axvCircle(ux,uz,{r:6,col:'#ff8ad0',d:1});break;
+  }}
 
 
 
