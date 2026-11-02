@@ -5886,7 +5886,12 @@ body.ax3on #stage>#cv{position:absolute;left:-9999px;top:0;width:1px!important;h
    axvSlash 斬撃の三日月 / axvStar 当たりの星 / axvRing 地面の衝撃の輪 / axvSmoke アニメ塗りの煙 / axvHit 当たり一式 */
 const AXVN=`float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h21(i),h21(i+vec2(1.,0.)),f.x),mix(h21(i+vec2(0.,1.)),h21(i+vec2(1.,1.)),f.x),f.y);}
-float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*vn(p);p*=2.03;a*=.5;}return s;}`;
+float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*vn(p);p*=2.03;a*=.5;}return s;}
+/* (11/2) 剣筋の見た目(サウスト風): 細い筋が何本も流れる帯。外側(k=1)が白く、内側は色のうすい膜になって筋にほどける。s=長さ方向(1=刃先側) age=0→1 */
+vec4 swLook(float s,float k,float age,vec3 tint,float seed){float l1=vn(vec2(s*2.2+seed,k*30.)),l2=vn(vec2(s*4.5+seed*1.7,k*64.)),str=l1*.6+l2*.4;
+ float body=k+(str-.5)*.55-age*.75-(1.-s)*.25;if(body<.08)return vec4(0.);float a=smoothstep(.08,.4,body)*(1.-smoothstep(.94,1.,k));
+ vec3 lt=mix(tint,vec3(1.),.35);vec3 c=mix(lt*.85,vec3(1.),smoothstep(.5,.92,k+str*.22));c+=vec3(1.)*pow(str,5.)*.7;if(s>.9&&age<.3)c=mix(c,vec3(1.),.6);
+ return vec4(min(c,vec3(1.)),a*(.5+.5*k)*(1.-smoothstep(.75,1.,age)));}`;
 const AXVV=`varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 function axvMat(frag,add){const T=A3.T;return new T.ShaderMaterial({uniforms:{uT:{value:0},uC:{value:new T.Color('#ffb040')},uE:{value:new T.Color('#5a1408')},uS:{value:Math.random()*50},uA:{value:1}},vertexShader:AXVV,fragmentShader:'uniform float uT,uS,uA;uniform vec3 uC,uE;varying vec2 vU;\n'+AXVN+'\n'+frag,transparent:true,depthTest:false,depthWrite:false,side:T.DoubleSide,toneMapped:false,blending:add?T.AdditiveBlending:T.NormalBlending})}
 /* 斬撃: 先が走って、うしろが追いかけて消える三日月。白い芯(外側)→色→こげ色のふち。ノイズで欠けながら消える */
@@ -5894,10 +5899,7 @@ const AXV_SLASH=`void main(){float u=vU.x,v=vU.y;
  float hd=1.-pow(1.-clamp(uT*2.6,0.,1.),3.),tl=clamp((uT-.1)*1.5,0.,1.);tl=tl*tl*(3.-2.*tl);
  if(u>hd||u<tl)discard;float k=(u-tl)/max(hd-tl,.001);
  float pr=pow(sin(3.14159*clamp(k,0.,1.)),1.15)*(1.-uT*.4);float vv=(v-(1.-pr))/max(pr,.001);if(vv<0.)discard;
- float st=vn(vec2(u*3.-uT*6.+uS,v*26.));/* 流れの筋 */
- float n=fbm(vec2(u*9.-uT*5.+uS,v*3.));float a=n*.5+vv*.6+k*.3-uT*1.-st*.18;if(a<.06)discard;
- vec3 c=vv>.8?vec3(1.):vv>.5?mix(uC,vec3(1.),.55-st*.3):vv>.2?mix(uC*.85,uC,st):uE;if(a<.1)c=uE;
- gl_FragColor=vec4(c,uA);}`;
+ vec4 o=swLook(k,vv,uT,uC,uS);if(o.a<.02)discard;gl_FragColor=vec4(o.rgb,o.a*uA);}`;
 const AXV_SLASHG=`void main(){float u=vU.x,v=vU.y;float hd=1.-pow(1.-clamp(uT*2.4,0.,1.),3.),tl=clamp((uT-.05)*1.3,0.,1.);if(u>hd||u<tl)discard;
  float k=(u-tl)/max(hd-tl,.001);float g=pow(v,2.)*pow(sin(3.14159*k),1.5)*(1.-uT);gl_FragColor=vec4(mix(uC,vec3(1.),.3)*g*1.8,1.);}`;
 /* 星形の当たり: 長さのちがうとげ。白い芯→色→こげ色のふち。ぱっと大きくなって、ノイズで削れて消える */
@@ -5967,7 +5969,7 @@ function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||
     if(/^(orb)$/.test(k)&&(f.el||'')!=='water')axvFlames(Object.assign({},sf,{r:(sf.r||34)*.8}),{dl:dl+.05,n:3,s:.8})}catch(e){}
   if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.25,ca:.25,wave:.6,d:.35,dl:.3});else if(!/^(heal|cheerup|taunt)$/.test(k))axvPost(cx,cz,{blur:.12,ca:.15,wave:.4,d:.22,dl:dl+.04})}
   switch(k){
-  case 'spinblade':case 'sweep':for(let i=0;i<3;i++)axvSlash(ux,3.2,uz,{r:9*big,col,tilt:i*2.09,d:.3,dl:dl+i*.05,sq:.4});axvSwirl(ux,uz,{r:5,h:6,col:'#ffffff',d:.55,dl});axvRing(ux,uz,{r:8,col:'#ffffff',dl:dl+.05});if(k==='sweep')axvSwordHit(cx,cz,{s:1.2,dl:dl+.06});break;
+  case 'spinblade':case 'sweep':for(let i=0;i<3;i++)axvSlash(ux,3.2,uz,{r:9*big,col,tilt:i*2.09,d:.3,dl:dl+i*.05,sq:.4});axvSwirl(ux,uz,{r:5,h:6,col:'#ffffff',d:.55,dl});axvGroundSlash(ux,uz,{r:(f.r||58)*AXM*1.1,col:'#8ad8ff',d:.6,dl});if(k==='sweep')axvSwordHit(cx,cz,{s:1.2,dl:dl+.06});break;
   case 'dashcut':axvStreak(cx,cz,ex,ez,{w:1.1,d:.2,dl:dl-.06});axvTrail(mx,3.6,mz,{from:[cx,cz],to:[ex,ez],col:'#7ac8ff',dl:dl+.02});axvSwordHit(ex,ez,{s:1.5,dl:dl+.08});break;
   case 'heavy':slashes(1,cx,cz,13,0);axvStreak(ux,uz,cx,cz,{dl:dl-.04});axvSwordHit(cx,cz,{s:1.6,dl:dl+.05});axvRing(cx,cz,{r:7,col:'#ffffff',dl:dl+.05});break;
   case 'ult_slash':[-.55,.6,-1.35].forEach((rl,i)=>axvTrail(cx+(i-1)*1.5,4.4,cz+.6,{s:20,col:i===1?'#ff8ad0':'#7ac8ff',edge:i===1?'#4a0a3a':'#14204a',roll:rl,dl:.06+i*.09}));axvGroundSlash(cx,cz,{r:12,col:'#ff7ac8',dl:.3});axvPetals(cx,cz,{n:22,r:9,dl:.32});axvSwordHit(cx,cz,{s:2,dl:.33});axvFog(cx,cz,{r:9,n:10,dl:.55});break;
@@ -6017,8 +6019,7 @@ function axvPostUpd(t){const P=A3&&A3.post;if(!P)return;let best=null,bw=0;A3.pf
   if(!best){P.enabled=false;return}const {e,k,env}=best,p=new A3.T.Vector3(e.x,e.y,e.z).project(A3.cam);P.enabled=true;const U=P.uniforms;U.uC.value.set((p.x+1)/2,(p.y+1)/2);U.uAsp.value=A3.cam.aspect;U.uBlur.value=e.blur*env;U.uCA.value=e.ca*env;U.uWR.value=.04+k*.55;U.uWS.value=e.wave*(1-k)}
 
 /* ---------- (11/2) B: 武器の軌跡を作り直す。刃先が通った帯が、白→色→こげ色のふちで残り、古い所からノイズで欠けて消える ---------- */
-const AXV_TRAIL=`void main(){float age=vU.x,v=vU.y;if(age>.98)discard;float n=fbm(vec2(age*7.-uS,v*3.));float keep=n*.7+(1.-age)*1.05-.45+v*.25;if(keep<.06)discard;
- vec3 c=v>.8?vec3(1.):v>.52?mix(uC,vec3(1.),.45):v>.2?uC:uE;if(keep<.1)c=uE;gl_FragColor=vec4(c,uA*(.55+.45*(1.-age)));}`;
+const AXV_TRAIL=`void main(){float age=vU.x,v=vU.y;if(age>.98)discard;vec4 o=swLook(1.-age,v,age*.9,uC,uS);if(o.a<.02)discard;gl_FragColor=vec4(o.rgb,o.a*uA);}`;
 function ax3TrailMake(R,col){const T=A3.T,N=28,pos=new Float32Array(N*2*3),uv=new Float32Array(N*2*2),idx=[];for(let i=0;i<N;i++){uv.set([i/(N-1),0,i/(N-1),1],i*4);if(i<N-1){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}}
   const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(pos,3));g.setAttribute('uv',new T.BufferAttribute(uv,2));g.setIndex(idx);
   const ms=axvMesh(g,AXV_TRAIL,false,{col:col||'#ffcf4a'});ms.material.depthTest=true;ms.frustumCulled=false;ms.renderOrder=16;A3.S.add(ms);
@@ -6108,16 +6109,15 @@ function axvGraySmoke(x,z,o){o=o||{};const n=o.n||2;for(let i=0;i<n;i++)axv3('pu
 function axvSwordHit(x,z,o){o=o||{};const s=o.s||1,dl=o.dl||0;axvSpike(x,3.1,z+.8,{s:9.5*s,dl,d:.3+.05*s});axvDebris(x,z+.3,{n:Math.round(3*s+2),dl:dl+.03,s:.9*s,sp:10*s});axvGraySmoke(x,z-.6,{n:s>1.2?3:2,s:1.5*s,r:3*s,dl:dl+.1})}
 
 /* ================= (11/2) 剣(大技): 画面を横切る太い刀の軌跡 / 地面に広がる円盤の斬撃(サウストの作り方) ================= */
-const AXV_BTRAIL=`void main(){vec2 p=vU*2.-1.;vec2 c=vec2(0.,-1.45);float Rr=1.85;vec2 q=p-c;float a=atan(q.x,q.y);float s=clamp((a+.78)/1.56,0.,1.);if(a<-.78||a>.78)discard;
- float head=clamp(uT*7.,0.,1.);if(s>head)discard;float th=.24*pow(sin(3.14159*s),.6)*(1.-uT*.25);float d=abs(length(q)-Rr);if(d>th)discard;
- float n=fbm(vec2(s*6.+uS,d*8.));if(uT>.3&&n<(uT-.3)*1.5)discard;float k=d/max(th,.001);
- vec3 c2=k<.45?vec3(1.):k<.8?mix(vec3(1.),uC,.75):uE;if(k<.45&&s>head-.08)c2=vec3(1.);gl_FragColor=vec4(c2,uA);}`;
+const AXV_BTRAIL=`void main(){vec2 p=vU*2.-1.;vec2 c=vec2(0.,-1.45);float Rr=1.85;vec2 q=p-c;float a=atan(q.x,q.y);float s=clamp((a+.8)/1.6,0.,1.);if(a<-.8||a>.8)discard;
+ float head=clamp(uT*8.,0.,1.),tail=clamp((uT-.12)*1.6,0.,1.);if(s>head||s<tail)discard;float sk=(s-tail)/max(head-tail,.001);
+ float th=.3*pow(sin(3.14159*sk),.55)*(1.-uT*.35);float r=length(q)-Rr;if(abs(r)>th)discard;float k=r/th*.5+.5;
+ vec4 o=swLook(sk,k,uT,uC,uS);if(o.a<.02)discard;gl_FragColor=vec4(o.rgb,o.a*uA);}`;
 /* 2点(地面)を結ぶ向きを画面上の角度にする */function axvScrAng(x0,z0,x1,z1,y){const T=A3.T,a=new T.Vector3(x0,y||3,z0).project(A3.cam),b=new T.Vector3(x1,y||3,z1).project(A3.cam);return Math.atan2((b.y-a.y),(b.x-a.x)*A3.cam.aspect)}
 function axvTrail(x,y,z,o){o=o||{};if(o.from&&o.to){const [x0,z0]=o.from,[x1,z1]=o.to;o.roll=axvScrAng(x0,z0,x1,z1,y);x=(x0+x1)/2;z=(z0+z1)/2;if(!o.s)o.s=Math.max(10,Math.hypot(x1-x0,z1-z0)*1.5)}const G=axvGeo(),col=o.col||'#7ac8ff',m=axvMesh(G.quad,AXV_BTRAIL,false,{col,edge:o.edge||'#14204a',ro:25});const s=o.s||16;m.scale.set(s,s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.42,dl:o.dl,bb:1,roll:o.roll!=null?o.roll:-.5})}
-const AXV_GDISC=`void main(){vec2 p=vU*2.-1.;float r=length(p),a=atan(p.y,p.x);float g=1.-pow(1.-clamp(uT*4.5,0.,1.),3.);float R=.3+.68*g;if(r>R)discard;
- float sw=fract((a/6.28318+r*.55-uT*.4)*7.+uS);float cut=smoothstep(.0,.08,sw)*(1.-smoothstep(.12,.22,sw));
- float n=fbm(p*2.6+uS);if(uT>.32&&n<(uT-.32)*1.45)discard;float k=r/R;
- vec3 c=mix(vec3(1.),uC,smoothstep(.25,.85,k));c=mix(c,vec3(1.),cut*.85*(1.-k*.5));if(k>.93)c=uE;gl_FragColor=vec4(c,uA);}`;
+const AXV_GDISC=`void main(){vec2 p=vU*2.-1.;float r=length(p),an=atan(p.y,p.x);float g=1.-pow(1.-clamp(uT*4.,0.,1.),3.);
+ float R0=.22+.62*g,w=.42*(1.-uT*.3);float k=1.-abs(r-R0)/w;if(k<0.)discard;float s=fract(an/6.28318+uT*.35+r*.25);
+ vec4 o=swLook(s,k,uT*.9,uC,uS);if(o.a<.02)discard;gl_FragColor=vec4(o.rgb,o.a*uA);}`;
 function axvGroundSlash(x,z,o){o=o||{};const G=axvGeo(),col=o.col||'#ff7ac8',m=axvMesh(G.quad,AXV_GDISC,false,{col,edge:o.edge||'#4a1a5a',ro:16});const r=o.r||9;m.scale.set(r*2,r*2,1);m.rotation.x=-Math.PI/2;m.position.set(x,.15,z);return axvAdd({o:m,d:o.d||.9,dl:o.dl})}
 /* 花びら(桃色の小さな板が舞い上がって落ちる) */
 function axvPetals(x,z,o){o=o||{};const T=A3.T,n=o.n||14,r=o.r||6;const geo=new T.PlaneGeometry(.55,.38);for(let i=0;i<n;i++){const m=new T.Mesh(geo,new T.MeshBasicMaterial({color:new T.Color(i%3?'#ffb0d8':'#ffffff'),side:T.DoubleSide,transparent:true,depthWrite:false,toneMapped:false}));m.renderOrder=27;
