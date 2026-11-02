@@ -5804,7 +5804,7 @@ function ax3Overlay(){const A=AXB,O=A3.O,t=A.t,n=performance.now(),W2=A3.w,H2=A3
   /* エリアクリア(サウスト風): 金色の文字 → みんなで前へ走る → 暗くなる → 次のエリア */if(A.trans&&!A.trans.done){const v=A.t-A.trans.t0;if(v<1.15){const k=eo(Math.min(1,v/.18)),s2=1+(1-k)*.8;O.save();O.translate(W2/2,PH*.42);O.scale(s2,s2);oTxt(O,'エリアクリア',0,0,Math.min(44,W2*.11),'#ffd23a',Math.min(1,v/.1)*(1-clamp((v-.9)/.25,0,1)));O.restore()}}
   if(A.trans){const v=A.t-A.trans.t0,al=v<1.4?clamp((v-.95)/.4,0,1):1-clamp((v-1.4)/.45,0,1);if(al>0){O.save();O.globalAlpha=al;O.fillStyle='#07050b';O.fillRect(0,0,W2,H2);O.restore()}}
   /* 必殺の決め: 集中線(画面のふちから中心へ向かう白い線) */if(A3.act&&A3.act.ult&&!A.cut){const g=A3.act,v=(n-g.n)/1000/(A.speed||1);if(v<1.3){const al=v<.08?v/.08:v<.9?1:1-(v-.9)/.4;let cxp=W2/2,cyp=PH*.48;{const P=new A3.T.Vector3(g.x,3,g.z).project(A3.cam);cxp=(P.x+1)/2*W2;cyp=(1-P.y)/2*H2}O.save();O.globalAlpha=.55*al;O.fillStyle='#ffffff';const R=Math.hypot(W2,H2),seed=Math.floor(n/45);for(let i=0;i<64;i++){const r1=((i*7919+seed*104729)%1000)/1000,a=i/64*Math.PI*2+r1*.08,r0=R*(.36+.2*((i*37+seed*13)%10)/10),w=.006+.01*r1;O.beginPath();O.moveTo(cxp+Math.cos(a-w)*R,cyp+Math.sin(a-w)*R);O.lineTo(cxp+Math.cos(a)*r0,cyp+Math.sin(a)*r0);O.lineTo(cxp+Math.cos(a+w)*R,cyp+Math.sin(a+w)*R);O.fill()}O.restore()}}
-  /* 必殺(剣)の決め: 画面いっぱいに白い大きな斬撃が何本も走る(サウスト風) */if(A3.ultSl){const u0=A3.ultSl;let any=false;for(let i=0;i<5;i++){const v=(t-u0.t-i*.1)/.3;if(v<0){any=true;continue}if(v>1)continue;any=true;const sw=Math.min(1,v/.35),fade=v<.5?1:1-(v-.5)/.5,ang=[-.5,.6,-1.1,1.3,-.1][i],R=W2*1.15,cx=W2/2+[-.2,.25,.1,-.3,0][i]*W2,cy=PH*.5+[.1,-.15,.2,0,-.05][i]*PH;
+  /* 必殺(剣)の決め: 画面いっぱいに白い大きな斬撃が何本も走る(サウスト風) */if(A3.ultSl){const u0=A3.ultSl;let any=false;for(let i=0;i<3;i++){const v=(t-u0.t-i*.1)/.3;if(v<0){any=true;continue}if(v>1)continue;any=true;const sw=Math.min(1,v/.35),fade=v<.5?1:1-(v-.5)/.5,ang=[-.5,.6,-1.1,1.3,-.1][i],R=W2*1.15,cx=W2/2+[-.2,.25,.1,-.3,0][i]*W2,cy=PH*.5+[.1,-.15,.2,0,-.05][i]*PH;
     O.save();O.translate(cx,cy);O.rotate(ang);O.globalAlpha=fade;O.shadowColor=u0.col;O.shadowBlur=24;const a0=-1.2,a1=a0+2.4*sw,th=R*.07;O.beginPath();O.arc(0,R*.7,R,Math.PI*1.5+a0*.5,Math.PI*1.5+a1*.5);O.arc(R*.04,R*.7+th,R-th*.2,Math.PI*1.5+a1*.5,Math.PI*1.5+a0*.5,true);O.closePath();O.fillStyle='#ffffff';O.fill();O.shadowBlur=0;O.lineWidth=3;O.strokeStyle=u0.col;O.stroke();O.restore()}
     if(!any)A3.ultSl=null}
   if(A.cut)ax3CutOv(O,A,W2,H2,PH,n);
@@ -5852,7 +5852,7 @@ function ax3EfkRole(k,o){if(!ax3EfkOk())return false;const {cx,cz,ux,uz,col,dl,u
   case 'spinblade':case 'sweep':ax3E('MagicTornade',ux,uz,{s:.9,sp:3.2,skip:6,col:'#f4fbff'});ax3E('KM_JinSlash',ux,uz,{s:1.35,dl:dl-.05,sp:1.8,skip:40,ry,y:1});hit(cx,cz,.55,dl+.1);return true;
   case 'dashcut':ax3E('KM_JinSlash',cx,cz,{s:1.44,dl:dl-.05,sp:1.8,skip:40,ry,y:1});hit(cx,cz,.6,dl+.08);return true;
   case 'heavy':ax3E('KM_JinSlash',cx,cz,{s:1.62,dl:dl-.05,sp:1.6,skip:40,ry,y:1});hit(cx,cz,.75,dl+.1);return true;
-  case 'ult_slash':ax3E('MagicTornade',cx,cz,{s:1.5,sp:2.6,skip:4,col:'#f4fbff'});for(let h=0;h<3;h++){ax3E('KM_JinSlash',cx,cz,{s:h?1.98:2.34,dl:h*.09,sp:1.8,skip:50,ry:ry+h*Math.PI*.6,y:1});hit(cx+(Math.random()-.5)*3,cz,.7,h*.09+.06)}hit(cx,cz,.8,.33);ax3E('KM_JinBoom',cx,cz,{s:.75,dl:.3,sp:2.2,skip:12});return true;
+  case 'ult_slash':ax3E('MagicTornade',cx,cz,{s:1.5,sp:2.6,skip:4,col:'#f4fbff'});for(let h=0;h<3;h++){ax3E('KM_JinSlash',cx,cz,{s:h?1.98:2.34,dl:h*.09,sp:1.8,skip:50,ry:ry+h*Math.PI*.6,y:1});hit(cx+(Math.random()-.5)*3,cz,.7,h*.09+.06)}hit(cx,cz,.8,.33);ax3E('KM_JinBoom',cx,cz,{s:.5,dl:.3,sp:2.2,skip:12});return true;
   case 'quake':{const L=(f.len||150)*AXM,a=f.ang||0,n=ult?4:2;for(let i=0;i<n;i++){const q=(i+.6)/n,[x,z]=ult?rnd(R):[ux+Math.cos(a)*L*q,uz+Math.sin(a)*L*q];ax3E('KM_Spike',x,z,{s:ult?0.99:0.76,dl:dl+i*.1,sp:2.4,skip:70})}hit(cx,cz,ult?1:.6,dl+.15,'#ffd0a0');return true}
   case 'shieldbash':hit(cx,cz,.7,dl);return true;
   case 'taunt':case 'ult_shield':ax3E('Barrior01',ux,uz,{s:ult?2.88:2.25,sp:1.4,col:ult?'#ffe8a0':null});if(ult)hit(ux,uz,1.2,.15,'#ffe8a0');return true;
@@ -5953,7 +5953,7 @@ function axvSwirl(x,z,o){o=o||{};const T=A3.T,r=o.r||4,h=o.h||7;const geo=new T.
 function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||50)*AXM*1.2,big=ult?1.35:1;
   const slashes=(n,x,z,r,gap)=>{for(let i=0;i<n;i++)axvSlash(x+(Math.random()-.5)*2,3.2+Math.random()*1.6,z+(Math.random()-.5),{r:r*(.85+Math.random()*.3),col,tilt:AXVTILT[i%4]+(Math.random()-.5)*.4,flip:i%2===1,d:.3,dl:dl+i*gap})};
   const kind=k.replace(/^ult_/,'');
-  if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.8,ca:.8,wave:1,d:.45,dl:.3});else if(!/^(heal|cheerup|taunt)$/.test(k))axvPost(cx,cz,{blur:.35,ca:.4,wave:.7,d:.28,dl:dl+.04})}
+  if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.45,ca:.5,wave:.9,d:.4,dl:.3});else if(!/^(heal|cheerup|taunt)$/.test(k))axvPost(cx,cz,{blur:.35,ca:.4,wave:.7,d:.28,dl:dl+.04})}
   switch(k){
   case 'spinblade':case 'sweep':for(let i=0;i<3;i++)axvSlash(ux,3.2,uz,{r:9*big,col,tilt:i*2.09,d:.3,dl:dl+i*.05,sq:.4});axvSwirl(ux,uz,{r:5,h:6,col:'#ffffff',d:.55,dl});axvRing(ux,uz,{r:8,col,dl:dl+.05});break;
   case 'dashcut':axvSlash(cx,3.4,cz,{r:12,col,tilt:-.08,sq:.22,d:.28,dl});axvSlash(cx,3.4,cz,{r:10,col:'#ffffff',tilt:-.08,sq:.12,d:.22,dl:dl+.03});axvHit(cx,3.2,cz+.5,{big:true,col,dl:dl+.06});break;
@@ -6024,7 +6024,7 @@ const AXV3V=`uniform float uOL;varying vec3 vN,vP;void main(){vP=position;vec3 p
 const AXV3F=`uniform float uT,uS,uA,uOL,uDs;uniform vec3 uC,uE;varying vec3 vN,vP;`+AXVN+`
 void main(){float n=.5*(fbm(vP.xy*1.8+uS)+fbm(vP.yz*1.8+uS*1.7+3.));float th=clamp((uT-uDs)/(1.-uDs),0.,1.)*1.15-.08;if(n<th)discard;
  if(uOL>.5){gl_FragColor=vec4(uE,uA);return;}vec3 N=normalize(vN);float d=dot(N,normalize(vec3(-.45,.7,.55)));
- vec3 c=d>.42?mix(uC,vec3(1.),.42):d>-.12?uC:uC*.58;if(abs(N.z)<.22)c=mix(c,uE,.6);if(n<th+.07&&th>0.)c=mix(uC,vec3(1.,.97,.85),.75);gl_FragColor=vec4(c,uA);}`;
+ vec3 c=d>.42?mix(uC,vec3(1.,.95,.75),.32):d>-.12?uC:uC*vec3(.6,.4,.36);if(abs(N.z)<.22)c=mix(c,uE,.6);if(n<th+.07&&th>0.)c=mix(uC,vec3(1.,.97,.85),.75);gl_FragColor=vec4(c,uA);}`;
 let AXV3G=null,AXV3P=null;
 function axv3Load(){if(AXV3P)return AXV3P;if(!AX3.GLTFLoader||!AXV3D||AXV3D.indexOf('data:')!==0)return AXV3P=Promise.resolve(null);
   AXV3P=new Promise(res=>{try{const b=Uint8Array.from(atob(AXV3D.split(',')[1].split('#')[0]),c=>c.charCodeAt(0)).buffer;new AX3.GLTFLoader().parse(b,'',g=>{const M={};g.scene.traverse(o=>{if(o.isMesh)M[o.name]=o.geometry});AXV3G=M;res(M)},()=>res(null))}catch(e){res(null)}});return AXV3P}
