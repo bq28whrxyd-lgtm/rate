@@ -5164,6 +5164,7 @@ function ax3ReticleTex(){if(A3.tex.ret)return A3.tex.ret;return A3.tex.ret=ax3Te
 function ax3BhTex(k){if(A3.tex['bh'+k])return A3.tex['bh'+k];const im=BHX.I[k];if(!im||!im.complete||!im.naturalWidth)return null;const t=new A3.T.Texture(im);t.colorSpace=A3.T.SRGBColorSpace;t.needsUpdate=true;return A3.tex['bh'+k]=t}
 /* A.fx の1つを3Dにする。返す: {o: 置くもの, u:(k,v)=>更新} */
 function ax3MakeFx(f){if((AXSKALL[f.k]||/^ult_/.test(f.k))&&typeof ax3EfkOk==='function'&&ax3EfkOk())return null;const T=A3.T,A=AXB,col=f.col||'#ffe066',X=f.x!=null?a3X(f.x):0,Z=f.gy!=null?a3Z(f.gy):f.y!=null?a3Z(f.y):0,HY=f.gy!=null?(f.gy-f.y)*AXM:null,G3=new T.Group();
+  /* (11/2) 通常攻撃と当たりは自作のアニメ調エフェクト(axv) */if(typeof axvSlash==='function'){if(f.k==='slash'){const fl=f.face<0;axvSlash(X,(HY||2.8)+.4,Z,{r:(f.r||26)*AXM*2.3,col,tilt:AXVTILT[(f.n||0)%4]*(fl?-1:1),flip:fl,d:.26});return null}if(f.k==='bh'){const big=f.sheet==='crit';axvHit(X,(HY||3)+.3,Z+.4,{big,col:big?'#ff9a3a':'#ffd860'});return null}}
   const done=(o,u)=>({o,u});
   /* ---- 技ごとの見た目(1つの技に1つ。小さな部品を時間差で組み合わせる) ---- */
   const subs=[];const sub=(spec,delay,dur)=>{const E=ax3MakeFx(Object.assign({t:0,d:dur||.5,col},spec));if(E){G3.add(E.o);E.o.visible=false;subs.push({E,delay:delay||0,dur:dur||.5})}return E};
@@ -5752,7 +5753,7 @@ function ax3Frame(){const A=AXB,T=A3.T,t=A.t,n=performance.now();if(!A3)return;
     const sw=(u.side==='E'?(u.mon?3.0:2.0)*(u.mob?.7:1):1.8)*dk;U.shd.position.set(a3X(u.x),.03,a3Z(u.y));U.shd.scale.set(sw,1,sw*.6);U.shd.visible=!u.dead||!u.fly;U.shd.material=A3.shadM}
   ax3CharHideOthers(live3);ax3MonHide(liveM);
   for(const [u,U] of A3.units)if(!live.has(u)){A3.S.remove(U.spr,U.shd);U.spr.geometry.dispose();U.spr.material.dispose();A3.units.delete(u)}
-  A3.atl.needsUpdate=true;ax3Impacts(t);ax3AnimeFx(t);{const pd=Math.min(.05,t-(A3.pT||t));ax3PuffUpd(t,pd);ax3SkillBig(t);ax3BlastUpd(t,pd);ax3SkUpd(t,pd);ax3KUpd(t,pd);ax3FBUpd(t,pd);ax3AuraUpd(t,pd);ax3EfkUpd(t,pd)}A3.pT=t;
+  A3.atl.needsUpdate=true;ax3Impacts(t);ax3AnimeFx(t);{const pd=Math.min(.05,t-(A3.pT||t));ax3PuffUpd(t,pd);ax3SkillBig(t);ax3BlastUpd(t,pd);ax3SkUpd(t,pd);ax3KUpd(t,pd);ax3FBUpd(t,pd);ax3AuraUpd(t,pd);ax3EfkUpd(t,pd);if(typeof axvUpd==='function')axvUpd(t)}A3.pT=t;
   /* 地面の印 */A3.meRing.visible=axLive(me);A3.meRing.position.set(px,.04,pz);A3.meRing.scale.set(1.7,1,1.2);A3.meRing.material.uniforms.a.value=.75+.25*Math.sin(t*5);
   A3.lockRing.visible=axLive(A.lock);if(A3.lockRing.visible){const e=A.lock,r=(e.mon?2.4:1.6)+Math.sin(t*6)*.08;A3.lockRing.position.set(a3X(e.x),.05,a3Z(e.y));A3.lockRing.scale.set(r,1,r*.8)}
   A3.mkRing.visible=!!(A.mk&&t-A.mk.t<.6);if(A3.mkRing.visible){const v=(t-A.mk.t)/.6;A3.mkRing.position.set(a3X(A.mk.x),.05,a3Z(A.mk.y));A3.mkRing.scale.setScalar(.6+v*.8);A3.mkRing.material.uniforms.a.value=1-v}
@@ -5869,6 +5870,60 @@ body.ax3on #stage>#ax3cv,body.ax3on #stage>#ax3ov{display:block!important;positi
 body.ax3on #stage>#ax3ov{pointer-events:none}
 body.ax3on #stage>#cv{position:absolute;left:-9999px;top:0;width:1px!important;height:1px!important;opacity:0}
 .axload{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);color:#fff;font:800 15px/1.5 var(--jp,sans-serif);text-shadow:0 1px 3px #000}`;document.head.append(st)})();
+/* ---------- (11/2) AXV: 自作のアニメ調エフェクト部品(シェーダーで描く) ----------
+   サウストやプロの Effekseer 素材の作り方(三日月の斬撃・ノイズで削れて消える・白い芯→色→こげ色のふち・星形の当たり)を参考に、
+   色と大きさを変えて通常攻撃にも技にも使い回せる部品にした。
+   axvSlash 斬撃の三日月 / axvStar 当たりの星 / axvRing 地面の衝撃の輪 / axvSmoke アニメ塗りの煙 / axvHit 当たり一式 */
+const AXVN=`float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h21(i),h21(i+vec2(1.,0.)),f.x),mix(h21(i+vec2(0.,1.)),h21(i+vec2(1.,1.)),f.x),f.y);}
+float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*vn(p);p*=2.03;a*=.5;}return s;}`;
+const AXVV=`varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
+function axvMat(frag,add){const T=A3.T;return new T.ShaderMaterial({uniforms:{uT:{value:0},uC:{value:new T.Color('#ffb040')},uE:{value:new T.Color('#5a1408')},uS:{value:Math.random()*50},uA:{value:1}},vertexShader:AXVV,fragmentShader:'uniform float uT,uS,uA;uniform vec3 uC,uE;varying vec2 vU;\n'+AXVN+'\n'+frag,transparent:true,depthTest:false,depthWrite:false,side:T.DoubleSide,toneMapped:false,blending:add?T.AdditiveBlending:T.NormalBlending})}
+/* 斬撃: 先が走って、うしろが追いかけて消える三日月。白い芯(外側)→色→こげ色のふち。ノイズで欠けながら消える */
+const AXV_SLASH=`void main(){float u=vU.x,v=vU.y;
+ float hd=1.-pow(1.-clamp(uT*2.4,0.,1.),3.),tl=clamp((uT-.12)*1.5,0.,1.);tl=tl*tl*(3.-2.*tl);
+ if(u>hd||u<tl)discard;float k=(u-tl)/max(hd-tl,.001);
+ float pr=pow(sin(3.14159*clamp(k*.9+.08,0.,1.)),.75)*(1.-uT*.35);float vv=(v-(1.-pr))/max(pr,.001);if(vv<0.)discard;
+ float n=fbm(vec2(u*9.-uT*5.+uS,v*3.));float a=n*.55+vv*.55+k*.25-uT*.95;if(a<.06)discard;
+ vec3 c=vv>.74?vec3(1.):vv>.42?mix(uC,vec3(1.),.45):vv>.16?uC:uE;if(a<.11)c=uE;
+ gl_FragColor=vec4(c,uA);}`;
+const AXV_SLASHG=`void main(){float u=vU.x,v=vU.y;float hd=1.-pow(1.-clamp(uT*2.4,0.,1.),3.),tl=clamp((uT-.05)*1.3,0.,1.);if(u>hd||u<tl)discard;
+ float k=(u-tl)/max(hd-tl,.001);float g=pow(v,2.5)*sin(3.14159*k)*(1.-uT);gl_FragColor=vec4(uC*g*1.4,1.);}`;
+/* 星形の当たり: 長さのちがうとげ。白い芯→色→こげ色のふち。ぱっと大きくなって、ノイズで削れて消える */
+const AXV_STAR=`void main(){vec2 p=vU*2.-1.;float r=length(p),th=atan(p.y,p.x);
+ float sp=0.;for(int i=0;i<7;i++){float fi=float(i),a=fi*.8976+uS,l=.45+.55*h21(vec2(fi,uS));float d=abs(mod(th-a+3.14159,6.28318)-3.14159);sp=max(sp,l*pow(max(0.,1.-d*2.6),3.));}
+ float R=max(.26,sp)*min(1.,uT*7.)*(1.-uT*.25);if(r>R)discard;float q=r/R;
+ float n=fbm(p*4.+uS);if(n+.55-uT*1.1<.12+q*.1)discard;
+ vec3 c=q<.42?vec3(1.):q<.7?mix(uC,vec3(1.),.4):q<.9?uC:uE;gl_FragColor=vec4(c,uA);}`;
+/* 地面の衝撃の輪: 広がりながら細くなって、ノイズで欠ける */
+const AXV_RING=`void main(){vec2 p=vU*2.-1.;float r=length(p),th=atan(p.y,p.x);float R=.25+.75*(1.-pow(1.-uT,3.)),w=.16*(1.-uT)+.02;
+ float d=abs(r-R);if(d>w)discard;float n=fbm(vec2(th*3.+uS,r*4.));if(n-uT*.7<.12)discard;float q=d/w;
+ vec3 c=q<.35?vec3(1.):q<.75?uC:uE;gl_FragColor=vec4(c,uA*(1.-uT*.3));}`;
+/* アニメ塗りの煙: 左上が明るい2色+こげ茶のふち。ふくらみながら下から削れて消える */
+const AXV_SMOKE=`void main(){vec2 p=vU*2.-1.;float n=fbm(p*2.5+uS+vec2(0.,-uT*1.5));float r=length(p)+(n-.5)*.45;float R=.55+.35*uT;if(r>R)discard;
+ if(n*1.2+p.y*.35-uT*1.15+.25<.0)discard;float lit=length(p-vec2(-.28,.3))<R*.78?1.:0.;float q=r/R;
+ vec3 c=q>.9?uE:mix(uC*.62,mix(uC,vec3(1.),.35),lit);gl_FragColor=vec4(c,uA);}`;
+function axvMesh(geo,frag,add,o){const m=new A3.T.Mesh(geo,axvMat(frag,add));m.material.uniforms.uC.value.set(o.col||'#ffb040');m.material.uniforms.uE.value.set(o.edge||axvEdge(o.col||'#ffb040'));m.renderOrder=o.ro||24;m.frustumCulled=false;return m}
+function axvEdge(col){const c=new A3.T.Color(col);const h={};c.getHSL(h);return new A3.T.Color().setHSL(h.h,Math.min(1,h.s*1.1),Math.max(.12,h.l*.32))}
+let AXVG=null;function axvGeo(){if(AXVG)return AXVG;const T=A3.T;
+  /* 三日月(弧)の形: u=弧に沿って0→1、v=内側0→外側1 */const arc=(a0,a1,ri,ro,N)=>{const pos=[],uv=[],idx=[];for(let i=0;i<=N;i++){const u=i/N,a=a0+(a1-a0)*u;for(let j=0;j<=1;j++){const r=j?ro:ri;pos.push(Math.cos(a)*r,Math.sin(a)*r,0);uv.push(u,j)}}for(let i=0;i<N;i++){const k=i*2;idx.push(k,k+1,k+2,k+1,k+3,k+2)}const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);return g};
+  return AXVG={arc:arc(-1.35,1.35,.5,1,64),arcG:arc(-1.4,1.4,.35,1.12,64),quad:new T.PlaneGeometry(1,1)}}
+function axvAdd(o){A3.vx=A3.vx||[];o.t0=AXB.t+(o.dl||0);if(o.o)o.o.visible=false;A3.S.add(o.o);A3.vx.push(o);return o}
+function axvUpd(t){if(!A3.vx||!A3.vx.length)return;const q=A3.cam.quaternion;A3.vx=A3.vx.filter(e=>{const k=(t-e.t0)/e.d;if(k<0){e.o.visible=false;return true}if(k>1){A3.S.remove(e.o);e.o.traverse(m=>{if(m.material)m.material.dispose()});return false}
+  e.o.visible=true;if(e.bb){e.o.quaternion.copy(q);if(e.roll)e.o.rotateZ(e.roll)}e.o.traverse(m=>{if(m.material&&m.material.uniforms)m.material.uniforms.uT.value=k});if(e.u)e.u(k);return true})}
+/* 斬撃: x,y,z(3Dの位置) / r 大きさ / tilt 傾き(画面の中で回す) / flip 向き / col 色 */
+function axvSlash(x,y,z,o){o=o||{};const G=axvGeo(),T=A3.T,g=new T.Group();const r=o.r||5;
+  const glow=axvMesh(G.arcG,AXV_SLASHG,true,o);glow.renderOrder=23;const m=axvMesh(G.arc,AXV_SLASH,false,o);g.add(glow,m);g.scale.set(r*(o.flip?-1:1),r*(o.sq||.62),r);g.position.set(x,y,z);
+  return axvAdd({o:g,d:o.d||.28,dl:o.dl,bb:1,roll:o.tilt||0})}
+function axvStar(x,y,z,o){o=o||{};const G=axvGeo(),m=axvMesh(G.quad,AXV_STAR,false,o);const s=o.s||3;m.scale.set(s,s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.22,dl:o.dl,bb:1,roll:Math.random()*6.28})}
+function axvRing(x,z,o){o=o||{};const G=axvGeo(),m=axvMesh(G.quad,AXV_RING,false,o);const s=(o.r||5)*2;m.scale.set(s,s,s);m.rotation.x=-Math.PI/2;m.position.set(x,.15,z);m.renderOrder=20;return axvAdd({o:m,d:o.d||.4,dl:o.dl})}
+function axvSmoke(x,y,z,o){o=o||{};const G=axvGeo(),m=axvMesh(G.quad,AXV_SMOKE,false,Object.assign({col:'#e8d8c0',edge:'#5a4030'},o));const s=o.s||2.5;m.scale.set(s,s,s);m.position.set(x,y,z);m.renderOrder=19;const vx=o.vx||0,vy=o.vy!=null?o.vy:1.5,vz=o.vz||0;
+  return axvAdd({o:m,d:o.d||.6,dl:o.dl,bb:1,roll:Math.random()*6.28,u:k=>{m.position.set(x+vx*k,y+vy*k,z+vz*k)}})}
+/* 当たり一式: 星 + 火花 + (強いときは)煙 */
+function axvHit(x,y,z,o){o=o||{};const big=!!o.big,col=o.col||'#ffd060';axvStar(x,y,z,{s:big?5.2:3.4,col,d:big?.3:.2,dl:o.dl});if(typeof ax3Sparks==='function')ax3Sparks(x,z,big?9:5,big?1.2:.8,o.dl||0,col);
+  if(big)for(let i=0;i<3;i++){const a=Math.random()*6.28;axvSmoke(x+Math.cos(a)*.8,Math.max(.6,y-1.2),z+Math.sin(a)*.5,{s:2+Math.random(),d:.5+Math.random()*.2,dl:(o.dl||0)+.04,vx:Math.cos(a)*2.4,vz:Math.sin(a)*1.2,vy:1.2})}}
+const AXVTILT=[.55,-.5,1.25,-.15];
+
 
 
 window.__bs={drawF:(f,x,y,o)=>{G.setTransform(SC,0,0,SC,0,0);drawFighter(f,x,y,o)},bg:()=>{G.setTransform(SC,0,0,SC,0,0);if(!FIELD)FIELD=field();G.drawImage(FIELD,0,0)},stop:()=>{BT=null;playing=false},simulate,timeline,fighterMe,fighterOpp,OPP,S,scene:t=>view(t),mapT:t=>BT?mapT(BT.res,t):{T:t},start:startBattle,startTry,setTry:(wt,r)=>{TRY={wt,r};renderTry()},pickChest,setT:t=>{T=t;playing=false},get BT(){return BT}};
