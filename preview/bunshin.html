@@ -4717,11 +4717,11 @@ function axFoes(st){const L=[],B=axBase(st);
 /* ザコ: 体力は「ふつうの攻撃で2〜3発」になるよう、こちらの強さから決める */
 function axMobs(st,n,mid){const B=axBase(st),A=AXB,me=A.me,def=Math.round(B.st.def*.5),hit=me.pow*.7*60/(60+def),L=[];
   for(let i=0;i<n;i++){const card=mid&&i===0,tmp={Bf:Object.assign({},B,{boss:null})};tgMon(tmp,card?'tg_card':'tg_box',card?'キラカードの妖精':'ダンボール兵',card?62:38,null);
-    const f=Object.assign({},tmp.Bf,{st:Object.assign({},B.st,{hp:Math.round(hit*(card?16:2.6)),def,atk:Math.round(B.st.atk*.42),mag:Math.round(B.st.mag*.42),spd:B.st.spd})});
-    const [x,y]=axEdge(i),u=axUnit(f,'E',x,y,{role:card?'mid':'mob',sh:card?2:0,weak:card?axWk():[],name:tmp.name,mon:tmp.mon,s:tmp.s,ey:tmp.ey,spawnT:A.t+.2+i*.14});u.cd=1+Math.random()*1.4;u.mob=!card;u.mv*=card?.8:.95;u.off=(Math.random()-.5)*40;L.push(u)}
+    const f=Object.assign({},tmp.Bf,{st:Object.assign({},B.st,{hp:Math.round(hit*(card?16:1.7)),def,atk:Math.round(B.st.atk*(card?.42:.28)),mag:Math.round(B.st.mag*(card?.42:.28)),spd:B.st.spd})});
+    const [x,y]=axEdge(i),u=axUnit(f,'E',x,y,{role:card?'mid':'mob',sh:card?2:0,weak:card?axWk():[],name:tmp.name,mon:tmp.mon,s:tmp.s,ey:tmp.ey,spawnT:A.t+.2+i*.07});u.cd=1.4+Math.random()*2.2;u.mob=!card;u.mv*=card?.8:.95;u.off=(Math.random()-.5)*40;L.push(u)}
   return L}
 const AXK=st=>({hp:9,atk:1});
-const AXAREA=[{k:'mob',n:[6,5]},{k:'mob',n:[6,6],mid:true},{k:'boss'}];
+const AXAREA=[{k:'mob',n:[11,9]},{k:'mob',n:[11,10],mid:true},{k:'boss'}];/* (11/2) サウスト風: ザコは群れで来て、まとめて吹き飛ばす */
 function axArea(k){const A=AXB;A.area=k;A.tel=[];A.q=[];A.E=[];A.wave=0;A.trans=null;A.lock=null;A.pt=[];
   const me=A.me;me.x=AXCX;me.y=AXCY+AXRY*.5;me.tx=null;me.dash=null;A.cam.x=clamp(me.x-A.cam.vw/2,0,Math.max(0,AWW-A.cam.vw));
   const D=AXAREA[k];if(D.k==='mob'){A.E=axMobs(A.st,D.n[0],D.mid);axSay('エリア'+(k+1)+': ザコをまとめて吹き飛ばそう')}else{A.E=axFoes(A.st);axSay('ボスエリア! '+A.E[0].name+' があらわれた')}
@@ -4780,7 +4780,7 @@ function axInShape(S,e){const dx=e.x-S.x,dy=(e.y-S.y)/AXSQ,pad=e.mon?12:5;
   if(S.k==='line')return fx>-6&&fx<S.len+pad&&Math.abs(fy)<S.w/2+pad;
   if(S.k==='fan')return Math.hypot(dx,dy)<=S.r+pad&&Math.abs(Math.atan2(fy,fx))<=S.a;return false}
 function axArea2(u,S,m,o){let n=0,kills=0;for(const e of AXB.E.filter(x=>axLive(x)&&x.spawnT<=AXB.t))if(axInShape(S,e)){axHit(u,e,m,o);n++;if(e.dead)kills++;else if(o&&o.kb)axKb(e,S.k==='tgt'?S:u,o.kb)}if(kills>=3){axTxt('まとめて'+kills+'体!',S.x,S.y-64,'#ffd34a',14);AXB.stop=Math.max(AXB.stop,.12)}return n}
-function axKb(e,from,p){if(e.role==='lead'||e.mon&&!e.mob&&e.role!=='mid')p*=.25;const a=Math.atan2((e.y-from.y)/AXSQ,(e.x-from.x)||.01);e.kb={vx:Math.cos(a)*p*2.4,vy:Math.sin(a)*p*AXSQ*2.4,t:AXB.t,d:.18};if(p>=60&&!e.hop)e.hop={t:AXB.t,h:p*.18,d:.4};if(p>40)axDust(e.x,e.y,3)}
+function axKb(e,from,p){if(e.role==='lead'||e.mon&&!e.mob&&e.role!=='mid')p*=.25;const a=Math.atan2((e.y-from.y)/AXSQ,(e.x-from.x)||.01);const dn=e.mob&&p>=30;e.kb={vx:Math.cos(a)*p*(dn?3.6:2.4),vy:Math.sin(a)*p*AXSQ*(dn?3.6:2.4),t:AXB.t,d:dn?.26:.18};if((p>=60||dn)&&!e.hop)e.hop={t:AXB.t,h:p*(dn?.3:.18),d:dn?.45:.4};if(dn)e.down=AXB.t+.85;/* (11/2) ザコは吹き飛んで倒れる */if(p>40)axDust(e.x,e.y,3)}
 function axDmg(a,d,m,o){o=o||{};const t=AXB.t;let v=a.pow*m*.7*(.85+Math.random()*.3)*60/(60+d.def*(d.buff.defDown>t?.6:1));
   if(a.side==='P'){v*=1+(a.buff.atk>t?.25:0);v*=typeof tcAdv==='function'?tcAdv(a.el,d.el):1;if(d.brk>t)v*=1.5;if(AXB.rushOn&&AXB.rushOn.lv>1)v*=2}
   else{v*=AXEN;if(a.mob)v*=.55;if(d.buff.guard>t)v*=.5;if(d.buff.hold>t)v*=.4;v=Math.min(v,d.max*(a.mob?.06:o.big?.28:.18))}
@@ -4845,7 +4845,7 @@ function axTick(dt){const A=AXB;if(A.over)return;A.flash=Math.max(0,A.flash-dt*2
     if(u.kb){const v=t-u.kb.t;if(v<u.kb.d){const q=axClamp(u.x+u.kb.vx*dt,u.y+u.kb.vy*dt,1.08);u.x=q[0];u.y=q[1]}else u.kb=null}
     if(u.dash){const v=t-u.dash.t;if(v<u.dash.d){const q=axClamp(u.x+u.dash.vx*dt,u.y+u.dash.vy*dt);u.x=q[0];u.y=q[1];u.pose='p2';u.z=Math.sin(Math.PI*v/u.dash.d)*(u.dash.ghost?9:0);if(u.dash.ghost&&Math.floor(v/.04)!==u.dash.g){u.dash.g=Math.floor(v/.04);A.fx.push({k:'ghost',u,x:u.x,y:u.y,face:u.face,pose:'p2',t,d:.25})}continue}u.dash=null;u.z=0}
     if(u.hop){const v=(t-u.hop.t)/u.hop.d;if(v>=1){u.z=0;u.hop=null;axDust(u.x,u.y,3)}else u.z=u.hop.down?u.hop.h*(1-v)*(1-v):u.hop.h*4*v*(1-v)}
-    if(u.brk>t){u.pose='p3';continue}if(u.brk&&u.brk<=t&&u.sh<=0){u.sh=u.shMax;u.brk=0}
+    if(u.down>t){u.pose='p3';continue}if(u.brk>t){u.pose='p3';continue}if(u.brk&&u.brk<=t&&u.sh<=0){u.sh=u.shMax;u.brk=0}
     if(u.side==='P')axMeAI(u,dt);else axFoeAI(u,dt)}
   /* 範囲攻撃の発動 */for(const z of A.tel.slice()){if(t>=z.t1){A.tel.splice(A.tel.indexOf(z),1);if(!axLive(z.by)||z.by.brk>t)continue;A.shake=Math.max(A.shake,z.big?6:0);
       if(z.boom){z.by.dead=true;z.by.deadT=t;A.fx.push({k:'burst',x:z.x,y:z.y-20,gy:z.y,r:z.r,t,d:.5,col:'#ff8a4a'})}if(axLive(me)&&axIn(z,me))axHit(z.by,me,z.m,{big:z.big});A.fx.push({k:'wave',x:z.x,y:z.y,r:z.r,t,d:.45,col:'#ff6a4a'});axDust(z.x,z.y,8)}}
@@ -5409,7 +5409,7 @@ function ax3MonUpd(u){if(!A3.mon)return false;let R=A3.monU.get(u);if(!R){R=ax3M
   else if(R.busy<t){const want=Math.hypot(mx,my)/Math.max(dt,.016)>8||u.pose==='p2'?'move':'idle';if(want!==R.st)ax3MonPlay(R,want,1,.15)}
   R.mixer.update(dt);
   const sp=clamp((t-(u.spawnT||0))/.25,0,1),sink=u.dead?Math.max(0,(t-R.dT-.9))*3:0,hop=(u.z||0)*AXM+((u.hop||0)*AXM)+(R.fly?1.6+Math.sin(t*3+(u.idx||0))*.25:0);
-  let kx=0,ky=0,kz=0,kr=0;if(u.dead&&R.dT!=null){const dv=Math.min(.75,t-R.dT),me=AXB.me,dx=u.x-me.x,dy=(u.y-me.y)/AXSQ,dl=Math.hypot(dx,dy)||1;kx=dx/dl*dv*14;kz=dy/dl*dv*14;ky=Math.sin(Math.min(1,dv/.75)*Math.PI)*4;kr=dv*9}R.root.position.set(a3X(u.x)+kx,hop-R.y0-sink+ky,a3Z(u.y)+kz);R.root.rotation.set(-kr*.5,R.yaw+kr,0);R.root.scale.setScalar(R.root.scale.x);
+  let kx=0,ky=0,kz=0,kr=0;if(u.dead&&R.dT!=null){const dv=Math.min(.75,t-R.dT),me=AXB.me,dx=u.x-me.x,dy=(u.y-me.y)/AXSQ,dl=Math.hypot(dx,dy)||1;kx=dx/dl*dv*14;kz=dy/dl*dv*14;ky=Math.sin(Math.min(1,dv/.75)*Math.PI)*4;kr=dv*9}let dn=0;if(!u.dead&&u.down>t){const v=u.down-t;dn=v>.7?(.85-v)/.15:v<.18?v/.18:1}R.root.position.set(a3X(u.x)+kx,hop-R.y0-sink+ky,a3Z(u.y)+kz);R.root.rotation.set(-kr*.5-dn*1.35,R.yaw+kr,0);R.root.scale.setScalar(R.root.scale.x);
   if(sp<1)R.root.scale.multiplyScalar(1);R.root.visible=!(u.dead&&t-R.dT>.8)&&sp>0;
   const fl=t-u.hitT<.06?.35:0;for(const m of R.mats)m.emissive.setScalar(fl);return true}
 function ax3MonHide(live){if(!A3.monU)return;for(const [u,R] of A3.monU)if(!live.has(u)){A3.S.remove(R.root);A3.monU.delete(u)}}
