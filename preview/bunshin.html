@@ -5956,9 +5956,9 @@ function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||
   case 'heavy':slashes(1,cx,cz,13,0);axvRing(cx,cz,{r:7,col,dl:dl+.05});axvHit(cx,3,cz+.5,{big:true,col,dl:dl+.05});break;
   case 'ult_slash':slashes(6,cx,cz,12,.055);axvSwirl(cx,cz,{r:6,h:9,col:'#ffffff',d:.8,dl});axvRing(cx,cz,{r:11,col,dl:dl+.3});axvHit(cx,3.5,cz+.5,{big:true,col,dl:.33});break;
   case 'quake':case 'ult_quake':{const L=(f.len||150)*AXM,a=f.ang||0,n=ult?5:3;for(let i=0;i<n;i++){const q=(i+.6)/n,x=ult?cx+(Math.random()-.5)*R*2:ux+Math.cos(a)*L*q,z=ult?cz+(Math.random()-.5)*R:uz+Math.sin(a)*L*q;axvRing(x,z,{r:4.5,col:'#ffd8a0',edge:'#4a2a10',dl:dl+i*.08});for(let j=0;j<2;j++)axvSmoke(x,1,z,{s:3,col:'#d8b890',edge:'#4a3020',d:.7,dl:dl+i*.08,vx:(Math.random()-.5)*4,vy:2})}break}
-  case 'shieldbash':axvHit(cx,3,cz+.5,{big:true,col,dl});axvRing(cx,cz,{r:5,col,dl});break;
-  case 'taunt':case 'ult_shield':axvCircle(ux,uz,{r:ult?9:7,col,d:1.1});axvRing(ux,uz,{r:ult?10:7,col,dl:.15});break;
-  case 'thrusts':case 'ult_drill':{const n=ult?8:Math.min(6,f.hits||5);for(let i=0;i<n;i++){const x=cx+(Math.random()-.5)*3,z=cz+(Math.random()-.5)*2;axvSlash(x,3.4,z,{r:5,col,tilt:Math.random()*.4-.2,sq:.14,d:.16,dl:dl+i*(f.gap||.08)});axvStar(x,3.4,z+.5,{s:2.6,col,dl:dl+i*(f.gap||.08)+.04})}break}
+  case 'shieldbash':axvDome(ux,uz,{r:4,col,d:.45});axvHit(cx,3,cz+.5,{big:true,col,dl});axvRing(cx,cz,{r:5,col,dl});break;
+  case 'taunt':case 'ult_shield':axvCircle(ux,uz,{r:ult?9:7,col,d:1.1});axvDome(ux,uz,{r:ult?7:5.5,col,d:1,dl:.08});axvRing(ux,uz,{r:ult?10:7,col,dl:.15});break;
+  case 'thrusts':case 'ult_drill':{const n=ult?8:Math.min(6,f.hits||5);for(let i=0;i<n;i++){const x=cx+(Math.random()-.5)*3,z=cz+(Math.random()-.5)*2,y=2.8+Math.random()*1.6,d0=dl+i*(f.gap||.08)-.04;axvStab(ux,3.2,uz,x,y,z,{col,d:.2,dl:d0});axvStar(x,y,z+.5,{s:2.8,col,dl:d0+.06})}if(ult)axvRing(cx,cz,{r:9,col,dl:.33});break}
   case 'fists':{const n=Math.min(6,f.hits||6);for(let i=0;i<n;i++){const x=cx+(Math.random()-.5)*2.5,z=cz+(Math.random()-.5)*1.5;axvStar(x,2.6+Math.random()*2,z+.5,{s:3+Math.random(),col:'#ffd860',dl:dl+i*(f.gap||.06)})}axvRing(cx,cz,{r:5,col:'#ffd860',dl:dl+.2});break}
   case 'beam':axvCircle(ux,uz,{r:4,col,d:.7});axvHit(cx,3,cz+.5,{big:true,col,dl:dl+.1});break;
   case 'heal':case 'cheerup':axvCircle(ux,uz,{r:6,col:k==='heal'?'#7dffa0':'#ff9ad8',d:1.1});axvPillar(ux,uz,{r:2.4,h:13,col:k==='heal'?'#7dffa0':'#ff9ad8',d:.9,dl:.1});break;
@@ -5968,6 +5968,23 @@ function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||
   case 'arrow':case 'rain':case 'ult_arrows':axvCircle(cx,cz,{r:ult?8:5,col,d:.9});break;
   case 'soundwave':case 'ult_stage':['#ff8ad0','#8ad8ff','#ffe066'].forEach((c,i)=>axvRing(ux,uz,{r:(ult?11:8)+i*1.5,col:c,d:.5,dl:i*.1}));axvCircle(ux,uz,{r:6,col:'#ff8ad0',d:1});break;
   }}
+
+/* 突き: 槍の形の光が一直線に伸びる。先はとがって白く、根元は色。伸び切ったら根元から消える */
+const AXV_STAB=`void main(){float u=vU.x,v=abs(vU.y-.5)*2.;float tip=1.-pow(1.-clamp(uT*4.,0.,1.),3.),tl=clamp((uT-.25)*1.6,0.,1.);if(u>tip||u<tl)discard;
+ float k=(u-tl)/max(tip-tl,.001);float w=pow(k,.35)*(1.-pow(k,6.))*(1.-uT*.5);if(v>w)discard;float q=v/max(w,.001);
+ float st=vn(vec2(u*4.-uT*8.+uS,vU.y*18.));if(q>.8-st*.25&&k<.85)discard;
+ vec3 c=q<.35?vec3(1.):q<.7?mix(uC,vec3(1.),.4):uC;if(q>.86)c=uE;gl_FragColor=vec4(c,uA);}`;
+function axvStab(x0,y0,z0,x1,y1,z1,o){o=o||{};const T=A3.T,G=axvGeo();const g=new T.Group(),m=axvMesh(G.quad,AXV_STAB,false,o);m.geometry=G.quad;g.add(m);
+  const e={o:g,d:o.d||.22,dl:o.dl,u:()=>{const a=new T.Vector3(x0,y0,z0),b=new T.Vector3(x1,y1,z1),mid=a.clone().lerp(b,.5);g.position.copy(mid);g.quaternion.copy(A3.cam.quaternion);
+    const pa=a.clone().project(A3.cam),pb=b.clone().project(A3.cam);const W=A3.w||innerWidth,H=A3.h||innerHeight,dx=(pb.x-pa.x)*W/2,dy=(pb.y-pa.y)*H/2;g.rotateZ(Math.atan2(dy,dx));
+    const dist=A3.cam.position.distanceTo(mid),wpp=2*dist*Math.tan(A3.cam.fov*Math.PI/360)/H,L=Math.max(1.5,Math.hypot(dx,dy)*wpp);m.scale.set(L*1.15,o.w||1.1,1)}};
+  return axvAdd(e)}
+/* 盾の光の壁: 半球。ふちが明るく、六角形の網目が下から光って消える */
+const AXV_DOME=`void main(){float u=vU.x,v=vU.y;float ap=clamp(uT*4.,0.,1.);if(v<1.-ap)discard;vec2 h=vec2(u*14.,v*7.);vec2 r=vec2(1.,1.732),hA=mod(h,r)-r*.5,hB=mod(h-r*.5,r)-r*.5;vec2 gv=dot(hA,hA)<dot(hB,hB)?hA:hB;
+ float hx=max(abs(gv.x)*.866+abs(gv.y)*.5,abs(gv.y));float edge=smoothstep(.4,.47,hx);float rim=pow(1.-v,3.)*1.4;float fd=1.-clamp((uT-.55)/.45,0.,1.);
+ float a=(edge*.75+rim+.08)*fd*min(1.,uT*8.);vec3 c=mix(uC,vec3(1.),edge*.5+rim*.4);gl_FragColor=vec4(c*a,1.);}`;
+function axvDome(x,z,o){o=o||{};const T=A3.T,r=o.r||5;const geo=new T.SphereGeometry(r,40,16,0,Math.PI*2,0,Math.PI/2);const m=axvMesh(geo,AXV_DOME,true,o);m.position.set(x,0,z);m.renderOrder=22;
+  return axvAdd({o:m,d:o.d||.9,dl:o.dl,u:k=>{const s=k<.15?.6+.4*(k/.15):1+.04*Math.sin(k*30);m.scale.setScalar(s)}})}
 
 
 
