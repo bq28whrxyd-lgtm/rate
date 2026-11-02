@@ -5858,9 +5858,9 @@ function ax3EfkRole(k,o){if(!ax3EfkOk())return false;const {cx,cz,ux,uz,col,dl,u
   case 'ult_arrows':for(let i=0;i<10;i++){const [x,z]=rnd(R*.8);ax3E('KM_Thunder',x,z,{s:2.88,dl:i*.033,sp:1.6,col:el==='wood'?'#b8ff7a':null})}hit(cx,cz,.8,.33,el==='wood'?'#c8ff8a':null);return true;
   case 'ult_stage':hit(ux,uz,.75,.06,'#ffb0e8');ax3E('Light',ux,uz,{s:2.52,sp:1.8,skip:50,col:'#ffb0e8'});ax3E('KM_HolyBoom',ux,uz,{s:.75,dl:.3,sp:2.2,skip:12,col:'#ffc8f0'});return true;
   case 'spinblade':case 'sweep':ax3E('MagicTornade',ux,uz,{s:.9,sp:3.2,skip:6,col:'#f4fbff'});ax3E('KM_JinSlash',ux,uz,{s:1.35,dl:dl-.05,sp:1.8,skip:40,ry,y:1});hit(cx,cz,.55,dl+.1);return true;
-  case 'dashcut':ax3E('KM_JinSlash',cx,cz,{s:1.44,dl:dl-.05,sp:1.8,skip:40,ry,y:1});hit(cx,cz,.6,dl+.08);return true;
+  case 'dashcut':return true;/* (11/2) 自作の太い軌跡に置きかえ */
   case 'heavy':ax3E('KM_JinSlash',cx,cz,{s:1.62,dl:dl-.05,sp:1.6,skip:40,ry,y:1});hit(cx,cz,.75,dl+.1);return true;
-  case 'ult_slash':ax3E('MagicTornade',cx,cz,{s:1.5,sp:2.6,skip:4,col:'#f4fbff'});for(let h=0;h<3;h++){ax3E('KM_JinSlash',cx,cz,{s:h?1.98:2.34,dl:h*.09,sp:1.8,skip:50,ry:ry+h*Math.PI*.6,y:1});hit(cx+(Math.random()-.5)*3,cz,.7,h*.09+.06)}hit(cx,cz,.8,.33);ax3E('KM_JinBoom',cx,cz,{s:.5,dl:.3,sp:2.2,skip:12});return true;
+  case 'ult_slash':return true;/* (11/2) 自作(軌跡3本・地面の円盤・花びら)に置きかえ */
   case 'quake':{const L=(f.len||150)*AXM,a=f.ang||0,n=ult?4:2;for(let i=0;i<n;i++){const q=(i+.6)/n,[x,z]=ult?rnd(R):[ux+Math.cos(a)*L*q,uz+Math.sin(a)*L*q];ax3E('KM_Spike',x,z,{s:ult?0.99:0.76,dl:dl+i*.1,sp:2.4,skip:70})}hit(cx,cz,ult?1:.6,dl+.15,'#ffd0a0');return true}
   case 'shieldbash':hit(cx,cz,.7,dl);return true;
   case 'taunt':case 'ult_shield':ax3E('Barrior01',ux,uz,{s:ult?2.88:2.25,sp:1.4,col:ult?'#ffe8a0':null});if(ult)hit(ux,uz,1.2,.15,'#ffe8a0');return true;
@@ -5968,13 +5968,13 @@ function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||
   if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.25,ca:.25,wave:.6,d:.35,dl:.3});else if(!/^(heal|cheerup|taunt)$/.test(k))axvPost(cx,cz,{blur:.12,ca:.15,wave:.4,d:.22,dl:dl+.04})}
   switch(k){
   case 'spinblade':case 'sweep':for(let i=0;i<3;i++)axvSlash(ux,3.2,uz,{r:9*big,col,tilt:i*2.09,d:.3,dl:dl+i*.05,sq:.4});axvSwirl(ux,uz,{r:5,h:6,col:'#ffffff',d:.55,dl});axvRing(ux,uz,{r:8,col:'#ffffff',dl:dl+.05});if(k==='sweep')axvSwordHit(cx,cz,{s:1.2,dl:dl+.06});break;
-  case 'dashcut':axvSlash(cx,3.4,cz,{r:12,col,tilt:-.08,sq:.22,d:.28,dl});axvSlash(cx,3.4,cz,{r:10,col:'#ffffff',tilt:-.08,sq:.12,d:.22,dl:dl+.03});axvHit(cx,3.2,cz+.5,{big:true,col,dl:dl+.06});break;
+  case 'dashcut':axvStreak(ux,uz,cx,cz,{w:1.1,d:.2,dl:dl-.06});axvTrail(cx,4.2,cz+.6,{s:17,col:'#7ac8ff',roll:-.55,dl});axvSwordHit(cx,cz,{s:1.5,dl:dl+.05});break;
   case 'heavy':slashes(1,cx,cz,13,0);axvStreak(ux,uz,cx,cz,{dl:dl-.04});axvSwordHit(cx,cz,{s:1.6,dl:dl+.05});axvRing(cx,cz,{r:7,col:'#ffffff',dl:dl+.05});break;
-  case 'ult_slash':slashes(6,cx,cz,12,.055);axvBoom(cx,cz,{s:5.5,col:'#ff9a2a',dl:.32});axvSwirl(cx,cz,{r:6,h:9,col:'#ffffff',d:.8,dl});axvRing(cx,cz,{r:11,col,dl:dl+.3});axvHit(cx,3.5,cz+.5,{big:true,col,dl:.33});break;
+  case 'ult_slash':[-.55,.6,-1.35].forEach((rl,i)=>axvTrail(cx+(i-1)*1.5,4.4,cz+.6,{s:20,col:i===1?'#ff8ad0':'#7ac8ff',edge:i===1?'#4a0a3a':'#14204a',roll:rl,dl:.06+i*.09}));axvGroundSlash(cx,cz,{r:12,col:'#ff7ac8',dl:.3});axvPetals(cx,cz,{n:22,r:9,dl:.32});axvSwordHit(cx,cz,{s:2,dl:.33});axvFog(cx,cz,{r:9,n:10,dl:.55});break;
   case 'quake':case 'ult_quake':{const L=(f.len||150)*AXM,a=f.ang||0,n=ult?5:3;for(let i=0;i<n;i++){const q=(i+.6)/n,x=ult?cx+(Math.random()-.5)*R*2:ux+Math.cos(a)*L*q,z=ult?cz+(Math.random()-.5)*R:uz+Math.sin(a)*L*q;axvRing(x,z,{r:4.5,col:'#ffd8a0',edge:'#4a2a10',dl:dl+i*.08});if(AXV3G){axvShards(x,z,{n:5,r:2.2,s:1.8,dl:dl+i*.08});axvWave3(x,z,{s:4,dl:dl+i*.08})}else for(let j=0;j<2;j++)axvSmoke(x,1,z,{s:3,col:'#d8b890',edge:'#4a3020',d:.7,dl:dl+i*.08,vx:(Math.random()-.5)*4,vy:2})}break}
   case 'shieldbash':axvDome(ux,uz,{r:4,col,d:.45});axvSwordHit(cx,cz,{s:1.3,dl});axvRing(cx,cz,{r:5,col:'#ffffff',dl});break;
   case 'taunt':case 'ult_shield':axvCircle(ux,uz,{r:ult?9:7,col,d:1.1});axvDome(ux,uz,{r:ult?7:5.5,col,d:1,dl:.08});axvRing(ux,uz,{r:ult?10:7,col,dl:.15});break;
-  case 'thrusts':case 'ult_drill':{const n=ult?8:Math.min(6,f.hits||5);for(let i=0;i<n;i++){const x=cx+(Math.random()-.5)*3,z=cz+(Math.random()-.5)*2,y=2.8+Math.random()*1.6,d0=dl+i*(f.gap||.08)-.04;axvStab(ux,3.2,uz,x,y,z,{col,d:.2,dl:d0});axvStar(x,y,z+.5,{s:2.8,col,dl:d0+.06})}if(ult)axvRing(cx,cz,{r:9,col,dl:.33});break}
+  case 'thrusts':case 'ult_drill':{const n=ult?8:Math.min(6,f.hits||5);for(let i=0;i<n;i++){const x=cx+(Math.random()-.5)*3,z=cz+(Math.random()-.5)*2,y=2.8+Math.random()*1.6,d0=dl+i*(f.gap||.08)-.04;axvStab(ux,3.2,uz,x,y,z,{col:'#ffffff',d:.2,dl:d0});axvSpike(x,y,z+.6,{s:ult?6:4.5,dl:d0+.05,d:.22});if(i%2===0)axvDebris(x,z,{n:2,s:.7,dl:d0+.06})}axvStreak(ux,uz,cx,cz,{w:.9,d:.18,dl:dl-.04});if(ult){axvGroundSlash(cx,cz,{r:10,col:'#7ac8ff',edge:'#14204a',dl:.3});axvSwordHit(cx,cz,{s:2,dl:.33});axvFog(cx,cz,{r:8,dl:.5})}break}
   case 'fists':{const n=Math.min(6,f.hits||6);for(let i=0;i<n;i++){const x=cx+(Math.random()-.5)*2.5,z=cz+(Math.random()-.5)*1.5;axvStar(x,2.6+Math.random()*2,z+.5,{s:3+Math.random(),col:'#ffd860',dl:dl+i*(f.gap||.06)})}axvRing(cx,cz,{r:5,col:'#ffd860',dl:dl+.2});break}
   case 'beam':axvCircle(ux,uz,{r:4,col,d:.7});axvHit(cx,3,cz+.5,{big:true,col,dl:dl+.1});break;
   case 'heal':case 'cheerup':axvCircle(ux,uz,{r:6,col:k==='heal'?'#7dffa0':'#ff9ad8',d:1.1});axvPillar(ux,uz,{r:2.4,h:13,col:k==='heal'?'#7dffa0':'#ff9ad8',d:.9,dl:.1});break;
@@ -6075,7 +6075,7 @@ function axvLockUpd(t){const A=AXB;if(!A3||!A3.S||!A||!A.me)return;let m=A3.lock
   m.visible=true;m.scale.set(R,R,1);m.position.set(a3X(L.x),.08,a3Z(L.y));m.rotation.z=t*.8;m.material.uniforms.uT.value=t;m.material.uniforms.uA.value=.95*k}
 
 /* ---------- (11/2) 重みのある煙: 当たる範囲(円・扇・線)を白いアニメ塗りの煙のかたまりで埋める(サウスト風) ---------- */
-function axvCloud(f,o){o=o||{};if(!AXV3G){axv3Load();return}const k=f.sk||'self',ang=f.ang||0,c=Math.cos(ang),sn=Math.sin(ang),X=a3X(f.x),Z=a3Z(f.y);const pts=[];
+function axvCloud(f,o){o=o||{};if(!AXV3G){axv3Load();return}const k=f.sk||'self',ang=f.ang||0,c=Math.cos(ang),sn=Math.sin(ang),X=o._x!=null?o._x:a3X(f.x),Z=o._z!=null?o._z:a3Z(f.y);const pts=[];
   const R=(f.r||40)*AXM,L=(f.len||120)*AXM,Wd=(f.w||30)*AXM;const n=o.n||(k==='line'?Math.round(L/1.6):Math.round(Math.min(16,4+R*1.4)));
   for(let i=0;i<n;i++){let x,z;if(k==='line'){const t=(i+.5)/n*L,w=(Math.random()-.5)*Wd*.7;x=X+c*t-sn*w;z=Z+sn*t+c*w}
     else if(k==='fan'){const a=ang+(Math.random()*2-1)*(f.a||.8),r=R*(.35+.6*Math.sqrt(Math.random()));x=X+Math.cos(a)*r;z=Z+Math.sin(a)*r}
@@ -6106,6 +6106,23 @@ function axvDebris(x,z,o){o=o||{};if(!AXV3G){axv3Load();return}const T=A3.T,n=o.
 function axvGraySmoke(x,z,o){o=o||{};const n=o.n||2;for(let i=0;i<n;i++)axv3('puff'+(i%4),x+(Math.random()-.5)*(o.r||2),(o.y||1.4)+Math.random(),z+(Math.random()-.5)*(o.r||2)*.6,{s:(o.s||1.8)*(.8+Math.random()*.5),s0:.4,col:'#d6d2dc',edge:'#3e3848',sh:'#8a84a0',d:o.d||.55,ds:.2,dl:(o.dl||0)+.04+i*.03,vy:1.6})}
 /* まとめ: 剣の1振りの当たり(大きさ s=1 ふつう / 1.5 大) */
 function axvSwordHit(x,z,o){o=o||{};const s=o.s||1,dl=o.dl||0;axvSpike(x,3.1,z+.8,{s:9.5*s,dl,d:.3+.05*s});axvDebris(x,z+.3,{n:Math.round(3*s+2),dl:dl+.03,s:.9*s,sp:10*s});axvGraySmoke(x,z-.6,{n:s>1.2?3:2,s:1.5*s,r:3*s,dl:dl+.1})}
+
+/* ================= (11/2) 剣(大技): 画面を横切る太い刀の軌跡 / 地面に広がる円盤の斬撃(サウストの作り方) ================= */
+const AXV_TRAIL=`void main(){vec2 p=vU*2.-1.;vec2 c=vec2(0.,-1.45);float Rr=1.85;vec2 q=p-c;float a=atan(q.x,q.y);float s=clamp((a+.78)/1.56,0.,1.);if(a<-.78||a>.78)discard;
+ float head=clamp(uT*7.,0.,1.);if(s>head)discard;float th=.24*pow(sin(3.14159*s),.6)*(1.-uT*.25);float d=abs(length(q)-Rr);if(d>th)discard;
+ float n=fbm(vec2(s*6.+uS,d*8.));if(uT>.3&&n<(uT-.3)*1.5)discard;float k=d/max(th,.001);
+ vec3 c2=k<.45?vec3(1.):k<.8?mix(vec3(1.),uC,.75):uE;if(k<.45&&s>head-.08)c2=vec3(1.);gl_FragColor=vec4(c2,uA);}`;
+function axvTrail(x,y,z,o){o=o||{};const G=axvGeo(),col=o.col||'#7ac8ff',m=axvMesh(G.quad,AXV_TRAIL,false,{col,edge:o.edge||'#14204a',ro:25});const s=o.s||16;m.scale.set(s,s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.42,dl:o.dl,bb:1,roll:o.roll!=null?o.roll:-.5})}
+const AXV_GDISC=`void main(){vec2 p=vU*2.-1.;float r=length(p),a=atan(p.y,p.x);float g=1.-pow(1.-clamp(uT*4.5,0.,1.),3.);float R=.3+.68*g;if(r>R)discard;
+ float sw=fract((a/6.28318+r*.55-uT*.4)*7.+uS);float cut=smoothstep(.0,.08,sw)*(1.-smoothstep(.12,.22,sw));
+ float n=fbm(p*2.6+uS);if(uT>.32&&n<(uT-.32)*1.45)discard;float k=r/R;
+ vec3 c=mix(vec3(1.),uC,smoothstep(.25,.85,k));c=mix(c,vec3(1.),cut*.85*(1.-k*.5));if(k>.93)c=uE;gl_FragColor=vec4(c,uA);}`;
+function axvGroundSlash(x,z,o){o=o||{};const G=axvGeo(),col=o.col||'#ff7ac8',m=axvMesh(G.quad,AXV_GDISC,false,{col,edge:o.edge||'#4a1a5a',ro:16});const r=o.r||9;m.scale.set(r*2,r*2,1);m.rotation.x=-Math.PI/2;m.position.set(x,.15,z);return axvAdd({o:m,d:o.d||.9,dl:o.dl})}
+/* 花びら(桃色の小さな板が舞い上がって落ちる) */
+function axvPetals(x,z,o){o=o||{};const T=A3.T,n=o.n||14,r=o.r||6;const geo=new T.PlaneGeometry(.55,.38);for(let i=0;i<n;i++){const m=new T.Mesh(geo,new T.MeshBasicMaterial({color:new T.Color(i%3?'#ffb0d8':'#ffffff'),side:T.DoubleSide,transparent:true,depthWrite:false,toneMapped:false}));m.renderOrder=27;
+  const a=Math.random()*6.28,rr=Math.random()*r,vx=Math.cos(a)*(2+Math.random()*4),vz=Math.sin(a)*(2+Math.random()*3),vy=5+Math.random()*6,sp=(Math.random()-.5)*14,D=1+Math.random()*.4,x0=x+Math.cos(a)*rr*.5,z0=z+Math.sin(a)*rr*.4;
+  m.position.set(x0,1,z0);axvAdd({o:m,d:D,dl:(o.dl||0)+Math.random()*.15,u:k=>{const t=k*D;m.position.set(x0+vx*t,Math.max(.2,1+vy*t-5*t*t),z0+vz*t);m.rotation.set(sp*t,sp*.7*t,sp*.4*t);m.material.opacity=k<.75?1:1-(k-.75)/.25}})}}
+/* うす紫の霧(斬撃のあとに残る) */function axvFog(x,z,o){o=o||{};axvCloud({sk:'self',x:0,y:0,r:(o.r||7)/AXM},{n:o.n||8,s:o.s||1.3,col:'#e8dcf4',edge:'#6a5a8a',sh:'#b8a8d8',d:1.1,dl:o.dl,_x:x,_z:z})}
 
 /* (11/2) 村の家並み。Quaternius Medieval Village MegaKit(CC0)の部品を組み立てる */
 /* 村の家並み(Quaternius Medieval Village MegaKit, CC0)を部品から組み立てる。
