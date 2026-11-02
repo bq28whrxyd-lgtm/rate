@@ -6146,7 +6146,7 @@ function axvBall(x0,z0,x1,z1,o){o=o||{};if(!AXV3G){axv3Load();return}const T=A3.
 /* 属性のかたまり(当たった所) s=大きさ */
 function axvElBurst(x,z,o){o=o||{};if(!AXV3G){axv3Load();return}const el=o.el||'fire',E=AXEL[el],s=o.s||1,dl=o.dl||0;
   axvSpike(x,3,z+.8,{s:7*s,dl,d:.26});
-  if(el==='fire'){for(let i=0;i<3;i++){const a=i/3*6.28+Math.random(),r=i?s*1.3:0;axvFireFB(x+Math.cos(a)*r,z+Math.sin(a)*r*.6+.3,{s:(i?1:1.35)*s,dl:dl+.02+i*.04,d:.75})}axv3('boom',x,s*1.2,z,{s:3.2*s,s0:.8*s,col:E.c,edge:E.e,sh:E.sh,d:.7,ds:.35,dl:dl+.03,vy:s*1.5});for(let i=0;i<4;i++){const a=i/4*6.28+Math.random(),r=s*1.6;axv3('flame',x+Math.cos(a)*r,0,z+Math.sin(a)*r*.7,{s:(2.4+Math.random())*s,s0:.4,col:i%2?E.c:E.hi,edge:E.e,sh:E.sh,d:.75,ds:.3,dl:dl+.04+i*.03,rot:3,sy:1.6})}
+  if(el==='fire'){for(let i=0;i<3;i++){const a=i/3*6.28+Math.random(),r=i?s*1.3:0;axvFireFB(x+Math.cos(a)*r,z+Math.sin(a)*r*.6+.3,{s:(i?1:1.35)*s,dl:dl+.02+i*.04,d:.75})}axv3('boom',x,s*1.2,z,{s:3.2*s,s0:.8*s,col:E.c,edge:E.e,sh:E.sh,d:.7,ds:.35,dl:dl+.03,vy:s*1.5});
     axvDebris(x,z,{n:Math.round(4*s),col:'#2a2228',s:.8*s,sp:9*s,dl:dl+.04});axvGraySmoke(x,z-.5,{n:2,s:1.8*s,dl:dl+.25})}
   else if(el==='water'){for(let i=0;i<6;i++){const a=i/6*6.28+Math.random()*.5,r=s*1.4;axv3('flame',x+Math.cos(a)*r,0,z+Math.sin(a)*r*.7,{s:(2+Math.random()*1.2)*s,s0:.3,col:i%2?E.c:E.hi,edge:E.e,sh:E.sh,d:.6,ds:.25,dl:dl+.02+i*.02,sy:1.9})}
     axv3('boom',x,s,z,{s:2.6*s,s0:.6*s,col:E.hi,edge:E.e,sh:E.c,d:.55,ds:.3,dl:dl+.02,vy:s});axvWave3(x,z,{s:5*s,col:E.c,dl:dl+.05});axvDebris(x,z,{n:Math.round(5*s),col:'#bfefff',s:.6*s,sp:10*s,dl:dl+.03})}
@@ -6163,8 +6163,13 @@ const AXV_SCORCH=`void main(){vec2 p=vU*2.-1.;float r=length(p),a=atan(p.y,p.x);
  float fade=1.-smoothstep(.6,1.,uT);if(n<uT*.9-.2)discard;vec3 c=mix(uE,uC,crack);gl_FragColor=vec4(c,uA*fade*(r<R*.85?.85:.6));}`;
 function axvScorch(x,z,o){o=o||{};const G=axvGeo(),el=o.el||'fire';const m=axvMesh(G.quad,AXV_SCORCH,false,{col:o.col||(el==='water'?'#7ad8ff':el==='light'?'#ffe680':'#ff4a1a'),edge:o.edge||(el==='water'?'#1a3a5a':el==='light'?'#6a5a2a':'#1a1014'),ro:15});const r=o.r||4;m.scale.set(r*2,r*2,1);m.rotation.x=-Math.PI/2;m.position.set(x,.13,z);return axvAdd({o:m,d:o.d||1.4,dl:o.dl})}
 /* 必殺: 画面いっぱいに流れる(カメラの前に大きな板) */
-const AXV_FLOOD=`void main(){vec2 p=vU;float n=fbm(vec2(p.x*3.+uS,p.y*2.2-uT*3.));float n2=fbm(vec2(p.x*6.-uS,p.y*4.-uT*4.5));float h=uT<.35?uT/.35:1.;float cut=(1.-p.y)*1.25-(1.-h)*1.3+n*.6;float gone=uT>.55?(uT-.55)/.45:0.;
- if(cut<.35+gone*1.4)discard;float k=cut-.35-gone*1.4;vec3 c=k<.06?uE:k<.25?uC:mix(uC,vec3(1.,.96,.8),smoothstep(.25,.6,k+n2*.3));gl_FragColor=vec4(c,uA*.92);}`;
+const AXV_FLOOD=`void main(){vec2 p=vU;
+ /* (11/3) Blenderの炎と同じアニメ塗り: 縦に伸びた炎の舌が下から画面を埋め、穴があきながら上から消える。色は4段でパキッと分ける */
+ float n=fbm(vec2(p.x*6.5+uS,p.y*1.5-uT*3.6));float n2=fbm(vec2(p.x*13.-uS,p.y*3.-uT*5.));
+ float h=uT<.3?1.-pow(1.-uT/.3,3.):1.;float gone=uT>.5?pow((uT-.5)/.5,1.3):0.;
+ float F=(1.-p.y)*1.35-(1.-h)*1.6+(n-.5)*1.15+(n2-.5)*.25-gone*1.9+.25;
+ if(F<0.)discard;vec3 hi=mix(uC,vec3(1.,.95,.55),.6);
+ vec3 c=F<.09?uE:F<.3?uC:F<.62?hi:vec3(1.,.98,.86);gl_FragColor=vec4(c,uA);}`;
 function axvFlood(o){o=o||{};const T=A3.T,G=axvGeo(),el=o.el||'fire',E=AXEL[el];const m=axvMesh(G.quad,AXV_FLOOD,false,{col:E.c,edge:E.e,ro:30});m.material.depthTest=false;
   return axvAdd({o:m,d:o.d||1,dl:o.dl,u:k=>{const c=A3.cam;m.quaternion.copy(c.quaternion);m.position.copy(c.position);m.translateZ(-6);const h=2*6*Math.tan(c.fov*Math.PI/360);m.scale.set(h*c.aspect*1.1,h*1.1,1)}})}
 
