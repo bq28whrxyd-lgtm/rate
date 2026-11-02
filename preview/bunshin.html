@@ -5728,14 +5728,14 @@ function ax3Frame(){const A=AXB,T=A3.T,t=A.t,n=performance.now();if(!A3)return;
   let D=(asp<1?29:23)/Math.tan(vf/2);if(A3.punchN){D*=1-.06*Math.max(0,1-(n-A3.punchN)/220)}const pitch=.62;
   let ey=0;{const L=(A.lock&&axLive(A.lock))?A.lock:A.E.filter(e=>axLive(e)&&e.spawnT<=t).sort((a,b)=>Math.hypot(a.x-me.x,a.y-me.y)-Math.hypot(b.x-me.x,b.y-me.y))[0];if(L&&!A.trans){const dx=a3X(L.x)-px,dz=a3Z(L.y)-pz;if(Math.hypot(dx,dz)>2.5)ey=clamp(Math.atan2(-dx,-dz),-.15,.15)}}
   const rdt0=Math.min(.05,(n-(A3.ln||n))/1000);A3.yaw=(A3.yaw||0)+(ey-(A3.yaw||0))*Math.min(1,rdt0*1.5);let yaw=A3.yaw,push=0;
-  /* 技: 一瞬 本人に寄ってから、技が出ると引く */if(A.ban&&A.ban.n&&!A.ban.ult){const v=(n-A.ban.n)/1000;if(v<.8){push=v<.1?eo(v/.1):v<.32?1:1-eo(Math.min(1,(v-.32)/.45));D*=1-.45*push}}
+  /* 技: 一瞬 本人に寄ってから、技が出ると引く */if(A.ban&&A.ban.n&&!A.ban.ult){const v=(n-A.ban.n)/1000;if(v<.8){push=v<.1?eo(v/.1):v<.32?1:1-eo(Math.min(1,(v-.32)/.45));D*=1-.1*push}}
   if(A.cut){const v=(n-A.cut.t)/1000;const k=v<.25?eo(v/.25):v>.9?1-eo(Math.min(1,(v-.9)/.3)):1;D*=1-.35*k}
-  let actK=0,pitchA=0;if(A3.act&&!A.cut){const g=A3.act,v=(n-g.n)/1000/(A.speed||1),hold=g.ult?1.15:.55,dur=hold+.55;if(v<dur){actK=v<.14?eo(v/.14):v<hold?1:1-eo((v-hold)/.55);D*=1-(g.ult?.5:.36)*actK;pitchA=(g.ult?.16:.1)*actK;yaw+=(g.ult?.22:.08)*g.side*actK}else A3.act=null}
-  const lead=D*.17*(1-push);let tx=clamp(px,-5.5,5.5)-Math.sin(yaw)*lead,tz=pz-Math.cos(yaw)*lead,ly=1.6+push*2.2;if(actK>0){const g=A3.act;tx+=(g.x-tx)*.7*actK;tz+=(g.z-tz)*.7*actK;ly+=1.2*actK}
+  let actK=0,pitchA=0;if(A3.act&&!A.cut){const g=A3.act,v=(n-g.n)/1000/(A.speed||1),hold=g.ult?1.15:.55,dur=hold+.55;if(v<dur){actK=v<.2?eo(v/.2):v<hold?1:1-eo((v-hold)/.6);D*=1-(g.ult?.26:.16)*actK;pitchA=(g.ult?.05:.02)*actK}else A3.act=null}
+  const lead=D*.17*(1-push);let tx=clamp(px,-5.5,5.5)-Math.sin(yaw)*lead,tz=pz-Math.cos(yaw)*lead,ly=1.6+push*2.2;if(actK>0){const g=A3.act;tx+=(g.x-tx)*.35*actK;tz+=(g.z-tz)*.35*actK}
   /* ボスの登場: エリアの最初にボスへ寄って名前を出す(その間は戦いを止める) */if(A3.areaK!==A.area){A3.areaK=A.area;A3.bossU=null;A3.bossP=A3.first?null:A.E.find(e=>e.role==='lead'&&!e.dead)||null}if(A3.bossP&&A3.bossP.spawnT<=t-.35&&!A.trans){A3.bossU=A3.bossP;A3.bossP=null;A3.bossN=n;A.stop=Math.max(A.stop,1.7*(A.speed||1))}
   if(A3.bossU){const v=(n-A3.bossN)/1000;if(v<1.9){const k=v<1.35?1:1-eo((v-1.35)/.55),B=A3.bossU,bh=(B.ey||70)*AXM*1.1;tx+=(a3X(B.x)-tx)*k;tz+=(a3Z(B.y)-tz)*k;ly+=(bh*.55-ly)*k;D*=1-.35*k;yaw*=1-k}else A3.bossU=null}
   const pit=pitch-pitchA,tgt=new T.Vector3(tx,ly,tz),pos=new T.Vector3(tx+Math.sin(yaw)*Math.cos(pit)*D,ly+Math.sin(pit)*D,tz+Math.cos(yaw)*Math.cos(pit)*D);
-  const rdt=Math.min(.05,(n-(A3.ln||n))/1000),kk=A3.first?1:1-Math.pow(A.cut?.004:push>0?.0004:actK>0?.0015:.02,rdt);A3.ln=n;A.shake=Math.max(0,A.shake-rdt*22);A3.first=false;A3.camP.lerp(pos,kk);A3.camL.lerp(tgt,kk);
+  const rdt=Math.min(.05,(n-(A3.ln||n))/1000),kk=A3.first?1:1-Math.pow(A.cut?.004:push>0?.0004:actK>0?.006:.02,rdt);A3.ln=n;A.shake=Math.max(0,A.shake-rdt*22);A3.first=false;A3.camP.lerp(pos,kk);A3.camL.lerp(tgt,kk);
   const amp=Math.max(0,A.shake-2)*.03,sh=amp*Math.sin(n*.055),sv=amp*.6*Math.cos(n*.043);A3.cam.position.copy(A3.camP).add(new T.Vector3(sh,sv,0));A3.cam.lookAt(A3.camL);
   A3.sun.position.set(A3.camL.x+18,30,A3.camL.z+10);A3.sun.target.position.copy(A3.camL);
   /* キャラの絵を #cv に描く */G.setTransform(1,0,0,1,0,0);G.clearRect(0,0,1024,1024);const vis=[me,...A.E].filter(u=>(!u.dead||t-u.deadT<.8)&&u.spawnT<=t+.0);let ci=0;const CW=160,CH=256,K=2.0;
