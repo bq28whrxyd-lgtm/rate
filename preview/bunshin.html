@@ -5472,7 +5472,7 @@ function ax3TrailMake(R,col){const T=A3.T,N=22,pos=new Float32Array(N*2*3),uv=ne
   const m=new T.MeshBasicMaterial({map:ax3TrailTex(col),transparent:true,depthWrite:false,side:T.DoubleSide,toneMapped:false});const ms=new T.Mesh(g,m);ms.frustumCulled=false;ms.renderOrder=16;A3.S.add(ms);
   R.trail={ms,N,h:[],tip:new T.Vector3(0,0,.86),base:new T.Vector3(0,0,.3)}}
 function ax3TrailUpd(R,t,on){const Tr=R.trail;if(!Tr)return;const T=A3.T;if(on){R.wp.updateWorldMatrix(true,false);Tr.h.unshift({t,a:Tr.tip.clone().applyMatrix4(R.wp.matrixWorld),b:Tr.base.clone().applyMatrix4(R.wp.matrixWorld)})}
-  Tr.h=Tr.h.filter(s=>t-s.t<.13).slice(0,Tr.N);const p=Tr.ms.geometry.attributes.position;const L=Tr.h.length;Tr.ms.visible=L>1;if(L<2)return;
+  Tr.h=Tr.h.filter(s=>t-s.t<.13).slice(0,200);const p=Tr.ms.geometry.attributes.position;const L=Tr.h.length;Tr.ms.visible=L>1;if(L<2)return;
   for(let i=0;i<Tr.N;i++){const s=Tr.h[Math.min(L-1,Math.floor(i*(L-1)/(Tr.N-1)))];p.setXYZ(i*2,s.b.x,s.b.y,s.b.z);p.setXYZ(i*2+1,s.a.x,s.a.y,s.a.z)}p.needsUpdate=true}
 /* ---------- ドット絵を3Dの中で動かす(板を細かく分けて、上の方ほど大きく曲げる) ---------- */
 function ax3SprMat(H){const T=A3.T,dusk=AXB&&AXB.bg==='dusk';const m=new T.ShaderMaterial({uniforms:{map:{value:A3.atl},uH:{value:H},uT:{value:0},uLean:{value:0},uSway:{value:0},uBreath:{value:0},uSq:{value:0},uSx:{value:1},uFlash:{value:0},uA:{value:1},uTex:{value:new T.Vector2(1/1024,1/1024)},uTint:{value:new T.Color(dusk?'#ffe2cc':'#ffffff')},uRim:{value:new T.Color(dusk?'#ffc080':'#fff4d8')}},side:T.DoubleSide,
