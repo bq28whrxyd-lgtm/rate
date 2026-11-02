@@ -16,4 +16,12 @@ effekseer.initRuntime('effekseer.wasm',()=>{ctx=effekseer.createContext();ctx.in
  let last=performance.now();(function loop(){requestAnimationFrame(loop);const t=performance.now();ctx.update(Math.min(4,(t-last)/1000*60*SPD));last=t;
   if(LOOP&&cur&&!cur.exists&&ST.name){playN(ST.name)}
   R.render(S,cam);ctx.setProjectionMatrix(cam.projectionMatrix.elements);ctx.setCameraMatrix(cam.matrixWorldInverse.elements);ctx.draw();R.resetState()})()},()=>{document.body.append('wasm load failed');ST.fail=1});
+
+window.__sheet=async function(names,frames,cw){LOOP=0;SPD=0;cw=cw||240;const ch=Math.round(cw*H/W);const cols=frames.length;let sh=document.getElementById('sheet');if(!sh){sh=document.createElement('canvas');sh.id='sheet';sh.style.cssText='position:fixed;left:0;top:0;z-index:9;background:#000';document.body.appendChild(sh)}sh.width=cw*cols;sh.height=ch*names.length;const g=sh.getContext('2d');g.fillStyle='#000';g.fillRect(0,0,sh.width,sh.height);
+for(let r=0;r<names.length;r++){const n=names[r].startsWith('Sample/')?names[r]:EFF.find(x=>x.includes('/'+names[r]+'.efk'));await new Promise(res=>load(n,res));const e=eff[n];ctx.stopAll();ctx.play(e,0,0,0);let f=0;ctx.update(0);
+ for(let c=0;c<cols;c++){const tf=frames[c];ctx.update(tf-f);f=tf;R.render(S,cam);ctx.setProjectionMatrix(cam.projectionMatrix.elements);ctx.setCameraMatrix(cam.matrixWorldInverse.elements);ctx.draw();R.resetState();g.drawImage(cv,c*cw,r*ch,cw,ch)}
+ g.fillStyle='#ff0';g.font='bold 14px sans-serif';g.fillText(n.replace(/^Sample\//,'').replace('.efk',''),4,r*ch+16);for(let c=0;c<cols;c++){g.fillText(frames[c],c*cw+cw-30,r*ch+ch-6)}}
+ctx.stopAll();sh.style.display='block';return [sh.width,sh.height]};
+window.__hide=()=>{const s=document.getElementById('sheet');if(s)s.style.display='none';LOOP=1;SPD=1};
+window.__cam=(r,y,a)=>{CR=r;CY=y;CA=a||0;camUp()};
 </script>
