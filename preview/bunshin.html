@@ -6113,7 +6113,31 @@ function ax3TownLoad(){if(!AXTOWN||!AX3.MeshoptDecoder||!A3)return;const T=A3.T,
       z+=W*2+1.2+rnd()*2.5}}
     /* 家の前の石畳の歩道(4m)と、道とのさかいの縁石 */for(const sd of [-1,1])for(let z=-48;z<48;z+=2){P.put('Floor_UnevenBrick',sd*(FX-1),.03,z+1,0,1);P.put('Floor_UnevenBrick',sd*(FX-3),.03,z+1,Math.PI/2,1);P.put('Prop_ExteriorBorder_Straight1',sd*(FX-4.05),0,z+1,sd<0?-Math.PI/2:Math.PI/2,1)}
     for(let i=0;i<26;i++)P.put('Prop_Brick'+(1+i%2),(rnd()-.5)*2*(FX-5),.05,(rnd()-.5)*94,rnd()*6,1.2);
-    const grp=P.build(kit);const NP=new T.Group();NP.add(grp);for(const oz of [96,-96,-192]){const g2=grp.clone();g2.position.z=oz;NP.add(g2)}A3.S.add(NP);A3.town=NP},e=>console.error(e))}).catch(e=>console.error(e))}
+    const grp=P.build(kit);try{grp.add(ax3TownDeco(T,gm,FX,dusk))}catch(e){console.error(e)}const NP=new T.Group();NP.add(grp);for(const oz of [96,-96,-192]){const g2=grp.clone();g2.position.z=oz;NP.add(g2)}A3.S.add(NP);A3.town=NP},e=>console.error(e))}).catch(e=>console.error(e))}
+
+/* 町の小物(自作): 旗・樽・街灯。サウストの町のにぎやかさ */
+function ax3TownDeco(T,gm,FX,dusk){const G=new T.Group();let s=77;const rnd=()=>{s=(s*16807)%2147483647;return s/2147483647};const m4=new T.Matrix4(),q=new T.Quaternion(),Y=new T.Vector3(0,1,0);
+  const toon=(c,o)=>new T.MeshToonMaterial(Object.assign({color:new T.Color(c),gradientMap:gm},o||{}));
+  const inst=(geo,mat,list,sh)=>{const im=new T.InstancedMesh(geo,mat,list.length);list.forEach((m,i)=>im.setMatrixAt(i,m));if(list[0]&&list[0].col)list.forEach((m,i)=>im.setColorAt(i,m.col));im.castShadow=sh!==false;im.receiveShadow=true;G.add(im);return im};
+  const M=(x,y,z,ry,sx,sy,sz)=>new T.Matrix4().compose(new T.Vector3(x,y,z),q.setFromAxisAngle(Y,ry||0),new T.Vector3(sx||1,sy||sx||1,sz||sx||1));
+  /* 旗の布(色と模様をキャンバスで) */const flagTex=(c1,c2,k)=>{const c=document.createElement('canvas');c.width=64;c.height=128;const g=c.getContext('2d');g.fillStyle=c1;g.fillRect(0,0,64,128);g.fillStyle=c2;g.fillRect(0,0,64,14);g.fillRect(0,106,64,8);
+    g.beginPath();if(k%3===0){g.arc(32,60,15,0,7)}else if(k%3===1){g.moveTo(32,38);g.lineTo(50,62);g.lineTo(32,86);g.lineTo(14,62)}else{g.rect(18,46,28,28)}g.fill();
+    g.fillStyle=c1;g.beginPath();g.moveTo(0,114);g.lineTo(32,100);g.lineTo(64,114);g.lineTo(64,128);g.lineTo(0,128);g.fill();g.clearRect(0,114,64,14);g.fillStyle=c1;g.beginPath();g.moveTo(0,114);g.lineTo(32,124);g.lineTo(64,114);g.fill();
+    const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t};
+  const FC=[['#c8324a','#f4d27a'],['#2f5fb0','#f2f2e8'],['#2e8a52','#f4d27a'],['#e08a2a','#7a2a1a']];
+  const poleG=new T.CylinderGeometry(.07,.09,5,6);poleG.translate(0,2.5,0);const armG=new T.BoxGeometry(1.3,.08,.08);const flagG=new T.PlaneGeometry(1.1,2.2,1,6);{const p=flagG.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);p.setZ(i,Math.sin((y+1.1)*2.2)*.08)}flagG.computeVertexNormals()}
+  const poles=[],arms=[];let k=0;
+  for(const sd of [-1,1])for(let z=-44+(sd>0?5:0);z<46;z+=10+rnd()*4){const x=sd*(FX-4.4);poles.push(M(x,0,z));arms.push(M(x-sd*.55,4.7,z));
+    const [c1,c2]=FC[k%4];const fm=new T.Mesh(flagG,toon('#ffffff',{map:flagTex(c1,c2,k),side:T.DoubleSide,alphaTest:.5}));fm.position.set(x-sd*.62,3.5,z);fm.castShadow=true;G.add(fm);k++}
+  inst(poleG,toon('#4a3020'),poles);inst(armG,toon('#4a3020'),arms);
+  /* 樽 */const bG=new T.CylinderGeometry(.42,.42,1,10);{const p=bG.attributes.position,col=[];for(let i=0;i<p.count;i++){const y=p.getY(i);const r=1+.12*Math.cos(y*Math.PI);p.setX(i,p.getX(i)*r);p.setZ(i,p.getZ(i)*r);p.setY(i,y+.5)}bG.computeVertexNormals()}
+  const bandG=new T.TorusGeometry(.47,.035,4,12);bandG.rotateX(Math.PI/2);const bars=[],bands=[];
+  for(const sd of [-1,1])for(let z=-46;z<46;z+=6+rnd()*9){if(rnd()<.35)continue;const x=sd*(FX-.7-rnd()*.6),n=1+Math.floor(rnd()*3);for(let i=0;i<n;i++){const bx=x-sd*(i%2)*.85,bz=z+(i>1?.85:0)+i*.1;bars.push(M(bx,0,bz,rnd()*6));bands.push(M(bx,.2,bz),M(bx,.8,bz))}}
+  inst(bG,toon('#8a5a32'),bars);inst(bandG,toon('#3a3634'),bands,false);
+  /* 街灯 */const lpG=new T.CylinderGeometry(.06,.1,3.4,6);lpG.translate(0,1.7,0);const lbG=new T.BoxGeometry(.38,.5,.38);const lglow=new T.BoxGeometry(.28,.36,.28);const lp=[],lb=[],lg=[];
+  for(const sd of [-1,1])for(let z=-40+(sd>0?0:6);z<46;z+=14){const x=sd*(FX-4.3);lp.push(M(x,0,z));lb.push(M(x,3.6,z));lg.push(M(x,3.6,z))}
+  inst(lpG,toon('#2c2a2e'),lp);inst(lbG,toon('#2c2a2e',{transparent:true,opacity:.35}),lb,false);inst(lglow,new T.MeshBasicMaterial({color:dusk?0xffc860:0xffe8a8,toneMapped:false}),lg,false);
+  return G}
 
 
 
