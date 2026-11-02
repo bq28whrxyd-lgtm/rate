@@ -5659,7 +5659,7 @@ function ax3Frame(){const A=AXB,T=A3.T,t=A.t,n=performance.now();if(!A3)return;
   const rdt0=Math.min(.05,(n-(A3.ln||n))/1000);A3.yaw=(A3.yaw||0)+(ey-(A3.yaw||0))*Math.min(1,rdt0*1.5);let yaw=A3.yaw,push=0;
   /* 技: 一瞬 本人に寄ってから、技が出ると引く */if(A.ban&&A.ban.n&&!A.ban.ult){const v=(n-A.ban.n)/1000;if(v<.8){push=v<.1?eo(v/.1):v<.32?1:1-eo(Math.min(1,(v-.32)/.45));D*=1-.45*push}}
   if(A.cut){const v=(n-A.cut.t)/1000;const k=v<.25?eo(v/.25):v>.9?1-eo(Math.min(1,(v-.9)/.3)):1;D*=1-.35*k}
-  const lead=D*.17*(1-push);let tx=px-Math.sin(yaw)*lead,tz=pz-Math.cos(yaw)*lead,ly=1.6+push*2.2;
+  const lead=D*.17*(1-push);let tx=clamp(px,-5.5,5.5)-Math.sin(yaw)*lead,tz=pz-Math.cos(yaw)*lead,ly=1.6+push*2.2;
   /* ボスの登場: エリアの最初にボスへ寄って名前を出す(その間は戦いを止める) */if(A3.areaK!==A.area){A3.areaK=A.area;A3.bossU=null;A3.bossP=A3.first?null:A.E.find(e=>e.role==='lead'&&!e.dead)||null}if(A3.bossP&&A3.bossP.spawnT<=t-.35&&!A.trans){A3.bossU=A3.bossP;A3.bossP=null;A3.bossN=n;A.stop=Math.max(A.stop,1.7*(A.speed||1))}
   if(A3.bossU){const v=(n-A3.bossN)/1000;if(v<1.9){const k=v<1.35?1:1-eo((v-1.35)/.55),B=A3.bossU,bh=(B.ey||70)*AXM*1.1;tx+=(a3X(B.x)-tx)*k;tz+=(a3Z(B.y)-tz)*k;ly+=(bh*.55-ly)*k;D*=1-.35*k;yaw*=1-k}else A3.bossU=null}
   const tgt=new T.Vector3(tx,ly,tz),pos=new T.Vector3(tx+Math.sin(yaw)*Math.cos(pitch)*D,ly+Math.sin(pitch)*D,tz+Math.cos(yaw)*Math.cos(pitch)*D);
