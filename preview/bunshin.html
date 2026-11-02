@@ -4816,9 +4816,9 @@ function axUlt(u){const A=AXB;if(!axLive(u)||A.over||A.trans||!axCan(u,2))return
     if(ro==='priest'){u.hp=Math.min(u.max,u.hp+Math.round(u.max*.5));A.P.forEach(p=>{if(p.dead){p.dead=false;p.hp=Math.round(p.max*.3)}})}
     if(ro==='knight'||ro==='guard')u.buff.guard=t+7;if(ro==='cheer'){u.buff.atk=t+9;A.sp=Math.min(100,A.sp+30)}
     const E=axTarget(u)||A.E.find(axLive),c=E?{x:E.x,y:E.y}:{x:u.x+u.face*60,y:u.y};
-    const UK={sword:'ult_slash',warrior:'ult_quake',monk:'ult_quake',lancer:'ult_drill',mage:'ult_meteor',hunter:'ult_arrows',priest:'ult_holy',knight:'ult_shield',guard:'ult_shield',cheer:'ult_stage'};A.fx.push({k:UK[ro]||'ult_slash',x:c.x,y:c.y,ux:u.x,uy:u.y,face:u.face,t,d:1.4,col,el:u.f&&u.f.el,ch:u.f&&u.f.ch});A.ban={s:nm,t,col,ult:1};A.shake=9;A.flash=.25;A.zp=1.08;A.slow=t+.5;axDust(c.x,c.y,14);axSparks(c.x,c.y-30,30,col,2);
+    const UK={sword:'ult_slash',warrior:'ult_quake',monk:'ult_quake',lancer:'ult_drill',mage:'ult_meteor',hunter:'ult_arrows',priest:'ult_holy',knight:'ult_shield',guard:'ult_shield',cheer:'ult_stage'};A.fx.push({k:UK[ro]||'ult_slash',x:c.x,y:c.y,ux:u.x,uy:u.y,face:u.face,t,d:1.4,col,el:u.f&&u.f.el,ch:u.f&&u.f.ch});A.ban={s:nm,t,col,ult:1};A.shake=9;A.flash=.25;A.zp=1.08;axDust(c.x,c.y,14);axSparks(c.x,c.y-30,30,col,2);
     const sup=ro==='priest'||ro==='knight'||ro==='guard'||ro==='cheer';
-    for(let h=0;h<4;h++)axAt(.08+h*.12,()=>{for(const e of A.E.filter(x=>axLive(x)&&x.spawnT<=A.t))if(Math.hypot(e.x-c.x,(e.y-c.y)/AXSQ)<140){axHit(u,e,(h===3?2.4:.8)*(sup?.6:1),{big:h===3,crit:h===3&&!e.mob,shield:h===3?2:0});if(!e.dead&&h===3)axKb(e,c,100)}})})}
+    /* (11/2) 必殺の当たり: 0.06・0.15・0.24秒で3回、0.33秒で決めの1発。決めの瞬間だけスロー(サウスト風) */for(let h=0;h<4;h++)axAt(.06+h*.09,()=>{if(h===3)A.slow=A.t+.3;for(const e of A.E.filter(x=>axLive(x)&&x.spawnT<=A.t))if(Math.hypot(e.x-c.x,(e.y-c.y)/AXSQ)<140){axHit(u,e,(h===3?2.4:.8)*(sup?.6:1),{big:h===3,crit:h===3&&!e.mob,shield:h===3?2:0});if(!e.dead&&h===3)axKb(e,c,100)}})})}
 /* 交代: 控えの顔をタップ。入ってきた仲間が着地して衝撃波 */
 function axSwap(i,force){const A=AXB,n=A.P[i];if(!n||n===A.me||n.dead||A.over||A.trans||(!force&&A.cdSw>A.t))return false;const o=A.me;
   n.x=o.x;n.y=o.y;n.face=o.face;n.tx=null;n.dash=null;n.holding=null;n.inv=A.t+.6;n.pose='p6';n.poseT=A.t+.35;A.me=n;A.cur=i;A.cdSw=A.t+3;A.lock=null;
@@ -5835,23 +5835,30 @@ function ax3EfkRole(k,o){if(!ax3EfkOk())return false;const {cx,cz,ux,uz,col,dl,u
   const ang=Math.atan2(cz-uz,cx-ux),ry=-ang,rnd=r=>[cx+(Math.random()-.5)*r*2,cz+(Math.random()-.5)*r*1.4];
   const hit=(x,z,s,d,c)=>ax3E('ToonHit',x,z,{s:s*1.8,dl:d,sp:1.6,skip:18,y:3,col:c});
   switch(k){
+  /* 必殺: 当たり(0.06・0.15・0.24秒)に合わせて小さい光、0.33秒の決めの1発で一番大きい演出が最大になる */
+  case 'ult_quake':for(let i=0;i<4;i++){const [x,z]=rnd(R);ax3E('BloodLance',x,z,{s:.99,dl:i*.07,sp:2.4,skip:120,col:'#ffb060'})}for(let h=0;h<3;h++)hit(cx+(Math.random()-.5)*4,cz,.6,.06+h*.09,'#ffd0a0');hit(cx,cz,1.2,.33,'#ffd0a0');return true;
+  case 'ult_drill':for(let i=0;i<8;i++){const [x,z]=rnd(R);ax3E('Spear1',ux,uz,{s:1.62,dl:i*.035,sp:1.6,ry:-Math.atan2(z-uz,x-ux),y:3});hit(x,z,.45,i*.035+.06)}hit(cx,cz,1.2,.33);return true;
+  case 'ult_holy':for(let i=0;i<5;i++){const [x,z]=i?rnd(R):[cx,cz];ax3E('Light',x,z,{s:2.34,dl:i*.05,sp:1.8,skip:50})}ax3E('Benediction',cx,cz,{s:1.8,dl:.3,sp:2.2,skip:12});return true;
+  case 'ult_meteor':for(let i=0;i<5;i++){const [x,z]=i?rnd(R):[cx,cz];if(el==='water')ax3E('ToonWater',x,z,{s:1.53,dl:i*.06,sp:1.8,skip:30});else ax3E('MagicMeteo',x,z,{s:3.96,dl:i*.06,sp:1.6,skip:10});if(i<3)hit(x,z,.7,.06+i*.09,el==='water'?'#a0e0ff':null)}hit(cx,cz,1.3,.33,el==='water'?'#a0e0ff':null);return true;
+  case 'ult_arrows':for(let i=0;i<10;i++){const [x,z]=rnd(R*.8);ax3E('MagicThunder',x,z,{s:2.88,dl:i*.033,sp:1.6,col:el==='wood'?'#b8ff7a':null})}hit(cx,cz,1.2,.33,el==='wood'?'#c8ff8a':null);return true;
+  case 'ult_stage':hit(ux,uz,1.3,.06,'#ffb0e8');ax3E('Light',ux,uz,{s:2.52,sp:1.8,skip:50,col:'#ffb0e8'});ax3E('Benediction',ux,uz,{s:1.8,dl:.3,sp:2.2,skip:12,col:'#ffb0e8'});return true;
   case 'spinblade':case 'sweep':ax3E('sword',ux,uz,{s:1.35,dl:dl-.05,sp:1.8,skip:40,ry,y:1});hit(cx,cz,.55,dl+.1);return true;
   case 'dashcut':ax3E('sword',cx,cz,{s:1.44,dl:dl-.05,sp:1.8,skip:40,ry,y:1});hit(cx,cz,.6,dl+.08);return true;
   case 'heavy':ax3E('sword',cx,cz,{s:1.62,dl:dl-.05,sp:1.6,skip:40,ry,y:1});hit(cx,cz,.75,dl+.1);return true;
-  case 'ult_slash':ax3E('sword',cx,cz,{s:2.34,dl,sp:1.5,skip:40,ry,y:1});ax3E('sword',cx,cz,{s:1.98,dl:dl+.25,sp:1.5,skip:40,ry:ry+Math.PI*.6,y:1});hit(cx,cz,1.1,dl+.35);ax3E('Benediction',cx,cz,{s:1.26,dl:dl+.4,sp:2,col:'#ffb070'});return true;
-  case 'quake':case 'ult_quake':{const L=(f.len||150)*AXM,a=f.ang||0,n=ult?4:2;for(let i=0;i<n;i++){const q=(i+.6)/n,[x,z]=ult?rnd(R):[ux+Math.cos(a)*L*q,uz+Math.sin(a)*L*q];ax3E('BloodLance',x,z,{s:ult?0.99:0.76,dl:dl+i*.1,sp:2.4,skip:70,col:'#ffb060'})}hit(cx,cz,ult?1:.6,dl+.15,'#ffd0a0');return true}
+  case 'ult_slash':for(let h=0;h<3;h++){ax3E('sword',cx,cz,{s:h?1.98:2.34,dl:h*.09,sp:1.8,skip:50,ry:ry+h*Math.PI*.6,y:1});hit(cx+(Math.random()-.5)*3,cz,.7,h*.09+.06)}hit(cx,cz,1.2,.33);ax3E('Benediction',cx,cz,{s:1.26,dl:.3,sp:2.2,skip:12,col:'#ffb070'});return true;
+  case 'quake':{const L=(f.len||150)*AXM,a=f.ang||0,n=ult?4:2;for(let i=0;i<n;i++){const q=(i+.6)/n,[x,z]=ult?rnd(R):[ux+Math.cos(a)*L*q,uz+Math.sin(a)*L*q];ax3E('BloodLance',x,z,{s:ult?0.99:0.76,dl:dl+i*.1,sp:2.4,skip:70,col:'#ffb060'})}hit(cx,cz,ult?1:.6,dl+.15,'#ffd0a0');return true}
   case 'shieldbash':hit(cx,cz,.7,dl);return true;
   case 'taunt':case 'ult_shield':ax3E('Barrior01',ux,uz,{s:ult?2.88:2.25,sp:1.4,col:ult?'#ffe8a0':null});if(ult)hit(ux,uz,1.2,.15,'#ffe8a0');return true;
-  case 'thrusts':case 'ult_drill':{const n=ult?8:Math.min(6,hits);for(let i=0;i<n;i++){const [x,z]=ult?rnd(R):rnd(1.5);ax3E('Spear1',ux,uz,{s:1.62,dl:dl+i*gap-.05,sp:1.5,ry:-Math.atan2(z-uz,x-ux),y:3});hit(x,z,.45,dl+i*gap+.05)}return true}
+  case 'thrusts':{const n=ult?8:Math.min(6,hits);for(let i=0;i<n;i++){const [x,z]=ult?rnd(R):rnd(1.5);ax3E('Spear1',ux,uz,{s:1.62,dl:dl+i*gap-.05,sp:1.5,ry:-Math.atan2(z-uz,x-ux),y:3});hit(x,z,.45,dl+i*gap+.05)}return true}
   case 'fists':{const n=Math.min(6,hits);for(let i=0;i<n;i++){const [x,z]=rnd(1.5);hit(x,z,.4+.05*i,dl+i*gap)}return true}
   case 'heal':ax3E('MagicHeal2',ux,uz,{s:1.98,sp:1.5,skip:10});return true;
-  case 'pillar':case 'ult_holy':{const n=ult?5:Math.max(1,Math.min(3,hits));for(let i=0;i<n;i++){const [x,z]=i?rnd(R):[cx,cz];ax3E('Light',x,z,{s:ult?2.34:1.89,dl:dl+i*.12-.05,sp:1.8,skip:45})}if(ult)ax3E('Benediction',cx,cz,{s:1.8,dl:dl+.3,sp:1.6});return true}
+  case 'pillar':{const n=ult?5:Math.max(1,Math.min(3,hits));for(let i=0;i<n;i++){const [x,z]=i?rnd(R):[cx,cz];ax3E('Light',x,z,{s:ult?2.34:1.89,dl:dl+i*.12-.05,sp:1.8,skip:45})}if(ult)ax3E('Benediction',cx,cz,{s:1.8,dl:dl+.3,sp:1.6});return true}
   case 'orb':if(el==='water'){ax3E('MagicWater',cx,cz,{s:1.98,dl:dl-.05,sp:1.6,skip:8})}else{ax3E('MagicFire1',cx,cz,{s:4.32,dl:dl-.05,sp:1.6})}hit(cx,cz,.5,dl+.1,el==='water'?'#a0e0ff':null);return true;
-  case 'meteor':case 'ult_meteor':{const n=ult?5:1;for(let i=0;i<n;i++){const [x,z]=i?rnd(R):[cx,cz];if(el==='water')ax3E('ToonWater',x,z,{s:ult?1.53:1.26,dl:dl*.3+i*.15,sp:1.6});else ax3E('MagicMeteo',x,z,{s:3.96,dl:dl*.3+i*.15-.3,sp:1.4});hit(x,z,ult?.9:.7,dl+i*.15+.2,el==='water'?'#a0e0ff':null)}return true}
+  case 'meteor':{const n=ult?5:1;for(let i=0;i<n;i++){const [x,z]=i?rnd(R):[cx,cz];if(el==='water')ax3E('ToonWater',x,z,{s:ult?1.53:1.26,dl:dl*.3+i*.15,sp:1.6});else ax3E('MagicMeteo',x,z,{s:3.96,dl:dl*.3+i*.15-.3,sp:1.4});hit(x,z,ult?.9:.7,dl+i*.15+.2,el==='water'?'#a0e0ff':null)}return true}
   case 'arrow':{ax3E('MagicThunder',cx,cz,{s:2.88,dl,sp:1.4,col:el==='wood'?'#b8ff7a':null});hit(cx,cz,.5,dl+.05,el==='wood'?'#c8ff8a':null);return true}
-  case 'rain':case 'ult_arrows':{const n=ult?10:Math.min(6,hits+1);for(let i=0;i<n;i++){const [x,z]=rnd(R*.8);ax3E('MagicThunder',x,z,{s:ult?2.88:2.34,dl:dl+i*(ult?.08:gap),sp:1.5,col:el==='wood'?'#b8ff7a':null})}if(ult)hit(cx,cz,1,dl+.3,el==='wood'?'#c8ff8a':null);return true}
+  case 'rain':{const n=ult?10:Math.min(6,hits+1);for(let i=0;i<n;i++){const [x,z]=rnd(R*.8);ax3E('MagicThunder',x,z,{s:ult?2.88:2.34,dl:dl+i*(ult?.08:gap),sp:1.5,col:el==='wood'?'#b8ff7a':null})}if(ult)hit(cx,cz,1,dl+.3,el==='wood'?'#c8ff8a':null);return true}
   case 'cheerup':ax3E('Light',ux,uz,{s:1.89,sp:1.8,skip:45,col:'#ffb0e8'});return true;
-  case 'soundwave':case 'ult_stage':hit(ux,uz,ult?1.3:1,.02,'#ffb0e8');ax3E('Light',ux,uz,{s:ult?2.52:1.98,sp:1.8,skip:45,col:'#ffb0e8'});if(ult)ax3E('Benediction',ux,uz,{s:1.8,dl:.2,sp:1.6,col:'#ffb0e8'});return true}
+  case 'soundwave':hit(ux,uz,ult?1.3:1,.02,'#ffb0e8');ax3E('Light',ux,uz,{s:ult?2.52:1.98,sp:1.8,skip:45,col:'#ffb0e8'});if(ult)ax3E('Benediction',ux,uz,{s:1.8,dl:.2,sp:1.6,col:'#ffb0e8'});return true}
   return false}
 (()=>{const st=document.createElement('style');st.textContent=`
 body.ax3on #stage>#ax3cv,body.ax3on #stage>#ax3ov{display:block!important;position:absolute;inset:0;width:100vw;height:100vh;height:100dvh}
