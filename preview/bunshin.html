@@ -4788,9 +4788,10 @@ function axDmg(a,d,m,o){o=o||{};const t=AXB.t;let v=a.pow*m*.7*(.85+Math.random(
 let AXEN=2.2;
 function axHit(a,d,m,o){o=o||{};if(!axLive(d))return 0;const A=AXB;if(d.side==='P'&&d.inv>A.t){axTxt('回避',d.x,d.y-60,'#c9e4ff',9);return 0}const r=axDmg(a,d,m,o);d.hp=Math.max(0,d.hp-r.v);d.hitT=A.t;
   const ln=A.nums.filter(q=>A.t-q.t<.45&&Math.abs(q.x-d.x)<40&&Math.abs((q.gy!=null?q.gy:q.y)-d.y)<24).length%4;A.nums.push({ln,u:d,v:String(r.v),x:d.x+(ln%2?16:-6)+(Math.random()-.5)*8,y:d.y-(d.side==='E'?d.ey*1.15:64),gy:d.y,t:A.t,col:d.side==='P'?'#ff8a8a':r.cr||o.big?'#ffe066':'#fff',big:r.cr||o.big});
+  if(d.side==='P'&&r.v>0)A.fx.push({k:'bh',pc:1,x:d.x,y:d.y-40,gy:d.y,t:A.t,sheet:'hit'});
   if(d.side==='E'){A.sp=Math.min(100,A.sp+1.2);A.rush=Math.min(200,A.rush+(A.rushOn?0:1));if(A.t-A.comboT>2.2)A.combo=0;A.combo++;A.comboT=A.t;A.maxCombo=Math.max(A.maxCombo,A.combo);
     const weak=d.weak.includes(a.f.wt);if(d.shMax&&d.brk<=A.t&&(d.brkCool||0)<=A.t&&(weak||o.shield>1)&&A.t-d.lastSh>.9){d.lastSh=A.t;d.sh=Math.max(0,d.sh-(o.shield||1));if(d.sh<=0){d.brk=A.t+2.6;d.brkCool=A.t+8.6;d.tel=null;A.tel=A.tel.filter(z=>z.by!==d);A.stop=Math.max(A.stop,.2);A.shake=6;A.flash=.12;axTxt('BREAK!',d.x,d.y-d.ey*1.4,'#ffe066',18);A.fx.push({k:'burst',x:d.x,y:d.y-d.ey*.5,gy:d.y,r:34,t:A.t,d:.45,col:'#ffe066'});axSay(d.name+'をブレイク! 少しの間動けない・ダメージ1.5倍');if(typeof SFX!=='undefined'&&SFX.brk)SFX.brk()}}
-    const hy=d.y-d.ey*.55,col=TRWC[a.f.wt]||'#ffe066';if(typeof bhCell==='function'&&(o.basic||r.cr))A.fx.push({k:'bh',x:d.x,y:hy,gy:d.y,D:o.big?130:d.mob?72:96,row:(BHX.row[a.f.el]!=null?BHX.row[a.f.el]:0),t:A.t,rot:(Math.random()-.5)*.9,flip:Math.random()<.5,sheet:o.big&&typeof bhOk==='function'&&bhOk('crit')?'crit':'hit'});
+    const hy=d.y-d.ey*.55,col=TRWC[a.f.wt]||'#ffe066';if(typeof bhCell==='function')A.fx.push({k:'bh',sm:!(o.basic||r.cr||o.big),x:d.x,y:hy,gy:d.y,D:o.big?130:d.mob?72:96,row:(BHX.row[a.f.el]!=null?BHX.row[a.f.el]:0),t:A.t,rot:(Math.random()-.5)*.9,flip:Math.random()<.5,sheet:o.big&&typeof bhOk==='function'&&bhOk('crit')?'crit':'hit'});
     axSparks(d.x,hy,o.basic?5:3,r.cr?'#ffe066':col,1);
     A.stop=Math.max(A.stop,o.big?.08:d.mob?.025:.04);if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit(o.big)}
   else{A.shake=Math.max(A.shake,o.big?4:0);A.hurt=.35;if(d.hp>0)axAnim(d,'hit');axSparks(d.x,d.y-30,5,'#ff6a6a',1);if(typeof SFX!=='undefined'&&SFX.hurt)SFX.hurt()}
@@ -4886,7 +4887,7 @@ function axFoeAI(u,dt){const t=AXB.t;if(u.poseT<=t)u.pose='p1';
 const AXRANK=[['S',60,'#ffe066'],['A',90,'#ff9ad0'],['B',130,'#9fd8ff'],['C',1e9,'#c9c3d6']];
 function axEnd(win){if(AXB.over)return;if(win&&AXB.me)axAnim(AXB.me,'win');const A=AXB,rk=AXRANK.find(r=>A.t<=r[1]);A.over={win,t:A.t,rt:performance.now(),rank:win?rk:null};axSay(win?'クリア! ランク'+rk[0]:'まけてしまった…');if(typeof SFX!=='undefined')(win?SFX.win:SFX.lose)&&(win?SFX.win():SFX.lose());axUI()}
 /* ---------- エフェクト ---------- */
-function axFx(k,u,S,col,Sk){/* 技ごとに1つの見た目(重ねない)。3D側(ax3.js)が k で描き分ける */const A=AXB,t=A.t;if(!k)return;Sk=Sk||{};const base={k,x:S.x,y:S.y,ang:S.ang,r:S.r,a:S.a,len:S.len,w:S.w,t,col,face:u.face,ux:u.x,uy:u.y,hits:Sk.hits||1,gap:Sk.gap||.1,delay:Sk.delay||0,el:u.f&&u.f.el,ch:u.f&&u.f.ch};
+function axFx(k,u,S,col,Sk){/* 技ごとに1つの見た目(重ねない)。3D側(ax3.js)が k で描き分ける */const A=AXB,t=A.t;if(!k)return;Sk=Sk||{};const base={k,sk:S.k,x:S.x,y:S.y,ang:S.ang,r:S.r,a:S.a,len:S.len,w:S.w,t,col,face:u.face,ux:u.x,uy:u.y,hits:Sk.hits||1,gap:Sk.gap||.1,delay:Sk.delay||0,el:u.f&&u.f.el,ch:u.f&&u.f.ch};
   const D={spinblade:.5,dashcut:.55,heavy:.5,quake:.75,shieldbash:.45,taunt:.8,sweep:.4,thrusts:.6,fists:.6,beam:.55,heal:.9,pillar:.75,orb:.5,meteor:1.1,arrow:.35,rain:1,cheerup:.9,soundwave:.8};base.d=D[k]||.5;A.fx.push(base);
   if(k==='quake'||k==='heavy')axDust(S.x+Math.cos(S.ang||0)*20,S.y+Math.sin(S.ang||0)*8,8);if(k==='meteor')axAt(Sk.delay||.5,()=>{axDust(S.x,S.y,14);A.shake=Math.max(A.shake,7)});if(k==='spinblade')axDust(S.x,S.y,6)}
 function axCres(x,y,r,a0,a1,th,col,al){/* 三日月の形(斬撃) */if(al<=0||a1-a0<.02)return;G.save();G.globalCompositeOperation='lighter';G.globalAlpha=al;const g=G.createRadialGradient(x,y,Math.max(0,r-th),x,y,r+2);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(.55,col);g.addColorStop(.9,'#ffffff');g.addColorStop(1,'rgba(255,255,255,0)');G.fillStyle=g;
@@ -5165,7 +5166,7 @@ function ax3ReticleTex(){if(A3.tex.ret)return A3.tex.ret;return A3.tex.ret=ax3Te
 function ax3BhTex(k){if(A3.tex['bh'+k])return A3.tex['bh'+k];const im=BHX.I[k];if(!im||!im.complete||!im.naturalWidth)return null;const t=new A3.T.Texture(im);t.colorSpace=A3.T.SRGBColorSpace;t.needsUpdate=true;return A3.tex['bh'+k]=t}
 /* A.fx の1つを3Dにする。返す: {o: 置くもの, u:(k,v)=>更新} */
 function ax3MakeFx(f){if((AXSKALL[f.k]||/^ult_/.test(f.k))&&typeof ax3EfkOk==='function'&&ax3EfkOk())return null;const T=A3.T,A=AXB,col=f.col||'#ffe066',X=f.x!=null?a3X(f.x):0,Z=f.gy!=null?a3Z(f.gy):f.y!=null?a3Z(f.y):0,HY=f.gy!=null?(f.gy-f.y)*AXM:null,G3=new T.Group();
-  /* (11/2) 通常攻撃と当たりは自作のアニメ調エフェクト(axv) */if(typeof axvSlash==='function'){if(f.k==='slash'){const fl=f.face<0;axvSlash(X,(HY||2.8)+.4,Z,{r:(f.r||26)*AXM*2.3,col,tilt:AXVTILT[(f.n||0)%4]*(fl?-1:1),flip:fl,d:.26});return null}if(f.k==='bh'){const big=f.sheet==='crit';axvHit(X,(HY||3)+.3,Z+.4,{big,col:big?'#ff9a3a':'#ffd860'});return null}}
+  /* (11/2) 通常攻撃と当たりは自作のアニメ調エフェクト(axv) */if(typeof axvSlash==='function'){if(f.k==='slash'){const fl=f.face<0;axvSlash(X,(HY||2.8)+.4,Z,{r:(f.r||26)*AXM*2.3,col,tilt:AXVTILT[(f.n||0)%4]*(fl?-1:1),flip:fl,d:.26});return null}if(f.k==='bh'){const big=f.sheet==='crit';if(f.sm){axvStar(X,(HY||3)+.3,Z+.4,{s:2.4,col:'#ffe890',d:.16})}else axvHit(X,(HY||3)+.3,Z+.4,{big,col:f.pc?'#ff5a4a':big?'#ff9a3a':'#ffd860'});return null}}
   const done=(o,u)=>({o,u});
   /* ---- 技ごとの見た目(1つの技に1つ。小さな部品を時間差で組み合わせる) ---- */
   const subs=[];const sub=(spec,delay,dur)=>{const E=ax3MakeFx(Object.assign({t:0,d:dur||.5,col},spec));if(E){G3.add(E.o);E.o.visible=false;subs.push({E,delay:delay||0,dur:dur||.5})}return E};
@@ -5952,7 +5953,7 @@ function axvSwirl(x,z,o){o=o||{};const T=A3.T,r=o.r||4,h=o.h||7;const geo=new T.
 /* 技ごとの組み合わせ(サウストの技の見た目を参考に)。Effekseer の演出の上に重ねる */
 function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||50)*AXM*1.2,big=ult?1.35:1;
   const slashes=(n,x,z,r,gap)=>{for(let i=0;i<n;i++)axvSlash(x+(Math.random()-.5)*2,3.2+Math.random()*1.6,z+(Math.random()-.5),{r:r*(.85+Math.random()*.3),col,tilt:AXVTILT[i%4]+(Math.random()-.5)*.4,flip:i%2===1,d:.3,dl:dl+i*gap})};
-  const kind=k.replace(/^ult_/,'');
+  const kind=k.replace(/^ult_/,'');if(!ult&&f.sk)try{axvArea(f,{col,d:.5})}catch(e){}
   if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.45,ca:.5,wave:.9,d:.4,dl:.3});else if(!/^(heal|cheerup|taunt)$/.test(k))axvPost(cx,cz,{blur:.35,ca:.4,wave:.7,d:.28,dl:dl+.04})}
   switch(k){
   case 'spinblade':case 'sweep':for(let i=0;i<3;i++)axvSlash(ux,3.2,uz,{r:9*big,col,tilt:i*2.09,d:.3,dl:dl+i*.05,sq:.4});axvSwirl(ux,uz,{r:5,h:6,col:'#ffffff',d:.55,dl});axvRing(ux,uz,{r:8,col,dl:dl+.05});break;
@@ -6039,6 +6040,17 @@ function axvSmoke3(x,y,z,o){o=o||{};axv3('puff'+Math.floor(Math.random()*4),x,y,
 function axvShards(x,z,o){o=o||{};const n=o.n||5;for(let i=0;i<n;i++){const a=i/n*6.28+Math.random(),r=Math.random()*(o.r||2);axv3('shard'+(i%3),x+Math.cos(a)*r,0,z+Math.sin(a)*r*.7,{s:o.s||1.6,s0:.1,col:o.col||'#c8a070',edge:'#3a2210',d:.75,ds:.55,dl:(o.dl||0)+i*.02,sy:1.3})}}
 function axvFlame3(x,z,o){o=o||{};axv3('flame',x,0,z,{s:o.s||2.5,s0:.4,col:o.col||'#ff7a1a',edge:'#5a1006',d:o.d||.7,ds:.3,dl:o.dl,rot:3,sy:1.4})}
 function axvWave3(x,z,o){o=o||{};axv3('wave',x,.2,z,{s:o.s||5,s0:.6,col:o.col||'#d8c0a0',edge:'#3a2a18',d:.55,ds:.2,dl:o.dl,sy:.8})}
+
+/* ---------- (11/2) 当たり判定を見えるように: 技が出た瞬間、当たる範囲(円・扇・直線)が地面に光って消える ---------- */
+const AXV_AREA=`uniform float uK,uR,uAng,uHa,uLen,uW;void main(){vec2 p=(vU*2.-1.)*uR;float inside=0.,edge=0.;
+ if(uK<.5){float d=length(p)/uR;inside=step(d,1.);edge=smoothstep(.86,.93,d)*inside;}
+ else if(uK<1.5){float d=length(p)/uR,a=atan(-p.y,p.x)-uAng;a=abs(mod(a+3.14159,6.28318)-3.14159);inside=step(d,1.)*step(a,uHa);edge=max(smoothstep(.86,.93,d),smoothstep(uHa-.08,uHa-.02,a))*inside;}
+ else{float c=cos(uAng),s=sin(uAng);vec2 g=vec2(p.x,-p.y);vec2 q=vec2(g.x*c+g.y*s,-g.x*s+g.y*c);inside=step(0.,q.x)*step(q.x,uLen)*step(abs(q.y),uW*.5);float e=min(min(q.x,uLen-q.x),uW*.5-abs(q.y));edge=(1.-smoothstep(.15,.4,e))*inside;}
+ if(inside<.5)discard;float app=min(1.,uT*12.),fd=1.-clamp((uT-.35)/.65,0.,1.);float hatch=step(.5,fract((p.x+p.y)*.9-uT*3.));
+ vec3 c=mix(uC,vec3(1.),edge*.7);float a=(edge*.95+(.16+.1*hatch)*(1.-edge))*app*fd;gl_FragColor=vec4(c*a,1.);}`;
+function axvArea(f,o){if(!f||f.r==null&&f.len==null)return;const T=A3.T,G=axvGeo();const k=f.sk==='fan'?1:f.sk==='line'?2:0,R=(k===2?Math.max(f.len||0,(f.w||0)):f.r||40)*AXM*(k===2?1:1.0)+.2;
+  const m=axvMesh(G.quad,AXV_AREA,true,{col:o.col});const U=m.material.uniforms;U.uK={value:k};U.uR={value:R};U.uAng={value:f.ang||0};U.uHa={value:f.a||.8};U.uLen={value:(f.len||0)*AXM};U.uW={value:(f.w||0)*AXM};
+  m.scale.set(R*2,R*2,1);m.rotation.x=-Math.PI/2;m.position.set(a3X(f.x),.1,a3Z(f.y));m.renderOrder=17;return axvAdd({o:m,d:o.d||.5,dl:o.dl||0})}
 
 
 
