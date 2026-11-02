@@ -5962,13 +5962,13 @@ function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||
   const slashes=(n,x,z,r,gap)=>{for(let i=0;i<n;i++)axvSlash(x+(Math.random()-.5)*2,3.2+Math.random()*1.6,z+(Math.random()-.5),{r:r*(.85+Math.random()*.3),col,tilt:AXVTILT[i%4]+(Math.random()-.5)*.4,flip:i%2===1,d:.3,dl:dl+i*gap})};
   const kind=k.replace(/^ult_/,'');if(!ult&&f.sk)try{axvArea(f,{col,d:.5})}catch(e){}
   /* (11/2) 重み: 物理技は当たる範囲を白い煙で埋める。炎・隕石は炎のかたまり */try{const sf=f.sk?f:Object.assign({},f,{sk:'self',x:f.x!=null?f.x:f.ux,y:f.y!=null?f.y:f.uy});
-    if(/^(spinblade|sweep|heavy|quake|shieldbash|dashcut|thrusts|fists|ult_slash|ult_quake|ult_drill)$/.test(k))axvCloud(ult?Object.assign({},sf,{sk:'self',r:Math.max(sf.r||0,80)}):sf,{dl:dl+(ult?.3:.06),s:ult?1.5:1,ring:k==='spinblade'||k==='sweep'});
+    if(/^(spinblade|sweep|heavy|quake|shieldbash|dashcut|thrusts|fists|ult_slash|ult_quake|ult_drill)$/.test(k))axvCloud(ult?Object.assign({},sf,{sk:'self',r:Math.max(sf.r||0,80)}):sf,{dl:dl+(ult?.3:.06),s:ult?1.5:k==='dashcut'||k==='thrusts'?.7:1,n:k==='dashcut'||k==='thrusts'?Math.max(3,Math.round((sf.len||120)*AXM/3.5)):undefined,ring:k==='spinblade'||k==='sweep'});
     if(/^(meteor|ult_meteor)$/.test(k)&&(f.el||'')!=='water')axvFlames(sf,{dl:dl+(ult?.35:.3),n:ult?10:6,s:ult?1.3:1});
     if(/^(orb)$/.test(k)&&(f.el||'')!=='water')axvFlames(Object.assign({},sf,{r:(sf.r||34)*.8}),{dl:dl+.05,n:3,s:.8})}catch(e){}
   if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.25,ca:.25,wave:.6,d:.35,dl:.3});else if(!/^(heal|cheerup|taunt)$/.test(k))axvPost(cx,cz,{blur:.12,ca:.15,wave:.4,d:.22,dl:dl+.04})}
   switch(k){
   case 'spinblade':case 'sweep':for(let i=0;i<3;i++)axvSlash(ux,3.2,uz,{r:9*big,col,tilt:i*2.09,d:.3,dl:dl+i*.05,sq:.4});axvSwirl(ux,uz,{r:5,h:6,col:'#ffffff',d:.55,dl});axvRing(ux,uz,{r:8,col:'#ffffff',dl:dl+.05});if(k==='sweep')axvSwordHit(cx,cz,{s:1.2,dl:dl+.06});break;
-  case 'dashcut':axvStreak(ux,uz,cx,cz,{w:1.1,d:.2,dl:dl-.06});axvTrail(cx,4.2,cz+.6,{s:17,col:'#7ac8ff',roll:-.55,dl});axvSwordHit(cx,cz,{s:1.5,dl:dl+.05});break;
+  case 'dashcut':axvStreak(ux,uz,cx,cz,{w:1.1,d:.2,dl:dl-.06});axvTrail(cx,3.6,cz,{from:[ux,uz],to:[cx,cz],col:'#7ac8ff',dl});axvSwordHit(cx,cz,{s:1.5,dl:dl+.05});break;
   case 'heavy':slashes(1,cx,cz,13,0);axvStreak(ux,uz,cx,cz,{dl:dl-.04});axvSwordHit(cx,cz,{s:1.6,dl:dl+.05});axvRing(cx,cz,{r:7,col:'#ffffff',dl:dl+.05});break;
   case 'ult_slash':[-.55,.6,-1.35].forEach((rl,i)=>axvTrail(cx+(i-1)*1.5,4.4,cz+.6,{s:20,col:i===1?'#ff8ad0':'#7ac8ff',edge:i===1?'#4a0a3a':'#14204a',roll:rl,dl:.06+i*.09}));axvGroundSlash(cx,cz,{r:12,col:'#ff7ac8',dl:.3});axvPetals(cx,cz,{n:22,r:9,dl:.32});axvSwordHit(cx,cz,{s:2,dl:.33});axvFog(cx,cz,{r:9,n:10,dl:.55});break;
   case 'quake':case 'ult_quake':{const L=(f.len||150)*AXM,a=f.ang||0,n=ult?5:3;for(let i=0;i<n;i++){const q=(i+.6)/n,x=ult?cx+(Math.random()-.5)*R*2:ux+Math.cos(a)*L*q,z=ult?cz+(Math.random()-.5)*R:uz+Math.sin(a)*L*q;axvRing(x,z,{r:4.5,col:'#ffd8a0',edge:'#4a2a10',dl:dl+i*.08});if(AXV3G){axvShards(x,z,{n:5,r:2.2,s:1.8,dl:dl+i*.08});axvWave3(x,z,{s:4,dl:dl+i*.08})}else for(let j=0;j<2;j++)axvSmoke(x,1,z,{s:3,col:'#d8b890',edge:'#4a3020',d:.7,dl:dl+i*.08,vx:(Math.random()-.5)*4,vy:2})}break}
@@ -6112,7 +6112,8 @@ const AXV_BTRAIL=`void main(){vec2 p=vU*2.-1.;vec2 c=vec2(0.,-1.45);float Rr=1.8
  float head=clamp(uT*7.,0.,1.);if(s>head)discard;float th=.24*pow(sin(3.14159*s),.6)*(1.-uT*.25);float d=abs(length(q)-Rr);if(d>th)discard;
  float n=fbm(vec2(s*6.+uS,d*8.));if(uT>.3&&n<(uT-.3)*1.5)discard;float k=d/max(th,.001);
  vec3 c2=k<.45?vec3(1.):k<.8?mix(vec3(1.),uC,.75):uE;if(k<.45&&s>head-.08)c2=vec3(1.);gl_FragColor=vec4(c2,uA);}`;
-function axvTrail(x,y,z,o){o=o||{};const G=axvGeo(),col=o.col||'#7ac8ff',m=axvMesh(G.quad,AXV_BTRAIL,false,{col,edge:o.edge||'#14204a',ro:25});const s=o.s||16;m.scale.set(s,s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.42,dl:o.dl,bb:1,roll:o.roll!=null?o.roll:-.5})}
+/* 2点(地面)を結ぶ向きを画面上の角度にする */function axvScrAng(x0,z0,x1,z1,y){const T=A3.T,a=new T.Vector3(x0,y||3,z0).project(A3.cam),b=new T.Vector3(x1,y||3,z1).project(A3.cam);return Math.atan2((b.y-a.y),(b.x-a.x)*A3.cam.aspect)}
+function axvTrail(x,y,z,o){o=o||{};if(o.from&&o.to){const [x0,z0]=o.from,[x1,z1]=o.to;o.roll=axvScrAng(x0,z0,x1,z1,y);x=(x0+x1)/2;z=(z0+z1)/2;if(!o.s)o.s=Math.max(10,Math.hypot(x1-x0,z1-z0)*1.5)}const G=axvGeo(),col=o.col||'#7ac8ff',m=axvMesh(G.quad,AXV_BTRAIL,false,{col,edge:o.edge||'#14204a',ro:25});const s=o.s||16;m.scale.set(s,s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.42,dl:o.dl,bb:1,roll:o.roll!=null?o.roll:-.5})}
 const AXV_GDISC=`void main(){vec2 p=vU*2.-1.;float r=length(p),a=atan(p.y,p.x);float g=1.-pow(1.-clamp(uT*4.5,0.,1.),3.);float R=.3+.68*g;if(r>R)discard;
  float sw=fract((a/6.28318+r*.55-uT*.4)*7.+uS);float cut=smoothstep(.0,.08,sw)*(1.-smoothstep(.12,.22,sw));
  float n=fbm(p*2.6+uS);if(uT>.32&&n<(uT-.32)*1.45)discard;float k=r/R;
