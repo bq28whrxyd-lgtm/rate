@@ -5881,14 +5881,15 @@ const AXVV=`varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*model
 function axvMat(frag,add){const T=A3.T;return new T.ShaderMaterial({uniforms:{uT:{value:0},uC:{value:new T.Color('#ffb040')},uE:{value:new T.Color('#5a1408')},uS:{value:Math.random()*50},uA:{value:1}},vertexShader:AXVV,fragmentShader:'uniform float uT,uS,uA;uniform vec3 uC,uE;varying vec2 vU;\n'+AXVN+'\n'+frag,transparent:true,depthTest:false,depthWrite:false,side:T.DoubleSide,toneMapped:false,blending:add?T.AdditiveBlending:T.NormalBlending})}
 /* 斬撃: 先が走って、うしろが追いかけて消える三日月。白い芯(外側)→色→こげ色のふち。ノイズで欠けながら消える */
 const AXV_SLASH=`void main(){float u=vU.x,v=vU.y;
- float hd=1.-pow(1.-clamp(uT*2.4,0.,1.),3.),tl=clamp((uT-.12)*1.5,0.,1.);tl=tl*tl*(3.-2.*tl);
+ float hd=1.-pow(1.-clamp(uT*2.6,0.,1.),3.),tl=clamp((uT-.1)*1.5,0.,1.);tl=tl*tl*(3.-2.*tl);
  if(u>hd||u<tl)discard;float k=(u-tl)/max(hd-tl,.001);
- float pr=pow(sin(3.14159*clamp(k*.9+.08,0.,1.)),.75)*(1.-uT*.35);float vv=(v-(1.-pr))/max(pr,.001);if(vv<0.)discard;
- float n=fbm(vec2(u*9.-uT*5.+uS,v*3.));float a=n*.55+vv*.55+k*.25-uT*.95;if(a<.06)discard;
- vec3 c=vv>.74?vec3(1.):vv>.42?mix(uC,vec3(1.),.45):vv>.16?uC:uE;if(a<.11)c=uE;
+ float pr=pow(sin(3.14159*clamp(k,0.,1.)),1.15)*(1.-uT*.4);float vv=(v-(1.-pr))/max(pr,.001);if(vv<0.)discard;
+ float st=vn(vec2(u*3.-uT*6.+uS,v*26.));/* 流れの筋 */
+ float n=fbm(vec2(u*9.-uT*5.+uS,v*3.));float a=n*.5+vv*.6+k*.3-uT*1.-st*.18;if(a<.06)discard;
+ vec3 c=vv>.8?vec3(1.):vv>.5?mix(uC,vec3(1.),.55-st*.3):vv>.2?mix(uC*.85,uC,st):uE;if(a<.1)c=uE;
  gl_FragColor=vec4(c,uA);}`;
 const AXV_SLASHG=`void main(){float u=vU.x,v=vU.y;float hd=1.-pow(1.-clamp(uT*2.4,0.,1.),3.),tl=clamp((uT-.05)*1.3,0.,1.);if(u>hd||u<tl)discard;
- float k=(u-tl)/max(hd-tl,.001);float g=pow(v,2.5)*sin(3.14159*k)*(1.-uT);gl_FragColor=vec4(uC*g*1.4,1.);}`;
+ float k=(u-tl)/max(hd-tl,.001);float g=pow(v,2.)*pow(sin(3.14159*k),1.5)*(1.-uT);gl_FragColor=vec4(mix(uC,vec3(1.),.3)*g*1.8,1.);}`;
 /* 星形の当たり: 長さのちがうとげ。白い芯→色→こげ色のふち。ぱっと大きくなって、ノイズで削れて消える */
 const AXV_STAR=`void main(){vec2 p=vU*2.-1.;float r=length(p),th=atan(p.y,p.x);
  float sp=0.;for(int i=0;i<7;i++){float fi=float(i),a=fi*.8976+uS,l=.45+.55*h21(vec2(fi,uS));float d=abs(mod(th-a+3.14159,6.28318)-3.14159);sp=max(sp,l*pow(max(0.,1.-d*2.6),3.));}
@@ -5913,7 +5914,7 @@ function axvUpd(t){if(!A3.vx||!A3.vx.length)return;const q=A3.cam.quaternion;A3.
   e.o.visible=true;if(e.bb){e.o.quaternion.copy(q);if(e.roll)e.o.rotateZ(e.roll)}e.o.traverse(m=>{if(m.material&&m.material.uniforms)m.material.uniforms.uT.value=k});if(e.u)e.u(k);return true})}
 /* 斬撃: x,y,z(3Dの位置) / r 大きさ / tilt 傾き(画面の中で回す) / flip 向き / col 色 */
 function axvSlash(x,y,z,o){o=o||{};const G=axvGeo(),T=A3.T,g=new T.Group();const r=o.r||5;
-  const glow=axvMesh(G.arcG,AXV_SLASHG,true,o);glow.renderOrder=23;const m=axvMesh(G.arc,AXV_SLASH,false,o);g.add(glow,m);g.scale.set(r*(o.flip?-1:1),r*(o.sq||.62),r);g.position.set(x,y,z);
+  const glow=axvMesh(G.arcG,AXV_SLASHG,true,o);glow.renderOrder=23;const m=axvMesh(G.arc,AXV_SLASH,false,o);g.add(glow,m);g.scale.set(r*(o.flip?-1:1),r*(o.sq||.5),r);g.position.set(x,y,z);
   return axvAdd({o:g,d:o.d||.28,dl:o.dl,bb:1,roll:o.tilt||0})}
 function axvStar(x,y,z,o){o=o||{};const G=axvGeo(),m=axvMesh(G.quad,AXV_STAR,false,o);const s=o.s||3;m.scale.set(s,s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.22,dl:o.dl,bb:1,roll:Math.random()*6.28})}
 function axvRing(x,z,o){o=o||{};const G=axvGeo(),m=axvMesh(G.quad,AXV_RING,false,o);const s=(o.r||5)*2;m.scale.set(s,s,s);m.rotation.x=-Math.PI/2;m.position.set(x,.15,z);m.renderOrder=20;return axvAdd({o:m,d:o.d||.4,dl:o.dl})}
