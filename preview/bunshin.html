@@ -5547,7 +5547,7 @@ function ax3SkillBig(t){const A=AXB;A3.sbSeen=A3.sbSeen||new WeakSet();for(const
   const ult=/^ult_/.test(f.k),col=AXBLC[f.col]||f.col||'#ffb03a',cx=a3X(f.x!=null?f.x:f.ux),cz=a3Z(f.y!=null?f.y:f.uy),ux=a3X(f.ux),uz=a3Z(f.uy),dl=(f.delay||0)+(ult?.06:.08);
   if(AXSLK[f.k]&&ult)A3.ultSl={t:AXB.t+.06,col};
   /* (11/2) サウスト風のアクションカメラ: 技が出たら、本人と当たる所の間へ寄って低く構える。必殺は長め・強め */A3.skT=t;A3.act={n:performance.now(),x:(cx+ux)/2,z:(cz+uz)/2,ult,side:Math.random()<.5?-1:1,col};
-  const efkOn=typeof ax3EfkOk==='function'&&ax3EfkOk();ax3SkFxRole(f.k,{cx,cz,ux,uz,col,dl,ult,f});/* (11/3) 技を出した人の足元に白い輪 */try{if(!ult&&typeof axvRing==='function'){axvRing(ux,uz,{r:4.5,col:'#ffffff',d:.35});axvRing(ux,uz,{r:6.5,col:col,d:.4,dl:.05})}}catch(e){}
+  const efkOn=typeof ax3EfkOk==='function'&&ax3EfkOk();ax3SkFxRole(f.k,{cx,cz,ux,uz,col,dl,ult,f});/* (11/3) 技を出した人の足元に、技の色の大きな円と立ち上がる光の幕(サウストのコマを見て) */try{if(typeof axvAura==='function')axvAura(ux,uz,{col,r:ult?14:12,h:12,d:ult?1.1:.9})}catch(e){}
   /* (11/2) 自作のアニメ調エフェクトを技ごとに重ねる(axvSkill) */if(typeof axvSkill==='function')try{axvSkill(f.k,{cx,cz,ux,uz,col,dl,ult,f})}catch(e){console.error(e)}
   if(!efkOn&&!/^(heal|cheerup|taunt)$/.test(f.k))ax3SkFx({k:'flash',d:.01,dl:dl,v:ult?.45:.16})}}
 /* 技ごとの演出(サウストのキャラを見て決めた): 剣=斬撃と渦 / 拳=放射状の光と赤黒い煙 / 回復=空からの光の柱 / 魔法=爆炎・爆発 / 弓=雷の矢 / 応援=光の輪とオーラ / 盾=オーラと衝撃 */
@@ -5990,9 +5990,9 @@ function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||
   case 'heal':case 'cheerup':axvCircle(ux,uz,{r:6,col:k==='heal'?'#7dffa0':'#ff9ad8',d:1.1});axvPillar(ux,uz,{r:2.4,h:13,col:k==='heal'?'#7dffa0':'#ff9ad8',d:.9,dl:.1});break;
   case 'pillar':case 'ult_holy':{const n=ult?5:Math.max(1,Math.min(3,f.hits||1));for(let i=0;i<n;i++){const x=i?cx+(Math.random()-.5)*R*2:cx,z=i?cz+(Math.random()-.5)*R:cz;axvCircle(x,z,{r:4.5,col:'#ffe27a',d:.9,dl:dl+i*.1-.1});axvPillar(x,z,{r:2.2,h:16,col:'#ffe27a',d:.8,dl:dl+i*.1})}break}
   case 'orb':{const el=axvEl(f);axvCircle(ux,uz,{r:3.5,col:AXEL[el].c,d:.5});axvBall(ux,uz,cx,cz,{el,dl:dl-.12,d:.16});axvElBurst(cx,cz,{el,s:.85,dl:dl+.04});axvLinger(f,{el,dl:dl+.15});break}
-  case 'meteor':case 'ult_meteor':{const el=axvEl(f),n=ult?5:1;if(ult)axvFlood({el,dl:.12,d:1.05});if(ult&&el==='fire')for(let i=0;i<12;i++){const a=Math.random()*6.28,r=Math.sqrt(Math.random())*R*1.1;axvFireFB(cx+Math.cos(a)*r*1.3,cz+Math.sin(a)*r*.7,{s:1.5+Math.random()*.9,dl:.22+i*.035,d:.9})}for(let i=0;i<n;i++){const x=i?cx+(Math.random()-.5)*R*2:cx,z=i?cz+(Math.random()-.5)*R:cz;axvMeteor(x,z,{el,dl:ult?.04+i*.07:Math.max(0,dl-.3),ft:ult?.2:.3,s:ult?1.15:1})}axvLinger(f,{el,dl:(ult?.4:dl+.05)});break}
+  case 'meteor':case 'ult_meteor':{const el=axvEl(f),n=ult?5:1;if(ult&&el==='fire')axvFireSea(cx,cz,{R:R*1.3,dl:.18});for(let i=0;i<n;i++){const x=i?cx+(Math.random()-.5)*R*2:cx,z=i?cz+(Math.random()-.5)*R:cz;axvMeteor(x,z,{el,dl:ult?.04+i*.07:Math.max(0,dl-.3),ft:ult?.2:.3,s:ult?1.15:1})}axvLinger(f,{el,dl:(ult?.4:dl+.05)});break}
   case 'arrow':{const el=axvBowEl(f),E=AXEL[el];axvStreak(cx,cz,ex,ez,{w:1.3,d:.2,dl:dl-.08,col:E.c,edge:E.e});axvStreak(cx,cz,ex,ez,{w:.5,d:.16,dl:dl-.05,col:E.hi,edge:E.c});axvLightning(ex,ez,{el,s:.75,dl:dl+.06});break}
-  case 'rain':case 'ult_arrows':{const el=axvBowEl(f),E=AXEL[el],n=ult?10:Math.min(6,(f.hits||5)+1),RR=ult?R:(f.r||62)*AXM*.8;axvCircle(cx,cz,{r:ult?9:6,col:E.c,d:ult?1.3:.9});if(ult)axvFlood({el:el==='wood'?'water':el==='light'?'light':'water',dl:.1,d:.9});
+  case 'rain':case 'ult_arrows':{const el=axvBowEl(f),E=AXEL[el],n=ult?10:Math.min(6,(f.hits||5)+1),RR=ult?R:(f.r||62)*AXM*.8;axvCircle(cx,cz,{r:ult?9:6,col:E.c,d:ult?1.3:.9});
     for(let i=0;i<n;i++){const a=Math.random()*6.28,r=i?Math.sqrt(Math.random())*RR:0;axvLightning(cx+Math.cos(a)*r,cz+Math.sin(a)*r*.75,{el,s:ult?1.1:.85,dl:ult?.12+i*.07:dl+i*(f.gap||.1)})}break}
   case 'soundwave':case 'ult_stage':['#ff8ad0','#8ad8ff','#ffe066'].forEach((c,i)=>axvRing(ux,uz,{r:(ult?11:8)+i*1.5,col:c,d:.5,dl:i*.1}));axvCircle(ux,uz,{r:6,col:'#ff8ad0',d:1});break;
   }}
@@ -6169,7 +6169,7 @@ const AXV_FLOOD=`void main(){vec2 p=vU;
  float h=uT<.3?1.-pow(1.-uT/.3,3.):1.;float gone=uT>.5?pow((uT-.5)/.5,1.3):0.;
  float F=(1.-p.y)*1.35-(1.-h)*1.6+(n-.5)*1.15+(n2-.5)*.25-gone*1.9+.25;
  if(F<0.)discard;vec3 hi=mix(uC,vec3(1.,.95,.55),.6);
- vec3 c=F<.09?uE:F<.3?uC:F<.62?hi:vec3(1.,.98,.86);gl_FragColor=vec4(c,uA);}`;
+ float st=F+(n2-.5)*.9;vec3 c=F<.09?uE:st<.42?uC:st<.95?hi:vec3(1.,.93,.72);gl_FragColor=vec4(c,uA);}`;
 function axvFlood(o){o=o||{};const T=A3.T,G=axvGeo(),el=o.el||'fire',E=AXEL[el];const m=axvMesh(G.quad,AXV_FLOOD,false,{col:E.c,edge:E.e,ro:30});m.material.depthTest=false;
   return axvAdd({o:m,d:o.d||1,dl:o.dl,u:k=>{const c=A3.cam;m.quaternion.copy(c.quaternion);m.position.copy(c.position);m.translateZ(-6);const h=2*6*Math.tan(c.fov*Math.PI/360);m.scale.set(h*c.aspect*1.1,h*1.1,1)}})}
 
@@ -6201,6 +6201,26 @@ function axvFlip(x,y,z,o){o=o||{};const T=A3.T,G=axvGeo();const mat=new T.Shader
   const m=new T.Mesh(G.quad,mat);m.renderOrder=o.ro||19;m.frustumCulled=false;const s=o.s||4;m.scale.set(s*(o.flipX?-1:1),s,s);m.position.set(x,y,z);return axvAdd({o:m,d:o.d||.6,dl:o.dl,bb:1,roll:o.roll||0})}
 /* (11/3) Blenderで描いたアニメ塗りの炎(フリップブック16コマ)。根元を地面に合わせて立てる。コマは混ぜずにパキッと切りかえる */
 function axvFireFB(x,z,o){o=o||{};const s=(o.s||1)*(5+Math.random()*1.5);return axvFlip(x,(o.y!=null?o.y:0)+s*.36,z,{s,d:(o.d||.7)*(0.9+Math.random()*.2),dl:o.dl,flipX:Math.random()<.5,roll:(Math.random()-.5)*.12,src:AXFB_FIRE,step:1,ro:o.ro||20})}
+/* (11/3) 必殺の炎: 平たい板で画面を覆うのをやめ、Blenderの炎を地面からたくさん立てる。真ん中から外へ順に燃え広がり、手前ほど大きい */
+function axvFireSea(cx,cz,o){o=o||{};const R=o.R||10,dl=o.dl||0,N=22;for(let i=0;i<N;i++){const k=i/N,a=i*2.399+Math.random()*.4,r=R*Math.sqrt(k)*(0.85+Math.random()*.3),x=cx+Math.cos(a)*r*1.25,z=cz+Math.sin(a)*r*.75,near=clamp((z-cz)/R*.5+.5,0,1);
+  axvFireFB(x,z,{s:1.35+near*.9+Math.random()*.4,dl:dl+k*.32+Math.random()*.04,d:.85+Math.random()*.2})}}
+/* (11/3) 技を出した瞬間の足元(サウストを1コマずつ見て): 技の色の大きな円が地面に広がる。
+   中心のやや外に明るい輪、外へ行くほど薄い色、回転でぶれた同心の筋、細い白い輪。円の縁から光の幕が立ち上がる。0.9秒 */
+const AXV_AURA=`void main(){vec2 p=vU*2.-1.;float r=length(p),th=atan(p.y,p.x);
+ float g=1.-pow(1.-clamp(uT*5.,0.,1.),3.),R=.35+.65*g;if(r>R)discard;float q=r/R;
+ float sw=fbm(vec2(th*2.2+uT*5.5-q*2.5+uS,q*14.));float sw2=vn(vec2(th*6.-uT*8.+uS,q*34.));
+ float ring=exp(-pow((q-.28)/.09,2.));float wr=smoothstep(.03,0.,abs(q-.55))*step(.4,vn(vec2(th*3.+uS,1.)))+smoothstep(.025,0.,abs(q-.78))*step(.45,vn(vec2(th*4.-uS,2.)))+smoothstep(.06,0.,abs(sw2-.75))*.5*(1.-q);
+ float body=clamp((.5+.5*sw)*(1.-q*.45),0.,1.);
+ float fd=1.-smoothstep(.5,1.,uT),ed=1.-smoothstep(.72,1.,q);
+ vec3 hot=mix(uC,vec3(1.,.92,.95),.7);vec3 c=mix(uC*mix(.85,1.15,sw),hot,clamp(ring*1.2+wr,0.,1.));
+ float a=clamp(body*.8+ring+wr,0.,1.)*fd*ed;gl_FragColor=vec4(c,a);}`;
+const AXV_CURT=`void main(){float u=vU.x,v=vU.y;float n=vn(vec2(u*40.+uS,v*1.4-uT*3.)),n2=vn(vec2(u*110.-uS,v*3.-uT*5.));
+ float h=1.-pow(1.-clamp(uT*4.,0.,1.),2.);if(v>h)discard;float fall=pow(1.-v/max(h,.01),1.1);
+ float st=smoothstep(.35,.8,n)*.55+smoothstep(.75,.95,n2)*.9+.45;float fd=1.-smoothstep(.45,1.,uT);
+ vec3 c=mix(uC*1.1,vec3(1.),.08+.6*smoothstep(.85,.95,n2));gl_FragColor=vec4(c,clamp(st,0.,1.)*fall*fd*.8);}`;
+function axvAura(x,z,o){o=o||{};const T=A3.T,G=axvGeo(),R=o.r||12,d=o.d||.9,col=o.col||'#ff4a5a';
+  const m=axvMesh(G.quad,AXV_AURA,false,{col,ro:17});m.material.depthTest=true;m.scale.set(R*2,R*2,1);m.rotation.x=-Math.PI/2;m.position.set(x,.1,z);axvAdd({o:m,d,dl:o.dl});
+  if(!AXVG.cyl){AXVG.cyl=new T.CylinderGeometry(1,1.13,1,48,1,true);AXVG.cyl.translate(0,.5,0)}const c=axvMesh(AXVG.cyl,AXV_CURT,false,{col,ro:21});c.material.depthTest=true;c.scale.set(R*.62,o.h||R*1.1,R*.62);c.position.set(x,0,z);axvAdd({o:c,d:d*.85,dl:(o.dl||0)+.02,u:k=>{c.rotation.y=k*.8}});}
 /* 白い煙のかたまり(フリップブック)。大きさ s、向きを少し変えて同じ形に見えないようにする */
 function axvSmokeFB(x,z,o){o=o||{};const s=(o.s||1)*(8+Math.random()*2.5);return axvFlip(x,(o.y!=null?o.y:s*.3),z,{s,d:(o.d||.62)*(0.9+Math.random()*.25),dl:o.dl,flipX:Math.random()<.5,roll:(Math.random()-.5)*.25,tint:o.tint})}
 
