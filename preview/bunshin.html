@@ -5547,7 +5547,7 @@ function ax3SkillBig(t){const A=AXB;A3.sbSeen=A3.sbSeen||new WeakSet();for(const
   const ult=/^ult_/.test(f.k),col=AXBLC[f.col]||f.col||'#ffb03a',cx=a3X(f.x!=null?f.x:f.ux),cz=a3Z(f.y!=null?f.y:f.uy),ux=a3X(f.ux),uz=a3Z(f.uy),dl=(f.delay||0)+(ult?.06:.08);
   if(AXSLK[f.k]&&ult&&!(typeof AXULT_READY!=='undefined'&&f.nm&&AXULT_READY[f.nm]))A3.ultSl={t:AXB.t+.06,col};
   /* (11/2) サウスト風のアクションカメラ: 技が出たら、本人と当たる所の間へ寄って低く構える。必殺は長め・強め */A3.skT=t;A3.act={n:performance.now(),x:(cx+ux)/2,z:(cz+uz)/2,ult,side:Math.random()<.5?-1:1,col};
-  const efkOn=typeof ax3EfkOk==='function'&&ax3EfkOk();if(ult&&typeof axvDark==='function')try{axvDark({d:1.2,col:'#05030a'})}catch(e){}/* (11/3) 名前どおりの必殺がある時は、役割ごとの古い演出を出さない */if(!(ult&&typeof AXULT_READY!=='undefined'&&f.nm&&AXULT_READY[f.nm]))ax3SkFxRole(f.k,{cx,cz,ux,uz,col,dl,ult,f});/* (11/3) 技を出した人の足元に、技の色の大きな円と立ち上がる光の幕(サウストのコマを見て) */try{/* 回転斬りは円を出さない(サウストの回転の技は白い風だけ)。名前どおりの必殺はその技の色 */if(typeof axvAura==='function'&&f.k!=='spinblade')axvAura(ux,uz,{col:(ult&&typeof AXULT_COL!=='undefined'&&AXULT_COL[f.nm])||col,r:ult?14:12,h:12,d:ult?1.1:.9})}catch(e){}
+  const efkOn=typeof ax3EfkOk==='function'&&ax3EfkOk();if(ult&&typeof axvDark==='function')try{axvDark({d:1.2,col:'#05030a'})}catch(e){}/* (11/3) 名前どおりの必殺がある時は、役割ごとの古い演出を出さない */if(!(ult&&typeof AXULT_READY!=='undefined'&&f.nm&&AXULT_READY[f.nm]))ax3SkFxRole(f.k,{cx,cz,ux,uz,col,dl,ult,f});/* (11/3) 技を出した人の足元に、技の色の大きな円と立ち上がる光の幕(サウストのコマを見て) */try{/* 回転斬りは円を出さない(サウストの回転の技は白い風だけ)。名前どおりの必殺はその技の色 */if(typeof axvAura==='function'&&f.k!=='spinblade')axvAura(ux,uz,{col:(ult&&typeof AXULT_COL!=='undefined'&&AXULT_COL[f.nm])||col,r:ult?14:8,h:12,d:ult?1.1:.6,noCurt:!ult,a:ult?1:.6})}catch(e){}
   /* (11/2) 自作のアニメ調エフェクトを技ごとに重ねる(axvSkill) */if(typeof axvSkill==='function')try{axvSkill(f.k,{cx,cz,ux,uz,col,dl,ult,f})}catch(e){console.error(e)}
   if(!efkOn&&!/^(heal|cheerup|taunt)$/.test(f.k))ax3SkFx({k:'flash',d:.01,dl:dl,v:ult?.45:.16})}}
 /* 技ごとの演出(サウストのキャラを見て決めた): 剣=斬撃と渦 / 拳=放射状の光と赤黒い煙 / 回復=空からの光の柱 / 魔法=爆炎・爆発 / 弓=雷の矢 / 応援=光の輪とオーラ / 盾=オーラと衝撃 */
@@ -6222,13 +6222,13 @@ const AXV_AURA=`void main(){vec2 p=vU*2.-1.;float r=length(p),th=atan(p.y,p.x);
  float body=clamp((.5+.5*sw)*(1.-q*.45),0.,1.);
  float fd=1.-smoothstep(.5,1.,uT),ed=1.-smoothstep(.72,1.,q);
  vec3 hot=mix(uC,vec3(1.,.92,.95),.7);vec3 c=mix(uC*mix(.85,1.15,sw),hot,clamp(ring*1.2+wr,0.,1.));
- float a=clamp(body*.8+ring+wr,0.,1.)*fd*ed;gl_FragColor=vec4(c,a);}`;
+ float a=clamp(body*.8+ring+wr,0.,1.)*fd*ed*uA;gl_FragColor=vec4(c,a);}`;
 const AXV_CURT=`void main(){float u=vU.x,v=vU.y;float n=vn(vec2(u*40.+uS,v*1.4-uT*3.)),n2=vn(vec2(u*110.-uS,v*3.-uT*5.));
  float h=1.-pow(1.-clamp(uT*4.,0.,1.),2.);if(v>h)discard;float fall=pow(1.-v/max(h,.01),1.8);
  /* (11/3 審査) 板に見えないよう、縦の筋がはっきり分かれる幕にする */float st=smoothstep(.45,.85,n)*.6+smoothstep(.75,.95,n2)*.9+.08;float fd=1.-smoothstep(.45,1.,uT);
  vec3 c=mix(uC*1.1,vec3(1.),.08+.6*smoothstep(.85,.95,n2));gl_FragColor=vec4(c,clamp(st,0.,1.)*fall*fd*.8);}`;
 function axvAura(x,z,o){o=o||{};const T=A3.T,G=axvGeo(),R=o.r||12,d=o.d||.9,col=o.col||'#ff4a5a';
-  const m=axvMesh(G.quad,AXV_AURA,false,{col,ro:17});m.material.depthTest=true;m.scale.set(R*2,R*2,1);m.rotation.x=-Math.PI/2;m.position.set(x,.1,z);axvAdd({o:m,d,dl:o.dl});
+  const m=axvMesh(G.quad,AXV_AURA,false,{col,ro:17});m.material.depthTest=true;m.material.uniforms.uA.value=o.a!=null?o.a:1;m.scale.set(R*2,R*2,1);m.rotation.x=-Math.PI/2;m.position.set(x,.1,z);axvAdd({o:m,d,dl:o.dl});if(o.noCurt)return;
   if(!AXVG.cyl){AXVG.cyl=new T.CylinderGeometry(1,1.13,1,128,1,true);AXVG.cyl.translate(0,.5,0)}const c=axvMesh(AXVG.cyl,AXV_CURT,false,{col,ro:21});c.material.depthTest=true;c.scale.set(R*.62,o.h||R*1.1,R*.62);c.position.set(x,0,z);axvAdd({o:c,d:d*.85,dl:(o.dl||0)+.02,u:k=>{c.rotation.y=k*.8}});}
 /* (11/3) 必殺の炎の本体(サウストの赤犬・エースの必殺を1コマずつ見て): 地面の1点から炎のトゲが扇形に噴き上がる光る絵(Blenderで描いた16コマ)。
    白い芯の光→黒い破片と岩が飛ぶ→根元からほどけて消える→地面に溶岩の跡 */
