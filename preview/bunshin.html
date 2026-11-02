@@ -5890,7 +5890,7 @@ float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*vn(p);p*=2.03;a*=.5;
 /* (11/2) 剣筋の見た目(サウスト風): 細い筋が何本も流れる帯。外側(k=1)が白く、内側は色のうすい膜になって筋にほどける。s=長さ方向(1=刃先側) age=0→1 */
 vec4 swLook(float s,float k,float age,vec3 tint,float seed){float l1=vn(vec2(s*2.2+seed,k*30.)),l2=vn(vec2(s*4.5+seed*1.7,k*64.)),str=l1*.6+l2*.4;
  float body=k+(str-.5)*.55-age*.75-(1.-s)*.25;if(body<.08)return vec4(0.);float a=smoothstep(.08,.4,body)*(1.-smoothstep(.94,1.,k));
- vec3 lt=mix(tint,vec3(1.),.35);vec3 c=mix(lt*.85,vec3(1.),smoothstep(.5,.92,k+str*.22));c+=vec3(1.)*pow(str,5.)*.7;if(s>.9&&age<.3)c=mix(c,vec3(1.),.6);
+ vec3 lt=mix(tint,vec3(1.),.12);vec3 c=mix(lt*.9,vec3(1.),smoothstep(.62,.96,k+str*.18));c+=vec3(1.)*pow(str,5.)*.55;if(s>.9&&age<.3)c=mix(c,vec3(1.),.6);
  return vec4(min(c,vec3(1.)),a*(.5+.5*k)*(1.-smoothstep(.75,1.,age)));}`;
 const AXVV=`varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 function axvMat(frag,add){const T=A3.T;return new T.ShaderMaterial({uniforms:{uT:{value:0},uC:{value:new T.Color('#ffb040')},uE:{value:new T.Color('#5a1408')},uS:{value:Math.random()*50},uA:{value:1}},vertexShader:AXVV,fragmentShader:'uniform float uT,uS,uA;uniform vec3 uC,uE;varying vec2 vU;\n'+AXVN+'\n'+frag,transparent:true,depthTest:false,depthWrite:false,side:T.DoubleSide,toneMapped:false,blending:add?T.AdditiveBlending:T.NormalBlending})}
@@ -6110,7 +6110,7 @@ function axvSwordHit(x,z,o){o=o||{};const s=o.s||1,dl=o.dl||0;axvSpike(x,3.1,z+.
 
 /* ================= (11/2) 剣(大技): 画面を横切る太い刀の軌跡 / 地面に広がる円盤の斬撃(サウストの作り方) ================= */
 const AXV_BTRAIL=`void main(){vec2 p=vU*2.-1.;vec2 c=vec2(0.,-1.45);float Rr=1.85;vec2 q=p-c;float a=atan(q.x,q.y);float s=clamp((a+.8)/1.6,0.,1.);if(a<-.8||a>.8)discard;
- float head=clamp(uT*8.,0.,1.),tail=clamp((uT-.12)*1.6,0.,1.);if(s>head||s<tail)discard;float sk=(s-tail)/max(head-tail,.001);
+ float head=clamp(uT*8.,0.,1.),tail=clamp((uT-.3)*1.5,0.,1.);if(s>head||s<tail)discard;float sk=(s-tail)/max(head-tail,.001);
  float th=.4*pow(sin(3.14159*sk),.55)*(1.-uT*.3);float r=length(q)-Rr;if(abs(r)>th)discard;float k=.3+.7*(r/th*.5+.5);
  vec4 o=swLook(sk,k,uT,uC,uS);if(o.a<.02)discard;gl_FragColor=vec4(o.rgb,o.a*uA);}`;
 /* 2点(地面)を結ぶ向きを画面上の角度にする */function axvScrAng(x0,z0,x1,z1,y){const T=A3.T,a=new T.Vector3(x0,y||3,z0).project(A3.cam),b=new T.Vector3(x1,y||3,z1).project(A3.cam);return Math.atan2((b.y-a.y),(b.x-a.x)*A3.cam.aspect)}
