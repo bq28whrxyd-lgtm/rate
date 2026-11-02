@@ -5854,7 +5854,7 @@ function ax3EfkRole(k,o){if(!ax3EfkOk())return false;const {cx,cz,ux,uz,col,dl,u
   case 'ult_quake':ax3E('MagicTornade',cx,cz,{s:1.4,sp:2.6,skip:4,col:'#ffe8c8'});for(let i=0;i<4;i++){const [x,z]=rnd(R);ax3E('KM_Spike',x,z,{s:.99,dl:i*.07,sp:2.4,skip:120})}for(let h=0;h<3;h++)hit(cx+(Math.random()-.5)*4,cz,.6,.06+h*.09,'#ffd0a0');hit(cx,cz,.8,.33,'#ffd0a0');return true;
   case 'ult_drill':for(let i=0;i<8;i++){const [x,z]=rnd(R);ax3E('Spear1',ux,uz,{s:1.62,dl:i*.035,sp:1.6,ry:-Math.atan2(z-uz,x-ux),y:3});hit(x,z,.45,i*.035+.06)}hit(cx,cz,.8,.33);return true;
   case 'ult_holy':for(let i=0;i<5;i++){const [x,z]=i?rnd(R):[cx,cz];ax3E('Light',x,z,{s:2.34,dl:i*.05,sp:1.8,skip:50})}ax3E('KM_HolyBoom',cx,cz,{s:.75,dl:.3,sp:2.2,skip:12});return true;
-  case 'ult_meteor':for(let i=0;i<5;i++){const [x,z]=i?rnd(R):[cx,cz];if(el==='water')ax3E('ToonWater',x,z,{s:1.53,dl:i*.06,sp:1.8,skip:30});else ax3E('KM_Meteo',x,z,{s:3.96,dl:i*.06,sp:1.6,skip:10});if(i<3)hit(x,z,.7,.06+i*.09,el==='water'?'#a0e0ff':null)}hit(cx,cz,.85,.33,el==='water'?'#a0e0ff':null);return true;
+  case 'ult_meteor':return true;/* (11/2) 自作の魔法に置きかえ */
   case 'ult_arrows':for(let i=0;i<10;i++){const [x,z]=rnd(R*.8);ax3E('KM_Thunder',x,z,{s:2.88,dl:i*.033,sp:1.6,col:el==='wood'?'#b8ff7a':null})}hit(cx,cz,.8,.33,el==='wood'?'#c8ff8a':null);return true;
   case 'ult_stage':hit(ux,uz,.75,.06,'#ffb0e8');ax3E('Light',ux,uz,{s:2.52,sp:1.8,skip:50,col:'#ffb0e8'});ax3E('KM_HolyBoom',ux,uz,{s:.75,dl:.3,sp:2.2,skip:12,col:'#ffc8f0'});return true;
   case 'spinblade':case 'sweep':ax3E('MagicTornade',ux,uz,{s:.9,sp:3.2,skip:6,col:'#f4fbff'});ax3E('KM_JinSlash',ux,uz,{s:1.35,dl:dl-.05,sp:1.8,skip:40,ry,y:1});hit(cx,cz,.55,dl+.1);return true;
@@ -5868,8 +5868,8 @@ function ax3EfkRole(k,o){if(!ax3EfkOk())return false;const {cx,cz,ux,uz,col,dl,u
   case 'fists':{const n=Math.min(6,hits);for(let i=0;i<n;i++){const [x,z]=rnd(1.5);hit(x,z,.4+.05*i,dl+i*gap)}return true}
   case 'heal':ax3E('KM_Heal',ux,uz,{s:1.98,sp:1.5,skip:10});return true;
   case 'pillar':{const n=ult?5:Math.max(1,Math.min(3,hits));for(let i=0;i<n;i++){const [x,z]=i?rnd(R):[cx,cz];ax3E('Light',x,z,{s:ult?2.34:1.89,dl:dl+i*.12-.05,sp:1.8,skip:45})}return true}
-  case 'orb':if(el==='water'){hit(cx,cz,.75,dl-.02,'#a0e0ff')}else{ax3E('KM_Fire',cx,cz,{s:4.32,dl:dl-.05,sp:1.6})}hit(cx,cz,.5,dl+.1,el==='water'?'#a0e0ff':null);return true;
-  case 'meteor':{const n=ult?5:1;for(let i=0;i<n;i++){const [x,z]=i?rnd(R):[cx,cz];if(el==='water')ax3E('ToonWater',x,z,{s:ult?1.53:1.26,dl:dl*.3+i*.15,sp:1.6});else ax3E('KM_Meteo',x,z,{s:3.96,dl:dl*.3+i*.15-.3,sp:1.4});hit(x,z,ult?.9:.7,dl+i*.15+.2,el==='water'?'#a0e0ff':null)}return true}
+  case 'orb':return true;
+  case 'meteor':return true;
   case 'arrow':{ax3E('KM_Thunder',cx,cz,{s:2.88,dl,sp:1.4,col:el==='wood'?'#b8ff7a':null});hit(cx,cz,.5,dl+.05,el==='wood'?'#c8ff8a':null);return true}
   case 'rain':{const n=ult?10:Math.min(6,hits+1);for(let i=0;i<n;i++){const [x,z]=rnd(R*.8);ax3E('KM_Thunder',x,z,{s:ult?2.88:2.34,dl:dl+i*(ult?.08:gap),sp:1.5,col:el==='wood'?'#b8ff7a':null})}if(ult)hit(cx,cz,1,dl+.3,el==='wood'?'#c8ff8a':null);return true}
   case 'cheerup':ax3E('Light',ux,uz,{s:1.89,sp:1.8,skip:45,col:'#ffb0e8'});return true;
@@ -5890,8 +5890,8 @@ float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*vn(p);p*=2.03;a*=.5;
 /* (11/2) 剣筋の見た目(サウスト風): 細い筋が何本も流れる帯。外側(k=1)が白く、内側は色のうすい膜になって筋にほどける。s=長さ方向(1=刃先側) age=0→1 */
 vec4 swLook(float s,float k,float age,vec3 tint,float seed){float l1=vn(vec2(s*2.2+seed,k*30.)),l2=vn(vec2(s*4.5+seed*1.7,k*64.)),str=l1*.6+l2*.4;
  float body=k+(str-.5)*.55-age*.75-(1.-s)*.25;if(body<.08)return vec4(0.);float a=smoothstep(.08,.4,body)*(1.-smoothstep(.94,1.,k));
- vec3 lt=mix(tint,vec3(1.),.12);vec3 c=mix(lt*.9,vec3(1.),smoothstep(.62,.96,k+str*.18));c+=vec3(1.)*pow(str,5.)*.55;if(s>.9&&age<.3)c=mix(c,vec3(1.),.6);
- return vec4(min(c,vec3(1.)),a*(.5+.5*k)*(1.-smoothstep(.75,1.,age)));}`;
+ vec3 lt=mix(tint,vec3(1.),.06);vec3 c=mix(lt*.92,vec3(1.),smoothstep(.68,.98,k+str*.16));c+=vec3(1.)*pow(str,5.)*.55;if(s>.9&&age<.3)c=mix(c,vec3(1.),.6);
+ return vec4(min(c,vec3(1.)),a*(.62+.38*k)*(1.-smoothstep(.78,1.,age)));}`;
 const AXVV=`varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 function axvMat(frag,add){const T=A3.T;return new T.ShaderMaterial({uniforms:{uT:{value:0},uC:{value:new T.Color('#ffb040')},uE:{value:new T.Color('#5a1408')},uS:{value:Math.random()*50},uA:{value:1}},vertexShader:AXVV,fragmentShader:'uniform float uT,uS,uA;uniform vec3 uC,uE;varying vec2 vU;\n'+AXVN+'\n'+frag,transparent:true,depthTest:false,depthWrite:false,side:T.DoubleSide,toneMapped:false,blending:add?T.AdditiveBlending:T.NormalBlending})}
 /* 斬撃: 先が走って、うしろが追いかけて消える三日月。白い芯(外側)→色→こげ色のふち。ノイズで欠けながら消える */
@@ -5965,8 +5965,7 @@ function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||
   const kind=k.replace(/^ult_/,'');/* 直線の技は終点 ex,ez と真ん中 mx,mz */const LN=f.sk==='line'&&f.len,ex=LN?cx+Math.cos(f.ang||0)*f.len*AXM:cx,ez=LN?cz+Math.sin(f.ang||0)*f.len*AXM:cz,mx=(cx+ex)/2,mz=(cz+ez)/2;if(!ult&&f.sk)try{axvArea(f,{col,d:.5})}catch(e){}
   /* (11/2) 重み: 物理技は当たる範囲を白い煙で埋める。炎・隕石は炎のかたまり */try{const sf=f.sk?f:Object.assign({},f,{sk:'self',x:f.x!=null?f.x:f.ux,y:f.y!=null?f.y:f.uy});
     if(/^(spinblade|sweep|heavy|quake|shieldbash|dashcut|thrusts|fists|ult_slash|ult_quake|ult_drill)$/.test(k))axvCloud(ult?Object.assign({},sf,{sk:'self',r:Math.max(sf.r||0,80)}):sf,{dl:dl+(ult?.3:.06),s:ult?1.5:k==='dashcut'||k==='thrusts'?.7:1,n:k==='dashcut'||k==='thrusts'?Math.max(3,Math.round((sf.len||120)*AXM/3.5)):undefined,ring:k==='spinblade'||k==='sweep'});
-    if(/^(meteor|ult_meteor)$/.test(k)&&(f.el||'')!=='water')axvFlames(sf,{dl:dl+(ult?.35:.3),n:ult?10:6,s:ult?1.3:1});
-    if(/^(orb)$/.test(k)&&(f.el||'')!=='water')axvFlames(Object.assign({},sf,{r:(sf.r||34)*.8}),{dl:dl+.05,n:3,s:.8})}catch(e){}
+}catch(e){}
   if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.25,ca:.25,wave:.6,d:.35,dl:.3});else if(!/^(heal|cheerup|taunt)$/.test(k))axvPost(cx,cz,{blur:.12,ca:.15,wave:.4,d:.22,dl:dl+.04})}
   switch(k){
   case 'spinblade':case 'sweep':for(let i=0;i<3;i++)axvSlash(ux,3.2,uz,{r:9*big,col,tilt:i*2.09,d:.3,dl:dl+i*.05,sq:.4});axvSwirl(ux,uz,{r:5,h:6,col:'#ffffff',d:.55,dl});axvGroundSlash(ux,uz,{r:(f.r||58)*AXM*1.1,col:'#8ad8ff',d:.6,dl});if(k==='sweep')axvSwordHit(cx,cz,{s:1.2,dl:dl+.06});break;
@@ -5981,8 +5980,8 @@ function axvSkill(k,o){const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};const R=(f.r||
   case 'beam':axvCircle(ux,uz,{r:4,col,d:.7});axvHit(cx,3,cz+.5,{big:true,col,dl:dl+.1});break;
   case 'heal':case 'cheerup':axvCircle(ux,uz,{r:6,col:k==='heal'?'#7dffa0':'#ff9ad8',d:1.1});axvPillar(ux,uz,{r:2.4,h:13,col:k==='heal'?'#7dffa0':'#ff9ad8',d:.9,dl:.1});break;
   case 'pillar':case 'ult_holy':{const n=ult?5:Math.max(1,Math.min(3,f.hits||1));for(let i=0;i<n;i++){const x=i?cx+(Math.random()-.5)*R*2:cx,z=i?cz+(Math.random()-.5)*R:cz;axvCircle(x,z,{r:4.5,col:'#ffe27a',d:.9,dl:dl+i*.1-.1});axvPillar(x,z,{r:2.2,h:16,col:'#ffe27a',d:.8,dl:dl+i*.1})}break}
-  case 'orb':axvCircle(ux,uz,{r:4,col,d:.7});axvHit(cx,3,cz+.5,{big:false,col,dl:dl+.05});axvRing(cx,cz,{r:4,col,dl:dl+.05});break;
-  case 'meteor':case 'ult_meteor':{const n=ult?5:1;for(let i=0;i<n;i++){const x=i?cx+(Math.random()-.5)*R*2:cx,z=i?cz+(Math.random()-.5)*R:cz;axvCircle(x,z,{r:5,col,d:.9,dl:i*.06});axvRing(x,z,{r:7,col,dl:(ult?.3:dl+.25)+i*.06});if(AXV3G)axvBoom(x,z,{s:ult?4.5:4,col:o.f&&o.f.el==='water'?'#7ad0ff':'#ff8a2a',dl:(ult?.3:dl+.25)+i*.06});else for(let j=0;j<3;j++)axvSmoke(x,1.2,z,{s:3.5,d:.8,dl:(ult?.32:dl+.27)+i*.06,vx:(Math.random()-.5)*6,vy:2.5})}break}
+  case 'orb':{const el=axvEl(f);axvCircle(ux,uz,{r:3.5,col:AXEL[el].c,d:.5});axvBall(ux,uz,cx,cz,{el,dl:dl-.12,d:.16});axvElBurst(cx,cz,{el,s:.85,dl:dl+.04});axvLinger(f,{el,dl:dl+.15});break}
+  case 'meteor':case 'ult_meteor':{const el=axvEl(f),n=ult?5:1;if(ult)axvFlood({el,dl:.12,d:1.05});for(let i=0;i<n;i++){const x=i?cx+(Math.random()-.5)*R*2:cx,z=i?cz+(Math.random()-.5)*R:cz;axvMeteor(x,z,{el,dl:ult?.04+i*.07:Math.max(0,dl-.3),ft:ult?.2:.3,s:ult?1.15:1})}axvLinger(f,{el,dl:(ult?.4:dl+.05)});break}
   case 'arrow':case 'rain':case 'ult_arrows':axvCircle(cx,cz,{r:ult?8:5,col,d:.9});break;
   case 'soundwave':case 'ult_stage':['#ff8ad0','#8ad8ff','#ffe066'].forEach((c,i)=>axvRing(ux,uz,{r:(ult?11:8)+i*1.5,col:c,d:.5,dl:i*.1}));axvCircle(ux,uz,{r:6,col:'#ff8ad0',d:1});break;
   }}
@@ -6026,7 +6025,7 @@ function ax3TrailMake(R,col){const T=A3.T,N=28,pos=new Float32Array(N*2*3),uv=ne
   const sp=R.wpT==='spear';R.trail={ms,N,h:[],tip:new T.Vector3(0,0,sp?1.5:1.08),base:new T.Vector3(0,0,sp?.9:.22)}}
 function ax3TrailUpd(R,t,on){const Tr=R.trail;if(!Tr)return;const T=A3.T;if(on){R.wp.updateWorldMatrix(true,false);const a=Tr.tip.clone().applyMatrix4(R.wp.matrixWorld),b=Tr.base.clone().applyMatrix4(R.wp.matrixWorld);const L=Tr.h[0];
     /* 速く振ったときだけ帯を伸ばす(止まっている武器には出さない) */if(L&&L.a.distanceTo(a)<.02){}else Tr.h.unshift({t,a,b})}
-  const life=.24;Tr.h=Tr.h.filter(s=>t-s.t<life).slice(0,240);const p=Tr.ms.geometry.attributes.position;const L=Tr.h.length;Tr.ms.visible=L>2;if(L<3)return;
+  const life=.3;Tr.h=Tr.h.filter(s=>t-s.t<life).slice(0,240);const p=Tr.ms.geometry.attributes.position;const L=Tr.h.length;Tr.ms.visible=L>2;if(L<3)return;
   const span=Math.min(life,t-Tr.h[L-1].t)||life;const lerp=(s0,s1,k,key)=>s0[key].clone().lerp(s1[key],k);
   for(let i=0;i<Tr.N;i++){const want=t-span*i/(Tr.N-1);let j=0;while(j<L-2&&Tr.h[j+1].t>want)j++;const s0=Tr.h[j],s1=Tr.h[j+1],k=Math.max(0,Math.min(1,(s0.t-want)/Math.max(1e-4,s0.t-s1.t)));const A=lerp(s0,s1,k,'a'),B=lerp(s0,s1,k,'b');p.setXYZ(i*2,B.x,B.y,B.z);p.setXYZ(i*2+1,A.x,A.y,A.z)}
   p.needsUpdate=true;Tr.ms.material.uniforms.uT.value=0}
@@ -6124,6 +6123,39 @@ function axvPetals(x,z,o){o=o||{};const T=A3.T,n=o.n||14,r=o.r||6;const geo=new 
   const a=Math.random()*6.28,rr=Math.random()*r,vx=Math.cos(a)*(2+Math.random()*4),vz=Math.sin(a)*(2+Math.random()*3),vy=5+Math.random()*6,sp=(Math.random()-.5)*14,D=1+Math.random()*.4,x0=x+Math.cos(a)*rr*.5,z0=z+Math.sin(a)*rr*.4;
   m.position.set(x0,1,z0);axvAdd({o:m,d:D,dl:(o.dl||0)+Math.random()*.15,u:k=>{const t=k*D;m.position.set(x0+vx*t,Math.max(.2,1+vy*t-5*t*t),z0+vz*t);m.rotation.set(sp*t,sp*.7*t,sp*.4*t);m.material.opacity=k<.75?1:1-(k-.75)/.25}})}}
 /* うす紫の霧(斬撃のあとに残る) */function axvFog(x,z,o){o=o||{};axvCloud({sk:'self',x:0,y:0,r:(o.r||7)/AXM},{n:o.n||8,s:o.s||1.3,col:'#e8dcf4',edge:'#6a5a8a',sh:'#b8a8d8',d:1.1,dl:o.dl,_x:x,_z:z})}
+
+/* ================= (11/2) 魔法(炎・水・光): サウストの作り方 =================
+   飛ぶ玉 → 当たった所で白いトゲの光 → 属性の色の3Dのかたまり(炎の舌/水しぶき/光の柱) → 当たった敵に燃え残る・黒い破片
+   隕石: 魔法陣 → 上から岩(水なら水の玉)が落ちる → 白い光 → 大きなかたまり → 地面の焦げ跡 → 煙。必殺は画面いっぱいに流れる */
+const AXEL={fire:{c:'#ff8a1a',hi:'#ffe27a',e:'#5a1006',sh:'#c0300c'},water:{c:'#4ab8ff',hi:'#e6fbff',e:'#0a2a6a',sh:'#2a6ad8'},light:{c:'#ffd23a',hi:'#fffbe0',e:'#6a4206',sh:'#e09a10'}};
+function axvEl(f){const e=(f&&f.el)||'';return e==='water'?'water':e==='light'?'light':'fire'}
+/* 飛ぶ玉: 少し弧を描いて飛び、後ろに小さなかたまりを残す */
+function axvBall(x0,z0,x1,z1,o){o=o||{};if(!AXV3G){axv3Load();return}const T=A3.T,E=AXEL[o.el||'fire'],D=o.d||.18,geo=AXV3G.puff0||AXV3G.boom;const g=new T.Group(),mo={col:E.c,edge:E.e,sh:E.sh,ds:.9};g.add(new T.Mesh(geo,axv3Mat(mo,false)),new T.Mesh(geo,axv3Mat(mo,true)));
+  const S=o.s||1.3;g.scale.setScalar(S);let last=-1;axvAdd({o:g,d:D,dl:o.dl,u:k=>{const x=x0+(x1-x0)*k,z=z0+(z1-z0)*k,y=3+Math.sin(k*Math.PI)*2.5;g.position.set(x,y,z);g.rotation.y+=.3;const step=Math.floor(k*6);if(step!==last){last=step;axv3('puff'+(step%4),x,y,z,{s:S*.8,s0:S*.6,col:step%2?E.hi:E.c,edge:E.e,sh:E.sh,d:.3,ds:.1,vy:.5})}}})}
+/* 属性のかたまり(当たった所) s=大きさ */
+function axvElBurst(x,z,o){o=o||{};if(!AXV3G){axv3Load();return}const el=o.el||'fire',E=AXEL[el],s=o.s||1,dl=o.dl||0;
+  axvSpike(x,3,z+.8,{s:7*s,dl,d:.26});
+  if(el==='fire'){axv3('boom',x,s*1.2,z,{s:3.2*s,s0:.8*s,col:E.c,edge:E.e,sh:E.sh,d:.7,ds:.35,dl:dl+.03,vy:s*1.5});for(let i=0;i<4;i++){const a=i/4*6.28+Math.random(),r=s*1.6;axv3('flame',x+Math.cos(a)*r,0,z+Math.sin(a)*r*.7,{s:(2.4+Math.random())*s,s0:.4,col:i%2?E.c:E.hi,edge:E.e,sh:E.sh,d:.75,ds:.3,dl:dl+.04+i*.03,rot:3,sy:1.6})}
+    axvDebris(x,z,{n:Math.round(4*s),col:'#2a2228',s:.8*s,sp:9*s,dl:dl+.04});axvGraySmoke(x,z-.5,{n:2,s:1.8*s,dl:dl+.25})}
+  else if(el==='water'){for(let i=0;i<6;i++){const a=i/6*6.28+Math.random()*.5,r=s*1.4;axv3('flame',x+Math.cos(a)*r,0,z+Math.sin(a)*r*.7,{s:(2+Math.random()*1.2)*s,s0:.3,col:i%2?E.c:E.hi,edge:E.e,sh:E.sh,d:.6,ds:.25,dl:dl+.02+i*.02,sy:1.9})}
+    axv3('boom',x,s,z,{s:2.6*s,s0:.6*s,col:E.hi,edge:E.e,sh:E.c,d:.55,ds:.3,dl:dl+.02,vy:s});axvWave3(x,z,{s:5*s,col:E.c,dl:dl+.05});axvDebris(x,z,{n:Math.round(5*s),col:'#bfefff',s:.6*s,sp:10*s,dl:dl+.03})}
+  else{axv3('boom',x,s*1.2,z,{s:3*s,s0:.6*s,col:E.hi,edge:E.e,sh:E.c,d:.65,ds:.35,dl:dl+.02,vy:s});if(typeof axvPillar==='function')axvPillar(x,z,{r:1.6*s,h:13*s,col:E.c,d:.6,dl});axvPetals(x,z,{n:Math.round(10*s),r:4*s,dl:dl+.05});axvWave3(x,z,{s:4.5*s,col:E.c,dl:dl+.05})}}
+/* 当たった敵に残る: 炎は1秒燃える・水はしずく・光はきらめき(敵についていく) */
+function axvLinger(f,o){o=o||{};if(!AXV3G||typeof axInShape!=='function')return;const el=o.el||'fire',E=AXEL[el],S=Object.assign({k:f.sk||'tgt'},f);
+  for(const e of AXB.E){if(!axLive(e)||!axInShape(S,e))continue;const n=el==='fire'?3:2;for(let i=0;i<n;i++){const dl=(o.dl||0)+i*.25;axv3(el==='fire'?'flame':'puff'+(i%4),a3X(e.x)+(Math.random()-.5)*1.4,el==='fire'?.6:2.5,a3Z(e.y)+.4,{s:el==='fire'?1.5:.9,s0:.3,col:i%2?E.c:E.hi,edge:E.e,sh:E.sh,d:el==='fire'?.6:.5,ds:.3,dl,rot:2,sy:el==='fire'?1.5:1,vy:el==='fire'?.6:-1.5})}}}
+/* 隕石: 上から落ちる(落ちるまで dt 秒) */
+function axvMeteor(x,z,o){o=o||{};if(!AXV3G){axv3Load();return}const T=A3.T,el=o.el||'fire',E=AXEL[el],dl=o.dl||0,ft=o.ft||.3,s=o.s||1;
+  axvCircle(x,z,{r:5*s,col:E.c,d:dl+ft+.2});const geo=el==='fire'?AXV3G.shard0||AXV3G.boom:AXV3G.puff1||AXV3G.boom;const g=new T.Group(),mo={col:el==='fire'?'#4a3a40':E.c,edge:'#14080c',sh:el==='fire'?'#2a1a20':E.sh,ds:.95};g.add(new T.Mesh(geo,axv3Mat(mo,false)),new T.Mesh(geo,axv3Mat(mo,true)));g.scale.setScalar(2.2*s);
+  let last=-1;axvAdd({o:g,d:ft,dl,u:k=>{const y=26*(1-k),xx=x+(1-k)*6,zz=z-(1-k)*4;g.position.set(xx,y,zz);g.rotation.x+=.2;const st=Math.floor(k*8);if(st!==last){last=st;axv3(el==='fire'?'flame':'puff'+(st%4),xx,y+1.5,zz,{s:2.2*s,s0:1.4*s,col:st%2?E.c:E.hi,edge:E.e,sh:E.sh,d:.25,ds:.1})}}});
+  axvElBurst(x,z,{el,s:1.6*s,dl:dl+ft});axvScorch(x,z,{r:4.5*s,dl:dl+ft,el})}
+const AXV_SCORCH=`void main(){vec2 p=vU*2.-1.;float r=length(p),a=atan(p.y,p.x);float n=fbm(p*3.+uS);float R=.75+.25*n;if(r>R)discard;float crack=step(.93,fract(a*1.7+n*2.+uS))*step(r,R*.98)*step(.25,r);
+ float fade=1.-smoothstep(.6,1.,uT);if(n<uT*.9-.2)discard;vec3 c=mix(uE,uC,crack);gl_FragColor=vec4(c,uA*fade*(r<R*.85?.85:.6));}`;
+function axvScorch(x,z,o){o=o||{};const G=axvGeo(),el=o.el||'fire';const m=axvMesh(G.quad,AXV_SCORCH,false,{col:el==='water'?'#7ad8ff':el==='light'?'#ffe680':'#ff4a1a',edge:el==='water'?'#1a3a5a':el==='light'?'#6a5a2a':'#1a1014',ro:15});const r=o.r||4;m.scale.set(r*2,r*2,1);m.rotation.x=-Math.PI/2;m.position.set(x,.13,z);return axvAdd({o:m,d:o.d||1.4,dl:o.dl})}
+/* 必殺: 画面いっぱいに流れる(カメラの前に大きな板) */
+const AXV_FLOOD=`void main(){vec2 p=vU;float n=fbm(vec2(p.x*3.+uS,p.y*2.2-uT*3.));float n2=fbm(vec2(p.x*6.-uS,p.y*4.-uT*4.5));float h=uT<.35?uT/.35:1.;float cut=(1.-p.y)*1.25-(1.-h)*1.3+n*.6;float gone=uT>.55?(uT-.55)/.45:0.;
+ if(cut<.35+gone*1.4)discard;float k=cut-.35-gone*1.4;vec3 c=k<.06?uE:k<.25?uC:mix(uC,vec3(1.,.96,.8),smoothstep(.25,.6,k+n2*.3));gl_FragColor=vec4(c,uA*.92);}`;
+function axvFlood(o){o=o||{};const T=A3.T,G=axvGeo(),el=o.el||'fire',E=AXEL[el];const m=axvMesh(G.quad,AXV_FLOOD,false,{col:E.c,edge:E.e,ro:30});m.material.depthTest=false;
+  return axvAdd({o:m,d:o.d||1,dl:o.dl,u:k=>{const c=A3.cam;m.quaternion.copy(c.quaternion);m.position.copy(c.position);m.translateZ(-6);const h=2*6*Math.tan(c.fov*Math.PI/360);m.scale.set(h*c.aspect*1.1,h*1.1,1)}})}
 
 /* (11/2) 村の家並み。Quaternius Medieval Village MegaKit(CC0)の部品を組み立てる */
 /* 村の家並み(Quaternius Medieval Village MegaKit, CC0)を部品から組み立てる。
