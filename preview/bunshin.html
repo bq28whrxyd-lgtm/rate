@@ -5393,14 +5393,14 @@ function ax3MonUpd(u){if(!A3.mon)return false;let R=A3.monU.get(u);if(!R){R=ax3M
   const T=A3.T,A=AXB,t=A.t,dt=Math.min(.1,Math.max(0,t-R.lt));R.lt=t;R.root.visible=true;
   const mx=u.x-R.lx,my=(u.y-R.ly)/AXSQ;R.lx=u.x;R.ly=u.y;const tg=axTarget(u);let ty=R.yaw;
   if(Math.hypot(mx,my)>.25)ty=Math.atan2(mx,my);else if(tg)ty=Math.atan2(tg.x-u.x,(tg.y-u.y)/AXSQ);let d=ty-R.yaw;while(d>Math.PI)d-=Math.PI*2;while(d<-Math.PI)d+=Math.PI*2;if(!u.dead)R.yaw+=d*Math.min(1,dt*10);
-  if(u.dead){if(R.st!=='die'){ax3MonPlay(R,'die',1.3,.08);R.dT=t;R.pf=0}if(!R.pf&&t-R.dT>.75){R.pf=1;ax3PuffRing(a3X(u.x),a3Z(u.y),1.5,8,u.mob?4:6,1);ax3Puff(a3X(u.x),2,a3Z(u.y),u.mob?6:9,{vy:1.5})}}
+  if(u.dead){if(R.st!=='die'){ax3MonPlay(R,'die',1.3,.08);R.dT=t;R.pf=0}if(!R.pf&&t-R.dT>.75){R.pf=1;const me=AXB.me,dx=u.x-me.x,dy=(u.y-me.y)/AXSQ,dl=Math.hypot(dx,dy)||1;ax3PuffRing(a3X(u.x)+dx/dl*10.5,a3Z(u.y)+dy/dl*10.5,1.5,8,u.mob?4:6,1);ax3Puff(a3X(u.x)+dx/dl*10.5,2,a3Z(u.y)+dy/dl*10.5,u.mob?6:9,{vy:1.5})}}
   else if(u.pose==='p6'&&u.poseT>t&&R.aT!==u.poseT){R.aT=u.poseT;const a=R.acts.atk;if(a){const left=Math.max(.15,u.poseT-t);ax3MonPlay(R,'atk',Math.max(.6,Math.min(2.2,a.getClip().duration*.55/left)),.08);R.busy=t+left+.25}}
   else if(t-u.hitT<.05&&R.hT!==u.hitT&&R.busy<t){R.hT=u.hitT;ax3MonPlay(R,'hit',1.6,.05);R.busy=t+.35}
   else if(R.busy<t){const want=Math.hypot(mx,my)/Math.max(dt,.016)>8||u.pose==='p2'?'move':'idle';if(want!==R.st)ax3MonPlay(R,want,1,.15)}
   R.mixer.update(dt);
   const sp=clamp((t-(u.spawnT||0))/.25,0,1),sink=u.dead?Math.max(0,(t-R.dT-.9))*3:0,hop=(u.z||0)*AXM+((u.hop||0)*AXM)+(R.fly?1.6+Math.sin(t*3+(u.idx||0))*.25:0);
-  R.root.position.set(a3X(u.x),hop-R.y0-sink,a3Z(u.y));R.root.rotation.set(0,R.yaw,0);R.root.scale.setScalar(R.root.scale.x);
-  if(sp<1)R.root.scale.multiplyScalar(1);R.root.visible=!(u.dead&&t-R.dT>1.6)&&sp>0;
+  let kx=0,ky=0,kz=0,kr=0;if(u.dead&&R.dT!=null){const dv=Math.min(.75,t-R.dT),me=AXB.me,dx=u.x-me.x,dy=(u.y-me.y)/AXSQ,dl=Math.hypot(dx,dy)||1;kx=dx/dl*dv*14;kz=dy/dl*dv*14;ky=Math.sin(Math.min(1,dv/.75)*Math.PI)*4;kr=dv*9}R.root.position.set(a3X(u.x)+kx,hop-R.y0-sink+ky,a3Z(u.y)+kz);R.root.rotation.set(-kr*.5,R.yaw+kr,0);R.root.scale.setScalar(R.root.scale.x);
+  if(sp<1)R.root.scale.multiplyScalar(1);R.root.visible=!(u.dead&&t-R.dT>.8)&&sp>0;
   const fl=t-u.hitT<.06?.35:0;for(const m of R.mats)m.emissive.setScalar(fl);return true}
 function ax3MonHide(live){if(!A3.monU)return;for(const [u,R] of A3.monU)if(!live.has(u)){A3.S.remove(R.root);A3.monU.delete(u)}}
 /* ---------- 背景の自然(Quaternius の Stylized Nature MegaKit、CC0。アニメ塗りでまとめて描く) ---------- */
@@ -5552,7 +5552,16 @@ function ax3Overlay(){const A=AXB,O=A3.O,t=A.t,n=performance.now(),W2=A3.w,H2=A3
   /* 敵のHP・シールド・弱点 */for(const u of A.E){if(u.dead||u.spawnT>t||(u.mob&&u.hp>=u.max))continue;const [x,y,ok]=ax3P(u.x,u.y,u.ey*AXM*1.25+.4);if(!ok)continue;const w=u.mon&&!u.mob?62:u.mob?30:44;O.fillStyle='rgba(10,8,16,.75)';O.fillRect(x-w/2-1,y-1,w+2,7);O.fillStyle='#ff5a6a';O.fillRect(x-w/2,y,Math.round(w*u.hp/u.max),5);
     if(u.shMax){if(u.brk>t)oTxt(O,'BREAK',x,y-10,13,'#ffe066');else{for(let k=0;k<u.shMax;k++){O.fillStyle=k<u.sh?'#e8f0ff':'rgba(255,255,255,.25)';O.fillRect(x-u.shMax*5+k*10,y-10,7,6)}u.weak.forEach((wv,k)=>{const cx=x+w/2+14+k*22;O.fillStyle='rgba(12,9,18,.9)';O.beginPath();O.arc(cx,y+2,10,0,7);O.fill();O.strokeStyle=TRWC[wv];O.lineWidth=2;O.stroke();oTxt(O,TRW[wv],cx,y+3,12,'#fff')})}}
     if(u.role==='bomb'&&u.tel){const z=A.tel.find(q=>q.by===u);if(z)oTxt(O,String(Math.max(0,Math.ceil(z.t1-t))),x,y+26,28,'#ff3a2a')}}
-  /* 技の名前(上の帯。サウザンドストームと同じ場所) */if(A.ban&&t-A.ban.t<1.4){const v=t-A.ban.t,a=Math.min(1,v/.1)*(1-clamp((v-1.1)/.3,0,1)),y0=Math.max(96,(A3.topH||88)+8),w=Math.min(W2-24,340),x0=(W2-w)/2;O.save();O.globalAlpha=a;const g=O.createLinearGradient(x0,0,x0+w,0);g.addColorStop(0,'rgba(10,8,18,0)');g.addColorStop(.12,'rgba(10,8,18,.82)');g.addColorStop(.88,'rgba(10,8,18,.82)');g.addColorStop(1,'rgba(10,8,18,0)');O.fillStyle=g;O.fillRect(x0,y0,w,30);O.fillStyle=A.ban.col;O.globalAlpha=a*.9;O.fillRect(x0+w*.12,y0,w*.76,2);O.fillRect(x0+w*.12,y0+28,w*.76,1);O.restore();oTxt(O,A.ban.s,W2/2+(1-eo(Math.min(1,v/.15)))*20,y0+15,A.ban.ult?19:16,A.ban.ult?'#ffe066':'#ffffff',a)}
+  /* 技の名前(上の帯。サウザンドストームと同じ場所) */if(A.ban&&t-A.ban.t<1.6){const v=t-A.ban.t,ult=!!A.ban.ult,a=Math.min(1,v/.08)*(1-clamp((v-1.3)/.3,0,1)),y0=Math.max(96,(A3.topH||88)+8);
+    /* 必殺: 画面を暗くして、斜めの帯に大きな技名(サウスト風のカットイン) */
+    if(ult&&v<.9){const k=v<.12?v/.12:v>.7?1-(v-.7)/.2:1;O.save();O.globalAlpha=.55*k;O.fillStyle='#000';O.fillRect(0,0,W2,PH);O.globalAlpha=k;O.translate(W2/2,PH*.42);O.rotate(-.12);const bw=W2*1.4,sl=(1-eo(Math.min(1,v/.16)))*W2;
+      const g2=O.createLinearGradient(-bw/2,0,bw/2,0);g2.addColorStop(0,A.ban.col||'#ff9a3a');g2.addColorStop(.5,'#fff2b0');g2.addColorStop(1,A.ban.col||'#ff9a3a');O.fillStyle='#1a0a10';O.fillRect(-bw/2+sl,-46,bw,92);O.fillStyle=g2;O.fillRect(-bw/2+sl,-40,bw,80);
+      O.strokeStyle='rgba(255,255,255,.55)';O.lineWidth=2;for(let h=0;h<14;h++){const yy=-36+((h*13+v*900)%72);O.beginPath();O.moveTo(-bw/2,yy);O.lineTo(bw/2,yy);O.stroke()}O.restore();
+      oTxt(O,A.ban.s,W2/2-sl*.2,PH*.42-8,Math.min(42,W2*.1),'#ffffff',k);oTxt(O,'必殺',W2/2-sl*.2,PH*.42+26,15,'#1a0a10',k)}
+    /* 技名の札(左上): 色の帯+技名+Lv */
+    const sx=-(1-eo(Math.min(1,v/.14)))*260,w=Math.min(W2-24,250),x0=12+sx;O.save();O.globalAlpha=a;const g=O.createLinearGradient(x0,0,x0+w,0);g.addColorStop(0,ult?'rgba(150,30,20,.95)':'rgba(20,40,110,.95)');g.addColorStop(.8,ult?'rgba(150,30,20,.7)':'rgba(20,40,110,.7)');g.addColorStop(1,'rgba(0,0,0,0)');
+    O.fillStyle='#1a0a10';O.fillRect(x0-2,y0-2,w+4,34);O.fillStyle=g;O.fillRect(x0,y0,w,30);O.fillStyle=A.ban.col||'#ffd23a';O.fillRect(x0,y0,5,30);O.restore();
+    O.save();O.globalAlpha=a;O.font='900 16px sans-serif';O.textAlign='left';O.lineWidth=4;O.strokeStyle='#1a0a10';O.strokeText(A.ban.s,x0+14,y0+21);O.fillStyle='#ffffff';O.fillText(A.ban.s,x0+14,y0+21);const tw=O.measureText(A.ban.s).width;O.font='900 12px sans-serif';O.strokeText('Lv 1',x0+20+tw,y0+21);O.fillStyle='#ffe066';O.fillText('Lv 1',x0+20+tw,y0+21);O.restore()}
   /* 上に進む: エリアをクリアすると景色が手前に流れる */{if(A.trans&&A.trans.done&&A3.lastTr!==A.trans){A3.lastTr=A.trans;A3.scrB=(A3.scrB||0)+48}let off=A3.scrB||0;if(A.trans&&!A.trans.done)off+=48*eo(clamp((A.t-A.trans.t0)/1.1,0,1));if(A3.nat)A3.nat.position.z=off%96;if(A.__gtex)A.__gtex.offset.y=off/80}
   /* 敵の攻撃の予告: 頭の上に「!」 */for(const e of A.E){if(e.dead||e.pose!=='p6'||!(e.poseT>t))continue;const [ex,ey]=ax3P(e.x,e.y,e.mob?5.5:9.5),pl=1+.15*Math.sin(t*30),sz=Math.round((e.mob?26:38)*pl*(A3.dprO||1));O.save();O.font='900 '+sz+'px sans-serif';O.textAlign='center';O.lineWidth=sz*.22;O.strokeStyle='#1a0a10';O.strokeText('!',ex,ey);O.fillStyle=(e.poseT-t)<.25?'#ff3a3a':'#ffd23a';O.fillText('!',ex,ey);O.restore()}
   /* ダメージの数字・言葉 */for(const q of A.nums){const v=t-q.t;if(v>.9)continue;const gy=q.gy!=null?q.gy:q.y,[x,y]=ax3P(q.x,gy,(gy-q.y)*AXM+.6);ptext(O,q.v,Math.round(x),Math.round(y-(q.ln||0)*24-v*26-14*eo(Math.min(1,v/.16))),v<.04?'#fff':q.col,q.big?5:4,1-clamp((v-.55)/.35,0,1))}
