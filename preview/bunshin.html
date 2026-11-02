@@ -4722,7 +4722,7 @@ function axMobs(st,n,mid){const B=axBase(st),A=AXB,me=A.me,def=Math.round(B.st.d
   return L}
 const AXK=st=>({hp:9,atk:1});
 const AXAREA=[{k:'mob',n:[11,9]},{k:'mob',n:[11,10],mid:true},{k:'boss'}];/* (11/2) サウスト風: ザコは群れで来て、まとめて吹き飛ばす */
-function axArea(k){const A=AXB;A.area=k;A.tel=[];A.q=[];A.E=[];A.wave=0;A.trans=null;A.lock=null;A.pt=[];
+function axArea(k){const A=AXB;A.area=k;A.goN=performance.now()+(k?250:500);A.tel=[];A.q=[];A.E=[];A.wave=0;A.trans=null;A.lock=null;A.pt=[];
   const me=A.me;me.x=AXCX;me.y=AXCY+AXRY*.5;me.tx=null;me.dash=null;A.cam.x=clamp(me.x-A.cam.vw/2,0,Math.max(0,AWW-A.cam.vw));
   const D=AXAREA[k];if(D.k==='mob'){A.E=axMobs(A.st,D.n[0],D.mid);axSay('エリア'+(k+1)+': ザコをまとめて吹き飛ばそう')}else{A.E=axFoes(A.st);axSay('ボスエリア! '+A.E[0].name+' があらわれた')}
   A.banner={s:k===2?'BOSS':'AREA '+(k+1),t:A.t}}
@@ -5780,6 +5780,14 @@ function oNum(O,s,x,y,sz,kind,a,v){if(a<=0)return;O.save();O.globalAlpha=Math.mi
   const C={n:['#ffffff','#ffe9a8','#6a2a48'],big:['#fff7b0','#ffb02a','#7a2a10'],cr:['#fff8c0','#ff5a8a','#5a0a2a'],hurt:['#ffd0d0','#ff4a4a','#3a0808']}[kind]||['#fff','#fff','#333'];
   O.lineWidth=Math.max(4,sz*.36);O.strokeStyle='#1a0a14';O.strokeText(s,x,y);O.lineWidth=Math.max(2,sz*.16);O.strokeStyle=C[2];O.strokeText(s,x,y);
   const gr=O.createLinearGradient(0,y-sz*.45,0,y+sz*.4);gr.addColorStop(0,C[0]);gr.addColorStop(.55,C[0]);gr.addColorStop(1,C[1]);O.fillStyle=(v!=null&&v<.04)?'#ffffff':gr;O.fillText(s,x,y);O.restore()}
+function ax3Go(O,v,W2,cy,ar,boss){const cx=W2/2,eo3=x=>1-Math.pow(1-clamp(x,0,1),3),out=clamp((v-1)/.25,0,1),al=1-out;O.save();O.globalAlpha=al;
+  /* 帯 */const bh=74*eo3(v/.12)*(1-out*.6);O.fillStyle='rgba(12,8,20,.62)';O.fillRect(0,cy-bh/2,W2,bh);O.fillStyle=boss?'#ff5a4a':'#ffd23a';O.fillRect(0,cy-bh/2,W2,2);O.fillRect(0,cy+bh/2-2,W2,2);
+  /* 紋章: 回る歯の輪(オリジナル: 8つの三角の歯+内側の二重輪) */const rk=eo3(v/.22),R=46*(.4+.6*rk)*(1+out*.5);O.save();O.translate(cx,cy);O.rotate(v*1.6-0.6*(1-rk));O.globalAlpha=al*.9;O.lineWidth=4;O.strokeStyle=boss?'#ff7a5a':'#ffe9a0';O.beginPath();O.arc(0,0,R,0,7);O.stroke();O.lineWidth=2;O.beginPath();O.arc(0,0,R*.78,0,7);O.stroke();
+  O.fillStyle=boss?'#ff7a5a':'#ffe9a0';for(let i=0;i<8;i++){O.save();O.rotate(i*Math.PI/4);O.beginPath();O.moveTo(-6,-R-1);O.lineTo(6,-R-1);O.lineTo(0,-R-13);O.closePath();O.fill();O.restore()}O.restore();
+  /* 上の小さい文字 */O.globalAlpha=al*clamp((v-.08)/.1,0,1);oTxt(O,boss?'BOSS AREA':'AREA '+(ar+1),cx,cy-bh/2-12,13,'#ffffff');
+  /* GO!: 大きく打ち込んで縮む→最後は右へ抜ける */const g=clamp((v-.12)/.14,0,1),sc=g<1?2.4-1.4*eo3(g):1+.04*Math.sin(v*18)*(1-clamp((v-.4)/.3,0,1));if(v>.12){O.save();O.globalAlpha=al*Math.min(1,g*2);O.translate(cx+out*W2*.6,cy+2);O.scale(sc,sc);O.transform(1,0,-.14,1,0,0);O.font='italic 900 50px "Arial Black","Hiragino Sans",sans-serif';O.textAlign='center';O.textBaseline='middle';O.lineJoin='round';O.lineWidth=12;O.strokeStyle='#1a0a14';O.strokeText('GO!',0,0);O.lineWidth=5;O.strokeStyle=boss?'#9a1a10':'#b0560a';O.strokeText('GO!',0,0);const gr=O.createLinearGradient(0,-22,0,22);gr.addColorStop(0,'#ffffff');gr.addColorStop(.5,'#fff3a0');gr.addColorStop(1,boss?'#ff6a3a':'#ffb02a');O.fillStyle=gr;O.fillText('GO!',0,0);O.restore()}
+  /* 打ち込みの瞬間の白い線 */if(v>.24&&v<.5){const k=(v-.24)/.26;O.globalAlpha=al*(1-k);O.strokeStyle='#fff';O.lineWidth=2;for(let i=0;i<10;i++){const a=i/10*6.28+.3,r0=60+k*60,r1=r0+18+(i%3)*10;O.beginPath();O.moveTo(cx+Math.cos(a)*r0*1.6,cy+Math.sin(a)*r0*.7);O.lineTo(cx+Math.cos(a)*r1*1.6,cy+Math.sin(a)*r1*.7);O.stroke()}}
+  O.restore()}
 function oTxt(O,s,x,y,sz,col,a,al){if(a<=0)return;O.save();O.globalAlpha=a==null?1:Math.min(1,a);O.font='900 '+sz+'px "Hiragino Sans","Noto Sans JP",sans-serif';O.textAlign=al||'center';O.textBaseline='middle';O.lineJoin='round';O.lineWidth=Math.max(3,sz*.26);O.strokeStyle='#160d14';O.strokeText(s,x,y);O.fillStyle=col;O.fillText(s,x,y);O.restore()}
 function ax3Overlay(){const A=AXB,O=A3.O,t=A.t,n=performance.now(),W2=A3.w,H2=A3.h,PH=H2*.72;O.setTransform(A3.dpr,0,0,A3.dpr,0,0);O.clearRect(0,0,W2,H2);
   if(A.cut&&(n-A.cut.t)/1000<AXCUTT-.22){ax3CutOv(O,A,W2,H2,PH,n);return}
@@ -5790,6 +5798,7 @@ function ax3Overlay(){const A=AXB,O=A3.O,t=A.t,n=performance.now(),W2=A3.w,H2=A3
   /* 画面の外にいる敵: 端に矢印 */{const top=(A3.topH||88)+46,bot=PH*1.1,mx=W2/2,my=(top+bot)/2;for(const u of A.E){if(!axLive(u)||u.spawnT>t)continue;let [x,y,ok]=ax3P(u.x,u.y,2);if(ok&&x>10&&x<W2-10&&y>top-30&&y<bot+20)continue;if(!ok){x=W2-x;y=bot+200}const ang=Math.atan2(y-my,x-mx),k=Math.min((W2/2-20)/Math.abs(Math.cos(ang)||1e-3),((bot-top)/2)/Math.abs(Math.sin(ang)||1e-3)),ax=mx+Math.cos(ang)*k,ay=my+Math.sin(ang)*k,pl=1+.12*Math.sin(t*10);
     O.save();O.translate(ax,ay);O.rotate(ang);O.scale(pl,pl);O.beginPath();O.moveTo(12,0);O.lineTo(-6,-10);O.lineTo(-6,10);O.closePath();O.lineWidth=3;O.strokeStyle='#0b0812';O.stroke();O.fillStyle=u.mob?'#ffffff':'#ff5a4a';O.fill();O.restore()}}
   /* ボスの名前の札 */if(A3.bossU){const v=(n-A3.bossN)/1000;if(v>.25&&v<1.6){const a=Math.min(1,(v-.25)/.12)*(1-clamp((v-1.35)/.25,0,1)),nm=A3.bossU.name||'ボス';O.save();O.globalAlpha=a;O.font='900 17px "Hiragino Sans","Noto Sans JP",sans-serif';const w=Math.max(150,O.measureText(nm).width+44),x=W2/2-w/2,y=PH*.86;O.fillStyle='#3a1e0c';O.fillRect(x-3,y-3,w+6,36);O.fillStyle='#fff3dc';O.fillRect(x,y,w,30);O.fillStyle='#c98a3a';O.fillRect(x,y,w,3);O.fillRect(x,y+27,w,3);O.textAlign='center';O.textBaseline='middle';O.fillStyle='#3a1e0c';O.fillText(nm,W2/2,y+16);O.restore()}}
+  /* (11/3) エリアの始まり: 紋章の輪+「GO!」(サウストの作り方: 輪が開いて文字が打ち込まれ、横に抜ける) */if(A.goN){const v=(n-A.goN)/1000;if(v>=0&&v<1.25)ax3Go(O,v,W2,PH*.46,A.area,AXAREA[A.area]&&AXAREA[A.area].k==='boss')}
   /* 技の名前(上の帯。サウザンドストームと同じ場所) */if(A.ban&&!A.ban.n)A.ban.n=n;if(A.ban&&(n-A.ban.n)/1000<(A.ban.ult?2.9:1.6)){const v=(n-A.ban.n)/1000-(A.ban.ult?1.3:0),ult=!!A.ban.ult,a=Math.min(1,v/.08)*(1-clamp((v-1.3)/.3,0,1)),y0=Math.max(96,(A3.topH||88)+8);
     /* 技名の帯(サウスト風): 画面の横いっぱいの半透明の帯。左に使った人、真ん中に技名、右に Lv */
     if(v>=0){const k=Math.min(1,v/.1),hh=28,yy=y0+(1-k)*-8;O.save();O.globalAlpha=a*.78;O.fillStyle='#0b0812';O.fillRect(0,yy,W2,hh);O.globalAlpha=a;O.fillStyle=A.ban.col||'#ffd23a';O.fillRect(0,yy,W2,1.5);O.fillRect(0,yy+hh-1.5,W2,1.5);
