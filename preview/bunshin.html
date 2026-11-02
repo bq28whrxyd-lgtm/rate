@@ -4706,13 +4706,13 @@ function axUnit(f,side,x,y,o){o=o||{};const st=f.st,u={f,side,x,y,tx:null,ty:nul
 /* ---------- 敵 ---------- */
 function axBase(st){return fighterOpp(questOpp(st))}
 function axWk(){const ws=Object.keys(TRW).filter(w=>w!=='hammer'&&w!=='penlight'),pw=[...new Set(AXB.P.map(u=>u.f.wt))],a=pw[Math.floor(Math.random()*pw.length)],r=ws.filter(w=>w!==a);return [a,r[Math.floor(Math.random()*r.length)]]}
-function axEdge(k){/* 広場のふち(右側や奥)から出てくる */const a=-.9+Math.random()*1.8+(k%3===2?Math.PI:0);return [AXCX+Math.cos(a)*AXRX*.9,AXCY+Math.sin(a)*AXRY*.9]}
+function axEdge(k){/* 広場の奥(上)から出てくる。たまに横から */const a=-Math.PI/2+(Math.random()-.5)*(k%3===2?2.6:1.6);return [AXCX+Math.cos(a)*AXRX*.9,AXCY+Math.sin(a)*AXRY*.9]}
 function axFoes(st){const L=[],B=axBase(st);
   const lead={Bf:Object.assign({},B,{st:Object.assign({},B.st)})};if(!B.boss){const lm=tgLeadMon(st);tgMon(lead,lm[0],lm[1],st%10===0?100:90,st%10===0?lm[2]:null)}
   const roles=st<=1?[]:tgRoles(st).filter(r=>r!=='rare').slice(0,2),K=AXK(st);
   const mk=(Bf,role,x,y,sh,hpk,name,mon,s,ey)=>{const f=Object.assign({},Bf,{st:Object.assign({},Bf.st,{hp:Math.round(Bf.st.hp*hpk*K.hp),atk:Math.round(Bf.st.atk*K.atk*(role==='lead'?1:.6)),mag:Math.round(Bf.st.mag*K.atk*(role==='lead'?1:.6))})}),u=axUnit(f,'E',x,y,{role,sh,weak:axWk(),name,mon,s,ey,spawnT:AXB.t+.3});u.el=mon?TCMEL[mon]||null:null;return u};
-  L.push(mk(lead.Bf,'lead',AXCX+90,AXCY-30,5,roles.length?.7:1,lead.name||B.name,lead.mon||null,lead.s||.6,lead.ey||70));
-  roles.forEach((r,k)=>{const R=TGR[r],mm=TGMN[r],tmp={Bf:Object.assign({},B,{boss:null})};if(mm)tgMon(tmp,mm[0],mm[1],Math.round(mm[2]*.8),null);L.push(mk(tmp.Bf,r,AXCX+130,AXCY-60+k*110,R.sh,R.hp*1.2,R.n,tmp.mon||null,tmp.s||.4,tmp.ey||50))});
+  L.push(mk(lead.Bf,'lead',AXCX,AXCY-AXRY*.45,5,roles.length?.7:1,lead.name||B.name,lead.mon||null,lead.s||.6,lead.ey||70));
+  roles.forEach((r,k)=>{const R=TGR[r],mm=TGMN[r],tmp={Bf:Object.assign({},B,{boss:null})};if(mm)tgMon(tmp,mm[0],mm[1],Math.round(mm[2]*.8),null);L.push(mk(tmp.Bf,r,AXCX-80+k*160,AXCY-AXRY*.62,R.sh,R.hp*1.2,R.n,tmp.mon||null,tmp.s||.4,tmp.ey||50))});
   return L}
 /* ザコ: 体力は「ふつうの攻撃で2〜3発」になるよう、こちらの強さから決める */
 function axMobs(st,n,mid){const B=axBase(st),A=AXB,me=A.me,def=Math.round(B.st.def*.5),hit=me.pow*.7*60/(60+def),L=[];
@@ -4723,7 +4723,7 @@ function axMobs(st,n,mid){const B=axBase(st),A=AXB,me=A.me,def=Math.round(B.st.d
 const AXK=st=>({hp:9,atk:1});
 const AXAREA=[{k:'mob',n:[6,5]},{k:'mob',n:[6,6],mid:true},{k:'boss'}];
 function axArea(k){const A=AXB;A.area=k;A.tel=[];A.q=[];A.E=[];A.wave=0;A.trans=null;A.lock=null;A.pt=[];
-  const me=A.me;me.x=AXCX-120;me.y=AXCY+10;me.tx=null;me.dash=null;A.cam.x=clamp(me.x-A.cam.vw/2,0,Math.max(0,AWW-A.cam.vw));
+  const me=A.me;me.x=AXCX;me.y=AXCY+AXRY*.72;me.tx=null;me.dash=null;A.cam.x=clamp(me.x-A.cam.vw/2,0,Math.max(0,AWW-A.cam.vw));
   const D=AXAREA[k];if(D.k==='mob'){A.E=axMobs(A.st,D.n[0],D.mid);axSay('エリア'+(k+1)+': ザコをまとめて吹き飛ばそう')}else{A.E=axFoes(A.st);axSay('ボスエリア! '+A.E[0].name+' があらわれた')}
   A.banner={s:k===2?'BOSS':'AREA '+(k+1),t:A.t}}
 /* ---------- 画面(全画面のキャンバスとカメラ) ---------- */
@@ -4764,7 +4764,7 @@ function axHoldTick(u,dt,hold){const c=AXCLS(u.role),t=AXB.t,A=AXB;
   else if(c==='snipe'){if(u.hitT>A.press.at){axTxt('集中がとぎれた',u.x,u.y-70,'#c9d4ff',8);A.press.at=t+9;return}u.holding='snipe';if(hold>=1&&!u.focusDone){u.focusDone=1;u.buff.focus=t+5;axTxt('集中!',u.x,u.y-74,'#9fe8ff',12);A.fx.push({k:'wave',x:u.x,y:u.y,r:36,t,d:.4,col:'#9fe8ff'});if(typeof SFX!=='undefined'&&SFX.chain)SFX.chain(2)}}
   else{u.holding='atk';if(Math.random()<dt*14)axPt(u.x+(Math.random()-.5)*20,u.y,0,0,0,30+Math.random()*30,'#ffe066','spark',.4)}}
 /* ---------- helpers ---------- */
-const AXFXAN={spinblade:'spin',dashcut:'atk1',heavy:'atk3',quake:'atk3',shieldbash:'thrust',taunt:'win',sweep:'atk2',thrusts:'thrust',fists:'punch',beam:'punch',heal:'cast',pillar:'cast',orb:'cast',meteor:'cast',arrow:'shoot',rain:'shoot',cheerup:'win',soundwave:'cast'};
+const AXFXAN={spinblade:'spin',dashcut:'dashcut',heavy:'atk3',quake:'atk3',shieldbash:'thrust',taunt:'win',sweep:'atk2',thrusts:'thrust',fists:'punch',beam:'punch',heal:'cast',pillar:'cast',orb:'cast',meteor:'cast',arrow:'shoot',rain:'shoot',cheerup:'win',soundwave:'cast'};
 function axAnim(u,n){if(u&&u.side==='P')u.an={n,t:AXB.t}}
 const axLive=u=>u&&!u.dead;
 function axTarget(u){if(u.side==='E'){const m=AXB.me;return axLive(m)?m:null}const L=AXB.E.filter(e=>axLive(e)&&e.spawnT<=AXB.t);if(!L.length)return null;
@@ -4811,7 +4811,7 @@ function axSkill(u,i){i=i||0;if(!axCan(u,i)||AXB.trans||AXB.over)return false;co
   if(S.dash){const L=S.sh.len*.85;u.dash={vx:Math.cos(Sh.ang)*L/.16,vy:Math.sin(Sh.ang)*AXSQ*L/.16,t,d:.16,ghost:1};u.inv=t+.25}
   const n=S.hits||1,g=S.gap||.11;for(let h=0;h<n;h++)axAt((S.delay||0)+h*g,()=>{if(axLive(u)&&u===A.me)axArea2(u,Sh,S.m,{kb:h===n-1?S.kb:0,shield:h===0?S.shield||1:0,big:S.m>=2})});return true}
 function axUlt(u){const A=AXB;if(!axLive(u)||A.over||A.trans||!axCan(u,2))return;const k=A.rushOn?.5:1;A.sp-=axCost(2,u);u.cdU=A.t+AXULT.cd*k;
-  const ro=u.role,nm=typeof tuName==='function'?tuName(u.f):'必殺';A.cut={u,nm,t:performance.now()};axAnim(u,{sword:'atk3',warrior:'atk3',monk:'punch',lancer:'thrust',hunter:'shoot',mage:'cast',priest:'cast',knight:'win',guard:'win',cheer:'win'}[ro]||'atk3');A.stop=Math.max(A.stop,.95);A.dim=1;if(typeof SFX!=='undefined'&&SFX.ult)SFX.ult();axSay(u.name+'の必殺「'+nm+'」');
+  const ro=u.role,nm=typeof tuName==='function'?tuName(u.f):'必殺';A.cut={u,nm,t:performance.now()};axAnim(u,{sword:'ult',warrior:'atk3',monk:'punch',lancer:'thrust',hunter:'shoot',mage:'cast',priest:'cast',knight:'win',guard:'win',cheer:'win'}[ro]||'atk3');A.stop=Math.max(A.stop,.95);A.dim=1;if(typeof SFX!=='undefined'&&SFX.ult)SFX.ult();axSay(u.name+'の必殺「'+nm+'」');
   axAt(.05,()=>{const t=A.t,col=TRWC[u.f.wt]||'#ffe066';
     if(ro==='priest'){u.hp=Math.min(u.max,u.hp+Math.round(u.max*.5));A.P.forEach(p=>{if(p.dead){p.dead=false;p.hp=Math.round(p.max*.3)}})}
     if(ro==='knight'||ro==='guard')u.buff.guard=t+7;if(ro==='cheer'){u.buff.atk=t+9;A.sp=Math.min(100,A.sp+30)}
@@ -4851,7 +4851,7 @@ function axTick(dt){const A=AXB;if(A.over)return;A.flash=Math.max(0,A.flash-dt*2
   axCamUpd(dt);
   const D=AXAREA[A.area];if(D.k==='mob'&&A.wave===0&&A.E.filter(axLive).length<=2){A.wave=1;A.E.push(...axMobs(A.st,D.n[1],false));axSay('ザコのおかわりが来た!')}
   if(!A.P.some(axLive))axEnd(false);else if(!A.E.some(axLive)&&A.E.every(e=>t-e.deadT>.5)){if(A.area<AXAREA.length-1){A.trans={t0:t};axSay('エリアクリア! 先へ進もう')}else axEnd(true)}}
-function axTrans(dt){const A=AXB,v=A.t-A.trans.t0,me=A.me;if(axLive(me)){me.x+=110*dt;me.face=1;me.pose='p2'}A.tel=[];axCamUpd(dt);
+function axTrans(dt){const A=AXB,v=A.t-A.trans.t0,me=A.me;if(axLive(me)){me.y-=70*dt;me.pose='p2'}A.tel=[];axCamUpd(dt);
   if(v>1.1&&!A.trans.done){axArea(A.area+1);A.trans={t0:A.t-1.1,done:1};axUI()}if(A.trans&&A.trans.done&&A.t-A.trans.t0>1.45)A.trans=null}
 function axMove(u,tx,ty,dt,k){const dx=tx-u.x,dy=(ty-u.y),d=Math.hypot(dx,dy);if(d<2){u.pose='p1';return true}const sp=u.mv*(k||1)*dt;let nx=u.x+dx/d*Math.min(sp,d),ny=u.y+dy/d*Math.min(sp*.7,Math.abs(dy)>0?d:0);const q=axClamp(nx,ny,u.side==='E'?1.1:1);u.x=q[0];u.y=q[1];if(Math.abs(dx)>2)u.face=dx>0?1:-1;u.pose='p2';
   if(Math.random()<dt*4)axPt(u.x,u.y,1,0,0,6,'#d8c8a8','dust',.35,4);return false}
@@ -5280,7 +5280,7 @@ function ax3Weapon(wt){const T=A3.T,G=new T.Group(),M=c=>new T.MeshToonMaterial(
   if(wt==='fist'){return G}
   /* 剣: ドット絵と同じ 金色っぽい木の刃 */add(new T.CylinderGeometry(.018,.02,.17,8),'#3a2418',0,0,.0).rotation.x=Math.PI/2;add(new T.BoxGeometry(.17,.03,.035),'#d8a840',0,0,.1);
   const bl=add(new T.BoxGeometry(.06,.014,.62),'#c89a58',0,0,.42);add(new T.ConeGeometry(.043,.1,4),'#c89a58',0,0,.78).rotation.set(Math.PI/2,0,Math.PI/4);bl.scale.set(1,1,1);return G}
-function ax3CharMake(u){const T=A3.T,C=A3.chr;const root=AX3.skClone(C.scene);root.scale.setScalar(6.3);
+function ax3CharMake(u){const T=A3.T,C=A3.chr;const root=AX3.skClone(C.scene);root.scale.setScalar(5.3);
   const OLM=new T.MeshBasicMaterial({color:0x1a1014,side:T.BackSide});OLM.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <skinning_vertex>','#include <skinning_vertex>\ntransformed+=normalize(objectNormal)*0.0085;')};
   const outl=[];let face=null;root.traverse(o=>{if(!o.isMesh)return;o.frustumCulled=false;o.castShadow=true;if(o.morphTargetDictionary&&o.morphTargetDictionary.Fcl_EYE_Close!=null)face=o;
     const n=(Array.isArray(o.material)?o.material[0]:o.material).name||'';if(o.isSkinnedMesh&&!/EYE|FACE\b|Brow|Eyeline|FaceMouth/.test(n))outl.push(o)});
@@ -5292,7 +5292,7 @@ function ax3CharMake(u){const T=A3.T,C=A3.chr;const root=AX3.skClone(C.scene);ro
   const mixer=new T.AnimationMixer(root),acts={};for(const k in C.clips){const a=mixer.clipAction(C.clips[k]);acts[k]=a;if(!/idle|run|charge/.test(k)){a.setLoop(T.LoopOnce,1);a.clampWhenFinished=true}}
   A3.S.add(root);const R={root,B,rest,fing,hair,face,wp,mixer,acts,st:null,stT:0,anT:-1,yaw:0,lt:AXB.t,lx:u.x,ly:u.y,cur:{},blink:2,spinA:0};C.map.set(u,R);if(acts.idle){acts.idle.play();R.st='idle'}return R}
 /* ゲームの動き → Mixamoの動き(off=始める位置、ts=速さ) */
-const AXVMAP={atk1:{c:'atk1',ts:1.7},atk2:{c:'atk2',ts:1.8},atk3:{c:'atk3',ts:1.6},thrust:{c:'power',ts:1.8},punch:{c:'punch',ts:1.6},spin:{c:'spin',ts:1.7},cast:{c:'cast',ts:1.5},shoot:{c:'cast',ts:1.6},hit:{c:'hit',ts:1.4,off:0},win:{c:'win',ts:1,off:0},dash:{c:'run',ts:2.2,off:0},heavy:{c:'jump',ts:1.6}};
+const AXVMAP={dashcut:{c:'jump',ts:1.9},ult:{c:'power',ts:1.25},atk1:{c:'atk1',ts:1.7},atk2:{c:'atk2',ts:1.8},atk3:{c:'atk3',ts:1.6},thrust:{c:'power',ts:1.8},punch:{c:'punch',ts:1.6},spin:{c:'spin',ts:1.7},cast:{c:'cast',ts:1.5},shoot:{c:'cast',ts:1.6},hit:{c:'hit',ts:1.4,off:0},win:{c:'win',ts:1,off:0},dash:{c:'run',ts:2.2,off:0},heavy:{c:'jump',ts:1.6}};
 function ax3VPlay(R,name,ts,off,fade){const a=R.acts[name];if(!a)return;const pv=R.acts[R.st];a.reset();a.timeScale=ts||1;a.time=off||0;a.setEffectiveWeight(1);a.play();if(pv&&pv!==a)a.crossFadeFrom(pv,fade==null?.1:fade,false);R.st=name}
 /* 動きを時間から計算する(t=経過秒)。腕は「向き」、ひじ・ひざは「曲げる角度」で決める */
 const AXV=(x,y,z)=>({x,y,z});
@@ -5438,6 +5438,30 @@ function ax3Impacts(t){const T=A3.T,A=AXB;A3.imp=A3.imp||[];A3.impSeen=A3.impSee
   A3.imp=A3.imp.filter(o=>{const a=t-o.t,D=o.big?.26:.17;if(a>D||a<0){A3.S.remove(o.sp);o.sp.material.dispose();if(o.ln){A3.S.remove(o.ln);o.ln.material.dispose()}return false}
     const k=a<.05?a/.05:1,S=(o.big?7:4.2)*(k<1?.4+.8*k:1.2-.35*(a-.05)/(D-.05));o.sp.scale.set(S,S,1);o.sp.material.opacity=a<D*.6?1:1-(a-D*.6)/(D*.4);
     if(o.ln){const L=16+a*40;o.ln.scale.set(L,L,1);o.ln.material.opacity=1-a/D;o.ln.material.rotation=a*2}return true})}
+/* ---------- 技の見た目をアニメ風に(黒いふち+白い芯+色。光で白飛びしない) ---------- */
+function ax3RingTex(col){const k='ring'+col;if(A3.tex[k])return A3.tex[k];return A3.tex[k]=ax3Tex((g,w)=>{const c=w/2;g.translate(c,c);
+  for(let i=0;i<120;i++){const a0=i/120*Math.PI*2,a1=(i+1.2)/120*Math.PI*2,f=i/120,th=.1+.9*f;if(i%40>34)continue;
+    const ro=c*(.96),ri=c*(.96-.3*th);g.beginPath();g.arc(0,0,ro,a0,a1);g.arc(0,0,ri,a1,a0,true);g.closePath();g.fillStyle='#120a10';g.fill();
+    const ro2=c*(.93),ri2=c*(.96-.3*th+.035);if(ri2<ro2){g.beginPath();g.arc(0,0,ro2,a0,a1);g.arc(0,0,ri2,a1,a0,true);g.closePath();g.fillStyle=col;g.fill();
+      const ro3=c*(.93-.02),ri3=Math.max(ri2,c*(.93-.12*th));g.beginPath();g.arc(0,0,ro3,a0,a1);g.arc(0,0,ri3,a1,a0,true);g.closePath();g.fillStyle='#ffffff';g.fill()}}},512)}
+function ax3StreakTex(col){const k='strk'+col;if(A3.tex[k])return A3.tex[k];return A3.tex[k]=ax3Tex((g,w)=>{const h=w;const sh=(y0,y1,c)=>{g.beginPath();g.moveTo(0,h/2);g.quadraticCurveTo(w*.2,y0,w*.88,y0);g.lineTo(w,h/2);g.lineTo(w*.88,y1);g.quadraticCurveTo(w*.2,y1,0,h/2);g.closePath();g.fillStyle=c;g.fill()};
+  sh(h*.3,h*.7,'#120a10');sh(h*.36,h*.64,col);sh(h*.44,h*.56,'#ffffff')},256)}
+function ax3CresTex(col){const k='cres'+col;if(A3.tex[k])return A3.tex[k];return A3.tex[k]=ax3Tex((g,w)=>{g.translate(w/2,w/2);const R=w*.46;const cr=(o,i,c)=>{g.beginPath();g.arc(0,0,R*o,-2.3,.8);g.arc(R*.18,-R*.1,R*i,.8,-2.3,true);g.closePath();g.fillStyle=c;g.fill()};
+  cr(1,.92,'#120a10');cr(.95,.95,col);cr(.9,.99,'#ffffff')},256)}
+function ax3AnimeFx(t){const T=A3.T,A=AXB;A3.afx=A3.afx||[];A3.afxSeen=A3.afxSeen||new WeakSet();const H=3.6;
+  const mk=(map,o)=>{const m=new T.MeshBasicMaterial({map,transparent:true,depthTest:false,depthWrite:false,toneMapped:false,side:T.DoubleSide});const ms=new T.Mesh(o.geo||new T.PlaneGeometry(1,1),m);ms.renderOrder=17;A3.S.add(ms);return ms};
+  const spr=(map)=>{const s=new T.Sprite(new T.SpriteMaterial({map,transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));s.renderOrder=18;A3.S.add(s);return s};
+  for(const f of A.fx){if(A3.afxSeen.has(f))continue;A3.afxSeen.add(f);if(t-f.t>.1)continue;const col=f.col||'#ffd84a';
+    if(f.k==='spinblade'){const X=a3X(f.x!=null?f.x:f.ux),Z=a3Z(f.y!=null?f.y:f.uy),r=(f.r||58)*AXM*1.25;for(let h=0;h<2;h++){const ms=mk(ax3RingTex(h?'#ffffff':col),{});ms.rotation.x=-Math.PI/2;ms.position.set(X,H+h*.8,Z);A3.afx.push({o:ms,t:t+h*.1,d:.42,kind:'ring',r:r*(1+h*.12),sp:h?-1:1})}}
+    else if(f.k==='dashcut'){const L=(f.len||140)*AXM*.85,ang=f.ang||0;const g=new T.PlaneGeometry(1,1);g.translate(.5,0,0);g.rotateX(-Math.PI/2);const ms=mk(ax3StreakTex(col),{geo:g});ms.position.set(a3X(f.ux),H-.6,a3Z(f.uy));ms.rotation.y=-ang;A3.afx.push({o:ms,t,d:.5,kind:'strk',L});
+      const ex=a3X(f.ux)+Math.cos(ang)*L,ez=a3Z(f.uy)+Math.sin(ang)*L;for(let h=0;h<2;h++){const s=spr(ax3CresTex(h?'#ffffff':col));s.position.set(ex,H,ez);s.material.rotation=h?2.2:-.6;A3.afx.push({o:s,t:t+.12+h*.06,d:.32,kind:'cres',S:7})}}
+    else if(f.k==='ult_slash'){const X=a3X(f.x),Z=a3Z(f.y);[-.6,.7,1.5,-1.4,.1].forEach((r,h)=>{const s=spr(ax3CresTex(h%2?'#ffffff':col));s.position.set(X+(Math.random()-.5)*2,H+.6,Z+(Math.random()-.5)*2);s.material.rotation=r;A3.afx.push({o:s,t:t+.25+h*.09,d:.4,kind:'cres',S:11+h})});
+      const l=spr(ax3LinesTex());l.position.set(X,H,Z);A3.afx.push({o:l,t:t+.2,d:.9,kind:'lines'})}}
+  A3.afx=A3.afx.filter(e=>{const a=t-e.t,o=e.o,m=o.material;if(a>e.d){A3.S.remove(o);m.dispose();if(o.geometry&&!o.isSprite)o.geometry.dispose();return false}if(a<0){o.visible=false;return true}o.visible=true;const k=a/e.d,fade=k<.6?1:1-(k-.6)/.4;m.opacity=fade;
+    if(e.kind==='ring'){const s=e.r*2*(.75+.35*Math.min(1,a/.12));o.scale.set(s,s,1);o.rotation.z=e.sp*a*16}
+    else if(e.kind==='strk'){const g=Math.min(1,a/.08);o.scale.set(e.L*g,1,2.4*(1-k*.5))}
+    else if(e.kind==='cres'){const p=Math.min(1,a/.06),s=e.S*(.5+.6*p);o.scale.set(s,s,1)}
+    else if(e.kind==='lines'){const s=22+a*30;o.scale.set(s,s,1);m.rotation=a}return true})}
 /* ---------- ドット絵を3Dの中で動かす(板を細かく分けて、上の方ほど大きく曲げる) ---------- */
 function ax3SprMat(H){const T=A3.T,dusk=AXB&&AXB.bg==='dusk';const m=new T.ShaderMaterial({uniforms:{map:{value:A3.atl},uH:{value:H},uT:{value:0},uLean:{value:0},uSway:{value:0},uBreath:{value:0},uSq:{value:0},uSx:{value:1},uFlash:{value:0},uA:{value:1},uTex:{value:new T.Vector2(1/1024,1/1024)},uTint:{value:new T.Color(dusk?'#ffe2cc':'#ffffff')},uRim:{value:new T.Color(dusk?'#ffc080':'#fff4d8')}},side:T.DoubleSide,
   vertexShader:'uniform float uH,uT,uLean,uSway,uBreath,uSq,uSx;varying vec2 vUv;void main(){vUv=uv;vec3 p=position;float k=clamp(p.y/uH,0.,1.);p.y*=(1.-uSq);p.x*=uSx*(1.+uSq*.5);p.y+=uBreath*k*uH*.014;p.x+=uLean*k*k*uH*.45;p.x+=uSway*sin(uT*3.1+k*5.)*smoothstep(.2,1.,k)*uH*.012;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}',
@@ -5448,7 +5472,7 @@ function ax3Pup(u,t){/* 動きの量: 呼吸・前のめり・つぶれ・のび
   if(u.pose==='p2'){P.lean=.16*dir;P.sway=1.6;P.hop=Math.abs(Math.sin(t*13+(u.idx||0)))*.16;P.sq=.04*Math.cos(t*26)}
   if(u.dash){P.lean=.42*dir;P.sx=1.12;P.sq=.08}
   const an=u.side==='P'?u.an:null;if(an){const a=t-an.t,n=an.n;
-    if(/atk|thrust|punch|shoot/.test(n)&&a<.4){if(a<.07){P.lean=-.2*dir;P.sq=.06}else if(a<.17){P.lean=.34*dir;P.sq=-.06;P.sx=1.06}else P.lean=.34*dir*(1-(a-.17)/.23)}
+    if(/atk|thrust|punch|shoot|dashcut|ult/.test(n)&&a<.4){if(a<.07){P.lean=-.2*dir;P.sq=.06}else if(a<.17){P.lean=.34*dir;P.sq=-.06;P.sx=1.06}else P.lean=.34*dir*(1-(a-.17)/.23)}
     else if(/cast|win/.test(n)&&a<.5){const k=Math.sin(Math.min(1,a/.5)*Math.PI);P.sq=-.1*k;P.hop+=n==='win'?k*.8:k*.2}
     else if(n==='spin'&&a<.5){P.sx=Math.cos(a*30)*1;P.sq=-.05}}
   if(u.side==='E'&&u.pose==='p6'&&u.poseT>t){const r=u.poseT-t;P.lean=r>.12?-.16*dir:.3*dir}
@@ -5479,7 +5503,7 @@ function ax3Frame(){const A=AXB,T=A3.T,t=A.t,n=performance.now();if(!A3)return;
     const sw=(u.side==='E'?(u.mon?3.0:2.0)*(u.mob?.7:1):1.8)*dk;U.shd.position.set(a3X(u.x),.03,a3Z(u.y));U.shd.scale.set(sw,1,sw*.6);U.shd.visible=!u.dead||!u.fly;U.shd.material=A3.shadM}
   ax3CharHideOthers(live3);ax3MonHide(liveM);
   for(const [u,U] of A3.units)if(!live.has(u)){A3.S.remove(U.spr,U.shd);U.spr.geometry.dispose();U.spr.material.dispose();A3.units.delete(u)}
-  A3.atl.needsUpdate=true;ax3Impacts(t);
+  A3.atl.needsUpdate=true;ax3Impacts(t);ax3AnimeFx(t);
   /* 地面の印 */A3.meRing.visible=axLive(me);A3.meRing.position.set(px,.04,pz);A3.meRing.scale.set(1.7,1,1.2);A3.meRing.material.uniforms.a.value=.75+.25*Math.sin(t*5);
   A3.lockRing.visible=axLive(A.lock);if(A3.lockRing.visible){const e=A.lock,r=(e.mon?2.4:1.6)+Math.sin(t*6)*.08;A3.lockRing.position.set(a3X(e.x),.05,a3Z(e.y));A3.lockRing.scale.set(r,1,r*.8)}
   A3.mkRing.visible=!!(A.mk&&t-A.mk.t<.6);if(A3.mkRing.visible){const v=(t-A.mk.t)/.6;A3.mkRing.position.set(a3X(A.mk.x),.05,a3Z(A.mk.y));A3.mkRing.scale.setScalar(.6+v*.8);A3.mkRing.material.uniforms.a.value=1-v}
