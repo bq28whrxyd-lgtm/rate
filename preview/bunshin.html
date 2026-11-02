@@ -6362,7 +6362,7 @@ function axvSlTex(k){if(AXSLT[k])return AXSLT[k];const T=A3.T,t=new T.TextureLoa
 const AXV_SLF=`uniform sampler2D uMap;uniform float uFrame,uGlow,uIri,uOp;uniform vec3 uTint;varying vec2 vU;
 vec4 fr(float f){f=clamp(f,0.,15.);vec2 c=vec2(mod(f,4.),3.-floor(f/4.));return texture2D(uMap,(vU+c)*.25);}
 vec3 hr(vec3 c,float a){const vec3 k=vec3(.57735);float ca=cos(a);return c*ca+cross(k,c)*sin(a)+k*dot(k,c)*(1.-ca);}
-void main(){float f0=floor(uFrame);vec4 t=mix(fr(f0),fr(f0+1.),uFrame-f0);float v=t.r,g=t.g,h=t.b-.5,a=t.a;if(a<.004&&g<.004)discard;
+void main(){float f0=floor(uFrame);vec4 t=mix(fr(f0),fr(f0+1.),uFrame-f0);float v=t.r,h=t.b-.5;/* 圧縮で出た小さなざらつきで板の四角が見えないよう、ごく弱い値は0にする */float g=max(0.,(t.g-.04)/.96),a=max(0.,(t.a-.015)/.985);if(a<.004&&g<.004)discard;
  vec3 ts=pow(uTint,vec3(1./2.2));vec3 tint=ts*min(1.,.72/max(dot(ts,vec3(.299,.587,.114)),1e-3));vec3 deep=tint*tint*.55;
  vec3 c=mix(vec3(.04),deep,clamp(v/.12,0.,1.));c=mix(c,tint,clamp((v-.12)/.38,0.,1.));c=mix(c,vec3(1.),clamp((v-.5)/.5,0.,1.));c=clamp(hr(c,h*2.*uIri),0.,1.);
  vec3 rgb=pow(c,vec3(2.2))*a+pow(tint,vec3(2.2))*g*uGlow;gl_FragColor=vec4(rgb,a)*uOp;}`;
