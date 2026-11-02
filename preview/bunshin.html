@@ -5167,7 +5167,7 @@ function ax3ReticleTex(){if(A3.tex.ret)return A3.tex.ret;return A3.tex.ret=ax3Te
 function ax3BhTex(k){if(A3.tex['bh'+k])return A3.tex['bh'+k];const im=BHX.I[k];if(!im||!im.complete||!im.naturalWidth)return null;const t=new A3.T.Texture(im);t.colorSpace=A3.T.SRGBColorSpace;t.needsUpdate=true;return A3.tex['bh'+k]=t}
 /* A.fx の1つを3Dにする。返す: {o: 置くもの, u:(k,v)=>更新} */
 function ax3MakeFx(f){if((AXSKALL[f.k]||/^ult_/.test(f.k))&&typeof ax3EfkOk==='function'&&ax3EfkOk())return null;const T=A3.T,A=AXB,col=f.col||'#ffe066',X=f.x!=null?a3X(f.x):0,Z=f.gy!=null?a3Z(f.gy):f.y!=null?a3Z(f.y):0,HY=f.gy!=null?(f.gy-f.y)*AXM:null,G3=new T.Group();
-  /* (11/2) 通常攻撃と当たりは自作のアニメ調エフェクト(axv) */if(typeof axvSlash==='function'){if(f.k==='slash'){const fl=f.face<0;axvSlash(X,(HY||2.8)+.4,Z,{r:(f.r||26)*AXM*2.3,col,tilt:AXVTILT[(f.n||0)%4]*(fl?-1:1),flip:fl,d:.26});return null}if(f.k==='bh'){const big=f.sheet==='crit';if(f.sm){if(typeof axvSpike==='function'){axvSpike(X,(HY||3)+.3,Z+.6,{s:4,d:.26});axvDebris(X,Z,{n:2,s:.7,sp:7})}else axvStar(X,(HY||3)+.3,Z+.4,{s:2.4,col:'#ffe890',d:.16})}else axvHit(X,(HY||3)+.3,Z+.4,{big,col:f.pc?'#ff5a4a':big?'#ff9a3a':'#ffd860'});return null}}
+  /* (11/2) 通常攻撃と当たりは自作のアニメ調エフェクト(axv) */if(typeof axvSlash==='function'){if(f.k==='slash'){const fl=f.face<0;axvSlash(X,(HY||2.8)+.4,Z,{r:(f.r||26)*AXM*2.3,col,tilt:AXVTILT[(f.n||0)%4]*(fl?-1:1),flip:fl,d:.26});return null}if(f.k==='bh'){const big=f.sheet==='crit';if(f.sm){if(typeof axvSpike==='function'){axvSpike(X,(HY||3)+.3,Z+.6,{s:6,d:.22});axvDebris(X,Z,{n:2,s:.7,sp:7})}else axvStar(X,(HY||3)+.3,Z+.4,{s:2.4,col:'#ffe890',d:.16})}else axvHit(X,(HY||3)+.3,Z+.4,{big,col:f.pc?'#ff5a4a':big?'#ff9a3a':'#ffd860'});return null}}
   const done=(o,u)=>({o,u});
   /* ---- 技ごとの見た目(1つの技に1つ。小さな部品を時間差で組み合わせる) ---- */
   const subs=[];const sub=(spec,delay,dur)=>{const E=ax3MakeFx(Object.assign({t:0,d:dur||.5,col},spec));if(E){G3.add(E.o);E.o.visible=false;subs.push({E,delay:delay||0,dur:dur||.5})}return E};
@@ -5931,7 +5931,7 @@ function axvRing(x,z,o){o=o||{};const G=axvGeo(),m=axvMesh(G.quad,AXV_RING,false
 function axvSmoke(x,y,z,o){o=o||{};const G=axvGeo(),m=axvMesh(G.quad,AXV_SMOKE,false,Object.assign({col:'#e8d8c0',edge:'#5a4030'},o));const s=o.s||2.5;m.scale.set(s,s,s);m.position.set(x,y,z);m.renderOrder=19;const vx=o.vx||0,vy=o.vy!=null?o.vy:1.5,vz=o.vz||0;
   return axvAdd({o:m,d:o.d||.6,dl:o.dl,bb:1,roll:Math.random()*6.28,u:k=>{m.position.set(x+vx*k,y+vy*k,z+vz*k)}})}
 /* 当たり一式: 星 + 火花 + (強いときは)煙 */
-function axvHit(x,y,z,o){o=o||{};const big=!!o.big,col=o.col||'#ffd060';if(o.sword!==false&&typeof axvSpike==='function'){axvSpike(x,y,z+.2,{s:big?7:5,dl:o.dl,d:big?.34:.28});axvDebris(x,z-.2,{n:big?5:3,dl:(o.dl||0)+.03,s:big?.95:.75});axvGraySmoke(x,z-.4,{n:big?2:1,s:big?2.6:2,dl:o.dl})}else axvStar(x,y,z,{s:big?3.6:2.4,col,d:big?.26:.18,dl:o.dl});if(typeof ax3Sparks==='function')ax3Sparks(x,z,big?9:5,big?1.2:.8,o.dl||0,col);
+function axvHit(x,y,z,o){o=o||{};const big=!!o.big,col=o.col||'#ffd060';if(o.sword!==false&&typeof axvSpike==='function'){axvSpike(x,y,z+.4,{s:big?10:7,dl:o.dl,d:big?.3:.24});axvDebris(x,z-.2,{n:big?5:3,dl:(o.dl||0)+.03,s:big?.95:.75});axvGraySmoke(x,z-.6,{n:big?2:1,s:big?1.5:1.2,r:2.5,dl:(o.dl||0)+.1})}else axvStar(x,y,z,{s:big?3.6:2.4,col,d:big?.26:.18,dl:o.dl});if(typeof ax3Sparks==='function')ax3Sparks(x,z,big?9:5,big?1.2:.8,o.dl||0,col);
   if(big&&typeof axvPost==='function')axvPost(x,z,{y,blur:.08,ca:.1,wave:.3,d:.18,dl:o.dl});
   if(big&&typeof axvSmoke3==='function'&&AXV3G){for(let i=0;i<2;i++){const a=Math.random()*6.28;axvSmoke3(x+Math.cos(a)*.8,Math.max(.6,y-1.4),z+Math.sin(a)*.5,{s:1.6+Math.random()*.6,d:.6,dl:(o.dl||0)+.03,vy:1.6})}}else
   if(big)for(let i=0;i<3;i++){const a=Math.random()*6.28;axvSmoke(x+Math.cos(a)*.8,Math.max(.6,y-1.2),z+Math.sin(a)*.5,{s:2+Math.random(),d:.5+Math.random()*.2,dl:(o.dl||0)+.04,vx:Math.cos(a)*2.4,vz:Math.sin(a)*1.2,vy:1.2})}}
@@ -6088,7 +6088,7 @@ function axvFlames(f,o){o=o||{};if(!AXV3G){axv3Load();return}const X=a3X(f.x),Z=
    細い白い線がスッと走る → 当たった所で白いトゲの爆発(黒いふち・まわりに集中線) → 灰色の煙と、茶・黒の破片が飛ぶ */
 const AXV_SPIKE=`float hh(float x){return fract(sin(x*127.1+uS*3.7)*43758.5453);}
 void main(){vec2 p=vU*2.-1.;float r=length(p),th=atan(p.y,p.x);float N=11.,a=(th/6.28318+.5)*N,id=floor(a),f=fract(a);
- float len=.62+.38*hh(id),tri=1.-abs(f*2.-1.);float R=mix(.26,len,pow(tri,1.8));float g=1.-pow(1.-clamp(uT*6.,0.,1.),3.);R*=g*(1.+.1*uT);
+ float len=.55+.45*hh(id),tri=1.-abs(f*2.-1.);float R=mix(.2,len*.78,pow(tri,2.4));float g=1.-pow(1.-clamp(uT*6.,0.,1.),3.);R*=g*(1.+.1*uT);
  float lines=0.;{float M=26.,b=(th/6.28318+.5)*M,j=floor(b),q=abs(fract(b)-.5);float on=step(.45,hh(j+40.));float r0=R+.05,r1=R+.12+.3*hh(j+9.);float w=.06*(1.-smoothstep(r0,r1,r));lines=on*step(q,w*1.5)*step(r0,r)*step(r,r1*(1.-uT*.6))*step(uT,.6);}
  float n=fbm(p*3.2+uS);if(uT>.4&&n<(uT-.4)*1.7)discard;
  if(r>R){if(lines>.5){gl_FragColor=vec4(vec3(.12,.1,.16),uA);return;}discard;}
@@ -6105,7 +6105,7 @@ function axvDebris(x,z,o){o=o||{};if(!AXV3G){axv3Load();return}const T=A3.T,n=o.
     g.position.set(x,y0,z);g.scale.setScalar(S);axvAdd({o:g,d:D,dl:o.dl,u:k=>{const t=k*D;g.position.set(x+vx*t,Math.max(.15,y0+vy*t-16*t*t),z+vz*t);g.rotation.set(rx*t,0,rz*t)}})}}
 function axvGraySmoke(x,z,o){o=o||{};const n=o.n||2;for(let i=0;i<n;i++)axv3('puff'+(i%4),x+(Math.random()-.5)*(o.r||2),(o.y||1.4)+Math.random(),z+(Math.random()-.5)*(o.r||2)*.6,{s:(o.s||1.8)*(.8+Math.random()*.5),s0:.4,col:'#d6d2dc',edge:'#3e3848',sh:'#8a84a0',d:o.d||.55,ds:.2,dl:(o.dl||0)+.04+i*.03,vy:1.6})}
 /* まとめ: 剣の1振りの当たり(大きさ s=1 ふつう / 1.5 大) */
-function axvSwordHit(x,z,o){o=o||{};const s=o.s||1,dl=o.dl||0;axvSpike(x,3.1,z+.6,{s:6*s,dl,d:.34+.05*s});axvDebris(x,z+.3,{n:Math.round(3*s+2),dl:dl+.03,s:.9*s,sp:10*s});axvGraySmoke(x,z,{n:s>1.2?3:2,s:2.6*s,dl})}
+function axvSwordHit(x,z,o){o=o||{};const s=o.s||1,dl=o.dl||0;axvSpike(x,3.1,z+.8,{s:9.5*s,dl,d:.3+.05*s});axvDebris(x,z+.3,{n:Math.round(3*s+2),dl:dl+.03,s:.9*s,sp:10*s});axvGraySmoke(x,z-.6,{n:s>1.2?3:2,s:1.5*s,r:3*s,dl:dl+.1})}
 
 /* (11/2) 村の家並み。Quaternius Medieval Village MegaKit(CC0)の部品を組み立てる */
 /* 村の家並み(Quaternius Medieval Village MegaKit, CC0)を部品から組み立てる。
