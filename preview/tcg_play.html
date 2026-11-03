@@ -2533,7 +2533,7 @@ function starterDeck(k){const d=[];STARTERS[k].ids.filter(id=>!isLeader(id)).for
 const deckCap=(id,lead)=>isLeader(id)?(fk(id)===fk(lead)?MAX_COPY:0):(BY[id].lim?BY[id].lim:MAX_COPY);
 function validDeck(d,lead){if(d.length<DECK_SIZE||d.length>DECK_MAX)return false;const n={};for(const id of d){if(!BY[id])return false;const k=fk(id);n[k]=(n[k]||0)+1;if(n[k]>(BY[id].lim||MAX_COPY))return false;if(lead&&isLeader(id)&&k!==fk(lead))return false}return true}
 function awText(a){if(!a)return'';switch(a.k){
- case'ops':return a.t||'';
+ case'ops':return a.t||(a.ops||[]).map(op).join('。');/* (11/3) 文の無い覚醒は効果から作る(前はここで空になっていた) */
  case'eqFree':return'【持ち替え】に熱量がいらなくなる';case'gateSwap':return'【契約】から出た味方が攻撃されたとき、熱量1で、別の預けたキャラと入れ替えて受けさせる(相手のターンに1回)';case'ice2000':return'氷の壁のDEFが2000になる';case'garoNeg':return'「その魔法もいただく」:相手が魔法を使ったとき、手札1枚を捨てて無効にする(1試合に1回)';case'henAura':return'変身した味方全員のATK+500';
  case'suiBack':return'透明から戻ったとき、捨て札の熱量1以下の魔法1枚を手札に戻す(1試合に1回)';case'yumeDisc':return'予知で手札に加えたカードの熱量-1(次の自分のターンの終わりまで)';case'branchSave':return'リツが攻撃されたとき、影にかわりに受けさせる(1試合に1回)。そのときリツは★1になり覚醒が解ける';case'yobu':return'「名前を呼ぶ」:自分のターンに1回、透明の味方1体を熱量なしで戻す';case'soraAll':return'透明の味方を全員戻す。戻したキャラはこのターンから攻撃できる';
  case'veil':return'裏の姿でキャラを攻撃する前に、仕込み1個を使うと、その攻撃に使われた相手のトラップを1枚だけ無効にする(自分のターンに1回)';case'miraFree':return'【幻装】に熱量がいらなくなる';case'rotoCall':return'【影武者】で手札に戻したあと、熱量1で、手札の熱量2以下のほかのキャラ1枚(リーダーはのぞく)を空いた枠に★1で出す(出たときの効果は起きない・このターンは攻撃できない)';
