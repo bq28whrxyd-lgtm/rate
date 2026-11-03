@@ -6627,9 +6627,9 @@ function axKEnd(e,A){const o=A.over,rk=o.rank,btns=[...e.querySelectorAll('butto
   const p=document.createElement('div');p.className='kp';const row=(l,v)=>{const r=document.createElement('div');r.className='kr';r.innerHTML='<span>'+l+'</span>';if(typeof v==='string')r.insertAdjacentHTML('beforeend','<b class="kmo">'+v+'</b>');else r.append(v);p.append(r)};
   p.insertAdjacentHTML('beforeend','<h4>'+(md==='raid'?'RAID':md==='sa'?'SCORE ATTACK':md==='pvp'?(o.win?'VICTORY':'DEFEAT'):o.win?'QUEST CLEAR':'QUEST FAILED')+' ・ '+((md==='sa'||md==='pvp')&&A.baseO?A.baseO.name:md==='raid'&&A.raidU?A.raidU.name:(A.title||('ステージ'+A.st)))+'</h4>');
   if(md==='raid'&&A.raidU){const d=Math.max(0,A.raidHp0-Math.max(0,A.raidU.hp));row('与えたダメージ',Math.round(d/(typeof KMRK!=='undefined'?KMRK:1)).toLocaleString())}
-  if(md==='pvp'&&typeof kmHpR==='function')row('残りHP',Math.round(kmHpR(A.P)*100)+'% 対 '+Math.round(kmHpR(A.E)*100)+'%');
+  if(md==='pvp'&&typeof kmHpR==='function')row(A.tlim&&o.t>=A.tlim-.05?'残りHP(時間切れで判定)':'残りHP',Math.round(kmHpR(A.P)*100)+'% 対 '+Math.round(kmHpR(A.E)*100)+'%');
   if(md==='sa'&&A.saU)row('スコア',Math.round(A.saU.max-Math.max(0,A.saU.hp)).toLocaleString());
-  if(o.win&&rk&&md!=='sa'){const im=new Image();im.src=AXUIK['rank_'+rk[0]]||AXUIK.rank_C;im.alt=rk[0];row('クリアランク',im)}
+  if(o.win&&rk&&md!=='sa'&&md!=='pvp'){const im=new Image();im.src=AXUIK['rank_'+rk[0]]||AXUIK.rank_C;im.alt=rk[0];row('クリアランク',im)}
   row(md?'戦った時間':'クリアタイム',axFmt(o.t));row('最大 HIT',String(A.maxCombo));if(md!=='raid'&&md!=='sa')row('たおした数',String(A.kills));
   if(!md)p.insertAdjacentHTML('beforeend','<p class="knote">Sランクは '+AXRANK[0][1]+' 秒以内</p>');
   const b=document.createElement('div');b.className='kb';const back=btns.find(x=>/やめる/.test(x.textContent)),again=btns.find(x=>/もう一回/.test(x.textContent));
