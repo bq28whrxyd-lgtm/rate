@@ -14561,10 +14561,12 @@ function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c
 const bunLeft=pid=>Math.max(0,BUN_DAY-bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&dayNo(l.t)===dayNo(now())).length);
 const BUN_LOOK={g:'m',hs:0,hc:'茶',ec:'緑'};
 const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0,ch:{},cs:[],cfree:0,cp:0,c10:0,crf:0};
-function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0}),pk:d.look&&d.look.pk&&typeof hbSkin==='function'&&hbSkin(p.id)?1:0},eq,al:d.al}}
+function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0}),pk:d.look&&d.look.pk&&typeof hbSkin==='function'&&hbSkin(p.id)?1:0},eq,al:d.al,/* (11/3) 3Dの対戦: 相手の編成とキャラ */dk:d.dk||null,ch:d.ch||{},cs:d.cs||[]}}
 function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'}
 let bunBase=0,bunSaveQ=Promise.resolve(),bunRetryGen=0,bunRetryN=0;const bunSave1=S=>window.BUNSHINHOST._save(S);
 /* (10/24) a character list as plain data (at most 64, numbers only) */
+/* (11/3) BUN_DK: 守りの編成をアカウントに保存する。firestore.rules の 'dk' を本番に出してから true にする(先に true にすると保存が全部はじかれる) */const BUN_DK=false;
+/* (11/3) 守りの編成: メイン2人+サポート5人。'me' か 'ch:id' か 'sub:j' だけ */function bunDkClean(d){const ok=v=>typeof v==='string'&&/^(me|ch:[a-z0-9_]{1,24}|sub:\d)$/.test(v)?v:'';const L=(a,n)=>{const o=(Array.isArray(a)?a:[]).slice(0,n).map(ok);while(o.length<n)o.push('');return o};return d&&typeof d==='object'?{m:L(d.m,2),s:L(d.s,5)}:{m:['me',''],s:['','','','','']}}
 function bunChClean(c){const o={};if(c&&typeof c==='object')Object.keys(c).slice(0,64).forEach(id=>{const v=c[id]||{};if(/^[a-z0-9_]{1,24}$/.test(id))o[id]={n:Math.max(1,Math.min(99,Math.round(+v.n||1))),xp:Math.max(0,Math.round(+v.xp||0))}});return o}
 window.BUNSHINHOST={
   ready:()=>{try{bunLoaded()}catch(e){}},
@@ -14578,7 +14580,7 @@ window.BUNSHINHOST={
   _save:S=>{const me=myPlayer();if(!me||!db)return Promise.resolve();
     /* the page lives in another frame: copy into this frame's plain objects first (Firestore refuses objects from another frame) */
     const o=JSON.parse(JSON.stringify({look:S.look,al:S.al||null,inv:S.inv||[],eq:S.eq,nid:+S.nid||2,qs:+S.qs||0,gp:+S.gp||0,g10:+S.g10||0,copen:+S.copen||0,
-      /* (10/24) characters: owned {id:{n,xp}}, the 3 party slots, the free 10連 and the paid pulls */ch:bunChClean(S.ch),cs:Array.isArray(S.cs)?S.cs.slice(0,3).map(x=>String(x||'').slice(0,24)):[],cfree:Math.min(1,+S.cfree||0),cp:+S.cp||0,c10:+S.c10||0,crf:Math.max(0,Math.round(+S.crf||0)),u:now()}));
+      /* (10/24) characters: owned {id:{n,xp}}, the 3 party slots, the free 10連 and the paid pulls */ch:bunChClean(S.ch),cs:Array.isArray(S.cs)?S.cs.slice(0,3).map(x=>String(x||'').slice(0,24)):[],cfree:Math.min(1,+S.cfree||0),cp:+S.cp||0,c10:+S.c10||0,crf:Math.max(0,Math.round(+S.crf||0)),...(BUN_DK?{dk:bunDkClean(S.dk)}:{}),u:now()}));
     const sv=bunDocs[me.id];
     const base=bunBase;if(base<0||(sv&&(+sv.u||0)!==base)){toast('別の端末で分身が更新されています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
     if(sv){/* a copy older than what is saved (opened before the data arrived) must not replace it */if((+sv.nid||0)>o.nid){toast('分身のデータを読み直しています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
