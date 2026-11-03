@@ -5259,10 +5259,10 @@ function ax3MakeFx(f){if((AXSKALL[f.k]||/^ult_/.test(f.k))&&typeof ax3EfkOk==='f
       const k2=clamp((v-.38)/.7,0,1),e=eo(Math.min(1,k2/.3));rays.scale.setScalar(R*.8*e+.01);rays.material.rotation=v*.5;rays.material.opacity=k2>0?.6*(1-k2):0;wh.scale.setScalar(3.5*e+.01);wh.material.opacity=k2>0?1-k2:0;
       rings.forEach((r,i)=>{const kk=clamp(k2*1.3-i*.12,0,1),s=R*(.1+eo(kk));r.scale.set(s,1,s);r.material.uniforms.a.value=kk>0?(1-kk)*1.6:0});const kp=clamp((v-.38)/.5,0,1);pil.visible=kp>0;pil.scale.set((kp<.12?kp/.12:1)*(1-kp),1,(kp<.12?kp/.12:1)*(1-kp));pil.material.uniforms.t.value=v;pil.material.uniforms.a.value=1-kp})}
   if(f.k==='wind'){/* 敵のふつうの攻撃(サウスト風): 敵から攻撃が届く範囲を、オレンジの扇形で地面に出す。中の色がたまったら攻撃 */if(!f.by)return null;const ux=a3X(f.by.x),uz=a3Z(f.by.y),R=f.R||60,rx=R*AXM,rz=R*AXM/(AXSQ*1.6),dx=(X-ux)/rx,dz=(Z-uz)/rz,th=Math.atan2(-dz,dx),half=1.0;
-    const mk=(op,c)=>{const m=new T.Mesh(new T.CircleGeometry(1,40,th-half,half*2),new T.MeshBasicMaterial({color:c,transparent:true,opacity:op,depthWrite:false,toneMapped:false}));m.rotation.x=-Math.PI/2;m.renderOrder=3;return m};
-    const base=mk(.22,'#ff9a1a'),fill=mk(.5,'#ffb21a'),edge=new T.Mesh(new T.RingGeometry(.94,1,40,1,th-half,half*2),new T.MeshBasicMaterial({color:'#ffe08a',transparent:true,opacity:.9,depthWrite:false,toneMapped:false}));edge.rotation.x=-Math.PI/2;edge.renderOrder=4;
+    const mk=(op,c)=>{const m=new T.Mesh(new T.CircleGeometry(1,40,th-half,half*2),ax3TelMat(c,op));m.rotation.x=-Math.PI/2;m.renderOrder=3;return m};
+    const base=mk(.32,'#e8361e'),fill=mk(.62,'#ff5a24'),edge=new T.Mesh(new T.RingGeometry(.965,1,40,1,th-half,half*2),new T.MeshBasicMaterial({color:'#ffb08a',transparent:true,opacity:.85,depthWrite:false,toneMapped:false}));edge.rotation.x=-Math.PI/2;edge.renderOrder=4;
     const g=new T.Group();g.add(base,fill,edge);g.position.set(ux,.09,uz);g.scale.set(rx,1,rz);base.scale.set(1,1,1);G3.add(g);
-    return done(G3,(k,vv)=>{const q=Math.min(1,k);fill.scale.set(q,q,1);edge.material.opacity=.55+.45*Math.sin((vv||0)*24);base.material.opacity=.18+.12*q;if(f.by){g.position.set(a3X(f.by.x),.09,a3Z(f.by.y))}if(k>=1){fill.material.color.set('#ffffff');fill.material.opacity=.6}})}
+    return done(G3,(k,vv)=>{const q=Math.min(1,k);fill.scale.set(q,q,1);edge.material.opacity=.55+.45*Math.sin((vv||0)*24);base.material.uniforms.opacity.value=.26+.14*q;if(f.by){g.position.set(a3X(f.by.x),.09,a3Z(f.by.y))}if(k>=1){fill.material.uniforms.col.value.set('#ffd0b0');fill.material.uniforms.opacity.value=.7}})}
   if(f.k==='ghost'){if(!f.u||!A3.units.get(f.u)||(A3.chr&&ax3VUse(f.u)))return null;const src=A3.units.get(f.u).spr;const m=new T.Mesh(src.geometry,new T.MeshBasicMaterial({map:A3.atl,alphaTest:.5,transparent:true,color:new T.Color(TRWC[f.u.f.wt]||'#9fe8ff').multiplyScalar(1.4),blending:T.AdditiveBlending,depthWrite:false,toneMapped:false}));m.position.set(a3X(f.x),0,a3Z(f.y));m.scale.copy(src.scale);G3.add(m);
     return done(G3,k=>{m.quaternion.copy(A3.cam.quaternion);m.material.opacity=.5*(1-k)})}
   if(f.k==='bh'){const tx=ax3BhTex(f.sheet||'hit');if(!tx)return null;const t2=tx.clone();t2.needsUpdate=true;const cols=8,rows=f.sheet==='crit'?1:6;t2.repeat.set(1/cols,1/rows);const sp=new T.Sprite(new T.SpriteMaterial({map:t2,transparent:true,depthWrite:false,depthTest:false,toneMapped:false,color:new T.Color(1.6,1.6,1.6)}));sp.position.set(X,0,Z);sp.position.y=HY!=null?HY:1.6;sp.scale.setScalar(f.D*AXM*.9);sp.material.rotation=f.rot||0;G3.add(sp);
@@ -5726,8 +5726,8 @@ function ax3DecoUpd(u,R,t,dt){let G=R.deco;if(G===undefined){G=R.deco=ax3DecoMak
   if(G.ring){G.ring.position.set(px,3+Math.sin(tt*1.5)*.6,pz);G.ring.rotation.z=tt*1.8;G.ring2.position.set(px,5.2+Math.sin(tt*1.7)*.5,pz);G.ring2.rotation.z=-tt*2.3;G.ring.visible=G.ring2.visible=root.visible}
   /* オーラ: 足元から光の粒が立ちのぼる(炎は Blender の炎、星・音符・水は小さな絵) */
   if(D.blade&&R.wp&&root.visible&&typeof ax3FB==='function'){G.bacc=(G.bacc||0)+dt;const v=new T.Vector3();while(G.bacc>.035){G.bacc-=.035;R.wp.localToWorld(v.set(0,0,.15+Math.random()*.65));ax3KP(Math.random()<.5?'flame_05':'fire_01',{x:v.x,y:v.y,z:v.z,s0:1.4,s1:.5,d:.3,col:Math.random()<.5?'#ff7a1a':'#ffd04a',vy:4,rot:0,ro:14,keep:1})}if(G.bacc>1)G.bacc=0}
-  G.acc=(G.acc||0)+dt;const rate=D.kind==='note'?.22:D.kind==='fire'?.035:.06;while(G.acc>rate&&root.visible){G.acc-=rate;const a=Math.random()*6.28,r=1.2+Math.random()*2.2,x=px+Math.cos(a)*r,z=pz+Math.sin(a)*r*.8,c=Math.random()<.6?D.aura:D.aura2;
-    if(D.kind==='fire'&&Math.random()<.6&&typeof ax3FB==='function'){const k=Math.random();ax3FB('aura',{x:px+Math.cos(a)*r*.7,y:2.2+k*2.5,z:pz+Math.sin(a)*r*.5,s:3.5+Math.random()*2.5,d:.6,col:k<.5?'#ff4a10':'#ffb02a',vy:3,rot:0,flip:Math.random()<.5,ro:13,keep:1})}
+  G.acc=(G.acc||0)+dt;const rate=D.kind==='note'?.22:D.kind==='fire'?.075:.06;while(G.acc>rate&&root.visible){G.acc-=rate;const a=Math.random()*6.28,r=1.2+Math.random()*2.2,x=px+Math.cos(a)*r,z=pz+Math.sin(a)*r*.8,c=Math.random()<.6?D.aura:D.aura2;
+    if(D.kind==='fire'&&Math.random()<.6&&typeof ax3FB==='function'){const k=Math.random();ax3FB('aura',{x:px+Math.cos(a)*r*.55,y:1.6+k*3.2,z:pz+Math.sin(a)*r*.4,s:2.0+Math.random()*1.6,d:.5,col:k<.5?'#c8300c':'#ff9a2a',vy:3,rot:0,flip:Math.random()<.5,ro:13,keep:1})}
     else{const sp=new T.Sprite(new T.SpriteMaterial({map:ax3DecoTex(D.kind==='note'?'note':D.kind==='star'&&Math.random()<.5?'star':'glow',c),transparent:true,blending:D.kind==='note'?T.NormalBlending:T.AdditiveBlending,depthWrite:false,toneMapped:false}));const s0=D.kind==='note'?1.3:.6+Math.random()*.7;sp.scale.setScalar(s0);sp.position.set(x,.5+Math.random()*1.5,z);sp.renderOrder=13;sp.userData.keep=1;A3.S.add(sp);(A3.aura=A3.aura||[]).push({sp,t,d:1.2+Math.random()*.8,vy:3+Math.random()*3,s0,wob:Math.random()*6})}}
   if(G.acc>1)G.acc=0}
 function ax3AuraUpd(t,dt){if(!A3.aura)return;A3.aura=A3.aura.filter(p=>{const a=t-p.t;if(a>p.d||a<0){A3.S.remove(p.sp);p.sp.material.dispose();return false}const k=a/p.d;p.sp.position.y+=p.vy*dt;p.sp.position.x+=Math.sin(t*3+p.wob)*dt*.6;p.sp.material.opacity=k<.2?k/.2:1-(k-.2)/.8;p.sp.scale.setScalar(p.s0*(1-.4*k));return true})}
@@ -5948,6 +5948,11 @@ function ax3Ground2(ground,T,dusk){if(window.__G2===0)return;const ld=new T.Text
       diffuseColor.rgb*=c;}`)};
   ground.material=m}
 let A3G2=null;
+
+/* (11/4) 敵の攻撃の範囲: べた塗りの板をやめて、中はうすく・ふちに向かって濃くなる赤。細い縞が外へ流れる(サウスト風の予告) */
+function ax3TelMat(c,op){const T=A3.T;return new T.ShaderMaterial({uniforms:{col:{value:new T.Color(c)},opacity:{value:op},uT:{value:0}},transparent:true,depthWrite:false,toneMapped:false,
+  vertexShader:'varying vec2 vU;void main(){vU=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader:'uniform vec3 col;uniform float opacity;varying vec2 vU;void main(){float r=length(vU);float a=mix(.18,1.,smoothstep(.15,1.,r));float st=.82+.18*step(.5,fract(r*7.-'+'0.0'+'));gl_FragColor=vec4(col*(.75+.45*r),a*st*opacity);}'})}
 /* ---------- (11/2) AXV: 自作のアニメ調エフェクト部品(シェーダーで描く) ----------
    サウストやプロの Effekseer 素材の作り方(三日月の斬撃・ノイズで削れて消える・白い芯→色→こげ色のふち・星形の当たり)を参考に、
    色と大きさを変えて通常攻撃にも技にも使い回せる部品にした。
