@@ -5462,7 +5462,7 @@ function ax3Impacts(t){const T=A3.T,A=AXB;A3.imp=A3.imp||[];A3.impSeen=A3.impSee
     if(big&&!A3.imp.some(z=>z.ln)&&!(A3.afx||[]).some(z=>z.kind==='lines')){const l=new T.Sprite(new T.SpriteMaterial({map:ax3LinesTex(),transparent:true,depthTest:false,depthWrite:false,toneMapped:false}));l.renderOrder=19;l.position.copy(sp.position);A3.S.add(l);o.ln=l}
     A3.imp.push(o)}
   A3.imp=A3.imp.filter(o=>{const a=t-o.t,D=o.big?.26:.17;if(a>D||a<0){A3.S.remove(o.sp);o.sp.material.dispose();if(o.ln){A3.S.remove(o.ln);o.ln.material.dispose()}return false}
-    const k=a<.05?a/.05:1,S=(o.big?7:4.2)*(k<1?.4+.8*k:1.2-.35*(a-.05)/(D-.05));o.sp.scale.set(S,S,1);o.sp.material.opacity=a<D*.6?1:1-(a-D*.6)/(D*.4);
+    const k=a<.05?a/.05:1,S=(o.big?4.2:3)*(k<1?.4+.8*k:1.2-.35*(a-.05)/(D-.05));o.sp.scale.set(S,S,1);o.sp.material.opacity=a<D*.6?1:1-(a-D*.6)/(D*.4);
     if(o.ln){const L=13+a*30;o.ln.scale.set(L,L,1);o.ln.material.opacity=.8*(1-a/D);o.ln.material.rotation=a*2}return true})}
 /* ---------- 技の見た目をアニメ風に(黒いふち+白い芯+色。光で白飛びしない) ---------- */
 function ax3RingTex(col){const k='ring'+col;if(A3.tex[k])return A3.tex[k];return A3.tex[k]=ax3Tex((g,w)=>{const c=w/2;g.translate(c,c);
@@ -5547,7 +5547,7 @@ function ax3SkillBig(t){const A=AXB;A3.sbSeen=A3.sbSeen||new WeakSet();for(const
   const ult=/^ult_/.test(f.k),col=AXBLC[f.col]||f.col||'#ffb03a',cx=a3X(f.x!=null?f.x:f.ux),cz=a3Z(f.y!=null?f.y:f.uy),ux=a3X(f.ux),uz=a3Z(f.uy),dl=(f.delay||0)+(ult?.06:.08);
   if(AXSLK[f.k]&&ult&&!(typeof AXULT_READY!=='undefined'&&f.nm&&AXULT_READY[f.nm]))A3.ultSl={t:AXB.t+.06,col};
   /* (11/2) サウスト風のアクションカメラ: 技が出たら、本人と当たる所の間へ寄って低く構える。必殺は長め・強め */A3.skT=t;A3.act={n:performance.now(),x:(cx+ux)/2,z:(cz+uz)/2,ult,side:Math.random()<.5?-1:1,col};
-  const efkOn=typeof ax3EfkOk==='function'&&ax3EfkOk();if(ult&&typeof axvDark==='function')try{axvDark({d:1.2,col:'#05030a'})}catch(e){}/* (11/3) 名前どおりの必殺がある時は、役割ごとの古い演出を出さない */if(!(ult&&typeof AXULT_READY!=='undefined'&&f.nm&&AXULT_READY[f.nm]))ax3SkFxRole(f.k,{cx,cz,ux,uz,col,dl,ult,f});/* (11/3) 技を出した人の足元に、技の色の大きな円と立ち上がる光の幕(サウストのコマを見て) */try{/* 回転斬りは円を出さない(サウストの回転の技は白い風だけ)。名前どおりの必殺はその技の色 */if(typeof axvAura==='function'&&f.k!=='spinblade')axvAura(ux,uz,{col:(ult&&typeof AXULT_COL!=='undefined'&&AXULT_COL[f.nm])||col,r:ult?8:7,h:12,d:ult?.9:.6,noCurt:!ult,a:ult?.55:.5})}catch(e){}
+  const efkOn=typeof ax3EfkOk==='function'&&ax3EfkOk();if(ult&&typeof axvDark==='function')try{axvDark({d:1.2,col:'#05030a'})}catch(e){}/* (11/3) 名前どおりの必殺がある時は、役割ごとの古い演出を出さない */if(!(ult&&typeof AXULT_READY!=='undefined'&&f.nm&&AXULT_READY[f.nm]))ax3SkFxRole(f.k,{cx,cz,ux,uz,col,dl,ult,f});/* (11/3) 技を出した人の足元に、技の色の大きな円と立ち上がる光の幕(サウストのコマを見て) */try{/* 回転斬りは円を出さない(サウストの回転の技は白い風だけ)。名前どおりの必殺はその技の色 */if(typeof axvAura==='function'&&f.k!=='spinblade')axvAura(ux,uz,{col:(ult&&typeof AXULT_COL!=='undefined'&&AXULT_COL[f.nm])||(/^(orb|meteor)$/.test(f.k)&&!f.el?'#a05aff':col),r:ult?8:7,h:12,d:ult?.9:.6,noCurt:true,a:ult?.55:.5})}catch(e){}
   /* (11/2) 自作のアニメ調エフェクトを技ごとに重ねる(axvSkill) */if(typeof axvSkill==='function')try{axvSkill(f.k,{cx,cz,ux,uz,col,dl,ult,f})}catch(e){console.error(e)}
   if(!efkOn&&!/^(heal|cheerup|taunt)$/.test(f.k))ax3SkFx({k:'flash',d:.01,dl:dl,v:ult?.45:.16})}}
 /* 技ごとの演出(サウストのキャラを見て決めた): 剣=斬撃と渦 / 拳=放射状の光と赤黒い煙 / 回復=空からの光の柱 / 魔法=爆炎・爆発 / 弓=雷の矢 / 応援=光の輪とオーラ / 盾=オーラと衝撃 */
