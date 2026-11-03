@@ -5103,7 +5103,7 @@ function ax3Init(){const T=AX3.THREE,A=AXB;if(!A)return;const dusk=A.bg==='dusk'
   const S3=new T.Scene();const sky=new T.Color(dusk?0xe8a07a:0xa8d0f0);S3.background=sky;S3.fog=new T.Fog(sky,130,280);
   const cam=new T.PerspectiveCamera(42,1,.5,420);
   const hemi=new T.HemisphereLight(dusk?0xffd0b0:0xcfe8ff,dusk?0x4a3020:0x3a5a2a,dusk?1.1:1.25);S3.add(hemi);
-  const sun=new T.DirectionalLight(dusk?0xffa070:0xfff2dc,dusk?2.4:2.6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);const sc=sun.shadow.camera;sc.left=-26;sc.right=26;sc.top=26;sc.bottom=-26;sc.near=1;sc.far=120;sun.shadow.bias=-.0006;sun.shadow.normalBias=.04;S3.add(sun,sun.target);
+  const sun=new T.DirectionalLight(dusk?0xffa070:0xfff2dc,dusk?2.4:2.6);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);const sc=sun.shadow.camera;sc.left=-26;sc.right=26;sc.top=26;sc.bottom=-26;sc.near=1;sc.far=120;sun.shadow.bias=-.0006;sun.shadow.normalBias=.04;if('intensity' in sun.shadow)sun.shadow.intensity=.62;S3.add(sun,sun.target);
   /* 地面(サウスト風の一本道): 真ん中が土の道、両わきは草。前後にずっと続く(1枚=横90×縦48をくり返す) */const gtex=ax3RoadTex(dusk,T);gtex.wrapS=gtex.wrapT=T.RepeatWrapping;A.__gtex=gtex;gtex.anisotropy=4;gtex.repeat.set(1,420/48);
   const ground=new T.Mesh(new T.PlaneGeometry(90,420),new T.MeshLambertMaterial({map:gtex}));ground.rotation.x=-Math.PI/2;ground.position.z=-100;ground.receiveShadow=true;S3.add(ground);try{ax3Ground2(ground,T,dusk)}catch(e){console.error(e)}
   const far=new T.Mesh(new T.PlaneGeometry(400,400),new T.MeshLambertMaterial({color:dusk?0x3a4a1c:0x2f5a1e}));far.rotation.x=-Math.PI/2;far.position.y=-.02;far.receiveShadow=true;S3.add(far);
