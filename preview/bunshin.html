@@ -6866,7 +6866,7 @@ function kmAppCSS(){if(document.getElementById('kmappcss'))return;const O='1.6px
 #kmapp .klv .lb{color:#9ae0ff}#kmapp .klv b{color:#fff4dc;font-size:23px}#kmapp .klv small{color:#ffd36a}
 #kmapp .kpt{background:linear-gradient(#1e0f06,#3a2010);box-shadow:inset 0 0 0 2px #e0b050,inset 0 0 0 3px #6a4012}
 #kmapp .krib{border-image:var(--p-ribbon) 30 95 fill/16px 52px;height:48px;color:#fff4dc;left:4px;right:4px}
-#kmapp .kpick,#kmapp .kpw,#kmapp .kmem,#kmapp .keqh,#kmapp .kinfo,#kmapp .kcost,#kmapp .kempty,#kmapp .ksec{background:none;box-shadow:none;border-radius:0;border-style:solid;border-width:0;border-image:var(--p-panel) 62 fill/28px}
+#kmapp .kpick,#kmapp .kpw,#kmapp .kmem,#kmapp .keqh,#kmapp .kinfo,#kmapp .kcost,#kmapp .kempty,#kmapp .ksec{background:none;box-shadow:none;border-radius:0;border-style:solid;border-width:0;border-image:var(--p-panel) 62 fill/28px;border-image-repeat:round}
 #kmapp .kpick{padding:26px 18px 16px}#kmapp .kpw{padding:6px 4px}#kmapp .kmem{padding:16px 16px 14px;margin-bottom:12px}#kmapp .keqh,#kmapp .kinfo,#kmapp .kcost{padding:16px}#kmapp .ksec{padding:14px 16px;margin-bottom:8px}#kmapp .kempty{padding:22px 20px}
 #kmapp .kpick .t,#kmapp .kph{clip-path:none;border-radius:0;background:none;box-shadow:none;border-style:solid;border-width:0;border-image:var(--p-ribbon) 30 95 fill/14px 44px;padding:6px 40px;color:#fff4dc}
 #kmapp .kph{margin:-16px auto 2px;font-size:17px}
@@ -6908,6 +6908,7 @@ function kmAppCSS(){if(document.getElementById('kmappcss'))return;const O='1.6px
 #kmapp .kfaces .fc.sm{width:32px;height:32px}#kmapp .kfaces .fc.sm canvas{width:32px;height:32px}#kmapp .kfaces .sep{width:2px;height:30px;background:#8a6a3a;margin:0 2px}
 #kmapp .ksec h5 .kmini{height:28px;padding:0 10px}
 #axui .kmrew{margin:10px 12px 0;padding:8px 10px;border-radius:8px;background:#2a1208c8;color:#ffd36a;font:900 14px/1.5 KMRound,sans-serif;text-align:center}
+#kmapp .kmem .kslt{min-height:40px;padding:5px 6px}#kmapp .kmem .kcards{margin-top:6px}#kmapp .kmem .kcards i{aspect-ratio:3/3.2}
 body.kmhide #kmapp{display:none}
 body.kmon .wrap>.hd,body.kmon .wrap>.kmtitle,body.kmon #tnnav{display:none!important}
 `;document.head.append(st)}
@@ -6935,7 +6936,7 @@ const KMS={};
 function kmPick(){/* 今日のおすすめ: 開いているイベント → 今日の経験値クエスト → 次のステージ */
   try{const ev=qsEvents().filter(e=>e.tag==='開催中');if(ev.length){const e=ev[0];return {art:e.art,t:e.t,s:e.left,go:e.go?()=>kmLegacyOpen(()=>{tnShow('fight');e.go()}):null,list:()=>kmGo('quest','ev')}}}catch(e){}
   try{const inf=xqInfo(),left=Math.max(0,inf.day-inf.today);if(HOST&&left>0)return {art:kmEl('img',null),t:'経験値クエストに挑戦しよう',s:'今日あと '+left+' 回',go:()=>kmGo('quest','dy'),list:()=>kmGo('quest','dy'),ic:'i2_rec'}}catch(e){}
-  const n=kmCur();let o={name:''};try{o=questOpp(n)}catch(e){}return {t:'ステージ'+n+' '+o.name,s:'エリア'+(qaOf(n)+1)+' '+QAREA[qaOf(n)]+' ・ 倒そう',go:()=>kmStagePop(n),list:()=>kmGo('stages',qaOf(n)),ic:'i2_quest'}}
+  const n=kmCur();let o={name:''};try{o=questOpp(n)}catch(e){}return {t:'ステージ'+n+' '+o.name,s:'エリア'+(qaOf(n)+1)+' '+QAREA[qaOf(n)],go:()=>kmStagePop(n),list:()=>kmGo('stages',qaOf(n)),ic:'i2_quest'}}
 KMS.home=v=>{v.append(kmEl('div','kbg'));kmTop(v);const p=kmPick();const pk=kmEl('div','kpick');pk.append(kmEl('span','t ko','今日のおすすめ'));const ar=kmEl('div','a');if(p.art&&p.art.tagName==='CANVAS')ar.append(p.art);else{const im=kmEl('img');im.src=KMK[p.ic||'i2_quest'];ar.append(im)}
   pk.append(ar,kmEl('div','tx','<b class="ko">'+p.t+'</b><small class="ko">'+p.s+'</small>'));const bs=kmEl('div','bs');if(p.go)bs.append(kmB('kmini gd','詳細',p.go));bs.append(kmB('kmini','一覧',p.list));pk.append(bs);v.append(pk);
   const L=kmEl('div','kside l');[['i2_book','あそびかた',()=>{const h=document.querySelector('.hhow');if(h)h.click()}],['i2_rec','記録',()=>kmLegacyOpen(()=>{tnShow('fight');subSet('rec')})],['i2_dex','図鑑',()=>kmGo('party','list')]].forEach(([ic,l,f])=>L.append(kmB('ksi','<img alt="" src="'+KMK[ic]+'"><span class="ko">'+l+'</span>',f)));v.append(L);
