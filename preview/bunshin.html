@@ -4704,7 +4704,7 @@ function axUnit(f,side,x,y,o){o=o||{};const st=f.st,u={f,side,x,y,tx:null,ty:nul
   sh:o.sh||0,shMax:o.sh||0,weak:o.weak||[],brk:0,mon:o.mon||null,s:o.s||.55,ey:o.ey||60,name:o.name||f.name,tel:null,nAtk:0,cdSk:[0,0],cdU:0,lastSh:-9,bombT:o.role==='bomb'?9:0,spawnT:o.spawnT||0,z:0,combo:0};
   u.range=u.melee?(side==='E'?(u.mon?34:26):26):120;u.mv=58+Math.min(60,u.spd*.9);return u}
 /* ---------- 敵 ---------- */
-function axBase(st){return fighterOpp(questOpp(st))}
+function axBase(st){return fighterOpp(AXB&&AXB.baseO?AXB.baseO:questOpp(st))}
 function axWk(){const ws=Object.keys(TRW).filter(w=>w!=='hammer'&&w!=='penlight'),pw=[...new Set(AXB.P.map(u=>u.f.wt))],a=pw[Math.floor(Math.random()*pw.length)],r=ws.filter(w=>w!==a);return [a,r[Math.floor(Math.random()*r.length)]]}
 function axEdge(k){/* 広場の奥(上)から出てくる。たまに横から */const a=-Math.PI/2+(Math.random()-.5)*(k%3===2?2.6:1.6);return [AXCX+Math.cos(a)*AXRX*.9,AXCY+Math.sin(a)*AXRY*.9]}
 function axFoes(st){const L=[],B=axBase(st);
@@ -4724,16 +4724,16 @@ const AXK=st=>({hp:9,atk:1});
 const AXAREA=[{k:'mob',n:[11,9]},{k:'mob',n:[11,10],mid:true},{k:'boss'}];/* (11/2) サウスト風: ザコは群れで来て、まとめて吹き飛ばす */
 function axArea(k){const A=AXB;A.area=k;A.goN=performance.now()+(k?250:500);A.tel=[];A.q=[];A.E=[];A.wave=0;A.trans=null;A.lock=null;A.pt=[];
   const me=A.me;me.x=AXCX;me.y=AXCY+AXRY*.5;me.tx=null;me.dash=null;A.cam.x=clamp(me.x-A.cam.vw/2,0,Math.max(0,AWW-A.cam.vw));
-  const D=AXAREA[k];if(D.k==='mob'){A.E=axMobs(A.st,D.n[0],D.mid);axSay('エリア'+(k+1)+': ザコをまとめて吹き飛ばそう')}else{A.E=axFoes(A.st);axSay('ボスエリア! '+A.E[0].name+' があらわれた')}
-  A.banner={s:k===2?'BOSS':'AREA '+(k+1),t:A.t}}
+  const D=(A.areas||AXAREA)[k];if(D.mk){A.E=D.mk(A);axSay(D.say||'')}else if(D.k==='mob'){A.E=axMobs(A.st,D.n[0],D.mid);axSay('エリア'+(k+1)+': ザコをまとめて吹き飛ばそう')}else{A.E=axFoes(A.st);axSay('ボスエリア! '+A.E[0].name+' があらわれた')}
+  A.banner={s:D.ban||(k===(A.areas||AXAREA).length-1?'BOSS':'AREA '+(k+1)),t:A.t}}
 /* ---------- 画面(全画面のキャンバスとカメラ) ---------- */
 function axFit(){const A=AXB;if(!A)return;const vv=window.visualViewport,cw=Math.round(vv?vv.width:innerWidth),ch=Math.round(vv?vv.height:innerHeight),dpr=Math.min(2,window.devicePixelRatio||1);
   if(typeof A3!=='undefined'&&A3){ax3Fit()}else if(cv.width!==Math.round(cw*dpr)||cv.height!==Math.round(ch*dpr)){cv.width=Math.round(cw*dpr);cv.height=Math.round(ch*dpr)}
   const Z=Math.min(cw/205,ch/330);A.cam=Object.assign(A.cam||{x:0,y:0},{cw,ch,dpr,Z,vw:cw/Z,vh:ch/Z,hud:Math.min(230,ch*.3)/Z})}
 function axCamUpd(dt){const A=AXB,c=A.cam,me=A.me;const playH=c.vh-c.hud,tx=clamp(me.x-c.vw/2,0,Math.max(0,AWW-c.vw)),ty=clamp(me.y-playH*.62,0,Math.max(0,AWH-c.vh+c.hud));
   const k=1-Math.pow(.0015,dt);c.x+=(tx-c.x)*k;c.y+=(ty-c.y)*k}
-function axStart(st){if(playing||TR)return;st=st||Math.min(QMAX,(S.qs||0)+1);const P=typeof kmBattleParty==='function'?kmBattleParty():tbParty3();
-  AXB={t:0,rt:performance.now(),st,q:[],P:[],E:[],fx:[],pt:[],nums:[],tel:[],over:null,auto:false,speed:1,stop:0,shake:0,zp:1,flash:0,cut:null,press:null,mk:null,log:[],area:0,rush:0,rushOn:null,combo:0,comboT:-9,maxCombo:0,kills:0,aim:null,cur:0,cdSw:0,sp:50,cam:null,helpT:0};
+function axStart(st,opt){if(playing||TR)return;st=st||Math.min(QMAX,(S.qs||0)+1);const P=typeof kmBattleParty==='function'?kmBattleParty():tbParty3();
+  AXB={t:0,rt:performance.now(),st,q:[],P:[],E:[],fx:[],pt:[],nums:[],tel:[],over:null,auto:false,speed:1,stop:0,shake:0,zp:1,flash:0,cut:null,press:null,mk:null,log:[],area:0,rush:0,rushOn:null,combo:0,comboT:-9,maxCombo:0,kills:0,aim:null,cur:0,cdSw:0,sp:50,cam:null,helpT:0};if(opt)Object.assign(AXB,opt);
   P.forEach((f,i)=>{const u=axUnit(f,'P',AXCX-120,AXCY+10);u.idx=i;AXB.P.push(u)});AXB.me=AXB.P[0];
   AXB.bg=(typeof bqTheme==='function'&&/dusk|night/.test(String(bqTheme())))?'dusk':'meadow';document.body.classList.add('axon');axFit();axArea(0);AXB.cam.y=clamp(AXB.me.y-(AXB.cam.vh-AXB.cam.hud)*.62,0,Math.max(0,AWH-AXB.cam.vh+AXB.cam.hud));
   $('plA').hidden=true;$('plB').hidden=true;axUI();axBind();axSay('出撃!');
@@ -4840,7 +4840,7 @@ function axRush(){const A=AXB;if(!A||A.rushOn||A.rush<100||A.over||A.trans)retur
 /* ---------- the loop ---------- */
 function axAt(dt,f){AXB.q.push({t:AXB.t+dt,f})}
 function axTick(dt){const A=AXB;if(A.over)return;A.flash=Math.max(0,A.flash-dt*2.2);A.zp=1+(A.zp-1)*Math.pow(.02,dt);A.hurt=Math.max(0,(A.hurt||0)-dt);A.dim=Math.max(0,(A.dim||0)-dt*1.3);
-  if(A.stop>0){A.stop-=dt;return}if(A.slow&&A.t<A.slow)dt*=.35;A.t+=dt;const t=A.t;{const due=A.q.filter(x=>x.t<=t);A.q=A.q.filter(x=>x.t>t);for(const x of due){try{x.f()}catch(e){console.error(e)}}if(!AXB||A.over)return}
+  if(A.stop>0){A.stop-=dt;return}if(A.slow&&A.t<A.slow)dt*=.35;A.t+=dt;const t=A.t;if(A.tlim&&t>=A.tlim&&!A.trans){axEnd(true);return}{const due=A.q.filter(x=>x.t<=t);A.q=A.q.filter(x=>x.t>t);for(const x of due){try{x.f()}catch(e){console.error(e)}}if(!AXB||A.over)return}
   for(const p of A.pt){p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;if(p.k==='spark'){p.vx*=.9;p.vy*=.9}else if(p.k==='dust'){p.vx*=.92;p.vy*=.92;p.vz*=.9}else{p.vz-=300*dt}}A.pt=A.pt.filter(p=>t-p.t<p.life);
   if(A.trans){axTrans(dt);return}
   const me=A.me;A.sp=Math.min(100,A.sp+6*dt);for(const p of A.P)if(p!==me&&!p.dead)p.hp=Math.min(p.max,p.hp+p.max*.015*dt);
@@ -4858,8 +4858,8 @@ function axTick(dt){const A=AXB;if(A.over)return;A.flash=Math.max(0,A.flash-dt*2
   /* 範囲攻撃の発動 */for(const z of A.tel.slice()){if(t>=z.t1){A.tel.splice(A.tel.indexOf(z),1);if(!axLive(z.by)||z.by.brk>t)continue;A.shake=Math.max(A.shake,z.big?6:0);
       if(z.boom){z.by.dead=true;z.by.deadT=t;A.fx.push({k:'burst',x:z.x,y:z.y-20,gy:z.y,r:z.r,t,d:.5,col:'#ff8a4a'})}if(axLive(me)&&axIn(z,me))axHit(z.by,me,z.m,{big:z.big});A.fx.push({k:'wave',x:z.x,y:z.y,r:z.r,t,d:.45,col:'#ff6a4a'});axDust(z.x,z.y,8)}}
   axCamUpd(dt);
-  const D=AXAREA[A.area];if(D.k==='mob'&&A.wave===0&&A.E.filter(axLive).length<=2){A.wave=1;A.E.push(...axMobs(A.st,D.n[1],false));axSay('ザコのおかわりが来た!')}
-  if(!A.P.some(axLive))axEnd(false);else if(!A.E.some(axLive)&&A.E.every(e=>t-e.deadT>.5)){if(A.area<AXAREA.length-1){A.trans={t0:t};axSay('エリアクリア! 先へ進もう')}else axEnd(true)}}
+  const D=(A.areas||AXAREA)[A.area];if(D.k==='mob'&&A.wave===0&&A.E.filter(axLive).length<=2){A.wave=1;A.E.push(...axMobs(A.st,D.n[1],false));axSay('ザコのおかわりが来た!')}
+  if(!A.P.some(axLive))axEnd(false);else if(!A.E.some(axLive)&&A.E.every(e=>t-e.deadT>.5)){if(A.area<(A.areas||AXAREA).length-1){A.trans={t0:t};axSay('エリアクリア! 先へ進もう')}else axEnd(true)}}
 function axTrans(dt){const A=AXB,v=A.t-A.trans.t0,me=A.me;if(axLive(me)){const k=Math.min(1,dt*3);if(!A.trans.done&&v>.35){me.x+=(AXCX-me.x)*k;me.y-=110*dt;me.pose='p2'}else if(A.trans.done){me.x+=(AXCX-me.x)*k;me.y+=(AXCY+AXRY*.5-me.y)*k}}A.tel=[];axCamUpd(dt);
   if(v>1.4&&!A.trans.done){axArea(A.area+1);A.trans={t0:A.t-1.4,done:1};axUI()}if(A.trans&&A.trans.done&&A.t-A.trans.t0>1.85)A.trans=null}
 function axMove(u,tx,ty,dt,k){const dx=tx-u.x,dy=(ty-u.y),d=Math.hypot(dx,dy);if(d<2){u.pose='p1';return true}const sp=u.mv*(k||1)*dt;let nx=u.x+dx/d*Math.min(sp,d),ny=u.y+dy/d*Math.min(sp*.7,Math.abs(dy)>0?d:0);const q=axClamp(nx,ny,u.side==='E'?1.1:1);u.x=q[0];u.y=q[1];if(Math.abs(dx)>2)u.face=dx>0?1:-1;u.pose='p2';
@@ -5001,7 +5001,7 @@ const axIco=(k,cls)=>'<svg class="'+(cls||'axic')+'" viewBox="0 0 48 48" fill="n
 const AXSWAPI='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>';
 function axUI(){let u=$('axui');if(!u){u=document.createElement('div');u.id='axui';document.body.append(u)}u.replaceChildren();u.className='axui';const A=AXB;if(!A)return;const me=A.me;
   const top=mk('div','axtop');const q=mk('button','axpill axq','やめる');q.type='button';q.onclick=axQuit;
-  const info=Object.assign(mk('div','axinfo2'),{innerHTML:'<span>ステージ'+A.st+'</span><b class="axtm"></b><span>エリア '+(A.area+1)+'/'+AXAREA.length+'</span>'});
+  const info=Object.assign(mk('div','axinfo2'),{innerHTML:'<span>'+(A.title||('ステージ'+A.st))+'</span><b class="axtm"></b><span>エリア '+(A.area+1)+'/'+(A.areas||AXAREA).length+'</span>'});
   const tg=mk('div','axtg');const au=mk('button','axpill'+(A.auto?' on':''),'AUTO');au.type='button';au.onclick=()=>{A.auto=!A.auto;axUI()};const sp=mk('button','axpill'+(A.speed>1?' on':''),A.speed>1?'×2':'×1');sp.type='button';sp.onclick=()=>{A.speed=A.speed>1?1:2;axUI()};
   const hp=mk('button','axpill','?');hp.type='button';hp.onclick=()=>{A.helpT=A.helpT?0:1;axUI()};tg.append(au,sp,hp);top.append(q,info,tg);u.append(top);
   u.append(Object.assign(mk('p','axlog'),{id:'axlog',textContent:A.log[A.log.length-1]||''}));
@@ -5020,7 +5020,7 @@ function axUI(){let u=$('axui');if(!u){u=document.createElement('div');u.id='axu
   bot.append(lf,rt,bars);u.append(bot);if(typeof A3!=='undefined'&&A3)A3.topH=top.getBoundingClientRect().bottom}
 function axSeen(v){try{if(v)localStorage.setItem('axHelp1','1');return localStorage.getItem('axHelp1')==='1'}catch(e){return true}}
 function axUIUpdate(){const A=AXB,u=$('axui');if(!A||!u||A.over)return;const me=A.me;
-  const tm=u.querySelector('.axtm');if(tm)tm.textContent=axFmt(A.t);
+  const tm=u.querySelector('.axtm');if(tm)tm.textContent=A.tlim?axFmt(Math.max(0,A.tlim-A.t)):axFmt(A.t);
   const hb=u.querySelector('.axb2.hp');if(hb){hb.querySelector('i').style.width=(100*me.hp/me.max).toFixed(1)+'%';hb.querySelector('b').textContent=Math.ceil(me.hp)+'/'+me.max;hb.classList.toggle('low',me.hp<me.max*.3)}
   const sb=u.querySelector('.axb2.sp');if(sb){sb.querySelector('i').style.width=A.sp.toFixed(1)+'%';sb.querySelector('b').textContent=Math.floor(A.sp)+'/100'}
   const big=u.querySelector('.axbig');if(big){big.style.setProperty('--r',(Math.min(200,A.rush)/2).toFixed(0)+'%');big.classList.toggle('ok',A.rush>=100&&!A.rushOn);big.classList.toggle('max',A.rush>=200&&!A.rushOn);big.classList.toggle('on',!!A.rushOn)}
@@ -6705,9 +6705,9 @@ function kmBest(){try{return JSON.parse(localStorage.getItem('axBest')||'{}')||{
 function kmRec(n){try{return trRec(fighterOpp(questOpp(n)))}catch(e){return 0}}
 function kmFace(f,sz){try{return tbFace(f,sz)}catch(e){return kmEl('i')}}
 /* 3Dで勝ったステージの一番よいランクを覚える(ステージの行にメダルを出す) */
-(function(){if(typeof axKEnd!=='function')return;const _k=axKEnd;axKEnd=function(e,A){try{if(A&&A.over&&A.over.win&&A.over.rank){const b=kmBest(),r=A.over.rank[0],o='SABC';if(!b[A.st]||o.indexOf(r)<o.indexOf(b[A.st]))b[A.st]=r;localStorage.setItem('axBest',JSON.stringify(b))}}catch(x){}const r=_k.apply(this,arguments);
+(function(){if(typeof axKEnd!=='function')return;const _k=axKEnd;axKEnd=function(e,A){try{if(A&&!A.mode&&A.over&&A.over.win&&A.over.rank){const b=kmBest(),r=A.over.rank[0],o='SABC';if(!b[A.st]||o.indexOf(r)<o.indexOf(b[A.st]))b[A.st]=r;localStorage.setItem('axBest',JSON.stringify(b))}}catch(x){}const r=_k.apply(this,arguments);
   /* (11/3) 3Dの勝ち負けも、ターン制のクエストと同じごほうびの道を通す(次のステージが開く・pt・経験値・宝箱) */
-  try{if(A&&A.st&&A.over&&!A.__rew){A.__rew=1;const won=!!A.over.win,qo=questOpp(A.st);try{subGiveXp(won)}catch(x){}
+  try{if(A&&A.over&&A.mode&&!A.__rew){A.__rew=1;kmAxReward(e,A)}else if(A&&A.st&&A.over&&!A.__rew){A.__rew=1;const won=!!A.over.win,qo=questOpp(A.st);try{subGiveXp(won)}catch(x){}
     const rw=kmEl('div','kmrew ko',won?'ごほうびを記録中…':'');e.append(rw);
     BT={res:{win:won?0:1,ev:[]},F:[fighterMe(),fighterOpp(qo)],inp:{},tapAt:{},quest:qo,xq:null,raid:null,sa:null,seed:(Date.now()&0xffffff),opp:null,opt:{}};playing=false;try{finish()}catch(x){console.error(x)}
     const show=()=>{const t=document.getElementById('resS');if(t&&t.textContent&&!/記録中/.test(t.textContent))rw.textContent=t.textContent;else setTimeout(show,400)};setTimeout(show,300);setTimeout(()=>{BT=null},6000)}}catch(x){console.error(x)}
@@ -6961,7 +6961,7 @@ const KMS={};
 
 /* ---------- ホーム ---------- */
 function kmPick(){/* 今日のおすすめ: 開いているイベント → 今日の経験値クエスト → 次のステージ */
-  try{const ev=qsEvents().filter(e=>e.tag==='開催中');if(ev.length){const e=ev[0];return {art:e.art,t:e.t,s:e.left,go:e.go?()=>kmLegacyOpen(()=>{tnShow('fight');e.go()}):null,list:()=>kmGo('quest','ev')}}}catch(e){}
+  try{const ev=qsEvents().filter(e=>e.tag==='開催中');if(ev.length){const e=ev[0];return {art:e.art,t:e.t,s:e.left,go:/^(rd|hw|nt)$/.test(e.cls)?kmRaidPop:e.cls==='sa'?kmSaPop:null,list:()=>kmGo('quest','ev')}}}catch(e){}
   try{const inf=xqInfo(),left=Math.max(0,inf.day-inf.today);if(HOST&&left>0)return {art:kmEl('img',null),t:'経験値クエストに挑戦しよう',s:'今日あと '+left+' 回',go:()=>kmGo('quest','dy'),list:()=>kmGo('quest','dy'),ic:'i2_rec'}}catch(e){}
   const n=kmCur();let o={name:''};try{o=questOpp(n)}catch(e){}return {t:'ステージ'+n+' '+o.name,s:'エリア'+(qaOf(n)+1)+' '+QAREA[qaOf(n)],go:()=>kmStagePop(n),list:()=>kmGo('stages',qaOf(n)),ic:'i2_quest'}}
 KMS.home=v=>{v.append(kmEl('div','kbg'));kmTop(v);const p=kmPick();const pk=kmEl('div','kpick');pk.append(kmEl('span','t ko','今日のおすすめ'));const ar=kmEl('div','a');if(p.art&&p.art.tagName==='CANVAS')ar.append(p.art);else{const im=kmEl('img');im.src=KMK[p.ic||'i2_quest'];ar.append(im)}
@@ -6987,12 +6987,12 @@ KMS.quest=(v,tab)=>{tab=tab||KM.qt||'nm';KM.qt=tab;const b=kmFrame(v,'クエス�
   kmFoot(v,[kmBack('home')])};
 function kmEvBan(e,col){const bn=kmB('kban','<span class="tx"><small class="ko">'+(e.tag||'')+'</small><b class="ko">'+e.t+'</b><p class="ko">'+(e.s||'')+'</p></span><span class="art"></span><span class="per ko"><span>'+(e.left||'')+'</span><em>'+(e.tag||'')+'</em></span>'+(e.tag==='開催中'?'<span class="tag ko">開催中</span>':''));
   bn.style.background='linear-gradient(120deg,'+(col[e.cls]||'#5a1a8a')+',#2a2080)';if(e.art){const c=e.art.cloneNode?e.art:null;if(c){c.style&&(c.style.width='96px',c.style.height='96px');bn.querySelector('.art').append(c)}}
-  if(e.go)bn.onclick=()=>kmLegacyOpen(()=>{tnShow('fight');e.go()});return bn}
+  if(/^(rd|hw|nt)$/.test(e.cls))bn.onclick=kmRaidPop;else if(e.cls==='sa')bn.onclick=kmSaPop;else if(e.go)bn.onclick=()=>kmLegacyOpen(()=>{tnShow('fight');e.go()});return bn}
 function kmXqPop(t){const g=XQ[t],P=kmParty(),have=Math.round(trPartyPow(P));let lo=0,hi=0;try{lo=trRec(fighterOpp(xqOpp(t,0)));hi=trRec(fighterOpp(xqOpp(t,4)))}catch(e){}
   const d=kmEl('div');const bn=kmEl('div','kpban','<span class="tx"><small class="ko">経験値クエスト</small><b class="ko">'+g.n+'</b><p class="ko">最後は '+g.boss+'</p></span><span class="art"></span>');bn.style.background='linear-gradient(120deg,#1a5a8a,#2a2080)';try{bn.querySelector('.art').append(tnPortrait(fighterOpp(xqOpp(t,4)),100,135))}catch(e){}d.append(bn);
   d.append(kmEl('div','ksec','<div class="kkv"><span>推奨戦闘力</span><b>'+lo.toLocaleString()+'〜'+hi.toLocaleString()+'</b></div><div class="kkv"><span>あなたのパーティ</span><b class="'+(have>=hi?'ok':have>=lo?'':'low')+'">'+have.toLocaleString()+'</b></div>'));
-  d.append(kmEl('div','ksec','<h5>ルール</h5><p class="ktx">5人と続けて戦う(ターン制)。HPは持ち越し、勝つたびに50%回復。負けたら最初から。宝箱10%。</p>'));
-  kmPop(g.n,d,[['閉じる',null,'bl'],['挑戦する',()=>kmLegacyOpen(()=>{tnShow('fight');QTAB='dy';renderQuest();xqStart(t)}),'gd']])}
+  d.append(kmEl('div','ksec','<h5>ルール</h5><p class="ktx">1回の出撃で5つのエリアを続けて戦う(3D)。HPは持ち越し。負けたら最初から。全部勝つと経験値、宝箱が出ることもあります。</p>'));
+  kmPop(g.n,d,[['閉じる',null,'bl'],['挑戦する',()=>kmAxXq(t),'gd']])}
 
 /* ステージの一覧(エリアの中) */
 KMS.stages=(v,a)=>{a=a||0;const b=kmFrame(v,'エリア'+(a+1)+' '+QAREA[a]);const cur=kmCur(),best=kmBest();
@@ -7012,6 +7012,48 @@ function kmStagePop(n){const o=questOpp(n),boss=n%10===0,P=kmParty(),have=kmPow(
   const pe=kmB('kmini gd','編成を変える',()=>{document.querySelector('#kmapp .kpop')?.remove();kmGo('party')});pe.style.marginTop='8px';ps.append(pe);
   ps.append(kmEl('div','kkv','<span>メイン2人の総合力</span><b class="'+(have>=need?'ok':have>=need*.85?'':'low')+'">'+have.toLocaleString()+'</b>'));d.append(ps);
   kmPop('ステージ'+n+(boss?' ボス戦':''),d,[['閉じる',null,'bl'],['挑戦する',()=>{document.body.classList.add('kmhide');axStart(n)},'gd']])}
+
+
+/* ---------- (11/3) イベントを3Dで: 週末レイド・ハロウィンのボス・夜のボス(負けるまで削る) / スコアアタック(60秒のダメージ) / 経験値クエスト(5つのエリアを続けて) ----------
+   レイドの換算: 3Dのボスの体力は みんなの残りHP×KMRK。記録するダメージは 3Dで削った量÷KMRK(ターン制と同じくらいの量になるよう、遊んで直す) */
+let KMRK=8;
+const kmStOfLv=lv=>Math.max(1,Math.min(QMAX,Math.round((lv-1)/.9)));
+function kmRaidNow(){if(!HOST)return null;const H=HOST.hboss&&HOST.hboss();if(H)return {k:'hb',r:H,n:'ハロウィンのボス'};const n=HOST.night&&HOST.night();if(n&&n.open&&!n.dead)return {k:'nt',r:Object.assign({night:1},n),n:'夜のボス'};const r=HOST.raid&&HOST.raid();if(r&&r.open)return {k:'rd',r,n:'週末レイド'};return null}
+function kmAxRaid(){const R=kmRaidNow();if(!R){toastB('いま挑めるボスはいません');return}const r=R.r;
+  if(R.k==='rd'&&(r.dead||r.left<=0)){toastB(r.dead?'このボスはもう倒されました':'今日の3回は終わりました(朝5時に戻ります)');return}
+  if(R.k==='hb'&&(r.st||0)<=0){toastB('スタミナがありません');return}if(R.k==='nt'&&(r.left||0)<=0){toastB('今日の回数は終わりました');return}
+  const o=raidOpp(r),st=kmStOfLv(o.lv||50);let hp0=0;
+  document.body.classList.add('kmhide');
+  axStart(st,{mode:'raid',title:R.n,raidK:R.k,raid:r,baseO:o,areas:[{ban:'RAID',say:R.n+'!負けるまで削ろう',mk:A=>{const L=axFoes(A.st),b=L[0];hp0=Math.max(1,Math.round((r.hp||r.max||100000)*KMRK));b.max=b.hp=hp0;b.raidB=1;A.raidHp0=hp0;A.raidU=b;return [b]}}]})}
+function kmAxSa(){if(!HOST||!HOST.sa){toastB('スコアアタックは本番のアプリで遊べます');return}const r=HOST.sa();if(!r.open||r.left<=0){toastB(r.open?'今日の回数は終わりました':'いまは開いていません');return}
+  const o=saOpp(r),st=kmStOfLv(S.lv);document.body.classList.add('kmhide');
+  axStart(st,{mode:'sa',title:'スコアアタック',sa:r,baseO:o,tlim:60,areas:[{ban:'60秒',say:'60秒でどれだけ削れるか!',mk:A=>{const L=axFoes(A.st),b=L[0];b.max=b.hp=1e9;A.saU=b;return [b]}}]})}
+function kmAxXq(t){const g=XQ[t];document.body.classList.add('kmhide');const st=kmStOfLv(g.lv[0]);
+  axStart(st,{mode:'xq',title:'経験値 '+g.n,xqT:t,areas:[0,1,2,3,4].map(i=>({ban:(i+1)+'/5',say:(i+1)+'人目: '+xqOpp(t,i).name.replace(/^\d\/5 /,''),mk:A=>{A.baseO=xqOpp(t,i);A.st=kmStOfLv(g.lv[i]);return axFoes(A.st)}}))})}
+/* 終わったときのごほうび(モード別) */
+function kmAxReward(e,A){const won=!!A.over.win,rw=kmEl('div','kmrew ko','記録中…');e.append(rw);const set=t=>{rw.textContent=t};
+  try{const ag=[...e.querySelectorAll('button')].find(b=>/もう一回/.test(b.textContent));if(ag){const m=A.mode,t=A.xqT;ag.onclick=()=>{axQuit();setTimeout(()=>{m==='raid'?kmAxRaid():m==='sa'?kmAxSa():kmAxXq(t)},50)}}}catch(x){}
+  if(A.mode==='raid'){const b=A.raidU,dealt=b?Math.max(0,A.raidHp0-Math.max(0,b.hp)):0,dmg=Math.max(0,Math.round(dealt/KMRK)),r=A.raid;
+    if(!HOST){set('ダメージ '+dmg.toLocaleString()+'(お試し版なので記録はしません)');return}
+    BT={res:{win:won?0:1,hs:[0,r.hp],hp:[0,Math.max(0,r.hp-dmg)],max:[1,r.max],ev:[]},F:[fighterMe(),fighterOpp(raidOpp(r))],raid:Object.assign({},r,{helper:null}),quest:null,xq:null,sa:null,seed:(Date.now()&0xffffff),opp:null,opt:{},inp:{},tapAt:{}};playing=false;
+    try{raidFinish()}catch(x){console.error(x)}const show=()=>{const t=document.getElementById('resS'),T=document.getElementById('resT');if(t&&t.textContent&&!/記録中/.test(t.textContent))set((T?T.textContent+' ':'')+t.textContent);else setTimeout(show,400)};setTimeout(show,300);setTimeout(()=>{BT=null},8000);return}
+  if(A.mode==='sa'){const b=A.saU,tot=b?Math.max(0,Math.round(b.max-Math.max(0,b.hp))):0;set('スコア '+tot.toLocaleString()+' 点。記録中…');
+    HOST.saLog(tot).then(q=>set('スコア '+tot.toLocaleString()+' 点'+(q&&q.my?'(自己ベスト '+saFmt(q.my.s)+'点・'+q.my.rank+'位)':''))).catch(()=>set('スコア '+tot.toLocaleString()+' 点。記録できませんでした')).finally(()=>{try{renderHostBar()}catch(x){}});return}
+  if(A.mode==='xq'){const t=A.xqT,g=XQ[t];if(!won){set(g.n+' '+(A.area+1)+'人目で負け。もう一度1人目から挑戦できます');return}
+    if(!HOST){S.xqc=S.xqc||{};S.xqc[t]=(S.xqc[t]||0)+1;save();set(g.n+' クリア!(お試し版なので経験値はなし)');return}
+    const inf=xqInfo(),rew=inf.today<inf.day,head=g.n+' クリア!'+(rew?'経験値 +'+g.xp+'。':'今日の経験値は'+inf.day+'回とももらいました。');set(head+'記録中…');
+    HOST.log({d:'x'+t,w:1,s:(Date.now()&0xffffff)}).then(id=>{const got=HOST.rollChest(id,QCHEST_P);set(head+(got?'宝箱を手に入れた!':''))}).catch(()=>set(head+'記録できませんでした')).finally(()=>{try{renderHostBar();renderGear()}catch(x){}});return}
+  rw.remove()}
+function kmRaidPop(){const R=kmRaidNow();const d=kmEl('div');if(!R){d.append(kmEl('p','ktx ko','いま挑めるボスはいません。週末レイドは毎週金曜の朝5時から。'));kmPop('レイド',d);return}const r=R.r,o=raidOpp(r);
+  const bn=kmEl('div','kpban','<span class="tx"><small class="ko">'+R.n+'</small><b class="ko">'+o.name+'</b><p class="ko">みんなで1体のボスを削る</p></span><span class="art"></span>');bn.style.background='linear-gradient(120deg,#7a1418,#2a1208)';try{bn.querySelector('.art').append(tnPortrait(fighterOpp(o),110,140))}catch(x){}d.append(bn);
+  const left=R.k==='rd'?'今日あと '+r.left+' 回':R.k==='hb'?'スタミナ '+r.st+'/'+r.stMax:'あと '+(r.left||0)+' 回';
+  d.append(kmEl('div','ksec','<div class="kkv"><span>みんなの残りHP</span><b>'+(r.hp!=null?r.hp.toLocaleString()+' / '+(r.max||0).toLocaleString():'—')+'</b></div><div class="kkv"><span>回数</span><b>'+left+'</b></div>'));
+  d.append(kmEl('div','ksec','<h5>ルール(3D)</h5><p class="ktx">倒れるまで戦って、削った分がみんなの分と合わさります。参加するだけで報酬があり、倒せたら全員に討伐報酬。</p>'));
+  kmPop(R.n,d,[['閉じる',null,'bl'],['挑戦する',kmAxRaid,'gd']])}
+function kmSaPop(){const d=kmEl('div');if(!HOST||!HOST.sa){d.append(kmEl('p','ktx ko','スコアアタックは本番のアプリで遊べます。'));kmPop('スコアアタック',d);return}const r=HOST.sa(),o=saOpp(r);
+  const bn=kmEl('div','kpban','<span class="tx"><small class="ko">今週の挑戦者</small><b class="ko">'+o.name+'</b><p class="ko">60秒で与えたダメージを競う</p></span><span class="art"></span>');bn.style.background='linear-gradient(120deg,#1a4a7a,#2a1208)';try{bn.querySelector('.art').append(tnPortrait(fighterOpp(o),110,140))}catch(x){}d.append(bn);
+  d.append(kmEl('div','ksec','<div class="kkv"><span>自己ベスト</span><b>'+(r.my?saFmt(r.my.s)+'点':'まだなし')+'</b></div><div class="kkv"><span>順位</span><b>'+(r.my?r.my.rank+'位':'—')+'</b></div><div class="kkv"><span>回数</span><b>今日あと '+r.left+' 回</b></div>'));
+  kmPop('スコアアタック',d,[['閉じる',null,'bl'],['挑戦する',kmAxSa,'gd']])}
 
 /* ---------- 編成&キャラ ---------- */
 /* ---------- 編成(サウストと同じ: メイン2人+サポート5人、5つ保存) ----------
@@ -7108,7 +7150,7 @@ function kmRatePop(k){let rows=[];if(k==='ch')rows=[['KMR','0.5%'],['GR','2.5%']
 function kmMenu(){const d=kmEl('div','kmenu');[['i2_book','あそびかた',()=>{const h=document.querySelector('.hhow');if(h)h.click()}],['i2_rec','記録',()=>kmLegacyOpen(()=>{tnShow('fight');subSet('rec')})],['i2_ring','見た目',()=>kmLegacyOpen(()=>{TNSELF='look';tnShow('self')})],['i2_dex','ステータス',()=>kmLegacyOpen(()=>{TNSELF='stat';tnShow('self')})],['i2_quest','ターン制で遊ぶ',()=>kmLegacyOpen(()=>{tnShow('fight');QTAB='nm';renderQuest()})],['i2_event','イベント',()=>kmGo('quest','ev')]].forEach(([ic,l,f])=>d.append(kmB(null,'<img alt="" src="'+(KMK[ic]||AXUIK[ic])+'"><span class="ko">'+l+'</span>',()=>{document.querySelector('#kmapp .kpop')?.remove();f()})));kmPop('メニュー',d)}
 
 /* バトルから戻ったら新しい画面へ(出撃したステージのエリアに) */
-(function(){if(typeof axQuit!=='function')return;const _q=axQuit;axQuit=function(){const st=typeof AXB!=='undefined'&&AXB?AXB.st:null;const r=_q.apply(this,arguments);try{if(AXKMUI&&document.getElementById('kmapp')&&!document.getElementById('kmback')){document.body.classList.remove('kmhide');if(st)kmGo('stages',qaOf(st));else kmGo('home')}}catch(e){}return r}})();
+(function(){if(typeof axQuit!=='function')return;const _q=axQuit;axQuit=function(){const st=typeof AXB!=='undefined'&&AXB?AXB.st:null,md=typeof AXB!=='undefined'&&AXB?AXB.mode:null;const r=_q.apply(this,arguments);try{if(AXKMUI&&document.getElementById('kmapp')&&!document.getElementById('kmback')){document.body.classList.remove('kmhide');if(md)kmGo('quest',md==='xq'?'dy':'ev');else if(st)kmGo('stages',qaOf(st));else kmGo('home')}}catch(e){}return r}})();
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(kmApp,30));else setTimeout(kmApp,30);
 
 
