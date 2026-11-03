@@ -5367,7 +5367,7 @@ function ax3VUpd(u,R,t,dt,mx,my){const T=A3.T,C=R.C;
     if(R.st==='run')R.acts.run.timeScale=u.dash?2.2:1.25}
   R.mixer.update(dt);
   R.root.position.set(a3X(u.x),(u.z||0)*AXM,a3Z(u.y));R.root.rotation.set(0,R.yaw,0);
-  R.root.updateMatrixWorld(true);ax3TrailUpd(R,t,R.busy>t&&/atk|power|spin|jump/.test(R.st));
+  R.root.updateMatrixWorld(true);/* (11/3 審査6) 技・必殺の間は武器の色の線を出さない(技のエフェクトとまざっていた) */ax3TrailUpd(R,t,R.busy>t&&/atk|power|spin|jump/.test(R.st)&&!(A3.skT!=null&&t-A3.skT<.8&&t>=A3.skT-.05)&&!(AXB.ultG&&t<AXB.ultG.until));
   const q=new T.Quaternion(),e=new T.Euler();
   /* 手をにぎる(Mixamoの動きは指がないので) */for(const f of R.fing){e.set(0,f.th?f.s*.3:0,f.th?0:f.s*1.1);f.b.quaternion.copy(f.q).multiply(q.setFromEuler(e))}
   const sp=Math.hypot(mx,my)/Math.max(dt,.016);for(let i=0;i<R.hair.length;i++){const h=R.hair[i];e.set(Math.sin(t*3+i)*.03-Math.min(.35,sp*.0015),0,Math.sin(t*2.3+i*1.7)*.03);h.b.quaternion.copy(h.q).multiply(q.setFromEuler(e))}
@@ -5996,7 +5996,7 @@ function axvSkill(k,o){axvPreload();const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};c
   case 'heal':case 'cheerup':axvCircle(ux,uz,{r:6,col:k==='heal'?'#7dffa0':'#ff9ad8',d:1.1});axvPillar(ux,uz,{r:2.4,h:13,col:k==='heal'?'#7dffa0':'#ff9ad8',d:.9,dl:.1});break;
   case 'pillar':case 'ult_holy':{const n=ult?5:Math.max(1,Math.min(3,f.hits||1));for(let i=0;i<n;i++){const x=i?cx+(Math.random()-.5)*R*2:cx,z=i?cz+(Math.random()-.5)*R:cz;axvCircle(x,z,{r:4.5,col:'#ffe27a',d:.9,dl:dl+i*.1-.1});axvPillar(x,z,{r:2.2,h:16,col:'#ffe27a',d:.8,dl:dl+i*.1})}break}
   case 'orb':{/* (11/3) 魔法弾: 魔法係の光の玉が飛んで着弾(色は属性) */const el=axvEl(f),col=!f.el?'#a05aff':el==='fire'?'#ff4a1a':el==='water'?'#2a9aff':'#ffc81a';axvShot('orb',ux,uz,cx,cz,{col,dl:dl-.12,fly:.16,w:.42});axvLinger(f,{el,dl:dl+.15});break}
-  case 'meteor':if(!ult){/* (11/3) 星くず落とし: 流れ星が斜め上から3つ、0.08秒ずつ */const el=axvEl(f),col=!f.el?'#c89aff':el==='fire'?'#ffd07a':el==='water'?'#9ae8ff':'#fff0a0';axvCirc(cx,cz,{w:.6,col,dl:Math.max(0,dl-.3)});for(let i=0;i<3;i++){const x=i?cx+(Math.random()-.5)*R*1.4:cx,z=i?cz+(Math.random()-.5)*R*.8:cz;axvShot('star',x+7,z-4,x,z,{col,dl:Math.max(0,dl-.2)+i*.08,fly:.2,y0:13,y1:1.5,w:.5})}axvLinger(f,{el,dl:dl+.05});break}
+  case 'meteor':if(!ult){/* (11/3) 星くず落とし: 流れ星が斜め上から3つ、0.08秒ずつ */const el=axvEl(f),col=!f.el?'#c89aff':el==='fire'?'#ffd07a':el==='water'?'#9ae8ff':'#fff0a0';axvCirc(cx,cz,{w:.6,col,dl:Math.max(0,dl-.3)});for(let i=0;i<5;i++){const x=i?cx+(Math.random()-.5)*R*1.4:cx,z=i?cz+(Math.random()-.5)*R*.8:cz;axvShot('star',x+4,z-2,x,z,{col,dl:Math.max(0,dl-.25)+i*.07,fly:.22,y0:22,y1:1.5,w:.5})}axvLinger(f,{el,dl:dl+.05});break}
   case 'ult_meteor':{const el=axvEl(f),n=ult?(el==='fire'?3:5):1;if(ult&&el==='fire')axvEruption(cx,cz,{dl:.42});for(let i=0;i<n;i++){const x=i?cx+(Math.random()-.5)*R*2:cx,z=i?cz+(Math.random()-.5)*R:cz;axvMeteor(x,z,{el,dl:ult?.04+i*.07:Math.max(0,dl-.3),ft:ult?.2:.3,s:ult?1.15:1})}axvLinger(f,{el,dl:(ult?.4:dl+.05)});break}
   case 'arrow':{const el=axvBowEl(f),E=AXEL[el];axvStreak(cx,cz,ex,ez,{w:1.3,d:.2,dl:dl-.08,col:E.c,edge:E.e});axvStreak(cx,cz,ex,ez,{w:.5,d:.16,dl:dl-.05,col:E.hi,edge:E.c});axvLightning(ex,ez,{el,s:.75,dl:dl+.06});break}
   case 'rain':case 'ult_arrows':{const el=axvBowEl(f),E=AXEL[el],n=ult?10:Math.min(6,(f.hits||5)+1),RR=ult?R:(f.r||62)*AXM*.8;axvCircle(cx,cz,{r:ult?9:6,col:E.c,d:ult?1.3:.9});
@@ -6031,7 +6031,7 @@ const AXV_POST={uniforms:{tDiffuse:{value:null},uC:{value:null},uBlur:{value:0},
    if(uCA>.001){vec2 o=(uv-uC)*uCA*.016;c.r=mix(c.r,texture2D(tDiffuse,uv+o).r,.85);c.b=mix(c.b,texture2D(tDiffuse,uv-o).b,.85);}
    gl_FragColor=vec4(c,1.);}`};
 function axvPostInit(comp){if(!AX3.ShaderPass)return;const T=A3.T;const P=new AX3.ShaderPass(AXV_POST);P.uniforms.uC.value=new T.Vector2(.5,.5);P.enabled=false;comp.insertPass(P,comp.passes.length-1);A3.post=P;A3.pfx=[]}
-function axvPost(x,z,o){if(!A3||!A3.post)return;o=o||{};A3.pfx.push({x,z,y:o.y||3,t0:AXB.t+(o.dl||0),d:o.d||.3,blur:o.blur||0,ca:o.ca||0,wave:o.wave||0})}
+function axvPost(x,z,o){if(!A3||!A3.post)return;o=o||{};/* (11/3 審査6) 色ずれは弱く */if(o.ca)o.ca*=.3;A3.pfx.push({x,z,y:o.y||3,t0:AXB.t+(o.dl||0),d:o.d||.3,blur:o.blur||0,ca:o.ca||0,wave:o.wave||0})}
 function axvPostUpd(t){const P=A3&&A3.post;if(!P)return;let best=null,bw=0;A3.pfx=A3.pfx.filter(e=>{const k=(t-e.t0)/e.d;if(k>1)return false;if(k<0)return true;const env=k<.12?k/.12:1-(k-.12)/.88,w=env*(e.blur+e.ca+e.wave);if(w>bw){bw=w;best={e,k,env}}return true});
   if(!best){P.enabled=false;return}const {e,k,env}=best,p=new A3.T.Vector3(e.x,e.y,e.z).project(A3.cam);P.enabled=true;const U=P.uniforms;U.uC.value.set((p.x+1)/2,(p.y+1)/2);U.uAsp.value=A3.cam.aspect;U.uBlur.value=e.blur*env;U.uCA.value=e.ca*env;U.uWR.value=.04+k*.55;U.uWS.value=e.wave*(1-k)}
 
@@ -6271,7 +6271,7 @@ const AXRADR={red:['#220406','#480A0F','#6C121A','#B5262E','#F95759','#FF9C98','
 const AXV_RADF=`uniform sampler2D uTex;uniform vec3 uR[8];uniform float uT,uZ,uRot,uFl;varying vec2 vU;
 vec3 rp(float t){vec3 c=mix(uR[0],uR[1],clamp(t/.08,0.,1.));c=mix(c,uR[2],clamp((t-.08)/.08,0.,1.));c=mix(c,uR[3],clamp((t-.16)/.15,0.,1.));c=mix(c,uR[4],clamp((t-.31)/.2,0.,1.));c=mix(c,uR[5],clamp((t-.51)/.2,0.,1.));c=mix(c,uR[6],clamp((t-.71)/.25,0.,1.));return mix(c,uR[7],clamp((t-.96)/.04,0.,1.));}
 void main(){float k=uT;float z=1.+.12*(1.-pow(1.-min(1.,k/.75),2.));vec2 d=(vU-.5)/z;d.x*=uFl;float cr=cos(uRot),sr=sin(uRot);d=vec2(cr*d.x-sr*d.y,sr*d.x+cr*d.y);vec2 uv=clamp(.5+d,0.,1.);float g=k<.17?1.1:mix(1.,.82,clamp((k-.17)/.6,0.,1.));float t=texture2D(uTex,uv).r*g;
- /* (11/3 審査4) 中心に純白の芯 */float rr=length(vU-.5);float core=1.-smoothstep(.05,.13,rr);t=max(t,core*1.08*(1.-k*.4));t*=mix(1.,.72,smoothstep(.15,.5,rr));
+ /* (11/3 審査4) 中心に純白の芯 */float rr=length(vU-.5);float core=1.-smoothstep(.05,.13,rr);t=max(t,core*1.08*(1.-k*.4));t*=mix(1.,.72,smoothstep(.15,.5,rr));/* 暗い筋をはっきり */t=t<.96?pow(t,1.35)*1.08:t;
  float a=k<.75?1.:1.-pow((k-.75)/.25,2.);gl_FragColor=vec4(rp(t),a);}`;
 function axvRadial(o){o=o||{};const T=A3.T;if(!AXRADT&&AXRAD.indexOf('data:')===0){AXRADT=new T.TextureLoader().load(AXRAD);AXRADT.colorSpace=T.NoColorSpace;AXRADT.wrapS=AXRADT.wrapT=T.ClampToEdgeWrapping}
   const rk=o.ramp||'red',mat=new T.ShaderMaterial({uniforms:{uT:{value:0},uTex:{value:AXRADT},uR:{value:AXRADR[rk].map(h=>new T.Color(h))},uRot:{value:Math.random()*6.28},uFl:{value:Math.random()<.5?-1:1}},vertexShader:AXVV,fragmentShader:AXV_RADF,transparent:true,depthTest:false,depthWrite:false,toneMapped:false});
@@ -6306,10 +6306,10 @@ const AXULTN={
    axvFinisher(cx,cz,{dl:.33,ramp:'red',noGlow:1});for(let i=0;i<3;i++)axvConfetti(cx+(i-1)*5,cz,{dl:.36+i*.04,col:cols[i],w:.45})},
  /* ゲッカ「完結編」: 物語の紙が渦になって舞い上がり、最後のページで紫の大爆発(本が閉じる=光が1点に集まって弾ける) */
  /* ゲッカ「完結編」: 足もとに魔法陣 → 物語のページが渦を巻いて中心に吸い込まれる → 紫の大爆発(本が閉じる)・紫の集中線 */
- '完結編':(c)=>{const {cx,cz}=c;axvCirc(cx,cz,{w:1.1,col:'#b07aff',dl:0});axvBook(cx,cz,{dl:0,d:.5,close:.22});axvPagesFB(cx,cz,{n:16,r:9,dl:.0,d:.26});axvMBurst(cx,cz,{w:1.3,col:'#9a5cff',dl:.2});axvFinisher(cx,cz,{dl:.33,ramp:'purple',noGlow:1,n:24})},
+ '完結編':(c)=>{const {cx,cz}=c;axvCirc(cx,cz,{w:1.1,col:'#b07aff',dl:0});axvBook(cx,cz,{dl:0,d:.62,close:.24});axvPagesFB(cx,cz,{n:16,r:9,dl:.0,d:.26});axvMBurst(cx,cz,{w:1.3,col:'#9a5cff',dl:.2});axvFinisher(cx,cz,{dl:.33,ramp:'purple',noGlow:1,n:24})},
  /* セイラ「アンコール」: ステージの光の柱が仲間のまわりに立ち、音符が舞う。仲間を元気づける(攻撃しない) */
  /* セイラ「アンコール」: 仲間を囲んでスポットライトが立ち、光る音符が舞い上がり、紙吹雪。攻撃はしない */
- 'アンコール':(c)=>{const {ux,uz}=c,cols=['#ff7ac8','#ffd23a','#7ad8ff','#b07aff'];for(let i=0;i<7;i++){const a=i/7*6.28;axvSpot(ux+Math.cos(a)*7,uz+Math.sin(a)*4,{col:cols[i%4],dl:.04+i*.04,d:1.2,w:.3,ro:Math.sin(a)<0?20:27})}axvNotes(ux,uz,{n:14,cols,dl:.1,r:7,idx:[0,1,2,3,4,5],big:1});axvConfetti(ux,uz,{dl:.2,col:'#ffd23a'})},
+ 'アンコール':(c)=>{const {ux,uz}=c,cols=['#ff7ac8','#ffd23a','#7ad8ff','#b07aff'];for(let i=0;i<7;i++){const a=i/7*6.28;axvSpot(ux+Math.cos(a)*7,uz+Math.sin(a)*4,{col:cols[i%4],dl:.04+i*.04,d:1.2,w:.3,ro:Math.sin(a)<0?20:27})}axvNotes(ux,uz,{n:18,cols,dl:.02,gap:.03,r:7,idx:[0,1,2,3,4,5],big:1});axvConfetti(ux,uz,{dl:.2,col:'#ffd23a'})},
 };
 /* 画面を暗くする(夜断ち・黒陽: 一瞬夜になる) */
 const AXV_DARK=`void main(){vec2 p=vU*2.-1.;float k=uT<.15?uT/.15:uT>.75?1.-(uT-.75)/.25:1.;gl_FragColor=vec4(uC,k*(.55+.25*length(p)));}`;
