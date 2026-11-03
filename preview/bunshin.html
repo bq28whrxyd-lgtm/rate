@@ -5998,7 +5998,7 @@ function axvSkill(k,o){axvPreload();const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};c
   /* (11/2) 重み: 物理技は当たる範囲を白い煙で埋める。炎・隕石は炎のかたまり */try{const sf=f.sk?f:Object.assign({},f,{sk:'self',x:f.x!=null?f.x:f.ux,y:f.y!=null?f.y:f.uy});
     if(/^(sweep|heavy|quake|shieldbash|dashcut|thrusts|fists|ult_slash|ult_quake|ult_drill)$/.test(k)&&(ult||!/^(heavy|quake|shieldbash|sweep|thrusts|fists)$/.test(k)))axvCloud(ult?Object.assign({},sf,{sk:'self',r:Math.max(sf.r||0,80)}):sf,{dl:dl+(ult?.3:.06),s:ult?1.5:k==='dashcut'||k==='thrusts'?.7:1,n:k==='dashcut'||k==='thrusts'?Math.max(3,Math.round((sf.len||120)*AXM/3.5)):undefined,ring:k==='spinblade'||k==='sweep'});
 }catch(e){}
-  if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.25,ca:.25,wave:.6,d:.35,dl:.3});else if(!/^(heal|cheerup|taunt)$/.test(k))axvPost(cx,cz,{blur:.12,ca:.15,wave:.4,d:.22,dl:dl+.04})}
+  if(typeof axvPost==='function'){if(ult)axvPost(cx,cz,{blur:.25,ca:.25,wave:.6,d:.35,dl:.3});/* (11/3 PCで確認) ふつうの技で画面全体をぼかすと当たりが見えなくなるので、ぼかしは必殺だけ */}
   if(!ult&&axvSk2(k,{cx,cz,ux,uz,col,dl,f,ex,ez}))return;
   switch(k){
   case 'spinblade':{/* (11/3 審査2) 白〜薄灰の風の帯を3枚、大きさと向きを変えて重ねる。円盤は出さない */const W0=axvScrW(ux,uz);[[.42,0,.0],[.52,1,.06]].forEach(([k,fl,d0])=>{const S=W0*k;const e=axvSlFB('swirl',ux,S*(330/512-.5)+.5,uz,{s:S,col:'#dfeaff',iri:.1,dl:dl+d0,d:.56,flip:!!fl});e.o.material.uniforms.uGlow.value=.35});axvSpinRing(ux,uz,{r:(f.r||58)*AXM*.9,h:2.6,y:1.2,dl:dl+.04,d:.4});break}
