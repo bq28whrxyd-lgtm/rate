@@ -284,7 +284,11 @@ service cloud.firestore {
     // ---- 分身アバターバトル (beta): your avatar, readable by everyone signed in so friends can fight it.
     //      The quest stage moves up one at a time; gacha pulls and opened chests only go up ----
     function bunOk() {
-      return request.resource.data.keys().hasOnly(['look', 'al', 'inv', 'eq', 'nid', 'qs', 'gp', 'g10', 'copen', 'u', 'ch', 'cs', 'cfree', 'cp', 'c10', 'crf'])
+      return request.resource.data.keys().hasOnly(['look', 'al', 'inv', 'eq', 'nid', 'qs', 'gp', 'g10', 'copen', 'u', 'ch', 'cs', 'cfree', 'cp', 'c10', 'crf', 'dk'])
+        // (11/3) the defence deck for 3D battles: 2 mains + 5 supports
+        && (!('dk' in request.resource.data) || (request.resource.data.dk is map && request.resource.data.dk.keys().hasOnly(['m', 's'])
+            && request.resource.data.dk.get('m', []) is list && request.resource.data.dk.get('m', []).size() <= 2
+            && request.resource.data.dk.get('s', []) is list && request.resource.data.dk.get('s', []).size() <= 5))
         && request.resource.data.get('inv', []).size() <= 600 && newV('qs', 0) <= 100 && newV('qs', 0) >= 0
         // (10/24) characters: at most 64, 3 party slots, one free 10-pull
         && request.resource.data.get('ch', {}).size() <= 64 && request.resource.data.get('cs', []).size() <= 3
@@ -606,7 +610,8 @@ service cloud.firestore {
       allow create: if isAdmin() || (signedIn() && myPid() == pid
         && newV('packs', 0) >= 0 && newV('lpacks', 0) >= 0 && newV('tused', 0) >= 0
         && newV('tpacks', 0) >= 0 && newV('xpacks', 0) >= 0 && newV('xpacks', 0) <= newV('tpacks', 0)
-        && newV('pspent', 0) >= 0 && newV('pspent', 0) <= newV('packs', 0) * 100 + newV('lpacks', 0) * 200 + newV('tpacks', 0) * 100 + newV('xpacks', 0) * 80 + newV('hpacks', 0) * 110
+        && newV('pspent', 0) >= 0 && newV('pspent', 0) <= newV('packs', 0) * 100 + newV('lpacks', 0) * 200 + newV('tpacks', 0) * 100 + newV('xpacks', 0) * 80 + newV('hpacks', 0) * 110 + newV('npacks', 0) * 50
+        && newV('npacks', 0) >= 0 && newV('npacks', 0) <= newV('tpacks', 0)   // (11/3) 八つの族の集い (150pt)
         && newV('hpacks', 0) >= 0 && newV('hpacks', 0) <= newV('tpacks', 0)
         && newV('lfree', 0) >= 0 && newV('lfree', 0) <= newV('lpacks', 0)
         && newV('wused', 0) * 350 <= newV('lpacks', 0)
@@ -620,6 +625,7 @@ service cloud.firestore {
         && newV('tpacks', 0) >= oldV('tpacks', 0) && tcgStOk() && tcgNstOk()
         && newV('xpacks', 0) >= oldV('xpacks', 0) && newV('xpacks', 0) - oldV('xpacks', 0) <= newV('tpacks', 0) - oldV('tpacks', 0)
         && newV('hpacks', 0) >= oldV('hpacks', 0) && newV('hpacks', 0) - oldV('hpacks', 0) <= newV('tpacks', 0) - oldV('tpacks', 0)
+        && newV('npacks', 0) >= oldV('npacks', 0) && newV('npacks', 0) - oldV('npacks', 0) <= newV('tpacks', 0) - oldV('tpacks', 0)
         && pspentOk() && missionOk() && loginOk() && passOk(pid)
         && newV('hmp', 0) >= oldV('hmp', 0) && newV('hmp', 0) <= 1500   // ハロウィンのイベントミッションのpt(全部で1,290pt)
         && newV('lfree', 0) >= oldV('lfree', 0) && newV('lfree', 0) - oldV('lfree', 0) <= newV('lpacks', 0) - oldV('lpacks', 0)
@@ -671,7 +677,8 @@ service cloud.firestore {
     function pspentOk() {
       return newV('pspent', 0) >= oldV('pspent', 0)
         && newV('pspent', 0) - oldV('pspent', 0) <= (newV('packs', 0) - oldV('packs', 0)) * 100 + (newV('lpacks', 0) - oldV('lpacks', 0)) * 200
-           + (newV('tpacks', 0) - oldV('tpacks', 0)) * 100 + (newV('xpacks', 0) - oldV('xpacks', 0)) * 80 + (newV('hpacks', 0) - oldV('hpacks', 0)) * 110;
+           + (newV('tpacks', 0) - oldV('tpacks', 0)) * 100 + (newV('xpacks', 0) - oldV('xpacks', 0)) * 80 + (newV('hpacks', 0) - oldV('hpacks', 0)) * 110
+           + (newV('npacks', 0) - oldV('npacks', 0)) * 50;
     }
 
     // ---- predictions on someone else's match, placed within 30 seconds of its start (45s allowed for clock drift); never changed afterwards ----
