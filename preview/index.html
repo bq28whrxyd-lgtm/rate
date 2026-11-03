@@ -10090,14 +10090,14 @@ const tcgCopies=(v,id)=>{const T=(v&&v.tcg)||{};return (+(T.own||{})[id]||0)+(+(
 /* publish my counts when they change */
 function ownSync(){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)return;try{kbuLuckSync()}catch(e){}/*kbu-sync*/const g={},t={};
   Object.keys(inv.own||{}).forEach(id=>{const n=+inv.own[id]||0;if(n>0)g[id]=n});const T=inv.tcg||{};new Set(Object.keys(T.own||{}).concat(Object.keys(T.foil||{}))).forEach(id=>{const n=tcgCopies(inv,id);if(n>0)t[id]=n});
-  const T2=inv.tcg||{},shw=Array.isArray(T2.shw)?T2.shw:[],sl=slabsOf(inv).filter(x=>x.s).map(x=>({c:x.id,f:x.f?1:0,s:x.s,w:shw.includes(x.i)?1+shw.indexOf(x.i):0}));
+  const T2=inv.tcg||{},shw=Array.isArray(T2.shw)?T2.shw:[],sl=slabsOf(inv).filter(x=>x.s).map(x=>({c:x.id,f:vNum(x.f),s:x.s,w:shw.includes(x.i)?1+shw.indexOf(x.i):0}));
   const sc=scPub(inv),ss=scMine(inv).st,bx=bxOf(inv).map(b=>({pk:b.pk,t:b.t})),j=JSON.stringify([g,t,sl,sc,bx,ss]);if(ownSync.j===j)return;ownSync.j=j;const d={g,t,u:now()};if(!ownSync.noSl){d.sl=sl;d.sc=sc;d.bx=bx;if(ss.some(x=>x!==scStr()))d.ss=ss}
   db.doc('own/'+me.id).set(d).catch(()=>{if(d.sl&&!ownSync.noSl){ownSync.noSl=true;ownSync.j='';ownSync()}else ownSync.j=''})}
 /* one copy out of the collection: mode 'sh' (かけら) or 'burn' (pt). kind 'g' (gacha item) or 't' (TCG card, normal copies only) */
 async function dupAct(kind,id,mode,opt){opt=opt||{};const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');
   const nv=JSON.parse(JSON.stringify(inv));let name='',rk='',left=0,gain=0;
   if(kind==='g'){const it=ITEM(id),n=+(nv.own||{})[id]||0;if(!it||n<1||it.lim==='sup')throw new Error('none');nv.own[id]=n-1;left=n-1;name=it.n;rk=RAR[it.r].k;gain=mode==='sh'?RAR[it.r].sh:BURN_PT[it.r]}
-  else{const T=nv.tcg=Object.assign({},nv.tcg||{}),bk=opt.foil?'foil':'own',bag=T[bk]=Object.assign({},T[bk]||{}),n=+bag[id]||0,c=typeof TC!=='undefined'&&TC[id];if(!c||n<1)throw new Error('none');bag[id]=n-1;left=n-1;name=c.n;rk=(opt.foil?'シークレット ':'')+c.r;gain=Math.round((mode==='sh'?TCGD.shard[c.r]:TBURN_PT[c.r])*(opt.foil?SCR_X:1))}
+  else{const T=nv.tcg=Object.assign({},nv.tcg||{}),bk=vBag(opt.foil),bag=T[bk]=Object.assign({},T[bk]||{}),n=+bag[id]||0,c=typeof TC!=='undefined'&&TC[id];if(!c||n<1)throw new Error('none');bag[id]=n-1;left=n-1;name=c.n;rk=vNm(opt.foil)+c.r;gain=Math.round((mode==='sh'?TCGD.shard[c.r]:TBURN_PT[c.r])*vX(opt.foil))}
   if(mode==='sh')nv.shards=(+nv.shards||0)+gain;else nv.bpt=(+nv.bpt||0)+gain;
   await db.doc('inv/'+me.id).set(nv);inv=nv;
   /* the last copy of something you were wearing comes off */
@@ -10109,14 +10109,14 @@ async function dupAct(kind,id,mode,opt){opt=opt||{};const me=myPlayer();if(!db||
    Keeps one copy of a gacha item, and for TCG cards what a deck can use (tcgCap) plus one SCR. Each row works one copy at a time;
    the two buttons on top do every extra copy at once (one save, one timeline post for a burn). */
 const dupKeep=(kind,id,foil)=>kind==='g'?1:foil?1:(typeof tcgCap==='function'?tcgCap(id):2);
-function dupList(kind,res){const seen=new Set(),L=[];(res||[]).forEach(x=>{if(!x||x.tk!=null||!x.c)return;const id=kind==='t'?x.c.v:x.c.id,foil=kind==='t'&&!!x.foil,k=id+'|'+foil;if(id==null||seen.has(k))return;seen.add(k);
-    const T=(inv&&inv.tcg)||{},n=kind==='g'?+((inv.own||{})[id])||0:+((foil?T.foil:T.own)||{})[id]||0,keep=dupKeep(kind,id,foil),it=kind==='g'?ITEM(id):null,c=kind==='t'&&typeof TC!=='undefined'?TC[id]:null;if(!it&&!c)return;if(it&&it.lim==='sup')return;
-    const X=foil?SCR_X:1,r=it?it.r:c.r;L.push({id,foil,n,keep,extra:Math.max(0,n-keep),nm:it?it.n:c.n,rk:it?RAR[r].k:(foil?'シークレット ':'')+r,rc:it?RAR[r].c:null,sh:it?RAR[r].sh:Math.round(TCGD.shard[r]*X),pt:it?BURN_PT[r]:Math.round(TBURN_PT[r]*X),ord:it?r:(TCG_RORD?-TCG_RORD[r]:0)})});
+function dupList(kind,res){const seen=new Set(),L=[];(res||[]).forEach(x=>{if(!x||x.tk!=null||!x.c)return;const id=kind==='t'?x.c.v:x.c.id,foil=kind==='t'?vN(x.foil):false,k=id+'|'+foil;if(id==null||seen.has(k))return;seen.add(k);
+    const T=(inv&&inv.tcg)||{},n=kind==='g'?+((inv.own||{})[id])||0:+(T[vBag(foil)]||{})[id]||0,keep=dupKeep(kind,id,foil),it=kind==='g'?ITEM(id):null,c=kind==='t'&&typeof TC!=='undefined'?TC[id]:null;if(!it&&!c)return;if(it&&it.lim==='sup')return;
+    const X=vX(foil),r=it?it.r:c.r;L.push({id,foil,n,keep,extra:Math.max(0,n-keep),nm:it?it.n:c.n,rk:it?RAR[r].k:vNm(foil)+r,rc:it?RAR[r].c:null,sh:it?RAR[r].sh:Math.round(TCGD.shard[r]*X),pt:it?BURN_PT[r]:Math.round(TBURN_PT[r]*X),ord:it?r:(TCG_RORD?-TCG_RORD[r]:0)})});
   return L.sort((a,b)=>b.ord-a.ord)}
 const dupCount=(kind,res)=>dupList(kind,res).reduce((a,x)=>a+x.extra,0);
 async function dupBulk(kind,L,mode){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');const nv=JSON.parse(JSON.stringify(inv));let gain=0,cnt=0,top=null;
   for(const x of L){if(x.extra<1)continue;if(kind==='g'){const n=+nv.own[x.id]||0,e=Math.max(0,n-x.keep);if(!e)continue;nv.own[x.id]=n-e;cnt+=e;gain+=e*(mode==='sh'?x.sh:x.pt)}
-    else{const T=nv.tcg=Object.assign({},nv.tcg||{}),bk=x.foil?'foil':'own',bag=T[bk]=Object.assign({},T[bk]||{}),n=+bag[x.id]||0,e=Math.max(0,n-x.keep);if(!e)continue;bag[x.id]=n-e;cnt+=e;gain+=e*(mode==='sh'?x.sh:x.pt)}
+    else{const T=nv.tcg=Object.assign({},nv.tcg||{}),bk=vBag(x.foil),bag=T[bk]=Object.assign({},T[bk]||{}),n=+bag[x.id]||0,e=Math.max(0,n-x.keep);if(!e)continue;bag[x.id]=n-e;cnt+=e;gain+=e*(mode==='sh'?x.sh:x.pt)}
     if(!top)top=x}
   if(!cnt)return {gain:0,cnt:0};if(mode==='sh')nv.shards=(+nv.shards||0)+gain;else nv.bpt=(+nv.bpt||0)+gain;
   await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg();
@@ -11797,10 +11797,10 @@ const pshopGet=x=>Math.floor((+x.p||0)*(1-PSHOP_FEE));
 const pshopOpen=x=>!x.tb;
 const pshopMine=pid=>pshops.filter(x=>x.s===pid&&pshopOpen(x));
 /* stacks: one slot = one seller's copies of the same card at the same price */
-const pshopGk=x=>x.s+'|'+x.k+':'+x.c+(x.f?'*':'')+'|'+x.p;
+const pshopGk=x=>x.s+'|'+x.k+':'+x.c+vKey(x.f)+'|'+x.p;
 function pshopStacks(L){const M=new Map();L.forEach(x=>{const g=pshopGk(x);if(!M.has(g))M.set(g,[]);M.get(g).push(x)});return [...M.values()].map(a=>a.sort((x,y)=>x.t-y.t))}
 const pshopSlots=pid=>pshopStacks(pshopMine(pid)).length;
-const pshopStackOf=(pid,k,c,f)=>pshopStacks(pshopMine(pid)).find(a=>a[0].k===k&&String(a[0].c)===String(c)&&!!a[0].f===!!f)||null;
+const pshopStackOf=(pid,k,c,f)=>pshopStacks(pshopMine(pid)).find(a=>a[0].k===k&&String(a[0].c)===String(c)&&vN(a[0].f)===vN(f))||null;
 function pshopNet(pid){let t=0;for(const x of pshops){if(!x.tb)continue;if(x.tb===pid)t-=+x.p||0;if(x.s===pid)t+=pshopGet(x)}return t}
 {const N=mktNet;mktNet=function(pid){let t=0;try{t=N.apply(this,arguments)}catch(e){}try{t+=pshopNet(pid)}catch(e){}return t}}
 function pshopWatch(){if(!db||pshopWatch.on)return;pshopWatch.on=1;db.collection('pshop').onSnapshot(s=>{pshops=s.docs.map(d=>({id:d.id,...d.data()}));pshopLoaded=true;queueRender();pshopClaim();try{mktPaint(true)}catch(e){}try{pshopSheet.redraw&&pshopSheet.redraw()}catch(e){}},()=>{pshopLoaded=true})}
@@ -11814,7 +11814,7 @@ async function pshopList(k,c,f,p,n){const me=myPlayer();if(!db||!me||!invLoaded|
   if(st)p=st[0].p;else{p=Math.round(+p||0);if(p<1)throw new Error('price');if(p<pshopMin(k,c,f))throw new Error('low');if(pshopSlots(me.id)>=PSHOP_N)throw new Error('full')}
   if(cardHave(inv,k,c,f)<n)throw new Error('none');
   const nv=JSON.parse(JSON.stringify(inv));cardAdd(nv,k,c,f,-n);await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg();
-  const t=now();let put=0,id0='';try{for(let i=0;i<n;i++){const id='s'+me.id+'_'+(t+i);const d={s:me.id,k,c:String(c),f:!!f,p,t:t+i,tb:'',tt:0};await db.doc('pshop/'+id).set(d);if(!pshops.some(x=>x.id===id))pshops.push(Object.assign({id},d));put++;if(!id0)id0=id}}
+  const t=now();let put=0,id0='';try{for(let i=0;i<n;i++){const id='s'+me.id+'_'+(t+i);const d={s:me.id,k,c:String(c),f:vN(f),p,t:t+i,tb:'',tt:0};await db.doc('pshop/'+id).set(d);if(!pshops.some(x=>x.id===id))pshops.push(Object.assign({id},d));put++;if(!id0)id0=id}}
   finally{if(put<n){try{const v2=JSON.parse(JSON.stringify(inv));cardAdd(v2,k,c,f,n-put);await db.doc('inv/'+me.id).set(v2);inv=v2;ownSync();renderGacha()}catch(e){}}}
   if(!put)throw new Error('net');
   if(k==='g'){const it=ITEM(c),e=Object.assign({},me.eq||{});if(it&&cardHave(inv,k,c,f)<1&&e[it.k]===c){e[it.k]=null;db.doc('players/'+me.id).update({eq:e}).catch(()=>{})}}
@@ -11899,7 +11899,7 @@ function pshopListSheet(k,c,f,done){document.querySelectorAll('.mks').forEach(x=
 let pshopPickK='g',pshopPickDup=true,pkQ='',pkSort='dup',pkView=(()=>{try{return localStorage.getItem('pkv')==='list'?'list':'grid'}catch(e){return 'grid'}})(),pkF={kind:'',r:'',f:'',ty:''};
 function pshopOwned(k){const v=inv||{},out=[];
   if(k==='g'){for(const id in (v.own||{})){const n=+v.own[id]||0,it=ITEM(id);if(n>0&&it&&it.lim!=='sup')out.push({k,c:id,f:false,n,r:it.r,kind:it.k,nm:it.n})}}
-  else if(k==='t'){const T=v.tcg||{};[['own',false],['foil',true]].forEach(([b,f])=>{for(const id in (T[b]||{})){const n=+T[b][id]||0,x=TC[id];if(n>0&&x)out.push({k,c:id,f,n,r:['C','R','SR','GR'].indexOf(x.r)+(f?.5:0),tr:x.f,ty:x.ty,rk:x.r,nm:x.n})}})}
+  else if(k==='t'){const T=v.tcg||{};[['own',false],['foil',true],['kmr','k']].forEach(([b,f])=>{for(const id in (T[b]||{})){const n=+T[b][id]||0,x=TC[id];if(n>0&&x)out.push({k,c:id,f,n,r:['C','R','SR','GR'].indexOf(x.r)+(f==='k'?.8:f?.5:0),tr:x.f,ty:x.ty,rk:x.r,nm:x.n})}})}
   else if(k==='s'){const me=myPlayer(),ids=new Set();try{stkDrops(me.id).forEach(x=>ids.add(x.id))}catch(e){}Object.keys(v.stkd||{}).forEach(id=>ids.add(id));ids.forEach(id=>{const n=cardHave(v,'s',id,false),I=cardInfo('s',id,false);if(n>0&&I)out.push({k,c:id,f:false,n,r:+I.r||0,nm:I.nm})})}
   return out}
 const pkRN=k=>k==='g'?RAR.map((R,i)=>[i,R.k]):k==='t'?[['C','コモン'],['R','レア'],['SR','SR'],['GR','ガチレア']]:[];
@@ -11927,7 +11927,7 @@ function pshopPick(){document.querySelectorAll('.mks').forEach(x=>x.remove());co
         if(pkView==='list'){const r=el('button','tdl psh-pkl'+(full?' off':''));r.type='button';if(I.col)r.style.setProperty('--fc',I.col);const th=el('div','tdlth');th.append(mktThumb(x.k,x.c,x.f,0));const mid=el('div','tdlm');const t1=el('div','tdl1');t1.append(el('b',null,I.nm));
           mid.append(t1,el('span','tdl2',(x.k==='t'?'TCG ':'')+I.rk+(x.kind?'  ·  '+(KIND[x.kind]||''):'')+(x.tr?'  ·  '+(TCGD.fname[x.tr]||''):'')));const own=el('div','tdl3');own.append(el('i','cn','×'+x.n));if(st)own.append(el('i','cs','並べ中 '+st.length));mid.append(own);
           const rt=el('div','tdls');rt.append(el('span',null,'相場'),el('b',null,sp?sp.toLocaleString():'—'));r.append(th,mid,rt);r.onclick=go;g.append(r);return}
-        const c=el('button','psh-pkc kx-mk'+(full?' off':'')+(st?' on':'')+(x.k==='t'?' tc':''));c.type='button';const th=x.k==='t'&&typeof tcgCardFull==='function'?(()=>{const w=el('div','mkth psh-tcf');w.append(tcgCardFull(x.c,!!x.f));return w})():mktThumb(x.k,x.c,x.f,0);th.append(el('i','psh-pkn','×'+x.n));if(st)th.append(el('i','psh-pks','並べ中'));c.append(th);c.setAttribute('aria-label',I.nm+' '+x.n+'枚');c.onclick=go;g.append(c)});
+        const c=el('button','psh-pkc kx-mk'+(full?' off':'')+(st?' on':'')+(x.k==='t'?' tc':''));c.type='button';const th=x.k==='t'&&typeof tcgCardFull==='function'?(()=>{const w=el('div','mkth psh-tcf');w.append(tcgCardFull(x.c,vN(x.f)));return w})():mktThumb(x.k,x.c,x.f,0);th.append(el('i','psh-pkn','×'+x.n));if(st)th.append(el('i','psh-pks','並べ中'));c.append(th);c.setAttribute('aria-label',I.nm+' '+x.n+'枚');c.onclick=go;g.append(c)});
       setTimeout(()=>{try{pshopFitPick(g)}catch(e){}},0)};
     q.oninput=()=>{pkQ=q.value;fill()};fill();
     const cl=el('button','sec','閉じる');cl.onclick=()=>o.remove();b.append(cl)};
@@ -12546,9 +12546,10 @@ function mktWatch(){if(!db||mktWatch.on)return;mktWatch.on=1;try{kbuWatch()}catc
   db.collection('yami').onSnapshot(s=>{yamis=s.docs.map(d=>({id:d.id,...d.data()}));yamiLoaded=true;queueRender();mktClaim();mktPaint()},()=>{yamiLoaded=true});
   setInterval(()=>{mktClaim();mktPaint(true)},30000)}
 /* one copy into / out of an inventory copy */
+/* (11/3) カードの種類: false=通常 / true=シークレット / 'k'=KMR。袋・印・名前・倍率をそろえる */function vBag(f){return f==='k'?'kmr':f?'foil':'own'}function vKey(f){return f==='k'?'#':f?'*':''}function vNm(f){return f==='k'?'KMR ':f?'シークレット ':''}function vX(f){return f==='k'?10:f?SCR_X:1}function vN(f){return f==='k'||f===2?'k':!!f}function vNum(f){return f==='k'?2:f?1:0}
 function cardAdd(nv,k,c,f,d){if(k==='s'){nv.stkd=Object.assign({},nv.stkd||{});nv.stkd[c]=(+nv.stkd[c]||0)+d;return}if(k==='g'){nv.own=Object.assign({},nv.own||{});nv.own[c]=Math.max(0,(+nv.own[c]||0)+d)}else{const T=nv.tcg=Object.assign({},nv.tcg||{}),bk=f==='k'?'kmr':f?'foil':'own';T[bk]=Object.assign({},T[bk]||{});T[bk][c]=Math.max(0,(+T[bk][c]||0)+d)}}
 const cardHave=(v,k,c,f)=>k==='s'?(typeof stkHave==='function'?stkHave(v,c):0):k==='g'?+((v.own||{})[c])||0:+(((v.tcg||{})[f==='k'?'kmr':f?'foil':'own']||{})[c])||0;
-const cardInfo=(k,c,f)=>{if(k==='s')return typeof stkInfo==='function'?stkInfo(c):null;if(k==='h'){return {nm:'お菓子 '+(+c||0).toLocaleString()+'個',rk:'ハロウィン',r:1,col:'#ff8a2a',face:()=>{const d=el('div','hlw-mkf');d.innerHTML=hwCandySvg(40)+'<b>'+(+c||0)+'</b>';return d}}}if(k==='b'){return typeof TCGD!=='undefined'&&TCGD.packs[c]?{nm:bxName(c)+' BOX',rk:'未開封BOX',r:3,col:'#f5c84c',face:()=>bxFace(c)}:null}if(k==='g'){const it=ITEM(c);return it?{nm:it.n,rk:RAR[it.r].k,r:it.r,col:RAR[it.r].c,face:()=>cardFace(it)}:null}const x=typeof TC!=='undefined'&&TC[c];return x?{nm:x.n,rk:(f==='k'?'KMR ':f?'シークレット ':'')+x.r,r:{C:0,R:1,SR:2,GR:4}[x.r]+(f?1:0),col:f?'#ff7ab8':{C:'#a3a9b4',R:'#9a6bff',SR:'#8fd3ff',GR:'#f5c84c'}[x.r],face:()=>tcgFace(c,null,!!f)}:null};
+const cardInfo=(k,c,f)=>{if(k==='s')return typeof stkInfo==='function'?stkInfo(c):null;if(k==='h'){return {nm:'お菓子 '+(+c||0).toLocaleString()+'個',rk:'ハロウィン',r:1,col:'#ff8a2a',face:()=>{const d=el('div','hlw-mkf');d.innerHTML=hwCandySvg(40)+'<b>'+(+c||0)+'</b>';return d}}}if(k==='b'){return typeof TCGD!=='undefined'&&TCGD.packs[c]?{nm:bxName(c)+' BOX',rk:'未開封BOX',r:3,col:'#f5c84c',face:()=>bxFace(c)}:null}if(k==='g'){const it=ITEM(c);return it?{nm:it.n,rk:RAR[it.r].k,r:it.r,col:RAR[it.r].c,face:()=>cardFace(it)}:null}const x=typeof TC!=='undefined'&&TC[c];return x?{nm:x.n,rk:vNm(f)+x.r,r:{C:0,R:1,SR:2,GR:4}[x.r]+(f==='k'?3:f?1:0),col:f==='k'?'#f5c84c':f?'#ff7ab8':{C:'#a3a9b4',R:'#9a6bff',SR:'#8fd3ff',GR:'#f5c84c'}[x.r],face:()=>tcgFace(c,null,vN(f))}:null};
 /* cards I won or got from the pot, and my unsold listings: put them into my collection once */
 let mktBusy=false;
 /* (10/25) 闇鍋 is gone: cards still in the pot go back to whoever put them in (free) */
@@ -12566,15 +12567,15 @@ async function mktClaim(){const me=myPlayer();if(mktBusy||!db||!me||!invLoaded||
     back.forEach(a=>{const I=cardInfo(a.k,a.c,a.f);toast((I?'「'+I.nm+'」':'カード')+'は売れなかったので戻りました')})}
   catch(e){}finally{mktBusy=false}}
 /* a listing goes (back) into an inventory: a graded one as its case, the rest as a plain copy */
-function aucGive(nv,a){if(a.k==='h')return;if(a.k==='b'){const T=nv.tcg=Object.assign({},nv.tcg||{});T.bx=(T.bx||[]).concat([{i:'y'+String(a.id).slice(-10)+Math.floor(Math.random()*1296).toString(36),pk:a.c,t:+a.bt||+a.t||now()}]);return}if(a.k==='t'&&+a.g>0){const T=nv.tcg=Object.assign({},nv.tcg||{});T.sl=(T.sl||[]).concat([{i:'b'+String(a.id).slice(-10)+Math.floor(Math.random()*1296).toString(36),id:a.c,f:!!a.f,t:+a.t||now(),u:1,s:+a.g,r:now()}]);return}cardAdd(nv,a.k,a.c,a.f,1)}
+function aucGive(nv,a){if(a.k==='h')return;if(a.k==='b'){const T=nv.tcg=Object.assign({},nv.tcg||{});T.bx=(T.bx||[]).concat([{i:'y'+String(a.id).slice(-10)+Math.floor(Math.random()*1296).toString(36),pk:a.c,t:+a.bt||+a.t||now()}]);return}if(a.k==='t'&&+a.g>0){const T=nv.tcg=Object.assign({},nv.tcg||{});T.sl=(T.sl||[]).concat([{i:'b'+String(a.id).slice(-10)+Math.floor(Math.random()*1296).toString(36),id:a.c,f:vN(a.f),t:+a.t||now(),u:1,s:+a.g,r:now()}]);return}cardAdd(nv,a.k,a.c,a.f,1)}
 async function aucListSlab(slab,sp,bn,hours){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');sp=Math.round(+sp||0);bn=Math.round(+bn||0);if(sp<1)throw new Error('start');if(bn&&bn<=sp)throw new Error('bn');
   const v=JSON.parse(JSON.stringify(inv)),T=v.tcg=v.tcg||{},s=slabsOf(v).find(x=>x.i===slab.i);if(!s||!s.s)throw new Error('none');T.sl=slabsOf(v).filter(x=>x.i!==s.i);if(Array.isArray(T.shw))T.shw=T.shw.filter(x=>x!==s.i);
-  const id='a'+me.id+'_'+now(),t=now();await db.doc('auc/'+id).set({s:me.id,k:'t',c:String(s.id),f:!!s.f,sp,bn,end:t+hours*36e5,t,hb:0,hp:'',n:0,g:s.s});await db.doc('inv/'+me.id).set(v);inv=v;ownSync();try{renderTcg()}catch(e){}
-  const c=TC[s.id];if(c)post('l_'+id,'mkt',me.id,me.name,me.name+'が鑑定'+s.s+'の'+(s.f?'シークレット ':'')+'「'+c.n+'」を出品(開始 '+sp+'pt'+(bn?' · 即決 '+bn+'pt':'')+')');return id}
+  const id='a'+me.id+'_'+now(),t=now();await db.doc('auc/'+id).set({s:me.id,k:'t',c:String(s.id),f:vN(s.f),sp,bn,end:t+hours*36e5,t,hb:0,hp:'',n:0,g:s.s});await db.doc('inv/'+me.id).set(v);inv=v;ownSync();try{renderTcg()}catch(e){}
+  const c=TC[s.id];if(c)post('l_'+id,'mkt',me.id,me.name,me.name+'が鑑定'+s.s+'の'+vNm(s.f)+'「'+c.n+'」を出品(開始 '+sp+'pt'+(bn?' · 即決 '+bn+'pt':'')+')');return id}
 /* list one copy */
 async function aucList(k,c,f,sp,bn,hours){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');sp=Math.round(+sp||0);bn=Math.round(+bn||0);
   if(sp<1)throw new Error('start');if(bn&&bn<=sp)throw new Error('bn');if(cardHave(inv,k,c,f)<1)throw new Error('none');
-  const nv=JSON.parse(JSON.stringify(inv));cardAdd(nv,k,c,f,-1);const id='a'+me.id+'_'+now(),t=now(),doc={s:me.id,k,c:String(c),f:!!f,sp,bn,end:t+hours*36e5,t,hb:0,hp:'',n:0};
+  const nv=JSON.parse(JSON.stringify(inv));cardAdd(nv,k,c,f,-1);const id='a'+me.id+'_'+now(),t=now(),doc={s:me.id,k,c:String(c),f:vN(f),sp,bn,end:t+hours*36e5,t,hb:0,hp:'',n:0};
   await db.doc('auc/'+id).set(doc);await db.doc('inv/'+me.id).set(nv);inv=nv;ownSync();renderGacha();if(typeof renderTcg==='function')renderTcg();
   if(k==='g'){const it=ITEM(c),e=Object.assign({},me.eq||{});if(it&&cardHave(nv,k,c,f)<1&&e[it.k]===c){e[it.k]=null;db.doc('players/'+me.id).update({eq:e}).catch(()=>{})}}
   const I=cardInfo(k,c,f);if(I)post('l_'+id,'mkt',me.id,me.name,me.name+'が'+(k==='t'?'TCG ':'')+I.rk+'「'+I.nm+'」を出品(開始 '+sp+'pt'+(bn?' · 即決 '+bn+'pt':'')+')');return id}
@@ -12598,8 +12599,8 @@ async function yamiTake(){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==
 const MK_BASE_G=[20,60,200,800,3000,6000],MK_BASE_T={C:20,R:60,SR:200,GR:800},MK_SCR=1.5,MK_A=.5,MK_DROP=.1,MK_FLOOR=.5;   /* (10/25) one sale can pull the price down by at most 10%, and never below half the rarity base */
 const GR_X=[0,.5,.6,.7,.8,.9,1,1.3,1.8,3,6];   /* 鑑定の点数ごとの倍率 (index = score) */
 const GR_NM=['','POOR','GOOD','VG','VG-EX','EX','EX-MT','NM','NM-MT','MINT','GEM MINT'];
-const mkKey=(k,c,f)=>k+':'+c+(f?'*':'');
-function mkBase(k,c,f){if(k==='s')return typeof stkKira==='function'&&stkKira(c)?150:30;if(k==='b')return typeof tcgBoxPrice==='function'&&TCGD.packs[c]?tcgBoxPrice(c):1500;if(k==='g'){const it=ITEM(c);return it?MK_BASE_G[it.r]||20:20}const x=typeof TC!=='undefined'&&TC[c];return Math.round((x?MK_BASE_T[x.r]||20:20)*(f?MK_SCR:1))}
+const mkKey=(k,c,f)=>k+':'+c+vKey(f);
+function mkBase(k,c,f){if(k==='s')return typeof stkKira==='function'&&stkKira(c)?150:30;if(k==='b')return typeof tcgBoxPrice==='function'&&TCGD.packs[c]?tcgBoxPrice(c):1500;if(k==='g'){const it=ITEM(c);return it?MK_BASE_G[it.r]||20:20}const x=typeof TC!=='undefined'&&TC[c];return Math.round((x?MK_BASE_T[x.r]||20:20)*(f==='k'?10:f?MK_SCR:1))}
 const aucDone=a=>a.bn>0&&a.hb>=a.bn?Math.min(a.end,now()):a.end;
 let mkC={k:'',v:null};
 function mkSales(){const key=aucs.length+'|'+aucs.reduce((x,a)=>x+(aucSold(a)?(+a.hb||0):0),0);if(mkC.k===key)return mkC.v;const M={};
@@ -12612,7 +12613,7 @@ const mkAt=(S,t)=>{let m=S[0].m;for(const p of S){if(p.t<=t)m=p.m;else break}ret
 const mkPrice=(k,c,f,g)=>{const S=mkSeries(k,c,f),m=S[S.length-1].m;return g?Math.round(m*(GR_X[g]||1)):m};
 const mkWeek=(k,c,f)=>{const S=mkSeries(k,c,f),a=mkAt(S,now()-7*864e5),b=S[S.length-1].m;return a?Math.round((b-a)/a*100):0};
 /* this week's biggest moves among cards that sold this week */
-function mkMovers(){const M=mkSales(),wk=now()-7*864e5,out=[];for(const key in M){if(!M[key].some(s=>s.t>=wk))continue;const s=M[key][0],ch=mkWeek(s.a.k,s.a.c,s.a.f);if(ch)out.push({k:s.a.k,c:s.a.c,f:!!s.a.f,ch,m:mkPrice(s.a.k,s.a.c,s.a.f)})}
+function mkMovers(){const M=mkSales(),wk=now()-7*864e5,out=[];for(const key in M){if(!M[key].some(s=>s.t>=wk))continue;const s=M[key][0],ch=mkWeek(s.a.k,s.a.c,s.a.f);if(ch)out.push({k:s.a.k,c:s.a.c,f:vN(s.a.f),ch,m:mkPrice(s.a.k,s.a.c,s.a.f)})}
   return {up:out.filter(x=>x.ch>0).sort((a,b)=>b.ch-a.ch).slice(0,3),down:out.filter(x=>x.ch<0).sort((a,b)=>a.ch-b.ch).slice(0,3)}}
 /* the chart on a card's page */
 function mkChart(k,c,f){const S=mkSeries(k,c,f),now_=now(),pts=S.concat([{t:now_,m:S[S.length-1].m}]),sales=S.filter(p=>p.s),cur=S[S.length-1].m,ch=mkWeek(k,c,f);
@@ -12638,12 +12639,12 @@ function mkChart(k,c,f){const S=mkSeries(k,c,f),now_=now(),pts=S.concat([{t:now_
 /* (10/16) the fee is the same for every card: 100pt (before: C30 R50 SR100 GR200, SCR x1.5) */
 const GR_H=24,GR_FEE=100;
 const grFee=(id,f)=>GR_FEE;
-const grKey=(id,f)=>id+(f?'*':'');
+const grKey=(id,f)=>id+vKey(f);
 function tcgDeckMax(T){const M={};(T.decks||[]).forEach(d=>{const c={};[d.lead].concat(d.cards||[]).forEach(id=>{if(id)c[id]=(c[id]||0)+1});for(const id in c)M[id]=Math.max(M[id]||0,c[id])});return M}
 const tcgUsedMap=T=>T.us||tcgDeckMax(T);
-function tcgUnused(v,id,f){const T=(v&&v.tcg)||{},us=+tcgUsedMap(T)[id]||0,o=+(T.own||{})[id]||0,fo=+(T.foil||{})[id]||0;return f?Math.max(0,fo-Math.max(0,us-o)):Math.max(0,o-us)}
+function tcgUnused(v,id,f){const T=(v&&v.tcg)||{},us=+tcgUsedMap(T)[id]||0,o=+(T.own||{})[id]||0,fo=+(T.foil||{})[id]||0,km=+(T.kmr||{})[id]||0;return f==='k'?Math.max(0,km-Math.max(0,us-o-fo)):f?Math.max(0,fo-Math.max(0,us-o)):Math.max(0,o-us)}
 const grNg=(v,id,f)=>+((((v&&v.tcg)||{}).ng||{})[grKey(id,f)])||0;
-const tcgGradable=(v,id,f)=>Math.max(0,(+((((v&&v.tcg)||{})[f?'foil':'own']||{})[id])||0)-grNg(v,id,f));
+const tcgGradable=(v,id,f)=>Math.max(0,(+((((v&&v.tcg)||{})[vBag(f)]||{})[id])||0)-grNg(v,id,f));
 const grUnusedLeft=(v,id,f)=>Math.max(0,tcgUnused(v,id,f)-grNg(v,id,f));
 const slabsOf=v=>(((v&&v.tcg)||{}).sl)||[];
 const slabReady=s=>!s.s&&now()>=s.t+GR_H*36e5;
@@ -12659,39 +12660,39 @@ function tcgMarkUsed(cards){const me=myPlayer();if(!me||!db||!invLoaded||invFor!
 const hwGrTk=()=>HW_PV?0:Math.max(0,(+inv.hgt||0)-(+inv.hgu||0));
 async function grSubmit(id,f){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');const tk=hwGrTk()>0,fee=tk?0:grFee(id,f);
   if(tcgGradable(inv,id,f)<1)throw new Error('none');if(balance(me.id)<fee)throw new Error('pt');
-  const v=JSON.parse(JSON.stringify(inv)),T=v.tcg=v.tcg||{},u=grUnusedLeft(v,id,f)>0?1:0,bk=f?'foil':'own';T.us=Object.assign({},tcgUsedMap(T));
+  const v=JSON.parse(JSON.stringify(inv)),T=v.tcg=v.tcg||{},u=grUnusedLeft(v,id,f)>0?1:0,bk=vBag(f);T.us=Object.assign({},tcgUsedMap(T));
   T[bk]=Object.assign({},T[bk]||{});T[bk][id]=Math.max(0,(+T[bk][id]||0)-1);if(!u)T.us[id]=Math.max(0,(+T.us[id]||0)-1);
-  const s={i:'g'+now().toString(36)+Math.floor(Math.random()*1296).toString(36),id,f:!!f,t:now(),u};T.sl=slabsOf(v).concat([s]);v.gfee=(+v.gfee||0)+fee;if(tk)v.hgu=(+v.hgu||0)+1;
+  const s={i:'g'+now().toString(36)+Math.floor(Math.random()*1296).toString(36),id,f:vN(f),t:now(),u};T.sl=slabsOf(v).concat([s]);v.gfee=(+v.gfee||0)+fee;if(tk)v.hgu=(+v.hgu||0)+1;
   await db.doc('inv/'+me.id).set(v);inv=v;ownSync();try{renderTcg()}catch(e){}return s}
 async function grOpen(i){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');const v=JSON.parse(JSON.stringify(inv)),L=slabsOf(v),s=L.find(x=>x.i===i);
   if(!s||s.s)return s;if(!slabReady(s))throw new Error('wait');s.s=grScore(me.id,s);s.r=now();await db.doc('inv/'+me.id).set(v);inv=v;ownSync();
-  if(s.s>=9){const c=TC[s.id];if(c)post('gr_'+s.i,'grade',me.id,me.name,me.name+'の'+(s.f?'シークレット ':'')+'「'+c.n+'」が鑑定 '+s.s+'('+GR_NM[s.s]+')',null)}return s}
+  if(s.s>=9){const c=TC[s.id];if(c)post('gr_'+s.i,'grade',me.id,me.name,me.name+'の'+vNm(s.f)+'「'+c.n+'」が鑑定 '+s.s+'('+GR_NM[s.s]+')',null)}return s}
 async function grCrack(i){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');const v=JSON.parse(JSON.stringify(inv)),T=v.tcg=v.tcg||{},s=slabsOf(v).find(x=>x.i===i);if(!s||!s.s)throw new Error('none');
-  T.sl=slabsOf(v).filter(x=>x.i!==i);const bk=s.f?'foil':'own';T[bk]=Object.assign({},T[bk]||{});T[bk][s.id]=(+T[bk][s.id]||0)+1;T.ng=Object.assign({},T.ng||{});T.ng[grKey(s.id,s.f)]=(+T.ng[grKey(s.id,s.f)]||0)+1;
+  T.sl=slabsOf(v).filter(x=>x.i!==i);const bk=vBag(s.f);T[bk]=Object.assign({},T[bk]||{});T[bk][s.id]=(+T[bk][s.id]||0)+1;T.ng=Object.assign({},T.ng||{});T.ng[grKey(s.id,s.f)]=(+T.ng[grKey(s.id,s.f)]||0)+1;
   if(!s.u){T.us=Object.assign({},tcgUsedMap(T));T.us[s.id]=(+T.us[s.id]||0)+1}if(Array.isArray(T.shw))T.shw=T.shw.filter(x=>x!==i);
   await db.doc('inv/'+me.id).set(v);inv=v;ownSync();try{renderTcg()}catch(e){}}
 /* the case, drawn in HTML: acrylic block, a label with the name and the grade, the card inside */
 function slabEl(s,opt){opt=opt||{};const c=typeof TC!=='undefined'&&TC[s.id],w=el('div','slab'+(s.s?' g'+s.s:' pend')+(s.s===10?' gem':'')+(opt.big?' big':''));
-  const lb=el('div','sll');lb.append(el('i','slho'));const L=el('div','slt');L.append(el('b',null,c?c.n:'?'),el('small',null,(s.f?'SECRET · ':'')+(c?c.r:'')+(s.f?'':' · KIMOOTA TCG')),el('i','slbc'));
+  const lb=el('div','sll');lb.append(el('i','slho'));const L=el('div','slt');L.append(el('b',null,c?c.n:'?'),el('small',null,(s.f==='k'?'KMR · ':s.f?'SECRET · ':'')+(c?c.r:'')+(s.f?'':' · KIMOOTA TCG')),el('i','slbc'));
   const R=el('div','slg');if(s.s){R.append(el('small',null,GR_NM[s.s]),el('b',null,String(s.s)))}else R.append(el('small',null,'GRADING'),el('b',null,'—'));lb.append(L,R);
-  const win=el('div','slw');try{win.append(tcgCardFull(s.id,!!s.f))}catch(e){}tcgImgLater(win,s.id);const no=el('div','sln',String(s.i).length>2?'No. '+String(s.i).slice(1).toUpperCase():'');
+  const win=el('div','slw');try{win.append(tcgCardFull(s.id,vN(s.f)))}catch(e){}tcgImgLater(win,s.id);const no=el('div','sln',String(s.i).length>2?'No. '+String(s.i).slice(1).toUpperCase():'');
   w.append(lb,win,no);if(!s.s){const fog=el('div','slf');fog.append(el('span',null,slabReady(s)?'結果が届いています':slabLeft(s)));w.append(fog)}return w}
 /* card art is loaded on first use: fill the picture in when it arrives */
 function tcgImgLater(box,id){if(window.CARD_IMG||typeof tcgLoad!=='function')return;tcgLoad().then(()=>{const im=box.querySelector('img');if(im&&!im.getAttribute('src')){const u=tcgImg(id);if(u)im.src=u}}).catch(()=>{})}
 /* ---- 鑑定: buttons and sheets ---- */
-const slabPrice=s=>s&&s.s?mkPrice('t',s.id,!!s.f,s.s):0;
+const slabPrice=s=>s&&s.s?mkPrice('t',s.id,vN(s.f),s.s):0;
 function grCaseBtn(){const me=myPlayer();if(!me||!invLoaded)return null;const L=slabsOf(inv),rd=L.filter(slabReady).length,pend=L.filter(s=>!s.s&&!slabReady(s)).length,done=L.filter(s=>s.s).length;
   const b=el('button','grcb kx-grd'+(rd?' rd':''));b.type='button';b.append(el('b',null,'鑑定ケース'),el('span',null,rd?'結果が届いています ×'+rd:L.length?'鑑定済み '+done+'枚'+(pend?'  ·  鑑定中 '+pend+'枚':''):'TCGカードを鑑定に出せます'));b.onclick=()=>grSheet();return b}
 /* the card page (TCG): send one copy, and this card's cases */
-function grBox(id,f,done){const me=myPlayer();if(!me||!invLoaded)return null;const w=el('div','grbx'),n=tcgGradable(inv,id,f),have=+(((tcgOf(inv))[f?'foil':'own']||{})[id])||0,un=grUnusedLeft(inv,id,f),gtk=hwGrTk(),fee=gtk>0?0:grFee(id,f),feeTx=gtk>0?'鑑定券で無料(残り'+gtk+'枚)':fee+'pt';
+function grBox(id,f,done){const me=myPlayer();if(!me||!invLoaded)return null;const w=el('div','grbx'),n=tcgGradable(inv,id,f),have=+(((tcgOf(inv))[vBag(f)]||{})[id])||0,un=grUnusedLeft(inv,id,f),gtk=hwGrTk(),fee=gtk>0?0:grFee(id,f),feeTx=gtk>0?'鑑定券で無料(残り'+gtk+'枚)':fee+'pt';
   const hd=el('div','grbh');hd.append(el('b',null,'鑑定'),el('span',null,'未使用は7〜10点、使ったカードは1〜8点'));w.append(hd);
   if(have>0){if(n>0){const b=el('button','grgo kx-grd');b.type='button';b.innerHTML='鑑定に出す<small>'+feeTx+'  ·  24時間後に結果</small>';
       b.onclick=()=>{const T=tcgOf(inv),inDeck=(T.decks||[]).some(d=>[d.lead].concat(d.cards||[]).filter(x=>x===id).length>tcgCopies(inv,id)-1);
-        askSheet({title:'鑑定に出す',ok:'鑑定に出す('+feeTx+')',lines:[(f?'シークレット ':'')+TC[id].r+'「'+TC[id].n+'」を1枚、鑑定に出します。',un>0?'未使用の1枚を出すので、7〜10点になります。':'使ったことのある1枚なので、1〜8点になります(9点以上は出ません)。','結果は24時間後に届きます。鑑定済みのカードはケースに入り、対戦では使えません。ケースから出せば使えますが、点数は消えて二度と鑑定できません。',inDeck?'このカードを入れているデッキは、枚数が足りなくなって使えなくなります。':''].filter(Boolean),
+        askSheet({title:'鑑定に出す',ok:'鑑定に出す('+feeTx+')',lines:[vNm(f)+TC[id].r+'「'+TC[id].n+'」を1枚、鑑定に出します。',un>0?'未使用の1枚を出すので、7〜10点になります。':'使ったことのある1枚なので、1〜8点になります(9点以上は出ません)。','結果は24時間後に届きます。鑑定済みのカードはケースに入り、対戦では使えません。ケースから出せば使えますが、点数は消えて二度と鑑定できません。',inDeck?'このカードを入れているデッキは、枚数が足りなくなって使えなくなります。':''].filter(Boolean),
           run:async()=>{b.disabled=true;try{await grSubmit(id,f);toast('鑑定に出しました。24時間後に結果が届きます');done&&done()}catch(e){b.disabled=false;toast(e.message==='pt'?'ptが足りません':'出せませんでした')}}})};
       w.append(b,el('div','sub',(un>0?'未使用 '+un+'枚  ·  ':'未使用のカードはありません  ·  ')+'鑑定できる '+n+'枚'))}
     else w.append(el('div','sub','持っている分はケースから出したカードなので、もう鑑定できません'))}
-  const mine=slabsOf(inv).filter(s=>s.id===id&&!!s.f===!!f);if(!have&&!mine.length)return null;if(mine.length){const row=el('div','grrow');mine.forEach(s=>{const t=slabEl(s);t.onclick=()=>grSheet(s.i);row.append(t)});w.append(row)}
+  const mine=slabsOf(inv).filter(s=>s.id===id&&vN(s.f)===vN(f));if(!have&&!mine.length)return null;if(mine.length){const row=el('div','grrow');mine.forEach(s=>{const t=slabEl(s);t.onclick=()=>grSheet(s.i);row.append(t)});w.append(row)}
   return w}
 /* every case */
 function grSheet(focus){try{newSeen('grade134')}catch(e){}document.querySelectorAll('.grs').forEach(x=>x.remove());const me=myPlayer();if(!me)return;const o=el('div','grs'),b=el('div','grsb');o.append(b);
@@ -12706,7 +12707,7 @@ function grSheet(focus){try{newSeen('grade134')}catch(e){}document.querySelector
       else{act.append(el('div','grp',slabPrice(s).toLocaleString()+'pt'));const pin=shw.includes(s.i),pb=el('button','sec'+(pin?' on':''),pin?'プロフィールに飾っています':'プロフィールに飾る');pb.onclick=async()=>{const v=JSON.parse(JSON.stringify(inv)),Tv=v.tcg=v.tcg||{};let a=Array.isArray(Tv.shw)?Tv.shw.filter(x=>slabsOf(v).some(y=>y.i===x)):[];if(a.includes(s.i))a=a.filter(x=>x!==s.i);else{if(a.length>=3){toast('プロフィールに飾れるのは3枚までです');return}a.push(s.i)}Tv.shw=a;try{await db.doc('inv/'+me.id).set(v);inv=v;ownSync();draw()}catch(e){toast('保存できませんでした')}};act.append(pb);
         const at=scHasSlab(s.i),on=at!=null,sb=el('button','sec'+(on?' on':''),on?'ショーケースから外す':'ショーケースに飾る');
         sb.onclick=async()=>{try{if(on){await scDel(+at);toast('ショーケースから外しました')}else{const fp=scFirstFree();if(fp<0){toast('ショーケースに空きがありません');return}await scPut(fp,{k:'s',i:s.i});toast('ショーケースに飾りました')}draw()}catch(e){toast('保存できませんでした')}};
-        const lb=el('button','sec','出品する');lb.onclick=()=>listSheet('t',s.id,!!s.f,()=>draw(),s);
+        const lb=el('button','sec','出品する');lb.onclick=()=>listSheet('t',s.id,vN(s.f),()=>draw(),s);
         const xb=el('button','sec grx','ケースから出す');xb.onclick=()=>askSheet({title:'ケースから出す',danger:true,ok:'ケースから出す',lines:['「'+TC[s.id].n+'」(鑑定 '+s.s+')をケースから出します。','対戦で使えるようになりますが、点数は消えて、このカードは二度と鑑定できません。','もとに戻せません。'],run:async()=>{try{await grCrack(s.i);toast('ケースから出しました');draw()}catch(e){toast('できませんでした')}}});
         act.append(sb,lb,xb)}
       c.append(act);g.append(c)});b.append(g);
@@ -12742,14 +12743,14 @@ const scOwns=(S,k,c)=>SC_ST[k].o[0][0]===c||S.ow.includes(k+c);
 /* what really stands in each slot of my cabinet: a finished case I still have, or a card I still have enough copies of */
 function scMine(v){const S=scOf(v),sl=slabsOf(v),T=(v&&v.tcg)||{},used={},out={};
   Object.keys(S.m).map(Number).sort((a,b)=>a-b).forEach(p=>{const x=S.m[p];if(!x||p>=S.n*SC_SLOTS)return;
-    if(x.k==='s'){const s=sl.find(y=>y.i===x.i&&y.s);if(s)out[p]={k:'s',c:s.id,f:!!s.f,g:s.s,i:s.i};return}
+    if(x.k==='s'){const s=sl.find(y=>y.i===x.i&&y.s);if(s)out[p]={k:'s',c:s.id,f:vN(s.f),g:s.s,i:s.i};return}
     if(x.k==='x'){const b=bxOf(v).find(y=>y.i===x.i);if(b)out[p]={k:'x',pk:b.pk,t:b.t,i:b.i};return}
-    const key=x.c+(x.f?'*':''),have=+((T[x.f?'foil':'own']||{})[x.c])||0;used[key]=(used[key]||0)+1;if(used[key]<=have&&typeof TC!=='undefined'&&TC[x.c])out[p]={k:'c',c:x.c,f:!!x.f}});
+    const key=x.c+vKey(x.f),have=+((T[vBag(x.f)]||{})[x.c])||0;used[key]=(used[key]||0)+1;if(used[key]<=have&&typeof TC!=='undefined'&&TC[x.c])out[p]={k:'c',c:x.c,f:vN(x.f)}});
   return {n:S.n,m:out,st:Array.from({length:S.n},(_,i)=>scStr(S.st[i]))}}
-const scPub=v=>{const M=scMine(v).m;return Object.keys(M).map(p=>{const x=M[p];if(x.k==='x')return {p:+p,b:x.pk,t:x.t};return Object.assign({p:+p,c:x.c,f:x.f?1:0},x.k==='s'?{g:x.g}:{})})};
+const scPub=v=>{const M=scMine(v).m;return Object.keys(M).map(p=>{const x=M[p];if(x.k==='x')return {p:+p,b:x.pk,t:x.t};return Object.assign({p:+p,c:x.c,f:vNum(x.f)},x.k==='s'?{g:x.g}:{})})};
 /* anyone's cabinet as drawn: mine from my inventory, a friend's from own/{pid} */
 function scView(pid){const me=myPlayer();if(me&&pid===me.id&&invLoaded&&invFor===me.id)return scMine(inv);
-  const L=((ownAll[pid]||{}).sc)||[],SS=((ownAll[pid]||{}).ss)||[];if(!Array.isArray(L))return {n:1,m:{},st:[scStr()]};const m={};let hi=0;L.forEach(x=>{if(x&&x.b&&typeof TCGD!=='undefined'&&TCGD.packs[x.b]){m[x.p]={k:'x',pk:x.b,t:+x.t||0};hi=Math.max(hi,x.p)}else if(x&&typeof TC!=='undefined'&&TC[x.c]){m[x.p]=x.g?{k:'s',c:x.c,f:!!x.f,g:x.g}:{k:'c',c:x.c,f:!!x.f};hi=Math.max(hi,x.p)}});const n=Math.min(SC_MAX,Math.max(Math.floor(hi/SC_SLOTS)+1,Array.isArray(SS)?SS.length:1));return {n,m,st:Array.from({length:n},(_,i)=>scStr(Array.isArray(SS)?SS[i]:''))}}
+  const L=((ownAll[pid]||{}).sc)||[],SS=((ownAll[pid]||{}).ss)||[];if(!Array.isArray(L))return {n:1,m:{},st:[scStr()]};const m={};let hi=0;L.forEach(x=>{if(x&&x.b&&typeof TCGD!=='undefined'&&TCGD.packs[x.b]){m[x.p]={k:'x',pk:x.b,t:+x.t||0};hi=Math.max(hi,x.p)}else if(x&&typeof TC!=='undefined'&&TC[x.c]){m[x.p]=x.g?{k:'s',c:x.c,f:vN(x.f),g:x.g}:{k:'c',c:x.c,f:vN(x.f)};hi=Math.max(hi,x.p)}});const n=Math.min(SC_MAX,Math.max(Math.floor(hi/SC_SLOTS)+1,Array.isArray(SS)?SS.length:1));return {n,m,st:Array.from({length:n},(_,i)=>scStr(Array.isArray(SS)?SS[i]:''))}}
 async function scSave(fn){const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id)throw new Error('inv');const v=JSON.parse(JSON.stringify(inv)),T=v.tcg=v.tcg||{},S=scOf(v);fn(S,v);T.sc={n:S.n,m:S.m};if(Object.keys(S.st).length)T.sc.st=S.st;if(S.ow.length)T.sc.ow=S.ow;
   await db.doc('inv/'+me.id).set(v);inv=v;ownSync()}
 const scPut=(p,x)=>scSave(S=>{S.m[p]=x});
@@ -12800,13 +12801,13 @@ function scOpen(pid,ci){document.querySelectorAll('.scv').forEach(x=>x.remove())
 function scPick(p,x,done){document.querySelectorAll('.mks').forEach(e=>e.remove());const o=el('div','mks'),b=el('div','mksb scpk');o.append(b);const close=()=>o.remove();
   b.append(el('h3',null,x?'この棚':'棚に置く'));
   if(x){const rm=el('button','sec','外す');rm.onclick=async()=>{try{await scDel(p);close();done&&done()}catch(e){toast('できませんでした')}};b.append(rm,el('div','sub','置き換えるなら、下から選んでください'))}
-  const M=scMine(inv).m,onShelf=new Set(Object.values(M).filter(y=>y.k==='s').map(y=>y.i)),cnt={};Object.values(M).forEach(y=>{if(y.k==='c'){const k=y.c+(y.f?'*':'');cnt[k]=(cnt[k]||0)+1}});
+  const M=scMine(inv).m,onShelf=new Set(Object.values(M).filter(y=>y.k==='s').map(y=>y.i)),cnt={};Object.values(M).forEach(y=>{if(y.k==='c'){const k=y.c+vKey(y.f);cnt[k]=(cnt[k]||0)+1}});
   const S=slabsOf(inv).filter(s=>s.s&&!onShelf.has(s.i)).sort((a,c)=>c.s-a.s);
   b.append(el('div','scpkh','鑑定済み'));const g1=el('div','scpkg');if(!S.length)g1.append(el('div','sub','飾れる鑑定済みのカードはありません'));
   S.forEach(s=>{const t=el('button','scpki kx-sc');t.append(slabEl(s));t.onclick=async()=>{try{await scPut(p,{k:'s',i:s.i});close();done&&done()}catch(e){toast('置けませんでした')}};g1.append(t)});b.append(g1);
   {const onB=new Set(Object.values(M).filter(y=>y.k==='x').map(y=>y.i)),B=bxOf(inv).filter(y=>!onB.has(y.i));if(B.length){b.append(el('div','scpkh','未開封ボックス'));const g3=el('div','scpkg');B.forEach(y=>{const t=el('button','scpki kx-sc');t.append(bxFace(y.pk));t.onclick=async()=>{try{await scPut(p,{k:'x',i:y.i});close();done&&done()}catch(e){toast('置けませんでした')}};g3.append(t)});b.append(g3)}}
-  b.append(el('div','scpkh','カード'));const g2=el('div','scpkg'),T=tcgOf(inv),L=[];['own','foil'].forEach(bk=>{for(const id in (T[bk]||{})){const n=+T[bk][id]||0,k=id+(bk==='foil'?'*':'');if(n>(cnt[k]||0)&&TC[id])L.push({c:id,f:bk==='foil'})}});
-  const RK={GR:0,SR:1,R:2,C:3};L.sort((a,c)=>(c.f-a.f)||(RK[TC[a.c].r]-RK[TC[c.c].r]));if(!L.length)g2.append(el('div','sub','飾れるカードがありません'));
+  b.append(el('div','scpkh','カード'));const g2=el('div','scpkg'),T=tcgOf(inv),L=[];['own','foil','kmr'].forEach(bk=>{const fv=bk==='kmr'?'k':bk==='foil';for(const id in (T[bk]||{})){const n=+T[bk][id]||0,k=id+vKey(fv);if(n>(cnt[k]||0)&&TC[id])L.push({c:id,f:fv})}});
+  const RK={GR:0,SR:1,R:2,C:3};L.sort((a,c)=>(vNum(c.f)-vNum(a.f))||(RK[TC[a.c].r]-RK[TC[c.c].r]));if(!L.length)g2.append(el('div','sub','飾れるカードがありません'));
   L.forEach(y=>{const t=el('button','scpki kx-sc');const f=el('div','scst');try{f.append(tcgCardFull(y.c,y.f))}catch(e){}tcgImgLater(f,y.c);t.append(f);t.onclick=async()=>{try{await scPut(p,{k:'c',c:y.c,f:y.f});close();done&&done()}catch(e){toast('置けませんでした')}};g2.append(t)});b.append(g2);
   const cl=el('button','sec','やめる');cl.onclick=close;b.append(cl);o.onclick=e=>{if(e.target===o)close()};document.body.append(o)}
 /* (10/22) 模様替え: pick a frame, a back and a LED colour for this case. Owned parts apply at once; others are bought first (pt) */
@@ -12825,7 +12826,7 @@ function scLift(x,from){document.querySelectorAll('.sclf').forEach(e=>e.remove()
   if(x.k==='x')it.append(bxFace(x.pk));else if(x.k==='s')it.append(slabEl({i:'x',id:x.c,f:x.f,s:x.g,t:0}));else{const f=tcgCardFull(x.c,x.f,'tfbig');it.append(f);tcgImgLater(it,x.c)}
   it.append(sh);hd.append(it);st.append(hd);
   const c=x.k!=='x'&&TC[x.c];if(x.k==='x')inf.append(el('b',null,bxName(x.pk)+' BOX'),el('span',null,'未開封  ·  寝かせて '+bxDays(x.t)+'日  ·  相場 '+bxPrice(x.pk,x.t).toLocaleString()+'pt'));
-  else inf.append(el('b',null,c?c.n:''),el('span',null,(x.f?'シークレット ':'')+(c?c.r:'')+(x.k==='s'?'  ·  鑑定 '+x.g+' '+(GR_NM[x.g]||''):'')));
+  else inf.append(el('b',null,c?c.n:''),el('span',null,vNm(x.f)+(c?c.r:'')+(x.k==='s'?'  ·  鑑定 '+x.g+' '+(GR_NM[x.g]||''):'')));
   const back=el('button','sec','戻す');inf.append(el('small',null,'指でなぞると傾けられます'),back);o.append(st,inf);document.body.append(o);
   const R=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fly=(dir,cb)=>{const a=from&&from.isConnected?from.getBoundingClientRect():null,b2=it.getBoundingClientRect();if(!a||!b2.width||R||!it.animate){cb&&cb();return}
@@ -13083,7 +13084,7 @@ function mkMoversEl(){const M=mkMovers(),sec=el('section','mkmv');const hd=el('d
 let mktTab='open';
 const mktName=pid=>(players.find(p=>p.id===pid)||{}).name||'だれか';
 const mktLeft=end=>{const t=end-now();if(t<=0)return '終了';const h=Math.floor(t/36e5),m=Math.floor(t%36e5/6e4);return h>=24?'残り '+Math.floor(h/24)+'日'+(h%24)+'時間':h?'残り '+h+'時間'+m+'分':'残り '+m+'分'};
-const mktSugg=(k,c,f)=>{const I=cardInfo(k,c,f);if(!I)return 10;if(k==='s')return mkBase('s',c);if(k==='b')return mkBase('b',c);if(k==='g')return [10,30,100,400,1500,3000][ITEM(c).r]||10;return Math.round(({C:10,R:30,SR:100,GR:400}[TC[c].r]||10)*(f?1.5:1))};
+const mktSugg=(k,c,f)=>{const I=cardInfo(k,c,f);if(!I)return 10;if(k==='s')return mkBase('s',c);if(k==='b')return mkBase('b',c);if(k==='g')return [10,30,100,400,1500,3000][ITEM(c).r]||10;return Math.round(({C:10,R:30,SR:100,GR:400}[TC[c].r]||10)*(f==='k'?10:f?1.5:1))};
 function mktThumb(k,c,f,g){const w=el('div','mkth'+(g?' grd':''));try{const I=cardInfo(k,c,f);if(I)w.append(I.face())}catch(e){}if(k==='t')tcgImgLater(w,c);if(g)w.append(el('i','mkg',String(g)));return w}
 /*KBU-JS*/
 /* ---------- 仲間株 (10/23): every player is a stock ----------
@@ -13488,21 +13489,21 @@ function yamiReveal(y){const I=cardInfo(y.k,y.c,y.f);if(!I)return;const o=el('di
   if(I.r>=3&&!isAdmin()&&me)post('y_'+y.id,'yami',me.id,me.name,me.name+'が闇鍋から'+(y.k==='t'?'TCG ':'')+I.rk+'「'+I.nm+'」を引いた('+mktName(y.d)+'が入れたカード)')}
 /* the box on a card's page: how many friends hold it, and the two buttons for one copy */
 function dupBox(kind,id,rn,done,opt){opt=opt||{};try{newSeen('burn134')}catch(e){}const it=kind==='g'?ITEM(id):null,c=kind==='t'&&typeof TC!=='undefined'?TC[id]:null;if(!it&&!c)return null;if(it&&it.lim==='sup')return null;
-  const S=ownStat(kind,id,kind==='t'?tcgCopies(invNow(),id):rn),w=el('div','dupw'),nm=it?it.n:c.n,X=opt.foil?SCR_X:1,rk=it?RAR[it.r].k:(opt.foil?'シークレット ':'')+c.r,sh=it?RAR[it.r].sh:Math.round(TCGD.shard[c.r]*X),pt=it?BURN_PT[it.r]:Math.round(TBURN_PT[c.r]*X);
-  const st=el('div','dups');st.append(el('b',null,!ownReady?'…':S.holders===0?'まだ誰も持っていない':S.holders===1&&rn>0?'仲間で持っているのはあなただけ':'仲間の'+S.pct+'%が所持'),el('span',null,ownReady?'全部で '+S.copies+' 枚':''));w.append(st);try{w.append(mkChart(kind,id,!!opt.foil))}catch(e){console.warn(e)}if(kind==='t')try{const g=grBox(id,!!opt.foil,()=>done&&done({left:rn,gain:0}));if(g)w.append(g)}catch(e){console.warn(e)}
+  const S=ownStat(kind,id,kind==='t'?tcgCopies(invNow(),id):rn),w=el('div','dupw'),nm=it?it.n:c.n,X=vX(opt.foil),rk=it?RAR[it.r].k:vNm(opt.foil)+c.r,sh=it?RAR[it.r].sh:Math.round(TCGD.shard[c.r]*X),pt=it?BURN_PT[it.r]:Math.round(TBURN_PT[c.r]*X);
+  const st=el('div','dups');st.append(el('b',null,!ownReady?'…':S.holders===0?'まだ誰も持っていない':S.holders===1&&rn>0?'仲間で持っているのはあなただけ':'仲間の'+S.pct+'%が所持'),el('span',null,ownReady?'全部で '+S.copies+' 枚':''));w.append(st);try{w.append(mkChart(kind,id,vN(opt.foil)))}catch(e){console.warn(e)}if(kind==='t')try{const g=grBox(id,vN(opt.foil),()=>done&&done({left:rn,gain:0}));if(g)w.append(g)}catch(e){console.warn(e)}
   if(rn>0){const last=(kind==='t'?tcgCopies(invNow(),id):rn)===1,row=el('div','dupb'),b1=el('button','sec'),b2=el('button','dupburn');b1.innerHTML='かけらにする<small>+'+sh+' かけら</small>';b2.innerHTML='燃やす<small>+'+pt+'pt</small>';
     const ask=(mode,b)=>askSheet({title:(mode==='sh'?'かけらにする':'燃やす')+(last?'(最後の1枚)':''),danger:mode==='burn'||last,ok:mode==='sh'?'かけらにする':'燃やす',
       lines:[rk+'「'+nm+'」を1枚'+(mode==='sh'?'かけら +'+sh+' にします。':'燃やして +'+pt+'pt。燃やしたことはタイムラインに流れます。'),last?'最後の1枚です。なくなると図鑑から消えます'+(kind==='g'?'(装備中ならはずれます)':'(デッキに入っていると、そのデッキは使えなくなります)')+'。':'残りは '+(rn-1)+' 枚になります。','もとに戻せません。'],
       run:async()=>{b.disabled=true;try{const r=await dupAct(kind,id,mode,opt);toast(mode==='sh'?'かけら +'+r.gain:'燃やしました  +'+r.gain+'pt');done&&done(r)}catch(e){b.disabled=false;toast('できませんでした')}}});
     b1.onclick=()=>ask('sh',b1);b2.onclick=()=>ask('burn',b2);row.append(b1,b2);
     /* (10/22) every extra copy of this card at once */
-    {const fo=!!opt.foil,keep=dupKeep(kind,id,fo),ex=Math.max(0,rn-keep);if(ex>1){const X2=[{id,foil:fo,n:rn,keep,extra:ex,nm,rk,sh,pt}],ra=el('div','dupb dupball'),c1=el('button','sec'),c2=el('button','dupburn');
+    {const fo=vN(opt.foil),keep=dupKeep(kind,id,fo),ex=Math.max(0,rn-keep);if(ex>1){const X2=[{id,foil:fo,n:rn,keep,extra:ex,nm,rk,sh,pt}],ra=el('div','dupb dupball'),c1=el('button','sec'),c2=el('button','dupburn');
       c1.innerHTML='全部かけら<small>ダブり'+ex+'枚 → +'+(ex*sh)+'</small>';c2.innerHTML='全部燃やす<small>ダブり'+ex+'枚 → +'+(ex*pt)+'pt</small>';
       const all=(mode,btn)=>askSheet({title:mode==='sh'?'ダブりを全部かけらにする':'ダブりを全部燃やす',danger:mode==='burn',ok:mode==='sh'?'かけらにする':'燃やす',lines:[rk+'「'+nm+'」のダブり'+ex+'枚を'+(mode==='sh'?'かけら +'+(ex*sh)+' にします。':'燃やして +'+(ex*pt)+'pt。'),keep+'枚は残します。','もとに戻せません。'],
         run:async()=>{btn.disabled=true;try{const r=await dupBulk(kind,X2,mode);toast(mode==='sh'?'かけら +'+r.gain:'燃やしました  +'+r.gain+'pt');done&&done({left:rn-r.cnt,gain:r.gain})}catch(e){btn.disabled=false;toast('できませんでした')}}});
       c1.onclick=()=>all('sh',c1);c2.onclick=()=>all('burn',c2);ra.append(c1,c2);w.append(ra)}}
     /* 取引所: お店 or オークション */
-    const row2=el('div','dupb dupb2'),b3=el('button','sec','オークション'),b4=el('button','sec','闇鍋に入れる'),b5=el('button','sec','お店に並べる'),fo=!!opt.foil;
+    const row2=el('div','dupb dupb2'),b3=el('button','sec','オークション'),b4=el('button','sec','闇鍋に入れる'),b5=el('button','sec','お店に並べる'),fo=vN(opt.foil);
     b5.onclick=()=>{if(typeof pshopListSheet==='function')pshopListSheet(kind,id,fo,r=>done&&done({left:rn-(+r||1),gain:0}))};
     b3.onclick=()=>listSheet(kind,id,fo,()=>done&&done({left:rn-1,gain:0}));
     b4.onclick=()=>askSheet({title:'闇鍋に入れる'+(last?'(最後の1枚)':''),danger:last,ok:'入れる',lines:[rk+'「'+nm+'」を1枚、闇鍋パックに入れます。','誰かが引くと、あなたに'+YAMI_BACK+'ptが入ります。'+(last?'最後の1枚なので、図鑑から消えます。':''),'もとに戻せません。'],run:async()=>{b4.disabled=true;try{await yamiGive(kind,id,fo);toast('闇鍋に入れました');done&&done({left:rn-1,gain:0})}catch(e){b4.disabled=false;toast('入れられませんでした')}}});
@@ -13685,16 +13686,16 @@ function previewItem(id){const it=ITEM(id);if(!it)return;if(it.k==='i')return km
 /* profile card for any player: p has name, eq, ygo_/dm_ ratings */
 /* コレクション総額 (v134): every copy at its 相場, cases at their grade's price. Mine from my inventory, others from own/{pid} */
 function colOf(pid){const me=myPlayer();if(me&&pid===me.id&&invLoaded&&invFor===me.id){const T=inv.tcg||{},shw=Array.isArray(T.shw)?T.shw:[];
-    return {bx:bxOf(inv),g:inv.own||{},t:T.own||{},tf:T.foil||{},sl:slabsOf(inv).filter(x=>x.s).map(x=>({c:x.id,f:x.f?1:0,s:x.s,w:shw.includes(x.i)?1+shw.indexOf(x.i):0}))}}
+    return {bx:bxOf(inv),g:inv.own||{},t:T.own||{},tf:T.foil||{},sl:slabsOf(inv).filter(x=>x.s).map(x=>({c:x.id,f:vNum(x.f),s:x.s,w:shw.includes(x.i)?1+shw.indexOf(x.i):0}))}}
   const o=ownAll[pid];if(!o)return null;return {bx:Array.isArray(o.bx)?o.bx:[],g:o.g||{},t:o.t||{},tf:{},sl:Array.isArray(o.sl)?o.sl:[]}}
 function colTotal(pid){const C=colOf(pid);if(!C)return null;let v=0,n=0;
   for(const id in C.g){const k=+C.g[id]||0;if(k>0&&ITEM(id)){v+=k*mkPrice('g',id,false);n+=k}}
   if(typeof TC!=='undefined'){for(const id in C.t){const k=+C.t[id]||0;if(k>0&&TC[id]){v+=k*mkPrice('t',id,false);n+=k}}for(const id in C.tf){const k=+C.tf[id]||0;if(k>0&&TC[id]){v+=k*mkPrice('t',id,true);n+=k}}
-    C.sl.forEach(x=>{if(TC[x.c]){v+=mkPrice('t',x.c,!!x.f,x.s);n++}});(C.bx||[]).forEach(b=>{if(TCGD.packs[b.pk]){v+=bxPrice(b.pk,+b.t||now());n++}})}return {v,n,sl:C.sl}}
+    C.sl.forEach(x=>{if(TC[x.c]){v+=mkPrice('t',x.c,vN(x.f),x.s);n++}});(C.bx||[]).forEach(b=>{if(TCGD.packs[b.pk]){v+=bxPrice(b.pk,+b.t||now());n++}})}return {v,n,sl:C.sl}}
 function colBlock(p){const T=colTotal(p.id),me=myPlayer(),mine=me&&me.id===p.id;if(!T||(!T.n&&!mine))return null;const w=el('div','pcol');
   const hd=el('div','pcolh');hd.append(el('span',null,'コレクション総額'),el('b',null,T.v.toLocaleString()),el('small',null,'pt  ·  '+T.n+'枚'));w.append(hd);
   const sh=T.sl.filter(x=>x.w).sort((a,b)=>a.w-b.w).slice(0,3);
-  if(sh.length){const row=el('div','pcols');sh.forEach(x=>row.append(slabEl({i:'x',id:x.c,f:!!x.f,s:x.s,t:0})));if(mine)row.onclick=()=>grSheet();w.append(row)}
+  if(sh.length){const row=el('div','pcols');sh.forEach(x=>row.append(slabEl({i:'x',id:x.c,f:vN(x.f),s:x.s,t:0})));if(mine)row.onclick=()=>grSheet();w.append(row)}
   else if(mine){const b=el('button','sec pcolb','鑑定ケースから3枚えらんで飾れます');b.onclick=()=>grSheet();w.append(b)}
   try{likesWatch()}catch(e){}const V=scView(p.id),has=Object.keys(V.m).length;
   if(has||mine){const sb=el('button','sec pcolsc');sb.append(el('span',null,(mine?'自分':p.name)+'のショーケースを見る'),el('em',null,'♥ '+likeN(p.id)+(has?'  ·  '+has+'点':'')));sb.onclick=()=>scOpen(p.id,0);w.append(sb)}
@@ -16449,13 +16450,13 @@ function tcgSheet(id,pick){const c=TC[id],H=tcgHeld(id),has=H.filter(x=>x.k>0),o
   /* the versions you hold, as a list; tap one to see it */
   const lst=el('div','tcghl');lst.append(el('div','tcghlh',has.length?'持っているもの(タップで見た目を切り替え)':'まだ持っていません'));
   H.forEach(h=>{const r=el('button','tcghr'+(h.k?'':' no')+(h===first&&has.length?' on':''));r.disabled=!h.k;r.append(el('span',null,h.n),el('b',null,h.k?h.k+'枚':'—'));
-    r.onclick=()=>{const nf=tcgCardFull(id,h.v==='k'?'k':h.v==='s','tfbig',typeof h.v==='number'?h.v:0);f.replaceWith(nf);f=nf;lst.querySelectorAll('.tcghr').forEach(y=>y.classList.toggle('on',y===r));if(h.v===0||h.v==='s')putBox(h.v);else if(h.v==='k'&&dw){dw.remove();dw=null;const n2=el('p','sub tcgkmrn','KMRは燃やしたり、かけらにしたり、出品したりできません。ずっとあなたの手元に残ります。');dw=n2;lst.after(n2)}};lst.append(r)});
+    r.onclick=()=>{const nf=tcgCardFull(id,h.v==='k'?'k':h.v==='s','tfbig',typeof h.v==='number'?h.v:0);f.replaceWith(nf);f=nf;lst.querySelectorAll('.tcghr').forEach(y=>y.classList.toggle('on',y===r));if(h.v===0||h.v==='s'||h.v==='k')putBox(h.v);};lst.append(r)});
   b.append(lst);
   /* 仲間の○%が所持, and かけら / 燃やす for normal copies */
   /* the box works on the version picked in the list above: 通常 or シークレット (絵違い cannot be burnt) */
-  let dw=null;const putBox=v=>{if(typeof dupBox!=='function')return;const T=tcgOf(inv),foil=v==='s',n=+((foil?T.foil:T.own)||{})[id]||0,nb=dupBox('t',id,n,()=>{o.remove();tcgSheet(id,v)},{foil});if(dw)dw.remove();dw=nb;if(dw)lst.after(dw)};
-  if(first.v==='k'){dw=el('p','sub tcgkmrn','KMRは燃やしたり、かけらにしたり、出品したりできません。ずっとあなたの手元に残ります。');lst.after(dw);
-    if(typeof kmrPromoShow==='function'){const pv=el('button','sec tcgkmrpv','KMRの紹介動画を見る');pv.onclick=()=>kmrPromoShow();dw.after(pv)}} // 10/25 replay the promo filmelse putBox(first.v==='s'?'s':0);
+  let dw=null;const putBox=v=>{if(typeof dupBox!=='function')return;const T=tcgOf(inv),foil=v==='s'?true:v==='k'?'k':false,n=+(T[vBag(foil)]||{})[id]||0,nb=dupBox('t',id,n,()=>{o.remove();tcgSheet(id,v)},{foil});if(dw)dw.remove();dw=nb;if(dw)lst.after(dw)};
+  /* (11/3) 開いたときから下の欄(相場・鑑定・燃やす・出品)を出す。前はコメントの中に入って出ていなかった */putBox(first.v==='s'?'s':first.v==='k'?'k':0);
+  if(first.v==='k'&&typeof kmrPromoShow==='function'){const pv=el('button','sec tcgkmrpv','KMRの紹介動画を見る');pv.onclick=()=>kmrPromoShow();(dw||lst).after(pv)}
   /* お試し版の管理者: KMRが出たときの演出をここから見られる(何も保存しない) */
   if(tcgKmrTry()){const kb=el('div','tcgkmrtry');const b1=el('button','sec','KMRが出る演出を見る'),b2=el('button','sec','パックから出るところを見る');
     b1.onclick=()=>{o.remove();tcgBoxCinematic(Object.keys(TCGD.packs)[0],[{c:tcgItem(id),isNew:true,sh:0,foil:'k'}],()=>{},()=>{},{revealed:true})};
