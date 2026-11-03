@@ -5751,7 +5751,7 @@ function ax3Pup(u,t){/* 動きの量: 呼吸・前のめり・つぶれ・のび
 function ax3Frame(){const A=AXB,T=A3.T,t=A.t,n=performance.now();if(!A3)return;
   /* カメラ: 自分を斜め上から追う。必殺は寄って回り込む */const me=A.me,px=a3X(me.x),pz=a3Z(me.y);const asp=A3.cam.aspect,vf=A3.cam.fov*Math.PI/180,hf=2*Math.atan(Math.tan(vf/2)*asp);
   /* サウスト風: 自分の後ろ・少し低いところから、ねらっている敵の方を見る。キャラは画面の下寄り */
-  /* (11/3) サウストに合わせて、もっと高く遠くから広く見る(前は 22・0.82)。A3.camD / A3.camP で試せる */let D=(asp<1?(A3.camD||22):(A3.camD2||18))/Math.tan(vf/2);if(A3.punchN){D*=1-.06*Math.max(0,1-(n-A3.punchN)/220)}const pitch=A3.camP||.82;
+  /* (11/3) サウストに合わせて、もっと高く遠くから広く見る(前は 22・0.82)。A3.kmDist / A3.kmPitch で試せる */let D=(asp<1?(A3.kmDist||22):(A3.kmDist2||18))/Math.tan(vf/2);if(A3.punchN){D*=1-.06*Math.max(0,1-(n-A3.punchN)/220)}const pitch=A3.kmPitch||.82;
   let ey=0;{const L=(A.lock&&axLive(A.lock))?A.lock:A.E.filter(e=>axLive(e)&&e.spawnT<=t).sort((a,b)=>Math.hypot(a.x-me.x,a.y-me.y)-Math.hypot(b.x-me.x,b.y-me.y))[0];if(L&&!A.trans){const dx=a3X(L.x)-px,dz=a3Z(L.y)-pz;if(Math.hypot(dx,dz)>2.5)ey=clamp(Math.atan2(-dx,-dz),-.15,.15)}}
   const rdt0=Math.min(.05,(n-(A3.ln||n))/1000);A3.yaw=(A3.yaw||0)+(ey-(A3.yaw||0))*Math.min(1,rdt0*1.5);let yaw=A3.yaw,push=0;
   /* 技: 一瞬 本人に寄ってから、技が出ると引く */if(A.ban&&A.ban.n&&!A.ban.ult){const v=(n-A.ban.n)/1000;if(v<.8){push=v<.1?eo(v/.1):v<.32?1:1-eo(Math.min(1,(v-.32)/.45));D*=1-.1*push}}
