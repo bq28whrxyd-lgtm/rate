@@ -6232,7 +6232,7 @@ function axvAura(x,z,o){o=o||{};const T=A3.T,G=axvGeo(),R=o.r||12,d=o.d||.9,col=
   if(!AXVG.cyl){AXVG.cyl=new T.CylinderGeometry(1,1.13,1,128,1,true);AXVG.cyl.translate(0,.5,0)}const c=axvMesh(AXVG.cyl,AXV_CURT,false,{col,ro:21});c.material.depthTest=true;c.scale.set(R*.62,o.h||R*1.1,R*.62);c.position.set(x,0,z);axvAdd({o:c,d:d*.85,dl:(o.dl||0)+.02,u:k=>{c.rotation.y=k*.8}});}
 /* (11/3) 必殺の炎の本体(サウストの赤犬・エースの必殺を1コマずつ見て): 地面の1点から炎のトゲが扇形に噴き上がる光る絵(Blenderで描いた16コマ)。
    白い芯の光→黒い破片と岩が飛ぶ→根元からほどけて消える→地面に溶岩の跡 */
-function axvEruption(x,z,o){o=o||{};const H=8,s=o.s||H*3.4,dl=o.dl||0;axvScreenGlow({col:'#ff8a2a',dl,d:.45});
+function axvEruption(x,z,o){o=o||{};const H=8,s=Math.min(o.s||H*3.4,axvScrW(x,z)*.75),dl=o.dl||0;axvScreenGlow({col:'#ff8a2a',dl,d:.45});
   /* (11/3) 爆発炎係の絵: 炎のトゲの扇(根元を地面に)・黒い輪の爆発3つ・溶岩の跡。合成は「色+下の色×(1-α)」 */
   axvFlip(x,s*.40,z,{s,d:.75,dl,src:AXFB_ERUPT2,pm:1,ro:22,flipX:Math.random()<.5});
   for(let i=0;i<3;i++){const a=Math.random()*6.28,r=i?H*1.2:0,k=.6+Math.random()*.4;axvFlip(x+Math.cos(a)*r,H*1.1*k+1,z+Math.sin(a)*r*.6,{s:H*2.6*k,d:.5,dl:dl+i*.09+Math.random()*.03,src:AXFB_BLAST,pm:1,ro:23,flipX:Math.random()<.5,roll:Math.random()*6.28})}
@@ -6244,7 +6244,7 @@ const AXV_SGLOW=`void main(){vec2 p=vU*2.-1.;float r=length(p*vec2(.8,1.));float
 function axvScreenGlow(o){o=o||{};const G=axvGeo(),m=axvMesh(G.quad,AXV_SGLOW,true,{col:o.col||'#ff8a2a',ro:29});
   return axvAdd({o:m,d:o.d||.45,dl:o.dl,u:k=>{const c=A3.cam;m.quaternion.copy(c.quaternion);m.position.copy(c.position);m.translateZ(-6);const h=2*6*Math.tan(c.fov*Math.PI/360);m.scale.set(h*c.aspect*1.1,h*1.1,1)}})}
 /* (11/3) 光の柱(サウストのミホーク・雷の必殺のコマを見て): 白い芯の太い柱が空まで立ち、色の光の筋をまとってほどける。白黒で描いて色をつける */
-function axvBeamFB(x,z,o){o=o||{};const s=o.s||30;return axvFlip(x,s*.43,z,{s,d:o.d||.7,dl:o.dl,src:AXFB_BEAM,glow:1,gtint:1,tint:o.col||'#7aff9a',ro:23})}
+function axvBeamFB(x,z,o){o=o||{};/* (11/3 PCで確認) 必殺のカメラで寄っても画面をうめないよう、画面幅の3割まで */const s=Math.min(o.s||30,axvScrW(x,z)*.3);return axvFlip(x,s*.43,z,{s,d:o.d||.7,dl:o.dl,src:AXFB_BEAM,glow:1,gtint:1,tint:o.col||'#7aff9a',ro:23})}
 /* (11/3) 黒い薄い破片(サウストの必殺で大量に飛ぶ、こうもりの羽のような黒いかけら)。回りながら外へ飛んで落ちる */
 const AXV_FLAKE=`void main(){vec2 p=vU*2.-1.;p.x*=1.9;float th=atan(p.y,p.x),r=length(p);float R=.35+.55*vn(vec2(th*1.3+uS,uS*.7))+.15*vn(vec2(th*4.+uS,3.));if(r>R)discard;
  float lit=step(0.,p.x*.6+p.y)*.18;vec3 c=uC+vec3(lit);gl_FragColor=vec4(c,uA*(1.-smoothstep(.8,1.,uT)));}`;
@@ -6294,7 +6294,7 @@ function axvGlyphs(x,z,o){o=o||{};const T=A3.T,n=o.n||10,dl=o.dl||0,chs=o.ch||['
     const a=Math.random()*6.28,r=(o.r||5)*Math.random(),vy=(o.vy||5)*(.6+Math.random()*.8);m.scale.set(S,S,S);const e=axvAdd({o:m,d:D,dl:dl+i*(o.gap||.04),bb:1,roll:(Math.random()-.5)*.6});
     e.u=k=>{const t=k*D,po=k<.15?k/.15:1;m.position.set(x+Math.cos(a)*r+Math.sin(t*5+i)*.6,1.5+vy*t,z+Math.sin(a)*r*.6);m.scale.setScalar(S*(k<.15?.4+.6*po+.25*Math.sin(po*3.14):1));m.material.opacity=1-Math.max(0,(k-.7)/.3)}}}
 /* 色つきの太い斬撃(ペンライトの色など)。from→to の向きに画面を横切る */
-function axvCut(x0,z0,x1,z1,o){o=o||{};return axvTrail(0,o.y||4,0,{from:[x0,z0],to:[x1,z1],s:o.s,col:o.col||'#bfe6ff',edge:o.edge,dl:o.dl,d:o.d||.42})}
+function axvCut(x0,z0,x1,z1,o){o=o||{};const cap=axvScrW((x0+x1)/2,(z0+z1)/2)*.75;return axvTrail(0,o.y||4,0,{from:[x0,z0],to:[x1,z1],s:Math.min(o.s||Math.max(10,Math.hypot(x1-x0,z1-z0)*1.5),cap),col:o.col||'#bfe6ff',edge:o.edge,dl:o.dl,d:o.d||.42})}
 const AXULTN={
  /* 剣 R「連続斬り」: 白い斬撃が3回ちがう向きに交差 → 決めは画面を横切る大きな1太刀 */
  /* (11/3 審査2) 0〜0.3秒に向きが37度ずつちがう細い斬撃を6本、0.045秒ごと。どこで止めても2本以上見える。色は青・水色・白にそろえる */
@@ -6344,19 +6344,19 @@ Object.assign(AXULTN,{
  /* ---- キャラ専用 ---- */
  '神絵の一筆':(c)=>{const {cx,cz}=c;axvCut(cx-22,cz+6,cx+22,cz-6,{col:'#ffe9a0',dl:.04,s:52,d:.6});axvGlyphs(cx,cz,{n:12,ch:['●','✦'],cols:AXP,dl:.12,r:10,s:1.4});for(let i=0;i<4;i++){const [x,z]=axvRnd(cx,cz,9);axvBeamFB(x,z,{s:22,col:'#ffe27a',dl:.2+i*.04})}axvFinisher(cx,cz,{dl:.33,col:'#ffc83a',glow:'#fff6d0'})},
  '千変万化':(c)=>{const {cx,cz}=c;axvCut(cx-12,cz+4,cx+12,cz-4,{col:'#ff6a8a',dl:.04,s:24});axvGroundSlash(cx,cz,{r:9,col:'#7ac8ff',dl:.13});axvSpinRing(cx,cz,{r:6,h:3,y:1,col:'#c89aff',dl:.22});[.06,.15,.24].forEach(d=>axvSwordHit(cx,cz,{s:1.1,dl:d}));axvFinisher(cx,cz,{dl:.33,col:'#ff6a8a',glow:'#ffd8e6'})},
- 'フルコンボ':(c)=>{const {cx,cz,ux,uz}=c;for(let i=0;i<8;i++){axvCut(ux,uz,cx+(Math.random()-.5)*3,cz,{col:AXP[i%5],dl:.02+i*.035,s:20,d:.22})}axvGlyphs(cx,cz,{n:8,ch:['◆','★'],cols:AXP,dl:.04,gap:.035,r:3,s:1.8});axvFinisher(cx,cz,{dl:.33,col:'#ffd23a',glow:'#fff3c0'})},
+ 'フルコンボ':(c)=>{const {cx,cz,ux,uz}=c;const rl=axvScrAng(ux,uz,cx,cz,4)-.49;for(let i=0;i<8;i++){axvSlFB('cut',(ux+cx)/2+(Math.random()-.5)*2,4,(uz+cz)/2+(Math.random()-.5)*1.5,{sw:.75,col:AXP[i%5],roll:rl+(Math.random()-.5)*.15,dl:.02+i*.035,iri:0,d:.2})}axvNotes(cx,cz,{n:8,cols:AXP,idx:[4,6,7],dl:.06,gap:.035,r:3});axvFinisher(cx,cz,{dl:.33,ramp:'gold',noGlow:1})},
  '全力コール':(c)=>{const {ux,uz}=c;for(let i=0;i<8;i++){const a=i/8*6.28;axvPen(ux+Math.cos(a)*6,uz+Math.sin(a)*3.5,{col:AXP[i%5],dl:i*.03,d:1.2})}axvNotes(ux,uz,{n:10,cols:AXP,dl:.1,r:6,idx:[4,5,6]});axvConfetti(ux,uz,{dl:.15,col:'#ff5aa8'})},
- '初版の盾':(c)=>{const {ux,uz}=c;axvAura(ux,uz,{col:'#ffd23a',r:10,h:14,d:1.2});axvPages(ux,uz,{n:14,r:5,dl:.05,ink:'#8a6a2a'});axvBeamFB(ux,uz,{s:24,col:'#ffd23a',dl:.15})},
+ '初版の盾':(c)=>{const {ux,uz}=c;axvAura(ux,uz,{col:'#ffd23a',r:9,d:1.2,noCurt:1,a:.6});for(let i=0;i<6;i++){const a=i/6*6.28;axvSpot(ux+Math.cos(a)*5,uz+Math.sin(a)*3,{col:'#ffd86a',dl:i*.02,d:1,w:.12})}axvPages(ux,uz,{n:10,r:4,dl:.05,ink:'#8a6a2a'})},
  '始発ダッシュ':(c)=>{const {cx,cz,ux,uz}=c,dx=cx-ux,dz=cz-uz;for(let i=0;i<5;i++)axvCut(ux-dx*.5,uz-dz*.5+(i-2)*1.2,cx+dx*.6,cz+dz*.6+(i-2)*1.2,{col:i===2?'#ffffff':'#bfe6ff',dl:.02+Math.abs(i-2)*.03,s:i===2?30:18,d:.3});axvSwordHit(cx,cz,{s:1.5,dl:.12});axvFinisher(cx,cz,{dl:.33,col:'#4ab8ff',glow:'#dff2ff'})},
  '限定品の争奪戦':(c)=>{const {cx,cz}=c;if(typeof axvSmokeFB==='function')for(let i=0;i<6;i++)axvSmokeFB(cx+(Math.random()-.5)*6,cz+(Math.random()-.5)*3,{s:1.3,dl:i*.04});axvGlyphs(cx,cz,{n:10,ch:['★','!','✦'],cols:['#ffd23a','#ffffff','#ff5a5a'],dl:.04,gap:.03,r:5,vy:9});for(let i=0;i<6;i++)axvSwordHit(cx+(Math.random()-.5)*5,cz,{s:.8,dl:.04+i*.05});axvFinisher(cx,cz,{dl:.33,col:'#ff3a2a',glow:'#ffd0b0'})},
  '新刊を落とさない':(c)=>{const {cx,cz,ux,uz}=c;for(let i=0;i<5;i++){const [x,z]=i?axvRnd(cx,cz,4):[cx,cz];axvShot('orb',ux,uz,x,z,{col:'#4ab8ff',dl:i*.06,fly:.16,w:.26+Math.random()*.04})}axvPagesFB(cx,cz,{n:10,r:4,dl:.1,d:.5});axvFinisher(cx,cz,{dl:.33,ramp:'blue',noGlow:1})},
  '神回の実況':(c)=>{const {cx,cz}=c;axvGlyphs(cx,cz,{n:6,ch:['!','!!','神'],cols:['#ffffff','#ffd23a','#ff5a5a'],dl:.02,r:6,s:3,vy:6});axvEruption(cx,cz,{dl:.24,s:28});axvFinisher(cx,cz,{dl:.33,col:'#ff3a2a',glow:'#ffd0a0',n:30})},
- '最高の1枚':(c)=>{const {ux,uz}=c;axvScreenGlow({col:'#ffffff',dl:.02,d:.35});axvGlyphs(ux,uz,{n:10,ch:['✦','♥'],cols:['#ffffff','#ff9ad0','#9affb0'],dl:.1,r:6});for(let i=0;i<4;i++){const a=i/4*6.28;axvBeamFB(ux+Math.cos(a)*5,uz+Math.sin(a)*3,{s:20,col:'#7aff9a',dl:.12+i*.05})}},
- '最後尾はこちら':(c)=>{const {ux,uz}=c;axvAura(ux,uz,{col:'#ff8a3a',r:10,h:14,d:1.2});axvGlyphs(ux,uz,{n:8,ch:['→','▶'],cols:['#ffd23a','#ffffff'],dl:.05,r:6,s:2.4});axvBeamFB(ux,uz,{s:22,col:'#ff9a3a',dl:.15})},
+ '最高の1枚':(c)=>{const {ux,uz}=c;axvScreenGlow({col:'#ffffff',dl:.02,d:.3});for(let i=0;i<5;i++){const a=i/5*6.28;axvSpot(ux+Math.cos(a)*6,uz+Math.sin(a)*3.5,{col:'#9affb0',dl:i*.02,d:1,w:.14})}axvNotes(ux,uz,{n:12,cols:['#ffffff','#ff9ad0','#9affb0'],idx:[4,5,6],dl:.05,r:6,big:1})},
+ '最後尾はこちら':(c)=>{const {ux,uz}=c;axvAura(ux,uz,{col:'#ff8a3a',r:9,d:1.2,noCurt:1,a:.6});for(let i=0;i<6;i++){const a=i/6*6.28;axvSpot(ux+Math.cos(a)*5,uz+Math.sin(a)*3,{col:'#ffa860',dl:i*.02,d:1,w:.12})}axvGlyphs(ux,uz,{n:8,ch:['→','▶'],cols:['#ffd23a','#ffffff'],dl:.05,r:6,s:2.4})},
  '渾身の新作':(c)=>{const {cx,cz}=c;axvBeamFB(cx,cz,{s:36,col:'#ffc83a',dl:.06,d:.5});axvEruption(cx,cz,{dl:.26,s:32});axvFinisher(cx,cz,{dl:.33,col:'#ffb01a',glow:'#fff0b0',n:32})},
  '長距離遠征':(c)=>{const {cx,cz,ux,uz}=c;for(let i=0;i<5;i++){const z=cz+(i-2)*3.5;axvCut(ux-10,z+2,cx+18,z-2,{col:'#dff2ff',dl:.03+i*.05,s:34,d:.35});axvSwordHit(cx+(Math.random()-.5)*6,z,{s:1,dl:.1+i*.05})}axvFinisher(cx,cz,{dl:.33,col:'#7ac8ff',glow:'#dff2ff'})},
  'はじめての全力':(c)=>{const {cx,cz,ux,uz}=c;axvAura(ux,uz,{col:'#ffffff',r:9,h:12,d:.6});axvSpike(cx,3,cz+.5,{s:18,dl:.22,d:.3});axvEruption(cx,cz,{dl:.26,s:24});axvFinisher(cx,cz,{dl:.33,col:'#ff5a3a',glow:'#ffe0c0'})},
- '始発の差し入れ':(c)=>{const {ux,uz}=c;axvGlyphs(ux,uz,{n:14,ch:['♥','✦','●'],cols:['#ff7ab0','#ffd23a','#9affb0'],dl:.04,r:7});for(let i=0;i<3;i++){const a=i/3*6.28;axvBeamFB(ux+Math.cos(a)*4,uz+Math.sin(a)*2.5,{s:18,col:'#9affb0',dl:.1+i*.06})}axvScreenGlow({col:'#c8ffd8',dl:.1,d:.4})},
+ '始発の差し入れ':(c)=>{const {ux,uz}=c;for(let i=0;i<4;i++){const a=i/4*6.28;axvSpot(ux+Math.cos(a)*5,uz+Math.sin(a)*3,{col:'#9affb0',dl:i*.02,d:1,w:.13})}axvNotes(ux,uz,{n:12,cols:['#ff7ab0','#ffd23a','#9affb0'],idx:[5,6,7],dl:.05,r:6,big:1})},
  'ペンライト全振り':(c)=>{const {cx,cz,ux,uz}=c;for(let i=0;i<10;i++){axvPen(ux+(i-4.5)*2.4,uz-1,{col:AXP[i%5],dl:i*.02,d:1.1,w:.22})}axvSlFB('sweep',cx,5,cz,{sw:1.3,col:'#ff5aa8',dl:.22,iri:.4});axvFinisher(cx,cz,{dl:.33,ramp:'red',noGlow:1})},
  '交換成立':(c)=>{const {cx,cz,ux,uz}=c;axvGlyphs((cx+ux)/2,(cz+uz)/2,{n:6,ch:['⇄','✦'],cols:['#ffd23a','#ffffff','#7ad8ff'],dl:.02,r:3,s:2.6});axvCut(ux,uz,cx,cz,{col:'#ffe27a',dl:.14,s:24});axvFinisher(cx,cz,{dl:.33,col:'#ffc83a',glow:'#fff3c0'})}
 });
