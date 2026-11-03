@@ -5982,9 +5982,9 @@ function axvSkill(k,o){axvPreload();const {cx,cz,ux,uz,col,dl,ult}=o,f=o.f||{};c
   switch(k){
   case 'spinblade':{/* (11/3 審査2) 白〜薄灰の風の帯を3枚、大きさと向きを変えて重ねる。円盤は出さない */const W0=axvScrW(ux,uz);[[.72,0,.0],[.9,1,.05],[1.06,0,.1]].forEach(([k,fl,d0])=>{const S=W0*k;axvSlFB('swirl',ux,S*(330/512-.5)+.5,uz,{s:S,col:'#ffffff',iri:.1,dl:dl+d0,d:.64,flip:!!fl})});axvSpinRing(ux,uz,{r:(f.r||58)*AXM*.9,h:2.6,y:1.2,dl:dl+.04,d:.4});break}
   case 'sweep':for(let i=0;i<3;i++)axvSlash(ux,3.2,uz,{r:9*big,col,tilt:i*2.09,d:.3,dl:dl+i*.05,sq:.4});axvSwirl(ux,uz,{r:5,h:6,col:'#ffffff',d:.55,dl});axvGroundSlash(ux,uz,{r:(f.r||58)*AXM*1.1,col:'#8ad8ff',d:.6,dl});axvSwordHit(cx,cz,{s:1.2,dl:dl+.06});break;
-  case 'dashcut':{/* (11/3) 突進斬り: 走り抜けた線に沿って白い速い斬撃が2本重なり、抜けた先で大きく払う(斬撃係の絵) */const rl=axvScrAng(cx,cz,ex,ez,3.6)-.49;/* 絵の中の線は28度傾いているので、その分を戻す */axvStreak(cx,cz,ex,ez,{w:1.1,d:.2,dl:dl-.06});
+  case 'dashcut':{/* (11/3) 突進斬り: 走り抜けた線に沿って白い速い斬撃が2本重なり、抜けた先で大きく払う(斬撃係の絵) */const rl=axvScrAng(cx,cz,ex,ez,3.6)-.49;/* 絵の中の線は28度傾いているので、その分を戻す */
     axvSlFB('cut',mx,3.6,mz,{s:Math.max(14,Math.hypot(ex-cx,ez-cz)*1.6),col:'#cfe8ff',roll:rl,dl:dl-.02,iri:.3});axvSlFB('cut',mx,4.4,mz,{s:Math.max(12,Math.hypot(ex-cx,ez-cz)*1.3),col:'#9ad0ff',roll:rl+.12,dl:dl+.03,iri:.3});
-    axvSlFB('sweep',ex,4,ez,{sw:.8,col:'#4ab8ff',dl:dl+.08,roll:rl-.6,d:.7});axvSwordHit(ex,ez,{s:1.5,dl:dl+.08});break}
+    axvSlFB('sweep',ex+(ex-cx)*.3,4,ez+(ez-cz)*.3,{sw:.55,col:'#4ab8ff',dl:dl+.08,roll:rl+.4,d:.55});axvSwordHit(ex,ez,{s:1.5,dl:dl+.08});break}
   case 'heavy':slashes(1,cx,cz,13,0);axvStreak(ux,uz,cx,cz,{dl:dl-.04});axvSwordHit(cx,cz,{s:1.6,dl:dl+.05});axvRing(cx,cz,{r:7,col:'#ffffff',dl:dl+.05});break;
   case 'ult_slash':[-.55,.6,-1.35].forEach((rl,i)=>axvTrail(cx+(i-1)*1.5,4.4,cz+.6,{s:20,col:i===1?'#ff8ad0':'#7ac8ff',edge:i===1?'#4a0a3a':'#14204a',roll:rl,dl:.06+i*.09}));axvGroundSlash(cx,cz,{r:12,col:'#ff7ac8',dl:.3});axvBeamFB(cx,cz,{s:34,col:'#ff8ad0',dl:.26});axvScreenGlow({col:'#ff9ad8',dl:.28,d:.4});axvPetals(cx,cz,{n:22,r:9,dl:.32});axvSwordHit(cx,cz,{s:2,dl:.33});axvFog(cx,cz,{r:9,n:10,dl:.55});break;
   case 'quake':case 'ult_quake':{const L=(f.len||150)*AXM,a=f.ang||0,n=ult?5:3;for(let i=0;i<n;i++){const q=(i+.6)/n,x=ult?cx+(Math.random()-.5)*R*2:ux+Math.cos(a)*L*q,z=ult?cz+(Math.random()-.5)*R:uz+Math.sin(a)*L*q;axvRing(x,z,{r:4.5,col:'#ffd8a0',edge:'#4a2a10',dl:dl+i*.08});if(AXV3G){axvShards(x,z,{n:5,r:2.2,s:1.8,dl:dl+i*.08});axvWave3(x,z,{s:4,dl:dl+i*.08})}else for(let j=0;j<2;j++)axvSmoke(x,1,z,{s:3,col:'#d8b890',edge:'#4a3020',d:.7,dl:dl+i*.08,vx:(Math.random()-.5)*4,vy:2})}break}
@@ -6123,7 +6123,7 @@ function axvDebris(x,z,o){o=o||{};if(!AXV3G){axv3Load();return}axvDebLoad();cons
     g.position.set(x,y0,z);g.scale.setScalar(S);axvAdd({o:g,d:D,dl:o.dl,u:k=>{const t=k*D;g.position.set(x+vx*t,Math.max(.15,y0+vy*t-16*t*t),z+vz*t);g.rotation.set(rx*t,0,rz*t)}})}}
 function axvGraySmoke(x,z,o){o=o||{};const n=o.n||2;/* (11/3) 煙係の白いもやに置きかえ(大きさは前の煙の大きさに合わせる) */if(typeof axvHaze==='function'){for(let i=0;i<Math.min(n,2);i++)axvHaze(x+(Math.random()-.5)*(o.r||2),z+(Math.random()-.5)*(o.r||2)*.6,{s:(o.s||1.8)*.22,d:(o.d||.55)*1.2,dl:(o.dl||0)+.04+i*.05});return}if(typeof axvSmokeFB==='function'){for(let i=0;i<n;i++)axvSmokeFB(x+(Math.random()-.5)*(o.r||2),z+(Math.random()-.5)*(o.r||2)*.6,{s:(o.s||1.8)/3.2,d:o.d||.55,dl:(o.dl||0)+.04+i*.03,tint:'#e4e2ea'});return}for(let i=0;i<n;i++)axv3('puff'+(i%4),x+(Math.random()-.5)*(o.r||2),(o.y||1.4)+Math.random(),z+(Math.random()-.5)*(o.r||2)*.6,{s:(o.s||1.8)*(.8+Math.random()*.5),s0:.4,col:'#d6d2dc',edge:'#3e3848',sh:'#8a84a0',d:o.d||.55,ds:.2,dl:(o.dl||0)+.04+i*.03,vy:1.6})}
 /* まとめ: 剣の1振りの当たり(大きさ s=1 ふつう / 1.5 大) */
-function axvSwordHit(x,z,o){o=o||{};const s=o.s||1,dl=o.dl||0;axvSpike(x,3.1,z+.8,{s:6*s,dl,d:.3+.05*s});axvDebris(x,z+.3,{n:Math.round(3*s+2),dl:dl+.03,s:.9*s,sp:10*s});axvGraySmoke(x,z-.6,{n:s>1.2?3:2,s:1.5*s,r:3*s,dl:dl+.1})}
+function axvSwordHit(x,z,o){o=o||{};const s=o.s||1,dl=o.dl||0;axvSpike(x,3.1,z+.8,{s:6*s,dl,d:.3+.05*s});axvFlakes(x,z+.3,{n:Math.round(6*s+6),dl:dl+.03,s:.45*s,sp:12*s,y:2.5});axvGraySmoke(x,z-.6,{n:s>1.2?3:2,s:1.5*s,r:3*s,dl:dl+.1})}
 
 /* ================= (11/2) 剣(大技): 画面を横切る太い刀の軌跡 / 地面に広がる円盤の斬撃(サウストの作り方) ================= */
 const AXV_BTRAIL=`void main(){vec2 p=(vU*2.-1.)*1.45;vec2 c=vec2(0.,-1.45);float Rr=1.85;vec2 q=p-c;float a=atan(q.x,q.y);float s=clamp((a+.8)/1.6,0.,1.);if(a<-.8||a>.8)discard;
@@ -6218,7 +6218,7 @@ function axvFireSea(cx,cz,o){o=o||{};const R=o.R||10,dl=o.dl||0,N=22;for(let i=0
 const AXV_AURA=`void main(){vec2 p=vU*2.-1.;float r=length(p),th=atan(p.y,p.x);
  float g=1.-pow(1.-clamp(uT*5.,0.,1.),3.),R=.35+.65*g;if(r>R)discard;float q=r/R;
  float sw=fbm(vec2(th*2.2+uT*5.5-q*2.5+uS,q*14.));float sw2=vn(vec2(th*6.-uT*8.+uS,q*34.));
- float ring=exp(-pow((q-.28)/.09,2.));float wr=smoothstep(.03,0.,abs(q-.55))*step(.4,vn(vec2(th*3.+uS,1.)))+smoothstep(.025,0.,abs(q-.78))*step(.45,vn(vec2(th*4.-uS,2.)))+smoothstep(.06,0.,abs(sw2-.75))*.5*(1.-q);
+ float ring=exp(-pow((q-.28)/.09,2.));float wr=smoothstep(.06,0.,abs(sw2-.75))*.5*(1.-q);
  float body=clamp((.5+.5*sw)*(1.-q*.45),0.,1.);
  float fd=1.-smoothstep(.5,1.,uT),ed=1.-smoothstep(.72,1.,q);
  vec3 hot=mix(uC,vec3(1.,.92,.95),.7);vec3 c=mix(uC*mix(.85,1.15,sw),hot,clamp(ring*1.2+wr,0.,1.));
@@ -6271,7 +6271,7 @@ const AXRADR={red:['#220406','#480A0F','#6C121A','#B5262E','#F95759','#FF9C98','
 const AXV_RADF=`uniform sampler2D uTex;uniform vec3 uR[8];uniform float uT,uZ,uRot,uFl;varying vec2 vU;
 vec3 rp(float t){vec3 c=mix(uR[0],uR[1],clamp(t/.08,0.,1.));c=mix(c,uR[2],clamp((t-.08)/.08,0.,1.));c=mix(c,uR[3],clamp((t-.16)/.15,0.,1.));c=mix(c,uR[4],clamp((t-.31)/.2,0.,1.));c=mix(c,uR[5],clamp((t-.51)/.2,0.,1.));c=mix(c,uR[6],clamp((t-.71)/.25,0.,1.));return mix(c,uR[7],clamp((t-.96)/.04,0.,1.));}
 void main(){float k=uT;float z=1.+.12*(1.-pow(1.-min(1.,k/.75),2.));vec2 d=(vU-.5)/z;d.x*=uFl;float cr=cos(uRot),sr=sin(uRot);d=vec2(cr*d.x-sr*d.y,sr*d.x+cr*d.y);vec2 uv=clamp(.5+d,0.,1.);float g=k<.17?1.1:mix(1.,.82,clamp((k-.17)/.6,0.,1.));float t=texture2D(uTex,uv).r*g;
- /* (11/3 審査4) 中心に純白の芯 */float rr=length(vU-.5);float core=1.-smoothstep(.012,.032,rr);t=max(t,core*1.08*(1.-k*.4));t*=mix(1.,.72,smoothstep(.15,.5,rr));/* 暗い筋をはっきり */t=t<.96?pow(t,1.35)*1.08:t;
+ /* (11/3 審査4) 中心に純白の芯 */float rr=length(vU-.5);float core=1.-smoothstep(.012,.032,rr);t=max(t,core*.9*(1.-k*.4));t*=mix(1.,.72,smoothstep(.15,.5,rr));/* 暗い筋をはっきり */t=t<.96?pow(t,1.35)*1.08:t;
  float a=k<.75?1.:1.-pow((k-.75)/.25,2.);gl_FragColor=vec4(rp(t),a);}`;
 function axvRadial(o){o=o||{};const T=A3.T;if(!AXRADT&&AXRAD.indexOf('data:')===0){AXRADT=new T.TextureLoader().load(AXRAD);AXRADT.colorSpace=T.NoColorSpace;AXRADT.wrapS=AXRADT.wrapT=T.ClampToEdgeWrapping}
   const rk=o.ramp||'red',mat=new T.ShaderMaterial({uniforms:{uT:{value:0},uTex:{value:AXRADT},uR:{value:AXRADR[rk].map(h=>new T.Color(h))},uRot:{value:Math.random()*6.28},uFl:{value:Math.random()<.5?-1:1}},vertexShader:AXVV,fragmentShader:AXV_RADF,transparent:true,depthTest:false,depthWrite:false,toneMapped:false});
@@ -6299,7 +6299,7 @@ const AXULTN={
  /* 剣 R「連続斬り」: 白い斬撃が3回ちがう向きに交差 → 決めは画面を横切る大きな1太刀 */
  /* (11/3 審査2) 0〜0.3秒に向きが37度ずつちがう細い斬撃を6本、0.045秒ごと。どこで止めても2本以上見える。色は青・水色・白にそろえる */
  '連続斬り':(c)=>{const {cx,cz}=c,a0=Math.random()*6.28,W=axvScrW(cx,cz);for(let i=0;i<6;i++){const ox=Math.cos(i*2.4)*W*.22,oz=Math.sin(i*2.4)*W*.12;axvSlFB('cut',cx+ox,4,cz+oz,{sw:1,col:'#9ad8ff',roll:a0+i*.65,dl:.01+i*.045,iri:0,d:.16})}axvSwordHit(cx,cz,{s:1.2,dl:.05});
-   axvSlFB('sweep',cx,5,cz,{sw:1.5,col:'#4ab8ff',dl:.28,roll:-.25,iri:.25});axvFinisher(cx,cz,{dl:.33,ramp:'blue',noGlow:1,n:18})},
+   axvSlFB('sweep',cx,5,cz,{sw:1.5,col:'#4ab8ff',dl:.28,roll:-.25,iri:.25});axvFinisher(cx,cz,{dl:.33,ramp:'blue',noGlow:1,n:18});for(let i=0;i<7;i++)axvSlFB('cut',cx,4,cz,{sw:1.3,col:'#e8f6ff',roll:i*.9+Math.random()*.3,dl:.34+i*.012,iri:0,d:.16,ro:32})},
  /* ジン「全公演皆勤」: 4回の斬撃がペンライトの4色で敵全員を横切る。最後に4色の光の柱が立ち並ぶ(ライブの照明) */
  /* ジン「全公演皆勤」: ペンライトの4色の斬撃が0.09秒ごとに敵全員を横切る → 敵の後ろにライブのスポットライトが並んで立つ → 決めはピンクの集中線と紙吹雪 */
  '全公演皆勤':(c)=>{const {cx,cz}=c,cols=['#ff5aa8','#4ab8ff','#ffd23a','#3aff6a'];for(let i=0;i<8;i++)axvSpot(cx+(i-3.5)*4,cz-6,{col:cols[i%4],dl:i*.025,d:1.1,w:.26});cols.forEach((col,i)=>{axvSlFB('sweep',cx,5,cz,{sw:1.0,col,dl:.03+i*.07,roll:(i%2?.35:-.35)+(Math.random()-.5)*.3,flip:i%2===1,d:.5,iri:0})});axvSwordHit(cx,cz,{s:1.2,dl:.06});
@@ -6309,7 +6309,7 @@ const AXULTN={
  '完結編':(c)=>{const {cx,cz}=c;axvCirc(cx,cz,{w:1.1,col:'#b07aff',dl:0});axvBook(cx,cz,{dl:0,d:.62,close:.24});axvPagesFB(cx,cz,{n:16,r:9,dl:.0,d:.26});axvMBurst(cx,cz,{w:1.3,col:'#9a5cff',dl:.2});axvFinisher(cx,cz,{dl:.33,ramp:'purple',noGlow:1,n:24})},
  /* セイラ「アンコール」: ステージの光の柱が仲間のまわりに立ち、音符が舞う。仲間を元気づける(攻撃しない) */
  /* セイラ「アンコール」: 仲間を囲んでスポットライトが立ち、光る音符が舞い上がり、紙吹雪。攻撃はしない */
- 'アンコール':(c)=>{const {ux,uz}=c,cols=['#ff7ac8','#ffd23a','#7ad8ff','#b07aff'];for(let i=0;i<7;i++){const a=i/7*6.28;axvSpot(ux+Math.cos(a)*7,uz+Math.sin(a)*4,{col:cols[i%4],dl:.04+i*.04,d:1.2,w:.3,ro:Math.sin(a)<0?20:27})}axvNotes(ux,uz,{n:18,cols,dl:.02,gap:.03,r:7,idx:[0,1,2,3,4,5],big:1});axvConfetti(ux,uz,{dl:.2,col:'#ffd23a'})},
+ 'アンコール':(c)=>{const {ux,uz}=c,cols=['#ff7ac8','#ffd23a','#7ad8ff','#b07aff'];for(let i=0;i<7;i++){const a=i/7*6.28;axvSpot(ux+Math.cos(a)*7,uz+Math.sin(a)*4,{col:cols[i%4],dl:i*.01,d:1.2,w:.3,ro:Math.sin(a)<0?20:27})}axvNotes(ux,uz,{n:18,cols,dl:.02,gap:.03,r:7,idx:[0,1,2,3,4,5],big:1});axvConfetti(ux,uz,{dl:.2,col:'#ffd23a'})},
 };
 /* 画面を暗くする(夜断ち・黒陽: 一瞬夜になる) */
 const AXV_DARK=`void main(){vec2 p=vU*2.-1.;float k=uT<.15?uT/.15:uT>.75?1.-(uT-.75)/.25:1.;gl_FragColor=vec4(uC,k*(.55+.25*length(p)));}`;
@@ -6388,7 +6388,7 @@ function axvSlFB(k,x,y,z,o){o=o||{};const T=A3.T,D=o.d||(k==='sweep'?.88:k==='cu
   const e=axvAdd({o:m,d:D,dl:o.dl,bb:o.flat?0:1,roll:o.roll||0});if(o.flat){m.rotation.set(-Math.PI/2+(o.tilt||.52),0,o.roll||0)}
   e.u=k2=>{const sec=k2*D;mat.uniforms.uFrame.value=Math.min(15,axvSlFrame(k,sec,D,o));if((k==='swirl'||k==='pen'||k==='note')&&sec>D-.12)mat.uniforms.uOp.value=Math.max(0,(D-sec)/.12);if(o.u)o.u(k2,m)};return e}
 /* (11/3) ライブ係の絵: スポットライト(光源を足元に)・ペンライト・光る音符・紙吹雪 */
-function axvSpot(x,z,o){o=o||{};/* (11/3 審査5) ステージの照明は上から下へ照らす(光源を上に) */const W=axvScrW(x,z)*(o.w||.18),H=W*3.4,e=axvSlFB('spot',x,H*.5-.3,z,{s:W,col:o.col,dl:o.dl,d:o.d||.9,iri:0,ro:o.ro||21});e.o.scale.y=-H;axvCircle(x,z,{r:W*.35,col:o.col||'#ffffff',d:(o.d||.9)*.9,dl:o.dl});return e}
+function axvSpot(x,z,o){o=o||{};/* (11/3 審査5) ステージの照明は上から下へ照らす(光源を上に) */const W=axvScrW(x,z)*(o.w||.18),H=W*3.4,e=axvSlFB('spot',x,H*.5-.3,z,{s:W,col:o.col,dl:o.dl,d:o.d||.9,iri:0,ro:o.ro||21});e.o.scale.y=-H;return e}
 function axvPen(x,z,o){o=o||{};const W=axvScrW(x,z)*(o.w||.25);return axvSlFB('pen',x,W*(.5-.086)+(o.y||2),z,{s:W,col:o.col,dl:o.dl,d:o.d||1.2,iri:0,ph:Math.random()*16,sp:.85+Math.random()*.35,ro:24})}
 function axvNotes(x,z,o){o=o||{};const n=o.n||10,cols=o.cols||AXP;for(let i=0;i<n;i++){const W=axvScrW(x,z)*(o.big?.13+Math.random()*.05:.06+Math.random()*.03),a=Math.random()*6.28,r=(o.r||6)*Math.random(),vy=4+Math.random()*4,D=.8+Math.random()*.4,x0=x+Math.cos(a)*r,z0=z+Math.sin(a)*r*.6;
   axvSlFB('note',x0,o.big?4:1.5,z0,{s:W,col:cols[i%cols.length],idx:(o.idx?o.idx[i%o.idx.length]:i%8),dl:(o.dl||0)+i*(o.gap||.05),d:D,iri:0,ro:26,u:(k,m)=>{const t=k*D,po=Math.min(1,k/.12);m.position.set(x0+Math.sin(t*5+i)*.5,(o.big?4:1.5)+vy*t,z0);const sc=po<1?po*1.15:1;m.scale.set(W*sc,W*sc,W)}})}}
