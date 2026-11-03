@@ -5763,7 +5763,7 @@ function ax3Frame(){const A=AXB,T=A3.T,t=A.t,n=performance.now();if(!A3)return;
   const pit=pitch-pitchA,tgt=new T.Vector3(tx,ly,tz),pos=new T.Vector3(tx+Math.sin(yaw)*Math.cos(pit)*D,ly+Math.sin(pit)*D,tz+Math.cos(yaw)*Math.cos(pit)*D);
   const rdt=Math.min(.05,(n-(A3.ln||n))/1000),kk=A3.first?1:1-Math.pow(A.cut?.004:push>0?.0004:actK>0?.006:.02,rdt);A3.ln=n;A.shake=Math.max(0,A.shake-rdt*22);A3.first=false;A3.camP.lerp(pos,kk);A3.camL.lerp(tgt,kk);
   const amp=Math.max(0,A.shake-2)*.03,sh=amp*Math.sin(n*.055),sv=amp*.6*Math.cos(n*.043);A3.cam.position.copy(A3.camP).add(new T.Vector3(sh,sv,0));A3.cam.lookAt(A3.camL);
-  /* (11/3) 推しカードの絵を撮るときのカメラ(ax3ShotAim で決める) */if(A3.shot){const q=A3.shot;A3.cam.position.copy(q.p);A3.cam.lookAt(q.l);if(q.fov&&A3.cam.fov!==q.fov){A3.cam.fov=q.fov;A3.cam.updateProjectionMatrix()}}
+  /* (11/3) 推しカードの絵を撮るときのカメラ(ax3ShotAim で決める) */if(A3.shot){const q=A3.shot;if(q.u&&q.o)ax3ShotPos(q);A3.cam.position.copy(q.p);A3.cam.lookAt(q.l);if(q.fov&&A3.cam.fov!==q.fov){A3.cam.fov=q.fov;A3.cam.updateProjectionMatrix()}}
   A3.sun.position.set(A3.camL.x+18,30,A3.camL.z+10);A3.sun.target.position.copy(A3.camL);
   /* キャラの絵を #cv に描く */G.setTransform(1,0,0,1,0,0);G.clearRect(0,0,1024,1024);const vis=[me,...A.E].filter(u=>(!u.dead||t-u.deadT<.8)&&u.spawnT<=t+.0);let ci=0;const CW=160,CH=256,K=2.0;
   const live=new Set(),live3=new Set(),liveM=new Set();for(const u of vis){if(ci>=24)break;const cx=(ci%6)*CW,cy=Math.floor(ci/6)*CH;const sp=clamp((t-u.spawnT)/.25,0,1),dk=axDepth(u.y);
@@ -5920,8 +5920,9 @@ body.ax3on #stage>#ax3ov{pointer-events:none}
 body.ax3on #stage>#cv{position:absolute;left:-9999px;top:0;width:1px!important;height:1px!important;opacity:0}
 .axload{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);color:#fff;font:800 15px/1.5 var(--jp,sans-serif);text-shadow:0 1px 3px #000}`;document.head.append(st)})();
 /* (11/3) 推しカードの絵: キャラの顔のまわりにカメラを置く。o.d=距離 o.ang=正面からの角度 o.h=カメラの高さ o.ly=見る所の下げ o.fov */
-function ax3ShotAim(u,o){o=o||{};const R=A3&&A3.chr&&A3.chr.map.get(u);if(!R)return false;const T=A3.T,hp=new T.Vector3();R.root.updateMatrixWorld(true);(R.B&&R.B.head?R.B.head:R.root).getWorldPosition(hp);if(!(R.B&&R.B.head))hp.y+=7;
-  const yaw=R.root.rotation.y+(o.ang!=null?o.ang:.45),d=o.d||14,el=typeof AXEL!=='undefined'&&AXEL[u.f.el];A3.shot={u,iso:o.iso!==false,bg:ax3CutBg(o.col||(el&&el.c)||TRWC[u.f.wt]||'#ffb03a'),p:new T.Vector3(hp.x+Math.sin(yaw)*d,hp.y+(o.h!=null?o.h:.8),hp.z+Math.cos(yaw)*d),l:new T.Vector3(hp.x,hp.y-(o.ly!=null?o.ly:2.6),hp.z),fov:o.fov||30};return true}
+function ax3ShotPos(q){const u=q.u,o=q.o,R=A3.chr&&A3.chr.map.get(u);if(!R)return false;const T=A3.T,hp=new T.Vector3();R.root.updateMatrixWorld(true);(R.B&&R.B.head?R.B.head:R.root).getWorldPosition(hp);if(!(R.B&&R.B.head))hp.y+=7;
+  const yaw=R.root.rotation.y+(o.ang!=null?o.ang:.45),d=o.d||14,sx=o.sx||0;q.p=new T.Vector3(hp.x+Math.sin(yaw)*d+Math.cos(yaw)*sx,hp.y+(o.h!=null?o.h:.8),hp.z+Math.cos(yaw)*d-Math.sin(yaw)*sx);q.l=new T.Vector3(hp.x+Math.cos(yaw)*sx,hp.y-(o.ly!=null?o.ly:2.6),hp.z-Math.sin(yaw)*sx);q.fov=o.fov||30;return true}
+function ax3ShotAim(u,o){o=o||{};if(!A3||!A3.chr||!A3.chr.map.get(u))return false;const el=typeof AXEL!=='undefined'&&AXEL[u.f.el];A3.shot={u,o,iso:o.iso!==false,bg:ax3CutBg(o.col||(el&&el.c)||TRWC[u.f.wt]||'#ffb03a')};return ax3ShotPos(A3.shot)}
 function ax3ShotOff(){if(!A3)return;A3.shot=null;A3.cam.fov=55;A3.cam.updateProjectionMatrix()}
 /* 次に描いた絵を、まん中を縦横3:4で切り取って JPEG にする(推しカードの絵の書き出し用) */
 function ax3ShotGrab(W){W=W||600;return new Promise(res=>{A3.grab=c=>{const cw=c.width,ch=c.height,h=Math.min(ch,cw*4/3),w=h*3/4,o=document.createElement('canvas');o.width=W;o.height=Math.round(W*4/3);o.getContext('2d').drawImage(c,(cw-w)/2,(ch-h)/2,w,h,0,0,o.width,o.height);res(o.toDataURL('image/jpeg',.9))}})}
