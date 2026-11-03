@@ -6775,7 +6775,7 @@ function kmAppCSS(){if(document.getElementById('kmappcss'))return;const O='1.6px
 /* ステージの行 */
 #kmapp .kst{position:relative;display:grid;grid-template-columns:54px 1fr auto;gap:10px;align-items:center;width:100%;min-height:84px;border:0;padding:12px 12px 12px 10px;margin:0 0 8px;border-radius:12px;background:linear-gradient(#4a3bb8,#2b2080);box-shadow:inset 0 0 0 2px #e9c25a,inset 0 0 0 4px #1c1556,0 3px 8px #0007;color:#fff;text-align:left;cursor:pointer}
 #kmapp .kst.boss{background:linear-gradient(#c22a6a,#7a1240)}#kmapp .kst.lock{filter:grayscale(.85) brightness(.55);cursor:default}#kmapp .kst:active:not(.lock){transform:scale(.985)}
-#kmapp .kst .md{width:54px;height:54px;display:grid;place-items:center}#kmapp .kst .md img{width:54px;height:54px}#kmapp .kst .md b{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#3a2c8c,#1c1556);box-shadow:0 0 0 2.5px #e9c25a;font:900 18px/1 sans-serif}
+#kmapp .kst .md{width:54px;height:54px;display:grid;place-items:center}.kst.kpv .md{width:auto;display:flex;gap:2px;align-items:flex-end}.kpop .kkv{gap:8px}.kpop .kkv b{font-size:14px;text-align:right}#kmapp .kst .md img{width:54px;height:54px}#kmapp .kst .md b{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#3a2c8c,#1c1556);box-shadow:0 0 0 2.5px #e9c25a;font:900 18px/1 sans-serif}
 #kmapp .kst .nm{font:900 15px/1.25 sans-serif}#kmapp .kst .ch{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 #kmapp .kst .ch span{display:inline-flex;align-items:center;gap:5px;font:800 11.5px/1 sans-serif;padding:4px 7px;border-radius:6px;background:#0c0a24b0}#kmapp .kst .ch span i{font-style:normal;color:#ffe27a;font-weight:900}
 #kmapp .kst .rt{display:grid;justify-items:center;gap:4px}#kmapp .kst .rt em{font-style:normal;font:900 11px/1 sans-serif;padding:4px 7px;border-radius:6px;background:linear-gradient(#ff7ab8,#e0287a);box-shadow:0 0 0 1.5px #3a0820}#kmapp .kst .rt em.nw{background:linear-gradient(#ffe9a0,#d9a53a);color:#3a2408;box-shadow:0 0 0 1.5px #3a2408;text-shadow:none}
@@ -7163,7 +7163,7 @@ function kmMenu(){const d=kmEl('div','kmenu');[['i2_book','あそびかた',()=>
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(kmApp,30));else setTimeout(kmApp,30);
 
 /* ===== (11/3) 仲間との対戦を3Dで: 相手の編成(メイン2人+サポート)をCPUが動かす。全員倒すか、90秒で残りHPの割合が多い方の勝ち ===== */
-const KMPV={hp:3.2,tl:90};
+const KMPV={hp:2.4,atk:.45,sk:.75,skcd:2.4,ult:3.2,dg:.4,tl:90};/* 相手の強さ(11/3 PCで自動戦闘を見て調整) */
 const kmHpR=L=>{let a=0,b=0;for(const u of L||[]){a+=Math.max(0,u.hp);b+=u.max}return b?a/b:0};
 function kmOppDeck(o){const ok=v=>typeof v==='string'&&(v==='me'||/^ch:[a-z0-9_]{1,24}$/.test(v));
   let d=o&&o.dk&&Array.isArray(o.dk.m)?{m:o.dk.m.slice(0,2),s:(Array.isArray(o.dk.s)?o.dk.s:[]).slice(0,5)}:null;
@@ -7199,16 +7199,16 @@ function kmAxPvp(i){const o=OPP[i];if(!o)return;if(HOST&&kmPvLeft()<=0){toastB('
   S.opp=i;const dk=kmOppDeck(o),M=[kmOppMain(o,dk,0),kmOppMain(o,dk,1)].filter(Boolean);if(!M.length)return;document.body.classList.add('kmhide');
   axStart(kmStOfLv(o.lv||S.lv),{mode:'pvp',title:'VS '+o.name,opp:o,oppI:i,baseO:o,tlim:KMPV.tl,tlimJudge:A=>kmHpR(A.P)>=kmHpR(A.E),
     areas:[{ban:'VS',say:o.name+'の編成が相手! 90秒で決着',mk:A=>M.map((f,k)=>{const u=axUnit(f,'E',AXCX+(M.length>1?(k?75:-75):0),AXCY-AXRY*.5,{role:'pvp',sh:4,weak:axWk(),name:f.name,s:.55,ey:60,spawnT:A.t+.3});
-      u.melee=axMelee(f);u.range=u.melee?26:120;u.pvp=1;u.max=u.hp=Math.round(u.hp*KMPV.hp);u.skT=[A.t+2.5+k,A.t+6+k*1.5];u.ultT=A.t+18+k*7;u.dgT=0;u.off=(k?1:-1)*30;return u})}]})}
+      u.melee=axMelee(f);u.range=u.melee?26:120;u.pvp=1;u.max=u.hp=Math.round(u.hp*KMPV.hp);u.pow*=KMPV.atk*(k?.85:1);u.skT=[A.t+2.5+k,A.t+6+k*1.5];u.ultT=A.t+18+k*7;u.dgT=0;u.off=(k?1:-1)*30;return u})}]})}
 /* 相手のCPU(強め): 当たった直後によける、技を2つと必殺を使う。ふつうの攻撃は敵と同じ動き */
 function kmPvpAI(u,dt){const A=AXB,t=A.t,T2=axTarget(u);if(!T2)return false;if(u.tel)return true;const dx=T2.x-u.x,dy=T2.y-u.y,d=Math.hypot(dx,dy*1.6);u.face=dx>0?1:-1;
-  if(u.hitT>t-.12&&t>u.dgT&&Math.random()<.4){u.dgT=t+3;u.inv=t+.45;const a=Math.atan2(dy,dx)+Math.PI+(Math.random()-.5)*1.6;u.dash={t,d:.28,vx:Math.cos(a)*420,vy:Math.sin(a)*300,ghost:1};axTxt('回避',u.x,u.y-u.ey*1.2,'#c9e4ff',9);return true}
+  if(u.hitT>t-.12&&t>u.dgT&&Math.random()<KMPV.dg){u.dgT=t+3;u.inv=t+.45;const a=Math.atan2(dy,dx)+Math.PI+(Math.random()-.5)*1.6;u.dash={t,d:.28,vx:Math.cos(a)*420,vy:Math.sin(a)*300,ghost:1};axTxt('回避',u.x,u.y-u.ey*1.2,'#c9e4ff',9);return true}
   const SK=AXSK2[tbRole(u.f)]||AXSK2.sword,W=(z,wu,msg)=>{u.tel=z;A.tel.push(z);u.pose='p6';u.poseT=t+wu;u.cd=Math.max(u.cd,1.1);axSay(msg);axAt(wu,()=>{u.tel=null})};
-  if(t>=u.ultT&&d<220){u.ultT=t+22;A.flash=Math.max(A.flash,.15);W({x:T2.x,y:T2.y,r:100,t0:t,t1:t+1.6,m:3.6,big:true,by:u},1.6,u.name+'の必殺! 赤い範囲から逃げて');return true}
+  if(t>=u.ultT&&d<220){u.ultT=t+22;A.flash=Math.max(A.flash,.15);W({x:T2.x,y:T2.y,r:100,t0:t,t1:t+1.6,m:KMPV.ult,big:true,by:u},1.6,u.name+'の必殺! 赤い範囲から逃げて');return true}
   for(let i=0;i<2;i++){const k=SK[i];if(!k||t<u.skT[i])continue;
     if(k.heal||k.buff){u.skT[i]=t+k.cd*2;if(k.heal&&u.hp<u.max*.75){const v=Math.round(u.max*.12);u.hp=Math.min(u.max,u.hp+v);A.nums.push({v:'+'+v,x:u.x,y:u.y-u.ey*1.1,t,col:'#a6ffb0'});A.fx.push({k:'wave',x:u.x,y:u.y,r:30,t,d:.4,col:'#a6ffb0'});axSay(u.name+'の'+k.n)}continue}
     const sh=k.sh||{k:'tgt',r:50},self=sh.k==='self',reach=self?sh.r:sh.k==='line'?sh.len*.8:sh.k==='tgt'?200:sh.r;if(d>reach+20)continue;
-    const R=sh.r||Math.max(44,(sh.w||30)*1.8),wu=i?1:.75;u.skT[i]=t+k.cd*1.8;W({x:self?u.x:T2.x,y:self?u.y:T2.y,r:R,t0:t,t1:t+wu,m:(k.m||1)*(k.hits||1)*.75,big:i===1,by:u},wu,u.name+'の'+k.n+'!');return true}
+    const R=sh.r||Math.max(44,(sh.w||30)*1.8),wu=i?1:.75;u.skT[i]=t+k.cd*KMPV.skcd;W({x:self?u.x:T2.x,y:self?u.y:T2.y,r:R,t0:t,t1:t+wu,m:(k.m||1)*(k.hits||1)*KMPV.sk,big:i===1,by:u},wu,u.name+'の'+k.n+'!');return true}
   return false}
 
 
