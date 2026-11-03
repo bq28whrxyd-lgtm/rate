@@ -5648,6 +5648,7 @@ function ax3FBUpd(t,dt){if(!A3.fbs)return;A3.fbs=A3.fbs.filter(p=>{const a=t-p.t
 function ax3CutBg(col){const key='cutbg'+col;if(A3.tex[key])return A3.tex[key];const T=A3.T,w=512,c=document.createElement('canvas');c.width=c.height=w;const g=c.getContext('2d');const C=new T.Color(col),h={};C.getHSL(h);
   const gr=g.createRadialGradient(w*.5,w*.42,0,w*.5,w*.42,w*.75);gr.addColorStop(0,'#fffbe6');gr.addColorStop(.25,'#'+new T.Color().setHSL(h.h,1,.72).getHexString());gr.addColorStop(.7,'#'+new T.Color().setHSL(h.h,1,.5).getHexString());gr.addColorStop(1,'#'+new T.Color().setHSL((h.h+.08)%1,.9,.32).getHexString());g.fillStyle=gr;g.fillRect(0,0,w,w);
   let s=91;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};g.fillStyle='rgba(255,255,255,.55)';for(let i=0;i<70;i++){const a=r()*Math.PI*2,da=.008+r()*.02;g.beginPath();g.moveTo(w*.5+Math.cos(a)*w*.16,w*.42+Math.sin(a)*w*.16);g.lineTo(w*.5+Math.cos(a-da)*w,w*.42+Math.sin(a-da)*w);g.lineTo(w*.5+Math.cos(a+da)*w,w*.42+Math.sin(a+da)*w);g.fill()}
+  /* (11/3) 漫画の点の模様(スクリーントーン): 外側ほど点が大きい */g.fillStyle='rgba(255,255,255,.22)';for(let y=0;y<w;y+=9)for(let x=(y/9%2)*4.5;x<w;x+=9){const d=Math.hypot(x-w*.5,y-w*.42)/(w*.7),rr=Math.max(0,d-.35)*4.2;if(rr>.3){g.beginPath();g.arc(x,y,Math.min(3.8,rr),0,7);g.fill()}}
   const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return A3.tex[key]=t}
 const AXCUTT=1.5;
 function ax3CutR(A){if(!A.cut||!A3.chr)return false;const n=performance.now(),v=(n-A.cut.t)/1000;if(v>AXCUTT-.22||v<0)return false;const R=A3.chr.map.get(A.cut.u);if(!R||!R.root)return false;const T=A3.T,S=A3.S;
@@ -5660,16 +5661,27 @@ const AXCUTW={sword:['この一撃で','決める…!!','ズバァッ'],warrior:
 /* カットインの2D部分: 上下の黒い帯(流れる線)、ギザギザのふち、ふきだし、擬音、最後の白フラッシュ */
 function ax3CutOv(O,A,W2,H2,PH,n){const v=(n-A.cut.t)/1000;if(v>AXCUTT||v<0)return;const u=A.cut.u,col=TRWC[u.f.wt]||'#ffb03a',L=AXCUTW[u.role]||['本気で','いくよ…!!','ドンッ'];
   const op=1-Math.pow(1-Math.min(1,v/.16),3),y1=PH*.17,y2=PH*1.04,sl=W2*.09,hx=-W2*.15+op*W2*1.3;
-  if(v<AXCUTT-.22){O.save();O.fillStyle='#0c0812';O.beginPath();O.rect(0,0,W2,H2);O.moveTo(-10,y1+sl);O.lineTo(hx,y1+sl-sl*2*(hx/W2));O.lineTo(hx,y2-sl*2*(hx/W2));O.lineTo(-10,y2);O.closePath();O.fill('evenodd');
-    O.globalAlpha=.35;O.fillStyle='#fff';for(let h=0;h<26;h++){const yy=(h*47)%H2,xx=((h*173-v*2600)%(W2+300)+W2+300)%(W2+300)-150;if(yy>y1-sl&&yy<y2+sl)continue;O.fillRect(xx,yy,60+(h*31)%120,h%3?1.5:3)}O.globalAlpha=1;
-    /* ギザギザのふち(白→色) */const zig=(ya,yb,dir)=>{O.beginPath();const N=Math.ceil(W2/18);for(let i=0;i<=N;i++){const x=i/N*W2;if(x>hx)break;const y=ya+(yb-ya)*(x/W2)+(i%2?dir*7:0);i?O.lineTo(x,y):O.moveTo(x,y)}O.stroke()};
-    O.lineJoin='miter';O.strokeStyle='#ffffff';O.lineWidth=7;zig(y1+sl,y1-sl,-1);zig(y2,y2-sl*2,1);O.strokeStyle=col;O.lineWidth=3;zig(y1+sl,y1-sl,-1);zig(y2,y2-sl*2,1);O.restore();
-    /* ふきだし */const bk=Math.max(0,Math.min(1,(v-.14)/.12)),bs=bk<1?.6+.55*bk-.15*Math.sin(bk*Math.PI):1;if(bk>0){const bx=W2*.5,by=y1+8,bw=Math.min(W2*.84,330),bh=86;O.save();O.translate(bx,by);O.scale(bs,bs);O.globalAlpha=Math.min(1,bk*2);
-      O.fillStyle='#fff';O.strokeStyle='#14070c';O.lineWidth=4;O.beginPath();O.ellipse(0,0,bw/2,bh/2,0,0,7);O.fill();O.stroke();O.beginPath();O.moveTo(-bw*.12,bh*.42);O.lineTo(-bw*.2,bh*.9);O.lineTo(-bw*.02,bh*.46);O.fill();O.stroke();O.fillStyle='#fff';O.beginPath();O.ellipse(0,0,bw/2-2,bh/2-2,0,0,7);O.fill();
+  if(v<AXCUTT-.22){
+    /* (11/3) 破った紙のふち: 形はカットインごとに1回だけ決める(毎コマ変えるとちらつく) */
+    if(!A.cut.tn){let sd=((A.cut.t*7)|0)%99991+11;const r=()=>{sd=(sd*16807)%2147483647;return sd/2147483647};const mk=()=>{const N=Math.ceil(W2/6)+4,a=[];let p=0;for(let i=0;i<N;i++){p=p*.5+(r()-.5)*1.1;a.push(p*11+(r()<.07?(r()-.25)*16:0))}return a};A.cut.tn=[mk(),mk(),mk(),mk()];
+      A.cut.bb=[];for(let i=0;i<26;i++)A.cut.bb.push(.86+r()*.1+(i%2?.24+r()*.16:0))}
+    const TN=A.cut.tn,yT=x=>y1+sl-2*sl*x/W2,yB=x=>y2-2*sl*x/W2;
+    const pts=(f,arr,dir)=>{const P=[];for(let i=0;;i++){const x=Math.min(i*6,hx);P.push([x,f(x)+dir*arr[Math.min(i,arr.length-1)]]);if(x>=hx||x>=W2)break}return P};
+    const PT=pts(yT,TN[0],1),PB=pts(yB,TN[1],1);
+    O.save();O.fillStyle='#0c0812';O.beginPath();O.rect(0,0,W2,H2);O.moveTo(-10,PT[0][1]);for(const q of PT)O.lineTo(q[0],q[1]);for(let k=PB.length-1;k>=0;k--)O.lineTo(PB[k][0],PB[k][1]);O.lineTo(-10,PB[0][1]);O.closePath();O.fill('evenodd');
+    O.globalAlpha=.35;O.fillStyle='#fff';for(let h=0;h<26;h++){const yy=(h*47)%H2,xx=((h*173-v*2600)%(W2+300)+W2+300)%(W2+300)-150;if(yy>y1-sl-12&&yy<y2+sl+12)continue;O.fillRect(xx,yy,60+(h*31)%120,h%3?1.5:3)}O.globalAlpha=1;
+    /* 紙の白いふち(内側へ不ぞろいな幅)と外側の影 */const strip=(P,arr,dir)=>{O.strokeStyle='rgba(0,0,0,.55)';O.lineWidth=5;O.beginPath();P.forEach((q,k)=>k?O.lineTo(q[0],q[1]-dir*2):O.moveTo(q[0],q[1]-dir*2));O.stroke();
+      O.fillStyle='#fffaf0';O.beginPath();P.forEach((q,k)=>k?O.lineTo(q[0],q[1]):O.moveTo(q[0],q[1]));for(let k=P.length-1;k>=0;k--){const wv=3.5+Math.abs(arr[k%arr.length])*.45;O.lineTo(P[k][0],P[k][1]+dir*wv)}O.closePath();O.fill();
+      O.strokeStyle=col;O.globalAlpha=.75;O.lineWidth=1.6;O.beginPath();for(let k=0;k<P.length;k++){const wv=3.5+Math.abs(arr[k%arr.length])*.45;k?O.lineTo(P[k][0],P[k][1]+dir*wv):O.moveTo(P[k][0],P[k][1]+dir*wv)}O.stroke();O.globalAlpha=1};
+    strip(PT,TN[2],1);strip(PB,TN[3],-1);O.restore();
+    /* 叫びのふきだし: トゲトゲの形でポンと出る */const bk=Math.max(0,Math.min(1,(v-.14)/.12)),bs=bk<1?.6+.55*bk-.15*Math.sin(bk*Math.PI):1;if(bk>0){const bx=W2*.5,by=y1+10,bw=Math.min(W2*.86,340),bh=92,BB=A.cut.bb;O.save();O.translate(bx,by);O.rotate(-.04);O.scale(bs,bs);O.globalAlpha=Math.min(1,bk*2);
+      const shout=()=>{O.beginPath();for(let k=0;k<BB.length;k++){const a=k/BB.length*Math.PI*2,rr=BB[k];const px=Math.cos(a)*bw/2*rr,py=Math.sin(a)*bh/2*rr;k?O.lineTo(px,py):O.moveTo(px,py)}O.closePath()};
+      O.fillStyle='#fff';O.strokeStyle='#14070c';O.lineWidth=4.5;O.lineJoin='miter';shout();O.fill();O.stroke();shout();O.fill();
       O.textAlign='center';O.textBaseline='middle';O.fillStyle='#14070c';const nm=A.cut.nm;O.font='900 13px "Hiragino Sans","Noto Sans JP",sans-serif';O.fillText(L[0]+(L[1]?' '+L[1]:''),0,-bh*.2);const fs=Math.min(26,(bw-40)/Math.max(3,nm.length+3));O.font='900 '+fs+'px "Hiragino Sans","Noto Sans JP",sans-serif';O.fillText('「'+nm+'」!!',0,bh*.14);O.restore()}
-    /* 擬音: 1文字ずつ大きく打ち込む */const sw=L[2],fs2=Math.min(64,W2*.8/sw.length*1.15);O.save();O.font='900 '+fs2+'px "Hiragino Sans","Noto Sans JP",sans-serif';O.textBaseline='alphabetic';O.textAlign='left';O.lineJoin='round';
-    let x=W2*.06;for(let i=0;i<sw.length;i++){const kk=Math.max(0,Math.min(1,(v-.3-i*.05)/.08));if(kk<=0)break;const ch=sw[i],cw=O.measureText(ch).width*(i?.82:1.05),sc=(i?1:1.35)*(1+(1-kk)*1.2),jx=(Math.random()-.5)*2.5,jy=(Math.random()-.5)*2.5;
-      O.save();O.translate(x+cw/2+jx,y2-sl*2*(x/W2)-14+jy+(i?0:-6));O.rotate(-.12);O.scale(sc,sc);O.globalAlpha=kk;O.lineWidth=fs2*.22;O.strokeStyle='#fff';O.strokeText(ch,-cw/2,0);O.fillStyle='#14070c';O.fillText(ch,-cw/2,0);O.restore();x+=cw}O.restore()}
+    /* 擬音+「!!」: 1文字ずつ押しつけるように打ち込み、打つたびに画面が小さく揺れる */const sw=L[2].replace(/[!！]+$/,'')+'!!',fs2=Math.min(70,W2*.86/sw.length*1.2);O.save();O.font='900 '+fs2+'px "Hiragino Sans","Noto Sans JP",sans-serif';O.textBaseline='alphabetic';O.textAlign='left';O.lineJoin='round';
+    let x=W2*.05,shk=0;for(let i=0;i<sw.length;i++){const t0=.3+i*.05,kk=Math.max(0,Math.min(1,(v-t0)/.07));if(kk<=0)break;if(v-t0<.1)shk=Math.max(shk,1-(v-t0)/.1);const ch=sw[i],big=i===0,ex=ch==='!',cw=O.measureText(ch).width*(big?1.25:ex?.5:.82),sc=(big?1.6:ex?1.1:1)*(1+(1-kk)*1.4);
+      O.save();O.translate(x+cw/2,yB(x)-16+(big?-10:0));O.rotate(-.14+(ex?.12:0));O.scale(sc,sc);O.globalAlpha=kk;O.lineWidth=fs2*.3;O.strokeStyle='#14070c';const hw=O.measureText(ch).width/2;O.strokeText(ch,-hw,0);O.lineWidth=fs2*.16;O.strokeStyle='#ffffff';O.strokeText(ch,-hw,0);O.fillStyle=big?col:'#14070c';O.fillText(ch,-hw,0);O.restore();x+=cw}O.restore();
+    if(shk>0){const c=O.canvas&&O.canvas.parentElement;if(c&&c.style){const d=shk*5;c.style.transform='translate('+((Math.random()-.5)*d).toFixed(1)+'px,'+((Math.random()-.5)*d).toFixed(1)+'px)'}}else{const c=O.canvas&&O.canvas.parentElement;if(c&&c.style&&c.style.transform)c.style.transform=''}}
   /* 終わり: 白く光って戦いに戻る */const fv=v-(AXCUTT-.24);if(fv>-.04){O.save();O.globalAlpha=Math.max(0,Math.min(1,fv<0?1+fv/.04:1-fv/.24));O.fillStyle='#fff';O.fillRect(0,0,W2,H2);O.restore()}}
 /* ---------- GR以上のキャラだけの飾り(3Dの小物)といつも出ているオーラ ---------- */
 const AXDECO={
