@@ -7239,8 +7239,8 @@ const KMC=[];Object.keys(KMC_DEF).forEach(ch=>KMC_DEF[ch].forEach((d,i)=>KMC.pus
 const KMCBY={};KMC.forEach(c=>KMCBY[c.id]=c);
 const KMC_STAR={3:1,4:1.25,5:1.6,6:1.95,7:2.4},KMC_LVMAX={3:40,4:60,5:80,6:100,7:120},KMC_TCOL=['','青','銅','銀','金','虹'],KMC_TC=['','#5aa8ff','#c88a4a','#d8dde8','#ffd34a','#ff8ad8'];
 const KMC_KN={u:'必殺',s:'技',n:'ふつう'};
-function kmcLoad(){let o=null;try{o=JSON.parse(localStorage.getItem('kmCards')||'null')}catch(e){}o=o&&typeof o==='object'?o:{};o.o=o.o||{};o.eq=o.eq||{};return o}
-function kmcSave(o){try{localStorage.setItem('kmCards',JSON.stringify(o))}catch(e){}}
+function kmcLoad(){let o=null;try{if(typeof S!=='undefined'&&S&&S.kc&&S.kc.o)o=JSON.parse(JSON.stringify(S.kc));else o=JSON.parse(localStorage.getItem('kmCards')||'null')}catch(e){}o=o&&typeof o==='object'?o:{};o.o=o.o||{};o.eq=o.eq||{};return o}
+function kmcSave(o){try{localStorage.setItem('kmCards',JSON.stringify(o))}catch(e){}try{if(typeof S!=='undefined'&&S){S.kc=JSON.parse(JSON.stringify({o:o.o,eq:o.eq}));save()}}catch(e){}}
 /* the char's ★ (仮: 今のキャラの重ね枚数。かけらができたらそちらに) → 4〜8枠 */
 function kmcStarOf(ch){if(ch==='me')return 1;try{const c=tcLoad().own[ch];return c?Math.max(1,Math.min(7,c.n||1)):0}catch(e){return 0}}
 function kmcSlots(ch){if(ch==='me')return 4;const s=kmcStarOf(ch);return s?Math.min(8,3+s):0}
@@ -7318,6 +7318,71 @@ function kmcGiveAll(){const E=kmcLoad();KMC.forEach((c,i)=>{if(!E.o[c.id])E.o[c.
 #kmapp .kmce.lock{font-size:11px;opacity:.6}
 #kmapp .kmcp{display:grid;justify-items:center;gap:8px}#kmapp .kmctab{flex-wrap:wrap}
 #kmapp .kcards i.on{box-shadow:inset 0 0 0 1.5px #ffe27a}#kmapp .kcards i.lk{opacity:.35}`;document.head.append(css)})();
+/* ---------- 推しカードガチャ (11/3 ユーザー決定) ----------
+   ★5(必殺) 3%・★4(技とふつう★4) 22%・★3(ふつう★3) 75%。1回100pt、10連は 500→700→900pt をくり返し、3段目の10連は必殺1枚以上。
+   引いた回数が100回たまると好きな必殺1枚と交換(交換すると100回減る)。初めて出たカードは技の色が銀、重なるたびに1段上(虹まで)。
+   虹のあとに出たカードはptで返す(★3 10・★4 25・★5 60)。アカウントへの保存とptはアプリの BUN_KC(ルールを出してから true) */
+const KMCG={p1:100,step:[500,700,900],ex:100,rf:{3:10,4:25,5:60}};
+const kmcLive=()=>{try{return !!(HOST&&HOST.kcLive&&HOST.kcLive())}catch(e){return false}};
+const kmcStep=()=>(+S.k10||0)%3;
+const kmcCount=()=>(+S.k1||0)+(+S.k10||0)*10-(+S.kx||0)*KMCG.ex;
+function kmcRoll(){const r=Math.random()*100;return r<3?5:r<25?4:3}
+function kmcGet(E,cid){const c=KMCBY[cid],o=E.o[cid],r={cid,star:c.star0,nw:!o,rf:0,tl0:o?o.tl||1:0};
+  if(!o){E.o[cid]={n:1,lv:1,star:c.star0,tl:3,xp:0};r.tl=3}
+  else if((o.tl||1)<5){o.n=(o.n||1)+1;o.tl=Math.min(5,Math.max((o.tl||1)+1,3));r.tl=o.tl}
+  else{r.rf=KMCG.rf[c.star0]||10;S.krf=(+S.krf||0)+r.rf;r.tl=5}return r}
+function kmcPull(n){const step=kmcStep(),cost=n===10?KMCG.step[step]:KMCG.p1;if(kmcLive()&&kmPts()<cost){toastB('ポイントが足りません('+cost+'pt 必要)');return}
+  const E=kmcLoad(),got=[];for(let i=0;i<n;i++){let st=kmcRoll();if(n===10&&step===2&&i===n-1&&!got.some(g=>g.star===5))st=5;const L=KMC.filter(c=>c.star0===st);got.push(kmcGet(E,L[Math.floor(Math.random()*L.length)].id))}
+  if(n===10)S.k10=(+S.k10||0)+1;else S.k1=(+S.k1||0)+1;kmcSave(E);kmcShow(got,n===10&&step===2?'必殺確定':'')}
+function kmcExchange(cid){const c=KMCBY[cid];if(!c||c.k!=='u'||kmcCount()<KMCG.ex)return;const E=kmcLoad();const g=kmcGet(E,cid);S.kx=(+S.kx||0)+1;kmcSave(E);document.querySelector('#kmapp .kpop')?.remove();kmcShow([g],'交換')}
+function kmcExPick(){const d=kmEl('div');d.append(kmEl('p','ktx ko','引いた回数 '+kmcCount()+' / '+KMCG.ex+'。好きな必殺を1枚もらえます(100回分を使います)。'));const g=kmEl('div','kmcg');
+  KMC.filter(c=>c.k==='u').forEach(c=>{const t=kmB('kmcb',null,()=>kmcExchange(c.id));t.append(kmcFace(c.id));g.append(t)});d.append(g);kmPop('必殺と交換',d)}
+/* the reveal: cards turn over one after another (★5 last with a gold burst). Tap once to show all, again to close */
+function kmcShow(got,tag){const host=document.getElementById('kmapp')||document.body;host.querySelector('.kmcgo')?.remove();
+  const o=kmEl('div','kmcgo'+(got.length>1?'':' one'));const H=kmEl('div','kmcgh ko',(tag?'<em>'+tag+'</em>':'')+'推しカード '+(got.length===10?'10連':got.length+'枚'));o.append(H);
+  const ord=got.map((g,i)=>i).sort((a,b)=>(got[a].star===5)-(got[b].star===5));const G=kmEl('div','kmcgg');let rf=0;
+  ord.forEach((i,k)=>{const g=got[i];rf+=g.rf;const w=kmEl('div','kmcgc s'+g.star);w.style.animationDelay=(0.15+k*0.12+(g.star===5?0.35:0)).toFixed(2)+'s';if(g.star===5){const fx=kmEl('i','kmcgb');fx.style.animationDelay=w.style.animationDelay;w.append(fx)}
+    w.append(kmcFace(g.cid));const c=KMCBY[g.cid];
+    w.append(kmEl('span','kmcgl ko',g.nw?'NEW':g.rf?'+'+g.rf+'pt':c.k!=='n'?'技の色 '+KMC_TCOL[g.tl]:'×'+((kmcLoad().o[g.cid]||{}).n||1)));G.append(w)});o.append(G);
+  o.append(kmEl('div','kmcgf ko',(rf?'虹のカードが重なった分 +'+rf+'pt。':'')+'画面を押すと全部めくれます'));
+  let all=false;o.onclick=()=>{if(!all){all=true;o.classList.add('all');o.querySelector('.kmcgf').textContent=(rf?'+'+rf+'pt。':'')+'もう一度押すと閉じます';return}o.remove();if(KM.scr==='gachad')kmGo('gachad','kc')};
+  host.append(o);setTimeout(()=>{all=true;o.classList.add('all');const f=o.querySelector('.kmcgf');if(f)f.textContent=(rf?'+'+rf+'pt。':'')+'押すと閉じます'},(0.6+got.length*0.12+0.6)*1000)}
+/* the gacha list gets a third tab and the detail screen its own page */
+(function(){if(typeof KMGA==='undefined')return;KMGA.push({k:'kc',tab:'kc',t:'推しカードガチャ',s:'ステップアップ 3段目は必殺確定',d:'推しカードが出るガチャ。10連は 500→700→900pt をくり返し、3段目で必殺が1枚以上。100回引くと好きな必殺1枚と交換。'});
+  const _g=KMS.gacha;KMS.gacha=function(v,tab){if(tab!=='kc'){_g.apply(this,arguments);const T=v.querySelector('.ktabs');if(T)T.append(kmB('ktab','推しカード',()=>kmGo('gacha','kc')));return}
+    _g.call(this,v,'kc');const T=v.querySelector('.ktabs');if(T){T.querySelectorAll('.ktab').forEach(b=>b.classList.remove('on'));T.append(kmB('ktab on','推しカード',()=>kmGo('gacha','kc')))}
+    const bn=v.querySelector('.kban');if(bn){bn.style.background='linear-gradient(160deg,#3a1a06,#c8781e 55%,#ffe27a)';const em=bn.querySelector('.per em');if(em)em.textContent='10連 '+KMCG.step[kmcStep()]+'pt';const A=bn.querySelector('.art');if(A){A.replaceChildren();A.style.display='flex';A.style.gap='4px';A.style.alignItems='flex-end';A.style.paddingBottom='26px';['jin_1','seira_1'].forEach(id=>{if(KMCBY[id])A.append(kmcFace(id,50))})}}};
+  const _d=KMS.gachad;KMS.gachad=function(v,k){if(k!=='kc')return _d.apply(this,arguments);const g=KMGA.find(x=>x.k==='kc'),b=kmFrame(v,g.t),st=kmcStep(),live=kmcLive();
+    const D=kmEl('div','kgdet','<span class="s">'+g.s+'</span><span class="t ko">'+g.t+'</span>');D.style.background='radial-gradient(circle at 50% 38%,#fff6d0,transparent 42%),repeating-conic-gradient(from 0deg at 50% 40%,#ffffff22 0 8deg,transparent 8deg 20deg),linear-gradient(160deg,#3a1a06,#c8781e 55%,#ffe27a)';
+    const R=kmEl('div','kmcgr');['miyabi_1','jin_1','seira_1'].forEach(id=>{if(KMCBY[id])R.append(kmcFace(id,74))});D.append(R);b.append(D);
+    const S3=kmEl('div','kmcst');KMCG.step.forEach((p,i)=>S3.append(kmEl('div','kmcs1'+(i===st?' on':'')+(i<st?' done':''),'<small class="ko">'+(i+1)+'段目</small><b class="ko">'+p+'pt</b>'+(i===2?'<em>必殺確定</em>':''))));b.append(S3);
+    const n=kmcCount();const P=kmEl('div','kinfo ko','<p class="ktx">交換まで: 引いた回数 <b>'+n+'</b> / '+KMCG.ex+'</p><div class="kmcpb"><i style="width:'+Math.min(100,n)+'%"></i></div>');if(n>=KMCG.ex)P.append(kmB('kbtn gd','必殺と交換する',()=>kmcExPick()));b.append(P);
+    const C=kmEl('div','kcost');C.style.marginTop='10px';C.append(kmEl('div','own ko',live?'所持 <b>'+kmPts().toLocaleString()+'pt</b>':'お試し版: ptは減りません'));const bb=kmEl('div','bb');
+    bb.append(kmB('kbtn gd','1回引く<small>'+KMCG.p1+'pt</small>',()=>{try{kmcPull(1)}catch(e){console.error(e)}}),kmB('kbtn','<span class="ko">10連('+(st+1)+'段目)</span><small class="ko">'+KMCG.step[st]+'pt</small>',()=>{try{kmcPull(10)}catch(e){console.error(e)}}));C.append(bb);b.append(C);
+    kmFoot(v,[kmBack('gacha','kc'),['出る確率',()=>kmRatePop('kc'),'']])};
+  const _r=kmRatePop;kmRatePop=function(k){if(k!=='kc')return _r.apply(this,arguments);const rows=[['★5 必殺(12種)','3%'],['★4 技・ふつう(24種)','22%'],['★3 ふつう(12種)','75%']];
+    kmPop('出る確率','<table class="krate">'+rows.map(r=>'<tr><td class="ko">'+r[0]+'</td><td class="ko">'+r[1]+'</td></tr>').join('')+'</table><p class="ktx ko" style="margin-top:8px">10連は 500→700→900pt をくり返します。3段目の10連は必殺が1枚以上必ず出ます。1回引きは段が進みません。</p><p class="ktx ko">初めて出たカードは技の色が銀。同じカードが出るたびに 金→虹 と上がります。虹のあとに出たカードはptで返します(★3 10pt・★4 25pt・★5 60pt)。</p><p class="ktx ko">1回引きも10連も、引いた回数が100回たまると好きな必殺1枚と交換できます。</p>')}})();
+(function(){const css=document.createElement('style');css.textContent=`
+#kmapp .kban .art .kmcf .kmcn{font:900 6px/1.1 KMRound,sans-serif}#kmapp .kban .art .kmcf .kmcs,#kmapp .kban .art .kmcf .kmck{font-size:6px}#kmapp .kban .art .kmcf .kmct{display:none}
+#kmapp .kmcgr{position:absolute;left:0;right:0;top:34%;display:flex;justify-content:center;gap:8px}
+#kmapp .kmcst{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0 4px}
+#kmapp .kmcs1{position:relative;display:grid;justify-items:center;gap:2px;padding:8px 4px;border-radius:8px;background:#1e0f06c8;box-shadow:inset 0 0 0 2px #6a4a2a;color:#e8d4b4}
+#kmapp .kmcs1 small{font:800 10px KMRound,sans-serif}#kmapp .kmcs1 b{font:900 15px KMRound,sans-serif}#kmapp .kmcs1 em{font:900 9px KMRound,sans-serif;font-style:normal;color:#1a1006;background:#ffe27a;border-radius:4px;padding:1px 4px}
+#kmapp .kmcs1.on{background:linear-gradient(180deg,#7a4a12,#3a1e06);box-shadow:inset 0 0 0 2px #ffe27a,0 0 10px #ffd34a88;color:#fff}#kmapp .kmcs1.done{opacity:.5}
+#kmapp .kmcpb{height:8px;border-radius:4px;background:#0006;overflow:hidden;margin-top:4px}#kmapp .kmcpb i{display:block;height:100%;background:linear-gradient(90deg,#c88a4a,#ffe27a)}
+.kmcgo{position:fixed;inset:0;z-index:80;display:grid;align-content:center;justify-items:center;gap:14px;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px calc(env(safe-area-inset-bottom,0px) + 12px);background:radial-gradient(circle at 50% 42%,#4a2a0a,#0c0604 70%);animation:kmcgo .25s ease-out both}
+@keyframes kmcgo{from{opacity:0}}
+.kmcgh{font:900 18px KMRound,sans-serif;color:#ffe27a;text-shadow:0 2px 0 #000}.kmcgh em{font-style:normal;margin-right:8px;padding:2px 8px;border-radius:6px;color:#1a1006;background:#ffe27a;font-size:13px}
+.kmcgg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:min(100%,520px)}.kmcgo.one .kmcgg{grid-template-columns:1fr;width:160px}
+.kmcgc{position:relative;display:grid;gap:4px;justify-items:center;opacity:0;transform:perspective(500px) rotateY(90deg) scale(.7);animation:kmcgc .32s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes kmcgc{to{opacity:1;transform:none}}
+.kmcgc.s5 .kmcf{box-shadow:inset 0 0 0 2px #fff6c0,0 0 14px #ffd34a,0 0 28px #ff9a2a88}
+.kmcgb{position:absolute;left:50%;top:40%;width:220%;aspect-ratio:1;margin:-110% 0 0 -110%;border-radius:50%;background:radial-gradient(circle,#fff6d0cc,#ffd34a55 35%,transparent 65%);pointer-events:none;opacity:0;transform:scale(.2);animation:kmcgb .7s ease-out both}
+@keyframes kmcgb{30%{opacity:1}to{opacity:0;transform:scale(1.1)}}
+.kmcgl{font:900 9px KMRound,sans-serif;color:#fff;white-space:nowrap}.kmcgc.s5 .kmcgl{color:#ffe27a}
+.kmcgf{font:800 11px KMRound,sans-serif;color:#e8d4b4cc}
+.kmcgo.all .kmcgc,.kmcgo.all .kmcgb{animation-delay:0s!important;animation-duration:.01s!important}
+@media (prefers-reduced-motion:reduce){.kmcgc,.kmcgb{animation-duration:.01s!important;animation-delay:0s!important}}`;document.head.append(css)})();
 
 
 
