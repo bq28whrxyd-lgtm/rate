@@ -4683,8 +4683,8 @@ const AWW=420,AWH=470,AXCX=210,AXCY=318,AXRX=135,AXRY=108;/* 世界の大きさ�
 const AXY0=AXCY-AXRY,AXY1=AXCY+AXRY,AXSQ=.42;
 const axDepth=y=>.94+.12*clamp((y-AXY0)/(AXY1-AXY0),0,1);
 const axMelee=f=>!['bow','staff','penlight'].includes(f.wt);
-const AXCLS=ro=>ro==='knight'||ro==='guard'?'tank':ro==='hunter'||ro==='mage'?'snipe':ro==='priest'||ro==='cheer'?'sup':'atk';
-const AXHOLD={tank:['守る','長押しのあいだ、受けるダメージ6割減'],atk:['ため斬り','長押しして離すと、まわりをまとめて強く斬る'],snipe:['集中','1秒長押しで5秒間、会心が出やすい'],sup:['SPチャージ','長押しのあいだ、SPが早くたまる']};
+const AXCLS=ro=>ro==='knight'||ro==='guard'?'tank':ro==='hunter'||ro==='mage'?'snipe':ro==='priest'?'sup':ro==='cheer'?'cdr':ro==='lancer'||ro==='monk'?'raid':'atk';
+const AXHOLD={tank:['守る','長押しのあいだ、受けるダメージ6割減'],atk:['ため斬り','長押しして離すと、まわりをまとめて強く斬る'],snipe:['集中','1秒長押しで5秒間、会心が出やすい'],sup:['SPチャージ','長押しのあいだ、SPが早くたまる'],raid:['急襲','長押しして離すと、ねらった敵(いなければ近い敵)へ一気に飛びこんで一撃'],cdr:['精神統一','長押しのあいだ、技と必殺の待ち時間が早くへる']};
 /* 技: sh=形(self まわり / fan 前の扇 / line 前の直線 / tgt ねらった所)。fx=見た目 */
 const AXSK2={
   sword:[{n:'回転斬り',sp:20,cd:2,sh:{k:'self',r:58},m:1.5,kb:70,fx:'spinblade'},{n:'突進斬り',sp:35,cd:5,sh:{k:'line',len:140,w:34},m:2.4,dash:1,kb:50,shield:2,fx:'dashcut'}],
@@ -4743,24 +4743,30 @@ function axQuit(){if(typeof ax3Dispose==='function')ax3Dispose();AXB=null;const 
 function axW(e){if(typeof A3!=='undefined'&&A3){const T=A3.T,rc=new T.Raycaster(),p=new T.Vector2(e.clientX/A3.w*2-1,-(e.clientY/A3.h)*2+1);rc.setFromCamera(p,A3.cam);const d=rc.ray.direction,o=rc.ray.origin;if(d.y>=0)return [AXB.me.x,AXB.me.y];const k=-o.y/d.y,X=o.x+d.x*k,Z=o.z+d.z*k;return [X/AXM+AXCX,Z*AXSQ/AXM+AXCY]}const c=AXB.cam,r=cv.getBoundingClientRect();return [c.x+(e.clientX-r.left)/c.Z,c.y+(e.clientY-r.top)/c.Z]}
 function axPick(e,x,y){const A=AXB;if(typeof A3!=='undefined'&&A3){let best=null,bd=1e9;for(const u of A.E){if(!axLive(u)||u.spawnT>A.t)continue;const [fx,fy]=ax3P(u.x,u.y,0),[hx,hy]=ax3P(u.x,u.y,u.ey*AXM*1.2),w=Math.max(26,(fy-hy)*.45);if(e.clientX>fx-w&&e.clientX<fx+w&&e.clientY>hy&&e.clientY<fy+10){const d=Math.abs(e.clientX-fx);if(d<bd){bd=d;best=u}}}return best}return A.E.filter(axLive).find(u=>Math.abs(u.x-x)<(u.mon?22:16)&&y>u.y-u.ey*1.2&&y<u.y+10)}
 function axBind(){const cv=$('stage');if(cv._ax)return;cv._ax=1;addEventListener('resize',()=>{if(AXB)axFit()});
-  cv.addEventListener('pointerdown',e=>{if(!AXB||AXB.over||AXB.trans)return;const [x,y]=axW(e);AXB.press={x,y,sx:e.clientX,sy:e.clientY,t:performance.now(),at:AXB.t,hold:false};cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);e.preventDefault()});
-  cv.addEventListener('pointermove',e=>{if(!AXB||!AXB.press)return;AXB.press.cx=e.clientX;AXB.press.cy=e.clientY});
+  cv.addEventListener('pointerdown',e=>{if(!AXB||AXB.over||AXB.trans)return;const [x,y]=axW(e);AXB.press={x,y,sx:e.clientX,sy:e.clientY,t:performance.now(),at:AXB.t,hold:false};cv.setPointerCapture&&cv.setPointerCapture(e.pointerId);e.preventDefault();
+    /* (11/3 サウスト寄せ) 指を置いた瞬間に動き出す。敵の上なら、その敵をねらう */const me=AXB.me;if(!me||me.dead)return;const E=axPick(e,x,y);
+    if(E){AXB.lock=E;AXB.press.lk=1;me.tx=null;me.manual=0;axTxt('ねらう',E.x,E.y-E.ey*1.3,'#ffe066',8);if(typeof SFX!=='undefined'&&SFX.tap)SFX.tap();return}
+    const q=axClamp(x,y);me.tx=q[0];me.ty=q[1];me.manual=AXB.t+9;me.stay=0;AXB.mk={x:me.tx,y:me.ty,t:AXB.t};if(typeof SFX!=='undefined'&&SFX.tap)SFX.tap()});
+  cv.addEventListener('pointermove',e=>{if(!AXB||!AXB.press)return;const p=AXB.press;p.cx=e.clientX;p.cy=e.clientY;
+    /* 置いたまま指を動かすと、キャラがついてくる(はらう速さのときはついていかない) */if(p.hold||p.lk)return;const d=Math.hypot(e.clientX-p.sx,e.clientY-p.sy),el=performance.now()-p.t;if(d>14&&el>140){p.drag=1;const me=AXB.me;if(me&&!me.dead){const [x,y]=axW(e),q=axClamp(x,y);me.tx=q[0];me.ty=q[1];me.manual=AXB.t+9;me.stay=0}}});
   cv.addEventListener('pointerup',e=>{if(!AXB||!AXB.press)return;const p=AXB.press;AXB.press=null;const [x,y]=axW(e),dt=performance.now()-p.t,dx=e.clientX-p.sx,dy=e.clientY-p.sy,d=Math.hypot(dx,dy);const me=AXB.me;if(!me||me.dead||AXB.trans)return;
     if(p.hold){axHoldEnd(me,(performance.now()-p.t)/1000);return}
-    if(d>24&&dt<320){axDash(me,dx/d,dy/d);return}
-    /* 敵をタップ = ねらう */const E=axPick(e,x,y);
-    if(E){AXB.lock=E;me.tx=null;me.manual=0;axTxt('ねらう',E.x,E.y-E.ey*1.3,'#ffe066',8);if(typeof SFX!=='undefined'&&SFX.tap)SFX.tap();return}
-    const q=axClamp(x,y);me.tx=q[0];me.ty=q[1];me.manual=AXB.t+1.4;AXB.mk={x:me.tx,y:me.ty,t:AXB.t};if(typeof SFX!=='undefined'&&SFX.tap)SFX.tap()});
+    /* はらう=回避: すばやく(250ミリ秒以内に40ピクセル以上)はらったときだけ。向きは画面で指を動かした向き(地面の上の向きに直す) */if(!p.drag&&d>40&&dt<250){const wx=(x-p.x)*AXM,wz=(y-p.y)*AXM/AXSQ,wl=Math.hypot(wx,wz)||1;axDashW(me,wx/wl,wz/wl);return}
+    if(p.lk)return;const q=axClamp(x,y);if(p.drag){me.tx=q[0];me.ty=q[1]}me.manual=AXB.t+9;AXB.mk={x:me.tx!=null?me.tx:q[0],y:me.ty!=null?me.ty:q[1],t:AXB.t}});
   cv.addEventListener('pointercancel',()=>{if(AXB)AXB.press=null})}
 function axClamp(x,y,k){k=k||1;const dx=(x-AXCX)/(AXRX*k),dy=(y-AXCY)/(AXRY*k),d=Math.hypot(dx,dy);if(d<=1)return [x,y];return [AXCX+dx/d*AXRX*k,AXCY+dy/d*AXRY*k]}
-function axDash(u,nx,ny){if(u.dead||u.brk>AXB.t)return;axAnim(u,'dash');u.dash={vx:nx*330,vy:ny*200,t:AXB.t,d:.22,ghost:1};u.inv=AXB.t+.38;u.tx=null;u.manual=AXB.t+.6;if(typeof SFX!=='undefined'&&SFX.swish)SFX.swish();axDust(u.x,u.y,6);
+/* 地面の上の向き(wx,wz)で回避 */function axDashW(u,wx,wz){axDash(u,wx,wz*AXSQ*1.4,1)}
+function axDash(u,nx,ny,raw){if(u.dead||u.brk>AXB.t)return;axAnim(u,'dash');u.dash=raw?{vx:nx*330,vy:ny*330,t:AXB.t,d:.22,ghost:1}:{vx:nx*330,vy:ny*200,t:AXB.t,d:.22,ghost:1};u.inv=AXB.t+.38;u.tx=null;u.manual=AXB.t+.6;if(typeof SFX!=='undefined'&&SFX.swish)SFX.swish();axDust(u.x,u.y,6);
   const near=AXB.tel.find(z=>z.t1-AXB.t<.3&&z.t1>AXB.t&&axIn(z,u));if(near){AXB.slow=AXB.t+.6;AXB.rush=Math.min(200,AXB.rush+15);AXB.sp=Math.min(100,AXB.sp+20);axTxt('ジャスト回避!',u.x,u.y-70,'#9fe8ff',12);AXB.fx.push({k:'wave',x:u.x,y:u.y,r:40,t:AXB.t,d:.4,col:'#9fe8ff'})}}
 /* 長押し(役職ごと) */
-function axHoldEnd(u,k){const c=AXCLS(u.role);if(c==='atk'&&k>=.45)axAnim(u,'spin');u.holding=null;
+function axHoldEnd(u,k){const c=AXCLS(u.role);if(c==='raid'){u.holding=null;if(k<.35)return;const A=AXB,L=A.lock&&axLive(A.lock)?A.lock:A.E.filter(e=>axLive(e)&&e.spawnT<=A.t).sort((a,b)=>Math.hypot(a.x-u.x,a.y-u.y)-Math.hypot(b.x-u.x,b.y-u.y))[0];if(!L||Math.hypot(L.x-u.x,(L.y-u.y)/AXSQ)>420)return;
+    /* 急襲: 残像を残して敵の前へ一気に移動し、強い一撃 */const fx0=u.x,fy0=u.y,sd=L.x>=u.x?1:-1;u.x=L.x-sd*(L.mon?26:18);u.y=L.y;u.face=sd;u.tx=null;u.inv=A.t+.4;axAnim(u,'dash');A.fx.push({k:'wave',x:fx0,y:fy0,r:28,t:A.t,d:.3,col:'#9fe8ff'});axDust(u.x,u.y,6);axHit(u,L,1.6,{});if(axLive(L))axKb(L,u,60);A.stop=Math.max(A.stop,.08);axTxt('急襲!',u.x,u.y-74,'#9fe8ff',12);return}if(c==='atk'&&k>=.45)axAnim(u,'spin');u.holding=null;
   if(c==='atk'&&k>=.45){const kk=Math.min(1.5,k),r=54+kk*24;u.pose='p6';u.poseT=AXB.t+.35;axFx('spinblade',u,{k:'self',r,x:u.x,y:u.y,ang:0},TRWC[u.f.wt]||'#ffe066');axArea2(u,{k:'self',r,x:u.x,y:u.y},1.3+kk*1.3,{kb:100,shield:kk>1.1?2:1,big:kk>1});axTxt('ため斬り'+(kk>1.1?'MAX':''),u.x,u.y-74,'#ffe066',11)}}
 function axHoldTick(u,dt,hold){const c=AXCLS(u.role),t=AXB.t,A=AXB;
   if(c==='tank'){u.buff.taunt=t+.3;u.buff.hold=t+.15;u.holding='tank'}
   else if(c==='sup'){A.sp=Math.min(100,A.sp+40*dt);u.holding='sup';if(Math.random()<dt*20)axPt(u.x+(Math.random()-.5)*24,u.y,0,0,0,40+Math.random()*30,'#a6ffb0','spark',.5)}
+  else if(c==='cdr'){u.holding='cdr';u.cdSk[0]-=dt*1.5;u.cdSk[1]-=dt*1.5;u.cdU-=dt*1.5;if(Math.random()<dt*18)axPt(u.x+(Math.random()-.5)*24,u.y,0,0,0,40+Math.random()*30,'#ffb0e8','spark',.5)}
+  else if(c==='raid'){u.holding='raid';if(Math.random()<dt*16)axPt(u.x+(Math.random()-.5)*20,u.y,0,0,0,30+Math.random()*30,'#9fe8ff','spark',.4)}
   else if(c==='snipe'){if(u.hitT>A.press.at){axTxt('集中がとぎれた',u.x,u.y-70,'#c9d4ff',8);A.press.at=t+9;return}u.holding='snipe';if(hold>=1&&!u.focusDone){u.focusDone=1;u.buff.focus=t+5;axTxt('集中!',u.x,u.y-74,'#9fe8ff',12);A.fx.push({k:'wave',x:u.x,y:u.y,r:36,t,d:.4,col:'#9fe8ff'});if(typeof SFX!=='undefined'&&SFX.chain)SFX.chain(2)}}
   else{u.holding='atk';if(Math.random()<dt*14)axPt(u.x+(Math.random()-.5)*20,u.y,0,0,0,30+Math.random()*30,'#ffe066','spark',.4)}}
 /* ---------- helpers ---------- */
@@ -4804,6 +4810,8 @@ function axDust(x,y,n){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=20
 /* ---------- 技 ---------- */
 function axCost(i,u){const k=AXB.rushOn?.5:1;return (i===2?AXULT.sp:axSk(u)[i].sp)*k}
 function axCan(u,i){const A=AXB;return axLive(u)&&u.brk<=A.t&&(i===2?u.cdU:u.cdSk[i])<=A.t&&A.sp>=axCost(i,u)}
+function axPressSk(i){const A=AXB;if(!A||!A.me||A.over)return;const u=A.me,ok=i===2?axCan(u,2):axCan(u,i);if(ok){A.bufSk=null;if(i===2)axUlt(u);else axSkill(u,i)}else{A.bufSk={i,t:A.t,u};if(typeof SFX!=='undefined'&&SFX.tap)SFX.tap()}}
+function axBufTick(){const A=AXB,B=A&&A.bufSk;if(!B)return;if(A.t-B.t>1||B.u!==A.me){A.bufSk=null;return}if(A.cut||A.trans)return;if(axCan(A.me,B.i)){A.bufSk=null;if(B.i===2)axUlt(A.me);else axSkill(A.me,B.i)}}
 function axSkill(u,i){i=i||0;if(!axCan(u,i)||AXB.trans||AXB.over)return false;const S=axSk(u)[i],A=AXB,t=A.t,k=A.rushOn?.5:1;A.sp-=axCost(i,u);u.cdSk[i]=t+S.cd*k;u.pose='p6';u.poseT=t+.4;u.tx=null;A.ban={s:S.n,t,col:TRWC[u.f.wt]||'#ffe066'};if(typeof SFX!=='undefined'&&SFX.swish)SFX.swish();
   axAnim(u,'cast');if(S.heal){const v=Math.round(u.max*S.heal);u.hp=Math.min(u.max,u.hp+v);A.P.forEach(p=>{if(p!==u&&!p.dead)p.hp=Math.min(p.max,p.hp+Math.round(p.max*S.heal*.5))});A.nums.push({v:'+'+v,x:u.x,y:u.y-64,t,col:'#a6ffb0'});axFx('heal',u,{x:u.x,y:u.y,r:50,ang:0},'#a6ffb0');return true}
   if(S.buff){u.buff.atk=t+S.buff;A.sp=Math.min(100,A.sp+10);axSay('応援! 攻撃アップ');axFx('cheerup',u,{x:u.x,y:u.y,r:50,ang:0},'#ff8ad0');return true}
@@ -4822,7 +4830,7 @@ function axUlt(u){const A=AXB;if(!axLive(u)||A.over||A.trans||!axCan(u,2))return
     /* (11/2) 必殺の当たり: 0.06・0.15・0.24秒で3回、0.33秒で決めの1発。決めの瞬間だけスロー(サウスト風) */for(let h=0;h<4;h++)axAt(.06+h*.09,()=>{if(h===3)A.slow=A.t+.3;/* (11/3) 回復・強化・守りの必殺は攻撃しない(説明どおり。数字も出さない) */if(sup)return;for(const e of A.E.filter(x=>axLive(x)&&x.spawnT<=A.t))if(Math.hypot(e.x-c.x,(e.y-c.y)/AXSQ)<140){axHit(u,e,(h===3?2.4:.8)*(sup?.6:1),{big:h===3,crit:h===3&&!e.mob,shield:h===3?2:0});if(!e.dead&&h===3)axKb(e,c,100)}})})}
 /* 交代: 控えの顔をタップ。入ってきた仲間が着地して衝撃波 */
 function axSwap(i,force){const A=AXB,n=A.P[i];if(!n||n===A.me||n.dead||A.over||A.trans||(!force&&A.cdSw>A.t))return false;const o=A.me;
-  n.x=o.x;n.y=o.y;n.face=o.face;n.tx=null;n.dash=null;n.holding=null;n.inv=A.t+.6;n.pose='p6';n.poseT=A.t+.35;A.me=n;A.cur=i;A.cdSw=A.t+3;A.lock=null;
+  n.x=o.x;n.y=o.y;n.face=o.face;n.tx=null;n.dash=null;n.holding=null;n.inv=A.t+1;n.pose='p6';n.poseT=A.t+.35;A.me=n;A.cur=i;/* (11/3 サウスト寄せ) 交代は10秒もどせない。かわりに出てきた瞬間の1秒無敵と登場の一撃 */A.cdSw=A.t+10;A.lock=null;A.bufSk=null;setTimeout(()=>{try{if(AXB===A&&axLive(n)){axAnim(n,'spin');axArea2(n,{k:'self',r:52,x:n.x,y:n.y},1.1,{kb:70});if(typeof axFx==='function')axFx('spinblade',n,{k:'self',r:52,x:n.x,y:n.y,ang:0},TRWC[n.f.wt]||'#ffe066')}}catch(e){}},260);
   A.fx.push({k:'bolt',x:n.x,y:n.y,t:A.t,d:.35,col:TRWC[n.f.wt]||'#9fe8ff'});A.fx.push({k:'wave',x:n.x,y:n.y,r:40,t:A.t,d:.4,col:'#ffffff'});axDust(n.x,n.y,6);n.z=30;n.hop={t:A.t,h:30,d:.3,down:1};
   axTxt('交代!',n.x,n.y-80,'#ffffff',13);axSay(n.name+'に交代!');if(typeof SFX!=='undefined'&&SFX.swish)SFX.swish();axUI();return true}
 function axAutoSwap(){const A=AXB;if(!A||A.over||!A.me.dead)return;const i=A.P.findIndex(p=>!p.dead);if(i>=0)axSwap(i,true)}
@@ -4837,8 +4845,8 @@ function axTick(dt){const A=AXB;if(A.over)return;A.flash=Math.max(0,A.flash-dt*2
   if(A.trans){axTrans(dt);return}
   const me=A.me;A.sp=Math.min(100,A.sp+6*dt);for(const p of A.P)if(p!==me&&!p.dead)p.hp=Math.min(p.max,p.hp+p.max*.015*dt);
   if(axLive(me)){if(me.holding&&!A.press)me.holding=null;
-    if(A.press&&!A.press.hold&&performance.now()-A.press.t>450&&Math.hypot((A.press.cx||A.press.sx)-A.press.sx,(A.press.cy||A.press.sy)-A.press.sy)<14){A.press.hold=true;me.focusDone=0;axTxt(AXHOLD[AXCLS(me.role)][0],me.x,me.y-76,'#ffe066',10)}
-    if(A.press&&A.press.hold)axHoldTick(me,dt,(performance.now()-A.press.t)/1000)}
+    if(A.press&&!A.press.hold&&!A.press.drag&&!A.press.lk&&performance.now()-A.press.t>350&&Math.hypot((A.press.cx||A.press.sx)-A.press.sx,(A.press.cy||A.press.sy)-A.press.sy)<12){A.press.hold=true;if(me){me.tx=null}me.focusDone=0;axTxt(AXHOLD[AXCLS(me.role)][0],me.x,me.y-76,'#ffe066',10)}
+    if(A.press&&A.press.hold)axHoldTick(me,dt,(performance.now()-A.press.t)/1000);try{axBufTick()}catch(e){}}
   if(A.rushOn){if(t>A.rushOn.until){A.rushOn=null;axSay('ラッシュおわり')}else{if(A.rushOn.lv>1&&axLive(me))me.hp=Math.min(me.max,me.hp+me.max*.03*dt);if(axLive(me)&&Math.random()<dt*30)axPt(me.x+(Math.random()-.5)*22,me.y,4,0,0,60+Math.random()*40,A.rushOn.lv>1?'#ff9ad0':'#ffe066','spark',.45)}}
   if(A.combo&&t-A.comboT>2.2)A.combo=0;
   for(const u of [me,...A.E]){if(u.dead){if(u.fly){u.x+=u.fly.vx*dt;u.z+=u.fly.vz*dt;u.fly.vz-=300*dt}continue}if(u.spawnT>t)continue;
@@ -4860,15 +4868,16 @@ function axCount(u,i){const S=axSk(u)[i];if(!S.sh)return 0;const Sh=axShape(u,S.
 /* 自分(手動のときは移動と通常攻撃だけ自動。オートのときは技・交代・ラッシュも) */
 function axMeAI(u,dt){const t=AXB.t,A=AXB;if(u.poseT<=t)u.pose='p1';const auto=A.auto;
   const inZ=A.tel.find(z=>axIn(z,u));if(inZ&&auto&&Math.random()<dt*1.6){const a=Math.atan2(u.y-inZ.y,u.x-inZ.x),q=axClamp(inZ.x+Math.cos(a)*(inZ.r+18),inZ.y+Math.sin(a)*(inZ.r*AXSQ+12));u.tx=q[0];u.ty=q[1];u.manual=t+.9}
-  if(u.tx!=null&&u.manual>t){if(axMove(u,u.tx,u.ty,dt,1.3))u.tx=null;return}
-  if(auto&&Math.random()<dt*2.2){const boss=A.E.some(e=>axLive(e)&&!e.mob);
+  if(u.tx!=null&&u.manual>t){if(axMove(u,u.tx,u.ty,dt,1.3)){u.tx=null;if(!(A.press&&A.press.drag))u.stay=t+3}return}
+  /* (11/3) 自分で動かしたあとの3秒は、勝手に敵のほうへ歩かない(届く敵だけ攻撃) */const stay=!auto&&(u.stay>t||(A.press&&A.press.drag));
+  /* (11/3 サウスト寄せ) AUTO はふつうの攻撃と回避だけ。技・必殺・交代・ラッシュは手で出す */if(false&&auto&&Math.random()<dt*2.2){const boss=A.E.some(e=>axLive(e)&&!e.mob);
     if(u.hp<u.max*.35&&A.cdSw<=t){const j=A.P.map((p,k)=>[p,k]).filter(([p])=>p!==u&&!p.dead&&p.hp>p.max*.6).sort((a,b)=>b[0].hp/b[0].max-a[0].hp/a[0].max)[0];if(j){axSwap(j[1]);return}}
     if(A.rush>=200||(boss&&A.rush>=100))axRush();
     if(boss&&axCan(u,2)&&A.E.some(e=>axLive(e)&&Math.hypot(e.x-u.x,e.y-u.y)<120))axUlt(u);
     else for(const i of [1,0]){if(!axCan(u,i))continue;const S=axSk(u)[i];if(S.heal&&u.hp>u.max*.6)continue;const c=S.sh?axCount(u,i):1;if(c>=(boss?1:2)||S.buff){axSkill(u,i);break}}}
   const E=axTarget(u);if(!E)return;const dx=E.x-u.x,dy=E.y-u.y,d=Math.hypot(dx,dy*1.6);u.face=dx>0?1:-1;
-  if(u.melee){if(d>u.range+(E.mon?22:6)){axMove(u,E.x-Math.sign(dx||1)*(u.range+(E.mon?14:0)),E.y,dt);return}}
-  else{if(d>u.range){axMove(u,E.x-Math.sign(dx||1)*u.range*.9,E.y,dt);return}if(d<46&&auto){const q=axClamp(u.x-Math.sign(dx||1)*30,u.y);if(Math.abs(q[0]-u.x)>8){axMove(u,q[0],q[1],dt);return}}}
+  if(u.melee){if(d>u.range+(E.mon?22:6)){if(stay)return;axMove(u,E.x-Math.sign(dx||1)*(u.range+(E.mon?14:0)),E.y,dt);return}}
+  else{if(d>u.range){if(stay)return;axMove(u,E.x-Math.sign(dx||1)*u.range*.9,E.y,dt);return}if(d<46&&auto){const q=axClamp(u.x-Math.sign(dx||1)*30,u.y);if(Math.abs(q[0]-u.x)>8){axMove(u,q[0],q[1],dt);return}}}
   if(u.holding==='tank'||u.holding==='sup'||u.holding==='snipe')return;
   u.cd-=dt*(A.rushOn?1.4:1);if(u.cd<=0){/* 3段コンボ */u.combo=(t-(u.lastAtk||-9)>1.4?0:u.combo+1)%3;axAnim(u,u.f.wt==='bow'?'shoot':u.f.wt==='staff'||u.f.wt==='penlight'?'cast':u.f.wt==='spear'?'thrust':u.f.wt==='fist'?'punch':['atk1','atk2','atk3'][u.combo]);u.lastAtk=t;const fin=u.combo===2;u.cd=clamp(1.2-u.spd*.01,.45,1)*(fin?1.35:1);u.pose=fin?'p6':(u.combo?'p6':'p5');u.poseT=t+.22;
     const tgt=E,col=TRWC[u.f.wt]||'#fff';
@@ -4996,7 +5005,7 @@ function axUI(){let u=$('axui');if(!u){u=document.createElement('div');u.id='axu
   const tg=mk('div','axtg');const au=mk('button','axpill'+(A.auto?' on':''),'AUTO');au.type='button';au.onclick=()=>{A.auto=!A.auto;axUI()};const sp=mk('button','axpill'+(A.speed>1?' on':''),A.speed>1?'×2':'×1');sp.type='button';sp.onclick=()=>{A.speed=A.speed>1?1:2;axUI()};
   const hp=mk('button','axpill','?');hp.type='button';hp.onclick=()=>{A.helpT=A.helpT?0:1;axUI()};tg.append(au,sp,hp);top.append(q,info,tg);u.append(top);
   u.append(Object.assign(mk('p','axlog'),{id:'axlog',textContent:A.log[A.log.length-1]||''}));
-  if(A.helpT||(!A.over&&A.t<.1&&!axSeen())){const H2=AXHOLD[AXCLS(me.role)],h=mk('div','axhelp');h.innerHTML='<b>あそびかた(タップでとじる)</b><p><em>タップ</em> 移動(近くの敵は自動で攻撃) ・ <em>敵をタップ</em> ねらう</p><p><em>はらう</em> 回避ダッシュ(当たる直前ならジャスト回避)</p><p><em>長押し</em> '+H2[0]+': '+H2[1]+'</p><p><em>技のカード</em> 指を置くと範囲が出る。離すと撃つ</p><p><em>大きな顔</em> ゲージがたまったら「推しラッシュ」 ・ <em>小さな顔</em> 仲間と交代</p>';h.onclick=()=>{A.helpT=0;axSeen(1);h.remove()};u.append(h)}
+  if(A.helpT||(!A.over&&A.t<.1&&!axSeen())){const H2=AXHOLD[AXCLS(me.role)],h=mk('div','axhelp');h.innerHTML='<b>あそびかた(タップでとじる)</b><p><em>さわる・なぞる</em> その場所へ移動(着いたら3秒その場で、届く敵を攻撃) ・ <em>敵をタップ</em> ねらう</p><p><em>はらう</em> 回避ダッシュ(当たる直前ならジャスト回避)</p><p><em>長押し</em> '+H2[0]+': '+H2[1]+'</p><p><em>技のカード</em> 押した瞬間に出る(出せない時に押すと、出せるようになった瞬間に出る)</p><p><em>大きな顔</em> ゲージがたまったら「推しラッシュ」 ・ <em>小さな顔</em> 仲間と交代(10秒もどせない・出てきた瞬間に一撃)</p><p><em>AUTO</em> ふつうの攻撃と回避だけ。技・必殺・交代は自分で</p>';h.onclick=()=>{A.helpT=0;axSeen(1);h.remove()};u.append(h)}
   if(A.over){const b=mk('div','axend');b.append(mk('b',null,A.over.win?'クリア! ランク'+A.over.rank[0]:'まけてしまった'));if(A.over.win)b.append(mk('p','axrk','タイム '+axFmt(A.over.t)+' ・ 最大 '+A.maxCombo+' HIT ・ たおした数 '+A.kills+'(Sは'+AXRANK[0][1]+'秒以内)'));b.append(mk('p',null,'試作なので、ごほうびと経験値はありません'));const r=mk('div','row2'),again=mk('button','btn main','もう一回'),back=mk('button','btn','やめる');again.type=back.type='button';again.onclick=()=>{const s4=A.st;axQuit();axStart(s4)};back.onclick=axQuit;r.append(again,back);b.append(r);u.append(b);return}
   const bot=mk('div','axpanel');
   /* 左: 大きな顔(ラッシュ) と 控え */const lf=mk('div','axlft');const big=mk('button','axbig');big.type='button';big.setAttribute('aria-label','推しラッシュ');const bf=mk('div','axbigf');bf.append(tbFace(me.f,60));big.append(bf,Object.assign(mk('em','axtap'),{textContent:'TAP!'}),Object.assign(mk('span','axbnm'),{textContent:me.name}));big.onclick=axRush;
@@ -5004,8 +5013,7 @@ function axUI(){let u=$('axui');if(!u){u=document.createElement('div');u.id='axu
   /* 右: ラッシュのゲージ と 技のカード */const rt=mk('div','axrgt');const rs=Object.assign(mk('div','axrushbar'),{innerHTML:'<span>RUSH</span><div><i></i><i></i></div>'});
   const cards=mk('div','axcards');const SK=axSk(me);
   const addCard=(i,name,icon,cls)=>{const b=mk('button','axcard '+cls);b.type='button';b.dataset.i=i;b.setAttribute('aria-label',name);b.innerHTML='<span class="axcbg"></span>'+axIco(icon)+'<b>'+name+'</b><em class="axsp"></em><span class="axcdr"></span><strong class="axcdn"></strong>';b.style.setProperty('--c',TRWC[me.f.wt]||'#7a6ad8');
-    b.addEventListener('pointerdown',e=>{e.preventDefault();if(i<2)A.aim={i};b.classList.add('aim')});const clr=()=>{A.aim=null;b.classList.remove('aim')};
-    b.addEventListener('pointerup',()=>{if(!b.classList.contains('aim'))return;clr();if(i===2)axUlt(A.me);else axSkill(A.me,i)});b.addEventListener('pointercancel',clr);
+    /* (11/3 サウスト寄せ) 押した瞬間に出す。出せない時に押した分は1秒だけ覚えておき、出せるようになった瞬間に出す */b.addEventListener('pointerdown',e=>{e.preventDefault();b.classList.add('pr');setTimeout(()=>b.classList.remove('pr'),130);axPressSk(i)});
     b.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(i===2)axUlt(A.me);else axSkill(A.me,i)}});cards.append(b)};
   SK.forEach((S,i)=>addCard(i,S.n,S.heal?'heal':S.buff?'cheerup':S.fx,'s'+i));addCard(2,typeof tuName==='function'?tuName(me.f):'必殺','ult','su');rt.append(rs,cards);
   const bars=Object.assign(mk('div','axbars2'),{innerHTML:'<div class="axb2 hp"><span>HP</span><div><i></i></div><b></b></div><div class="axb2 sp"><span>SP</span><div><i></i></div><b></b></div>'});
@@ -5064,7 +5072,7 @@ body.axon #stage>:not(canvas){display:none!important}
 .axcard .axcdn{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font:900 22px/1 var(--jp,sans-serif);text-shadow:0 2px 4px #000;pointer-events:none}
 .axcard.su{box-shadow:inset 0 0 0 2px var(--gold),0 3px 10px rgba(0,0,0,.5)}.axcard.su .axcbg{background:radial-gradient(circle at 50% 28%,#ffd76a,#7a2a4a 80%);opacity:.9}
 .axcard.lowsp .axcbg{filter:saturate(.2) brightness(.55)}.axcard.lowsp .axsp{color:#ff7a7a}
-.axcard.aim{transform:scale(.95);box-shadow:inset 0 0 0 2.5px #ffe066,0 0 16px rgba(255,224,102,.6)}
+.axcard.pr{transform:scale(.9)!important;filter:brightness(1.4);transition:none}.axcard{transition:transform .12s,filter .12s}.axcard.aim{transform:scale(.95);box-shadow:inset 0 0 0 2.5px #ffe066,0 0 16px rgba(255,224,102,.6)}
 .axbars2{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .axb2{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:5px}.axb2 span{font:900 10px/1 var(--jp,sans-serif);color:var(--gold)}
 .axb2 div{position:relative;height:9px;border-radius:5px;background:rgba(0,0,0,.6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);overflow:hidden}.axb2 i{position:absolute;inset:0 auto 0 0;transition:width .12s}
@@ -5820,6 +5828,7 @@ function ax3Overlay(){const A=AXB,O=A3.O,t=A.t,n=performance.now(),W2=A3.w,H2=A3
       O.font='900 13px sans-serif';O.textAlign='left';O.strokeText(A.ban.ult?'必殺':'Lv 1',W2/2+tw/2+8,yy+hh/2+1);O.fillStyle=A.ban.ult?'#ff8a6a':'#9dff6a';O.fillText(A.ban.ult?'必殺':'Lv 1',W2/2+tw/2+8,yy+hh/2+1);O.restore()}}
   /* エリアが変わる: 画面が暗い間に景色を入れかえる(木が手前を流れて見にくくならないように) */{if(A.trans&&A.trans.done&&A3.lastTr!==A.trans){A3.lastTr=A.trans;A3.scrB=(A3.scrB||0)+48}const off=A3.scrB||0;if(A3.nat)A3.nat.position.z=off%96;if(A.__gtex)A.__gtex.offset.y=off/48}
   /* (11/3 審査) 当たりの擬音は出さない(サウストも戦闘中は出さない。デバッグ表示に見えた) */if(false&&A3.ono)for(const o of A3.ono){const v=t-o.t;if(v>.5||v<0)continue;const [x,y]=ax3P(o.x,o.gy,(o.gy-o.y)*AXM*.5+2),k=v<.06?1.5-v*8:1,a=1-clamp((v-.35)/.15,0,1),fs=o.big?26:19;O.save();O.translate(x+58,y-52-v*14);/* (11/2) 当たる所を隠さないよう小さく・横にずらす */O.rotate(o.r);O.scale(k,k);O.globalAlpha=a;O.font='900 '+fs+'px "Hiragino Sans","Noto Sans JP",sans-serif';O.textAlign='center';O.textBaseline='middle';O.lineJoin='round';O.lineWidth=fs*.28;O.strokeStyle='#ffffff';O.strokeText(o.s,0,0);O.fillStyle='#16101a';O.fillText(o.s,0,0);O.restore()}
+  /* (11/3) 長押しの輪: 指を動かさずに置いていると、指のまわりに輪がたまる(0.35秒で長押し) */{const P=A.press;if(P&&!P.lk&&!P.drag){const el=(performance.now()-P.t)/1000,cv2=O.canvas,rc=cv2.getBoundingClientRect(),px=(P.cx!=null?P.cx:P.sx)-rc.left,py=(P.cy!=null?P.cy:P.sy)-rc.top;if(el>.12){const k=P.hold?1:Math.min(1,(el-.12)/.23),me=A.me,hc=me&&typeof AXHOLD!=='undefined'?AXHOLD[AXCLS(me.role)]:null;O.save();O.lineCap='round';O.lineWidth=5;O.strokeStyle='rgba(10,8,18,.55)';O.beginPath();O.arc(px,py,34,0,7);O.stroke();O.strokeStyle=P.hold?'#ffe066':'#ffffff';O.lineWidth=P.hold?5+Math.sin(performance.now()/60)*1.2:4;O.beginPath();O.arc(px,py,34,-Math.PI/2,-Math.PI/2+k*Math.PI*2);O.stroke();if(P.hold&&hc){O.font='900 13px "Hiragino Sans","Noto Sans JP",sans-serif';O.textAlign='center';O.lineJoin='round';O.lineWidth=4;O.strokeStyle='#0b0812';O.strokeText(hc[0],px,py-46);O.fillStyle='#ffe066';O.fillText(hc[0],px,py-46)}O.restore()}}}
   /* 敵の攻撃の予告: 頭の上に「!」 */for(const e of A.E){if(e.dead||e.pose!=='p6'||!(e.poseT>t))continue;const [ex,ey]=ax3P(e.x,e.y,e.mob?5.5:9.5),pl=1+.15*Math.sin(t*30),sz=Math.round((e.mob?26:38)*pl*(A3.dprO||1));O.save();O.font='900 '+sz+'px sans-serif';O.textAlign='center';O.lineWidth=sz*.22;O.strokeStyle='#1a0a10';O.strokeText('!',ex,ey);O.fillStyle=(e.poseT-t)<.25?'#ff3a3a':'#ffd23a';O.fillText('!',ex,ey);O.restore()}
   /* ダメージの数字(サウスト風): 同じ敵に続けて当たった分は1つの数字にまとめて足していく。当たるたびに少し跳ねる */{const G=new Map(),sh=[];for(const q of A.nums){if(t-q.t>(q.ug?1.6:.9)||(q.ug&&q.ug!==A.ultG))continue;if(q.ug&&/^\d+$/.test(q.v)){let g=G.get(q.ug);const pq={...q,x:q.ug.x,y:q.ug.y-70,gy:q.ug.y,ln:0};if(g){g.s+=+q.v;g.n++;g.q=pq;g.cr=g.cr||q.cr;continue}g={s:+q.v,n:1,q:pq,big:true,ult:true,col:'#ffe066'};G.set(q.ug,g);sh.push(g);continue}if(q.u&&/^\d+$/.test(q.v)){const g=G.get(q.u);if(g&&q.t-g.q.t<.45){g.s+=+q.v;g.n++;g.q=q;g.big=g.big||q.big;g.cr=g.cr||q.cr;g.wk=g.wk||q.wk;if(q.col!=='#fff')g.col=q.col;continue}const ng={s:+q.v,n:1,q,big:q.big,col:q.col,cr:q.cr,wk:q.wk};G.set(q.u,ng);sh.push(ng)}else sh.push({q,n:1,big:q.big,col:q.col,cr:q.cr,wk:q.wk})}
     /* (11/2) 数字が重ならないように、重なる分だけ上へずらす */const placed=[];for(const g of sh){const q=g.q,v=t-q.t,gy=q.gy!=null?q.gy:q.y;let [x,y]=ax3P(q.x,gy,(gy-q.y)*AXM+.6);const pop=v<.06?1.25-v*4:1,sz=(g.big||g.n>2?5:4);y=y-(g.s!=null?0:(q.ln||0)*24)-v*((g.ult||g.big||g.cr||g.n>2)?22:100)-14*eo(Math.min(1,v/.16))-(g.ult?70:0);const txt=g.s!=null?String(g.s):q.v,hw=txt.length*(sz===5?27:20)*.32+4,hh=(sz===5?27:20)*.9;/* (11/3) ずらすのは2段まで(小さい数字)。それでも重なる小さい数字は出さない(縦に高い柱にならない) */const imp=g.ult||g.big||g.cr||g.n>2,mxI=imp?4:2;let hit=null;for(let it=0;it<=mxI;it++){hit=placed.find(P=>Math.abs(P.x-x)<P.hw+hw&&Math.abs(P.y-y)<(P.hh+hh)/2);if(!hit||it===mxI)break;y=hit.y-(hit.hh+hh)/2-1}if(hit&&!imp)continue;placed.push({x,y,hw,hh});O.save();O.translate(Math.round(x),Math.round(y));O.scale(pop,pop);{const life=g.ult?1.1:(g.big||g.cr||g.n>2)?.55:.3,al=1-clamp((v-life)/(g.ult?.35:.2),0,1),fs=g.ult?44:sz===5?27:20;if(g.ult)oTxt(O,g.n+' HIT',0,-fs*.8,15,'#ffffff',al);if(/^\d+$/.test(txt))oNum(O,txt,0,0,fs,q.col==='#ff8a8a'?'hurt':g.cr?'cr':g.big?'big':'n',al,v);else oTxt(O,txt,0,0,fs,v<.04?'#fff':g.col,al);if(!g.ult&&(g.cr||g.wk)){const lb=g.cr&&g.wk?'会心! 弱点!':g.cr?'会心!':'弱点!';oTxt(O,lb,0,-fs*.95,Math.round(fs*.55),g.cr?'#ffe23a':'#7ae0ff',al)}}O.restore()}}
