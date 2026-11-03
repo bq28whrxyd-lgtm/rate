@@ -4698,7 +4698,7 @@ const AXSK2={
   hunter:[{n:'つらぬき矢',sp:20,cd:2,sh:{k:'line',len:220,w:22},m:1.7,shield:1,fx:'arrow'},{n:'矢の雨',sp:35,cd:5,sh:{k:'tgt',r:62},m:.7,hits:5,gap:.1,delay:.25,shield:1,fx:'rain'}],
   cheer:[{n:'応援',sp:30,cd:6,buff:6,fx:'cheerup'},{n:'音の波',sp:30,cd:4,sh:{k:'self',r:82},m:1.1,kb:80,spAll:15,fx:'soundwave'}]};
 const AXULT={sp:60,cd:15};
-const axSk=u=>AXSK2[u.role]||AXSK2.sword;
+const axSk=u=>(u.f&&u.f.skOv)||AXSK2[u.role]||AXSK2.sword;/* (11/3) 推しカードの技 */
 function axUnit(f,side,x,y,o){o=o||{};const st=f.st,u={f,side,x,y,tx:null,ty:null,hp:st.hp,max:st.hp,pow:f.wt==='staff'?st.mag:f.wt==='penlight'?(st.atk+st.mag)/2:st.atk,def:st.def,spd:Math.max(10,st.spd),
   melee:side==='E'?true:axMelee(f),cd:Math.random()*.6,face:side==='P'?1:-1,pose:'p1',poseT:0,role:side==='P'?tbRole(f):(o.role||'lead'),el:f.el||null,hitT:-9,inv:0,dead:false,deadT:0,buff:{},
   sh:o.sh||0,shMax:o.sh||0,weak:o.weak||[],brk:0,mon:o.mon||null,s:o.s||.55,ey:o.ey||60,name:o.name||f.name,tel:null,nAtk:0,cdSk:[0,0],cdU:0,lastSh:-9,bombT:o.role==='bomb'?9:0,spawnT:o.spawnT||0,z:0,combo:0};
@@ -7222,6 +7222,102 @@ function kmPvpAI(u,dt){const A=AXB,t=A.t,T2=axTarget(u);if(!T2)return false;if(u
     const sh=k.sh||{k:'tgt',r:50},self=sh.k==='self',reach=self?sh.r:sh.k==='line'?sh.len*.8:sh.k==='tgt'?200:sh.r;if(d>reach+20)continue;
     const R=sh.r||Math.max(44,(sh.w||30)*1.8),wu=i?1:.75;u.skT[i]=t+k.cd*KMPV.skcd;W({x:self?u.x:T2.x,y:self?u.y:T2.y,r:R,t0:t,t1:t+wu,m:(k.m||1)*(k.hits||1)*KMPV.sk,big:i===1,by:u},wu,u.name+'の'+k.n+'!');return true}
   return false}
+
+/* ===== (11/3) 推しカード(お試し版・仮の絵) =====
+   キャラごとに8枚: 必殺2(u)・技2(s)・ふつう4(n)。必殺と技はそのキャラ専用、ふつうは誰にでも付けられる。
+   付けられる枚数はキャラの★で4〜8枚(自分の分身は4枚、ふつうだけ)。効くのは必殺1枚・技2枚まで。
+   技の色(青→銅→銀→金→虹)は同じカードを重ねると上がり、1段ごとに技の強さ+10%。
+   持ち物と付けたカードはこの端末の localStorage 'kmCards'(本番前にアカウントへ) */
+const KMC_DEF={
+ miyabi:[['u','神絵の一筆'],['u','表紙を飾る'],['s','一筆書き',0],['s','色塗りの雨',1],['n','深夜の作業机','mag'],['n','新刊の告知','atk'],['n','売り子の笑顔','hp'],['n','ペンを休めて','spd']],
+ hinata:[['u','全力コール'],['u','最前列の大声援'],['s','コール&レスポンス',0],['s','ペンライトの波',1],['n','開場前の列','spd'],['n','団扇づくり','atk'],['n','声が枯れても','hp'],['n','終演後の打ち上げ','def']],
+ genji:[['u','初版の盾'],['u','コレクション全開'],['s','初版の重み',0],['s','保存用の陣',1],['n','古書店めぐり','hp'],['n','ショーケースの前で','def'],['n','未開封の箱','atk'],['n','若いころの写真','spd']],
+ minato:[['u','始発ダッシュ'],['u','全国制覇'],['s','最短ルート',0],['s','乗り換えの雨',1],['n','夜行バスの窓','spd'],['n','ご当地のお土産','hp'],['n','時刻表をにらむ','atk'],['n','旅の終わりの駅','def']],
+ seira:[['u','アンコール'],['u','光の大舞台'],['s','ファンサ',0],['s','センターの歌声',1],['n','リハーサル室','atk'],['n','楽屋の鏡','mag'],['n','サイン会','hp'],['n','オフの日の帽子','spd']],
+ jin:[['u','全公演皆勤'],['u','千秋楽'],['s','開演の一太刀',0],['s','物販ダッシュ',1],['n','遠征のチケット束','spd'],['n','開演前の静けさ','atk'],['n','雨の日の入り待ち','hp'],['n','打ち上げの乾杯','def']]};
+const KMC=[];Object.keys(KMC_DEF).forEach(ch=>KMC_DEF[ch].forEach((d,i)=>KMC.push({id:ch+'_'+(i+1),ch,k:d[0],n:d[1],sk:d[0]==='s'?d[2]:null,st:d[0]==='n'?d[2]:null,star0:d[0]==='u'?5:d[0]==='s'?4:(i<6?3:4)})));
+const KMCBY={};KMC.forEach(c=>KMCBY[c.id]=c);
+const KMC_STAR={3:1,4:1.25,5:1.6,6:1.95,7:2.4},KMC_LVMAX={3:40,4:60,5:80,6:100,7:120},KMC_TCOL=['','青','銅','銀','金','虹'],KMC_TC=['','#5aa8ff','#c88a4a','#d8dde8','#ffd34a','#ff8ad8'];
+const KMC_KN={u:'必殺',s:'技',n:'ふつう'};
+function kmcLoad(){let o=null;try{o=JSON.parse(localStorage.getItem('kmCards')||'null')}catch(e){}o=o&&typeof o==='object'?o:{};o.o=o.o||{};o.eq=o.eq||{};return o}
+function kmcSave(o){try{localStorage.setItem('kmCards',JSON.stringify(o))}catch(e){}}
+/* the char's ★ (仮: 今のキャラの重ね枚数。かけらができたらそちらに) → 4〜8枠 */
+function kmcStarOf(ch){if(ch==='me')return 1;try{const c=tcLoad().own[ch];return c?Math.max(1,Math.min(7,c.n||1)):0}catch(e){return 0}}
+function kmcSlots(ch){if(ch==='me')return 4;const s=kmcStarOf(ch);return s?Math.min(8,3+s):0}
+function kmcOwn(cid){return kmcLoad().o[cid]||null}
+/* stats one card adds (its ★, level, and the element bonus) */
+function kmcAdd(cid,own,f){const c=KMCBY[cid];if(!c||!own)return {hp:0,atk:0,def:0,spd:0,mag:0};const star=own.star||c.star0,lv=own.lv||1;
+  const P={u:8,s:6,n:6}[c.k]*(KMC_STAR[star]||1)*(1+(lv-1)*.03),el=f&&TCH.find(x=>x.id===c.ch),same=el&&f.el&&el.el===f.el?1.2:1,k=P*same;
+  if(c.k==='n'){const o={hp:0,atk:0,def:0,spd:0,mag:0};o[c.st]=Math.round(k*({hp:10,atk:1.2,def:1.5,spd:1.65,mag:1.4}[c.st]||1.2));o.hp+=c.st==='hp'?0:Math.round(k*1.5);return o}
+  return {hp:Math.round(k*3),atk:Math.round(k*.6),def:Math.round(k*.35),spd:Math.round(k*.2),mag:Math.round(k*.6)}}
+function kmcCanEq(cid,ch){const c=KMCBY[cid];if(!c)return false;if(c.k==='n')return true;return c.ch===ch}
+/* put the cards on a fighter: stats, the technique names and power, the special's name */
+function kmcApply(f,ch){if(!f)return f;const E=kmcLoad(),L=(E.eq[ch]||[]).filter(id=>E.o[id]);if(!L.length)return f;const g=Object.assign({},f,{st:Object.assign({},f.st)});
+  for(const id of L){const a=kmcAdd(id,E.o[id],g);for(const k in a)g.st[k]=(g.st[k]||0)+a[k]}
+  let base=null;try{base=AXSK2[tbRole(g)]||AXSK2.sword}catch(e){}
+  if(base){const ov=base.map(s=>s);L.map(id=>KMCBY[id]).filter(c=>c&&c.k==='s').slice(0,2).forEach(c=>{const tl=(E.o[c.id].tl||1),s=base[c.sk]||base[0];ov[c.sk]=Object.assign({},s,{n:c.n,m:s.m?s.m*(1+.1*(tl-1)):s.m,heal:s.heal?s.heal*(1+.1*(tl-1)):s.heal,kmc:c.id,tl})});g.skOv=ov}
+  const u=L.map(id=>KMCBY[id]).find(c=>c&&c.k==='u');if(u){g.ultN=u.n;g.ultC=u.id}g.kmcN=L.length;return g}
+/* fighters made from a character slot get their cards */
+(function(){if(typeof tcFighter!=='function')return;const _t=tcFighter;tcFighter=function(id,lv){const f=_t.apply(this,arguments);return f&&lv==null?kmcApply(f,id):f}})();
+(function(){if(typeof kmSlotF!=='function')return;const _s=kmSlotF;kmSlotF=function(v){const f=_s.apply(this,arguments);return f&&v==='me'?kmcApply(f,'me'):f}})();
+(function(){if(typeof tuName!=='function')return;const _n=tuName;tuName=function(f){return f&&f.ultN||_n(f)}})();
+(function(){if(typeof kmSkills!=='function')return;const _k=kmSkills;kmSkills=function(f){const r=_k(f);if(f&&f.skOv)r[0]=f.skOv[0].n,r[1]=f.skOv[1].n;if(f&&(f.ultN||(f.ch&&typeof TCU!=='undefined'&&TCU[f.ch])))r[2]=f.ultN||TCU[f.ch].n;return r}})();
+/* ---------- the look (仮の絵: 属性の色と顔) ---------- */
+const KMC_EL={fire:['#5a1208','#ff8a3a'],water:['#082a5a','#5ac8ff'],light:['#4a3a08','#ffe27a'],wood:['#0f3a1a','#7ad08a'],dark:['#1a0a2a','#b07aff']};
+function kmcFace(cid,sz){const c=KMCBY[cid],own=kmcOwn(cid),star=(own&&own.star)||c.star0,ch=TCH.find(x=>x.id===c.ch),col=KMC_EL[ch&&ch.el]||KMC_EL.light;
+  const w=kmEl('div','kmcf k'+c.k+(own?'':' no'));w.style.setProperty('--c1',col[0]);w.style.setProperty('--c2',col[1]);if(sz)w.style.width=sz+'px';
+  const art=kmEl('div','kmca');try{art.append(kmFace(tcFighter(c.ch,1)||{name:c.n},Math.round((sz||90)*.62)))}catch(e){}w.append(art);
+  w.append(kmEl('b','kmcn ko',c.n),kmEl('i','kmcs ko','★'+star),kmEl('em','kmck ko',KMC_KN[c.k]));
+  if(c.k!=='n'&&own){const tl=own.tl||1;const t=kmEl('i','kmct',KMC_TCOL[tl]);t.style.background=KMC_TC[tl];w.append(t)}return w}
+/* ---------- screens ---------- */
+KMS.cards=(v,ch)=>{ch=ch||'all';const b=kmFrame(v,'推しカード'),E=kmcLoad();
+  const T=kmEl('div','ktabs kmctab');[['all','全部']].concat(Object.keys(KMC_DEF).map(id=>[id,(TCH.find(x=>x.id===id)||{}).n||id])).forEach(([k,l])=>T.append(kmB('ktab'+(ch===k?' on':''),l,()=>kmGo('cards',k))));b.append(T);
+  const n=Object.keys(E.o).length;b.append(kmEl('div','kinfo ko','<p class="ktx">持っている '+n+' / '+KMC.length+' 枚。カードを押すとくわしく見られます。(お試し版: 絵は仮です)</p>'));
+  const g=kmEl('div','kmcg');KMC.filter(c=>ch==='all'||c.ch===ch).forEach(c=>{const t=kmB('kmcb',null,()=>kmcPop(c.id));t.append(kmcFace(c.id));g.append(t)});b.append(g);
+  kmFoot(v,[kmBack('party','deck')])};
+function kmcText(c,own,f){const a=kmcAdd(c.id,own||{lv:1},f);const st=Object.entries(a).filter(([,x])=>x).map(([k,x])=>({hp:'HP',atk:'攻撃',def:'防御',spd:'素早さ',mag:'魔力'}[k]+'+'+x)).join(' ');
+  const who=(TCH.find(x=>x.id===c.ch)||{}).n||'';const eff=c.k==='u'?'付けると必殺が「'+c.n+'」になる('+who+'専用)':c.k==='s'?'付けると技'+(c.sk+1)+'が「'+c.n+'」になる('+who+'専用)':'誰にでも付けられる。'+who+'と同じ属性ならボーナス';return [eff,st]}
+function kmcPop(cid,eqCh){const c=KMCBY[cid],own=kmcOwn(cid),d=kmEl('div','kmcp');d.append(kmcFace(cid,150));const [eff,st]=kmcText(c,own);
+  d.append(kmEl('div','ksec','<div class="kkv"><span>種類</span><b>'+KMC_KN[c.k]+'</b></div><div class="kkv"><span>★</span><b>'+((own&&own.star)||c.star0)+'</b></div>'+(own?'<div class="kkv"><span>レベル</span><b>'+(own.lv||1)+' / '+KMC_LVMAX[own.star||c.star0]+'</b></div>':'')+(c.k!=='n'&&own?'<div class="kkv"><span>技の色</span><b>'+KMC_TCOL[own.tl||1]+'</b></div>':'')+'<p class="ktx">'+eff+'</p><p class="ktx">上がる能力: '+st+'</p>'+(own?'':'<p class="ktx">まだ持っていません</p>')));
+  const btn=[['閉じる',null,'bl']];if(eqCh&&own)btn.push(['付ける',()=>kmcPut(eqCh,cid),'gd']);kmPop(c.n,d,btn)}
+function kmcPut(ch,cid,slot){const E=kmcLoad(),c=KMCBY[cid];if(!c||!E.o[cid]){toastB('持っていません');return false}if(!kmcCanEq(cid,ch)){toastB('このカードは'+((TCH.find(x=>x.id===c.ch)||{}).n||'')+'専用です');return false}
+  const L=(E.eq[ch]||[]).filter(id=>id!==cid),N=kmcSlots(ch);if(c.k==='u'&&L.some(id=>KMCBY[id]&&KMCBY[id].k==='u')){toastB('必殺のカードは1枚までです');return false}
+  if(c.k==='s'&&L.filter(id=>KMCBY[id]&&KMCBY[id].k==='s').length>=2){toastB('技のカードは2枚までです');return false}
+  for(const [k2,eq] of Object.entries(E.eq))if(k2!==ch)E.eq[k2]=eq.filter(id=>id!==cid);/* one copy is on one character only */
+  if(slot!=null&&slot<L.length)L.splice(slot,0,cid);else L.push(cid);if(L.length>N){toastB('付けられるのは'+N+'枚までです');return false}E.eq[ch]=L;kmcSave(E);try{kmGo('kmceq',ch)}catch(e){}return true}
+function kmcOff(ch,cid){const E=kmcLoad();E.eq[ch]=(E.eq[ch]||[]).filter(id=>id!==cid);kmcSave(E);kmGo('kmceq',ch)}
+KMS.kmceq=(v,ch)=>{const nm=ch==='me'?'あなた':(TCH.find(x=>x.id===ch)||{}).n||ch,b=kmFrame(v,nm+'の推しカード'),E=kmcLoad(),L=(E.eq[ch]||[]).filter(id=>E.o[id]),N=kmcSlots(ch);
+  let f=null;try{f=ch==='me'?kmSlotF('me'):tcFighter(ch)}catch(e){}
+  if(f){const sk=kmSkills(f);b.append(kmEl('div','ksec','<div class="kkv"><span>総合力</span><b>'+kmPowOf(f).toLocaleString()+'</b></div><div class="kkv"><span>技1</span><b>'+sk[0]+'</b></div><div class="kkv"><span>技2</span><b>'+sk[1]+'</b></div><div class="kkv"><span>必殺</span><b>'+sk[2]+'</b></div>'))}
+  b.append(kmEl('div','kinfo ko','<p class="ktx">付けられるのは '+N+' 枚'+(ch==='me'?'(ふつうのカードだけ)':'(キャラの★で増える)')+'。必殺は1枚、技は2枚まで。</p>'));
+  const g=kmEl('div','kmcg');for(let i=0;i<8;i++){const id=L[i];if(i>=N){g.append(kmEl('div','kmce lock ko','★で開く'));continue}
+    if(id){const t=kmB('kmcb',null,()=>kmPop(KMCBY[id].n,(()=>{const d=kmEl('div');d.append(kmcFace(id,140));d.append(kmEl('p','ktx',kmcText(KMCBY[id],E.o[id],f)[0]));return d})(),[['閉じる',null,'bl'],['外す',()=>kmcOff(ch,id),'']]));t.append(kmcFace(id));g.append(t)}
+    else g.append(kmB('kmce ko','+',()=>kmcPick(ch)))}b.append(g);
+  kmFoot(v,[kmBack('party','deck'),['カード一覧',()=>kmGo('cards',ch==='me'?'all':ch),'gd']])};
+function kmcPick(ch){const E=kmcLoad(),cur=new Set(E.eq[ch]||[]),L=KMC.filter(c=>E.o[c.id]&&!cur.has(c.id)&&kmcCanEq(c.id,ch)&&(ch!=='me'||c.k==='n')).sort((a,c)=>({u:0,s:1,n:2}[a.k]-{u:0,s:1,n:2}[c.k]));
+  const d=kmEl('div');if(!L.length)d.append(kmEl('p','ktx ko','付けられるカードがありません'));const g=kmEl('div','kmcg');L.forEach(c=>{const t=kmB('kmcb',null,()=>{document.querySelector('#kmapp .kpop')?.remove();kmcPut(ch,c.id)});t.append(kmcFace(c.id));g.append(t)});d.append(g);kmPop('付けるカードを選ぶ',d)}
+/* お試し版: 全部のカードを持たせる(デモ・確かめ用) */
+function kmcGiveAll(){const E=kmcLoad();KMC.forEach((c,i)=>{if(!E.o[c.id])E.o[c.id]={n:1,lv:1+((i*7)%20),star:c.star0,tl:1+(i%5),xp:0}});kmcSave(E);return Object.keys(E.o).length}
+/* the party screen: the 8 boxes under each main show that main's cards and open the card screen */
+(function(){if(typeof KMS==='undefined'||!KMS.party)return;const _p=KMS.party;KMS.party=function(v,tab){_p.apply(this,arguments);try{const tb=v.querySelector('.ktabs');if(tb)tb.append(kmB('ktab','推しカード',()=>kmGo('cards')));if((tab||'deck')!=='deck')return;const D=kmDeckLoad(),dk=D.d[D.cur];
+  v.querySelectorAll('.kmem:not(.ksup)').forEach((box,i)=>{const sv=dk.m[i];const cr=box.querySelector('.kcards');if(!cr||!sv)return;const ch=sv==='me'?'me':sv.startsWith('ch:')?sv.slice(3):null;if(!ch){cr.querySelector('span').textContent='推しカードは分身(自分)とキャラだけ';return}
+    const E=kmcLoad(),L=(E.eq[ch]||[]).filter(id=>E.o[id]),N=kmcSlots(ch);cr.replaceChildren();for(let k=0;k<8;k++){const id=L[k],c=kmEl('i',k>=N?'lk':id?'on':'');if(id){c.style.background=KMC_TC[(E.o[id].tl||1)]||'#c9a46a';c.title=KMCBY[id].n}cr.append(c)}
+    cr.append(kmEl('span','ko',L.length?'推しカード '+L.length+'/'+N:'推しカードを付ける'));cr.onclick=()=>kmGo('kmceq',ch);cr.style.cursor='pointer'})}catch(e){console.error(e)}}})();
+/* the menu gets an entry */
+(function(){const css=document.createElement('style');css.textContent=`
+#kmapp .kmcg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:4px 2px}
+#kmapp .kmcb{padding:0;border:0;background:none}
+.kmcf{position:relative;aspect-ratio:3/4;width:100%;border-radius:8px;overflow:hidden;background:linear-gradient(160deg,var(--c2),var(--c1) 70%);box-shadow:inset 0 0 0 2px #e0b050,0 2px 6px #0008}
+.kmcf.ku{box-shadow:inset 0 0 0 2px #ffe27a,inset 0 0 12px #ffd34a,0 2px 8px #0009}.kmcf.ks{box-shadow:inset 0 0 0 2px #e0c890,0 2px 6px #0008}.kmcf.no{filter:grayscale(.85) brightness(.55)}
+.kmcf .kmca{position:absolute;inset:8% 8% 26%;display:grid;place-items:center}.kmcf .kmca canvas,.kmcf .kmca img{max-width:100%;max-height:100%}
+.kmcf .kmcn{position:absolute;left:4%;right:4%;bottom:4%;font:900 10px/1.15 KMRound,sans-serif;color:#fff;text-align:center}
+.kmcf .kmcs{position:absolute;left:5%;top:4%;font:900 10px/1 KMRound,sans-serif;color:#ffe27a;font-style:normal}
+.kmcf .kmck{position:absolute;right:5%;top:4%;font:900 9px/1 KMRound,sans-serif;color:#fff;font-style:normal;padding:2px 4px;border-radius:4px;background:#0008}
+.kmcf .kmct{position:absolute;right:5%;bottom:22%;font:900 9px/1 KMRound,sans-serif;color:#1a1006;font-style:normal;padding:2px 4px;border-radius:4px}
+#kmapp .kmce{aspect-ratio:3/4;border-radius:8px;display:grid;place-items:center;font:900 22px KMRound,sans-serif;color:#e8d4b4;background:#1e0f06c8;box-shadow:inset 0 0 0 2px #6a4a2a;border:0}
+#kmapp .kmce.lock{font-size:11px;opacity:.6}
+#kmapp .kmcp{display:grid;justify-items:center;gap:8px}#kmapp .kmctab{flex-wrap:wrap}
+#kmapp .kcards i.on{box-shadow:inset 0 0 0 1.5px #ffe27a}#kmapp .kcards i.lk{opacity:.35}`;document.head.append(css)})();
 
 
 
