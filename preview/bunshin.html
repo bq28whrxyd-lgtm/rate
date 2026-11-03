@@ -6223,7 +6223,7 @@ const AXV_BOLT=`void main(){float x=vU.x,y=vU.y;float st=floor(uT*22.);float str
  float j2=(fbm(vec2(y*6.,uS+9.+st*.5))-.5)*.5;float bx=cx+(.55-y)*.5*sign(j2+.01)+j2*.15;float db=y<.55&&y>.15?abs(x-bx):1.;
  float fade=1.-smoothstep(.45,.8,uT);float W=(.11+.04*sin(uT*80.))*(1.+.5*(1.-y))*fade;float core=W*.4;
  float dd=min(d,db*1.6);if(dd>W*1.6)discard;vec3 c=dd<core?vec3(1.):dd<W?uC:uE;if(dd>W&&dd>W*1.6-.012)discard;gl_FragColor=vec4(c,uA);}`;
-function axvLightning(x,z,o){o=o||{};const T=A3.T,G=axvGeo(),el=o.el||'elec',E=AXEL[el],s=o.s||1,dl=o.dl||0,H=26*s,W=7*s;/* (11/3) Blenderで作った雷の柱の絵に切りかえ(太い束・白い芯・地面のトゲの光・黒い破片) */if(typeof axvBolt==='function')return axvBolt(x,z,{col:(E&&E.c)||'#7ad0ff',w:.42*s,sy:1.6,dl,f0:o.f0!=null?o.f0:3});
+function axvLightning(x,z,o){o=o||{};const T=A3.T,G=axvGeo(),el=o.el||'elec',E=AXEL[el],s=o.s||1,dl=o.dl||0,H=26*s,W=7*s;/* (11/3) Blenderで作った雷の柱の絵に切りかえ(太い束・白い芯・地面のトゲの光・黒い破片) */if(typeof axvBolt==='function')return axvBolt(x,z,{col:el==='purple'?'#b06aff':(E&&E.c)||'#7ad0ff',w:.42*s,sy:1.6,dl,f0:o.f0!=null?o.f0:3});
   const m=axvMesh(G.quad,AXV_BOLT,false,{col:E.c,edge:E.e,ro:24});m.scale.set(W,H,1);m.position.set(x,H/2-.5,z);
   axvAdd({o:m,d:o.d||.42,dl,u:k=>{const c=A3.cam.position;m.rotation.set(0,Math.atan2(c.x-x,c.z-z),0)}});
   axvSpike(x,2.2,z+.8,{s:7.5*s,dl:dl+.03,d:.26});if(AXV3G){for(let i=0;i<3;i++){const a=i/3*6.28+Math.random();axv3('shard'+i,x+Math.cos(a)*1.2*s,.2,z+Math.sin(a)*s,{s:1.5*s,s0:.3,col:E.hi,edge:E.e,sh:E.c,d:.35,ds:.3,dl:dl+.03,sy:2.2})}
