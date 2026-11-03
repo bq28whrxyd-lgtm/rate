@@ -714,6 +714,18 @@ service cloud.firestore {
     }
 
     // ---- when each player last had the app open: written by that player, readable by the admin only ----
+    // (11/3) 落ちた場所の記録: each phone writes one record after an unexpected end; only the admin reads them
+    match /crash/{id} {
+      allow read, delete: if isAdmin();
+      allow create: if signedIn() && request.resource.data.p == myPid()
+        && request.resource.data.keys().hasOnly(['p', 't', 's', 'o', 'u', 'v', 'n', 'c', 'd', 'ua', 'at'])
+        && request.resource.data.at is int && math.abs(request.resource.data.at - request.time.toMillis()) < 300000
+        && request.resource.data.get('s', '') is string && request.resource.data.get('s', '').size() <= 24
+        && request.resource.data.get('o', '') is string && request.resource.data.get('o', '').size() <= 160
+        && request.resource.data.get('v', '') is string && request.resource.data.get('v', '').size() <= 40
+        && request.resource.data.get('ua', '') is string && request.resource.data.get('ua', '').size() <= 150;
+      allow update: if false;
+    }
     match /seen/{pid} {
       allow read: if signedIn();
       allow write: if signedIn() && myPid() == pid
