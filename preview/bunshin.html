@@ -5001,7 +5001,7 @@ const axIco=(k,cls)=>'<svg class="'+(cls||'axic')+'" viewBox="0 0 48 48" fill="n
 const AXSWAPI='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>';
 function axUI(){let u=$('axui');if(!u){u=document.createElement('div');u.id='axui';document.body.append(u)}u.replaceChildren();u.className='axui';const A=AXB;if(!A)return;const me=A.me;
   const top=mk('div','axtop');const q=mk('button','axpill axq','やめる');q.type='button';q.onclick=axQuit;
-  const info=Object.assign(mk('div','axinfo2'),{innerHTML:'<span>'+(A.title||('ステージ'+A.st))+'</span><b class="axtm"></b><span>エリア '+(A.area+1)+'/'+(A.areas||AXAREA).length+'</span>'});
+  const info=Object.assign(mk('div','axinfo2'),{innerHTML:'<span>'+(A.title||('ステージ'+A.st))+'</span><b class="axtm"></b>'+((A.areas||AXAREA).length>1?'<span>エリア '+(A.area+1)+'/'+(A.areas||AXAREA).length+'</span>':'')});
   const tg=mk('div','axtg');const au=mk('button','axpill'+(A.auto?' on':''),'AUTO');au.type='button';au.onclick=()=>{A.auto=!A.auto;axUI()};const sp=mk('button','axpill'+(A.speed>1?' on':''),A.speed>1?'×2':'×1');sp.type='button';sp.onclick=()=>{A.speed=A.speed>1?1:2;axUI()};
   const hp=mk('button','axpill','?');hp.type='button';hp.onclick=()=>{A.helpT=A.helpT?0:1;axUI()};tg.append(au,sp,hp);top.append(q,info,tg);u.append(top);
   u.append(Object.assign(mk('p','axlog'),{id:'axlog',textContent:A.log[A.log.length-1]||''}));
@@ -6625,10 +6625,10 @@ function axKEnd(e,A){const o=A.over,rk=o.rank,btns=[...e.querySelectorAll('butto
   const md=A.mode,big=(t,c)=>e.append(Object.assign(document.createElement('div'),{className:'klose kmo'+(c?' '+c:''),textContent:t}));
   if(md==='raid')big('レイド終了','kgd');else if(md==='sa')big('タイムアップ!','kgd');else if(o.win){const w=new Image();w.className='kwin';w.src=AXUIK.win;w.alt='WIN';e.append(w)}else big('まけてしまった…');
   const p=document.createElement('div');p.className='kp';const row=(l,v)=>{const r=document.createElement('div');r.className='kr';r.innerHTML='<span>'+l+'</span>';if(typeof v==='string')r.insertAdjacentHTML('beforeend','<b class="kmo">'+v+'</b>');else r.append(v);p.append(r)};
-  p.insertAdjacentHTML('beforeend','<h4>'+(md==='raid'?'RAID':md==='sa'?'SCORE ATTACK':o.win?'QUEST CLEAR':'QUEST FAILED')+' ・ '+(A.title||('ステージ'+A.st))+'</h4>');
+  p.insertAdjacentHTML('beforeend','<h4>'+(md==='raid'?'RAID':md==='sa'?'SCORE ATTACK':o.win?'QUEST CLEAR':'QUEST FAILED')+' ・ '+(md==='sa'&&A.baseO?A.baseO.name:md==='raid'&&A.raidU?A.raidU.name:(A.title||('ステージ'+A.st)))+'</h4>');
   if(md==='raid'&&A.raidU){const d=Math.max(0,A.raidHp0-Math.max(0,A.raidU.hp));row('与えたダメージ',Math.round(d/(typeof KMRK!=='undefined'?KMRK:1)).toLocaleString())}
   if(md==='sa'&&A.saU)row('スコア',Math.round(A.saU.max-Math.max(0,A.saU.hp)).toLocaleString());
-  if(o.win&&rk){const im=new Image();im.src=AXUIK['rank_'+rk[0]]||AXUIK.rank_C;im.alt=rk[0];row('クリアランク',im)}
+  if(o.win&&rk&&md!=='sa'){const im=new Image();im.src=AXUIK['rank_'+rk[0]]||AXUIK.rank_C;im.alt=rk[0];row('クリアランク',im)}
   row(md?'戦った時間':'クリアタイム',axFmt(o.t));row('最大 HIT',String(A.maxCombo));if(md!=='raid'&&md!=='sa')row('たおした数',String(A.kills));
   if(!md)p.insertAdjacentHTML('beforeend','<p class="knote">Sランクは '+AXRANK[0][1]+' 秒以内</p>');
   const b=document.createElement('div');b.className='kb';const back=btns.find(x=>/やめる/.test(x.textContent)),again=btns.find(x=>/もう一回/.test(x.textContent));
@@ -7030,7 +7030,7 @@ function kmAxRaid(){const R=kmRaidNow();if(!R){toastB('いま挑めるボスは�
   axStart(st,{mode:'raid',title:R.n,raidK:R.k,raid:r,baseO:o,areas:[{ban:'RAID',say:R.n+'!負けるまで削ろう',mk:A=>{const L=axFoes(A.st),b=L[0];hp0=Math.max(1,Math.round((r.hp||r.max||100000)*KMRK));b.max=b.hp=hp0;b.raidB=1;if(o&&o.name)b.name=o.name;A.raidHp0=hp0;A.raidU=b;return [b]}}]})}
 function kmAxSa(){if(!HOST||!HOST.sa){toastB('スコアアタックは本番のアプリで遊べます');return}const r=HOST.sa();if(!r.open||r.left<=0){toastB(r.open?'今日の回数は終わりました':'いまは開いていません');return}
   const o=saOpp(r),st=kmStOfLv(S.lv);document.body.classList.add('kmhide');
-  axStart(st,{mode:'sa',title:'スコアアタック',sa:r,baseO:o,tlim:60,areas:[{ban:'60秒',say:'60秒でどれだけ削れるか!',mk:A=>{const L=axFoes(A.st),b=L[0];b.max=b.hp=1e9;A.saU=b;return [b]}}]})}
+  axStart(st,{mode:'sa',title:'スコアアタック',sa:r,baseO:o,tlim:60,areas:[{ban:'60秒',say:'60秒でどれだけ削れるか!',mk:A=>{const L=axFoes(A.st),b=L[0];b.max=b.hp=1e9;A.saU=b;if(o&&o.name)b.name=o.name;return [b]}}]})}
 function kmAxXq(t){const g=XQ[t];document.body.classList.add('kmhide');const st=kmStOfLv(g.lv[0]);
   axStart(st,{mode:'xq',title:'経験値 '+g.n,xqT:t,areas:[0,1,2,3,4].map(i=>({ban:(i+1)+'/5',say:(i+1)+'人目: '+xqOpp(t,i).name.replace(/^\d\/5 /,''),mk:A=>{A.baseO=xqOpp(t,i);A.st=kmStOfLv(g.lv[i]);return axFoes(A.st)}}))})}
 /* 終わったときのごほうび(モード別) */
