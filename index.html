@@ -8922,6 +8922,8 @@ body.ui2 #lob .ktour button.ktno,body .ktour button.ktno{font-size:13.5px!import
 <div class="admcard"><div class="admct">参加のルールへの同意</div><div class="admcd">全員、同意するまでアプリを使えません。ルールを変えたら下のボタンで全員にもう一度同意してもらえます。</div><div id="admAgree"></div></div>
 <div class="admcard"><div class="admct">ログイン状況</div><div class="admcd">管理者だけに見えます。</div><div id="admSeen"></div>
 </div>
+<div class="admcard"><div class="admct">落ちた記録</div><div class="admcd">アプリを見ている間に急に終わったとき(メモリ不足など)の、直前の画面と演出。管理者だけに見えます。<button type="button" class="sec" onclick="admCrashRender()">読み込む</button></div><div id="admCrash"></div>
+</div>
 <div class="admcard" id="admAud"><div class="admct">ポイントの不正チェック</div><div class="admcd">選んだ人のポイントを、出どころごとに全員と比べます。とびぬけて多い項目や、ありえない数があると赤で出ます。調べるのはこのスマホの中だけで、何も書きかえません。</div>
 <div class="row" style="margin-top:8px"><select id="admAudP" aria-label="調べる人" style="flex:1;min-width:0" onfocus="try{audFill()}catch(e){}"></select><button id="admAudGo" style="flex:none" onclick="try{audFill();audRun()}catch(e){}">調べる</button></div><div id="admAudOut"></div>
 </div>
@@ -14953,6 +14955,21 @@ let seenMap={},seenSub=null,lastPing=0;
 function ping(force){const me=myPlayer();if(!db||!me||document.visibilityState!=='visible')return;if(now()-lastPing<(force?30000:85000))return;lastPing=now();db.doc('seen/'+me.id).set({t:now(),v:APP_VER}).catch(()=>{})}
 setInterval(()=>ping(),90000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')ping(true)});
 function seenWatch(){if(seenSub||!db)return;seenSub=db.collection('seen').onSnapshot(s=>{seenMap={};s.docs.forEach(d=>seenMap[d.id]=d.data());if(isAdmin())admSeenRender();window.kOnlineSync&&kOnlineSync()},()=>{})}
+/* (11/3) 落ちた場所の記録: 見ている間に急に終わったら(iPhoneのメモリ不足など)、次に開いたときに「直前の画面・出ていた演出」を crash/ に残す。見られるのは管理者だけ。
+   裏に回した・閉じたときは「ちゃんと終わった」印を付けるので数えない */
+const CRK='kmLive',CR_V='v143-11-03c';let crOv=[],crT0=Date.now(),crDone=false;
+function crSave(alive){try{localStorage.setItem(CRK,JSON.stringify({a:alive?1:0,t:Date.now(),s:String(typeof curView!=='undefined'?curView:'').slice(0,24),o:crOv.join(' > ').slice(0,160),u:Math.round((Date.now()-crT0)/1000),n:document.getElementsByTagName('*').length,c:document.getElementsByTagName('canvas').length,d:document.getElementsByTagName('video').length}))}catch(e){}}
+try{new MutationObserver(L=>{for(const m of L)for(const x of m.addedNodes){if(x.nodeType!==1||/^(SCRIPT|STYLE|LINK|META)$/.test(x.tagName))continue;const k=String(x.className&&x.className.baseVal!=null?x.className.baseVal:x.className||x.id||x.tagName).trim().split(/\s+/)[0].slice(0,28);if(!k||k==='toast')continue;crOv.push(k);if(crOv.length>4)crOv.shift()}}).observe(document.body,{childList:true})}catch(e){}
+setInterval(()=>{if(document.visibilityState==='visible')crSave(1)},4000);
+document.addEventListener('visibilitychange',()=>{crSave(document.visibilityState==='visible')});addEventListener('pagehide',()=>crSave(0));
+(function crBoot(){let prev=null;try{prev=JSON.parse(localStorage.getItem(CRK)||'null')}catch(e){}crSave(1);
+  const send=()=>{if(crDone)return;const me=typeof myPlayer==='function'&&myPlayer();if(!db||!me){setTimeout(send,3000);return}crDone=true;
+    if(prev&&prev.a===1&&Date.now()-prev.t<6*36e5)db.collection('crash').add({p:me.id,t:+prev.t||0,s:String(prev.s||'').slice(0,24),o:String(prev.o||'').slice(0,160),u:+prev.u||0,v:CR_V,n:+prev.n||0,c:+prev.c||0,d:+prev.d||0,ua:navigator.userAgent.slice(0,150),at:Date.now()}).catch(()=>{})};
+  setTimeout(send,2500)})();
+function admCrashRender(){const box=$('admCrash');if(!box||!db)return;box.replaceChildren(el('div','sub','読み込み中…'));
+  db.collection('crash').orderBy('at','desc').limit(40).get().then(q=>{box.replaceChildren();if(q.empty){box.append(el('div','sub','まだ記録はありません'));return}
+    q.docs.forEach(d=>{const x=d.data(),p=players.find(y=>y.id===x.p),r=el('div','sn');const dev=/iPhone/.test(x.ua||'')?'iPhone':/Android/.test(x.ua||'')?'Android':'PC';
+      r.append(el('b',null,(p?p.name:'?')+'  '+new Date(x.t).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})),el('span',null,'画面 '+(x.s||'?')+' ・ 直前 '+(x.o||'なし')+' ・ 起動から'+Math.round((x.u||0)/60)+'分 ・ 部品'+x.n+' 絵'+x.c+' 動画'+x.d+' ・ '+dev));box.append(r)})}).catch(()=>box.replaceChildren(el('div','sub','読み込めませんでした')))}
 /* (10/25) one rule for every screen (対戦, ホーム, 管理者): a phone from v141 on checks in every 90 seconds and counts as online for 3 minutes;
    an older one (it says v55) checks in every 5 minutes and counts for 6, so it doesn't blink in and out between check-ins */
 window.kOnWin=v=>(+String(v||'').replace(/\D/g,'')||0)>=141?3*60000:6*60000;
