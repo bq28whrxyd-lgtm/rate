@@ -111,6 +111,8 @@ nk_r2 = rsi(nk, 2).iloc[-1]
 today_s = TODAY.isoformat()
 next3 = [(d, e) for d, e in EVENTS.items() if today_s <= d <= (TODAY + dt.timedelta(days=3)).isoformat()]
 no_new = today_s in EVENTS
+holiday_thin = (TODAY.month == 12 and TODAY.day >= 26) or (TODAY.month == 1 and TODAY.day <= 4)
+is_friday = TODAY.weekday() == 4
 close_flag = any(today_s >= (pd.Timestamp(d) - pd.Timedelta(days=1)).date().isoformat() and today_s <= d for d in CLOSE_BEFORE)
 if max(EVENTS) < (TODAY + dt.timedelta(days=14)).isoformat():
     warn.append("イベント表の期限切れが近い。market/daily.py の EVENTS を更新すること。")
@@ -127,8 +129,12 @@ elif close_flag:
     fx_action = f"**決済**:{list(CLOSE_BEFORE.values())[0]}。"
 elif last < HARD_STOP:
     fx_action = f"**買わない**:{HARD_STOP}円割れ=もみ合い終了。次の日銀会合まで様子見。"
+elif holiday_thin:
+    fx_action = "**年末年始は持たない**:取引が薄く急変しやすい(2019/1/3型)。持っている分は決済、新規なし。"
 elif no_new:
     fx_action = f"**新規は見送り**(今日は {EVENTS[today_s]})。持っている分は損切り・利確注文をそのまま。"
+elif is_friday:
+    fx_action = "**新規は見送り(金曜)**:週末の窓開けリスクを避ける。持っている分は損切り・利確注文をそのまま。"
 elif risk_yen > CAPITAL * RISK_PER_TRADE * 1.25:
     fx_action = (f"**待つ**:買い場({buy_px})と損切り({stop_px})が離れすぎ(損失{risk_yen:,.0f}円 > 許容)。"
                  f"ボラティリティが下がるのを待つ。")
@@ -163,7 +169,7 @@ P(f"- S&P500 {sp.iloc[-1]:,.0f}({sp.index[-1].date()})、VIX {vix.iloc[-1]:.1f}{
 P("\n## この先3日のイベント")
 P("\n".join(f"- {d}:{e}" for d, e in next3) or "- なし")
 P("\n## 毎回のルール")
-P("- 1回の損失は2,000円まで/残高が入金額の−20%で全停止/160円以上は持たない/注文と同時に逆指値")
+P("- 1回の損失は2,000円まで/残高が入金額の−20%で全停止/160円以上は持たない/注文と同時に逆指値/金曜は新規なし/年末年始は持たない")
 if warn:
     P("\n## 注意")
     P("\n".join(f"- {w}" for w in warn))
