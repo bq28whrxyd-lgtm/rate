@@ -28,7 +28,7 @@
 **投資家リターンのギャップ（Dalbar・Morningstar）**
 - Dalbar QAIB 2025年版（2024年の実績）: 平均的な株式ファンド投資家のリターンは16.54%、S&P 500 は25.02%で、差は848bp。過去10年で2番目に大きい差だった。投資家が指数に負けたのは15年連続。過去20年（〜2024年末）では、投資家が年9.24%、S&P 500 が年10.35%。— [Dalbar 2025 プレスリリース](https://www.dalbar.com/press-release/investors-missed-the-best-of-2024s-market-gains-latest-dalbar-investor-behavior-report-finds/)、[Dalbar 2025 QAIB PDF](https://www.dalbar.com/Portals/dalbar/Cache/News/PressReleases/2025QAIBPressRelease.pdf)
 - Dalbar QAIB 2026年版（2025年の実績）: S&P 500 は17.88%、平均的な株式投資家は17.16%で、差は72bpに縮まった。1985年以降で3番目に小さく、2012年以降では最小。— [Dalbar 2026 QAIB プレスリリース PDF](https://www.dalbar.com/PressReleases/doc/2026QAIBReportPressRelease.pdf)
-- Morningstar「Mind the Gap 2025」（米国、2024年末までの10年）: 米国の投資信託と ETF に投じられた1ドルあたりの平均リターンは年約7%で、ファンド自体のトータルリターンより年約1.2ポイント低かった（期間中にファンドが得たリターンの約15%に相当するとの報道あり）。ボラティリティの高いファンドほどギャップが大きい。ターゲットデート型ファンドではギャップがほぼなかった。— [Morningstar Mind the Gap 2025](https://www.morningstar.com/business/insights/research/mind-the-gap-2025)、[WealthManagement.com](https://wealthmanagement.com/investing-strategies/investors-miss-out-on-12-of-fund-returns-over-decade)
+- Morningstar「Mind the Gap 2025」（米国、2024年末までの10年）: 米国の投資信託と ETF に投じられた1ドルあたりの平均リターンは年約7%で、ファンド自体のトータルリターンより年約1.2ポイント低かった。業界紙は「投資家は10年間でファンドのリターンの約12%を取り逃した」と報じている（見出しがどの年版の数値かは未確認）。ボラティリティの高いファンドほどギャップが大きい。ターゲットデート型ファンドではギャップがほぼなかった。— [Morningstar Mind the Gap 2025](https://www.morningstar.com/business/insights/research/mind-the-gap-2025)、[WealthManagement.com](https://wealthmanagement.com/investing-strategies/investors-miss-out-on-12-of-fund-returns-over-decade)
   - 未確認: カテゴリー別のギャップ（米国株0.4%、アロケーション0.7%、アクティブ1.6%、インデックス1.1%など）は二次記事でしか確認できず、どの年版の数値かも特定できなかった。— [Boldin（二次情報）](https://www.boldin.com/retirement/why-investors-miss-out-on-fund-returns/)
 
 ### Inferences
@@ -156,9 +156,9 @@ Faber（2007）の10か月（およそ200日）移動平均ルール、つまり
 
 ### Cited Findings
 - Faber「A Quantitative Approach to Tactical Asset Allocation」は2007年に Journal of Wealth Management に掲載され、2018年に Journal of Portfolio Management で「10年後の再検証」が出た。主張は「株式並みのリターンを、債券並みのボラティリティとドローダウンで」。— [Swedroe @ etf.com](https://www.etf.com/sections/index-investor-corner/swedroe-why-financial-trends-persist)、[SSRN 962461 のコピー（Scribd）](https://www.scribd.com/doc/116881446/SSRN-id962461)
-- S&P 500 に10か月移動平均ルールを適用した1900〜2005年の検証では、最大ドローダウンは約-50%（-49.98%）、最悪の年は-26.69%だった（バイ・アンド・ホールドの最大ドローダウンは大恐慌期の約-80%台。ブログ記事による検証）。— [Think Newfound ブログ](https://blog.thinknewfound.com/2013/08/)
+- S&P 500 に10か月移動平均ルールを適用した1900〜2005年の検証では、最大ドローダウンは約-50%（-49.98%）、最悪の年は-26.69%だった（ブログ記事による検証。同期間のバイ・アンド・ホールドの数値は、この出典では確認していない）。— [Think Newfound ブログ](https://blog.thinknewfound.com/2013/08/)
 - SPY と IEF（米国債）を使った例では、2008年のドローダウンがバイ・アンド・ホールドの約30%に対して約5%だった。ただし2007年までは、成績がバイ・アンド・ホールドを下回った。— [R-bloggers 2009](https://www.r-bloggers.com/2009/11/tactical-asset-allocation-using-blotter/)
-- 毎月どの日に判定するかを1日ずらすだけで、最大ドローダウンが19.03%から30.22%に変わったという検証がある。結果がルールの細部に強く依存するということで、データスヌーピングのリスクを示している。— [Think Newfound（rebalance タグ）](https://blog.thinknewfound.com/tag/rebalance)
+- 毎月どの日に判定するかを1日ずらすだけで、最大ドローダウンが19.03%から30.22%に変わったという検証がある。結果がルールの細部に強く依存するということで、データスヌーピングのリスクを示している。— [Think Newfound（rebalance タグ）](https://blog.thinknewfound.com/tag/rebalance)（検索結果からの引用。2つの Think Newfound ページのどちらに載っている記述かは未確認）
 - トレンドが持続する理由として、行動ファイナンス（情報への反応が遅れる過少反応と、その後の過剰反応）が挙げられている。— [Swedroe @ etf.com](https://www.etf.com/sections/index-investor-corner/swedroe-why-financial-trends-persist)、[Moskowitz, Ooi & Pedersen 2012（EconPapers）](https://econpapers.repec.org/RePEc:eee:jfinec:v:104:y:2012:i:2:p:228-250)
 - 市場の大きな上昇日と下落日は近い時期に集中する（第1章の J.P. Morgan データ）。移動平均フィルターで売った後は、急反発の上昇日も逃しうる。— [401k Specialist](https://401kspecialistmag.com/folly-of-timing-the-market-explained-in-jpmams-2024-guide-to-retirement/)
 
