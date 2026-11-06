@@ -15247,13 +15247,21 @@ function passDayView(ks,amt){const o=el('div','lbv psv'),c=el('div','lbc');const
   c.append(el('div','lbk','MONTHLY PASS'),el('div','lbn','+'+amt+'pt'),el('div','lbs',ks.map(k=>PASS[k].n).join(' + ')+'  ·  今日のぶん(パック専用)'),el('div','sub','タップで閉じる'));
   o.classList.add('pg'+top);o.append(c);document.body.append(o);FX(o,2,150,XS.gold);vib(2);
   const close=()=>{if(!o.isConnected)return;o.classList.add('out');setTimeout(()=>o.remove(),300)};o.onclick=close;setTimeout(close,5000)}
-let lbBusy=false;
+let lbBusy=false,lbFail=-1;
+/* (11/6) 保存がサーバーに断られたときの記録: 管理者画面の「落ちた記録」に「保存拒否」として残す(1つの種類につき1日1回)。
+   どの決まりで断られたか調べるために、持ち物の主な数字を一緒に書く */
+const invRefT={};
+function invRefused(tag,e,n){try{const me=myPlayer(),dn=dayNo(now());if(!db||!me||invRefT[tag]===dn)return;invRefT[tag]=dn;
+  const v=inv||{},f=k=>(v[k]==null?'-':v[k]);
+  const o=[(e&&e.code)||'?','dn'+dn,'lbd'+f('lbd'),'lbs'+f('lbs'),'lbp'+f('lbp'),'hmp'+f('hmp'),'md'+f('md'),'mp'+f('mpts'),'ppd'+f('ppd'),'pk'+f('packs')+'/'+f('lpacks')+'/'+f('tpacks')+'/'+f('npacks'),'ps'+f('pspent'),'rv'+(v.rv?String(v.rv).slice(-4):'-'),'dt'+Math.round((now()-Date.now())/1000)].join(' ').slice(0,160);
+  db.collection('crash').add({p:me.id,t:Date.now(),s:('保存拒否:'+tag).slice(0,24),o,u:0,v:String(typeof CR_V!=='undefined'?CR_V:'').slice(0,40),n:0,c:0,d:0,ua:navigator.userAgent.slice(0,150),at:Date.now()}).catch(()=>{})}catch(x){}}
 async function loginBonus(){
   const me=myPlayer(),dn=dayNo(now());
-  if(lbBusy||!db||!me||me.ban||!invLoaded||invFor!==me.id||!econReady()||(inv.lbd!=null&&inv.lbd>=dn))return;
+  /* (11/6) 断られた日はもう試さない: 前は描き直すたびに保存し直し、スマホの中の値(+30pt)とサーバーの値が交互に出てポイントがチラついていた */
+  if(lbBusy||lbFail===dn||!db||!me||me.ban||!invLoaded||invFor!==me.id||!econReady()||(inv.lbd!=null&&inv.lbd>=dn))return;
   if(document.getElementById('splash')||opening||coinBusy){setTimeout(loginBonus,900);return}
   lbBusy=true;const st=(inv.lbd===dn-1?(+inv.lbs||0):0)+1,amt=lbAmt(st),n={...inv,lbd:dn,lbs:st,lbp:(+inv.lbp||0)+amt};
-  try{await db.doc('inv/'+me.id).set(n);inv=n;render();whenFree(()=>lbView(st,amt))}catch(e){}
+  try{await db.doc('inv/'+me.id).set(n);inv=n;render();whenFree(()=>lbView(st,amt))}catch(e){if(!e||e.code!=='throttled'){lbFail=dn;invRefused('ログボ',e,n)}}
   lbBusy=false}
 /* (10/23) only the page's top layers are looked at (it scanned every element on the page each time, several times a second at start) */
 const WF_SEL='.pwv,.pad,.ptg,.pts,.stkr,.camp,.news,#splash,.md,.pk,.bo,.vic,.chest,.lvup,.ae,.mvpann,.supup';
