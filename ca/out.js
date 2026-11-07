@@ -106,8 +106,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=12').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=12').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=13').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=13').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -835,6 +835,8 @@ const CSS = `
 @keyframes gGlow{50%{box-shadow:0 0 0 2px #fff,0 0 14px rgba(255,210,100,.95)}}
 .aGa .btns .aBtn{position:relative;font-size:16px}
 .aGa .btns .aBtn small{font-size:13px}
+.xpLeft{margin:6px 12px 2px;padding:8px 12px;border-radius:12px;background:rgba(255,248,230,.95);color:#2a1c08;font:800 14px var(--zk);text-align:center;box-shadow:0 0 0 1.5px #e8c070}.xpLeft b{font-size:18px;color:#b0420a}.xpLeft small{display:block;font:700 11px var(--zk);color:#5a4420}
+.xpNote{margin:4px 0 0;text-align:center;font:800 13px var(--zk)}.xpNote b{font-size:16px;color:#ffd36a}
 .aGa .gFirst{position:absolute;left:50%;top:50%;transform:translateX(-50%);z-index:3;width:min(86%,340px);padding:10px 14px;border-radius:14px;text-align:center;background:rgba(255,248,230,.95);color:#2a1c08;box-shadow:0 6px 18px rgba(0,0,0,.45),0 0 0 1.5px #e8c070;pointer-events:none;animation:gFirstIn .5s cubic-bezier(.2,.9,.3,1.2)}
 .aGa .gFirst b{display:block;font:900 17px var(--zk)}.aGa .gFirst span{display:block;margin-top:2px;font:700 12px var(--zk);color:#5a4420}
 @keyframes gFirstIn{from{opacity:0;transform:translate(-50%,-8px) scale(.94)}}
@@ -1272,7 +1274,7 @@ function renderEvents(b) {
     const op = evOpen(st), tiers = [0, 1, 2].map(t => { const j = evIdx(g, t), n = bitsN(S.stars[skey(j, false)] || 0); return `<i class="${n ? 'on' : ''}">${esc(A.STAGES[j].tn)}${n ? ' ' + '★'.repeat(n) : ''}</i>`; }).join('');
     if (!op) continue;   /* 今日あいていない祭壇は出さない */
     const isExp = st.ev === 'exp';
-    const e = qBanner({ cls: 'sm', bgCss: isExp ? `background-image:url(${UI}banner-exp.webp)` : `background:radial-gradient(90% 160% at 80% 50%,${elCol(st.el)},${elDeep(st.el)} 55%,#0a1236)`, extra: isExp ? '' : `<span class="orb" style="--ec:${elCol(st.el)};--ed:${elDeep(st.el)}"></span>`, sm: isExp ? 'いつでも' : '今日の祭壇', dl: isExp ? '' : `あと${hoursLeft()}時間`, tt: esc(st.n), bar: `<span class="qPills">${tiers}</span>`, label: st.n,
+    const e = qBanner({ cls: 'sm', bgCss: isExp ? `background-image:url(${UI}banner-exp.webp)` : `background:radial-gradient(90% 160% at 80% 50%,${elCol(st.el)},${elDeep(st.el)} 55%,#0a1236)`, extra: isExp ? '' : `<span class="orb" style="--ec:${elCol(st.el)};--ed:${elDeep(st.el)}"></span>`, sm: isExp ? 'いつでも' : '今日の祭壇', dl: isExp ? `今日あと${xpLeft()}回` : `あと${hoursLeft()}時間`, tt: esc(st.n), bar: `<span class="qPills">${tiers}</span>`, label: st.n,
       onclick: () => { EVSEL = g; renderNow(); } });
     b.appendChild(e);
   }
@@ -1295,6 +1297,7 @@ function renderTiers(b, g) {
     r.setAttribute('aria-label', `${st.n} ${st.tn}`);
     r.onclick = () => goSheetEv(g, t); L.appendChild(r);
   }
+  if (isExp) b.insertBefore(h('div', 'xpLeft', `今日の挑戦 あと <b>${xpLeft()}</b> / ${XP_MAX} 回<small>(初級・中級・上級あわせて。朝5時に戻る)</small>`), L);
   b.appendChild(h('p', 'onote', '◆ は敵の強さ。最初から全部の難易度に挑戦できます。'));
 }
 function goSheetEv(g, t) {
@@ -1308,7 +1311,8 @@ function goSheetEv(g, t) {
   sh.innerHTML = `<div class="tt"><b class="tb t${t}">${esc(st.tn)}</b><span>${esc(st.n)}</span></div><p>${esc(st.d)}</p><div class="inf"><span>ウェーブ ${st.waves.length}</span><span>敵の強さ <i class="sv">${'■'.repeat(sv)}</i></span></div><div class="inf drp">${drops}</div>${starBox(i, false, true)}<div class="orow"></div>`;
   const close = () => o.remove(); const r = sh.querySelector('.orow'); const bk = btn('sub', 'もどる', close); bk.style.flex = '0 0 26%'; r.append(bk);
   if (((S.stars[skey(i, false)] || 0) & 7) === 7) { const sk = btn('sub', 'スキップ', () => { close(); skipStage(i, false); }); sk.style.flex = '0 0 28%'; r.append(sk); }
-  r.append(btn('shine', `${esc(st.tn)}に出撃`, () => { close(); if (canGo()) A.startStage(i, false); }));
+  const go = btn('shine', `${esc(st.tn)}に出撃`, () => { close(); if (canGo()) A.startStage(i, false); }); r.append(go);
+  if (st.ev === 'exp') { r.insertAdjacentHTML('beforebegin', `<p class="xpNote">今日の挑戦 あと <b>${xpLeft()}</b> / ${XP_MAX} 回</p>`); if (!xpLeft()) { go.disabled = true; go.innerHTML = '今日はもう挑戦できません'; r.querySelectorAll('button').forEach(x => { if (x.textContent === 'スキップ') x.disabled = true; }); } }
   o.addEventListener('click', e => { if (e.target === o) close(); }); lay.appendChild(o);
 }
 /* 戦闘で勝ったら呼ばれる。手に入れた物を足して、結果画面に出す文を返す */
@@ -1734,6 +1738,13 @@ const isPt = r => r.k === 'pt' || r.k === 'gem';
 function rwText(list) { return list.map(r => isPt(r) ? `${r.n.toLocaleString()}pt` : `${MATS[r.id].name} ×${r.n}`).join('、'); }
 function give(list) { for (const r of list) { if (isPt(r)) ptGain(r.n); else S.mats[r.id] = (S.mats[r.id] || 0) + r.n; } }
 function rwChip(r) { return isPt(r) ? `<span class="aRw">${svg('pt', '0 0 16 16')}<b>${r.n.toLocaleString()}</b><i>pt</i></span>` : `<span class="aRw">${matIcon(r.id)}<b>${esc(MATS[r.id].name)}</b><i>×${r.n}</i></span>`; }
+/* (11/8 山本さん) 経験値の竜の巣は、初級・中級・上級あわせて一日5回まで(挑戦した回数。スキップも1回)。朝5時に戻る */
+const XP_MAX = 5;
+const day5 = () => { const d = new Date(Date.now() - 5 * 3600e3); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
+function xpFresh() { if (!S.xp || S.xp.d !== day5()) S.xp = { d: day5(), n: 0 }; }
+function xpLeft() { xpFresh(); return Math.max(0, XP_MAX - S.xp.n); }
+function xpTake(i) { const st = A.STAGES[i]; if (!st || st.ev !== 'exp') return true; if (xpLeft() <= 0) { flash('経験値の竜の巣は今日はもう挑戦できません(朝5時に戻ります)'); return false; } S.xp.n++; save(); return true; }
+window.CA_GATE = (i) => xpTake(i);
 function dmFresh() { if (S.dm.date !== today()) S.dm = { date: today(), win: 0, power: 0, gacha: 0, got: [] }; }
 /* くり返しクリアの報酬(初回とは別)。ハードは1日3回まで宝珠が出る */
 function repeatDrops(st, i, hd) {
@@ -1776,6 +1787,7 @@ function resultBlock(ok) {
 }
 /* スキップ(★3を取ったステージだけ): 戦わずにくり返しの報酬をもらう */
 function skipStage(i, hd) {
+  if (!xpTake(i)) return;
   const st = A.STAGES[i], r = repeatDrops(st, i, hd); give(r); dmFresh(); S.dm.win++; save();
   modal('スキップ', (b, close) => { b.innerHTML = `<p style="text-align:center">${esc(st.id || '')} ${esc(st.n)} をスキップしました</p><div class="aRl">${r.length ? r.map(rwChip).join('') : '<p>今回は何も落ちませんでした</p>'}</div>`; const row = h('div', 'orow'); row.style.padding = '0'; row.append(btn('sub', '閉じる', close), btn('', 'もう一度', () => { close(); skipStage(i, hd); })); b.appendChild(row); });
   renderNow();

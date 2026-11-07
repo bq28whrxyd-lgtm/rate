@@ -469,7 +469,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=12';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=13';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2177,7 +2177,7 @@ function setStageData(i,h){const st=STAGES[i];G.stage=i;G.hard=!!h;G.mbName=st.m
   $('stid').textContent=st.ev?(st.tn||st.id||'EV'):st.id+(h?' H':'');rebuildDbg()}
 function emitScreen(s,extra){try{window.dispatchEvent(new CustomEvent('ca:screen',{detail:Object.assign({s},extra||{})}))}catch(e){}}
 function applyParty(){const P=window.CA_PARTY||{},AB=window.CA_ABIL||{};ALLIES.forEach(a=>{a.ab=new Set(AB[a.key]||[]);const m=P[a.key]||1;a.hp=Math.round(a.hp0*m);a.atk=+(a.atk0*m).toFixed(3)});G.hpMax=ALLIES.reduce((s,a)=>s+a.hp,0);SKILLS=ALLIES.map(skOf)}
-function startStage(i,h){stopResultArt();G.runId++;G.windBuff=false;G.tideT=0;G.shieldT=0;if(window.CA_TEAM)setTeam(window.CA_TEAM);if(window.CA_LEAD!=null)G.lead=window.CA_LEAD;$('lay').classList.remove('insel');applyParty();setStageData(i,h);emitScreen('battle',{i});['ss','res','mn','ov'].forEach(id=>$(id).hidden=true);skillClose();
+function startStage(i,h){/* (11/8) 外の画面が回数の制限をかける(経験値の竜の巣は一日5回) */if(window.CA_GATE&&!window.CA_GATE(i,!!h))return;stopResultArt();G.runId++;G.windBuff=false;G.tideT=0;G.shieldT=0;if(window.CA_TEAM)setTeam(window.CA_TEAM);if(window.CA_LEAD!=null)G.lead=window.CA_LEAD;$('lay').classList.remove('insel');applyParty();setStageData(i,h);emitScreen('battle',{i});['ss','res','mn','ov'].forEach(id=>$(id).hidden=true);skillClose();
   G.sk=[0,0,0,0];G.fireBuff=false;G.hp=G.hpMax;G.turn=1;G.cur=0;G.burst=0;G.burstOn=false;G.comboMax=0;G.over=false;G.busy=false;
   const st=STAGES[i];say(st.id+'  '+st.n+(h?'(ハード)':''),2.4);loadWave(0);nextTurn(true)}
 function showRes(ok,msg,btns){G.over=true;G.runId++;const st=STAGES[G.stage];$('res').classList.toggle('fail',!ok);
