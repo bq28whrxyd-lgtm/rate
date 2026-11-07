@@ -14678,7 +14678,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=13',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=14',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -14691,6 +14691,7 @@ function caWatch(){if(!CA_ON||!db||caWatch.on)return;caWatch.on=1;db.collection(
 const caParse=t=>{try{return t?JSON.parse(t):null}catch(e){return null}};
 async function caOpen(){const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if($('bunw')||$('tcgw'))return;caWatch();
   if(db&&(!caSaveReady||caSave&&caSave.pid!==me.id)){try{/* (v145) スマホの中の古い控えではなく、必ずサーバーの今の版を読む(古い控えだと「別の端末で更新」と出ていた) */const d=await db.runTransaction(async tx=>{const x=await tx.get(db.doc('casave/'+me.id));return x.exists?x.data():null});caSave=d?{...d,pid:me.id}:{pid:me.id,u:0};caSaveReady=true}catch(e){toast('分身のデータを読めませんでした('+(e&&(e.code||e.message)||'?')+')');return}}
+  caAdj=[];if(db){try{const a=await db.doc('caadj/'+me.id).get();caAdj=a.exists&&Array.isArray(a.data().list)?a.data().list:[]}catch(e){}}/* (11/8) 管理者の経験値の竜の回収 */
   caBase=+(caSave&&caSave.u)||0;caCache={s:caParse(caSave&&caSave.s),p:caParse(caSave&&caSave.p)};caDirty={};
   caEarn(0);/* 次の日に回していた分を入れる */
   const o=el('div','tcgw caw');o.id='bunw';const f=el('iframe');f.src=CA_SRC;f.title='分身(圧縮アリーナ)';o.append(f,bunLoading(f));document.body.append(o);document.body.classList.add('tcgon')}
@@ -14711,7 +14712,9 @@ function caEarn(n){const me=myPlayer();if(!me)return 0;const d={...(caDocs[me.id
   const pool=(+d.pq||0)+Math.max(0,Math.round(+n||0)),give=pool;/* (11/7) 1日の上限はなし(山本さん)。前の版で次の日に回していた分(pq)もここで全部入る */d.pe=(+d.pe||0)+give;d.pn=(+d.pn||0)+give;d.pq=pool-give;
   const was=caDocs[me.id]||{};caDocs[me.id]=d;if(give||d.pq!==(+was.pq||0)||d.pd!==was.pd)caPtSend();
 queueRender();return give}
+let caAdj=[];
 window.CAHOST={
+  adj:()=>JSON.parse(JSON.stringify(caAdj||[])),
   ready:()=>{try{bunLoaded()}catch(e){}},
   close:()=>{caFlush();bunClose()},
   name:()=>{const me=myPlayer();return me?me.name:''},
@@ -17193,6 +17196,7 @@ function renderAdmin(){
   players.forEach(p=>{if(!admInvSub[p.id])admInvSub[p.id]=db.doc('inv/'+p.id).onSnapshot(x=>{const n=x.exists?invAdj(x.data()):0;if(admInv[p.id]!==n){admInv[p.id]=n;admList()}},()=>{})});
   admList();admLimRender();admGenRender();admExtraRender();admSeenRender();admMsgRender();
   try{caRefundRender(panel)}catch(e){console.warn('caRefund',e)}
+  try{caTakeRender(panel)}catch(e){console.warn('caTake',e)}
   const lg=$('admLog');lg.replaceChildren();
   const L=[];grants.forEach(g=>{const last=L[L.length-1];if(g.all&&last&&last.all&&last.t===g.t&&last.pt===g.pt){last.cnt=(last.cnt||1)+1;return}L.push({...g})});L.splice(30);if(!L.length)lg.append(el('div','sub','まだ操作はありません'));
   L.forEach(g=>{const r=el('div','alog'),a=el('div');
@@ -17209,6 +17213,28 @@ function caRefundRender(panel){if(typeof CA_ON==='undefined'||!CA_ON)return;let 
   if(!rows.length){box.append(el('div','sub','ガチャを引いた人はいません'));return}
   rows.forEach(r=>{const x=el('div','alog'),a=el('div');const D=r.d,rf=(+D.crf||0)+(+D.krf||0);a.append(el('div',null,r.n),el('div','sub','使った '+r.spent.toLocaleString()+'pt(装備 1回×'+(+D.gp||0)+'・10連×'+(+D.g10||0)+' / キャラ 1回×'+(+D.cp||0)+'・10連×'+(+D.c10||0)+(rf?' / 戻り −'+rf.toLocaleString()+'pt':'')+')'));x.append(a,el('b',r.back>0?'p':'m','+'+r.back.toLocaleString()+'pt'));box.append(x)});
   box.append(el('div','sub','返す合計 '+tot.toLocaleString()+'pt  ·  '+rows.filter(r=>r.back>0).length+'人'))}
+/* (11/8 山本さん) 分身の経験値の竜を回収する(管理者)。caadj/{pid}.list に書くと、その人が次に分身を開いたときに1回だけ引かれる。
+   持っている竜で足りない分は、キャラのレベルから経験値を引いて下げる */
+let caTakePid='';
+function caTakeRender(panel){if(typeof CA_ON==='undefined'||!CA_ON||!db)return;let box=$('admCaTake');if(!box){box=el('div','admcard');box.id='admCaTake';const pg=panel.querySelector('.admpg[data-t="give"]')||panel;pg.prepend(box)}
+  if(box.dataset.n===String(players.length))return;box.dataset.n=String(players.length);/* 画面を描き直すたびに作り直すと、入れた数が消えるので1回だけ */
+  box.innerHTML='<div class="admct">分身: 経験値の竜の回収</div><div class="admcd">相手が次に分身を開いたときに引かれます。持っている竜で足りない分は、キャラのレベルから引いて下げます。</div>';
+  const sel=el('select');sel.style.cssText='width:100%;margin:6px 0';sel.append(new Option('相手を選ぶ',''));players.filter(p=>!p.retired).forEach(p=>sel.append(new Option(p.name,p.id)));sel.value=caTakePid;
+  const info=el('div','sub','');const row=el('div');row.style.cssText='display:flex;gap:6px;margin:6px 0';const N={};
+  for(const [k,n] of [['expS','小'],['expM','中'],['expL','大']]){const w=el('label');w.style.cssText='flex:1;font-size:12px';w.textContent=n+' ';const i=el('input');i.type='number';i.min='0';i.value='0';i.style.cssText='width:100%';N[k]=i;w.append(i);row.append(w)}
+  const go=el('button','sec','回収する');const msg=el('div','sub','');const pend=el('div','sub','');
+  const load=async()=>{info.textContent='';pend.textContent='';if(!caTakePid)return;info.textContent='読み込み中…';
+    try{const [sv,ad]=await Promise.all([db.doc('casave/'+caTakePid).get(),db.doc('caadj/'+caTakePid).get()]);const S=sv.exists?caParse(sv.data().s):null,m=(S&&S.mats)||{};
+      const top=S&&Array.isArray(S.units)?S.units.slice().sort((a,b)=>b.lv-a.lv).slice(0,4).map(u=>u.id+' Lv'+u.lv).join('・'):'';
+      info.textContent=S?`いま持っている竜: 小×${+m.expS||0} 中×${+m.expM||0} 大×${+m.expL||0}${top?' / レベルの高いキャラ: '+top:''}`:'まだ分身を開いていません';
+      const L=ad.exists&&Array.isArray(ad.data().list)?ad.data().list:[],done=new Set((S&&S.adjDone)||[]);
+      pend.textContent=L.length?'これまでの回収: '+L.map(a=>`小${+a.expS||0}・中${+a.expM||0}・大${+a.expL||0}(${done.has(a.id)?'引いた':'まだ'})`).join(' / '):''}catch(e){info.textContent='読めませんでした('+(e.code||e.message)+')'}};
+  sel.onchange=()=>{caTakePid=sel.value;go.dataset.ok='';go.textContent='回収する';load()};
+  go.onclick=async()=>{if(!caTakePid){msg.textContent='相手を選んでください';return}const v={};let any=0;for(const k in N){v[k]=Math.max(0,Math.floor(+N[k].value||0));any+=v[k]}if(!any){msg.textContent='数を入れてください';return}
+    if(!go.dataset.ok){go.dataset.ok='1';go.textContent='もう一度押すと回収します';msg.textContent=`${(players.find(p=>p.id===caTakePid)||{}).name||''} から 小×${v.expS} 中×${v.expM} 大×${v.expL}`;return}
+    go.dataset.ok='';go.textContent='回収する';
+    try{const ref=db.doc('caadj/'+caTakePid);await db.runTransaction(async tx=>{const d=await tx.get(ref);const L=d.exists&&Array.isArray(d.data().list)?d.data().list:[];L.push({id:'a'+now(),expS:v.expS,expM:v.expM,expL:v.expL,t:now()});tx.set(ref,{list:L.slice(-50)})});msg.textContent='回収を登録しました(相手が分身を開いたときに引かれます)';for(const k in N)N[k].value='0';load()}catch(e){msg.textContent='登録できませんでした('+(e.code||e.message)+')'}};
+  box.append(sel,info,row,go,msg,pend);load()}
 function genList(){return (genres||[{id:'ygo',n:'遊戯王'},{id:'dm',n:'デュエル・マスターズ'}]).map(x=>({...x}))}
 async function saveGenres(L,msg){
   try{await db.doc('config/genres').set({list:L,u:now()});$('admGenMsg').textContent=msg}catch(e){$('admGenMsg').textContent='保存できませんでした('+(e.code||e.message)+')'}

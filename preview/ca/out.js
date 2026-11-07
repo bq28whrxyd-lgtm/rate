@@ -99,6 +99,21 @@ fixTeam();
 function fixTeam() { const used = new Set(S.team.map(uid => unit0(uid).id)); for (const x of S.units.slice().sort((a, b) => CH[b.id].rar - CH[a.id].rar || b.lv - a.lv)) { if (S.team.length >= 4) break; if (used.has(x.id)) continue; used.add(x.id); S.team.push(x.u); } if (S.team.length && !S.team.some(uid => unit0(uid).id === S.lead)) S.lead = unit0(S.team[0]).id; if (!S.team.length) S.lead = null; if (!S.units.some(x => x.id === S.home)) S.home = S.lead; }
 putS();
 function save() { putS(); syncParty(); renderTop(); }
+/* (11/8 山本さん) 管理者が経験値の竜を回収する。アプリの caadj/{pid} に書かれた分を、分身を開いたときに1回だけ引く。
+   持っている竜から引き、足りない分はキャラのレベルから経験値を引いて下げる(レベルの高いキャラから) */
+const totExp = u => { let T = u.exp || 0; for (let l = 1; l < u.lv; l++) T += need(l); return T; };
+function setTot(u, T) { let lv = 1; const ml = maxLv(u); while (lv < ml && T >= need(lv)) { T -= need(lv); lv++; } u.lv = lv; u.exp = lv >= ml ? 0 : Math.max(0, Math.round(T)); }
+function applyAdj() {
+  if (!HOST || !HOST.adj) return; let L = []; try { L = HOST.adj() || []; } catch (e) { } S.adjDone = S.adjDone || []; const out = [];
+  for (const a of L) {
+    if (!a || !a.id || S.adjDone.includes(a.id)) continue; let lost = 0, down = 0; const tk = [];
+    for (const k of ['expS', 'expM', 'expL']) { const n = Math.max(0, Math.floor(+a[k] || 0)); if (!n) continue; const have = S.mats[k] || 0, t = Math.min(have, n); S.mats[k] = have - t; lost += (n - t) * MATS[k].exp; tk.push(MATS[k].name.replace('経験値の竜・', '') + '×' + n); }
+    for (const u of S.units.slice().sort((x, y) => y.lv - x.lv || y.exp - x.exp)) { if (lost <= 0) break; const T = totExp(u), k = Math.min(T, lost); if (k <= 0) continue; const b = u.lv; setTot(u, T - k); lost -= k; down += b - u.lv; }
+    S.adjDone.push(a.id); if (S.adjDone.length > 100) S.adjDone = S.adjDone.slice(-100); out.push({ tk, down });
+  }
+  if (!out.length) return; save();
+  setTimeout(() => modal('経験値の竜の回収', (b, close) => { b.innerHTML = `<p style="text-align:center">管理者が経験値の竜を回収しました。<br><b>${out.map(o => o.tk.join('・')).join(' / ')}</b>${out.some(o => o.down) ? `<br><span style="font-size:12px">持っている竜で足りない分は、キャラのレベルから引きました(合計 Lv −${out.reduce((a, o) => a + o.down, 0)})</span>` : ''}</p>`; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('shine', 'OK', close)); b.appendChild(r); }), 1200);
+}
 function unit(uid) { return S.units.find(x => x.u === uid); }
 function teamUnits() { return S.team.map(unit).filter(Boolean); }
 function syncParty() { const P = {}, AB = {}, T = teamUnits(); for (const x of T) { P[x.id] = mult(x); AB[x.id] = abilOf(x); } window.CA_PARTY = P; window.CA_ABIL = AB; window.CA_EVO = Object.fromEntries(T.map(x => [x.id, x.evo ? 1 : 0])); window.CA_SKIN = Object.fromEntries(T.map(x => [x.id, skinOf(x.id)]).filter(e => e[1])); window.CA_TEAM = T.map(x => x.id); window.CA_SKCUT = Object.fromEntries(T.map(x => [x.id, skCut(x)])); window.CA_LEAD = Math.max(0, T.findIndex(x => x.id === S.lead)); }
@@ -106,8 +121,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=13').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=13').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=14').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=14').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1860,7 +1875,7 @@ function pityPull() {
   save(); summon([{ u, isNew }], 1, 0);
 }
 /* ---------- 戦闘との行き来 ---------- */
-function showOut(tab) { document.body.classList.add('navon'); nav.hidden = false; hud.hidden = false; if (tab) TAB = tab; renderNow(); loadCover(); if (S.free10 && !needFree() && !showOut.f) { showOut.f = 1; setTimeout(() => flash('ガチャで無料の10回召喚が引けます'), 900); } }
+function showOut(tab) { if (!showOut.adj) { showOut.adj = 1; try { applyAdj(); } catch (e) { console.warn('adj', e); } } document.body.classList.add('navon'); nav.hidden = false; hud.hidden = false; if (tab) TAB = tab; renderNow(); loadCover(); if (S.free10 && !needFree() && !showOut.f) { showOut.f = 1; setTimeout(() => flash('ガチャで無料の10回召喚が引けます'), 900); } }
 /* (v68) 絵が読み終わるまで「読み込み中」を出す。読み終わったら描き直す(スマホで立ち絵や背景が出ないままだったため) */
 let LDC = null;
 function artReady() { return !!(A.PORT && A.PORT.ready) && !!window.CA_UIOK; }
