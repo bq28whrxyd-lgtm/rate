@@ -106,13 +106,16 @@ function setTot(u, T) { let lv = 1; const ml = maxLv(u); while (lv < ml && T >= 
 function applyAdj() {
   if (!HOST || !HOST.adj) return; let L = []; try { L = HOST.adj() || []; } catch (e) { } S.adjDone = S.adjDone || []; const out = [];
   for (const a of L) {
-    if (!a || !a.id || S.adjDone.includes(a.id)) continue; let lost = 0, down = 0; const tk = [];
+    if (!a || !a.id || S.adjDone.includes(a.id)) continue;
+    if (a.g) { const L2 = ['expS', 'expM', 'expL'].map(k => ({ k: 'mat', id: k, n: Math.max(0, Math.floor(+a[k] || 0)) })).filter(r => r.n); addBox(L2, '管理者から'); S.adjDone.push(a.id); if (L2.length) out.push({ g: 1, tk: L2.map(r => MATS[r.id].name.replace('経験値の竜・', '') + '×' + r.n), down: 0 }); continue; }  /* (11/8) 配布: プレゼント箱へ */
+    let lost = 0, down = 0; const tk = [];
     for (const k of ['expS', 'expM', 'expL']) { const n = Math.max(0, Math.floor(+a[k] || 0)); if (!n) continue; const have = S.mats[k] || 0, t = Math.min(have, n); S.mats[k] = have - t; lost += (n - t) * MATS[k].exp; tk.push(MATS[k].name.replace('経験値の竜・', '') + '×' + n); }
     for (const u of S.units.slice().sort((x, y) => y.lv - x.lv || y.exp - x.exp)) { if (lost <= 0) break; const T = totExp(u), k = Math.min(T, lost); if (k <= 0) continue; const b = u.lv; setTot(u, T - k); lost -= k; down += b - u.lv; }
     S.adjDone.push(a.id); if (S.adjDone.length > 100) S.adjDone = S.adjDone.slice(-100); out.push({ tk, down });
   }
   if (!out.length) return; save();
-  setTimeout(() => modal('経験値の竜の回収', (b, close) => { b.innerHTML = `<p style="text-align:center">管理者が経験値の竜を回収しました。<br><b>${out.map(o => o.tk.join('・')).join(' / ')}</b>${out.some(o => o.down) ? `<br><span style="font-size:12px">持っている竜で足りない分は、キャラのレベルから引きました(合計 Lv −${out.reduce((a, o) => a + o.down, 0)})</span>` : ''}</p>`; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('shine', 'OK', close)); b.appendChild(r); }), 1200);
+  const gv = out.filter(o => o.g), tk = out.filter(o => !o.g); if (gv.length && !tk.length) { setTimeout(() => flash('プレゼント箱に経験値の竜が届きました(' + gv.map(o => o.tk.join('・')).join(' / ') + ')'), 1200); renderNow(); return; }
+  setTimeout(() => modal('経験値の竜の回収', (b, close) => { b.innerHTML = `<p style="text-align:center">管理者が経験値の竜を回収しました。<br><b>${tk.map(o => o.tk.join('・')).join(' / ')}</b>${gv.length ? '<br><span style="font-size:12px">プレゼント箱にも届いています(' + gv.map(o => o.tk.join('・')).join(' / ') + ')</span>' : ''}${tk.some(o => o.down) ? `<br><span style="font-size:12px">持っている竜で足りない分は、キャラのレベルから引きました(合計 Lv −${tk.reduce((a, o) => a + o.down, 0)})</span>` : ''}</p>`; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('shine', 'OK', close)); b.appendChild(r); }), 1200);
 }
 function unit(uid) { return S.units.find(x => x.u === uid); }
 function teamUnits() { return S.team.map(unit).filter(Boolean); }
@@ -121,8 +124,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=14').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=14').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=15').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=15').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
