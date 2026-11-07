@@ -469,7 +469,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=15';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=16';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -723,7 +723,8 @@ const G={sk:[0,0,0,0],fireBuff:false,wave:0,turn:1,cur:0,lead:0,bodies:[],idc:1,
 /* ---------------- three.js ---------------- */
 const cv=document.getElementById('cv');
 const R=new THREE.WebGLRenderer({canvas:cv,antialias:true,powerPreference:'high-performance'});
-R.setPixelRatio(Math.min(innerWidth<700?3:2,devicePixelRatio||1));R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.05;R.outputColorSpace=THREE.SRGBColorSpace;
+/* (11/8 山本さん「バトル中ラグい」) スマホの3倍の解像度で後処理を何枚も重ねると重い。最大2倍にし、重いときは自動で下げる(1.5→1.25) */
+let DPR=Math.min(2,devicePixelRatio||1);R.setPixelRatio(DPR);R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.05;R.outputColorSpace=THREE.SRGBColorSpace;
 const S=new THREE.Scene();S.fog=new THREE.FogExp2(0x1a2258,.0042);
 const cam=new THREE.PerspectiveCamera(36,1,.1,300);
 S.add(new THREE.HemisphereLight(0xc8d4ff,0x1a2048,.5));
@@ -2231,7 +2232,8 @@ function rebuildDbg(){$('dbgb').querySelectorAll('.wb').forEach(b=>b.remove());c
 {const b=document.createElement('button');b.className='btn';b.type='button';b.textContent='BURST満タン';b.onclick=()=>{G.burst=CFG.burstNeed;ui()};$('dbgb').appendChild(b)}
 {const b=document.createElement('button');b.className='btn';b.type='button';b.textContent='スキル満タン';b.onclick=()=>{G.sk=SKILLS.map(s=>s.cd);ui()};$('dbgb').appendChild(b)}
 function logC(s){G.log.unshift((G.clock||0).toFixed(2)+' '+s);if(G.log.length>60)G.log.pop()}
-let fpsN=0,fpsT=0,fps=0,fpsMin=999;function fpsTick(now){fpsN++;if(now-fpsT>=1000){fps=Math.round(fpsN*1000/(now-fpsT));fpsMin=Math.min(fpsMin,fps);fpsN=0;fpsT=now}}
+let fpsN=0,fpsT=0,fps=0,fpsMin=999,slowN=0;function fpsTick(now){fpsN++;if(now-fpsT>=1000){const el=now-fpsT;fps=Math.round(fpsN*1000/el);fpsMin=Math.min(fpsMin,fps);fpsN=0;fpsT=now;
+  /* 重さの自動調整: 2秒続けて45コマ/秒より遅ければ解像度を一段下げる(画面が裏にある間は数えない) */if(el<1600&&!document.hidden&&!window.__FIXDT){if(fps<45){if(++slowN>=2&&DPR>1.25){DPR=Math.max(1.25,+(DPR-.375).toFixed(3));R.setPixelRatio(DPR);resize();slowN=0}}else slowN=0}}}
 function dbgTxt(){if(!G.dbg)return;let ms=0;for(const b of G.bodies)if(b.alive)ms=Math.max(ms,Math.hypot(b.vx,b.vz));G.stats.maxSpd=ms;
   $('dbgt').textContent='FPS: '+fps+' (最低 '+(fpsMin===999?'-':fpsMin)+')\n段階: '+G.phase+'\n圧縮の中心: '+(G.C?G.C.x.toFixed(2)+', '+G.C.z.toFixed(2):'-')+'\n下へ引いた距離: '+(G.dragPx|0)+'px (最大 '+(innerHeight*CFG.powerPx|0)+'px)\n強さ: '+(G.p*100|0)+'%  吸引半径: '+(G.rad||0).toFixed(2)+'m\n対象: '+G.cap.length+'個  最高速度: '+ms.toFixed(2)+'m/s\n衝突(ダメージあり): '+G.stats.hits+'  コンボ: '+G.combo+'\nリーダー: '+ALLIES[G.lead].ln+'\n共鳴: 壁'+(G.rs?G.rs.wall:0)+'回 水'+(G.rs?G.rs.water:0)+'回'+(LB.on?'\nラスボス: HP'+LB.hp+' ブレイク'+(LB.broken?'中':Math.round(LB.brk)+'%')+' 攻撃まで'+LB.cd+' 弱点'+Math.round(LB.wA*180/Math.PI)+'°':'')+'\n─ 記録 ─\n'+G.log.join('\n')}
 
@@ -2255,7 +2257,7 @@ function frame(now){requestAnimationFrame(frame);if(window.__PAUSE){last=now;ret
     {const tg=(G.calm?CFG.calmDamp:0)+Math.max(0,G.t-CFG.calmAge)*CFG.calmAgeK;G.calmK=(G.calmK||0)+(tg-(G.calmK||0))*Math.min(1,dt/CFG.calmIn)}
     if(ms<CFG.settleV&&G.second==null&&!SH.length&&!LQ.length&&!RFX.some(e=>e.hold)){G.settleT+=dt;if(G.settleT>.3){G.settleT=0;G.calm=false;G.calmK=0;endTurn()}}else G.settleT=0;
     if(G.t>CFG.turnMax){G.settleT=0;G.calm=false;G.calmK=0;endTurn()}}
-  const n=Math.max(1,Math.ceil(dt/(1/240)));for(let i=0;i<n;i++)physStep(dt/n);
+  const n=Math.min(6,Math.max(1,Math.ceil(dt/(1/240))));for(let i=0;i<n;i++)physStep(dt/n);/* (11/8) 重いときに細かく刻みすぎてさらに重くならないよう最大6回 */
   /* 床のへこみ・波 */
   const C=G.C;let depth=0,glow=0;
   /* へこみの深さ(m): 引いている間に少し沈み、吸引で一気に深く、ためで最大。解放の瞬間は逆に盛り上がって(はね返り)戻る */
@@ -2361,7 +2363,7 @@ function fitCam(pitch,pts,y0,y1,wk,lookY,outB,outL){let d=34,lz=0;const C=cam;
     let x0=1e9,x1=-1e9,ya=1e9,yb=-1e9;for(const q of pts){v3.copy(q).project(C);x0=Math.min(x0,v3.x);x1=Math.max(x1,v3.x);ya=Math.min(ya,v3.y);yb=Math.max(yb,v3.y)}
     const sx=(x1-x0)/wk,sy=(yb-ya)/(y1-y0),sc=Math.max(sx,sy);d*=1+(sc-1)*.7;lz+=((y1+y0)/2-(yb+ya)/2)*d*.18}
   outB.copy(C.position);outL.set(0,lookY,lz)}
-function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);comp.setPixelRatio(R.getPixelRatio());comp.setSize(w,h);smaa.setSize(w*R.getPixelRatio(),h*R.getPixelRatio());bloom.resolution.set(w/2,h/2);cam.aspect=w/h;cam.updateProjectionMatrix();
+function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);comp.setPixelRatio(R.getPixelRatio());comp.setSize(w,h);smaa.setSize(w*R.getPixelRatio(),h*R.getPixelRatio());bloom.resolution.set(w/3,h/3);cam.aspect=w/h;cam.updateProjectionMatrix();
   const tb=document.querySelector('.top').getBoundingClientRect(),pb=document.querySelector('.bot').getBoundingClientRect();document.documentElement.style.setProperty('--panelH',(h-pb.top)+'px');
   const ny=y=>1-2*y/h;const top=ny(tb.bottom+4),bot=ny(pb.top+8);
   fitCam(76*Math.PI/180,FITW,bot,top,1.98,0,camBase,camLook);
