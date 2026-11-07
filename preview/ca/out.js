@@ -72,11 +72,14 @@ const ptGain = n => { if (HOST) return HOST.earn(n); S.pt += n; return n; };
 const SKINS = { hood: { n: 'オーバーサイズ' }, chibi: { n: 'ふくれっつら' }, vt1: { n: 'ひだまりニット' }, vt2: { n: 'はなかんむり' }, vt3: { n: '堕ちた天使' }, hw: { n: '夜宴の小悪魔' }, knight: { n: 'かぼちゃ頭の騎士' } };
 const skinsOwned = () => { try { return HOST ? (HOST.skins ? HOST.skins() || [] : []) : Object.keys(SKINS); } catch (e) { return []; } };
 const skinArt = v => !!(PORT['skin_' + v] || (A.PORT && A.PORT.img && A.PORT.img['skin_' + v]));
-const skinOf = id => { const v = (S.skin || {})[id]; return v && SKINS[v] && skinsOwned().includes(v) ? v : null; };
+/* (v126) スキンは編成の枠につける(山本さん「設定した場所に編成したら、そのキャラがスキンに変わる」)。S.sslot[枠]=スキン */
+const slotSkin = i => { const v = (S.sslot || [])[i]; return v && SKINS[v] && skinsOwned().includes(v) ? v : null; };
+const skinOf = id => { const i = (S.team || []).findIndex(uid => { const x = S.units.find(y => y.u === uid); return x && x.id === id; }); return i < 0 ? null : slotSkin(i); };
 function fresh() { return { v: 1, pt: 3000, next: 5, units: [{ u: 1, id: 'jin', lv: 1, exp: 0, evo: 0 }, { u: 2, id: 'riz', lv: 1, exp: 0, evo: 0 }, { u: 3, id: 'gekka', lv: 1, exp: 0, evo: 0 }, { u: 4, id: 'seira', lv: 1, exp: 0, evo: 0 }], party: { jin: 1, riz: 2, gekka: 3, seira: 4 }, team: [1, 2, 3, 4], mats: {}, newIds: [], home: 'jin', name: 'プレイヤー', lead: 'jin', stars: {}, evt: {}, pity: 0, box: [], dm: { date: '', win: 0, power: 0, gacha: 0, got: [] }, hd: { date: '', n: {} } }; }
 let S = fresh();
 try { const o = HOST ? HOST.load('s') : JSON.parse(localStorage.getItem(KEY) || 'null'); if (o && o.v === 1) S = Object.assign(fresh(), o); } catch (e) { }
 if (HOST) { try { S.name = HOST.name() || S.name; } catch (e) { } }
+if (S.skin) { S.sslot = S.sslot || [null, null, null, null]; (S.team || []).forEach((uid, i) => { const x = S.units.find(y => y.u === uid); if (x && S.skin[x.id] && !S.sslot.includes(S.skin[x.id])) S.sslot[i] = S.skin[x.id]; }); delete S.skin; }
 /* (v69) 古いセーブ: 仮の★4・★3を新しいキャラに置きかえ、編成を4つの枠(team)にする */
 for (const x of S.units) if (OLDID[x.id]) x.id = OLDID[x.id];
 S.units = S.units.filter(x => CH[x.id]);
@@ -98,8 +101,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=6').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=6').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=7').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=7').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -789,6 +792,11 @@ const CSS = `
 .aGa .chars{bottom:calc(var(--nb,90px) + 126px)}
 @media (max-height:720px){.aHero{bottom:calc(var(--nb,90px) + 84px)}.aNm{bottom:calc(var(--nb,90px) + 78px)}.aGa .chars{bottom:calc(var(--nb,90px) + 124px)}}
 
+.tmW{display:grid;gap:3px;min-width:0}
+.tmSk{display:flex;align-items:center;gap:3px;min-width:0;height:24px;padding:0 6px 0 3px;border:0;border-radius:12px;cursor:pointer;font:800 9.5px/1 var(--zk);color:#6b5b45;background:#efe4c8;box-shadow:inset 0 0 0 1px #d8c49a}
+.tmSk span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tmSk img,.tmSk i{flex:none;width:18px;height:18px;border-radius:50%;object-fit:cover;background:#d8c9a6}
+.tmSk.on{color:#fff;background:linear-gradient(#d0508a,#9a2a62);box-shadow:inset 0 0 0 1px #ffd0e4}
 .dSec.sn .tg{background:#c0407a}.dSec.sn p{margin:0 0 8px}.snL{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .snL button{display:grid;justify-items:center;gap:2px;padding:5px 2px 6px;border:0;border-radius:8px;cursor:pointer;color:var(--crTx);background:#fff;box-shadow:inset 0 0 0 1.5px #e0cfa6}
 .snL button.on{box-shadow:inset 0 0 0 2.5px #e0a020,0 0 8px rgba(224,160,32,.5);background:#fff8e0}
@@ -1384,6 +1392,7 @@ function evolve(u) {
 const bigFace = {};
 /* (v125) くわしい画面のスキンの段。持っているスキンを、絵(アイコン)で選ぶ。能力は変わらない */
 function skinSec(u0, pv) {
+  return '';
   const own = skinsOwned(); if (!own.length || pv != null && pv !== (u0.evo ? 1 : 0) || !(u0.u > 0)) return '';
   const cur = (S.skin || {})[u0.id], who = v => Object.keys(S.skin || {}).find(k => S.skin[k] === v && k !== u0.id);
   const chip = (v, n, img, note, on, off) => `<button type="button" class="${on ? 'on' : ''}" data-v="${v}"${off ? ' disabled' : ''}>${img ? `<img alt="" src="${img}">` : '<i></i>'}<b>${esc(n)}</b>${note ? `<small>${esc(note)}</small>` : ''}</button>`;
@@ -1397,7 +1406,25 @@ function tmSlot(u, i) {
   const d = h('button', 'tmSlot'); d.type = 'button'; d.style.setProperty('--ec', elCol(c.el)); d.style.setProperty('--ed', elDeep(c.el));
   d.innerHTML = `<span class="ic">${f ? `<img alt="" src="${f}">` : ''}${elGem(c.el, 18)}<b class="lv">Lv${u.lv}</b></span><span class="st">${'★'.repeat(rarOf(u))}</span><span class="nm">${esc(c.name)}</span>`;
   d.setAttribute('aria-label', `${i === 0 ? 'リーダー ' : ''}${c.name} ★${rarOf(u)} Lv${u.lv}。押すと入れかえ`);
-  d.onclick = () => pickSheet(i); longPress(d, () => detail(u)); return d;
+  d.onclick = () => pickSheet(i); longPress(d, () => detail(u));
+  if (!skinsOwned().length) return d;
+  const w = h('div', 'tmW'); w.appendChild(d); const v = slotSkin(i);
+  const sb = h('button', 'tmSk' + (v ? ' on' : ''), `${v && skinIcon(v, c.el) ? `<img alt="" src="${skinIcon(v, c.el)}">` : '<i></i>'}<span>${v ? esc(SKINS[v].n) : 'スキンなし'}</span>`); sb.type = 'button'; sb.onclick = () => skinPick(i); w.appendChild(sb); return w;
+}
+const skinIcCache = {};
+function skinIcon(v, el) { const k = 'skin_' + v, ck = k + el; if (skinIcCache[ck]) return skinIcCache[ck]; try { if (!A.PORT || !A.PORT.img || !A.PORT.img[k]) return ''; return skinIcCache[ck] = A.portCanvas(k, el, 96, 50, false).toDataURL('image/webp', .85); } catch (e) { return ''; } }
+/* (v126) 枠のスキンを選ぶ。その枠に入れたキャラが、スキンの姿になる(強さは同じ)。1つのスキンは1つの枠だけ */
+function skinPick(i) {
+  const u = unit(S.team[i]); if (!u) return; const c = CH[u.id];
+  modal(`${i === 0 ? 'リーダー' : 'サブ' + i}の枠のスキン`, (b, close) => {
+    b.innerHTML = `<p class="onote" style="margin:0 0 8px">この枠に入れたキャラが、スキンの姿になります(立ち絵・顔・バトルの駒)。強さは変わりません。キャラを入れかえても、スキンは枠に残ります。</p><div class="snL"></div>`;
+    const L = b.querySelector('.snL'), cur = slotSkin(i);
+    const add = (v, n, img, note, off) => { const e = h('button', cur === v || (!v && !cur) ? 'on' : '', `${img ? `<img alt="" src="${img}">` : '<i></i>'}<b>${esc(n)}</b>${note ? `<small>${esc(note)}</small>` : ''}`); e.type = 'button'; e.disabled = !!off;
+      e.onclick = () => { S.sslot = S.sslot || [null, null, null, null]; for (let j = 0; j < 4; j++) if (v && S.sslot[j] === v) S.sslot[j] = null; S.sslot[i] = v; save(); close(); flash(v ? `${i === 0 ? 'リーダー' : 'サブ' + i}の枠に「${SKINS[v].n}」` : 'スキンを外した'); renderNow(); }; L.appendChild(e); };
+    add(null, 'なし', faceURL(u.id, u.evo, 1), '', false);
+    for (const v of skinsOwned()) { const j = (S.sslot || []).indexOf(v); add(v, SKINS[v].n, skinIcon(v, c.el), !skinArt(v) ? '絵の準備中' : j >= 0 && j !== i ? (j === 0 ? 'リーダー' : 'サブ' + j) + 'の枠から移す' : '', !skinArt(v)); }
+    const r = h('div', 'orow'); r.style.padding = '8px 0 0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r);
+  });
 }
 function charaParty(b) {
   fixLead();
