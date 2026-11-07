@@ -387,7 +387,7 @@ const CFG={ /* 【仮設定】 */
   hitMin:1.7,          // これより遅い衝突はダメージなし
   dmgK:.95,            // ダメージの係数 (v1.0 下げた)
   settleV:.2,          // これより遅くなったら落ち着いた
-  turnMax:10,          // 1手番の最長時間
+  turnMax:6,          // 1手番の最長時間
   calmDamp:3.2,calmT:1.2,calmIdle:1.0,calmIn:1.0,calmAge:3.5,calmAgeK:.6, // (v1.6) 解放から calmT 秒たって calmIdle 秒ダメージが出ていない(またはどれもダメージが出ない速さより遅い)とき、床の摩擦を calmIn 秒かけてゆっくり強める。解放から calmAge 秒より後は、時間とともに少しずつ摩擦が増える(長すぎる転がりを防ぐ)
   burstNeed:40,        // バーストに必要なコンボ数の合計
   /* (v0.4) */
@@ -469,7 +469,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=10';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=11';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -1407,11 +1407,11 @@ function restart(){startStage(G.stage??0,!!G.hard)}
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),0),hitP=new THREE.Vector3();
 function groundAt(cx,cy){const r=cv.getBoundingClientRect();ndc.set((cx-r.left)/r.width*2-1,-((cy-r.top)/r.height)*2+1);ray.setFromCamera(ndc,cam);return ray.ray.intersectPlane(plane,hitP)?{x:hitP.x,z:hitP.z}:null}
 let pid=null;
-cv.addEventListener('pointerdown',e=>{if(pid!==null||G.busy||G.phase!=='idle'||G.over)return;const p=groundAt(e.clientX,e.clientY);if(!p)return;const d=Math.hypot(p.x,p.z);if(d>CFG.R-.2)return;
+cv.addEventListener('pointerdown',e=>{if(pid!==null&&G.phase!=='aim')pid=null;/* (11/8) 指を離した合図が来なかったときに、次から押せなくなる(固まる)のを防ぐ */if(pid!==null||G.busy||G.phase!=='idle'||G.over)return;const p=groundAt(e.clientX,e.clientY);if(!p)return;const d=Math.hypot(p.x,p.z);if(d>CFG.R-.2)return;
   pid=e.pointerId;cv.setPointerCapture(pid);G.C=p;G.y0=e.clientY;G.p=0;G.dragPx=0;G.phase='aim';e.preventDefault()});
 cv.addEventListener('pointermove',e=>{if(e.pointerId!==pid||G.phase!=='aim')return;G.dragPx=Math.max(0,e.clientY-G.y0);G.p=Math.min(1,G.dragPx/(innerHeight*CFG.powerPx));G.rad=radOf(G.p);e.preventDefault()});
 function up(e){if(e.pointerId!==pid)return;pid=null;if(G.phase!=='aim')return;if(G.p<CFG.minPow){G.phase='idle';G.C=null;hint('指を「下」に引くと強さが決まります');return}startCompress()}
-cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',e=>{if(e.pointerId===pid){pid=null;if(G.phase==='aim'){G.phase='idle';G.C=null}}});
+cv.addEventListener('pointerup',up);for(const ev of ['pointercancel','lostpointercapture'])cv.addEventListener(ev,e=>{if(e.pointerId===pid){if(ev==='lostpointercapture'&&G.phase==='aim'){up(e);return}pid=null;if(G.phase==='aim'){G.phase='idle';G.C=null}}});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('touchmove',e=>{if(e.target===cv)e.preventDefault()},{passive:false});
 function radOf(p){const L=ALLIES[G.lead].lead;return lerp(CFG.radMin,CFG.radMax,p)*(L==='wide'?1.3:L==='tight'?.85:L==='power'?.9:1)*(G.burstOn?1.25:1)}
@@ -2158,6 +2158,8 @@ G.runId=0;
 const SEL={hard:false,pick:-1};
 /* (v1.5 試作) 遊び方の切り替え。press=詰めて潰す / bounce=今まで(ぶつけて当てる) */
 G.mode=(()=>{try{return localStorage.getItem('ca_mode')||'bounce'}catch(e){return 'bounce'}})();if(/bounce/.test(location.hash))G.mode='bounce';if(/press/.test(location.hash))G.mode='press';
+/* (11/8 山本さん) アプリの中(ふつうのプレイヤー)では、試作の遊び方の切りかえとデバッグ表示を出さない */
+const IN_APP=(()=>{try{return window.parent!==window&&!!window.parent.CAHOST}catch(e){return false}})();if(IN_APP){G.mode='bounce';G.dbg=false;for(const id of ['bmode','bdbg']){const e=$(id);if(e)e.style.display='none'}}
 /* 結果画面だけの飾り。ゲームの時間・評価・報酬には触れない。 */
 let resArtTimer=0;
 function stopResultArt(){clearTimeout(resArtTimer);resArtTimer=0;const res=$('res');res.querySelectorAll('.resfx').forEach(e=>e.remove());res.classList.remove('celebrate')}
