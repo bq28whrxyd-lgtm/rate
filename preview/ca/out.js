@@ -45,7 +45,8 @@ const ABIL = {
 };
 const CABIL = { beni: ['antiBomb', 'crit'], shion: ['guard', 'regen'], ibara: ['antiFog', 'shellBreak'], lumie: ['bossKiller', 'antiAnchor'], pom: ['antiBomb'], pukuru: ['guard'], futa: ['antiAnchor'], tomori: ['regen'], jin: ['shellBreak', 'bossKiller'], riz: ['antiFog', 'regen'], gekka: ['antiAnchor', 'crit'], seira: ['antiBomb', 'guard'], kagura: ['shellBreak'], yomogi: ['regen'], minamo: ['antiAnchor'], lux: ['guard'] };
 const abilOf = u => { const a = CABIL[u.id] || []; return CH[u.id].rar === 5 && !u.evo ? a.slice(0, 1) : a; };
-const GACHA = { one: 100, ten: 900, rate: { 5: .04, 4: .26, 3: .70 } };   /* D-082: 装備ガチャと同じ値段。10連は★4以上1体確定 */
+const GACHA = { one: 100, ten: 900, rate: { 5: .02, 4: .26, 3: .72 } };   /* (11/7) ★5は2%(山本さん) */
+   /* D-082: 装備ガチャと同じ値段。10連は★4以上1体確定 */
 const need = lv => Math.floor(20 * Math.pow(lv, 1.3));            /* lv → lv+1 に要る経験値 */
 const maxLv = u => MAXLV[rarOf(u)];
 /* (v102) 凸(D-124): 同じキャラを重ねると、1凸ごとに体力・攻撃 +3%(4凸まで)。2凸と4凸でスキルの手番が1つ短くなる。
@@ -91,8 +92,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=4').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=4').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=5').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=5').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo) => evo && PORT[id + '6'] ? id + '6' : id;
@@ -1654,7 +1655,7 @@ function renderOther() {
     bd.innerHTML = '<p>この端末のキャラ・素材・pt・ステージの進み具合を消して、最初の状態にします。もとに戻せません。</p>';
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('red', '初めに戻す', () => { S = fresh(); save(); try { localStorage.removeItem('ca_prog_v1'); } catch (e) { } A.PROG.n.fill(false); A.PROG.h.fill(false); close(); flash('最初の状態に戻しました'); renderNow(); })); bd.appendChild(r);
   });
-  item('info', 'このゲームについて', HOST ? '分身(圧縮アリーナ)' : '圧縮アリーナ 試作', () => modal('このゲームについて', (bd, close) => { bd.innerHTML = HOST ? '<p>分身(圧縮アリーナ)。押した所に敵や球を吸い寄せて、まとめてぶつけるバトルです。ptはアプリと共通で、もらえるのは1日300ptまでです。</p>' : '<p>圧縮アリーナ 試作。きもオタレートの「分身バトル」の新しいバージョンです。</p>'; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); bd.appendChild(r); }));
+  item('info', 'このゲームについて', HOST ? '分身(圧縮アリーナ)' : '圧縮アリーナ 試作', () => modal('このゲームについて', (bd, close) => { bd.innerHTML = HOST ? '<p>分身(圧縮アリーナ)。押した所に敵や球を吸い寄せて、まとめてぶつけるバトルです。ptはアプリと共通です。</p>' : '<p>圧縮アリーナ 試作。きもオタレートの「分身バトル」の新しいバージョンです。</p>'; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); bd.appendChild(r); }));
 }
 
 
