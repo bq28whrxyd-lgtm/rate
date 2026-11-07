@@ -17186,6 +17186,7 @@ function renderAdmin(){
   /* everyone's pack count, so the list can show real balances */
   players.forEach(p=>{if(!admInvSub[p.id])admInvSub[p.id]=db.doc('inv/'+p.id).onSnapshot(x=>{const n=x.exists?invAdj(x.data()):0;if(admInv[p.id]!==n){admInv[p.id]=n;admList()}},()=>{})});
   admList();admLimRender();admGenRender();admExtraRender();admSeenRender();admMsgRender();
+  try{caRefundRender(panel)}catch(e){console.warn('caRefund',e)}
   const lg=$('admLog');lg.replaceChildren();
   const L=[];grants.forEach(g=>{const last=L[L.length-1];if(g.all&&last&&last.all&&last.t===g.t&&last.pt===g.pt){last.cnt=(last.cnt||1)+1;return}L.push({...g})});L.splice(30);if(!L.length)lg.append(el('div','sub','まだ操作はありません'));
   L.forEach(g=>{const r=el('div','alog'),a=el('div');
@@ -17193,6 +17194,15 @@ function renderAdmin(){
     a.append(el('div',null,(g.all?'全員('+(g.cnt||1)+'人)':g.pn||'?')),el('div','sub',new Date(g.t).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+(g.note?'  ·  '+g.note:'')));
     r.append(a,el('b',((k==='pt'||k==='buy')&&g.pt>0)||k==='ptk'||k==='ctk'?'p':'m',what));lg.append(r)});
 }
+/* (v145) 分身の入れ替えの補填の一覧(管理者だけ): 前の分身のガチャに使った pt と、返す pt(使った分−1500、0未満は0) */
+function caRefundRender(panel){if(typeof CA_ON==='undefined'||!CA_ON)return;let box=$('admCaRef');if(!box){box=el('div');box.id='admCaRef';box.style.marginTop='18px';panel.append(box)}
+  if(typeof bunWatch==='function'&&!bunReady){try{bunWatch()}catch(e){}}
+  const rows=players.filter(p=>!p.retired).map(p=>{const d=bunDocs[p.id];const spent=d?(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d):0;return {n:p.name,spent,back:bunRefund(p.id)}}).filter(r=>r.spent>0).sort((a,b)=>b.back-a.back||b.spent-a.spent);
+  const tot=rows.reduce((a,r)=>a+r.back,0);
+  box.innerHTML='<h4 style="margin:0 0 4px">分身の入れ替えの補填</h4><div class="sub">前の分身のガチャ(装備・キャラ)に使った pt から 1500pt を引いた分を返す。0より下の人は0。'+(bunReady?'':'(読み込み中…)')+'</div>';
+  if(!rows.length){box.append(el('div','sub','ガチャを引いた人はいません'));return}
+  rows.forEach(r=>{const x=el('div','alog'),a=el('div');a.append(el('div',null,r.n),el('div','sub','使った '+r.spent.toLocaleString()+'pt'));x.append(a,el('b',r.back>0?'p':'m','+'+r.back.toLocaleString()+'pt'));box.append(x)});
+  box.append(el('div','sub','返す合計 '+tot.toLocaleString()+'pt  ·  '+rows.filter(r=>r.back>0).length+'人'))}
 function genList(){return (genres||[{id:'ygo',n:'遊戯王'},{id:'dm',n:'デュエル・マスターズ'}]).map(x=>({...x}))}
 async function saveGenres(L,msg){
   try{await db.doc('config/genres').set({list:L,u:now()});$('admGenMsg').textContent=msg}catch(e){$('admGenMsg').textContent='保存できませんでした('+(e.code||e.message)+')'}
