@@ -101,8 +101,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=8').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=8').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=9').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=9').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1688,12 +1688,10 @@ function renderOther() {
   const L = h('div', 'aList aGl'); b.appendChild(L);
   const item = (k, t, sub, fn) => { const e = h('button', null, `${svg(k)}<span>${esc(t)}<small>${esc(sub)}</small></span><span class="ar">›</span>`); e.type = 'button'; e.onclick = fn; L.appendChild(e); return e; };
   if (HOST) item('home', 'アプリに戻る', 'きもオタレートのホームへ', () => { try { HOST.close(); } catch (e) { } });
-  if (HOST && HOST.mentor) item('party', '師匠と弟子', 'レベルの高い仲間に弟子入りする', () => { try { HOST.mentor(); } catch (e) { } });
   if (!HOST) item('name', 'プレイヤー名', S.name, () => modal('プレイヤー名', (bd, close) => {
     bd.innerHTML = `<input maxlength="10" value="${esc(S.name)}" aria-label="プレイヤー名" style="width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;border:0;font:700 16px var(--zk);color:#fff;background:#060c24;box-shadow:inset 0 0 0 1px var(--aG)">`;
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('', '決める', () => { const v = bd.querySelector('input').value.trim(); if (v) { S.name = v.slice(0, 10); save(); } close(); renderNow(); })); bd.appendChild(r);
   }));
-  item('ev', '★6の姿を見る', '進化したあとの4人の絵。戦闘でも見られる', evoGallery);
   if (!HOST) for (const [k, n, nm] of [['jin', '紅蓮の号令', 'ジン'], ['riz', '深緑の結界', 'リズ'], ['gekka', '時の水鏡', '月華'], ['seira', '天光の雨', 'セイラ']]) item('ev', '演出の見本: ' + n, nm + 'のスキルをくり返し見る(試作)', () => A.demoFire(k));
   if (!HOST) item('ev', '演出の見本: 共鳴技', '共鳴技4つを順番にくり返し見る(試作)', () => A.demoRes());
   if (!HOST) item('plus', 'pt を +1,000', 'テスト用', () => { S.pt += 1000; save(); flash('+1,000pt'); });
