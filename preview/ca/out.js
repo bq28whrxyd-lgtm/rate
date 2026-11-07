@@ -91,8 +91,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=1').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=1').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=2').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=2').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo) => evo && PORT[id + '6'] ? id + '6' : id;
@@ -1012,6 +1012,8 @@ function renderHome() {
   const nNew = S.newIds.length;
   R.append(ib('news', 'お知らせ', news), ib('mission', 'ミッション', missions, dmClaimable()), ib('gift', 'プレゼント', presents, S.box.length), ib('party', '編成', () => { TAB = 'chara'; SUB.chara = 'party'; renderNow(); }));
   root.appendChild(R);
+  /* (v121) 上の帯(名前の札・pt・閉じるボタン)の下から並べる。アプリの中では札が大きくなって重なっていた */
+  const fitSide = () => { const hb = Math.max(0, ...[...hud.children].map(e => e.getBoundingClientRect().bottom)), rt = root.getBoundingClientRect().top; if (hb > 0) { L.style.top = R.style.top = Math.round(hb - rt + 8) + 'px'; } }; requestAnimationFrame(fitSide); setTimeout(fitSide, 400);
   /* 下: 出撃 */
   const ni = nextMain(), st = A.STAGES[ni];
   const cta = h('div', 'aCta');

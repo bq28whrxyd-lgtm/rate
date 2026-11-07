@@ -2317,6 +2317,7 @@ button.tcgc{position:relative;padding:0;background:none;border:0;border-radius:8
 .tcgw{position:fixed;inset:0;z-index:96;background:#07080c;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);animation:fade .25s both}
 .tcgw iframe{display:block;width:100%;height:100%;border:0;background:#07080c}
 .tcgw.out{opacity:0;transition:opacity .25s}
+.tcgw.caw{padding:0}
 body.tcgon{overflow:hidden}
 /* while the game is open, stop painting the app underneath it (its glows and animations cost frames on phones) */
 body.tcgon>main,body.tcgon>.bnav,body.tcgon>.iosnav{visibility:hidden;transition:visibility 0s linear .3s}
@@ -14678,7 +14679,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=1',CA_DAY=300,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=2',CA_DAY=300,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 function bunRefund(pid){if(!CA_ON)return 0;const d=bunDocs[pid];if(!d)return 0;const spent=(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d);return Math.max(0,spent-CA_REFUND_CUT)}
 function caPts(pid){if(!CA_ON)return 0;const d=caDocs[pid];return d?(+d.pe||0)-(+d.g1||0)*100-(+d.g10||0)*900:0}
@@ -14688,10 +14689,10 @@ function caWatch(){if(!CA_ON||!db||caWatch.on)return;caWatch.on=1;db.collection(
     queueRender()},()=>{})}
 const caParse=t=>{try{return t?JSON.parse(t):null}catch(e){return null}};
 async function caOpen(){const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if($('bunw')||$('tcgw'))return;caWatch();
-  if(db&&(!caSaveReady||caSave&&caSave.pid!==me.id)){try{const d=await audGet('casave/'+me.id);caSave=d?{...d,pid:me.id}:{pid:me.id,u:0};caSaveReady=true}catch(e){toast('分身のデータを読めませんでした('+(e&&(e.code||e.message)||'?')+')');return}}
+  if(db&&(!caSaveReady||caSave&&caSave.pid!==me.id)){try{/* (v145) スマホの中の古い控えではなく、必ずサーバーの今の版を読む(古い控えだと「別の端末で更新」と出ていた) */const d=await db.runTransaction(async tx=>{const x=await tx.get(db.doc('casave/'+me.id));return x.exists?x.data():null});caSave=d?{...d,pid:me.id}:{pid:me.id,u:0};caSaveReady=true}catch(e){toast('分身のデータを読めませんでした('+(e&&(e.code||e.message)||'?')+')');return}}
   caBase=+(caSave&&caSave.u)||0;caCache={s:caParse(caSave&&caSave.s),p:caParse(caSave&&caSave.p)};caDirty={};
   caEarn(0);/* 次の日に回していた分を入れる */
-  const o=el('div','tcgw');o.id='bunw';const f=el('iframe');f.src=CA_SRC;f.title='分身(圧縮アリーナ)';o.append(f,bunLoading(f));document.body.append(o);document.body.classList.add('tcgon')}
+  const o=el('div','tcgw caw');o.id='bunw';const f=el('iframe');f.src=CA_SRC;f.title='分身(圧縮アリーナ)';o.append(f,bunLoading(f));document.body.append(o);document.body.classList.add('tcgon')}
 /* セーブを送る(1.5秒まとめてから)。別の端末で先に保存されていたら上書きしない */
 function caFlush(){clearTimeout(caT);const me=myPlayer();if(!me||!db||!Object.keys(caDirty).length)return caQ;caDirty={};
   const run=()=>{const o={s:JSON.stringify(caCache.s||null),p:JSON.stringify(caCache.p||null),u:caBase+1,t:now()};if(o.s.length>400000||o.p.length>60000){toast('分身のデータが大きすぎて保存できませんでした');return Promise.resolve()}
