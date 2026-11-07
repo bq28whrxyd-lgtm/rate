@@ -2171,7 +2171,7 @@ function playResultArt(ok){stopResultArt();if(matchMedia('(prefers-reduced-motio
 function stageOpen(i,h){return h?PROG.n[i]&&(i===0||PROG.h[i-1]):(i===0||PROG.n[i-1])}
 function stageStrength(i,h){const k=STAGES[i].k;const v=(k.hp*(h?HARD.hp:1)+k.atk*(h?HARD.atk:1))/2;return Math.max(1,Math.min(5,Math.round(1+(v-.55)/2.3*4)))}
 function setStageData(i,h){const st=STAGES[i];G.stage=i;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
-  Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});
+  Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 山本さん「全体的にめっちゃ簡単」) 経験値の竜の巣(別に調整ずみ)以外の敵の体力と攻撃を2倍 */if(st.ev!=='exp'){DIF.hp*=2;DIF.atk*=2}
   WAVES.length=0;{const pool=[...new Set(STAGES.slice(0,i+1).flatMap(s=>(s.gm||[]).join('').replace(/\./g,'').split('')))];if(!pool.length)pool.push('f','w');let hk=0;
    st.waves.forEach((w,wi)=>{const g=(st.gm||[])[wi]||'';let ei=0;const items=w.items.map(it=>{if(it[0]!=='enemy')return it;let c=g[ei]||'.';if(h&&c==='.'&&ei%2===1)c=pool[(hk++)%pool.length];ei++;return GL[c]?[it[0],it[1],it[2],GL[c]]:it});WAVES.push(Object.assign({},w,{items}))})}
   $('stid').textContent=st.ev?(st.tn||st.id||'EV'):st.id+(h?' H':'');rebuildDbg()}

@@ -14678,7 +14678,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=19',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=20',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -17207,11 +17207,11 @@ function renderAdmin(){
 /* (v145) 分身の入れ替えの補填の一覧(管理者だけ): 前の分身のガチャに使った pt と、返す pt(使った分−1500、0未満は0) */
 function caRefundRender(panel){if(typeof CA_ON==='undefined'||!CA_ON)return;let box=$('admCaRef');if(!box){box=el('div','admcard');box.id='admCaRef';const pg=panel.querySelector('.admpg[data-t="give"]')||panel;pg.prepend(box)}
   if(typeof bunWatch==='function'&&!bunReady){try{bunWatch()}catch(e){}}
-  const rows=players.filter(p=>!p.retired).map(p=>{const d=bunDocs[p.id];const spent=bunSpent(d);return {n:p.name,spent,back:bunRefund(p.id),d:d||{}}}).filter(r=>r.spent>0).sort((a,b)=>b.back-a.back||b.spent-a.spent);
+  const rows=players.filter(p=>!p.retired).map(p=>{const d=bunDocs[p.id];const spent=bunSpent(d),c=caDocs[p.id]||{};return {n:p.name,spent,back:bunRefund(p.id),d:d||{},pe:+c.pe||0,cg:(+c.g1||0)*100+(+c.g10||0)*900}}).filter(r=>r.spent>0||r.pe>0).sort((a,b)=>(b.back+b.pe)-(a.back+a.pe)||b.spent-a.spent);
   const tot=rows.reduce((a,r)=>a+r.back,0);
-  box.innerHTML='<div class="admct">分身の入れ替えの補填</div><div class="admcd">前の分身のガチャ(装備・キャラ)に使った pt から 1500pt を引いた分を返す。0より下の人は0。お試し版のptにはもう入っています(本番にはまだ入っていません)。'+(bunReady?'':'(読み込み中…)')+'</div>';
+  box.innerHTML='<div class="admct">分身の入れ替えの補填・分身のpt</div><div class="admcd">補填: 前の分身のガチャ(装備・キャラ)に使った pt から 1500pt を引いた分を返した(0より下の人は0)。その下に、新しい分身(圧縮アリーナ)で もらったpt と ガチャに使ったpt。'+(bunReady?'':'(読み込み中…)')+'</div>';
   if(!rows.length){box.append(el('div','sub','ガチャを引いた人はいません'));return}
-  rows.forEach(r=>{const x=el('div','alog'),a=el('div');const D=r.d,rf=(+D.crf||0)+(+D.krf||0);a.append(el('div',null,r.n),el('div','sub','使った '+r.spent.toLocaleString()+'pt(装備 1回×'+(+D.gp||0)+'・10連×'+(+D.g10||0)+' / キャラ 1回×'+(+D.cp||0)+'・10連×'+(+D.c10||0)+(rf?' / 戻り −'+rf.toLocaleString()+'pt':'')+')'));x.append(a,el('b',r.back>0?'p':'m','+'+r.back.toLocaleString()+'pt'));box.append(x)});
+  rows.forEach(r=>{const x=el('div','alog'),a=el('div');const D=r.d,rf=(+D.crf||0)+(+D.krf||0);a.append(el('div',null,r.n),el('div','sub','使った '+r.spent.toLocaleString()+'pt(装備 1回×'+(+D.gp||0)+'・10連×'+(+D.g10||0)+' / キャラ 1回×'+(+D.cp||0)+'・10連×'+(+D.c10||0)+(rf?' / 戻り −'+rf.toLocaleString()+'pt':'')+')'));if(r.pe||r.cg)a.append(el('div','sub','新しい分身: もらった +'+r.pe.toLocaleString()+'pt / ガチャ −'+r.cg.toLocaleString()+'pt'));x.append(a,el('b',r.back>0?'p':'m','補填 +'+r.back.toLocaleString()+'pt'));box.append(x)});
   box.append(el('div','sub','返す合計 '+tot.toLocaleString()+'pt  ·  '+rows.filter(r=>r.back>0).length+'人'))}
 /* (11/8 山本さん) 分身の経験値の竜を回収する(管理者)。caadj/{pid}.list に書くと、その人が次に分身を開いたときに1回だけ引かれる。
    持っている竜で足りない分は、キャラのレベルから経験値を引いて下げる */
