@@ -14678,7 +14678,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=14',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=15',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -17218,23 +17218,29 @@ function caRefundRender(panel){if(typeof CA_ON==='undefined'||!CA_ON)return;let 
 let caTakePid='';
 function caTakeRender(panel){if(typeof CA_ON==='undefined'||!CA_ON||!db)return;let box=$('admCaTake');if(!box){box=el('div','admcard');box.id='admCaTake';const pg=panel.querySelector('.admpg[data-t="give"]')||panel;pg.prepend(box)}
   if(box.dataset.n===String(players.length))return;box.dataset.n=String(players.length);/* 画面を描き直すたびに作り直すと、入れた数が消えるので1回だけ */
-  box.innerHTML='<div class="admct">分身: 経験値の竜の回収</div><div class="admcd">相手が次に分身を開いたときに引かれます。持っている竜で足りない分は、キャラのレベルから引いて下げます。</div>';
-  const sel=el('select');sel.style.cssText='width:100%;margin:6px 0';sel.append(new Option('相手を選ぶ',''));players.filter(p=>!p.retired).forEach(p=>sel.append(new Option(p.name,p.id)));sel.value=caTakePid;
+  box.innerHTML='<div class="admct">分身: 経験値の竜の配布・回収</div><div class="admcd">相手が次に分身を開いたときに届きます(配布はプレゼント箱へ)。回収は、持っている竜で足りない分をキャラのレベルから引いて下げます。</div>';
+  const sel=el('select');sel.style.cssText='width:100%;margin:6px 0';sel.append(new Option('相手を選ぶ',''),new Option('全員(配布だけ)','*'));players.filter(p=>!p.retired).forEach(p=>sel.append(new Option(p.name,p.id)));sel.value=caTakePid;
   const info=el('div','sub','');const row=el('div');row.style.cssText='display:flex;gap:6px;margin:6px 0';const N={};
   for(const [k,n] of [['expS','小'],['expM','中'],['expL','大']]){const w=el('label');w.style.cssText='flex:1;font-size:12px';w.textContent=n+' ';const i=el('input');i.type='number';i.min='0';i.value='0';i.style.cssText='width:100%';N[k]=i;w.append(i);row.append(w)}
-  const go=el('button','sec','回収する');const msg=el('div','sub','');const pend=el('div','sub','');
-  const load=async()=>{info.textContent='';pend.textContent='';if(!caTakePid)return;info.textContent='読み込み中…';
+  const go=el('button','sec','回収する'),gv=el('button','sec','配布する');const bt=el('div');bt.style.cssText='display:flex;gap:8px';bt.append(gv,go);const msg=el('div','sub','');const pend=el('div','sub','');
+  const load=async()=>{info.textContent='';pend.textContent='';go.disabled=caTakePid==='*';if(!caTakePid)return;if(caTakePid==='*'){info.textContent='分身を開いたことがある人もない人も、全員のプレゼント箱に届きます';return}info.textContent='読み込み中…';
     try{const [sv,ad]=await db.runTransaction(async tx=>{const a=await tx.get(db.doc('casave/'+caTakePid)),b=await tx.get(db.doc('caadj/'+caTakePid));return [a.exists?a.data():null,b.exists?b.data():null]});const S=sv?caParse(sv.s):null,m=(S&&S.mats)||{};
       const top=S&&Array.isArray(S.units)?S.units.slice().sort((a,b)=>b.lv-a.lv).slice(0,4).map(u=>u.id+' Lv'+u.lv).join('・'):'';
       info.textContent=S?`いま持っている竜: 小×${+m.expS||0} 中×${+m.expM||0} 大×${+m.expL||0}${top?' / レベルの高いキャラ: '+top:''}`:'まだ分身を開いていません';
       const L=ad&&Array.isArray(ad.list)?ad.list:[],done=new Set((S&&S.adjDone)||[]);
-      pend.textContent=L.length?'これまでの回収: '+L.map(a=>`小${+a.expS||0}・中${+a.expM||0}・大${+a.expL||0}(${done.has(a.id)?'引いた':'まだ'})`).join(' / '):''}catch(e){info.textContent='読めませんでした('+(e.code||e.message)+')'}};
-  sel.onchange=()=>{caTakePid=sel.value;go.dataset.ok='';go.textContent='回収する';load()};
+      pend.textContent=L.length?'これまで: '+L.map(a=>`${a.g?'配布':'回収'} 小${+a.expS||0}・中${+a.expM||0}・大${+a.expL||0}(${done.has(a.id)?'済み':'まだ'})`).join(' / '):''}catch(e){info.textContent='読めませんでした('+(e.code||e.message)+')'}};
+  sel.onchange=()=>{caTakePid=sel.value;go.dataset.ok='';go.textContent='回収する';gv.dataset.ok='';gv.textContent='配布する';load()};
+  const nums=()=>{const v={};let any=0;for(const k in N){v[k]=Math.max(0,Math.floor(+N[k].value||0));any+=v[k]}return any?v:null};
+  const push=(pid,e)=>{const ref=db.doc('caadj/'+pid);return db.runTransaction(async tx=>{const d=await tx.get(ref);const L=d.exists&&Array.isArray(d.data().list)?d.data().list:[];L.push(e);tx.set(ref,{list:L.slice(-50)})})};
+  gv.onclick=async()=>{if(!caTakePid){msg.textContent='相手を選んでください';return}const v=nums();if(!v){msg.textContent='数を入れてください';return}const who=caTakePid==='*'?'全員':((players.find(p=>p.id===caTakePid)||{}).name||'');
+    if(!gv.dataset.ok){gv.dataset.ok='1';gv.textContent='もう一度押すと配布';msg.textContent=`${who} に 小×${v.expS} 中×${v.expM} 大×${v.expL} を配る`;return}gv.dataset.ok='';gv.textContent='配布する';
+    const ids=caTakePid==='*'?players.filter(p=>!p.retired).map(p=>p.id):[caTakePid];const e={id:'g'+now(),g:1,expS:v.expS,expM:v.expM,expL:v.expL,t:now()};let ok=0,ng=0;
+    for(const pid of ids){try{await push(pid,e);ok++}catch(x){ng++}}msg.textContent=`配布を登録しました(${ok}人${ng?'・失敗 '+ng+'人':''})。相手が分身を開いたときにプレゼント箱に届きます`;for(const k in N)N[k].value='0';load()};
   go.onclick=async()=>{if(!caTakePid){msg.textContent='相手を選んでください';return}const v={};let any=0;for(const k in N){v[k]=Math.max(0,Math.floor(+N[k].value||0));any+=v[k]}if(!any){msg.textContent='数を入れてください';return}
     if(!go.dataset.ok){go.dataset.ok='1';go.textContent='もう一度押すと回収します';msg.textContent=`${(players.find(p=>p.id===caTakePid)||{}).name||''} から 小×${v.expS} 中×${v.expM} 大×${v.expL}`;return}
     go.dataset.ok='';go.textContent='回収する';
     try{const ref=db.doc('caadj/'+caTakePid);await db.runTransaction(async tx=>{const d=await tx.get(ref);const L=d.exists&&Array.isArray(d.data().list)?d.data().list:[];L.push({id:'a'+now(),expS:v.expS,expM:v.expM,expL:v.expL,t:now()});tx.set(ref,{list:L.slice(-50)})});msg.textContent='回収を登録しました(相手が分身を開いたときに引かれます)';for(const k in N)N[k].value='0';load()}catch(e){msg.textContent='登録できませんでした('+(e.code||e.message)+')'}};
-  box.append(sel,info,row,go,msg,pend);load()}
+  box.append(sel,info,row,bt,msg,pend);load()}
 function genList(){return (genres||[{id:'ygo',n:'遊戯王'},{id:'dm',n:'デュエル・マスターズ'}]).map(x=>({...x}))}
 async function saveGenres(L,msg){
   try{await db.doc('config/genres').set({list:L,u:now()});$('admGenMsg').textContent=msg}catch(e){$('admGenMsg').textContent='保存できませんでした('+(e.code||e.message)+')'}
