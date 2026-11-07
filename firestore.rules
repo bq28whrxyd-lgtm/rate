@@ -330,6 +330,12 @@ service cloud.firestore {
       allow update: if signedIn() && bunMine(pid) && caSaveOk() && newV('u', 0) == oldV('u', 0) + 1;
       allow delete: if isAdmin();
     }
+    // (11/8) 管理者の経験値の竜の回収。管理者が書き、本人が分身を開いたときに読んで1回だけ引く
+    match /caadj/{pid} {
+      allow read: if signedIn() && (bunMine(pid) || isAdmin());
+      allow create, update: if isAdmin() && request.resource.data.keys().hasOnly(['list']) && request.resource.data.list is list && request.resource.data.list.size() <= 50;
+      allow delete: if isAdmin();
+    }
     function caSaveOk() {
       return request.resource.data.keys().hasOnly(['s', 'p', 'u', 't'])
         && request.resource.data.s is string && request.resource.data.s.size() < 400000
