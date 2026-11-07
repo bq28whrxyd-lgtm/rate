@@ -311,13 +311,11 @@ service cloud.firestore {
     }
     // ---- one record per avatar battle, written by the attacker, never changed ----
     // (11/7) 分身を「圧縮アリーナ」に入れ替え。ca = pt の数字(みんなの pt の計算に使うので、だれでも読める)、casave = セーブ(本人だけ)
-    // pe(もらった合計)は 1日300pt × 始めた日からの日数 をこえない。回数(g1・g10)ともらった合計は減らない
-    function caCap() { return (int((request.time.toMillis() - 1793995200000) / 86400000) + 1) * 300; }
+    // (11/7) 1日の上限はなし(山本さん)。回数(g1・g10)ともらった合計(pe)は減らない
     function caOk() {
       return request.resource.data.keys().hasOnly(['pe', 'g1', 'g10', 'pd', 'pn', 'pq'])
         && newV('pe', 0) is int && newV('g1', 0) is int && newV('g10', 0) is int && newV('pd', 0) is int && newV('pn', 0) is int && newV('pq', 0) is int
-        && newV('pe', 0) >= 0 && newV('g1', 0) >= 0 && newV('g10', 0) >= 0 && newV('pq', 0) >= 0 && newV('pn', 0) >= 0 && newV('pn', 0) <= 300
-        && newV('pe', 0) <= caCap();
+        && newV('pe', 0) >= 0 && newV('g1', 0) >= 0 && newV('g10', 0) >= 0 && newV('pq', 0) >= 0 && newV('pn', 0) >= 0;
     }
     match /ca/{pid} {
       allow read: if signedIn();
