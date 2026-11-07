@@ -53,7 +53,7 @@ const maxLv = u => MAXLV[rarOf(u)];
    ★4の4凸(最大Lv)は ★5の0凸(最大Lv)より弱いままになる数字にしてある */
 const TOT_MAX = 4, TOT_K = .03;
 const totOf = u => Math.min(TOT_MAX, u.tot || 0), skCut = u => (totOf(u) >= 2 ? 1 : 0) + (totOf(u) >= 4 ? 1 : 0);
-const mult = u => (1 + (u.lv - 1) * .0075) * (u.evo ? (EVOK[CH[u.id].rar] || 1) : 1) * (1 + TOT_K * totOf(u));   /* 体力と攻撃の倍率(進化で★が上がると大きく上がる) */
+const mult = u => (1 + (u.lv - 1) * .029)/* (11/8) レベルが効くように: Lv70で約3倍(前は1.5倍) */ * (u.evo ? (EVOK[CH[u.id].rar] || 1) : 1) * (1 + TOT_K * totOf(u));   /* 体力と攻撃の倍率(進化で★が上がると大きく上がる) */
 const feedExp = (u, base) => { const c = CH[u.id]; const e = 150 * c.rar * c.rar * u.lv; return Math.round(e * (base && CH[base.id].el === c.el ? 1.5 : 1)); };
 const elCol = el => '#' + A.OEL[el].c.toString(16).padStart(6, '0');
 const elDeep = el => '#' + A.OEL[el].e.toString(16).padStart(6, '0');
@@ -124,8 +124,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=15').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=15').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=22').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=22').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
