@@ -55,13 +55,13 @@ body{font-family:var(--ui);-webkit-user-select:none;user-select:none;-webkit-tou
 .hp span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 11px var(--num);text-shadow:0 1px 2px #000}
 .bg{height:8px;border-radius:4px;background:#0a1430;box-shadow:inset 0 0 0 1px #3a5f9e;overflow:hidden}
 .bg i{display:block;height:100%;width:0;background:linear-gradient(90deg,#5fe4ff,#fff);transition:width .3s}
-.tag{position:absolute;transform:translate(-50%,-100%);pointer-events:none;text-align:center}
+.tag{position:absolute;left:0;top:0;transform:translate(-50%,-100%);will-change:transform;pointer-events:none;text-align:center}
 .tag .hb{width:46px;height:5px;margin:0 auto;border-radius:3px;background:#200a10;box-shadow:0 0 0 1px #000a}
 .tag .hb i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#ff4a6a,#ffb07a)}
 .tag .cd{display:inline-block;margin-bottom:2px;font:900 10px var(--ui);color:#fff;padding:0 5px;border-radius:5px;background:#5a0c1acc}
 .tag .cd.hot{background:var(--red);box-shadow:0 0 8px var(--red)}
 .tag .nm{font:800 10px var(--ui);color:#ffd9de;text-shadow:0 1px 2px #000}
-.dmg{position:absolute;transform:translate(-50%,-50%);font:800 18px var(--num);color:#fff;text-shadow:0 0 6px #ffa63a,0 2px 0 #7a3a08,0 0 2px #000;pointer-events:none;white-space:nowrap}
+.dmg{position:absolute;left:0;top:0;transform:translate(-50%,-50%);will-change:transform,opacity;font:800 18px var(--num);color:#fff;text-shadow:0 0 6px #ffa63a,0 2px 0 #7a3a08,0 0 2px #000;pointer-events:none;white-space:nowrap}
 .dmg.big{font-size:24px;color:#fff2c0}
 .dmg.heal{color:#b8ffd0;text-shadow:0 0 6px #2bd97a,0 2px 0 #0a5a2a}
 .dmg.bad{color:#ffc0c8;text-shadow:0 0 6px #ff3d5a,0 2px 0 #6a0a18}
@@ -469,7 +469,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=16';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=17';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -723,8 +723,7 @@ const G={sk:[0,0,0,0],fireBuff:false,wave:0,turn:1,cur:0,lead:0,bodies:[],idc:1,
 /* ---------------- three.js ---------------- */
 const cv=document.getElementById('cv');
 const R=new THREE.WebGLRenderer({canvas:cv,antialias:true,powerPreference:'high-performance'});
-/* (11/8 山本さん「バトル中ラグい」) スマホの3倍の解像度で後処理を何枚も重ねると重い。最大2倍にし、重いときは自動で下げる(1.5→1.25) */
-let DPR=Math.min(2,devicePixelRatio||1);R.setPixelRatio(DPR);R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.05;R.outputColorSpace=THREE.SRGBColorSpace;
+R.setPixelRatio(Math.min(innerWidth<700?3:2,devicePixelRatio||1));R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.05;R.outputColorSpace=THREE.SRGBColorSpace;
 const S=new THREE.Scene();S.fog=new THREE.FogExp2(0x1a2258,.0042);
 const cam=new THREE.PerspectiveCamera(36,1,.1,300);
 S.add(new THREE.HemisphereLight(0xc8d4ff,0x1a2048,.5));
@@ -2145,7 +2144,7 @@ function ui(){const F=party.querySelectorAll('.face');F.forEach((f,i)=>{f.classL
 let comboT=0;function showCombo(){const el=$('combo');if(G.combo<=0){el.style.opacity=0;return}$('cn').textContent=G.combo;$('cs').textContent='連鎖ダメージ +'+Math.round((G.cm||0)*1.5)+'%';el.style.opacity=1;comboT=performance.now();
   el.animate([{transform:'scale(1.35)'},{transform:'scale(1)'}],{duration:180,easing:'cubic-bezier(.2,1.6,.4,1)'})}
 function hint(t){const h=$('hint');if(!t){h.style.opacity=0;return}$('ht').textContent=t;h.style.opacity=1}
-const nums=[];function num(x,y,z,v,cls){const d=document.createElement('div');d.className='dmg '+(cls||'')+(typeof v==='string'&&!/^[-+]?\d/.test(v)?' txt':'');d.textContent=typeof v==='number'?v.toLocaleString():v;tagsEl.appendChild(d);nums.push({d,x,y,z,t:0,dx:(Math.random()-.5)*.6})}
+const nums=[];function num(x,y,z,v,cls){const d=document.createElement('div');d.className='dmg '+(cls||'')+(typeof v==='string'&&!/^[-+]?\d/.test(v)?' txt':'');d.textContent=typeof v==='number'?v.toLocaleString():v;d.style.opacity=0;tagsEl.appendChild(d);nums.push({d,x,y,z,t:0,dx:(Math.random()-.5)*.6})}
 /* (v1.0) 知らせの文字: 画面の上の決まった場所に縦に積む(重ならない)。古いものから消える */
 function say(t,dur){const box=$('msgs');const d=document.createElement('div');d.className='say';d.textContent=t;box.appendChild(d);while(box.children.length>3)box.firstChild.remove();
   d.animate([{transform:'scale(1.6)',opacity:0},{transform:'scale(.94)',opacity:1,offset:.12},{transform:'scale(1)',opacity:1,offset:.2},{transform:'scale(1)',opacity:1,offset:.82},{transform:'translateY(-8px)',opacity:0}],{duration:(dur||1.4)*1000,easing:'cubic-bezier(.2,.9,.3,1)'}).onfinish=()=>d.remove()}
@@ -2232,8 +2231,7 @@ function rebuildDbg(){$('dbgb').querySelectorAll('.wb').forEach(b=>b.remove());c
 {const b=document.createElement('button');b.className='btn';b.type='button';b.textContent='BURST満タン';b.onclick=()=>{G.burst=CFG.burstNeed;ui()};$('dbgb').appendChild(b)}
 {const b=document.createElement('button');b.className='btn';b.type='button';b.textContent='スキル満タン';b.onclick=()=>{G.sk=SKILLS.map(s=>s.cd);ui()};$('dbgb').appendChild(b)}
 function logC(s){G.log.unshift((G.clock||0).toFixed(2)+' '+s);if(G.log.length>60)G.log.pop()}
-let fpsN=0,fpsT=0,fps=0,fpsMin=999,slowN=0;function fpsTick(now){fpsN++;if(now-fpsT>=1000){const el=now-fpsT;fps=Math.round(fpsN*1000/el);fpsMin=Math.min(fpsMin,fps);fpsN=0;fpsT=now;
-  /* 重さの自動調整: 2秒続けて45コマ/秒より遅ければ解像度を一段下げる(画面が裏にある間は数えない) */if(el<1600&&!document.hidden&&!window.__FIXDT){if(fps<45){if(++slowN>=2&&DPR>1.25){DPR=Math.max(1.25,+(DPR-.375).toFixed(3));R.setPixelRatio(DPR);resize();slowN=0}}else slowN=0}}}
+let fpsN=0,fpsT=0,fps=0,fpsMin=999;function fpsTick(now){fpsN++;if(now-fpsT>=1000){fps=Math.round(fpsN*1000/(now-fpsT));fpsMin=Math.min(fpsMin,fps);fpsN=0;fpsT=now}}
 function dbgTxt(){if(!G.dbg)return;let ms=0;for(const b of G.bodies)if(b.alive)ms=Math.max(ms,Math.hypot(b.vx,b.vz));G.stats.maxSpd=ms;
   $('dbgt').textContent='FPS: '+fps+' (最低 '+(fpsMin===999?'-':fpsMin)+')\n段階: '+G.phase+'\n圧縮の中心: '+(G.C?G.C.x.toFixed(2)+', '+G.C.z.toFixed(2):'-')+'\n下へ引いた距離: '+(G.dragPx|0)+'px (最大 '+(innerHeight*CFG.powerPx|0)+'px)\n強さ: '+(G.p*100|0)+'%  吸引半径: '+(G.rad||0).toFixed(2)+'m\n対象: '+G.cap.length+'個  最高速度: '+ms.toFixed(2)+'m/s\n衝突(ダメージあり): '+G.stats.hits+'  コンボ: '+G.combo+'\nリーダー: '+ALLIES[G.lead].ln+'\n共鳴: 壁'+(G.rs?G.rs.wall:0)+'回 水'+(G.rs?G.rs.water:0)+'回'+(LB.on?'\nラスボス: HP'+LB.hp+' ブレイク'+(LB.broken?'中':Math.round(LB.brk)+'%')+' 攻撃まで'+LB.cd+' 弱点'+Math.round(LB.wA*180/Math.PI)+'°':'')+'\n─ 記録 ─\n'+G.log.join('\n')}
 
@@ -2333,7 +2331,7 @@ function frame(now){requestAnimationFrame(frame);if(window.__PAUSE){last=now;ret
   {const W=innerWidth,H=innerHeight,ph=G.phase,on=ph==='aim'||ph==='suck'||ph==='hold';const wk=ph==='suck'?Math.min(1,G.t/G.T):ph==='hold'?1:ph==='aim'?.25*G.p:0;
    let ts=on?wk*(.20+.22*G.p):0;if(ph==='release'&&G.t<.12)ts=-.16*(.5+G.p);
    const U=warp.uniforms;U.uS.value=lerp(U.uS.value,ts,ph==='release'?.4:.18);U.uTw.value=lerp(U.uTw.value,on?wk*(ALLIES[G.lead].lead==='vortex'?1.5:.9)*(.4+.6*G.p):0,.18);
-   U.uV.value=lerp(U.uV.value,on?wk*(.5+.5*G.p):0,.12);U.uT.value=AU.uT.value;U.uAsp.value=W/H;
+   U.uV.value=lerp(U.uV.value,on?wk*(.5+.5*G.p):0,.12);warp.enabled=Math.abs(U.uS.value)>=.001||U.uV.value>=.001||U.uTw.value>=.001;/* (11/8) ゆがみが無いときはこの1枚を飛ばす(絵は同じ) */U.uT.value=AU.uT.value;U.uAsp.value=W/H;
    if(G.C){cam.updateMatrixWorld();v3.set(G.C.x,-Math.max(0,AU.uDepth.value)*.5,G.C.z).project(cam);const cx=(v3.x+1)/2,cy=(v3.y+1)/2;U.uC.value.set(cx,cy);
      v3.set(G.C.x+(G.rad||2),0,G.C.z).project(cam);U.uR.value=Math.max(.05,Math.abs((v3.x+1)/2-cx)*W/H)}}
   {const U=grade.uniforms;IFt+=real;U.uIF.value=IFt<IFd?1:0;U.uIFk.value=IFt>IFd*.5?1:0;U.uAsp.value=innerWidth/innerHeight;U.uT.value=AU.uT.value;
@@ -2341,15 +2339,15 @@ function frame(now){requestAnimationFrame(frame);if(window.__PAUSE){last=now;ret
   if(!G.noRender)comp.render(real);/* (v1.2) 自動テストで速く回すときだけ描画を止める */
   /* 頭の上の表示(HPと攻撃までの数) */
   const W=innerWidth,H=innerHeight;
-  for(const b of G.bodies){if(!b.alive||!b.tag)continue;v3.set(b.mesh.position.x,b.mesh.position.y+(b.tagH||(b.k==='boss'?3:b.k==='claw'?2.4:b.hz?1.35:1.5))*VSZ,b.mesh.position.z).project(cam);b.tag.style.left=((v3.x+1)/2*W)+'px';b.tag.style.top=((1-v3.y)/2*H)+'px';
+  for(const b of G.bodies){if(!b.alive||!b.tag)continue;v3.set(b.mesh.position.x,b.mesh.position.y+(b.tagH||(b.k==='boss'?3:b.k==='claw'?2.4:b.hz?1.35:1.5))*VSZ,b.mesh.position.z).project(cam);/* (11/8 ラグ) left/top を毎コマ変えると画面全体の並べ直しが起きるので、見た目が同じ transform で動かす */b.tag.style.transform='translate('+((v3.x+1)/2*W).toFixed(1)+'px,'+((1-v3.y)/2*H).toFixed(1)+'px) translate(-50%,-100%)';
     
-    if(b.hz)continue;b.tag.querySelector('.hb i').style.width=Math.max(0,b.hp/b.max*100)+'%';const cd=b.tag.querySelector('.cd');let tx=String(Math.max(1,b.cd)),hot=b.cd<=1,wide=false;
+    if(b.hz)continue;const tq=b.tag._q||(b.tag._q={hb:b.tag.querySelector('.hb i'),cd:b.tag.querySelector('.cd'),bk:b.tag.querySelector('.bk i')});{const w=Math.max(0,b.hp/b.max*100);if(tq._w!==w){tq._w=w;tq.hb.style.width=w+'%'}}const cd=tq.cd;let tx=String(Math.max(1,b.cd)),hot=b.cd<=1,wide=false;
     if(b.k==='claw'){tx='壊せば攻撃を止められる';hot=true;wide=true}else if(b.broken){tx='BREAK 残り'+b.broken;hot=false;wide=true}
     if(cd._w!==wide){cd._w=wide;cd.classList.toggle('wide',wide)}
-    if(b.k==='boss'){b.tag.querySelector('.bk i').style.width=(b.broken?100:(b.brk||0))+'%';b.tag.classList.toggle('brk',!!b.broken)}
+    if(b.k==='boss'&&tq.bk){tq.bk.style.width=(b.broken?100:(b.brk||0))+'%';b.tag.classList.toggle('brk',!!b.broken)}
     if(cd._t!==tx){cd._t=tx;cd.textContent=tx}if(cd._h!==hot){cd._h=hot;cd.classList.toggle('hot',hot)}}
   for(let i=nums.length-1;i>=0;i--){const n=nums[i];n.t+=real;const k=n.t/(n.d.classList.contains('txt')?1.4:.9);if(k>=1){n.d.remove();nums.splice(i,1);continue}
-    v3.set(n.x+n.dx*k,n.y+k*1.2,n.z).project(cam);n.d.style.left=((v3.x+1)/2*W)+'px';n.d.style.top=((1-v3.y)/2*H)+'px';n.d.style.opacity=k<.75?1:(1-k)*4;n.d.style.transform='translate(-50%,-50%) scale('+(k<.1?1.4-k*4:1)+')'}
+    v3.set(n.x+n.dx*k,n.y+k*1.2,n.z).project(cam);n.d.style.opacity=k<.75?1:(1-k)*4;n.d.style.transform='translate('+((v3.x+1)/2*W).toFixed(1)+'px,'+((1-v3.y)/2*H).toFixed(1)+'px) translate(-50%,-50%) scale('+(k<.1?1.4-k*4:1)+')'}
   if(G.combo>0&&G.phase==='idle'&&performance.now()-comboT>2600)$('combo').style.opacity=0;
   crushDraw(real);if(G.bossUiT){G.bossUiT=0;lbUi()}dbgTxt()}
 
@@ -2363,7 +2361,7 @@ function fitCam(pitch,pts,y0,y1,wk,lookY,outB,outL){let d=34,lz=0;const C=cam;
     let x0=1e9,x1=-1e9,ya=1e9,yb=-1e9;for(const q of pts){v3.copy(q).project(C);x0=Math.min(x0,v3.x);x1=Math.max(x1,v3.x);ya=Math.min(ya,v3.y);yb=Math.max(yb,v3.y)}
     const sx=(x1-x0)/wk,sy=(yb-ya)/(y1-y0),sc=Math.max(sx,sy);d*=1+(sc-1)*.7;lz+=((y1+y0)/2-(yb+ya)/2)*d*.18}
   outB.copy(C.position);outL.set(0,lookY,lz)}
-function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);comp.setPixelRatio(R.getPixelRatio());comp.setSize(w,h);smaa.setSize(w*R.getPixelRatio(),h*R.getPixelRatio());bloom.resolution.set(w/3,h/3);cam.aspect=w/h;cam.updateProjectionMatrix();
+function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);comp.setPixelRatio(R.getPixelRatio());comp.setSize(w,h);smaa.setSize(w*R.getPixelRatio(),h*R.getPixelRatio());bloom.resolution.set(w/2,h/2);cam.aspect=w/h;cam.updateProjectionMatrix();
   const tb=document.querySelector('.top').getBoundingClientRect(),pb=document.querySelector('.bot').getBoundingClientRect();document.documentElement.style.setProperty('--panelH',(h-pb.top)+'px');
   const ny=y=>1-2*y/h;const top=ny(tb.bottom+4),bot=ny(pb.top+8);
   fitCam(76*Math.PI/180,FITW,bot,top,1.98,0,camBase,camLook);
