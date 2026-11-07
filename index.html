@@ -2317,6 +2317,7 @@ button.tcgc{position:relative;padding:0;background:none;border:0;border-radius:8
 .tcgw{position:fixed;inset:0;z-index:96;background:#07080c;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);animation:fade .25s both}
 .tcgw iframe{display:block;width:100%;height:100%;border:0;background:#07080c}
 .tcgw.out{opacity:0;transition:opacity .25s}
+.tcgw.caw{padding:0}
 body.tcgon{overflow:hidden}
 /* while the game is open, stop painting the app underneath it (its glows and animations cost frames on phones) */
 body.tcgon>main,body.tcgon>.bnav,body.tcgon>.iosnav{visibility:hidden;transition:visibility 0s linear .3s}
@@ -14501,7 +14502,7 @@ const admInv={};
    - chests: each counted friend battle 40%, each quest battle 10%, each finished rate match or TCG battle (from BUN0) 40%; the roll is fixed by the record's id
    - the equipment gacha: 100pt a pull, 900pt for ten */
 const BUN_GIRL=false;/* 分身の女の子(一旦お休み)。bunshin の GIRL_ON と合わせる */
-const BUN_SRC='bunshin.html?v=77',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
+const BUN_SRC='bunshin.html?v=78',BUN0=Date.UTC(2026,9,14,10,0),BUN_DAY=5;
 let bunDocs={},bunLogs=[],bunCb=null,bunReady=false;
 /* CPU battles: q = quest stage, x1-x4 = experience quest grade (cleared runs only). Neither counts as a friend battle */
 const bunQ=l=>/^[qx]/.test(String(l.d));
@@ -14511,7 +14512,7 @@ const bunRoll=(id,p)=>hsh('bun'+id)%1000<Math.round(p*1000);
 function bunAtk(pid,before){const L=bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&(!before||l.t<before)).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 function bunDef(pid){const L=bunLogs.filter(l=>l.d===pid&&!l.w).sort((a,b)=>a.t-b.t),by={},out=[];for(const l of L){const d=dayNo(l.t);by[d]=(by[d]||0)+1;if(by[d]<=BUN_DAY)out.push(l)}return out}
 const bunQPts=qs=>{let s=0;for(let n=1;n<=Math.min(100,qs||0);n++)s+=n%10===0?100:30;return s};
-function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900-(+d.cp||0)*100-(+d.c10||0)*900+(+d.crf||0):0)+raidPts(pid)+saPts(pid)+(typeof hbPts==='function'?hbPts(pid):0)}
+function bunPts(pid){const d=bunDocs[pid];return bunAtk(pid).reduce((a,l)=>a+(l.w?50:10),0)+bunDef(pid).length*10+(d?bunQPts(d.qs)-(+d.gp||0)*100-(+d.g10||0)*900-(+d.cp||0)*100-(+d.c10||0)*900+(+d.crf||0)-bunKcCost(d)+(+d.krf||0):0)+raidPts(pid)+saPts(pid)+(typeof hbPts==='function'?hbPts(pid):0)+bunRefund(pid)+caPts(pid)}
 /* ===== 週末レイド (分身): one boss a week, Friday 5:00 to Monday 5:00 JST. Every try is a bunlog line {d:'xr<week>', s:damage}
    (the 'x' start keeps older app versions counting it as a quest, not as a fight with a friend). The HP is the sum of everyone's
    damage, at most RAID_DAY tries per person per day count. When it reaches 0, everyone who hit it gets 80 + up to 220 by their
@@ -14565,10 +14566,18 @@ function bunChests(pid){let c=0;for(const l of bunAtk(pid))if(bunRoll(l.id,.4))c
 const bunLeft=pid=>Math.max(0,BUN_DAY-bunLogs.filter(l=>l.a===pid&&!bunQ(l)&&dayNo(l.t)===dayNo(now())).length);
 const BUN_LOOK={g:'m',hs:0,hc:'茶',ec:'緑'};
 const bunState=pid=>bunDocs[pid]||{look:{...BUN_LOOK},al:{hp:0,atk:0,def:0,spd:0,mag:0},inv:[{id:1,k:'wood',r:'R',e:0}],eq:{w:1,a:0,x:0},nid:2,qs:0,gp:0,g10:0,copen:0,ch:{},cs:[],cfree:0,cp:0,c10:0,crf:0};
-function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0}),pk:d.look&&d.look.pk&&typeof hbSkin==='function'&&hbSkin(p.id)?1:0},eq,al:d.al}}
+function bunFighter(p){const d=bunState(p.id),eq=[];for(const s of ['w','a','x']){const it=(d.inv||[]).find(x=>x.id===(d.eq||{})[s]);if(it)eq.push([it.k,it.r,+it.e||0])}return {pid:p.id,name:p.name,lv:lvOf(p.id).L,look:{...BUN_LOOK,...(d.look||{}),...(BUN_GIRL&&d.look&&d.look.g==='f'&&d.look.hs>=0&&d.look.hs<2?{g:'f',hs:d.look.hs}:{g:'m',hs:0}),pk:d.look&&d.look.pk&&typeof hbSkin==='function'&&hbSkin(p.id)?1:0},eq,al:d.al,/* (11/3) 3Dの対戦: 相手の編成とキャラ */dk:d.dk||null,ch:d.ch||{},cs:d.cs||[]}}
 function bunAgo(t){const m=Math.floor((now()-t)/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':Math.floor(m/1440)+'日前'}
 let bunBase=0,bunSaveQ=Promise.resolve(),bunRetryGen=0,bunRetryN=0;const bunSave1=S=>window.BUNSHINHOST._save(S);
 /* (10/24) a character list as plain data (at most 64, numbers only) */
+/* (11/3) BUN_DK: 守りの編成をアカウントに保存する。firestore.rules の 'dk' を本番に出してから true にする(先に true にすると保存が全部はじかれる) */const BUN_DK=false;
+/* (11/3) BUN_KC: 推しカード(分身)をアカウントに保存して、ガチャのptを数える。firestore.rules の kc・k1・k10・kx・krf を本番に出してから true にする */const BUN_KC=false;
+const BUNK=['gp','g10','copen','cfree','cp','c10','crf'].concat(BUN_KC?['k1','k10','kx','krf']:[]);
+/* (11/3) 推しカード: o={id:{n,lv,star,tl,xp}}(最大64)、eq={キャラ:[id…]}(1人8枚まで、最大16人) */function bunKcClean(c){const o={},eq={},I=/^[a-z0-9_]{1,24}$/;c=c&&typeof c==='object'?c:{};const O=c.o&&typeof c.o==='object'?c.o:{},Q=c.eq&&typeof c.eq==='object'?c.eq:{};const N=(v,a,b)=>Math.max(a,Math.min(b,Math.round(+v||0)));
+  Object.keys(O).slice(0,64).forEach(id=>{if(!I.test(id))return;const v=O[id]||{};o[id]={n:N(v.n,1,999),lv:N(v.lv,1,120),star:N(v.star,3,7),tl:N(v.tl,1,5),xp:N(v.xp,0,1e7)}});
+  Object.keys(Q).slice(0,16).forEach(ch=>{if(!I.test(ch)||!Array.isArray(Q[ch]))return;eq[ch]=Q[ch].filter(id=>typeof id==='string'&&o[id]).slice(0,8)});return {o,eq}}
+/* the pt the card gacha took: 1回100pt, 10連は 500→700→900pt をくり返す */function bunKcCost(d){const n=+d.k10||0;return (+d.k1||0)*100+Math.floor(n/3)*2100+[0,500,1200][n%3]}
+/* (11/3) 守りの編成: メイン2人+サポート5人。'me' か 'ch:id' か 'sub:j' だけ */function bunDkClean(d){const ok=v=>typeof v==='string'&&/^(me|ch:[a-z0-9_]{1,24}|sub:\d)$/.test(v)?v:'';const L=(a,n)=>{const o=(Array.isArray(a)?a:[]).slice(0,n).map(ok);while(o.length<n)o.push('');return o};return d&&typeof d==='object'?{m:L(d.m,2),s:L(d.s,5)}:{m:['me',''],s:['','','','','']}}
 function bunChClean(c){const o={};if(c&&typeof c==='object')Object.keys(c).slice(0,64).forEach(id=>{const v=c[id]||{};if(/^[a-z0-9_]{1,24}$/.test(id))o[id]={n:Math.max(1,Math.min(99,Math.round(+v.n||1))),xp:Math.max(0,Math.round(+v.xp||0))}});return o}
 window.BUNSHINHOST={
   ready:()=>{try{bunLoaded()}catch(e){}},
@@ -14582,12 +14591,12 @@ window.BUNSHINHOST={
   _save:S=>{const me=myPlayer();if(!me||!db)return Promise.resolve();
     /* the page lives in another frame: copy into this frame's plain objects first (Firestore refuses objects from another frame) */
     const o=JSON.parse(JSON.stringify({look:S.look,al:S.al||null,inv:S.inv||[],eq:S.eq,nid:+S.nid||2,qs:+S.qs||0,gp:+S.gp||0,g10:+S.g10||0,copen:+S.copen||0,
-      /* (10/24) characters: owned {id:{n,xp}}, the 3 party slots, the free 10連 and the paid pulls */ch:bunChClean(S.ch),cs:Array.isArray(S.cs)?S.cs.slice(0,3).map(x=>String(x||'').slice(0,24)):[],cfree:Math.min(1,+S.cfree||0),cp:+S.cp||0,c10:+S.c10||0,crf:Math.max(0,Math.round(+S.crf||0)),u:now()}));
+      /* (10/24) characters: owned {id:{n,xp}}, the 3 party slots, the free 10連 and the paid pulls */ch:bunChClean(S.ch),cs:Array.isArray(S.cs)?S.cs.slice(0,3).map(x=>String(x||'').slice(0,24)):[],cfree:Math.min(1,+S.cfree||0),cp:+S.cp||0,c10:+S.c10||0,crf:Math.max(0,Math.round(+S.crf||0)),...(BUN_DK?{dk:bunDkClean(S.dk)}:{}),...(BUN_KC?{kc:bunKcClean(S.kc),k1:Math.max(0,Math.round(+S.k1||0)),k10:Math.max(0,Math.round(+S.k10||0)),kx:Math.max(0,Math.round(+S.kx||0)),krf:Math.max(0,Math.round(+S.krf||0))}:{}),u:now()}));
     const sv=bunDocs[me.id];
     const base=bunBase;if(base<0||(sv&&(+sv.u||0)!==base)){toast('別の端末で分身が更新されています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
     if(sv){/* a copy older than what is saved (opened before the data arrived) must not replace it */if((+sv.nid||0)>o.nid){toast('分身のデータを読み直しています。いったん閉じて開き直してください');return Promise.reject(new Error('stale'))}
-      for(const k of ['gp','g10','copen','cfree','cp','c10','crf'])o[k]=Math.max(o[k],+sv[k]||0);o.qs=Math.min(Math.max(o.qs,+sv.qs||0),(+sv.qs||0)+1)}
-    else{o.gp=0;o.g10=0;o.cp=0;o.c10=0;o.qs=Math.min(o.qs,1);o.copen=Math.min(o.copen,1)}
+      for(const k of BUNK)o[k]=Math.max(o[k],+sv[k]||0);o.qs=Math.min(Math.max(o.qs,+sv.qs||0),(+sv.qs||0)+1)}
+    else{o.gp=0;o.g10=0;o.cp=0;o.c10=0;if(BUN_KC){o.k1=0;o.k10=0;o.kx=0;o.krf=0}o.qs=Math.min(o.qs,1);o.copen=Math.min(o.copen,1)}
     /* nothing changed: no write */if(sv){const cj=x=>x&&typeof x==='object'?(Array.isArray(x)?'['+x.map(cj).join(',')+']':'{'+Object.keys(x).filter(k=>k!=='u'&&x[k]!==undefined).sort().map(k=>k+':'+cj(x[k])).join(',')+'}'):JSON.stringify(x);if(cj(sv)===cj(o))return Promise.resolve()}
     bunDocs[me.id]=JSON.parse(JSON.stringify(o));bunBase=o.u;
     /* (10/16) checked against the server's copy inside a transaction: an older copy from another phone never overwrites a newer one,
@@ -14595,7 +14604,7 @@ window.BUNSHINHOST={
     const ref=db.doc('bunshin/'+me.id);
     return db.runTransaction(async tx=>{const d=await tx.get(ref),cur=d.exists?d.data():null;
         if(cur&&((+cur.nid||0)>o.nid||(+cur.u||0)!==base)){const e=new Error('stale');e.code='stale';throw e}
-        if(cur){for(const k of ['gp','g10','copen','cfree','cp','c10','crf'])o[k]=Math.max(o[k],+cur[k]||0)}tx.set(ref,o)}).then(r=>{bunRetryN=0;return r})
+        if(cur){for(const k of BUNK)o[k]=Math.max(o[k],+cur[k]||0)}tx.set(ref,o)}).then(r=>{bunRetryN=0;return r})
       .catch(e=>{if(e&&e.code==='stale'){bunBase=-1;if(bunDocs[me.id]&&bunDocs[me.id].u===o.u)delete bunDocs[me.id];toast('別の端末で分身が更新されています。いったん閉じて開き直してください')}
         else{/* (10/24) not saved (offline, busy): put back what the server still has, so the next save is not taken for a stale copy, and try again */
           if(bunBase===o.u)bunBase=base;if(bunDocs[me.id]&&bunDocs[me.id].u===o.u){if(sv)bunDocs[me.id]=sv;else delete bunDocs[me.id]}
@@ -14625,7 +14634,7 @@ window.BUNSHINHOST={
       killC:hbKillC(I.n),killP:hbKillP(I.n),help:HB_HELP,back:HB_BACK,tryC:HB_CT,bal:balance(me),nextHP:hbHP(I.n+1),nextWitch:hbWitch(I.n+1)}},
   hbLog:(dmg,helper)=>{const me=myPlayer().id,I=hbInfo(me);if(I.st<=0)return Promise.reject(new Error('st'));const before=I.kills.length;
     return BUNSHINHOST.log({d:HB_D+(helper?'~'+helper:''),w:0,s:Math.max(0,Math.round(+dmg||0))}).then(()=>{hbC.k='';hwMemo.k='';const q=BUNSHINHOST.hboss();q.killed=q.kills>before;q.killN=I.n;q.gotC=HB_CT+hbKillC(I.n);q.gotP=HW_PV?0:hbKillP(I.n);return q})},
-  hbSkin:()=>hbSkin(myPlayer().id),
+  hbSkin:()=>hbSkin(myPlayer().id),kcLive:()=>BUN_KC,
   nightLog:dmg=>BUNSHINHOST.log({d:HW_NB,w:0,s:Math.max(0,Math.round(+dmg||0))}).then(()=>{nbC.k='';hwMemo.k='';return BUNSHINHOST.night()}),
   /* score attack: this week's board (open Mon-Thu, final from Friday), the champion of the last finished week, today's tries left */
   sa:()=>{const me=myPlayer().id,t=now(),wk=weekNo(t),r=saInfo(wk),open=saOpen(wk),nm=a=>(players.find(p=>p.id===a)||{}).name||'だれか';
@@ -14647,7 +14656,7 @@ window.BUNSHINHOST={
   /* the equipment gacha opens like the normal pack */
   packFx:(L,ten)=>openPackView(L.map(x=>({c:{k:'bun',r:x.r,rl:x.rl,n:x.n,svg:x.svg,slot:x.slot},isNew:x.isNew,sh:0,note:'×'+x.cnt+' 所持'})),null,'EQUIPMENT',undefined,{ten:!!ten}),
   close:()=>bunClose()};
-function bunOpen(){try{newSeen('bun134')}catch(e){}const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if(!bunReady&&db){toast('分身のデータを読み込み中です。少し待ってからもう一度');bunWatch();return}if($('bunw')||$('tcgw'))return;const o=el('div','tcgw');o.id='bunw';const f=el('iframe');f.src=BUN_SRC;f.title='分身アバターバトル';o.append(f,bunLoading(f));document.body.append(o);document.body.classList.add('tcgon');try{localStorage.setItem('bunseen_'+me.id,String(now()))}catch(e){}bunBadge()}
+function bunOpen(){try{newSeen('bun134')}catch(e){}if(CA_ON)return caOpen();const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if(!bunReady&&db){toast('分身のデータを読み込み中です。少し待ってからもう一度');bunWatch();return}if($('bunw')||$('tcgw'))return;const o=el('div','tcgw');o.id='bunw';const f=el('iframe');f.src=BUN_SRC;f.title='分身アバターバトル';o.append(f,bunLoading(f));document.body.append(o);document.body.classList.add('tcgon');try{localStorage.setItem('bunseen_'+me.id,String(now()))}catch(e){}bunBadge()}
 /* (10/16) while 分身 loads: a quiet loading card over it; if it is not ready in 15 seconds, a way to load it again (it could stay white) */
 let bunLT=0;
 function bunLoading(f){const w=el('div','bunld');w.innerHTML='<i class="bunsp"></i>';const t=el('b',null,'分身を読み込み中…'),s2=el('small',null,'');w.append(t,s2);
@@ -14656,11 +14665,70 @@ function bunLoading(f){const w=el('div','bunld');w.innerHTML='<i class="bunsp"><
 function bunLoaded(){clearTimeout(bunLT);document.querySelectorAll('#bunw .bunld').forEach(x=>{x.classList.add('out');setTimeout(()=>x.remove(),300)})}
 function bunClose(){bunCb=null;clearTimeout(bunLT);const o=$('bunw');if(o){o.classList.add('out');setTimeout(()=>o.remove(),260)}document.body.classList.remove('tcgon');queueRender()}
 /* a dot on the home button when someone attacked you since you last looked */
-function bunBadge(){const me=myPlayer(),b=document.querySelector('.lb-bun');if(!b)return;let seen=0;try{seen=+localStorage.getItem('bunseen_'+(me&&me.id))||0}catch(e){}let tx=me&&bunLogs.some(l=>l.d===me.id&&l.t>seen)?'1':'';if(!tx&&me){try{const r=BUNSHINHOST.raid();if(r.open&&!r.dead&&r.left>=RAID_DAY)tx='!'}catch(e){}}b.textContent=tx}
+function bunBadge(){const me=myPlayer(),b=document.querySelector('.lb-bun');if(!b)return;if(CA_ON){b.textContent='';return}let seen=0;try{seen=+localStorage.getItem('bunseen_'+(me&&me.id))||0}catch(e){}let tx=me&&bunLogs.some(l=>l.d===me.id&&l.t>seen)?'1':'';if(!tx&&me){try{const r=BUNSHINHOST.raid();if(r.open&&!r.dead&&r.left>=RAID_DAY)tx='!'}catch(e){}}b.textContent=tx}
 function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadge,20000);setTimeout(bunBadge,2500);
   /* (10/16) only the server's copy counts as ready: a phone's old saved copy (fewer chests opened) let chests be opened again on another phone */
   db.collection('bunshin').onSnapshot(s=>{if(s.metadata&&s.metadata.fromCache&&!bunReady)return;bunReady=true;bunDocs={};s.docs.forEach(d=>{bunDocs[d.id]=d.data()});queueRender();bunCb&&bunCb()},()=>{},{meta:true});
   dbSynced('bunlog','t').onSnapshot(s=>{bunLogs=s.docs.map(d=>({id:d.id,...d.data()}));queueRender();bunBadge();bunCb&&bunCb()},()=>{})}
+/* ===== (v144) 分身を「圧縮アリーナ」に入れ替える(お試し版から。山本さん 2026-11-07) =====
+   - 分身のボタンで ca/arena.html を開く。中のゲームは window.CAHOST を通して、アプリの pt とサーバーのセーブを使う
+   - pt は記録から数える: ca/{pid} = {pe: もらった合計, g1: 1回召喚の回数, g10: 10回召喚の回数, pd: 日, pn: その日にもらった分, pq: 次の日に回す分}
+     (11/7) 1日にもらえる量の上限はなし(山本さん)。pt がもらえるのは初回クリア・★・ミッション・回数に限りのある交換所だけ
+   - セーブ: casave/{pid} = {s: キャラ・素材など(JSONの文字), p: ステージの進み具合(JSONの文字), u: 版の番号, t}。本人だけ読み書きできる
+     別の端末で先に保存されていたら(u がちがう)上書きしない
+   - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
+     週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
+const CA_ON=true,CA_SRC='ca/arena.html?v=8',CA_DAY=0,CA_REFUND_CUT=1500;
+let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
+/* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
+function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
+function bunRefund(pid){if(!CA_ON)return 0;const d=bunDocs[pid];if(!d)return 0;return Math.max(0,bunSpent(d)-CA_REFUND_CUT)}/* (11/7) 上限なし(山本さん) */
+function caPts(pid){if(!CA_ON)return 0;const d=caDocs[pid];return d?(+d.pe||0)-(+d.g1||0)*100-(+d.g10||0)*900:0}
+function caWatch(){if(!CA_ON||!db||caWatch.on)return;caWatch.on=1;db.collection('ca').onSnapshot(s=>{const me=myPlayer(),mine=me&&caDocs[me.id];caDocs={};s.docs.forEach(d=>{caDocs[d.id]=d.data()});
+    /* 自分の分は、まだ送っていない手元の数字のほうが大きければそちらを使う */
+    if(mine&&me){const sv=caDocs[me.id]||{};caDocs[me.id]={...sv,...['pe','g1','g10'].reduce((o,k)=>(o[k]=Math.max(+sv[k]||0,+mine[k]||0),o),{}),pd:mine.pd!=null?mine.pd:sv.pd,pn:mine.pn!=null?mine.pn:sv.pn,pq:mine.pq!=null?mine.pq:sv.pq}}
+    queueRender()},()=>{})}
+const caParse=t=>{try{return t?JSON.parse(t):null}catch(e){return null}};
+async function caOpen(){const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if($('bunw')||$('tcgw'))return;caWatch();
+  if(db&&(!caSaveReady||caSave&&caSave.pid!==me.id)){try{/* (v145) スマホの中の古い控えではなく、必ずサーバーの今の版を読む(古い控えだと「別の端末で更新」と出ていた) */const d=await db.runTransaction(async tx=>{const x=await tx.get(db.doc('casave/'+me.id));return x.exists?x.data():null});caSave=d?{...d,pid:me.id}:{pid:me.id,u:0};caSaveReady=true}catch(e){toast('分身のデータを読めませんでした('+(e&&(e.code||e.message)||'?')+')');return}}
+  caBase=+(caSave&&caSave.u)||0;caCache={s:caParse(caSave&&caSave.s),p:caParse(caSave&&caSave.p)};caDirty={};
+  caEarn(0);/* 次の日に回していた分を入れる */
+  const o=el('div','tcgw caw');o.id='bunw';const f=el('iframe');f.src=CA_SRC;f.title='分身(圧縮アリーナ)';o.append(f,bunLoading(f));document.body.append(o);document.body.classList.add('tcgon')}
+/* セーブを送る(1.5秒まとめてから)。別の端末で先に保存されていたら上書きしない */
+function caFlush(){clearTimeout(caT);const me=myPlayer();if(!me||!db||!Object.keys(caDirty).length)return caQ;caDirty={};
+  const run=()=>{const o={s:JSON.stringify(caCache.s||null),p:JSON.stringify(caCache.p||null),u:caBase+1,t:now()};if(o.s.length>400000||o.p.length>60000){toast('分身のデータが大きすぎて保存できませんでした');return Promise.resolve()}
+    const ref=db.doc('casave/'+me.id),base=caBase;
+    return db.runTransaction(async tx=>{const d=await tx.get(ref),cur=d.exists?d.data():null;if((+(cur&&cur.u)||0)!==base){const e=new Error('stale');e.code='stale';throw e}tx.set(ref,o)})
+      .then(()=>{caBase=o.u;caSave={...o,pid:me.id}})
+      .catch(e=>{if(e&&e.code==='stale')toast('別の端末で分身が更新されています。いったん閉じて開き直してください');else{toast('分身を保存できませんでした('+(e&&(e.code||e.message)||'?')+')。もう一度ためします');caDirty.s=1;caT=setTimeout(caFlush,5000)}})};
+  caQ=caQ.then(run,run);return caQ}
+/* pt の数字を送る。カウンターは減らない(2台で同時に動いても、多いほうが残る) */
+function caPtSend(){const me=myPlayer();if(!me||!db)return;const L=caDocs[me.id]||{};const ref=db.doc('ca/'+me.id);
+  const run=()=>db.runTransaction(async tx=>{const d=await tx.get(ref),cur=d.exists?d.data():{};const o={pe:Math.max(+L.pe||0,+cur.pe||0),g1:Math.max(+L.g1||0,+cur.g1||0),g10:Math.max(+L.g10||0,+cur.g10||0),pd:+L.pd||0,pn:+L.pn||0,pq:+L.pq||0};tx.set(ref,o)})
+    .catch(e=>toast('分身の pt を保存できませんでした('+(e&&(e.code||e.message)||'?')+')'));
+  caPtQ=caPtQ.then(run,run)}
+function caEarn(n){const me=myPlayer();if(!me)return 0;const d={...(caDocs[me.id]||{})},day=dayNo(now());if(d.pd!==day){d.pd=day;d.pn=0}
+  const pool=(+d.pq||0)+Math.max(0,Math.round(+n||0)),give=pool;/* (11/7) 1日の上限はなし(山本さん)。前の版で次の日に回していた分(pq)もここで全部入る */d.pe=(+d.pe||0)+give;d.pn=(+d.pn||0)+give;d.pq=pool-give;
+  const was=caDocs[me.id]||{};caDocs[me.id]=d;if(give||d.pq!==(+was.pq||0)||d.pd!==was.pd)caPtSend();
+queueRender();return give}
+window.CAHOST={
+  ready:()=>{try{bunLoaded()}catch(e){}},
+  close:()=>{caFlush();bunClose()},
+  name:()=>{const me=myPlayer();return me?me.name:''},
+  rank:()=>{const me=myPlayer();if(!me)return{rk:1,f:0};const v=lvOf(me.id);return{rk:v.L,f:v.need?v.cur/v.need:0}},
+  points:()=>{const me=myPlayer();return me?balance(me.id):0},
+  load:k=>caCache[k]?JSON.parse(JSON.stringify(caCache[k])):null,
+  save:(k,v)=>{if(k!=='s'&&k!=='p')return;caCache[k]=JSON.parse(JSON.stringify(v));caDirty[k]=1;clearTimeout(caT);caT=setTimeout(caFlush,1500)},
+  /* ガチャ: 1回 100pt、10回 900pt だけ。足りなければ false */
+  spend:(cost,n)=>{const me=myPlayer();if(!me)return false;const k=n===10&&cost===900?'g10':n===1&&cost===100?'g1':null;if(!k||balance(me.id)<cost)return false;
+    const d={...(caDocs[me.id]||{})};d[k]=(+d[k]||0)+1;caDocs[me.id]=d;caPtSend();queueRender();return true},
+  earn:n=>caEarn(n),
+  /* (v145) スキン: 前の分身でもらったスキン。推しスキン(スキンガチャのKMRの対戦演出と勝利演出がそろったもの)と、かぼちゃ頭の騎士(ハロウィン) */
+  skins:()=>{const me=myPlayer();if(!me)return[];const M={'オーバーサイズ':'hood','ふくれっつら':'chibi','ひだまりニット':'vt1','はなかんむり':'vt2','堕ちた天使':'vt3','夜宴の小悪魔':'hw'},out=[];
+    try{for(const o of (typeof myOshiSet==='function'?myOshiSet():[])){const k=o&&M[o.n];if(k&&!out.includes(k))out.push(k)}}catch(e){}
+    try{if(window.__caSkinAll||(typeof hbSkin==='function'&&hbSkin(me.id))||(typeof isAdmin==='function'&&isAdmin()&&/\/preview\//.test(location.pathname)))out.push('knight')}catch(e){}
+    return out},
+  /* 師匠と弟子(前の分身の画面の右上にあったもの) */mentor:()=>{try{mtSheet()}catch(e){}},mentorDot:()=>{try{return mtDot()}catch(e){return false}}};
 /* ===== v50: golden chests, upsets, genre weeks, paid points, predictions, timeline, daily missions, weekly MVP ===== */
 const RULE4=Date.UTC(2026,9,4,10,30);
 const hsh=s=>{let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h};
@@ -14958,7 +15026,7 @@ setInterval(()=>ping(),90000);document.addEventListener('visibilitychange',()=>{
 function seenWatch(){if(seenSub||!db)return;seenSub=db.collection('seen').onSnapshot(s=>{seenMap={};s.docs.forEach(d=>seenMap[d.id]=d.data());if(isAdmin())admSeenRender();window.kOnlineSync&&kOnlineSync()},()=>{})}
 /* (11/3) 落ちた場所の記録: 見ている間に急に終わったら(iPhoneのメモリ不足など)、次に開いたときに「直前の画面・出ていた演出」を crash/ に残す。見られるのは管理者だけ。
    裏に回した・閉じたときは「ちゃんと終わった」印を付けるので数えない */
-const CRK='kmLive',CR_V='v143-11-06a';let crOv=[],crT0=Date.now(),crDone=false;
+const CRK='kmLive',CR_V='v143-11-03c';let crOv=[],crT0=Date.now(),crDone=false;
 function crSave(alive){try{localStorage.setItem(CRK,JSON.stringify({a:alive?1:0,t:Date.now(),s:String(typeof curView!=='undefined'?curView:'').slice(0,24),o:crOv.join(' > ').slice(0,160),u:Math.round((Date.now()-crT0)/1000),n:document.getElementsByTagName('*').length,c:document.getElementsByTagName('canvas').length,d:document.getElementsByTagName('video').length}))}catch(e){}}
 try{new MutationObserver(L=>{for(const m of L)for(const x of m.addedNodes){if(x.nodeType!==1||/^(SCRIPT|STYLE|LINK|META)$/.test(x.tagName))continue;const k=String(x.className&&x.className.baseVal!=null?x.className.baseVal:x.className||x.id||x.tagName).trim().split(/\s+/)[0].slice(0,28);if(!k||k==='toast')continue;crOv.push(k);if(crOv.length>4)crOv.shift()}}).observe(document.body,{childList:true})}catch(e){}
 setInterval(()=>{if(document.visibilityState==='visible')crSave(1)},4000);
@@ -15984,7 +16052,7 @@ const TPH={};function tcgPh(id){if(TPH[id])return TPH[id];const c=TC[id];if(!c)r
 const tcgImg=id=>{const M=window.CARD_IMG;if(!M)return'';const b=TC[id]&&TC[id].hwOf;return M[id]||(b&&M[b])||tcgPh(id)};
 const tcgItem=id=>{const c=TC[id];return{id:'tc_'+id,k:'g',r:TRI[c.r],n:c.n,v:id,tl:c.r}};
 /* the TCG page (one place for its version) */
-const TCG_SRC='tcg_play.html?v=206';
+const TCG_SRC='tcg_play.html?v=204';
 /* 極 alternate art moves: the clip lives inside the TCG page, so it is read from there once (the page is cached anyway) and shared */
 let tcgMvP=null;const tcgMvU={};
 function tcgAltMv(id){if(tcgMvU[id]!==undefined)return Promise.resolve(tcgMvU[id]);
@@ -17124,6 +17192,7 @@ function renderAdmin(){
   /* everyone's pack count, so the list can show real balances */
   players.forEach(p=>{if(!admInvSub[p.id])admInvSub[p.id]=db.doc('inv/'+p.id).onSnapshot(x=>{const n=x.exists?invAdj(x.data()):0;if(admInv[p.id]!==n){admInv[p.id]=n;admList()}},()=>{})});
   admList();admLimRender();admGenRender();admExtraRender();admSeenRender();admMsgRender();
+  try{caRefundRender(panel)}catch(e){console.warn('caRefund',e)}
   const lg=$('admLog');lg.replaceChildren();
   const L=[];grants.forEach(g=>{const last=L[L.length-1];if(g.all&&last&&last.all&&last.t===g.t&&last.pt===g.pt){last.cnt=(last.cnt||1)+1;return}L.push({...g})});L.splice(30);if(!L.length)lg.append(el('div','sub','まだ操作はありません'));
   L.forEach(g=>{const r=el('div','alog'),a=el('div');
@@ -17131,6 +17200,15 @@ function renderAdmin(){
     a.append(el('div',null,(g.all?'全員('+(g.cnt||1)+'人)':g.pn||'?')),el('div','sub',new Date(g.t).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+(g.note?'  ·  '+g.note:'')));
     r.append(a,el('b',((k==='pt'||k==='buy')&&g.pt>0)||k==='ptk'||k==='ctk'?'p':'m',what));lg.append(r)});
 }
+/* (v145) 分身の入れ替えの補填の一覧(管理者だけ): 前の分身のガチャに使った pt と、返す pt(使った分−1500、0未満は0) */
+function caRefundRender(panel){if(typeof CA_ON==='undefined'||!CA_ON)return;let box=$('admCaRef');if(!box){box=el('div','admcard');box.id='admCaRef';const pg=panel.querySelector('.admpg[data-t="give"]')||panel;pg.prepend(box)}
+  if(typeof bunWatch==='function'&&!bunReady){try{bunWatch()}catch(e){}}
+  const rows=players.filter(p=>!p.retired).map(p=>{const d=bunDocs[p.id];const spent=bunSpent(d);return {n:p.name,spent,back:bunRefund(p.id),d:d||{}}}).filter(r=>r.spent>0).sort((a,b)=>b.back-a.back||b.spent-a.spent);
+  const tot=rows.reduce((a,r)=>a+r.back,0);
+  box.innerHTML='<div class="admct">分身の入れ替えの補填</div><div class="admcd">前の分身のガチャ(装備・キャラ)に使った pt から 1500pt を引いた分を返す。0より下の人は0。お試し版のptにはもう入っています(本番にはまだ入っていません)。'+(bunReady?'':'(読み込み中…)')+'</div>';
+  if(!rows.length){box.append(el('div','sub','ガチャを引いた人はいません'));return}
+  rows.forEach(r=>{const x=el('div','alog'),a=el('div');const D=r.d,rf=(+D.crf||0)+(+D.krf||0);a.append(el('div',null,r.n),el('div','sub','使った '+r.spent.toLocaleString()+'pt(装備 1回×'+(+D.gp||0)+'・10連×'+(+D.g10||0)+' / キャラ 1回×'+(+D.cp||0)+'・10連×'+(+D.c10||0)+(rf?' / 戻り −'+rf.toLocaleString()+'pt':'')+')'));x.append(a,el('b',r.back>0?'p':'m','+'+r.back.toLocaleString()+'pt'));box.append(x)});
+  box.append(el('div','sub','返す合計 '+tot.toLocaleString()+'pt  ·  '+rows.filter(r=>r.back>0).length+'人'))}
 function genList(){return (genres||[{id:'ygo',n:'遊戯王'},{id:'dm',n:'デュエル・マスターズ'}]).map(x=>({...x}))}
 async function saveGenres(L,msg){
   try{await db.doc('config/genres').set({list:L,u:now()});$('admGenMsg').textContent=msg}catch(e){$('admGenMsg').textContent='保存できませんでした('+(e.code||e.message)+')'}
@@ -17552,7 +17630,7 @@ render();
   /* matches, grants and predictions only grow: db.synced keeps a saved copy on the phone and reads only the new ones */
   dbSynced('matches','t').onSnapshot(onMatches,()=>{});
   watchTcgSpectators();
-  bunWatch();ownWatch();mktWatch();try{oriWatch()}catch(e){}try{tqWatch()}catch(e){}
+  bunWatch();try{caWatch()}catch(e){}ownWatch();mktWatch();try{oriWatch()}catch(e){}try{tqWatch()}catch(e){}
   seenWatch();
   db.doc('config/coinev').onSnapshot(s=>{coinev=s.exists?s.data():null;queueRender()},()=>{});
   db.collection('tours').orderBy('t','desc').onSnapshot(s=>{toursLoaded=true;tours=s.docs.map(d=>({id:d.id,...d.data()}));queueRender()},()=>{toursLoaded=true;queueRender()});
