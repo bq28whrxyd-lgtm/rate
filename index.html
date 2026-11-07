@@ -10981,7 +10981,8 @@ function oriPvSeed(){if(!ORI_PV||oriCur())return;try{if(typeof TCGD==='undefined
   ORIL.create('opv'+now().toString(36),{nm:'きもオタ オリパ 第1弾',p:ORI_PRICE,N:ORI_N,x:0,st:now(),end:now()+7*864e5,t:now(),pz:oriMakePz(oriDefTop(),oriDefLast()),last:{c:oriDefLast(),f:'k'},by:me.id},oriShuf([...Array(ORI_N).keys()]))}catch(e){console.warn('ori',e)}}
 
 /* ---------- reading the data ---------- */
-function oriWatch(){if(!(oriOn()||(typeof kjOn==='function'&&kjOn()))||oriWatch.on||!db||ORI_PV)return;oriWatch.on=1;const up=()=>{oriLoaded=!!(oriWatch.a&&oriWatch.b&&oriWatch.c);queueRender();try{renderGacha()}catch(e){}oriClaim();oriRepaint()};
+/* (11/8) 夜宴くじが終わったあとも、くじに払ったptと当たったptを数え続けるために、いつでも読む(前はくじの期間だけ読んでいて、終わった瞬間に払った分が所持に戻って見えていた) */
+function oriWatch(){if(oriWatch.on||!db||ORI_PV)return;oriWatch.on=1;const up=()=>{oriLoaded=!!(oriWatch.a&&oriWatch.b&&oriWatch.c);queueRender();try{renderGacha()}catch(e){}oriClaim();oriRepaint()};
   db.collection('ori').onSnapshot(s=>{oris=s.docs.map(d=>({id:d.id,...d.data()}));oriWatch.a=1;up()},()=>{oriWatch.a=1});
   db.collection('oris').where('op','==',true).onSnapshot(s=>{oriSlots=s.docs.map(d=>({id:d.id,...d.data()}));oriWatch.b=1;up()},()=>{oriWatch.b=1});
   db.collection('orp').onSnapshot(s=>{oriPays=s.docs.map(d=>({id:d.id,...d.data()}));oriWatch.c=1;up()},()=>{oriWatch.c=1})}
@@ -14401,7 +14402,8 @@ const ticketsWon=pid=>matches.reduce((a,m)=>a+(m.w===pid&&m.t>=RULE3?chestTix(m)
    inv.gotG = the ids taken; inv.gotB = the moment this version first ran for the player (everything before it was already in effect).
    Other players' gifts are counted as before (their inv is not loaded here). Minus points and ban/unban are not gifts. */
 const giftable=g=>{const k=g.kind||'pt';if(k==='pt'||k==='buy')return(+g.pt||0)>0;return !!((typeof TKNAME!=='undefined'&&TKNAME[k])||(typeof TCG_TK!=='undefined'&&TCG_TK[k])||k==='tscg')};
-const giftGot=g=>{if(typeof invFor==='undefined'||g.pid!==invFor||!giftable(g))return true;const b=inv&&inv.gotB;if(b==null)return true;if((g.t||0)<=b)return true;return Array.isArray(inv.gotG)&&inv.gotG.includes(g.id)};
+/* (11/8) 管理者が見るほかの人の所持も、プレゼント箱で受け取ってから数える(前は受け取る前から足していて、本人の画面より多く見えた) */
+const giftGot=g=>{if(!giftable(g))return true;const v=(typeof invFor!=='undefined'&&g.pid===invFor)?inv:(typeof admInvDoc!=='undefined'?admInvDoc[g.pid]:null);if(!v)return true;const b=v.gotB;if(b==null)return true;if((g.t||0)<=b)return true;return Array.isArray(v.gotG)&&v.gotG.includes(g.id)};
 const giftsWaiting=pid=>grants.filter(g=>g.pid===pid&&giftable(g)&&!giftGot(g)).sort((a,b)=>b.t-a.t);
 const giftName=g=>{const k=g.kind||'pt';if(typeof TKNAME!=='undefined'&&TKNAME[k])return TKNAME[k]+' ×'+(g.n||1);if(typeof TCG_TK!=='undefined'&&TCG_TK[k])return TCG_TK[k].n+' ×'+(g.n||1);if(k==='tscg')return 'TCGシークレット「'+((typeof TC!=='undefined'&&TC[g.cid]&&TC[g.cid].n)||'カード')+'」';return((+g.pt>0?'+':'')+(+g.pt||0)+'pt'+(k==='buy'?'(購入)':''))};
 let giftBusy=false;
@@ -14490,7 +14492,7 @@ const spentOf=v=>(v.packs||0)*PACK+Math.max(0,(v.lpacks||0)-(v.lfree||0))*LPACK+
 const betHeld=pid=>(typeof chs!=='undefined'?chs:[]).filter(c=>c.bet&&(c.st==='pending'?c.a===pid:(c.a===pid||c.b===pid)&&['active','reported','abortreq'].includes(c.st))&&live(c)&&!matches.some(m=>m.id===c.id)).reduce((a,c)=>a+c.bet,0);
 const invAdj=v=>spentOf(v)-(+v.mpts||0)-(+v.lbp||0)-(+v.ppp||0)-(+v.bpt||0)-(+v.hmp||0)-(+v.hxp||0)+(+v.gfee||0)+(+v.scfee||0)+(+v.fsd||0)+(+v.fdog||0)-(+v.fhv||0);
 const balance=pid=>-betHeld(pid)+START_PT+earned(pid)+seasonPts(players.find(p=>p.id===pid))+grantPts(pid)+predNet(pid)+mvpPts(pid)+lvPts(pid)+tourPts(pid)+tcgPts(pid)+bunPts(pid)+(typeof mktNet==='function'?mktNet(pid):0)+(typeof bountyPts==='function'?bountyPts(pid):0)+(typeof farmNet==='function'?farmNet(pid):0)+(typeof mtPts==='function'?mtPts(pid):0)+(typeof hwRankPts==='function'?hwRankPts(pid):0)+(typeof invPts==='function'?invPts(pid):0)+(typeof kbuNet==='function'?kbuNet(pid):0)/*kbu-bal*/+(typeof oriNet==='function'?oriNet(pid):0)-(pid===invFor?invAdj(inv):(admInv[pid]||0));
-const admInv={};
+const admInv={};var admInvDoc={};
 /* ===== 分身アバターバトル (beta): the page runs in an overlay (bunshin.html) and talks to the app through BUNSHINHOST =====
    bunshin/{pid}: your avatar (look, allocation, items, equipped, quest stage, gacha pulls, chests opened)
    bunlog/{id}  : one record per avatar battle {a: attacker, d: defender pid or 'q'+stage, w: 1 if the attacker won, s: seed, t}
@@ -17193,7 +17195,7 @@ function renderAdmin(){
   if(!isAdmin()){sec.hidden=true;return}
   sec.hidden=false;panel.hidden=false;
   /* everyone's pack count, so the list can show real balances */
-  players.forEach(p=>{if(!admInvSub[p.id])admInvSub[p.id]=db.doc('inv/'+p.id).onSnapshot(x=>{const n=x.exists?invAdj(x.data()):0;if(admInv[p.id]!==n){admInv[p.id]=n;admList()}},()=>{})});
+  players.forEach(p=>{if(!admInvSub[p.id])admInvSub[p.id]=db.doc('inv/'+p.id).onSnapshot(x=>{const D=x.exists?x.data():null;admInvDoc[p.id]=D;const n=D?invAdj(D):0;admInv[p.id]=n;admList()},()=>{})});
   admList();admLimRender();admGenRender();admExtraRender();admSeenRender();admMsgRender();
   try{caRefundRender(panel)}catch(e){console.warn('caRefund',e)}
   try{caTakeRender(panel)}catch(e){console.warn('caTake',e)}
