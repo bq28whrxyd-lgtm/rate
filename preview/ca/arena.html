@@ -469,7 +469,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=22';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=23';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2183,7 +2183,7 @@ function stageT(i,h){const st=STAGES[i],ev=st.ev||'';
   if(ev==='ex'){const n=st.n||'';return /試練/.test(n)?70:90}
   const n=st.n||'';let j=/上級/.test(n)?2:/中級/.test(n)?1:/初級/.test(n)?0:-1;if(j<0){j=0;for(let k=i-1;k>=0&&STAGES[k].ev===ev&&(STAGES[k].n===st.n);k--)j++}return [20,40,60][Math.min(2,j)]}
 function setStageData(i,h){const st=STAGES[i];G.stage=i;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
-  Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
+  Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF*(st.ev?1:.85)/* (11/8 8時) ストーリーは少しだけ弱く */;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
   WAVES.length=0;{const pool=[...new Set(STAGES.slice(0,i+1).flatMap(s=>(s.gm||[]).join('').replace(/\./g,'').split('')))];if(!pool.length)pool.push('f','w');let hk=0;
    st.waves.forEach((w,wi)=>{const g=(st.gm||[])[wi]||'';let ei=0;const items=w.items.map(it=>{if(it[0]!=='enemy')return it;let c=g[ei]||'.';if(h&&c==='.'&&ei%2===1)c=pool[(hk++)%pool.length];ei++;return GL[c]?[it[0],it[1],it[2],GL[c]]:it});WAVES.push(Object.assign({},w,{items}))})}
   $('stid').textContent=st.ev?(st.tn||st.id||'EV'):st.id+(h?' H':'');rebuildDbg()}
