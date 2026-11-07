@@ -124,8 +124,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=24').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=24').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=25').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=25').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -270,6 +270,7 @@ const CSS = `
 .aChips{display:flex;gap:5px;margin:0 0 8px;overflow-x:auto;scrollbar-width:none}
 .aChips button{flex:none;border:0;cursor:pointer;height:28px;padding:0 11px;border-radius:14px;font:700 12px var(--zk);color:#c3cbe6;background:#0e1842;box-shadow:inset 0 0 0 1px rgba(232,200,120,.3)}
 .aChips button[aria-pressed="true"]{color:#2b1a02;background:var(--aG)}
+.aSrt{align-items:center;flex-wrap:wrap;row-gap:5px}.aSrt .lb{flex:none;font:800 11px var(--zk);color:var(--aMut);margin-right:2px}.aSrt button.dir[aria-pressed="false"]{background:transparent;box-shadow:inset 0 0 0 1px rgba(232,200,120,.5);color:#ffe6a8}
 /* ホーム */
 .aHome{position:absolute;inset:0;z-index:0}
 .aHome .hbg{position:absolute;inset:-2%;background:url(${UI}home-bg.webp) center 30%/cover no-repeat,#0b1a45;animation:aDrift 26s ease-in-out infinite alternate}
@@ -535,6 +536,11 @@ const CSS = `
 .aPw .gain{margin-top:4px;font:700 11px var(--zk);color:var(--aDim)}
 .aPw .gain b{color:#8dffb4}
 .aFeed{display:flex;gap:5px;margin-top:8px}
+.aPwH{display:flex;align-items:center;gap:6px;margin-top:6px}.aPwH .osec{flex:1;margin:0}.aPwH .aBtn,.aPwH button{min-height:34px;padding:0 14px;font-size:13px}
+.opick button.mx{width:auto;padding:0 10px;font:800 12px var(--zk)}
+.aPwBar{position:sticky;bottom:0;z-index:5;display:flex;align-items:center;gap:10px;margin:14px -4px 0;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));border-radius:14px 14px 0 0;background:rgba(9,14,40,.96);box-shadow:0 -6px 18px rgba(0,0,0,.45),inset 0 1px 0 rgba(232,200,120,.45);backdrop-filter:blur(6px)}
+.aPwBar .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.aPwBar .lv{font:700 12px var(--zk);color:#c3cbe6}.aPwBar .lv b{font:900 18px var(--zk);color:#fff}.aPwBar .lv b.up{color:#8dffb4}.aPwBar .lv small{color:var(--aMut)}
+.aPwBar .u{font:700 11px var(--zk);color:var(--aDim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aPwBar .aBtn,.aPwBar button{flex:none;min-width:120px;min-height:46px}
 .aFeed i{flex:1;aspect-ratio:1;max-width:52px;border-radius:50%;display:grid;place-items:center;font-style:normal;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(232,200,120,.35)}
 .aFeed i.on{background:rgba(255,236,180,.15);box-shadow:inset 0 0 0 1.5px var(--aG1)}
 .aFeed i .aMi{width:70%;height:70%}
@@ -1343,16 +1349,27 @@ function renderChara() {
   const b = shell('キャラ', 'CHARACTERS', { tabs: [['box', 'BOX'], ['party', '編成'], ['power', '強化'], ['mats', '素材']] });
   ({ box: charaBox, party: charaParty, power: charaPower, mats: charaMats })[SUB.chara](b);
 }
-const BOXF = { el: 'all', sort: 'rar' };
+/* (11/8 山本さん「BOXが見にくい」) 並び替えを5つ(新しい順・レア・レベル・属性・名前)+ 上下の切りかえ、レアの絞り込み。選んだ並びは覚えておく(パズドラの並び替え・絞り込みを参考に、このゲームに要るものだけ) */
+const BOXF = Object.assign({ el: 'all', rar: 0, sort: 'rar', asc: false }, (() => { try { return JSON.parse(localStorage.getItem('ca_boxf') || '{}'); } catch (e) { return {}; } })());
+const boxfSave = () => { try { localStorage.setItem('ca_boxf', JSON.stringify(BOXF)); } catch (e) { } };
+const BOXSORT = [['new', '新しい順'], ['rar', 'レア順'], ['lv', 'レベル順'], ['el', '属性順'], ['name', '名前順']];
+function boxSort(list) {
+  const ord = { 炎: 0, 水: 1, 木: 2, 光: 3 }, tie = (a, c) => rarOf(c) - rarOf(a) || c.lv - a.lv || c.u - a.u;
+  const f = { new: (a, c) => c.u - a.u, rar: (a, c) => rarOf(c) - rarOf(a) || mult(c) - mult(a) || c.u - a.u, lv: (a, c) => c.lv - a.lv || tie(a, c), el: (a, c) => ord[CH[a.id].el] - ord[CH[c.id].el] || tie(a, c), name: (a, c) => CH[a.id].name.localeCompare(CH[c.id].name, 'ja') || tie(a, c) }[BOXF.sort] || ((a, c) => 0);
+  const L = list.sort(f); return BOXF.asc ? L.reverse() : L;
+}
 function charaBox(b) {
   const ch = h('div', 'aChips');
-  const chip = (label, on, fn) => { const x = h('button', null, label); x.type = 'button'; x.setAttribute('aria-pressed', String(on)); x.onclick = fn; ch.appendChild(x); };
-  chip('すべて', BOXF.el === 'all', () => { BOXF.el = 'all'; renderNow(); });
-  for (const el of ['炎', '水', '木', '光']) chip(el, BOXF.el === el, () => { BOXF.el = el; renderNow(); });
-  chip(BOXF.sort === 'rar' ? '並び: レア' : '並び: レベル', true, () => { BOXF.sort = BOXF.sort === 'rar' ? 'lv' : 'rar'; renderNow(); });
+  const chip = (label, on, fn, row) => { const x = h('button', null, label); x.type = 'button'; x.setAttribute('aria-pressed', String(on)); x.onclick = () => { fn(); boxfSave(); renderNow(); }; (row || ch).appendChild(x); };
+  chip('すべて', BOXF.el === 'all' && !BOXF.rar, () => { BOXF.el = 'all'; BOXF.rar = 0; });
+  for (const el of ['炎', '水', '木', '光']) chip(el, BOXF.el === el, () => { BOXF.el = BOXF.el === el ? 'all' : el; });
+  for (const r of [5, 4, 3]) chip('★' + r, BOXF.rar === r, () => { BOXF.rar = BOXF.rar === r ? 0 : r; });
   b.appendChild(ch);
-  let list = sortedUnits().filter(u => BOXF.el === 'all' || CH[u.id].el === BOXF.el);
-  if (BOXF.sort === 'lv') list = list.sort((a, c) => c.lv - a.lv || CH[c.id].rar - CH[a.id].rar);
+  const so = h('div', 'aChips aSrt'); so.appendChild(h('span', 'lb', '並び'));
+  for (const [k, n] of BOXSORT) chip(n, BOXF.sort === k, () => { if (BOXF.sort === k) BOXF.asc = !BOXF.asc; else { BOXF.sort = k; BOXF.asc = false; } }, so);
+  chip('↕ 逆にする', BOXF.asc, () => { BOXF.asc = !BOXF.asc; }, so); so.lastChild.classList.add('dir');
+  b.appendChild(so);
+  const list = boxSort(S.units.filter(u => (BOXF.el === 'all' || CH[u.id].el === BOXF.el) && (!BOXF.rar || rarOf(u) === BOXF.rar)));
   b.appendChild(h('p', 'onote', `${list.length} / ${S.units.length}体 ・ 押すとくわしく見られます`));
   const g = h('div', 'ogrid'); b.appendChild(g);
   for (const u of list) { const e = icon(u, { tag: inParty(u) ? '編成中' : (S.newIds.includes(u.u) ? 'NEW' : '') }); e.onclick = () => { S.newIds = S.newIds.filter(x => x !== u.u); save(); detail(u); }; g.appendChild(e); }
@@ -1518,8 +1535,14 @@ function charaMats(b) {
   for (const id in MATS) { const n = S.mats[id] || 0; if (!n) continue; any++; g.appendChild(h('div', 'aGl', `${matIcon(id)}<span>${esc(MATS[id].name)}</span><b class="n">${n}</b>`)); }
   if (!any) b.appendChild(h('p', 'onote', 'まだ素材がありません。イベントクエストで手に入ります。'));
 }
-/* 強化: ベースを1体選び、素材(経験値の竜・ほかのキャラ)を最大5つまで食べさせる */
-const MAXFEED = 5;
+/* 強化: ベースを1体選び、素材(経験値の竜・ほかのキャラ)を食べさせる。
+   (11/8 山本さん「強化ボタンやりにくい」) 竜は何個でも(キャラは10体まで)。「おまかせ」で最大Lvまでの竜を自動で選ぶ(ブルアカの自動選択を参考)。各竜に「最大」。強化ボタンは画面の下に固定 */
+const MAXFEED = 10;
+const toMax = (u, ml) => { let t = -u.exp; for (let l = u.lv; l < ml; l++) t += need(l); return Math.max(0, t); };
+function autoFeed(base, ml) { let R = toMax(base, ml); for (const uid of PICK.units) R -= feedExp(unit(uid), base); const pick = {}; const ids = ['expL', 'expM', 'expS'];
+  for (const id of ids) { const v = MATS[id].exp, n = Math.min(S.mats[id] || 0, Math.floor(Math.max(0, R) / v)); if (n) { pick[id] = n; R -= n * v; } }
+  if (R > 0) for (const id of ['expS', 'expM', 'expL']) { if ((S.mats[id] || 0) > (pick[id] || 0)) { pick[id] = (pick[id] || 0) + 1; R -= MATS[id].exp; break; } }
+  PICK.mats = pick; }
 function charaPower(b) {
   if (!PICK || !PICK.base || !unit(PICK.base)) PICK = { base: null, mats: {}, units: [] };
   const base = unit(PICK.base);
@@ -1530,7 +1553,7 @@ function charaPower(b) {
     return;
   }
   const c = CH[base.id], ml = maxLv(base);
-  const cnt = Object.values(PICK.mats).reduce((a, n) => a + n, 0) + PICK.units.length;
+  const cnt = PICK.units.length;
   let gain = 0; for (const id in PICK.mats) gain += MATS[id].exp * PICK.mats[id]; for (const uid of PICK.units) gain += feedExp(unit(uid), base);
   const after = simulate(base, gain), nx = base.lv >= ml ? 0 : need(base.lv);
   const top = h('div', 'aPw aGl'); const bi = icon(base); bi.onclick = () => { PICK = { base: null, mats: {}, units: [] }; renderNow(); };
@@ -1538,18 +1561,22 @@ function charaPower(b) {
   const right = h('div', null, `<h3>${esc(base.evo ? c.evoName : c.name)}</h3><div class="lv">LV <b>${base.lv}</b> → <b class="${after.lv > base.lv ? 'up' : ''}">${after.lv}</b> / ${ml}</div>
     <div class="aExp"><i class="pv" style="width:${gain ? pvW : 0}%"></i><i style="width:${nx ? Math.min(100, base.exp / nx * 100) : 100}%"></i></div><div class="gain">もらえる経験値 <b>+${gain.toLocaleString()}</b></div>`);
   top.append(bi, right); b.appendChild(top);
-  const feed = h('div', 'aFeed'); const slots = []; for (const id in PICK.mats) for (let k = 0; k < PICK.mats[id]; k++) slots.push(matIcon(id)); for (const uid of PICK.units) { const f = faceURL(unit(uid).id); slots.push(f ? `<img class="f" alt="" src="${f}">` : `<span class="aMi">${esc(CH[unit(uid).id].el)}</span>`); }
-  for (let k = 0; k < MAXFEED; k++) feed.appendChild(h('i', slots[k] ? 'on' : '', slots[k] || ''));
-  b.appendChild(feed);
+
   if (base.lv >= ml) b.appendChild(h('p', 'onote', 'このキャラはレベルが最大です。' + (canEvo(base) ? '★6に進化できます(BOXから)。' : '')));
-  b.appendChild(h('p', 'osec', '経験値の竜'));
+  const full = after.lv >= ml;
+  { const hd = h('div', 'aPwH'); hd.appendChild(h('p', 'osec', '経験値の竜'));
+    const au = btn(full ? 'sub' : '', 'おまかせ', () => { autoFeed(base, ml); renderNow(); }); au.disabled = base.lv >= ml || !['expS', 'expM', 'expL'].some(id => S.mats[id]); au.setAttribute('aria-label', '最大レベルまでの竜をおまかせで選ぶ');
+    const cl = btn('sub', 'はずす', () => { PICK.mats = {}; PICK.units = []; renderNow(); }); cl.disabled = !gain;
+    hd.append(au, cl); b.appendChild(hd); }
   for (const id of ['expS', 'expM', 'expL']) {
     const have = S.mats[id] || 0, sel = PICK.mats[id] || 0;
     const r = h('div', 'opick aGl', `${matIcon(id)}<span class="n">${esc(MATS[id].name)}<small>+${MATS[id].exp.toLocaleString()} ・ 持っている ${have}</small></span>`);
     const mi = h('button', null, '−'); mi.type = 'button'; mi.disabled = !sel; mi.setAttribute('aria-label', MATS[id].name + 'を減らす'); mi.onclick = () => { PICK.mats[id] = sel - 1; renderNow(); };
     const nb = h('b', null, String(sel));
-    const pl = h('button', null, '+'); pl.type = 'button'; pl.disabled = sel >= have || cnt >= MAXFEED || base.lv >= ml; pl.setAttribute('aria-label', MATS[id].name + 'を増やす'); pl.onclick = () => { PICK.mats[id] = sel + 1; renderNow(); };
-    r.append(mi, nb, pl); b.appendChild(r);
+    const pl = h('button', null, '+'); pl.type = 'button'; pl.disabled = sel >= have || full; pl.setAttribute('aria-label', MATS[id].name + 'を増やす'); pl.onclick = () => { PICK.mats[id] = sel + 1; renderNow(); };
+    const mx = h('button', 'mx', '最大'); mx.type = 'button'; mx.disabled = sel >= have || full; mx.setAttribute('aria-label', MATS[id].name + 'を最大レベルまで使う');
+    mx.onclick = () => { const v = MATS[id].exp, R = toMax(base, ml) - gain; PICK.mats[id] = Math.min(have, sel + Math.max(1, Math.ceil(R / v))); renderNow(); };
+    r.append(mi, nb, pl, mx); b.appendChild(r);
   }
   /* (v102) 凸: 同じキャラを重ねる(D-124) */
   const tt = totOf(base), dups = sortedUnits().filter(u => u.u !== base.u && u.id === base.id && !inParty(u));
@@ -1565,7 +1592,7 @@ function charaPower(b) {
     const g = h('div', 'ogrid'); b.appendChild(g);
     for (const u of others) { const on = PICK.units.includes(u.u); const e = icon(u, { sel: on, tag: on ? '素材' : '' }); e.onclick = () => { if (on) PICK.units = PICK.units.filter(x => x !== u.u); else if (cnt < MAXFEED && base.lv < ml) PICK.units.push(u.u); renderNow(); }; g.appendChild(e); }
   }
-  const go1 = btn(gain ? 'shine' : '', '強化する', null); go1.disabled = !gain || base.lv >= ml; go1.style.cssText = 'margin-top:14px;width:100%';
+  const go1 = btn(gain ? 'shine' : '', '強化する', null); go1.disabled = !gain || base.lv >= ml;
   go1.onclick = () => {
     const fed = PICK.units.map(unit).filter(Boolean);
     if (fed.some(u => CH[u.id].rar >= 5) && !go1.dataset.ok) { go1.dataset.ok = '1'; go1.textContent = '★5を素材にします。もう一度押すと強化'; return; }
@@ -1575,7 +1602,10 @@ function charaPower(b) {
     PICK = { base: base.u, mats: {}, units: [] };
     flash(r.lv > before ? `LEVEL UP!  Lv${before} → Lv${r.lv}` : `経験値 +${gain.toLocaleString()}`); renderNow();
   };
-  b.appendChild(go1);
+  /* 画面の下に固定するバー: いま選んでいる竜・キャラと、上がるレベル */
+  const used = ['expS', 'expM', 'expL'].filter(id => PICK.mats[id]).map(id => MATS[id].name.replace('経験値の竜・', '') + '×' + PICK.mats[id]).concat(PICK.units.length ? ['キャラ×' + PICK.units.length] : []);
+  const bar = h('div', 'aPwBar', `<div class="t"><span class="lv">Lv <b>${base.lv}</b> → <b class="${after.lv > base.lv ? 'up' : ''}">${after.lv}</b><small> / ${ml}</small></span><span class="u">${used.length ? esc(used.join('・')) : '竜かキャラを選んでください'}</span></div>`);
+  bar.appendChild(go1); b.appendChild(bar);
 }
 function totUp(base, d) {
   const c = CH[base.id], t0 = totOf(base), t1 = Math.min(TOT_MAX, t0 + 1 + totOf(d));
