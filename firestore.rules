@@ -310,6 +310,34 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     // ---- one record per avatar battle, written by the attacker, never changed ----
+    // (11/7) 分身を「圧縮アリーナ」に入れ替え。ca = pt の数字(みんなの pt の計算に使うので、だれでも読める)、casave = セーブ(本人だけ)
+    // pe(もらった合計)は 1日300pt × 始めた日からの日数 をこえない。回数(g1・g10)ともらった合計は減らない
+    function caCap() { return (int((request.time.toMillis() - 1793995200000) / 86400000) + 1) * 300; }
+    function caOk() {
+      return request.resource.data.keys().hasOnly(['pe', 'g1', 'g10', 'pd', 'pn', 'pq'])
+        && newV('pe', 0) is int && newV('g1', 0) is int && newV('g10', 0) is int && newV('pd', 0) is int && newV('pn', 0) is int && newV('pq', 0) is int
+        && newV('pe', 0) >= 0 && newV('g1', 0) >= 0 && newV('g10', 0) >= 0 && newV('pq', 0) >= 0 && newV('pn', 0) >= 0 && newV('pn', 0) <= 300
+        && newV('pe', 0) <= caCap();
+    }
+    match /ca/{pid} {
+      allow read: if signedIn();
+      allow create: if signedIn() && bunMine(pid) && caOk();
+      allow update: if signedIn() && bunMine(pid) && caOk()
+        && newV('pe', 0) >= oldV('pe', 0) && newV('g1', 0) >= oldV('g1', 0) && newV('g10', 0) >= oldV('g10', 0);
+      allow delete: if isAdmin();
+    }
+    match /casave/{pid} {
+      allow read: if signedIn() && (bunMine(pid) || isAdmin());
+      allow create: if signedIn() && bunMine(pid) && caSaveOk() && newV('u', 0) == 1;
+      allow update: if signedIn() && bunMine(pid) && caSaveOk() && newV('u', 0) == oldV('u', 0) + 1;
+      allow delete: if isAdmin();
+    }
+    function caSaveOk() {
+      return request.resource.data.keys().hasOnly(['s', 'p', 'u', 't'])
+        && request.resource.data.s is string && request.resource.data.s.size() < 400000
+        && request.resource.data.p is string && request.resource.data.p.size() < 60000
+        && newV('u', 0) is int && newV('t', 0) is int;
+    }
     match /bunlog/{id} {
       allow read: if signedIn();
       allow create: if signedIn() && bunMine(request.resource.data.a)
