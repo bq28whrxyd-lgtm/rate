@@ -91,8 +91,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=2').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=2').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=3').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=3').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo) => evo && PORT[id + '6'] ? id + '6' : id;
@@ -150,7 +150,7 @@ const CSS = `
 #onav button:active{transform:scale(.92)}
 #onav button:focus-visible{outline:2px solid var(--aG1);outline-offset:-2px;border-radius:8px}
 /* 上の帯(高さ40) */
-#ohud{position:absolute;left:0;right:0;top:0;z-index:41;display:flex;gap:6px;align-items:center;height:calc(env(safe-area-inset-top,0px) + 44px);padding:env(safe-area-inset-top,0px) max(8px,env(safe-area-inset-right,0px)) 0 max(8px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(5,10,32,.92),rgba(5,10,32,.55));pointer-events:none}
+#ohud{position:absolute;left:0;right:0;top:0;z-index:41;box-sizing:border-box;display:flex;gap:6px;align-items:center;height:calc(env(safe-area-inset-top,0px) + 44px);padding:env(safe-area-inset-top,0px) max(8px,env(safe-area-inset-right,0px)) 0 max(8px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(5,10,32,.92),rgba(5,10,32,.55));pointer-events:none}
 #ohud>*{pointer-events:auto}
 .aPl{display:flex;align-items:center;gap:7px;min-width:0;flex:1;max-width:190px;padding:3px 10px 3px 3px;border-radius:20px;cursor:pointer;border:0;color:#fff;font:inherit;text-align:left;background:rgba(14,24,66,.9);box-shadow:inset 0 0 0 1px var(--aLine)}
 .aAv{width:30px;height:30px;flex:none;border-radius:50%;background:#1a2654 center/cover no-repeat;box-shadow:0 0 0 1.5px var(--aG)}
@@ -276,7 +276,7 @@ const CSS = `
 /* クエスト: 章の帯+ステージの一覧(1行=1ステージ) */
 .aEvr .wdy{margin-left:6px;padding:1px 6px;border-radius:4px;font:900 11px var(--zk);font-style:normal;color:#2b1a02;background:linear-gradient(#fff3c4,#e8b84a)}.aEvr .wdc{font:800 12px var(--zk);font-style:normal;color:#c3cbe6}
 .aMsT{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 0 6px}.aMsT button{position:relative;border:0;cursor:pointer;padding:8px 0;border-radius:8px;font:900 14px var(--zk);color:#fff;background:#24346f}.aMsT button.on{color:#2b1a02;background:linear-gradient(#fff3c4,#e8b84a)}.aMsT i{position:absolute;right:6px;top:-6px;min-width:18px;height:18px;border-radius:9px;font:900 11px/18px var(--zk);font-style:normal;color:#fff;background:#e0304a}
-.aRk{display:grid;gap:4px;max-height:52vh;overflow-y:auto}.aRk .rr{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px rgba(160,120,40,.35);color:#2a2117}.aRk .rr .no{flex:0 0 28px;height:28px;border-radius:50%;display:grid;place-items:center;font:900 14px var(--zk);color:#fff;background:#6b5b45}.aRk .rr.t1 .no{background:linear-gradient(#ffe48a,#d49a1a)}.aRk .rr.t2 .no{background:linear-gradient(#e8eef8,#9aa8bc)}.aRk .rr.t3 .no{background:linear-gradient(#f0b07a,#a8642a)}.aRk .rr .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:800 14px var(--zk)}.aRk .rr b{font:900 16px var(--zk)}.aRk .rr.me{box-shadow:0 0 0 2px #e8b84a;background:#fff7dc}
+.aRkL{display:grid;gap:4px;max-height:52vh;overflow-y:auto}.aRkL .rr{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px rgba(160,120,40,.35);color:#2a2117}.aRkL .rr .no{flex:0 0 28px;height:28px;border-radius:50%;display:grid;place-items:center;font:900 14px var(--zk);color:#fff;background:#6b5b45}.aRkL .rr.t1 .no{background:linear-gradient(#ffe48a,#d49a1a)}.aRkL .rr.t2 .no{background:linear-gradient(#e8eef8,#9aa8bc)}.aRkL .rr.t3 .no{background:linear-gradient(#f0b07a,#a8642a)}.aRkL .rr .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:800 14px var(--zk)}.aRkL .rr b{font:900 16px var(--zk)}.aRkL .rr.me{box-shadow:0 0 0 2px #e8b84a;background:#fff7dc}
 .aChal{display:grid;gap:10px}.aCc{position:relative;display:grid;gap:3px;text-align:left;border:0;cursor:pointer;padding:14px 14px 12px;border-radius:12px;color:#fff;min-height:108px;box-shadow:inset 0 0 0 1.5px rgba(232,200,120,.55),0 3px 10px rgba(0,0,0,.4)}
 .aCc.tw{background:radial-gradient(120% 140% at 85% 20%,#7a5ad0,#2a1a5a 60%,#0a1236)}.aCc.rd{background:radial-gradient(120% 140% at 85% 20%,#c23a3a,#4a1020 60%,#0a1236)}.aCc.ex{background:radial-gradient(120% 140% at 85% 20%,#e0602a,#4a1408 60%,#0a1236)}
 .aExB{margin:10px 0;padding:12px;border-radius:12px;background:radial-gradient(120% 140% at 90% 0%,var(--ed),#0c1338 70%);box-shadow:inset 0 0 0 1.5px var(--ec),0 3px 10px rgba(0,0,0,.4)}
@@ -790,7 +790,7 @@ const CSS = `
 .aGa .gDt:active{transform:translateY(2px);box-shadow:0 0 0 1.5px #c9a14a,0 1px 0 #6b4f1c}
 .aGa .chars{top:calc(env(safe-area-inset-top,0px) + 96px);bottom:calc(var(--nb,90px) + 140px);height:auto}
 .aGa .chars{display:flex;justify-content:center;align-items:flex-end}
-.aGa .chars img.fr{position:relative;left:auto;flex:none;width:auto;height:100%;transform-origin:50% 100%;animation:aBreathe 4.2s ease-in-out infinite}
+.aGa .chars img.fr{position:relative;left:auto;transform:none;flex:none;width:auto;height:100%;transform-origin:50% 100%;animation:aBreathe 4.2s ease-in-out infinite}
 .aGa .chars.sw,.aGa .gWho.sw{opacity:0}
 .aGa .gWho{position:absolute;right:14px;bottom:calc(var(--nb,90px) + 196px);z-index:3;display:grid;justify-items:end;gap:2px;pointer-events:none;transition:opacity .2s}
 .aGa .gWho .st{font:900 20px/1 var(--zk);letter-spacing:-1px;color:#ffd84a;-webkit-text-stroke:4px #3a2200;paint-order:stroke fill}
@@ -1012,7 +1012,7 @@ function renderHome() {
   const nNew = S.newIds.length;
   R.append(ib('news', 'お知らせ', news), ib('mission', 'ミッション', missions, dmClaimable()), ib('gift', 'プレゼント', presents, S.box.length), ib('party', '編成', () => { TAB = 'chara'; SUB.chara = 'party'; renderNow(); }));
   root.appendChild(R);
-  /* (v121) 上の帯(名前の札・pt・閉じるボタン)の下から並べる。アプリの中では札が大きくなって重なっていた */
+  /* (v121) 上の帯(名前の札・pt・閉じるボタン)の下から並べる。(v122) 札が縦に伸びていたのは、ランキングの一覧と見た目の名前(.aRk)がかぶっていたため。一覧は .aRkL にした。アプリの中では札が大きくなって重なっていた */
   const fitSide = () => { const hb = Math.max(0, ...[...hud.children].map(e => e.getBoundingClientRect().bottom)), rt = root.getBoundingClientRect().top; if (hb > 0) { L.style.top = R.style.top = Math.round(hb - rt + 8) + 'px'; } }; requestAnimationFrame(fitSide); setTimeout(fitSide, 400);
   /* 下: 出撃 */
   const ni = nextMain(), st = A.STAGES[ni];
@@ -1182,9 +1182,9 @@ function ranking() {
   chFresh();
   if (HOST) { modal('今週のランキング', (b, close) => { b.innerHTML = '<p>きもオタレートの中のランキングは準備中です。友達との順位は、あとで出すマルチプレイといっしょに作ります。</p>'; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); return; }
   modal('今週のランキング', (b, close) => {
-    b.innerHTML = `<p class="aMs-h">お題「${esc(A.SCORE.n)}」 ・ 月曜日にリセット</p><div class="aRk"><p class="onote">読み込み中…</p></div>`;
+    b.innerHTML = `<p class="aMs-h">お題「${esc(A.SCORE.n)}」 ・ 月曜日にリセット</p><div class="aRkL"><p class="onote">読み込み中…</p></div>`;
     const row = h('div', 'orow'); row.style.padding = '0'; row.appendChild(btn('sub', '閉じる', close)); b.appendChild(row);
-    const box = b.querySelector('.aRk'), to = setTimeout(() => { box.innerHTML = '<p class="onote">ランキングにつながりません。少したってから開き直してください。</p>'; }, 10000);
+    const box = b.querySelector('.aRkL'), to = setTimeout(() => { box.innerHTML = '<p class="onote">ランキングにつながりません。少したってから開き直してください。</p>'; }, 10000);
     rkApi().then(async r => {
       if (!r) { clearTimeout(to); box.innerHTML = '<p class="onote">ランキングは、このゲームを共有した仲間どうしで見られます。いまの画面では使えません(自己ベストはこの端末に残ります)。</p>'; return; }
       try {
