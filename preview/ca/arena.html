@@ -469,7 +469,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=7';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=8';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -1106,7 +1106,7 @@ const OLM={};function outlineMat(w){const k=w.toFixed(4);return OLM[k]||(OLM[k]=
 function mdlFlash(b,k,col){if(!b.mats)return;for(const m of b.mats){m.emissive.setHex(col||0xffffff);m.emissiveIntensity=k}}
 
 /* ---------------- 物体を作る・消す ---------------- */
-function addBody(k,x,z,o){const K=KIND[k];const b={id:G.idc++,k,x,z,vx:0,vz:0,r:K.r*VSZ,m:K.m,pullK:K.pullK,alive:true,hp:K.hp||0,max:K.hp||0,cd:0,spin:0,wall:0,...(o||{})};
+function addBody(k,x,z,o){const K=KIND[k];const b={id:G.idc++,k,x,z,vx:0,vz:0,r:K.r*VSZ,m:K.m,pullK:K.pullK,alive:true,hp:K.hp||0,max:K.hp||0,cd:0,spin:0,wall:0,...(o||{})};b.mv=G.phase==='suck'||G.phase==='hold'||G.phase==='release';
   if(k==='enemy'||k==='boss'){b.cd=Math.max(1,(k==='boss'?2:1+((b.id*7)%3))+DIF.cd);b.atk=Math.round((k==='boss'?CFG.atkB:CFG.atkE)*DIF.atk);b.hp=b.max=Math.round(K.hp*DIF.hp*(k==='boss'?DIF.boss:1))}
   if(k==='ally'&&ALLIES[b.ai].m)b.m=ALLIES[b.ai].m;b.fr=K.fr??1;b.rel=K.rel??1;
   if(k==='enemy'&&b.g==='anchor')b.rel=.35;
@@ -1138,6 +1138,9 @@ function loadWave(i){clearResFx();for(const b of G.bodies)kill(b);G.bodies=[];G.
 
 /* ---------------- 2D物理 ---------------- */
 const movable=b=>b.alive;
+/* (v127) 吸い込んだもの以外は全部止まる(山本さん 11/7)。吸い込み〜解放のあいだ、吸い込まれていない物は動かない(重さ無限の壁になる)。#loose で前の動きに戻せる(見くらべ用) */
+const FREEZE=!/loose/.test(location.hash);
+const frz=b=>FREEZE&&!b.mv&&(G.phase==='suck'||G.phase==='hold'||G.phase==='release');
 function physStep(dt){const B=G.bodies,C=G.C;
   /* 吸引 */
   if(G.phase==='suck'&&C){const L=ALLIES[G.lead].lead,k=G.t/G.T;const F=lerp(CFG.suckF[0],CFG.suckF[1],G.p)*(L==='wide'?.85:L==='tight'?1.25:1)*(G.burstOn?1.35:1);
@@ -1146,13 +1149,13 @@ function physStep(dt){const B=G.bodies,C=G.C;
       b.vx+=dx/d*a*dt;b.vz+=dz/d*a*dt;
       if(L==='vortex'){b.vx+=-dz/d*a*.75*dt;b.vz+=dx/d*a*.75*dt}
       const dmp=Math.exp(-3.2*dt);b.vx*=dmp;b.vz*=dmp}}
-  for(const b of B){if(!b.alive)continue;if(b.k==='claw'){b.vx=0;b.vz=0;continue}b.x+=b.vx*dt;b.z+=b.vz*dt;const sp=Math.hypot(b.vx,b.vz);
+  for(const b of B){if(!b.alive)continue;if(b.k==='claw'||frz(b)){b.vx=0;b.vz=0;continue}b.x+=b.vx*dt;b.z+=b.vz*dt;const sp=Math.hypot(b.vx,b.vz);
     const dmp=Math.exp(-(CFG.damp*(G.mode==='press'?CFG.pressDamp:1)*(b.fr??1)+(sp<1.2?1.6:0)+(G.calmK||0))*dt*(b.k==='orb'&&b.el==='水'?ORBV.waterDamp:1));b.vx*=dmp;b.vz*=dmp;if(sp<.04){b.vx=0;b.vz=0}
     if(b.k==='shard'){b.life=(b.life??4)-dt;if(b.life<=0)kill(b)}
     const d=Math.hypot(b.x,b.z),lim=CFG.R-b.r;if(d>lim){const nx=b.x/d,nz=b.z/d;b.x=nx*lim;b.z=nz*lim;const vn=b.vx*nx+b.vz*nz;if(vn>0){const we=b.k==='orb'&&b.el==='水'?ORBV.waterE:CFG.wallE;b.vx-=(1+we)*vn*nx;b.vz-=(1+we)*vn*nz;if(vn>2){b.wall++;if(b.k==='ally'&&G.phase==='release')b.bn=Math.min(5,(b.bn||0)+1);wallFx(b,vn);if(G.phase==='release'&&G.rs&&!G.rs.wood){G.rs.wall++;if(G.rs.wall>=RESV.wood.wall){G.rs.wood=true;later(.05,resWood)}}}if(LB.on)lbWall(b,vn,nx,nz)}}}
   for(let i=0;i<B.length;i++){const a=B[i];if(!a.alive)continue;for(let j=i+1;j<B.length;j++){const b=B[j];if(!b.alive)continue;
     const dx=b.x-a.x,dz=b.z-a.z,rr=a.r+b.r,d2=dx*dx+dz*dz;if(d2>=rr*rr)continue;const d=Math.sqrt(d2)||1e-4,nx=dx/d,nz=dz/d,pen=rr-d;
-    const ia=1/a.m,ib=1/b.m,s=pen/(ia+ib);a.x-=nx*s*ia;a.z-=nz*s*ia;b.x+=nx*s*ib;b.z+=nz*s*ib;
+    const ia=frz(a)?0:1/a.m,ib=frz(b)?0:1/b.m;if(ia+ib===0)continue;const s=pen/(ia+ib);a.x-=nx*s*ia;a.z-=nz*s*ia;b.x+=nx*s*ib;b.z+=nz*s*ib;
     const vn=(b.vx-a.vx)*nx+(b.vz-a.vz)*nz;if(vn<0){const e=G.phase==='suck'?.15:((a.k==='orb'&&a.el==='水')||(b.k==='orb'&&b.el==='水'))?ORBV.waterE:CFG.e;const jj=-(1+e)*vn/(ia+ib);const PR=G.phase==='release'&&ALLIES[G.lead].lead==='pierce',fo=q=>q.k==='enemy'||q.k==='boss',pa=PR&&a.k==='ally'&&fo(b),pb=PR&&b.k==='ally'&&fo(a);if(!pa){a.vx-=jj*nx*ia;a.vz-=jj*nz*ia}else{a.vx*=.92;a.vz*=.92}if(!pb){b.vx+=jj*nx*ib;b.vz+=jj*nz*ib}else{b.vx*=.92;b.vz*=.92}
       if(G.phase==='release')impact(a,b,-vn,(a.x+b.x)/2,(a.z+b.z)/2)}}}}
 
@@ -1341,13 +1344,13 @@ function teach(w){const has=new Set();for(const it of w.items){const o=it[3];if(
 
 /* ---------------- 圧縮の流れ ---------------- */
 function startCompress(){const L=ALLIES[G.lead].lead;resetRs();G.phase='suck';G.t=0;G.T=lerp(CFG.suckT[0],CFG.suckT[1],G.p);G.combo=0;G.cm=0;G.stats.hits=0;showCombo();
-  G.rad=radOf(G.p);G.cap=G.bodies.filter(b=>capOk(b,G.C,G.rad));for(const b of G.bodies){b.inCap=G.cap.includes(b);if(b.alive&&b.g==='anchor'&&!b.inCap&&Math.hypot(b.x-G.C.x,b.z-G.C.z)<G.rad+b.r*.5){num(b.x,1.5,b.z,'ふんばった!','grd');b.jump=.25}}
+  G.rad=radOf(G.p);G.cap=G.bodies.filter(b=>capOk(b,G.C,G.rad));for(const b of G.bodies){b.inCap=G.cap.includes(b);b.mv=b.inCap;if(b.alive&&b.g==='anchor'&&!b.inCap&&Math.hypot(b.x-G.C.x,b.z-G.C.z)<G.rad+b.r*.5){num(b.x,1.5,b.z,'ふんばった!','grd');b.jump=.25}}
   logC('圧縮 中心('+G.C.x.toFixed(1)+','+G.C.z.toFixed(1)+') 強さ'+(G.p*100|0)+'% 範囲'+G.rad.toFixed(1)+'m 対象'+G.cap.length+(L!=='std'?' ['+ALLIES[G.lead].ln+']':''));
   hint('')}
 function release(strength,rad,second){const C=G.C,L=ALLIES[G.lead].lead;const V=lerp(CFG.relV[0],CFG.relV[1],G.p)*strength*(L==='wide'?.88:L==='power'?1.15:L==='gust'?1.15:1)*(G.burstOn?1.45:1)*(!second&&G.windBuff?1.3:1);let n=0;
   if(!second){if(G.windBuff){G.windBuff=false;say('追い風!',.9)}for(const b of G.bodies)if(b.k==='ally')b.bn=0;if(L==='blast')later(.05,()=>leadBlast(C,rad));if(L==='gravity')later(.55,()=>leadGravity(C,rad))}
   if(!second&&L==='mend')later(.45,()=>{if(G.over)return;const v=Math.round(G.hpMax*.02);if(G.hp>=G.hpMax)return;G.hp=Math.min(G.hpMax,G.hp+v);const m=allyBody(G.lead)||{x:0,z:3};num(m.x,1.8,m.z,'+'+v,'heal');ui()});
-  for(const b of G.bodies){if(!b.alive)continue;let dx=b.x-C.x,dz=b.z-C.z,d=Math.hypot(dx,dz);if(d>rad*1.08)continue;
+  for(const b of G.bodies){if(!b.alive)continue;if(FREEZE&&!b.mv)continue;let dx=b.x-C.x,dz=b.z-C.z,d=Math.hypot(dx,dz);if(d>rad*1.08)continue;
     if(d<.15){const a=(b.id*2.399)%(Math.PI*2);dx=Math.cos(a);dz=Math.sin(a);d=1}else{dx/=d;dz/=d}
     const fall=.55+.45*(1-Math.min(1,d/rad));let v=V*fall*(b.rel??1)/Math.pow(b.m,.35);
     let tx=0,tz=0;if(L==='vortex'){tx=-dz*.45;tz=dx*.45}
