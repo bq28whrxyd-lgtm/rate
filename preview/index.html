@@ -14678,7 +14678,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=5',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=6',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -14723,6 +14723,11 @@ window.CAHOST={
   spend:(cost,n)=>{const me=myPlayer();if(!me)return false;const k=n===10&&cost===900?'g10':n===1&&cost===100?'g1':null;if(!k||balance(me.id)<cost)return false;
     const d={...(caDocs[me.id]||{})};d[k]=(+d[k]||0)+1;caDocs[me.id]=d;caPtSend();queueRender();return true},
   earn:n=>caEarn(n),
+  /* (v145) スキン: 前の分身でもらったスキン。推しスキン(スキンガチャのKMRの対戦演出と勝利演出がそろったもの)と、かぼちゃ頭の騎士(ハロウィン) */
+  skins:()=>{const me=myPlayer();if(!me)return[];const M={'オーバーサイズ':'hood','ふくれっつら':'chibi','ひだまりニット':'vt1','はなかんむり':'vt2','堕ちた天使':'vt3','夜宴の小悪魔':'hw'},out=[];
+    try{for(const o of (typeof myOshiSet==='function'?myOshiSet():[])){const k=o&&M[o.n];if(k&&!out.includes(k))out.push(k)}}catch(e){}
+    try{if(window.__caSkinAll||(typeof hbSkin==='function'&&hbSkin(me.id))||(typeof isAdmin==='function'&&isAdmin()&&/\/preview\//.test(location.pathname)))out.push('knight')}catch(e){}
+    return out},
   /* 師匠と弟子(前の分身の画面の右上にあったもの) */mentor:()=>{try{mtSheet()}catch(e){}},mentorDot:()=>{try{return mtDot()}catch(e){return false}}};
 /* ===== v50: golden chests, upsets, genre weeks, paid points, predictions, timeline, daily missions, weekly MVP ===== */
 const RULE4=Date.UTC(2026,9,4,10,30);

@@ -469,7 +469,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=5';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=6';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -484,7 +484,9 @@ function glassMat(el){const E=OEL[el];return new THREE.ShaderMaterial({transpare
 /* 立ち絵(分身の絵)から、顔と上半身を丸く切り抜いた絵を作る */
 const PORT={ready:false,img:{}};const PCROP={jin:[41,12,40,30],riz:[43,13,40,30],gekka:[42,29,40,30],seira:[34,29,40,30],kagura:[56,0,40,30],yomogi:[42,6,40,30],minamo:[60,29,40,30],lux:[61,1,40,30],hinoko:[60,11,40,30],kurumi:[62,21,40,30],nagi:[65,16,40,30],kirara:[66,29,40,30],jin6:[48,9,40,30],riz6:[55,10,40,30],gekka6:[56,36,40,30],seira6:[64,15,40,30]};const PSW={jin:162,riz:162,gekka:162,seira:162,kagura:162,yomogi:162,minamo:162,lux:162,hinoko:162,kurumi:162,nagi:162,kirara:162,jin6:162,riz6:162,gekka6:162,seira6:162};
 /* (v84) ★6に進化したキャラは進化後の絵(jin6 など)を使う。out.js が window.CA_EVO に入れる(D-112) */
-const artK=k=>(window.CA_EVO||{})[k]&&PORT.img[k+'6']?k+'6':k,chbK=k=>(window.CA_EVO||{})[k]&&CHB.tex[k+'6']?k+'6':k;
+/* (v125) スキン: out.js が window.CA_SKIN={キャラ:スキン} に入れる。絵(skin_<スキン>)があればそれを使う。能力は変わらない */
+const skinK=(k,has)=>{const v=(window.CA_SKIN||{})[k];return v&&has('skin_'+v)?'skin_'+v:null};
+const artK=k=>skinK(k,x=>!!PORT.img[x])||((window.CA_EVO||{})[k]&&PORT.img[k+'6']?k+'6':k),chbK=k=>skinK(k,x=>!!CHB.tex[x])||((window.CA_EVO||{})[k]&&CHB.tex[k+'6']?k+'6':k);
 function portCanvas(key,el,size,zoom,round){const c=document.createElement('canvas');c.width=c.height=size;const g=c.getContext('2d'),E=OEL[el],h=n=>'#'+n.toString(16).padStart(6,'0'),r=size/2;
   const gr=g.createRadialGradient(r,r*.85,size*.04,r,r,r);gr.addColorStop(0,'#ffffff');gr.addColorStop(.4,h(E.c));gr.addColorStop(1,h(E.e));g.fillStyle=gr;
   if(round){g.beginPath();g.arc(r,r,r*.97,0,7);g.fill()}else g.fillRect(0,0,size,size);
