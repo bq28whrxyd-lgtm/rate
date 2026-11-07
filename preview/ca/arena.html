@@ -469,7 +469,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=21';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=22';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -1256,7 +1256,8 @@ function telParts(e,pat){const al=G.bodies.filter(a=>a.alive&&a.k==='ally');cons
   if(pat==='bring')return [{k:'ring',x:e.x,z:e.z,yaw:0,p:[2.6,R*1.05],H:[R*1.05+.25,R*1.05+.25]}];
   if(pat==='half'){const left=al.filter(a=>a.x<0).length>=al.length/2,sx=left?-1:1;return [{k:'rect',x:sx*R*.5,z:0,yaw:0,p:[R*.5,R*1.1],H:[R*.5+.25,R*1.1+.25]}]}
   return [C(t.x,t.z,CFG.telE)]}
-function telMake(e){const pat=atkPat(e),parts=telParts(e,pat);
+function telGrow(P){const g=1.3;if(P.k==='circ'){P.p[0]*=g}else if(P.k==='rect'||P.k==='cross'){if(!(P.k==='rect'&&P.p[0]>2))P.p[0]*=g}else if(P.k==='cone'){P.p[1]*=g}else if(P.k==='ring'&&P.p[1]<5){P.p[0]/=g}P.H=P.k==='ring'?[P.p[1]+.25,P.p[1]+.25]:P.k==='cone'?[P.p[0]+.25,P.p[0]+.25]:P.k==='cross'?[P.p[1]+.25,P.p[1]+.25]:[P.p[0]+.25,P.p[1]+.25];if(P.k==='circ')P.H=[P.p[0]+.25,P.p[0]+.25];return P}/* (11/8) 敵の攻撃の範囲を1.3倍(半分・外周の大技はそのまま) */
+function telMake(e){const pat=atkPat(e),parts=telParts(e,pat).map(telGrow);
   for(const P of parts){const m=new THREE.Mesh(TELP,telMat(TELK[P.k],P.H,P.p));m.rotation.order='YXZ';m.rotation.set(-Math.PI/2,P.yaw,0);m.position.set(P.x,.11,P.z);m.scale.set(P.H[0],P.H[1],1);m.renderOrder=4;S.add(m);P.m=m}
   const aim=!(pat==='line'||pat==='cone'||pat==='self'||pat==='half'||pat==='bring');
   const ln=new THREE.Group();if(aim)for(const P of parts)for(let i=0;i<6;i++){const d=new THREE.Mesh(TELD,TELDM);d.rotation.x=-Math.PI/2;d.renderOrder=4;d.userData.P=P;ln.add(d)}S.add(ln);
@@ -2173,8 +2174,16 @@ function playResultArt(ok){stopResultArt();if(matchMedia('(prefers-reduced-motio
   res.prepend(fx);resArtTimer=setTimeout(stopResultArt,ok?930:350)}
 function stageOpen(i,h){return h?PROG.n[i]&&(i===0||PROG.h[i-1]):(i===0||PROG.n[i-1])}
 function stageStrength(i,h){const k=STAGES[i].k;const v=(k.hp*(h?HARD.hp:1)+k.atk*(h?HARD.atk:1))/2;return Math.max(1,Math.min(5,Math.round(1+(v-.55)/2.3*4)))}
+/* 見えない目安Lv(画面には出さない)。メイン: 第1章1→10・第2章10→25・第3章25→40・第4章40→55、ハードは+15。曜日・イベント: 初級20・中級40・上級60。塔: 1階5→30階80。降臨60、試練70、極限・絶界90 */
+const XDIF=+window.__XDIF||2.5;/* 目安Lvちょうどで、いまの本番(2倍)の1.25倍の強さ。目安より下だとレベルの差でもっときびしい */
+function stageT(i,h){const st=STAGES[i],ev=st.ev||'';
+  if(!ev){const c=st.ch||0,j=STAGES.slice(0,i).filter(s=>!s.ev&&(s.ch||0)===c).length,A=[[1,10],[10,25],[25,40],[40,55]][Math.min(3,c)];return A[0]+(A[1]-A[0])*j/7+(h?15:0)}
+  if(ev==='tower'){const f=+((st.n||'').match(/(\d+)階/)||[0,1])[1];return 5+75*(f-1)/29}
+  if(ev==='raid')return 60;if(ev==='score')return 30;
+  if(ev==='ex'){const n=st.n||'';return /試練/.test(n)?70:90}
+  const n=st.n||'';let j=/上級/.test(n)?2:/中級/.test(n)?1:/初級/.test(n)?0:-1;if(j<0){j=0;for(let k=i-1;k>=0&&STAGES[k].ev===ev&&(STAGES[k].n===st.n);k--)j++}return [20,40,60][Math.min(2,j)]}
 function setStageData(i,h){const st=STAGES[i];G.stage=i;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
-  Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 山本さん「全体的にめっちゃ簡単」) 経験値の竜の巣(別に調整ずみ)以外の敵の体力と攻撃を2倍 */if(st.ev!=='exp'){DIF.hp*=2;DIF.atk*=2}
+  Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
   WAVES.length=0;{const pool=[...new Set(STAGES.slice(0,i+1).flatMap(s=>(s.gm||[]).join('').replace(/\./g,'').split('')))];if(!pool.length)pool.push('f','w');let hk=0;
    st.waves.forEach((w,wi)=>{const g=(st.gm||[])[wi]||'';let ei=0;const items=w.items.map(it=>{if(it[0]!=='enemy')return it;let c=g[ei]||'.';if(h&&c==='.'&&ei%2===1)c=pool[(hk++)%pool.length];ei++;return GL[c]?[it[0],it[1],it[2],GL[c]]:it});WAVES.push(Object.assign({},w,{items}))})}
   $('stid').textContent=st.ev?(st.tn||st.id||'EV'):st.id+(h?' H':'');rebuildDbg()}
@@ -2417,5 +2426,5 @@ requestAnimationFrame(frame);
 window.CA_API={TOWER,RAID,SCORE,EXB,EXT,LEV,YM,WKID,CHAPS,genStage,genWave,rng,hashStr,RES,RESK,demoRes,demoFire,ROSTER,SKD,setTeam,STAGES,PROG,MAIN_N,ALLIES,OEL,PORT,G,startStage,showSelect,faceTex,portCanvas,applyParty,ui,stageOpen,stageStrength,stageKinds,kindsBefore,KNAME,HARD,LEADS};
 imp('./out.js').catch(e=>console.warn('out.js を読めませんでした',e));
 window.__CA={gimTurn,addBody,STAGES,PROG,DIF,startStage,showSelect,stageClear,stageFail,useSkill,get SKILLS(){return SKILLS},get ALLIES(){return ALLIES},combo,resFire,resWood,resWater,resLight,allyBody,G,CFG,KIND,LB,startCompress,release,groundAt,cam,loadWave,nextTurn,resize,vf,vfHit,vfPop,vfBoom,VF,explode,addBody,hurt,streaks,impactFrame,
-  resFxState:()=>({active:RFX.length,holding:RFX.filter(e=>e.hold).length,stopT,geometries:R.info.memory.geometries,textures:R.info.memory.textures,programs:(R.info.programs||[]).length})};
+  stageT,resFxState:()=>({active:RFX.length,holding:RFX.filter(e=>e.hold).length,stopT,geometries:R.info.memory.geometries,textures:R.info.memory.textures,programs:(R.info.programs||[]).length})};
 </script>
