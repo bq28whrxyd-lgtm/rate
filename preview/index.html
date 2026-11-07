@@ -14314,7 +14314,7 @@ function render(){
   if(sorted.length>=4){const mb=el('button','more',HM.rank?'1〜3位の詳細をとじる':'1〜3位の詳細も見る');mb.onclick=()=>{HM.rank=!HM.rank;render()};rk.append(mb)}
   rk.querySelectorAll('[data-pid]').forEach(e=>{e.style.cursor='pointer';e.onclick=()=>{const q=players.find(x=>x.id===e.dataset.pid);if(q)showProfile(q,statLine(q))}});
   {const h=sigOf(rk.innerHTML);if(rkLive.__h!==h){rkLive.__h=h;rkLive.replaceChildren(...rk.childNodes)}}
-  renderMine();try{renderSurprise();renderWanted();bountyFeed();paintNew();likesWatch();farmWatch();mentorWatch();mtGradShow();if(!mtGradCheck.t||now()-mtGradCheck.t>30000){mtGradCheck.t=now();mtGradCheck()}}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();try{ptGuide()}catch(e){}try{stkCheck()}catch(e){}try{invCamp()}catch(e){}passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews();try{kmrPromo()}catch(e){}try{atkPromo()}catch(e){}try{hetaNote()}catch(e){}}$('acct').hidden=!myPlayer();
+  renderMine();try{renderSurprise();renderWanted();bountyFeed();paintNew();likesWatch();farmWatch();mentorWatch();mtGradShow();if(!mtGradCheck.t||now()-mtGradCheck.t>30000){mtGradCheck.t=now();mtGradCheck()}}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();try{ptGuide()}catch(e){}try{stkCheck()}catch(e){}try{invCamp()}catch(e){}passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews();try{kmrPromo()}catch(e){}try{caPromo()}catch(e){}try{atkPromo()}catch(e){}try{hetaNote()}catch(e){}}$('acct').hidden=!myPlayer();
   {const me=myPlayer(),pc=$('pcard'),nc=me?profileCard(me,statLine(me)):el('div','empty','アカウントを設定すると、ここにプロフィールが出ます'),h=sigOf(nc.outerHTML);if(pc.__h!==h){pc.__h=h;pc.replaceChildren(nc)}$('pedit').hidden=!me}
   if(typeof watchInv==='function'){watchInv();renderGacha()}
   {const s=$('opp'),v=s.value,me=myPlayer();s.replaceChildren();
@@ -14678,7 +14678,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=9',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=10',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -17463,7 +17463,7 @@ function kmrPromoClear(){/* the home screen is the topmost thing in the middle o
   const x=innerWidth/2,y=innerHeight*.45,e=document.elementFromPoint(x,y);return !!(e&&e.closest&&e.closest('.view,.kfp'))}/* .kfp = the home screen layer */
 function kmrPromo(force){
   if(!force){if(kmrPromo.started||Date.now()>KMR_PROMO_END||!myPlayer()||navigator.webdriver/* automated tests */)return;let seen=0;try{seen=+localStorage.getItem(kmrPromoKey())||0}catch(e){}if(seen)return;kmrPromo.started=true;
-    let n=0;const tick=()=>{if(document.querySelector('.kpromo'))return;if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){kmrPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,2500);return}
+    let n=0;const tick=()=>{if(document.querySelector('.kpromo')||caPromoPending()){n=0;return setTimeout(tick,1500)}if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){kmrPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,2500);return}
   kmrPromoShow()}
 function kmrPromoShow(P){P=P||{src:'promo_kmr.mp4',poster:'promo_kmr.jpg',key:kmrPromoKey()};
   if(document.querySelector('.kpromo'))return;try{localStorage.setItem(P.key,String(Date.now()))}catch(e){}
@@ -17483,8 +17483,17 @@ function kmrPromoShow(P){P=P||{src:'promo_kmr.mp4',poster:'promo_kmr.jpg',key:km
   skip.onclick=e=>{e.stopPropagation();close()};
   snd.onclick=e=>{e.stopPropagation();v.muted=false;try{if(v.ended||v.currentTime>v.duration-.3)v.currentTime=0}catch(x){}v.play().catch(()=>{});snd.hidden=true};
   v.addEventListener('ended',()=>setTimeout(close,600));v.addEventListener('error',close);
+  if(P.mute){snd.hidden=true;o.onclick=()=>{if(v.paused&&!v.ended){v.play().catch(()=>{});return}close()}}/* (11/07) 音のない動画: 画面のどこを押しても閉じる */
   o.append(v,skip,snd);document.body.append(o);requestAnimationFrame(()=>o.classList.add('on'));
-  const p=v.play();if(p&&p.catch)p.catch(()=>{/* autoplay refused: the sound button starts it */snd.textContent='再生する'})}
+  const p=v.play();if(p&&p.catch)p.catch(()=>{/* autoplay refused: the sound button starts it */snd.textContent='再生する';snd.hidden=false;snd.onclick=e=>{e.stopPropagation();v.play().catch(()=>{});snd.hidden=true}})}
+/* (11/07) 分身(圧縮アリーナ)の紹介動画(30秒・音なし)。アプリを開いたら1人1回だけ。ほかの紹介動画・お知らせの絵より先に出す */
+const CA_PROMO_ON=false;/* 動画ができたら true */const CA_PROMO_END=Date.parse('2027-01-31T23:59:59+09:00');
+function caPromoKey(){return 'caPromo1_'+((typeof me!=='undefined'&&me&&me.id)||'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
+function caPromoPending(){try{if(!CA_ON||!CA_PROMO_ON||Date.now()>CA_PROMO_END)return false;return !(+localStorage.getItem(caPromoKey())||0)}catch(e){return false}}
+function caPromoShow(){kmrPromoShow({src:'promo_ca.mp4',poster:'promo_ca.jpg',key:caPromoKey(),mute:1})}
+function caPromo(force){if(force){caPromoShow();return}
+  if(caPromo.started||!myPlayer()||navigator.webdriver||!caPromoPending())return;caPromo.started=true;
+  let n=0;const tick=()=>{if(document.querySelector('.kpromo,.hnote,.tqi')){n=0;return setTimeout(tick,1500)}if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){caPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,2500)}
 /* (10/31) 推しの攻撃リニューアルのお知らせ(パソコンの Blender で作った絵 note_atk.webp)。アプリを開いたら1回だけ。
    KMRの紹介動画や他のお知らせが先に出ているときは、それが閉じてホームがあいてから出す */
 const ATK_PROMO_END=Date.parse('2026-12-31T23:59:59+09:00');
@@ -17499,7 +17508,7 @@ function atkPromoShow(){if(document.querySelector('.hnote'))return;try{localStor
 function atkPromo(force){
   if(force){atkPromoShow();return}
   if(atkPromo.started||Date.now()>ATK_PROMO_END||!myPlayer()||navigator.webdriver)return;let seen=0;try{seen=+localStorage.getItem(atkPromoKey())||0}catch(e){}if(seen)return;atkPromo.started=true;
-  let n=0;const kmrPending=()=>{if(Date.now()>KMR_PROMO_END)return false;try{return !(+localStorage.getItem(kmrPromoKey())||0)}catch(e){return false}};
+  let n=0;const kmrPending=()=>{if(caPromoPending())return true;if(Date.now()>KMR_PROMO_END)return false;try{return !(+localStorage.getItem(kmrPromoKey())||0)}catch(e){return false}};
   const tick=()=>{if(document.querySelector('.kpromo,.hnote,.tqi')||kmrPending()){n=0;return setTimeout(tick,1500)}
     if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){atkPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,4500)}
 /* (10/30) 交換所の新入荷のお知らせ: アプリを開いたら1回だけ、写真(note_heta.webp)を出す。ホームがあいているときだけ。押すと交換所へ */

@@ -75,9 +75,13 @@ const skinArt = v => !!(PORT['skin_' + v] || (A.PORT && A.PORT.img && A.PORT.img
 /* (v126) スキンは編成の枠につける(山本さん「設定した場所に編成したら、そのキャラがスキンに変わる」)。S.sslot[枠]=スキン */
 const slotSkin = i => { const v = (S.sslot || [])[i]; return v && SKINS[v] && skinsOwned().includes(v) ? v : null; };
 const skinOf = id => { const i = (S.team || []).findIndex(uid => { const x = S.units.find(y => y.u === uid); return x && x.id === id; }); return i < 0 ? null : slotSkin(i); };
-function fresh() { return { v: 1, pt: 3000, next: 5, units: [{ u: 1, id: 'jin', lv: 1, exp: 0, evo: 0 }, { u: 2, id: 'riz', lv: 1, exp: 0, evo: 0 }, { u: 3, id: 'gekka', lv: 1, exp: 0, evo: 0 }, { u: 4, id: 'seira', lv: 1, exp: 0, evo: 0 }], party: { jin: 1, riz: 2, gekka: 3, seira: 4 }, team: [1, 2, 3, 4], mats: {}, newIds: [], home: 'jin', name: 'プレイヤー', lead: 'jin', stars: {}, evt: {}, pity: 0, box: [], dm: { date: '', win: 0, power: 0, gacha: 0, got: [] }, hd: { date: '', n: {} } }; }
+/* (11/7 山本さん) はじめはキャラ0人。最初に無料の10回召喚(ふつうの確率)を1回引ける(free10) */
+function fresh() { return { v: 1, pt: 3000, next: 5, st2: 1, free10: 1, units: [], party: {}, team: [], mats: {}, newIds: [], home: null, name: 'プレイヤー', lead: null, stars: {}, evt: {}, pity: 0, box: [], dm: { date: '', win: 0, power: 0, gacha: 0, got: [] }, hd: { date: '', n: {} } }; }
 let S = fresh();
-try { const o = HOST ? HOST.load('s') : JSON.parse(localStorage.getItem(KEY) || 'null'); if (o && o.v === 1) S = Object.assign(fresh(), o); } catch (e) { }
+let OLD0 = false;
+try { const o = HOST ? HOST.load('s') : JSON.parse(localStorage.getItem(KEY) || 'null'); if (o && o.v === 1) { OLD0 = !o.st2; S = Object.assign(fresh(), o); } } catch (e) { }
+/* (11/7) 前のはじめ方(★5の4人つき)のセーブ: その4人(番号1〜4)を消して、無料の10回召喚を1回わたす。ガチャで引いた同じキャラは残る */
+if (OLD0) { const gone = new Set(S.units.filter(x => x.u <= 4 && ['jin', 'riz', 'gekka', 'seira'].includes(x.id)).map(x => x.u)); S.units = S.units.filter(x => !gone.has(x.u)); S.newIds = (S.newIds || []).filter(u => !gone.has(u)); S.team = (S.team || []).filter(u => !gone.has(u)); S.party = {}; S.st2 = 1; S.free10 = 1; if (!S.units.some(x => x.id === S.home)) S.home = null; }
 if (HOST) { try { S.name = HOST.name() || S.name; } catch (e) { } }
 if (S.skin) { S.sslot = S.sslot || [null, null, null, null]; (S.team || []).forEach((uid, i) => { const x = S.units.find(y => y.u === uid); if (x && S.skin[x.id] && !S.sslot.includes(S.skin[x.id])) S.sslot[i] = S.skin[x.id]; }); delete S.skin; }
 /* (v69) 古いセーブ: 仮の★4・★3を新しいキャラに置きかえ、編成を4つの枠(team)にする */
@@ -88,10 +92,11 @@ if ((S.mn || 8) !== A.MAIN_N) { const mn = S.mn || 8, ns = {}; for (const k in S
 /* (v84) ★3・★4の進化をなくしたので、進化ずみの子は元にもどし、使った宝珠を返す */
 S.mats = S.mats || {};
 for (const x of S.units) { const r = CH[x.id].rar; if (x.evo && r < 5) { x.evo = 0; x.lv = Math.min(x.lv, MAXLV[r]); const k = 'orb_' + CH[x.id].el; S.mats[k] = (S.mats[k] || 0) + ({ 3: 1, 4: 3 }[r] || 0); putS(); } }
-if (!Array.isArray(S.team) || S.team.length !== 4 || !S.team.every(uid => unit0(uid))) S.team = ['jin', 'riz', 'gekka', 'seira'].map(k => (S.party && S.party[k]) || (S.units.find(x => x.id === k) || {}).u).filter(Boolean);
-while (S.team.length < 4) { const used = new Set(S.team.map(uid => unit0(uid).id)); const x = S.units.find(y => !used.has(y.id)); if (!x) break; S.team.push(x.u); }
+if (!Array.isArray(S.team)) S.team = []; S.team = S.team.filter(uid => unit0(uid));
 function unit0(uid) { return S.units.find(x => x.u === uid); }
-if (!S.team.some(uid => unit0(uid).id === S.lead)) S.lead = unit0(S.team[0]).id;
+fixTeam();
+/* 編成を4人(ちがうキャラ)にそろえる。足りないときは強い順に入れる。リーダーとホームのキャラも決める */
+function fixTeam() { const used = new Set(S.team.map(uid => unit0(uid).id)); for (const x of S.units.slice().sort((a, b) => CH[b.id].rar - CH[a.id].rar || b.lv - a.lv)) { if (S.team.length >= 4) break; if (used.has(x.id)) continue; used.add(x.id); S.team.push(x.u); } if (S.team.length && !S.team.some(uid => unit0(uid).id === S.lead)) S.lead = unit0(S.team[0]).id; if (!S.team.length) S.lead = null; if (!S.units.some(x => x.id === S.home)) S.home = S.lead; }
 putS();
 function save() { putS(); syncParty(); renderTop(); }
 function unit(uid) { return S.units.find(x => x.u === uid); }
@@ -101,8 +106,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=9').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=9').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=10').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=10').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -830,6 +835,10 @@ const CSS = `
 @keyframes gGlow{50%{box-shadow:0 0 0 2px #fff,0 0 14px rgba(255,210,100,.95)}}
 .aGa .btns .aBtn{position:relative;font-size:16px}
 .aGa .btns .aBtn small{font-size:13px}
+.aGa .gFirst{position:absolute;left:50%;top:50%;transform:translateX(-50%);z-index:3;width:min(86%,340px);padding:10px 14px;border-radius:14px;text-align:center;background:rgba(255,248,230,.95);color:#2a1c08;box-shadow:0 6px 18px rgba(0,0,0,.45),0 0 0 1.5px #e8c070;pointer-events:none;animation:gFirstIn .5s cubic-bezier(.2,.9,.3,1.2)}
+.aGa .gFirst b{display:block;font:900 17px var(--zk)}.aGa .gFirst span{display:block;margin-top:2px;font:700 12px var(--zk);color:#5a4420}
+@keyframes gFirstIn{from{opacity:0;transform:translate(-50%,-8px) scale(.94)}}
+.aBtn.free{animation:gFree 1.6s ease-in-out infinite}@keyframes gFree{50%{box-shadow:0 0 0 2px #fff6d8,0 0 26px rgba(255,214,120,.9)}}
 .aGa .gK{position:absolute;left:calc(75% + 2px);top:-10px;z-index:2;pointer-events:none;transform:translateX(-50%);white-space:nowrap;padding:2px 9px;border-radius:10px;font:900 10.5px var(--zk);font-style:normal;color:#fff;background:linear-gradient(#ff6a5a,#d42a3a);box-shadow:0 0 0 1.5px #fff,0 2px 0 #6a0a14}
 .gRs{display:grid;gap:10px;margin-bottom:8px}
 .gRw p{margin:0 0 5px;font:700 12.5px var(--zk)}.gRw p b{font-size:14px}.gRw p small{margin-left:4px;font-size:11px;opacity:.75}
@@ -940,7 +949,7 @@ let TAB = 'home', SUB = { quest: 'main', chara: 'box' }, PICK = null;
 
 function rankInfo() { const n = A.PROG.n.filter(Boolean).length + A.PROG.h.filter(Boolean).length; const lvSum = S.units.reduce((a, u) => a + u.lv, 0); const xp = n * 120 + lvSum * 6; const rk = 1 + Math.floor(xp / 100); return { rk, f: (xp % 100) / 100 }; }
 function renderTop() {
-  const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(), f = faceURL(S.home, homeEvo());   /* アプリの中ではアプリのランク(レベル)を出す */
+  const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(), f = S.home ? faceURL(S.home, homeEvo()) : '';   /* アプリの中ではアプリのランク(レベル)を出す */
   hud.innerHTML = `<button class="aPl aGl" type="button" aria-label="ホームに出すキャラを変える"><span class="aAv" style="${f ? `background-image:url(${f})` : ''}"></span><span style="min-width:0"><span class="aPn">${esc(S.name)}</span><span class="aRk">RANK <b>${ri.rk}</b><span class="bar"><i style="width:${Math.round(ri.f * 100)}%"></i></span></span></span></button>
   <div class="aCur aGl" title="きもオタレートと共通のポイント。ガチャに使う。ステージの初回クリア・★・ミッションでもらえる">${svg('pt', '0 0 16 16')}<b>${ptNow().toLocaleString()}</b>${HOST ? '' : '<button type="button" aria-label="ptを足す(テスト用)">+</button>'}</div>${HOST ? '<button class="aX" type="button" aria-label="アプリに戻る">×</button>' : ''}`;
   hud.querySelector('.aPl').onclick = () => { if (TAB !== 'home') go('home'); else nextHome(); };
@@ -958,11 +967,15 @@ function shell(title, en, opts) {
   const body = h('div', 'obody'); root.appendChild(body); return body;
 }
 function go(k) { TAB = k; PICK = null; renderNow(); }
+/* (11/7) 4人そろっていなくて、無料の10回召喚が残っているあいだは、ガチャとその他だけ */
+function needFree() { return S.free10 && new Set(S.units.map(x => x.id)).size < 4; }
+function canGo() { if (teamUnits().length >= 4) return true; modal('仲間が足りません', (b, close) => { b.innerHTML = `<p style="text-align:center">出撃には4人の仲間が必要です。<br>ガチャで仲間を呼びましょう。</p>`; const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', '閉じる', close), btn('shine', 'ガチャへ', () => { close(); go('gacha'); })); b.appendChild(r); }); return false; }
 function renderNow() {
   if (!document.body.classList.contains('navon')) return;
   renderTop();
   nav.querySelectorAll('button').forEach(b => b.setAttribute('aria-current', b.dataset.k === TAB ? 'page' : 'false'));
   root.hidden = false; $('ss').hidden = true;
+  if (needFree() && TAB !== 'gacha' && TAB !== 'other') { if (TAB !== 'home') flash('まずは無料の10回召喚で仲間を呼ぼう'); TAB = 'gacha'; nav.querySelectorAll('button').forEach(b => b.setAttribute('aria-current', b.dataset.k === TAB ? 'page' : 'false')); }
   ({ home: renderHome, quest: renderQuest, chara: renderChara, gacha: renderGacha, other: renderOther })[TAB]();
   fitNav();
 }
@@ -990,7 +1003,7 @@ function matIcon(id) {
 function nextMain() { const i = A.STAGES.findIndex((s, j) => !s.ev && (j === 0 || A.PROG.n[j - 1]) && !A.PROG.n[j]); return i < 0 ? A.MAIN_N - 1 : i; }
 const HOMES = ['jin', 'riz', 'gekka', 'seira'];
 let talkT = 0, banT = 0, banI = 0, gaT = 0, gaI = 0;
-function nextHome() { S.home = HOMES[(HOMES.indexOf(S.home) + 1) % HOMES.length]; save(); swapHero(); }
+function nextHome() { const L = [...new Set(S.units.map(x => x.id))].filter(k => CH[k].rar >= 5).concat([...new Set(teamUnits().map(x => x.id))]).filter((k, i, a) => a.indexOf(k) === i); if (!L.length) return; S.home = L[(L.indexOf(S.home) + 1) % L.length]; save(); swapHero(); }
 function talkLines() {
   const ni = nextMain(), st = A.STAGES[ni], lines = [`つづきは ${st.id}「${st.n}」。`];
   const big = S.units.filter(u => u.lv < maxLv(u)).length; if ((S.mats.expS || 0) + (S.mats.expM || 0) + (S.mats.expL || 0) > 0 && big) lines.push('経験値の竜があるよ。強化してみよう。');
@@ -1132,7 +1145,7 @@ function goSheet(i, hard, op) {
   const pe = btn('sub sm', '編成', () => { close(); TAB = 'chara'; SUB.chara = 'party'; PICK = null; renderNow(); }); pe.style.flex = '0 0 auto'; sh.querySelector('.pty').appendChild(pe);
   const r = sh.querySelector('.orow'); const bk = btn('sub', 'もどる', close); bk.style.flex = '0 0 26%'; r.append(bk);
   if (!op.rw && ((S.stars[skey(i, hard)] || 0) & 7) === 7) { const sk = btn('sub', 'スキップ', () => { close(); skipStage(i, hard); }); sk.style.flex = '0 0 28%'; r.append(sk); }
-  r.append(btn('shine', '出撃', () => { close(); A.startStage(i, hard); }));
+  r.append(btn('shine', '出撃', () => { close(); if (canGo()) A.startStage(i, hard); }));
   o.addEventListener('click', e => { if (e.target === o) close(); }); lay.appendChild(o);
 }
 /* イベント: 1行に1つのイベント。押すと下から 初級・中級・上級 を選んで出撃(D-103) */
@@ -1295,7 +1308,7 @@ function goSheetEv(g, t) {
   sh.innerHTML = `<div class="tt"><b class="tb t${t}">${esc(st.tn)}</b><span>${esc(st.n)}</span></div><p>${esc(st.d)}</p><div class="inf"><span>ウェーブ ${st.waves.length}</span><span>敵の強さ <i class="sv">${'■'.repeat(sv)}</i></span></div><div class="inf drp">${drops}</div>${starBox(i, false, true)}<div class="orow"></div>`;
   const close = () => o.remove(); const r = sh.querySelector('.orow'); const bk = btn('sub', 'もどる', close); bk.style.flex = '0 0 26%'; r.append(bk);
   if (((S.stars[skey(i, false)] || 0) & 7) === 7) { const sk = btn('sub', 'スキップ', () => { close(); skipStage(i, false); }); sk.style.flex = '0 0 28%'; r.append(sk); }
-  r.append(btn('shine', `${esc(st.tn)}に出撃`, () => { close(); A.startStage(i, false); }));
+  r.append(btn('shine', `${esc(st.tn)}に出撃`, () => { close(); if (canGo()) A.startStage(i, false); }));
   o.addEventListener('click', e => { if (e.target === o) close(); }); lay.appendChild(o);
 }
 /* 戦闘で勝ったら呼ばれる。手に入れた物を足して、結果画面に出す文を返す */
@@ -1586,9 +1599,10 @@ function renderGacha() {
   clearInterval(gaT); if (!RM) gaT = setInterval(() => { if (TAB !== 'gacha' || root.hidden) return; gaI++; const l = pool(5); swap(l[(l.findIndex(c => c.id === gaSel) + 1) % l.length].id); }, 4200);
   w.querySelector('.gDt').onclick = rates;
   const bs = h('div', 'btns');
-  const b10 = btn('shine', `10回召喚<small>${svg('pt', '0 0 16 16')}${GACHA.ten}</small>`, () => pull(10, GACHA.ten)); 
+  const b10 = S.free10 ? btn('shine free', `無料 10回召喚<small>はじめの1回だけ</small>`, () => doPull(10, 0, 1)) : btn('shine', `10回召喚<small>${svg('pt', '0 0 16 16')}${GACHA.ten}</small>`, () => pull(10, GACHA.ten));
   bs.append(btn('sub', `1回召喚<small>${svg('pt', '0 0 16 16')}${GACHA.one}</small>`, () => pull(1, GACHA.one)), b10);
-  bs.insertAdjacentHTML('beforeend', '<em class="gK">★4以上1体確定</em>');
+  bs.insertAdjacentHTML('beforeend', S.free10 ? '<em class="gK">無料・★4以上1体確定</em>' : '<em class="gK">★4以上1体確定</em>');
+  if (needFree()) w.appendChild(h('div', 'gFirst', '<b>まずは仲間を呼ぼう</b><span>無料の10回召喚で、最初の仲間がそろいます</span>'));
   const pt = h('div', 'gPt', `<span>交換pt <b>${S.pity}</b>/${PITY}</span><span class="bar"><i style="width:${Math.min(100, S.pity / PITY * 100)}%"></i></span>`); const tr = btn('sm', '★5確定召喚', pityTrade); tr.disabled = S.pity < PITY; if (S.pity >= PITY) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
   w.appendChild(bs);
 }
@@ -1606,18 +1620,21 @@ function pull(n, cost) {
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('shine', '召喚する', () => { close(); doPull(n, cost); })); b.appendChild(r);
   });
 }
-function doPull(n, cost) {
-  if (!ptSpend(cost, n)) { flash('ptが足りません'); return; } const got = [];
+function doPull(n, cost, free) {
+  if (free) { if (!S.free10) return; S.free10 = 0; } else if (!ptSpend(cost, n)) { flash('ptが足りません'); return; } const got = [];
   const ids = []; for (let k = 0; k < n; k++) ids.push(rollOne());
+  /* 無料の10回召喚は、編成の4人がそろうように、ちがうキャラが4人以上になるまで同じレア度で引き直す(確率は変えない) */
+  const have = new Set(S.units.map(x => x.id));
+  if (free) for (let g = 0; g < 50 && new Set([...have, ...ids]).size < 4; g++) { const j = ids.findIndex((id, k) => ids.indexOf(id) !== k); const p = pool(CH[ids[j]].rar); ids[j] = p[Math.floor(Math.random() * p.length)].id; }
   /* 10連は★4以上を1枠確定: 1つも無ければ最後を★4以上に引き直す(★5:★4 = 4:26) */
   if (n === 10 && !ids.some(id => CH[id].rar >= 4)) { const r = Math.random() < GACHA.rate[5] / (GACHA.rate[5] + GACHA.rate[4]) ? 5 : 4, p = pool(r); ids[9] = p[Math.floor(Math.random() * p.length)].id; }
   for (const id of ids) { const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); got.push({ u, isNew }); }
-  S.pity += n; dmFresh(); S.dm.gacha += n;
-  save(); summon(got, n, cost);
+  S.pity += n; dmFresh(); S.dm.gacha += n; fixTeam();
+  save(); summon(got, n, cost, free);
 }
 /* 召喚の演出: 魔法陣が回って光が集まる → 光の柱の色でレア度が先に分かる → カードがめくれる。押すと飛ばせる */
 const RC = { 3: ['#c9a27a', 'rgba(110,170,255,.85)', 'linear-gradient(160deg,#c7b08a,#6e5a3a 50%,#a88a5c)'], 4: ['#d8b4ff', 'rgba(190,120,255,.9)', 'linear-gradient(160deg,#f4f7ff,#9aa6c4 45%,#5a6684 70%,#d8e0f4)'], 5: ['#fff2c2', 'rgba(255,200,80,.95)', 'linear-gradient(160deg,#fff4c8,#f0c860 30%,#a7731f 62%,#f3d27a)'] };
-function summon(got, n, cost) {
+function summon(got, n, cost, free) {
   const top = Math.max(...got.map(g => CH[g.u.id].rar));
   const ov = h('div', 'aSum2'); const cv = h('canvas', 'cv'); ov.appendChild(cv); const sk = btn('', 'スキップ', null); sk.className = 'skip'; ov.appendChild(sk); lay.appendChild(ov);
   const g = cv.getContext('2d'); let W, H, dpr = Math.min(2, devicePixelRatio || 1);
@@ -1626,7 +1643,7 @@ function summon(got, n, cost) {
   const parts = Array.from({ length: 140 }, () => ({ a: Math.random() * Math.PI * 2, r: .5 + Math.random() * .7, s: .6 + Math.random() * .8, z: Math.random() }));
   let t0 = performance.now(), raf = 0, done = false; const T = RM ? .2 : 2.3;
   const frame = now => {
-    const t = (now - t0) / 1000; const cx = W / 2, cy = H * .5, R = Math.min(W, H) * .42;
+    const t = Math.max(0, (performance.now() - t0) / 1000); const cx = W / 2, cy = H * .5, R = Math.min(W, H) * .42;
     g.fillStyle = '#02050f'; g.fillRect(0, 0, W, H);
     const k = Math.min(1, t / T), e = k * k;
     /* 魔法陣 */
@@ -1655,7 +1672,7 @@ function summon(got, n, cost) {
       d.setAttribute('aria-label', `${c.name} ★${c.rar}`); grid.appendChild(d);
     });
     resEl.appendChild(grid);
-    const r = h('div', 'orow'); r.append(btn('sub', 'BOXを見る', () => { ov.remove(); TAB = 'chara'; SUB.chara = 'box'; renderNow(); }), btn('shine', 'もう一度', () => { ov.remove(); if (cost) pull(n, cost); else tRoute(); })); resEl.appendChild(r);
+    const r = h('div', 'orow'); r.append(btn('sub', 'BOXを見る', () => { ov.remove(); TAB = 'chara'; SUB.chara = 'box'; renderNow(); }), free ? btn('shine', 'ホームへ', () => { ov.remove(); go('home'); }) : btn('shine', 'もう一度', () => { ov.remove(); if (cost) pull(n, cost); else tRoute(); })); resEl.appendChild(r);
     ov.appendChild(resEl); sk.textContent = 'ぜんぶ見る';
     const cards = [...grid.children]; let i = 0;
     const flip = () => { if (i >= cards.length) { resEl.classList.add('done'); sk.remove(); return; } const d = cards[i++]; d.classList.add('open'); setTimeout(flip, RM ? 0 : d.classList.contains('r5') ? 420 : 130); };
@@ -1831,7 +1848,7 @@ function pityPull() {
   save(); summon([{ u, isNew }], 1, 0);
 }
 /* ---------- 戦闘との行き来 ---------- */
-function showOut(tab) { document.body.classList.add('navon'); nav.hidden = false; hud.hidden = false; if (tab) TAB = tab; renderNow(); loadCover(); }
+function showOut(tab) { document.body.classList.add('navon'); nav.hidden = false; hud.hidden = false; if (tab) TAB = tab; renderNow(); loadCover(); if (S.free10 && !needFree() && !showOut.f) { showOut.f = 1; setTimeout(() => flash('ガチャで無料の10回召喚が引けます'), 900); } }
 /* (v68) 絵が読み終わるまで「読み込み中」を出す。読み終わったら描き直す(スマホで立ち絵や背景が出ないままだったため) */
 let LDC = null;
 function artReady() { return !!(A.PORT && A.PORT.ready) && !!window.CA_UIOK; }
