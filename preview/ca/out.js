@@ -124,8 +124,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=23').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=23').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=24').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=24').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1389,7 +1389,7 @@ function detail(u0, pv) {
     ${pv === 1 && !u0.evo ? evoDiff(u.id) : ''}
     <div class="dSec sk"><span class="tg">スキル</span><h4>「${esc(sk.n || '')}」</h4><p>${esc(sk.d || '')}</p></div>
     <div class="dSec ld"><span class="tg">リーダースキル</span>${ro.lead === 'none' ? '<h4>なし</h4><p>リーダーにすると、ふつうの圧縮になります。</p>' : `<h4>「${esc(ro.ln)}」</h4><p>${esc((A.LEADS[ro.lead] || {}).d || '')}</p>`}</div>
-    ${rs ? `<div class="dSec rs"><span class="tg">共鳴技</span><h4>「${esc(rs.n)}」</h4><p>${esc(rs.d)}(★5の4人がそろうと使える)</p></div>` : ''}
+    ${rs ? `<div class="dSec rs"><span class="tg">共鳴技</span><h4>「${esc(rs.n)}」</h4><p>${esc(rs.d)}(このキャラが編成にいれば使える)</p></div>` : ''}
     <div class="dSec ab"><span class="tg">アビリティ</span>${ab || '<p>★3にはアビリティがありません。</p>'}</div>
     ${skinSec(u0, pv)}
    </div>
@@ -1470,7 +1470,7 @@ function charaParty(b) {
   const row = h('div', 'tmRow'); P.appendChild(row);
   const L = h('div', 'tmL'); L.appendChild(h('span', 'lab', 'リーダー')); L.appendChild(tmSlot(T[0], 0)); row.appendChild(L);
   const Sb = h('div', 'tmS'); Sb.appendChild(h('span', 'lab', 'サブ')); const r3 = h('div', 'r3'); for (let i = 1; i < 4; i++) r3.appendChild(tmSlot(T[i], i)); Sb.appendChild(r3); row.appendChild(Sb);
-  P.appendChild(h('div', 'tmSt', `<div><span>チームの体力</span><b>${hp.toLocaleString()}</b></div><div><span>攻撃力(合計)</span><b>${atk.toLocaleString()}</b></div><div><span>共鳴技</span><b>${res} / 4人</b></div><div><span>アビリティ</span><b>${T.reduce((a, x) => a + abilOf(x).length, 0)}こ</b></div>`));
+  P.appendChild(h('div', 'tmSt', `<div><span>チームの体力</span><b>${hp.toLocaleString()}</b></div><div><span>攻撃力(合計)</span><b>${atk.toLocaleString()}</b></div><div><span>共鳴技</span><b>${res}つ</b></div><div><span>アビリティ</span><b>${T.reduce((a, x) => a + abilOf(x).length, 0)}こ</b></div>`));
   P.appendChild(h('div', 'tmLS', `<div class="t">リーダースキル「${esc(la.lead === 'none' ? 'なし' : la.ln)}」</div><div class="d">${esc(la.lead === 'none' ? 'ふつうの圧縮(リーダーにするならスキルのある子がおすすめ)' : (A.LEADS[la.lead] || {}).d || '')}</div>`));
   const ob = h('div', 'orow'); ob.style.padding = '10px 0 0';
   ob.appendChild(btn('sub', 'おまかせ(強い順)', () => { const pick = [], used = new Set(); for (const x of sortedUnits()) { if (used.has(x.id)) continue; used.add(x.id); pick.push(x.u); if (pick.length === 4) break; } S.team = pick; fixLead(); save(); flash('強い順にそろえました'); renderNow(); }));
