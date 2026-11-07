@@ -91,8 +91,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=3').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=3').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=4').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=4').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo) => evo && PORT[id + '6'] ? id + '6' : id;
@@ -1545,7 +1545,7 @@ function renderGacha() {
 function rates() {
   modal(`${(BANNERS.find(x => x.id === gaB) || BANNERS[0]).name} の詳細`, (b, close) => {
     const row = r => { const p = pool(r), each = GACHA.rate[r] / p.length * 100; return `<div class="gRw"><p><b class="s${r}">${'★'.repeat(r)}</b> 合計 <b>${Math.round(GACHA.rate[r] * 100)}%</b><small>(1人あたり ${each.toFixed(2)}%)</small></p><div class="gIc">${p.map(c => { const f = faceURL(c.id, 0); return `<span style="--ec:${elCol(c.el)}">${f ? `<img alt="" src="${f}">` : ''}<i>${esc(c.name)}</i></span>`; }).join('')}</div></div>`; };
-    b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">10回召喚は、★4以上が1体も出なかったとき、最後の1体が★4以上になります。<br>1回引くごとに交換ptが1たまり、${PITY}たまると★5が必ず出る1回召喚が引けます(どの★5かはランダム)。<br>かぶったキャラは強化や凸に使えます。pt はテスト用です。</p>`;
+    b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">10回召喚は、★4以上が1体も出なかったとき、最後の1体が★4以上になります。<br>1回引くごとに交換ptが1たまり、${PITY}たまると★5が必ず出る1回召喚が引けます(どの★5かはランダム)。<br>かぶったキャラは強化や凸に使えます。${HOST ? '' : 'pt はテスト用です。'}</p>`;
     const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r);
   });
 }
@@ -1644,8 +1644,8 @@ function renderOther() {
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('', '決める', () => { const v = bd.querySelector('input').value.trim(); if (v) { S.name = v.slice(0, 10); save(); } close(); renderNow(); })); bd.appendChild(r);
   }));
   item('ev', '★6の姿を見る', '進化したあとの4人の絵。戦闘でも見られる', evoGallery);
-  for (const [k, n, nm] of [['jin', '紅蓮の号令', 'ジン'], ['riz', '深緑の結界', 'リズ'], ['gekka', '時の水鏡', '月華'], ['seira', '天光の雨', 'セイラ']]) item('ev', '演出の見本: ' + n, nm + 'のスキルをくり返し見る(試作)', () => A.demoFire(k));
-  item('ev', '演出の見本: 共鳴技', '共鳴技4つを順番にくり返し見る(試作)', () => A.demoRes());
+  if (!HOST) for (const [k, n, nm] of [['jin', '紅蓮の号令', 'ジン'], ['riz', '深緑の結界', 'リズ'], ['gekka', '時の水鏡', '月華'], ['seira', '天光の雨', 'セイラ']]) item('ev', '演出の見本: ' + n, nm + 'のスキルをくり返し見る(試作)', () => A.demoFire(k));
+  if (!HOST) item('ev', '演出の見本: 共鳴技', '共鳴技4つを順番にくり返し見る(試作)', () => A.demoRes());
   if (!HOST) item('plus', 'pt を +1,000', 'テスト用', () => { S.pt += 1000; save(); flash('+1,000pt'); });
   if (!HOST) item('power', '素材を少しもらう', 'テスト用。経験値の竜・中×3、大×1', () => { S.mats.expM = (S.mats.expM || 0) + 3; S.mats.expL = (S.mats.expL || 0) + 1; save(); flash('経験値の竜をもらった'); });
   item('news', 'お知らせ', '最近の変更', news);
@@ -1654,7 +1654,7 @@ function renderOther() {
     bd.innerHTML = '<p>この端末のキャラ・素材・pt・ステージの進み具合を消して、最初の状態にします。もとに戻せません。</p>';
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('red', '初めに戻す', () => { S = fresh(); save(); try { localStorage.removeItem('ca_prog_v1'); } catch (e) { } A.PROG.n.fill(false); A.PROG.h.fill(false); close(); flash('最初の状態に戻しました'); renderNow(); })); bd.appendChild(r);
   });
-  item('info', 'このゲームについて', '圧縮アリーナ 試作', () => modal('このゲームについて', (bd, close) => { bd.innerHTML = '<p>圧縮アリーナ 試作。きもオタレートの「分身バトル」の新しいバージョンです。</p>'; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); bd.appendChild(r); }));
+  item('info', 'このゲームについて', HOST ? '分身(圧縮アリーナ)' : '圧縮アリーナ 試作', () => modal('このゲームについて', (bd, close) => { bd.innerHTML = HOST ? '<p>分身(圧縮アリーナ)。押した所に敵や球を吸い寄せて、まとめてぶつけるバトルです。ptはアプリと共通で、もらえるのは1日300ptまでです。</p>' : '<p>圧縮アリーナ 試作。きもオタレートの「分身バトル」の新しいバージョンです。</p>'; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); bd.appendChild(r); }));
 }
 
 
