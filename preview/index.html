@@ -17521,7 +17521,7 @@ function kmrPromoShow(P){P=P||{src:'promo_kmr.mp4',poster:'promo_kmr.jpg',key:km
   o.append(v,skip,snd);document.body.append(o);requestAnimationFrame(()=>o.classList.add('on'));
   const p=v.play();if(p&&p.catch)p.catch(()=>{/* autoplay refused: the sound button starts it */snd.textContent='再生する';snd.hidden=false;snd.onclick=e=>{e.stopPropagation();v.play().catch(()=>{});snd.hidden=true}})}
 /* (11/07) 分身(圧縮アリーナ)の紹介動画(30秒・音なし)。アプリを開いたら1人1回だけ。ほかの紹介動画・お知らせの絵より先に出す */
-const CA_PROMO_ON=false;/* 動画ができたら true */const CA_PROMO_END=Date.parse('2027-01-31T23:59:59+09:00');
+const CA_PROMO_ON=true;const CA_PROMO_END=Date.parse('2027-01-31T23:59:59+09:00');
 function caPromoKey(){return 'caPromo1_'+((typeof me!=='undefined'&&me&&me.id)||'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
 function caPromoPending(){try{if(!CA_ON||!CA_PROMO_ON||Date.now()>CA_PROMO_END)return false;return !(+localStorage.getItem(caPromoKey())||0)}catch(e){return false}}
 function caPromoShow(){kmrPromoShow({src:'promo_ca.mp4',poster:'promo_ca.jpg',key:caPromoKey(),mute:1})}
