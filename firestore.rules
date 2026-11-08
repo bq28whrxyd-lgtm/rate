@@ -341,27 +341,31 @@ service cloud.firestore {
         && request.resource.data.get('order', []) is list && request.resource.data.get('order', []).size() <= 4
         && request.resource.data.state in ['wait', 'play', 'end'];
     }
+    // 自分の欄だけを変えている(変わった欄が1つで、それが自分)
+    function crOwnMem() {
+      return request.resource.data.mem.diff(resource.data.mem).affectedKeys().size() == 1
+        && bunMine(request.resource.data.mem.diff(resource.data.mem).affectedKeys().toList()[0]);
+    }
     function crStale() { return resource.data.get('t', 0) < request.time.toMillis() - 3 * 3600000; }
     match /caroom/{code} {
       allow read: if signedIn();
       allow create: if signedIn() && code.size() == 4 && crKeys() && crSizes()
-        && request.resource.data.host == myPid() && request.resource.data.state == 'wait' && tcgNow(request.resource.data.t);
+        && bunMine(request.resource.data.host) && request.resource.data.state == 'wait' && tcgNow(request.resource.data.t);
       allow update: if signedIn() && crKeys() && crSizes() && (
           // 古い部屋(3時間より前)は、新しく作りなおしてよい
-          (crStale() && request.resource.data.host == myPid() && request.resource.data.state == 'wait' && tcgNow(request.resource.data.t))
+          (crStale() && bunMine(request.resource.data.host) && request.resource.data.state == 'wait' && tcgNow(request.resource.data.t))
           // 募集した人は部屋の中身を変えられる(募集した人はそのまま)
-          || (myPid() == resource.data.host && request.resource.data.host == resource.data.host)
+          || (bunMine(resource.data.host) && request.resource.data.host == resource.data.host)
           // 待っている間: 自分の欄だけ
-          || (resource.data.state == 'wait' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mem'])
-              && request.resource.data.mem.diff(resource.data.mem).affectedKeys().hasOnly([myPid()]))
+          || (resource.data.state == 'wait' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mem']) && crOwnMem())
           // 遊んでいる間: 参加者は手を足す(へらさない)・まとめ・自分の欄・合図
-          || (resource.data.state == 'play' && myPid() in resource.data.mem
+          || (resource.data.state == 'play'
               && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mv', 'sn', 'mem', 'ping'])
               && request.resource.data.get('mv', []).size() >= resource.data.get('mv', []).size()
               && request.resource.data.host == resource.data.host
-              && request.resource.data.mem.diff(resource.data.mem).affectedKeys().hasOnly([myPid()]))
+              && (request.resource.data.mem == resource.data.mem || crOwnMem()))
         );
-      allow delete: if signedIn() && (myPid() == resource.data.host || isAdmin());
+      allow delete: if signedIn() && (bunMine(resource.data.host) || isAdmin());
     }
     match /caadj/{pid} {
       allow read: if signedIn() && (bunMine(pid) || isAdmin());
