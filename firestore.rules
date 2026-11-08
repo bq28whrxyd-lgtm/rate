@@ -331,6 +331,38 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
     // (11/8) 管理者の経験値の竜の回収。管理者が書き、本人が分身を開いたときに読んで1回だけ引く
+    // ---- (11/9) 分身のマルチ(協力)の部屋。4けたの番号=部屋。4人まで・1人1体。
+    //      募集した人(host)が部屋を作り、始める・終わる。参加した人は自分の欄(mem.<自分>)だけ書ける。
+    //      遊んでいる間は、参加者が手(mv)を1つずつ足し、盤面のまとめ(sn)を書く ----
+    function crKeys() { return request.resource.data.keys().hasOnly(['host', 'hn', 'st', 'hd', 'seed', 'state', 't', 'ver', 'mem', 'order', 'mv', 'sn', 'res', 'ping']); }
+    function crSizes() {
+      return request.resource.data.get('mem', {}) is map && request.resource.data.get('mem', {}).size() <= 4
+        && request.resource.data.get('mv', []) is list && request.resource.data.get('mv', []).size() <= 600
+        && request.resource.data.get('order', []) is list && request.resource.data.get('order', []).size() <= 4
+        && request.resource.data.state in ['wait', 'play', 'end'];
+    }
+    function crStale() { return resource.data.get('t', 0) < request.time.toMillis() - 3 * 3600000; }
+    match /caroom/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn() && code.size() == 4 && crKeys() && crSizes()
+        && request.resource.data.host == myPid() && request.resource.data.state == 'wait' && tcgNow(request.resource.data.t);
+      allow update: if signedIn() && crKeys() && crSizes() && (
+          // 古い部屋(3時間より前)は、新しく作りなおしてよい
+          (crStale() && request.resource.data.host == myPid() && request.resource.data.state == 'wait' && tcgNow(request.resource.data.t))
+          // 募集した人は部屋の中身を変えられる(募集した人はそのまま)
+          || (myPid() == resource.data.host && request.resource.data.host == resource.data.host)
+          // 待っている間: 自分の欄だけ
+          || (resource.data.state == 'wait' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mem'])
+              && request.resource.data.mem.diff(resource.data.mem).affectedKeys().hasOnly([myPid()]))
+          // 遊んでいる間: 参加者は手を足す(へらさない)・まとめ・自分の欄・合図
+          || (resource.data.state == 'play' && myPid() in resource.data.mem
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mv', 'sn', 'mem', 'ping'])
+              && request.resource.data.get('mv', []).size() >= resource.data.get('mv', []).size()
+              && request.resource.data.host == resource.data.host
+              && request.resource.data.mem.diff(resource.data.mem).affectedKeys().hasOnly([myPid()]))
+        );
+      allow delete: if signedIn() && (myPid() == resource.data.host || isAdmin());
+    }
     match /caadj/{pid} {
       allow read: if signedIn() && (bunMine(pid) || isAdmin());
       allow create, update: if isAdmin() && request.resource.data.keys().hasOnly(['list']) && request.resource.data.list is list && request.resource.data.list.size() <= 50;
