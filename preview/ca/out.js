@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=35').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=35').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=36').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=36').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1403,7 +1403,7 @@ async function mpJoinCode(code) {
 }
 /* 部屋の画面(待つ間) */
 function mpOpen(code) {
-  mpLeave(true); MPC.code = code; MPC.ai = 0; MPC.play = false; MPC.snK = -1; MPC.fix = 0; MPC.endSent = false;
+  mpLeave(true); MPC.code = code; MPC.ai = 0; MPC.play = false; MPC.snK = -1; MPC.fix = 0; MPC.endSent = false; MPC.endAt = 0;
   const o = h('div', 'aGo mpLobby'); const sh = h('div', 'sh'); o.appendChild(sh); lay.appendChild(o); MPC.lobby = o;
   const draw = () => { const R = MPC.room; if (!R) { sh.innerHTML = '<p style="text-align:center">部屋を読みこんでいます…</p>'; return; }
     const st = A.STAGES[R.st], me = mpMe().pid, host = R.host === me, M = R.mem || {}, pids = Object.keys(M).sort((a, b) => (M[a].at0 || M[a].at || 0) - (M[b].at0 || M[b].at || 0));
@@ -1487,6 +1487,8 @@ function mpPump() {
     if (MPC.tKey === MPC.ai && !G.mpWait && ((mine && wait > 30000) || (mpIsHost() && wait > 36000))) { MPC.tAt = Date.now() + 99999; const e = G.bodies.filter(b => b.alive && b.k !== 'ally'); let x = 0, z = 0; for (const b of e) { x += b.x; z += b.z; } const n = e.length || 1; G.mpWait = true; mpSend({ ty: 'shot', x: +(x / n).toFixed(3), z: +(z / n).toFixed(3), p: .8, bu: 0, auto: 1, pre: JSON.stringify(C.mpSnap()) }); }
     if (mine && MPC.tKey === MPC.ai && wait > 20000 && wait < 30000) { const left = Math.ceil((30000 - wait) / 1000); const ht = document.getElementById('ht'); if (ht) ht.textContent = 'あなたの番 ─ あと' + left + '秒で自動で引きます'; }
   }
+  /* 募集した人が終わったのに、自分の画面がまだ続いているときは、募集した人の結果に合わせる */
+  if (!mpIsHost() && R.state === 'end' && R.res && !G.over) { MPC.endAt = MPC.endAt || Date.now(); if (Date.now() - MPC.endAt > 4000 && G.phase === 'idle') { try { R.res.win ? C.stageClear() : C.stageFail(); } catch (e) { } } }
   if (G.over && !MPC.endSent) { MPC.endSent = true; if (mpIsHost()) HOST.room.host(MPC.code, { state: 'end', res: { win: G.hp > 0, t: Date.now() } }).catch(() => { }); setTimeout(() => { if (MPC.play) mpLeave(true); }, 2500); }
 }
 function mpLeave(quiet) {
