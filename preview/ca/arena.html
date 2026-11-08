@@ -474,7 +474,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=30';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=31';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -1216,7 +1216,7 @@ function explode(b){if(!b.alive)return;const wild=b.k==='wild';kill(b);const R0=
     const imp=11*f/Math.sqrt(o.m);o.vx+=dx/d*imp;o.vz+=dz/d*imp;
     if(o.k==='jar'&&f>.1)later(.06,()=>breakJar(o));
     if(o.k==='enemy'||o.k==='boss'||o.k==='claw')hurt(o,Math.round((wild?55:48)*(.5+f)*(G.burstOn?1.5:1)*(1+(G.cm||0)*.015)*(ALLIES[G.lead].lead==='boom'?1.3:1)),o.x,o.z);
-    if((o.k==='bomb'||o.k==='wild')&&f>.15)setTimeout(()=>explode(o),90);
+    if((o.k==='bomb'||o.k==='wild')&&f>.15)GT(()=>explode(o),90);
     if(o.k==='ally'&&ALLIES[o.ai].ab&&ALLIES[o.ai].ab.has('antiBomb')){num(o.x,1.7,o.z,'爆発無効','grd');continue}if(o.k==='ally'){allyHit=(allyHit||0)+1;const v=Math.round(G.hpMax*(wild?CFG.wildAlly:CFG.bombAlly));num(o.x,1.7,o.z,'-'+v,'bad');o.sq=.8;o.flashA=1}}
   combo(1);
   if(allyHit){const v=Math.round(G.hpMax*(wild?CFG.wildAlly:CFG.bombAlly))*allyHit;G.hp=Math.max(0,G.hp-v);say((wild?'暴走爆弾':'爆弾')+'に味方が巻き込まれた!',1.4);redFlash();logC('爆発で味方 '+allyHit+' 人 -'+v);ui()}}
@@ -1349,7 +1349,7 @@ function gimLabels(){for(const b of G.bodies){if(!b.alive||!b.gmEl||!b.g)continu
 function puffSelf(b){if(!b.alive)return;const x=b.x,z=b.z;num(x,1.9,z,'破裂!','bad');ringFx(x,z,.3,CFG.puffSelfR*1.2,.45,0xff4a8a,.16);vf('BRK',x,.8,z,{s:CFG.puffSelfR*1.6,d:.45,tint:0xff6aa0});burstFx(x,z,0xff6aa0,34,8,.5,4);G.shake=Math.max(G.shake,.6);hitStop(.1);
   let n=0;for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;const d=Math.hypot(a.x-x,a.z-z);if(d>CFG.puffSelfR+a.r)continue;if(ALLIES[a.ai].ab&&ALLIES[a.ai].ab.has('antiBomb')){num(a.x,1.7,a.z,'爆発無効','grd');continue}n++;const k=1/(d+.3);a.vx+=(a.x-x)*k*7;a.vz+=(a.z-z)*k*7;a.sq=.8;a.flashA=1;num(a.x,1.7,a.z,'-'+Math.round(G.hpMax*CFG.puffSelf),'bad')}
   if(n){G.hp=Math.max(0,G.hp-Math.round(G.hpMax*CFG.puffSelf)*n);redFlash();say('ふくらみ竜が味方の近くで破裂した!',1.6)}else say('ふくらみ竜が破裂した',1.2);
-  b.pf=1;kill(b);logC('ふくらみ竜が自分で破裂 味方'+n+'人');ui();if(G.hp<=0)setTimeout(()=>{if(!G.over)stageFail()},700)}
+  b.pf=1;kill(b);logC('ふくらみ竜が自分で破裂 味方'+n+'人');ui();if(G.hp<=0)GT(()=>{if(!G.over)stageFail()},700)}
 /* 初めて出てきたものの説明(この起動の間に1回だけ) */
 const TAUGHT=new Set();function teachOnce(k,t){if(TAUGHT.has(k))return;TAUGHT.add(k);setTimeout(()=>say(t,3.4),600)}
 function teach(w){const has=new Set();for(const it of w.items){const o=it[3];if(o&&o.el)has.add('el');if(o&&o.g)has.add(o.g);if(it[0]==='bomb'||it[0]==='wild'||it[0]==='jar')has.add('danger')}
@@ -1394,11 +1394,11 @@ function endTurn(){if(G.over)return;G.phase='enemy';G.busy=true;const cmb=G.comb
   if(LB.on&&LB.hp>0&&LB.psn>0){LB.psn--;lbDamage(Math.round(LB.psnD||45),0,6,LBZ)}
   if(G.tideT>0&&G.hp>0){G.tideT--;const v=Math.round(G.hpMax*.08);G.hp=Math.min(G.hpMax,G.hp+v);const m=allyBody(slotOf('shion'))||{x:0,z:3};num(m.x,1.8,m.z,'+'+v,'heal');ringFx(m.x,m.z,.3,3.2,.5,0x6ad8ff,.08);for(let k=0;k<4;k++)later(k*.08,()=>noteFly(m.x,m.z,k,.7))}
   fogTurn();gimTurn();{const rg=ALLIES.filter((a,i)=>a.ab&&a.ab.has('regen')&&allyBody(i)).length;if(rg&&G.hp<G.hpMax){const v=Math.round(G.hpMax*.02*rg);G.hp=Math.min(G.hpMax,G.hp+v);const m=allyBody(ALLIES.findIndex(a=>a.ab&&a.ab.has('regen')))||{x:0,z:3};num(m.x,1.8,m.z,'+'+v,'heal')}}ui();const alive=G.bodies.filter(b=>b.alive&&(b.k==='enemy'||b.k==='boss'));
-  if(LB.on?LB.hp<=0:alive.length===0){G.busy=true;const rid=G.runId;if(G.wave<WAVES.length-1){say('WAVE CLEAR',1.1);setTimeout(()=>{if(rid!==G.runId)return;loadWave(G.wave+1);nextTurn(true)},1150)}else setTimeout(()=>{if(rid===G.runId)stageClear()},800);return}
+  if(LB.on?LB.hp<=0:alive.length===0){G.busy=true;const rid=G.runId;if(G.wave<WAVES.length-1){say('WAVE CLEAR',1.1);GT(()=>{if(rid!==G.runId)return;loadWave(G.wave+1);nextTurn(true)},1150)}else GT(()=>{if(rid===G.runId)stageClear()},800);return}
   /* 敵の手番: 攻撃までの数を1減らし、0の敵が攻撃(予告は頭の上の数字) */
-  let delay=250;for(const e of alive){if(e.k==='boss'&&e.broken){e.broken--;if(e.broken<=0)bossUnbreak(e);continue}e.cd--;if(e.cd<=0){if(!e.tel){e.cd=1;continue}const ee=e,T=e.tel;e.tel=null;setTimeout(()=>enemyAttack(ee,T),delay);delay+=520;e.cd=Math.max(2,2+DIF.cd)}}
+  let delay=250;for(const e of alive){if(e.k==='boss'&&e.broken){e.broken--;if(e.broken<=0)bossUnbreak(e);continue}e.cd--;if(e.cd<=0){if(!e.tel){e.cd=1;continue}const ee=e,T=e.tel;e.tel=null;GT(()=>enemyAttack(ee,T),delay);delay+=520;e.cd=Math.max(2,2+DIF.cd)}}
   delay=lbTurn(delay);
-  {const rid=G.runId;setTimeout(()=>{if(rid!==G.runId)return;if(G.hp<=0){stageFail();return}nextTurn()},delay+250)}}
+  {const rid=G.runId;GT(()=>{if(rid!==G.runId)return;if(G.hp<=0){stageFail();return}nextTurn()},delay+250)}}
 function enemyAttack(e,T){if(G.over){telDrop(T);return}if(!e.alive){telDrop(T);return}e.jump=.35;
   const hit=G.bodies.filter(a=>a.alive&&a.k==='ally'&&telHit(T,a));const col=hit.length?0xff3a4a:0xbfd8ff;
   for(const P of T.parts){
@@ -1413,7 +1413,7 @@ function enemyAttack(e,T){if(G.over){telDrop(T);return}if(!e.alive){telDrop(T);r
   for(const a of hit){num(a.x,1.6,a.z,'-'+dm,'bad');vfHit(a.x,.8,a.z,9,'闇',e.k==='boss');burstFx(a.x,a.z,0xff4a5a,14,4,.4,3);a.sq=.8;a.flashA=1;playA(a,'hit',true);
     const P=T.parts.reduce((b,q)=>telSd(q,a.x,a.z)<telSd(b,a.x,a.z)?q:b,T.parts[0]);let dx=a.x-P.x,dz=a.z-P.z;if(P.k==='rect'){const c=Math.cos(P.yaw),s=Math.sin(P.yaw),side=Math.sign(dx*c-dz*s)||1;dx=c*side;dz=-s*side}const d=Math.hypot(dx,dz)+1e-3;a.vx+=dx/d*4;a.vz+=dz/d*4}
   logC(KIND[e.k].label+'の'+(ANAME[T.pat]||'')+'攻撃 味方'+hit.length+'人 -'+v);telDrop(T);ui()}
-function nextTurn(first){if(!first){if(G.shieldT>0)G.shieldT--;G.turn++;G.sk=G.sk.map((v,i)=>Math.min(SKILLS[i].cd,v+1))}gimLabels();G.phase='idle';G.busy=false;G.C=null;resetRs();
+function nextTurn(first){G.mpWait=false;if(MP.on&&window.CA_MP)later(.05,()=>{const s=mpSlot();G.lead=s;ui();hint(window.CA_MP.mine(s)?'あなたの番 ─ 好きな場所を押す → 下に引く → 離す':(window.CA_MP.name(s)||'ほかの人')+'の番です');window.CA_MP.idle&&window.CA_MP.idle(s)});if(!first){if(G.shieldT>0)G.shieldT--;G.turn++;G.sk=G.sk.map((v,i)=>Math.min(SKILLS[i].cd,v+1))}gimLabels();G.phase='idle';G.busy=false;G.C=null;resetRs();
   if(LB.on&&LB.hp>0){if(!first)moveWeak();if(!LB.broken&&LB.cd===1&&!LB.claw)clawSpawn()}telSync();ui();const tn=G.bodies.some(b=>b.tel);hint((tn?'赤い円の中の味方が攻撃される ─ ':'')+'好きな場所を押す → 下に引く → 離す'+(G.sk.some((v,i)=>v>=SKILLS[i].cd)?'(光っている顔はスキルが使える)':''));if(G.mode==='press')teachOnce('press','詰めて潰す(試作): 吸った物を中心に詰めた瞬間、一緒に詰めた敵が潰れる。岩や結晶など重い物と一緒に吸うほど強い');if(tn)teachOnce('tel','赤い円の中にいる味方が、次の敵の手番で攻撃される。円の外へ出そう')}
 function restart(){startStage(G.stage??0,!!G.hard)}
 
@@ -1421,10 +1421,10 @@ function restart(){startStage(G.stage??0,!!G.hard)}
 const ray=new THREE.Raycaster(),ndc=new THREE.Vector2(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),0),hitP=new THREE.Vector3();
 function groundAt(cx,cy){const r=cv.getBoundingClientRect();ndc.set((cx-r.left)/r.width*2-1,-((cy-r.top)/r.height)*2+1);ray.setFromCamera(ndc,cam);return ray.ray.intersectPlane(plane,hitP)?{x:hitP.x,z:hitP.z}:null}
 let pid=null;
-cv.addEventListener('pointerdown',e=>{if(pid!==null&&G.phase!=='aim')pid=null;/* (11/8) 指を離した合図が来なかったときに、次から押せなくなる(固まる)のを防ぐ */if(pid!==null&&G.phase==='aim'&&e.pointerId!==pid){up({pointerId:pid});return}/* 引いたまま止まっていたら、次に押したときに離したことにする */if(pid!==null||G.busy||G.phase!=='idle'||G.over)return;const p=groundAt(e.clientX,e.clientY);if(!p)return;const d=Math.hypot(p.x,p.z);if(d>CFG.R-.2)return;
+cv.addEventListener('pointerdown',e=>{if(pid!==null&&G.phase!=='aim')pid=null;/* (11/8) 指を離した合図が来なかったときに、次から押せなくなる(固まる)のを防ぐ */if(pid!==null&&G.phase==='aim'&&e.pointerId!==pid){up({pointerId:pid});return}/* 引いたまま止まっていたら、次に押したときに離したことにする */if(pid!==null||G.busy||G.phase!=='idle'||G.over)return;if(!mpMine()){say((window.CA_MP&&window.CA_MP.name(mpSlot())||'ほかの人')+'の番です',1);return}if(MP.on&&G.mpWait)return;const p=groundAt(e.clientX,e.clientY);if(!p)return;const d=Math.hypot(p.x,p.z);if(d>CFG.R-.2)return;
   pid=e.pointerId;try{cv.setPointerCapture(pid)}catch(_){}G.C=p;G.y0=e.clientY;G.p=0;G.dragPx=0;G.phase='aim';e.preventDefault()});
 cv.addEventListener('pointermove',e=>{if(e.pointerId!==pid||G.phase!=='aim')return;G.dragPx=Math.max(0,e.clientY-G.y0);G.p=Math.min(1,G.dragPx/(innerHeight*CFG.powerPx));G.rad=radOf(G.p);e.preventDefault()});
-function up(e){if(e.pointerId!==pid)return;pid=null;if(G.phase!=='aim')return;if(G.p<CFG.minPow){G.phase='idle';G.C=null;hint('指を「下」に引くと強さが決まります');return}startCompress()}
+function up(e){if(e.pointerId!==pid)return;pid=null;if(G.phase!=='aim')return;if(G.p<CFG.minPow){G.phase='idle';G.C=null;hint('指を「下」に引くと強さが決まります');return}if(MP.on&&window.CA_MP){const C=G.C,pp=G.p;G.phase='idle';G.mpWait=true;hint('送っています…');window.CA_MP.send({ty:'shot',x:Math.round(C.x*1000)/1000,z:Math.round(C.z*1000)/1000,p:Math.round(pp*1000)/1000,bu:G.burstOn?1:0,pre:mpSnap()});return}startCompress()}
 cv.addEventListener('pointerup',up);/* (11/8 山本さんのiPhoneで、引いて離しても吸い込みが始まらず止まった) 画面のどこで離しても、指が全部離れたら離したことにする */document.addEventListener('pointerup',e=>{if(e.pointerId===pid)up(e)},true);addEventListener('touchend',e=>{if(pid!==null&&G.phase==='aim'&&e.touches.length===0)up({pointerId:pid})},true);addEventListener('touchcancel',e=>{if(pid!==null&&G.phase==='aim'&&e.touches.length===0)up({pointerId:pid})},true);for(const ev of ['pointercancel','lostpointercapture'])cv.addEventListener(ev,e=>{if(e.pointerId===pid){if(ev==='lostpointercapture'&&G.phase==='aim'){up(e);return}pid=null;if(G.phase==='aim'){G.phase='idle';G.C=null}}});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('touchmove',e=>{if(e.target===cv)e.preventDefault()},{passive:false});
@@ -1785,13 +1785,13 @@ function clawGone(stopped,quiet){const c=LB.claw;if(!c)return;LB.claw=null;if(c.
 /* 敵の手番のラスボス */
 function lbTurn(delay){if(!LB.on||LB.hp<=0)return delay;
   if(LB.broken){LB.broken--;if(LB.broken<=0){LB.brk=0;logC('ラスボスのブレイクが終わった')}lbUi();return delay}
-  LB.cd--;if(LB.cd<=0){setTimeout(lbAttack,delay);delay+=1100;LB.cd=3}lbUi();return delay}
+  LB.cd--;if(LB.cd<=0){GT(lbAttack,delay);delay+=1100;LB.cd=3}lbUi();return delay}
 function lbAttack(){if(!LB.on||LB.hp<=0||G.over)return;LB.atkT=.9;const c=LB.claw;const p=c?{x:c.x,z:c.z}:{x:Math.cos(LB.wA)*CFG.R*.7,z:Math.sin(LB.wA)*CFG.R*.7};
-  setTimeout(()=>{const hit=G.bodies.filter(a=>a.alive&&a.k==='ally'&&Math.hypot(a.x-p.x,a.z-p.z)<CFG.telR+a.r*.4);const v1=Math.round(CFG.lbAtk*DIF.atk*CFG.lbAllyK*teamDmgK()),v=v1*hit.length;G.hp=Math.max(0,G.hp-v);G.shake=Math.max(G.shake,.85);hitStop(.1);if(hit.length){redFlash();for(const a of hit){num(a.x,1.8,a.z,'-'+v1,'bad');a.sq=.8;a.flashA=1}}else num(p.x,2,p.z,'かわした!','txt');
+  GT(()=>{const hit=G.bodies.filter(a=>a.alive&&a.k==='ally'&&Math.hypot(a.x-p.x,a.z-p.z)<CFG.telR+a.r*.4);const v1=Math.round(CFG.lbAtk*DIF.atk*CFG.lbAllyK*teamDmgK()),v=v1*hit.length;G.hp=Math.max(0,G.hp-v);G.shake=Math.max(G.shake,.85);hitStop(.1);if(hit.length){redFlash();for(const a of hit){num(a.x,1.8,a.z,'-'+v1,'bad');a.sq=.8;a.flashA=1}}else num(p.x,2,p.z,'かわした!','txt');
     ringFx(p.x,p.z,.4,CFG.telR*1.4,.5,0xff3a4a,.16);burstFx(p.x,p.z,0xff5a3a,30,9,.6,6);vf('HIT',p.x,1.2,p.z,{row:5,s:CFG.telR*2.2,d:.38});vf('CIRC',p.x,.12,p.z,{flat:1,s:CFG.telR*2.6,d:.5,tint:0xff3a4a,roll:0,gl:.9});
     for(const o of G.bodies){if(!o.alive||o.k==='claw')continue;const dx=o.x-p.x,dz=o.z-p.z,d=Math.hypot(dx,dz)+1e-4;if(d>CFG.telR+o.r)continue;const imp=10/Math.sqrt(o.m);o.vx+=dx/d*imp;o.vz+=dz/d*imp}
     logC('ラスボスの攻撃 味方'+hit.length+'人 -'+v);ui()},330);
-  say(c?'止められなかった…':'ラスボスの攻撃',1.4);if(c)setTimeout(()=>clawGone(false),700);setTimeout(lbRefill,800)}
+  say(c?'止められなかった…':'ラスボスの攻撃',1.4);if(c)GT(()=>clawGone(false),700);GT(lbRefill,800)}
 function lbRefill(){if(!LB.on||LB.hp<=0)return;const sc=CFG.R/9;let en=G.bodies.filter(b=>b.alive&&b.k==='enemy').length,n=0;
   for(const [x,z] of [[-3,-4.5],[3,-4.5],[0,-6],[-5,-2],[5,-2]]){if(en+n>=4)break;const X=x*sc,Z=z*sc;if(G.bodies.some(b=>b.alive&&Math.hypot(b.x-X,b.z-Z)<b.r+.9))continue;addBody('enemy',X,Z);ringFx(X,Z,.3,1.6,.4,0xc070ff,.12);burstFx(X,Z,0xc070ff,12,3,.4,4);n++}
   if(G.bodies.filter(b=>b.alive&&b.k==='orb').length<2)for(const [x,z] of [[-1.5,-2],[1.5,-2]]){const X=x*sc,Z=z*sc;if(G.bodies.some(b=>b.alive&&Math.hypot(b.x-X,b.z-Z)<b.r+.7))continue;addBody('orb',X,Z,{el:ALLIES[(G.oi=(G.oi||0)+1)%4].el});ringFx(X,Z,.2,1.2,.3,0x9fe8ff,.1)}
@@ -1860,7 +1860,7 @@ function skillPop(i,refresh){const S_=SKILLS[i],a=ALLIES[i],ready=G.sk[i]>=S_.cd
   $('skn').innerHTML=a.name+'「'+S_.n+'」<small>'+a.el+'属性 / '+S_.cd+'手番でたまる</small>';$('skd').textContent=S_.d;
   $('sks').textContent=ready?'使えます':'あと '+(S_.cd-G.sk[i])+' 手番';const go=$('skgo');go.disabled=!(ready&&G.phase==='idle'&&!G.busy&&!G.over);go.onclick=()=>useSkill(i);$('skp').hidden=false}
 function skillClose(){SKP=-1;$('skp').hidden=true}
-function useSkill(i){if(G.sk[i]<SKILLS[i].cd||G.phase!=='idle'||G.busy||G.over)return;G.sk[i]=0;skillClose();
+function useSkill(i,fromMp){if(G.sk[i]<SKILLS[i].cd||G.phase!=='idle'||G.busy||G.over)return;if(MP.on&&window.CA_MP&&!fromMp){if(!mpMine()||mpSlot()!==i){say('自分のキャラのスキルを、自分の番に使えます',1.4);return}if(G.mpWait)return;G.mpWait=true;skillClose();window.CA_MP.send({ty:'skill',i,pre:mpSnap()});return}G.sk[i]=0;skillClose();
   const a=ALLIES[i],el=document.createElement('div');el.className='rsb';el.style.setProperty('--c','#'+a.col.toString(16).padStart(6,'0'));el.innerHTML='<small>スキル</small><b>'+a.name+'「'+SKILLS[i].n+'」</b>';el.style.top='calc(env(safe-area-inset-top,0px) + 160px)';$('lay').appendChild(el);
   el.animate([{transform:'translateX(-110%)',opacity:0},{transform:'translateX(0)',opacity:1,offset:.14},{transform:'translateX(0)',opacity:1,offset:.8},{transform:'translateX(-20px)',opacity:0}],{duration:1500,easing:'cubic-bezier(.2,.9,.3,1)'}).onfinish=()=>el.remove();
   logC('スキル '+a.name+'「'+SKILLS[i].n+'」');{const ab=allyBody(i);if(ab){ab.flashA=1.2;ab.sq=.6}}SKILLS[i].f(i);telSync();ui()}
@@ -2217,11 +2217,11 @@ ALLIES.forEach((a,i)=>{const b=document.createElement('button');b.className='fac
   b.insertAdjacentHTML('beforeend','<span class="el">'+a.el+'</span><span class="cr">L</span><span class="skl">SKILL</span><span class="skb"><i></i></span><span class="nm">'+a.name+'</span>');
   b.setAttribute('aria-label',a.name+' スキル「'+SKILLS[i].n+'」(長押しでリーダーにする)');
   /* タップ=スキルの説明と「使う」、長押し=リーダーにする(試作用) */
-  let lp=null;b.addEventListener('pointerdown',()=>{lp=setTimeout(()=>{lp=null;if(G.phase!=='idle')return;G.lead=i;ui();say('リーダー: '+a.name+'「'+a.ln+'」',1.6);hint(LEADS[a.lead].d+(RESK[a.key]!=null?' ／ 共鳴技「'+RES[RESK[a.key]].n+'」'+RES[RESK[a.key]].d:''))},550)});
+  let lp=null;b.addEventListener('pointerdown',()=>{lp=setTimeout(()=>{lp=null;if(G.phase!=='idle'||MP.on)return;G.lead=i;ui();say('リーダー: '+a.name+'「'+a.ln+'」',1.6);hint(LEADS[a.lead].d+(RESK[a.key]!=null?' ／ 共鳴技「'+RES[RESK[a.key]].n+'」'+RES[RESK[a.key]].d:''))},550)});
   b.addEventListener('pointerup',()=>{if(lp){clearTimeout(lp);lp=null;skillPop(i)}});b.addEventListener('pointerleave',()=>{if(lp){clearTimeout(lp);lp=null}});
   b.addEventListener('click',e=>{if(e.detail===0)skillPop(i)});b.addEventListener('contextmenu',e=>e.preventDefault());if(bbE)party.insertBefore(b,bbE);else party.appendChild(b)})}
 buildFaces();
-const bb=document.createElement('button');bb.id='burst';bb.type='button';bb.textContent='BURST';bb.onclick=()=>{if(G.phase!=='idle'||G.burst<CFG.burstNeed)return;G.burst=0;G.burstOn=true;ui();say('バースト! 次の圧縮が超強化',1.6);hint('バースト中 ─ 次の圧縮は範囲・威力アップ')};party.appendChild(bb);
+const bb=document.createElement('button');bb.id='burst';bb.type='button';bb.textContent='BURST';bb.onclick=()=>{if(G.phase!=='idle'||G.burst<CFG.burstNeed)return;if(!mpMine())return;G.burst=0;G.burstOn=true;ui();say('バースト! 次の圧縮が超強化',1.6);hint('バースト中 ─ 次の圧縮は範囲・威力アップ')};party.appendChild(bb);
 function ui(){const F=party.querySelectorAll('.face');F.forEach((f,i)=>{f.classList.toggle('turn',false);f.classList.toggle('lead',i===G.lead);const r=G.sk[i]>=SKILLS[i].cd;f.classList.toggle('skr',r);f.querySelector('.skb i').style.width=(G.sk[i]/SKILLS[i].cd*100)+'%'});if(SKP>=0)skillPop(SKP,true);
   $('wv').textContent=G.wave+1;$('wvn').textContent=WAVES.length;$('tn').textContent=G.turn;$('en').textContent=G.bodies.filter(b=>b.alive&&(b.k==='enemy'||b.k==='boss')).length;
   const k=G.hp/G.hpMax;$('hpi').style.width='calc('+(k*100)+'% - 4px)';$('hpi').classList.toggle('low',k<.3);$('hpt').textContent='チームHP '+G.hp.toLocaleString()+' / '+G.hpMax.toLocaleString();
@@ -2265,14 +2265,14 @@ function stageT(i,h){const st=STAGES[i],ev=st.ev||'';
   const n=st.n||'';let j=/上級/.test(n)?2:/中級/.test(n)?1:/初級/.test(n)?0:-1;if(j<0){j=0;for(let k=i-1;k>=0&&STAGES[k].ev===ev&&(STAGES[k].n===st.n);k--)j++}return [20,40,60][Math.min(2,j)]}
 /* (11/9) 敵の「攻撃まで」をばらす(山本さん): 一斉に攻撃せず、1手番に半分くらいずつ。攻撃の多さ(2手番に1回)は変えない */
 let CDALT=0;function cd0(b,k){if(k==='boss')return Math.max(1,2+DIF.cd);const base=Math.max(1,1+((b.id*7)%3)+DIF.cd);if(DIF.cd>=0)return base;CDALT^=1;return 1+CDALT}
-function setStageData(i,h){const st=STAGES[i];G.stage=i;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
+function setStageData(i,h){const st=STAGES[i];G.stage=i;G.mpN=0;G.mpWait=false;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
   Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF*(st.ev?1:.85)/* (11/9) ストーリーはノーマル・ハードとも×0.85(山本さん、×0.7からもどす) *//* (11/8 8時) ストーリーは少しだけ弱く */;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
   WAVES.length=0;{const pool=[...new Set(STAGES.slice(0,i+1).flatMap(s=>(s.gm||[]).join('').replace(/\./g,'').split('')))];if(!pool.length)pool.push('f','w');let hk=0;
    st.waves.forEach((w,wi)=>{const g=(st.gm||[])[wi]||'';let ei=0;const items=w.items.map(it=>{if(it[0]!=='enemy')return it;let c=g[ei]||'.';if(h&&c==='.'&&ei%2===1)c=pool[(hk++)%pool.length];ei++;return GL[c]?[it[0],it[1],it[2],GL[c]]:it});WAVES.push(Object.assign({},w,{items}))})}
   $('stid').textContent=st.ev?(st.tn||st.id||'EV'):st.id+(h?' H':'');rebuildDbg()}
 function emitScreen(s,extra){try{window.dispatchEvent(new CustomEvent('ca:screen',{detail:Object.assign({s},extra||{})}))}catch(e){}}
 function applyParty(){const P=window.CA_PARTY||{},AB=window.CA_ABIL||{};ALLIES.forEach(a=>{a.ab=new Set(AB[a.key]||[]);const m=P[a.key]||1;a.hp=Math.round(a.hp0*m);a.atk=+(a.atk0*m).toFixed(3)});G.hpMax=ALLIES.reduce((s,a)=>s+a.hp,0);SKILLS=ALLIES.map(skOf)}
-function startStage(i,h){/* (11/8) 外の画面が回数の制限をかける(経験値の竜の巣は一日5回) */if(window.CA_GATE&&!window.CA_GATE(i,!!h))return;stopResultArt();G.runId++;G.windBuff=false;G.tideT=0;G.shieldT=0;if(window.CA_TEAM)setTeam(window.CA_TEAM);if(window.CA_LEAD!=null)G.lead=window.CA_LEAD;$('lay').classList.remove('insel');applyParty();setStageData(i,h);emitScreen('battle',{i});['ss','res','mn','ov'].forEach(id=>$(id).hidden=true);skillClose();
+function startStage(i,h){/* (11/8) 外の画面が回数の制限をかける(経験値の竜の巣は一日5回) */if(MP.on&&!startStage.w){startStage.w=1;try{mpSeed(0);return mpWith(()=>startStage(i,h))}finally{startStage.w=0}}if(window.CA_GATE&&!window.CA_GATE(i,!!h))return;stopResultArt();G.runId++;G.windBuff=false;G.tideT=0;G.shieldT=0;if(window.CA_TEAM)setTeam(window.CA_TEAM);if(window.CA_LEAD!=null)G.lead=window.CA_LEAD;$('lay').classList.remove('insel');applyParty();setStageData(i,h);emitScreen('battle',{i});['ss','res','mn','ov'].forEach(id=>$(id).hidden=true);skillClose();
   G.sk=[0,0,0,0];G.fireBuff=false;G.hp=G.hpMax;G.turn=1;G.cur=0;G.burst=0;G.burstOn=false;G.comboMax=0;G.over=false;G.busy=false;
   const st=STAGES[i];say(st.id+'  '+st.n+(h?'(ハード)':''),2.4);loadWave(0);nextTurn(true)}
 function showRes(ok,msg,btns){G.over=true;G.runId++;const st=STAGES[G.stage];$('res').classList.toggle('fail',!ok);
@@ -2280,13 +2280,13 @@ function showRes(ok,msg,btns){G.over=true;G.runId++;const st=STAGES[G.stage];$('
   const rr=$('rr');rr.textContent='';for(const [t,fn,cls] of btns){const b=document.createElement('button');b.type='button';b.className='btn'+(cls?' '+cls:'');b.textContent=t;b.onclick=fn;rr.appendChild(b)}
   $('res').hidden=false;playResultArt(ok);emitScreen('result',{ok});setTimeout(()=>{const b=rr.querySelector('button');b&&b.focus()},60)}
 function stageClear(){const i=G.stage,h=G.hard,st0=STAGES[i];
-  const info={i,h,first:h?!PROG.h[i]:!PROG.n[i],turn:G.turn,hp:G.hp,hpMax:G.hpMax,cm:G.comboMax};
+  const info={i,h,first:h?!PROG.h[i]:!PROG.n[i],turn:G.turn,hp:G.hp,hpMax:G.hpMax,cm:G.comboMax,multi:MP.on};
   if(st0.ev){const got=window.CA_OUT&&window.CA_OUT.onClear?window.CA_OUT.onClear(st0,info):'';
     const ch=st0.ev==='tower'||st0.ev==='raid'||st0.ev==='score'||st0.ev==='ex';const bt=[];
     if(st0.ev==='tower'&&STAGES[i+1]&&STAGES[i+1].ev==='tower')bt.push(['次の階へ',()=>startStage(i+1,false),'go']);else if(st0.ev==='ex'&&STAGES[i+1]&&STAGES[i+1].ev==='ex'&&STAGES[i+1].bi===st0.bi)bt.push(['次の段階へ',()=>startStage(i+1,false),'go']);else bt.push(['もう一度',()=>startStage(i,false),'go']);
     bt.push([ch?'チャレンジへ':'イベント一覧へ',()=>{showSelect();emitScreen(ch?'challenge':'event')}]);
     showRes(true,got,bt);return}
-  const first=info.first;if(window.CA_OUT&&window.CA_OUT.onClear)window.CA_OUT.onClear(st0,info);if(h)PROG.h[i]=true;else PROG.n[i]=true;saveProg();
+  const first=info.first;if(window.CA_OUT&&window.CA_OUT.onClear)window.CA_OUT.onClear(st0,info);if(!MP.on){if(h)PROG.h[i]=true;else PROG.n[i]=true;saveProg()}
   let msg='';if(first){if(!h)msg=i<MAIN_N-1?(STAGES[i+1].ch!==STAGES[i].ch?CHAPS[STAGES[i].ch].no+'をクリア! '+CHAPS[STAGES[i+1].ch].no+'「'+CHAPS[STAGES[i+1].ch].n+'」が開きました。':'次のステージ「'+STAGES[i+1].id+' '+STAGES[i+1].n+'」と、このステージのハードが開きました。'):'最後の章をクリアしました。このステージのハードが開きました。';
     else msg=i<MAIN_N-1&&PROG.n[i+1]?'次のステージ「'+STAGES[i+1].id+'」のハードが開きました。':'ハードをクリアしました。'}
   const btns=[];if(!h&&i<MAIN_N-1)btns.push(['次のステージへ',()=>startStage(i+1,false),'go']);else if(h&&i<MAIN_N-1&&PROG.n[i+1])btns.push(['次のステージへ',()=>startStage(i+1,true),'go']);
@@ -2330,12 +2330,40 @@ let fpsN=0,fpsT=0,fps=0,fpsMin=999;function fpsTick(now){fpsN++;if(now-fpsT>=100
 function dbgTxt(){if(!G.dbg)return;let ms=0;for(const b of G.bodies)if(b.alive)ms=Math.max(ms,Math.hypot(b.vx,b.vz));G.stats.maxSpd=ms;
   $('dbgt').textContent='FPS: '+fps+' (最低 '+(fpsMin===999?'-':fpsMin)+')\n段階: '+G.phase+'\n圧縮の中心: '+(G.C?G.C.x.toFixed(2)+', '+G.C.z.toFixed(2):'-')+'\n下へ引いた距離: '+(G.dragPx|0)+'px (最大 '+(innerHeight*CFG.powerPx|0)+'px)\n強さ: '+(G.p*100|0)+'%  吸引半径: '+(G.rad||0).toFixed(2)+'m\n対象: '+G.cap.length+'個  最高速度: '+ms.toFixed(2)+'m/s\n衝突(ダメージあり): '+G.stats.hits+'  コンボ: '+G.combo+'\nリーダー: '+ALLIES[G.lead].ln+'\n共鳴: 壁'+(G.rs?G.rs.wall:0)+'回 水'+(G.rs?G.rs.water:0)+'回'+(LB.on?'\nラスボス: HP'+LB.hp+' ブレイク'+(LB.broken?'中':Math.round(LB.brk)+'%')+' 攻撃まで'+LB.cd+' 弱点'+Math.round(LB.wA*180/Math.PI)+'°':'')+'\n─ 記録 ─\n'+G.log.join('\n')}
 
+/* ===== (11/9) マルチ(協力)の土台。4人まで・1人1体・番の人だけが引く(山本さん)
+   同じ手(押した中心 C と強さ p)を全員の端末で同じように動かす(ロックステップ):
+   - 1手ごとに決まった種で Math.random を作りなおす(会心・敵のねらいなどが全員同じになる)
+   - 時間は 1/60 秒きざみで進める(画面が120Hzでも同じ)
+   - ゲームの中のタイマーは later(フレームで数える)を使う
+   手の終わりに、番の人の盤面(位置・体力)で全員を合わせなおす(MPsnap/MPapply) ===== */
+const MP={on:false,seed:1,k:0,acc:0,rnd0:Math.random};
+function mpSeed(n){let a=(MP.seed^Math.imul(n+1,2654435761))>>>0;MP.rng=function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function mpOn(seed){MP.on=true;MP.seed=seed>>>0;MP.k=0;MP.acc=0;mpSeed(0)}
+function mpOff(){MP.on=false}
+/* 決まった種の乱数は、ゲームの1コマの中と、手を打つ瞬間だけ使う(ほかの画面の動きが乱数を使っても、ずれないように) */
+function mpWith(fn){if(!MP.on)return fn();const o=Math.random;Math.random=MP.rng;try{return fn()}finally{Math.random=o}}
+const GT=(fn,ms)=>MP.on?later(ms/1000,fn):setTimeout(fn,ms);
+/* 1手を全員で同じに打つ。k=手の番号、C=中心、p=強さ */
+function mpSlot(){return (G.mpN||0)%ALLIES.length}
+function mpShot(k,C,p,bu,pre){if(G.phase!=='idle'||G.busy||G.over)return false;MP.k=k;if(pre)mpApply(pre);mpSeed(k*2+1);G.lead=mpSlot();G.mpN=(G.mpN||0)+1;if(bu&&G.burst>=CFG.burstNeed&&!G.burstOn){G.burst=0;G.burstOn=true}G.C={x:C.x,z:C.z};G.p=p;G.rad=radOf(p);mpWith(startCompress);return true}
+/* 自分が動かせる番か(out.js の CA_MP が決める) */
+function mpMine(){return !MP.on||!window.CA_MP||window.CA_MP.mine(mpSlot())}
+function mpSkill(k,i,pre){if(G.phase!=='idle'||G.busy||G.over)return false;MP.k=k;if(pre)mpApply(pre);mpSeed(k*2+2);G.sk[i]=Math.max(G.sk[i],SKILLS[i].cd);mpWith(()=>useSkill(i,true));return true}
+/* 盤面のまとめ(合わせなおし・ずれの確かめ用) */
+function mpSnap(){const r=v=>Math.round(v*1000)/1000;return{k:MP.k,hp:G.hp,w:G.wave,t:G.turn,sk:G.sk.slice(),bu:G.burst||0,lb:LB.on?[LB.hp,LB.cd,LB.brk||0,+!!LB.broken]:null,
+  b:G.bodies.filter(b=>b.alive).map(b=>[b.id,b.k,r(b.x),r(b.z),Math.round(b.hp||0),b.cd||0])}}
+function mpHash(sn){const s=JSON.stringify(sn);let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return h}
+function mpApply(sn){if(!sn)return;G.hp=sn.hp;if(sn.sk)G.sk=sn.sk.slice();if(sn.bu!=null)G.burst=sn.bu;
+  const by=new Map(sn.b.map(a=>[a[0],a]));for(const b of G.bodies){if(!b.alive)continue;const a=by.get(b.id);if(!a){if(b.k!=='ally'){b.alive=false;if(b.mesh)b.mesh.visible=false}continue}b.x=a[2];b.z=a[3];b.vx=0;b.vz=0;if(b.k!=='ally'){b.hp=a[4];b.cd=a[5]}}
+  if(sn.lb&&LB.on){LB.hp=sn.lb[0];LB.cd=sn.lb[1];LB.brk=sn.lb[2];lbUi()}ui()}
+
 /* ---------------- ループ ---------------- */
 function lerp(a,b,t){return a+(b-a)*t}
 let stopT=0;function hitStop(t){stopT=Math.max(stopT,t)}
 let last=performance.now();G.clock=0;
 const v3=new THREE.Vector3(),v3b=new THREE.Vector3(),v3g=new THREE.Vector3();
-function frame(now){requestAnimationFrame(frame);if(window.__PAUSE){last=now;return}fpsTick(now);let dt=Math.min(.05,(now-last)/1000);last=now;if(window.__FIXDT)dt=window.__FIXDT;window.__FRN=(window.__FRN||0)+1;/* __PAUSE・__FIXDT は確認用(コマ送り) */
+function frame(now){requestAnimationFrame(frame);if(MP.on){const o=Math.random;Math.random=MP.rng;try{frameBody(now)}finally{Math.random=o}}else frameBody(now)}
+function frameBody(now){if(window.__PAUSE){last=now;return}fpsTick(now);let dt=Math.min(.05,(now-last)/1000);last=now;if(window.__FIXDT)dt=window.__FIXDT;if(MP.on){MP.acc=Math.min(.1,MP.acc+(now-(frame.pn||now))/1000);frame.pn=now;if(MP.acc<1/60-.002)return;MP.acc-=1/60;dt=1/60}else frame.pn=now;window.__FRN=(window.__FRN||0)+1;/* __PAUSE・__FIXDT は確認用(コマ送り) */
   const real=dt;if(stopT>0){stopT-=dt;dt*=.06}
   G.clock+=dt;AU.uT.value+=real;
   {const P=EPal();if(G._pk!==G.lead){G._pk=G.lead;for(const U of [AU,vortex.material.uniforms]){U.uE0.value.setHex(P.c);U.uE1.value.setHex(P.b);U.uE2.value.setHex(P.e)}
@@ -2508,6 +2536,6 @@ modeLabel();
 requestAnimationFrame(frame);
 window.CA_API={TOWER,RAID,SCORE,EXB,EXT,LEV,YM,WKID,CHAPS,genStage,genWave,rng,hashStr,RES,RESK,demoRes,demoFire,ROSTER,SKD,setTeam,STAGES,PROG,MAIN_N,ALLIES,OEL,PORT,G,startStage,showSelect,faceTex,portCanvas,applyParty,ui,stageOpen,stageStrength,stageKinds,kindsBefore,KNAME,HARD,LEADS};
 imp('./out.js').catch(e=>console.warn('out.js を読めませんでした',e));
-window.__CA={gimTurn,addBody,STAGES,PROG,DIF,startStage,showSelect,stageClear,stageFail,useSkill,get SKILLS(){return SKILLS},get ALLIES(){return ALLIES},combo,resFire,resWood,resWater,resLight,allyBody,G,CFG,KIND,LB,startCompress,release,groundAt,cam,loadWave,nextTurn,resize,vf,vfHit,vfPop,vfBoom,VF,explode,addBody,hurt,streaks,impactFrame,
+window.__CA={MP,mpOn,mpOff,mpShot,mpSkill,mpSlot,mpSnap,mpHash,mpApply,gimTurn,addBody,STAGES,PROG,DIF,startStage,showSelect,stageClear,stageFail,useSkill,get SKILLS(){return SKILLS},get ALLIES(){return ALLIES},combo,resFire,resWood,resWater,resLight,allyBody,G,CFG,KIND,LB,startCompress,release,groundAt,cam,loadWave,nextTurn,resize,vf,vfHit,vfPop,vfBoom,VF,explode,addBody,hurt,streaks,impactFrame,
   stageT,resFxState:()=>({active:RFX.length,holding:RFX.filter(e=>e.hold).length,stopT,geometries:R.info.memory.geometries,textures:R.info.memory.textures,programs:(R.info.programs||[]).length})};
 </script>

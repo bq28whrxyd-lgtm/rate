@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=30').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=30').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=31').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=31').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1078,6 +1078,7 @@ function renderHome() {
   const ib = (k, label, fn, bd) => { const b = h('button', 'aIb', `<span class="ic">${svg(k)}</span><span>${label}</span>${bd ? `<i class="bd">${bd}</i>` : ''}`); b.type = 'button'; b.onclick = fn; return b; };
   const nNew = S.newIds.length;
   R.append(ib('news', 'お知らせ', news), ib('mission', 'ミッション', missions, dmClaimable()), ib('gift', 'プレゼント', presents, S.box.length), ib('party', '編成', () => { TAB = 'chara'; SUB.chara = 'party'; renderNow(); }));
+  if (MPC.ok()) R.append(ib('party', 'マルチ', mpJoinAsk));
   root.appendChild(R);
   /* (v121) 上の帯(名前の札・pt・閉じるボタン)の下から並べる。(v122) 札が縦に伸びていたのは、ランキングの一覧と見た目の名前(.aRk)がかぶっていたため。一覧は .aRkL にした。アプリの中では札が大きくなって重なっていた */
   const fitSide = () => { const hb = Math.max(0, ...[...hud.children].map(e => e.getBoundingClientRect().bottom)), rt = root.getBoundingClientRect().top; if (hb > 0) { L.style.top = R.style.top = Math.round(hb - rt + 8) + 'px'; } }; requestAnimationFrame(fitSide); setTimeout(fitSide, 400);
@@ -1178,6 +1179,7 @@ function goSheet(i, hard, op) {
   const pe = btn('sub sm', '編成', () => { close(); TAB = 'chara'; SUB.chara = 'party'; PICK = null; renderNow(); }); pe.style.flex = '0 0 auto'; sh.querySelector('.pty').appendChild(pe);
   const r = sh.querySelector('.orow'); const bk = btn('sub', 'もどる', close); bk.style.flex = '0 0 26%'; r.append(bk);
   if (!op.rw && ((S.stars[skey(i, hard)] || 0) & 7) === 7) { const sk = btn('sub', 'スキップ', () => { close(); skipStage(i, hard); }); sk.style.flex = '0 0 28%'; r.append(sk); }
+  if (MPC.ok()) { const mb = btn('sub', 'マルチ募集', () => { close(); mpCreate(i, hard); }); mb.style.flex = '0 0 28%'; r.append(mb); }
   r.append(btn('shine', '出撃', () => { close(); if (canGo()) A.startStage(i, hard); }));
   o.addEventListener('click', e => { if (e.target === o) close(); }); lay.appendChild(o);
 }
@@ -1343,9 +1345,153 @@ function goSheetEv(g, t) {
   sh.innerHTML = `<div class="tt"><b class="tb t${t}">${esc(st.tn)}</b><span>${esc(st.n)}</span></div><p>${esc(st.d)}</p><div class="inf"><span>ウェーブ ${st.waves.length}</span><span>敵の強さ <i class="sv">${'■'.repeat(sv)}</i></span></div><div class="inf drp">${drops}</div>${starBox(i, false, true)}<div class="orow"></div>`;
   const close = () => o.remove(); const r = sh.querySelector('.orow'); const bk = btn('sub', 'もどる', close); bk.style.flex = '0 0 26%'; r.append(bk);
   if (((S.stars[skey(i, false)] || 0) & 7) === 7) { const sk = btn('sub', 'スキップ', () => { close(); skipStage(i, false); }); sk.style.flex = '0 0 28%'; r.append(sk); }
+  if (MPC.ok()) { const mb = btn('sub', 'マルチ募集', () => { close(); mpCreate(i, false); }); mb.style.flex = '0 0 28%'; r.append(mb); }
   const go = btn('shine', `${esc(st.tn)}に出撃`, () => { close(); if (canGo()) A.startStage(i, false); }); r.append(go);
   if (st.ev === 'exp') { r.insertAdjacentHTML('beforebegin', `<p class="xpNote">今日の挑戦 あと <b>${xpLeft()}</b> / ${XP_MAX} 回</p>`); if (!xpLeft()) { go.disabled = true; go.innerHTML = '今日はもう挑戦できません'; r.querySelectorAll('button').forEach(x => { if (x.textContent === 'スキップ') x.disabled = true; }); } }
   o.addEventListener('click', e => { if (e.target === o) close(); }); lay.appendChild(o);
+}
+/* ===== (11/9) マルチ(協力)。4人まで・1人1体・部屋の4けたの番号で入る(山本さん)
+   - 募集した人(host)が「始める」。チームは 参加した人のキャラ(入った順)+足りない枠は募集した人の編成から
+   - 手は部屋の mv に1つずつ足し、全員の端末で同じ順に打つ(index.html の mpShot/mpSkill)。手が終わると、募集した人の盤面(sn)で合わせなおす
+   - 番が来て30秒たったら自動で引く。抜けた人の番は募集した人が動かす
+   - 初回クリア・★・はじめての週・塔の上の階などの報酬はなし。ドロップ・イベントメダル・降臨の仲間はある ===== */
+const MPC = { code: null, room: null, unsub: null, ai: 0, play: false, hb: null, pump: null, tKey: -1, tAt: 0, snK: -1, fix: 0, endSent: false,
+  ok: () => !!(HOST && HOST.room && HOST.room.me()) };
+const mpVer = () => { try { return (location.search.match(/v=(\d+)/) || [])[1] || 'dev'; } catch (e) { return 'dev'; } };
+const mpPack = u => ({ id: u.id, lv: u.lv, evo: u.evo ? 1 : 0, tot: totOf(u), pm: +mult(u).toFixed(4), ab: abilOf(u), sc: skCut(u) });
+const mpMe = () => (HOST && HOST.room && HOST.room.me()) || { pid: '?', n: '' };
+const mpMem = () => (MPC.room && MPC.room.mem) || {};
+const mpAbsent = pid => { const m = mpMem()[pid]; return !m || m.left || (Date.now() - (m.at || 0) > 30000); };
+/* 枠(0〜3)の持ち主 */
+function mpSlots() { const R = MPC.room; if (!R) return []; const M = R.mem || {}, out = [];
+  for (const pid of (R.order || [])) if (M[pid] && M[pid].u) out.push({ pid, u: M[pid].u });
+  const hostFill = (M[R.host] && M[R.host].fill) || [];
+  for (const u of hostFill) { if (out.length >= 4) break; if (!out.some(x => x.u.id === u.id)) out.push({ pid: R.host, u, fill: 1 }); }
+  return out.slice(0, 4); }
+const mpOwner = s => { const L = mpSlots(); return L[s] ? L[s].pid : (MPC.room && MPC.room.host); };
+const mpIsHost = () => MPC.room && MPC.room.host === mpMe().pid;
+function mpErr(e) { flash(e && e.message ? e.message : String(e || 'うまくいきませんでした')); }
+/* 募集する */
+async function mpCreate(i, hd) {
+  const st = A.STAGES[i]; if (!canGo()) return;
+  if (st.ev === 'exp' && !xpLeft()) { flash('経験値の竜の巣は今日はもう挑戦できません'); return; }
+  const lead = teamUnits()[Math.max(0, teamUnits().findIndex(x => x.id === S.lead))] || teamUnits()[0];
+  try { const code = await HOST.room.create({ st: i, hd, seed: (Math.random() * 4294967296) >>> 0, ver: mpVer(), m: { u: mpPack(lead), at0: Date.now() } }); mpOpen(code); } catch (e) { mpErr(e); }
+}
+/* 番号で入る */
+function mpJoinAsk() {
+  modal('マルチに参加', (b, close) => {
+    b.innerHTML = `<p class="onote" style="margin:0 0 8px">募集した人から聞いた、部屋の4けたの番号を入れてください。募集は、クエストのステージを開いて「マルチ募集」から。</p><input inputmode="numeric" maxlength="4" pattern="[0-9]*" style="width:100%;font:900 32px var(--zk);letter-spacing:.4em;text-align:center;padding:8px;border-radius:10px;border:2px solid #c9a14a;background:#fff;color:#1a1530">`;
+    const inp = b.querySelector('input'); setTimeout(() => inp.focus(), 50);
+    const r = h('div', 'orow'); r.style.padding = '12px 0 0'; b.appendChild(r);
+    r.append(btn('sub', 'やめる', close), btn('shine', '参加する', async () => {
+      const code = (inp.value || '').replace(/\D/g, ''); if (code.length !== 4) { flash('4けたの番号を入れてください'); return; }
+      if (await mpJoinCode(code)) close();
+    }));
+  });
+}
+async function mpJoinCode(code) {
+  const u = teamUnits()[0]; if (!u) { flash('キャラがいません'); return false; }
+  try { const res = await HOST.room.join(code, { u: mpPack(u), at0: Date.now() }); if (res !== 'ok') { flash({ none: 'その番号の部屋はありません', started: 'その部屋はもう始まっています', full: 'その部屋は4人そろっています' }[res] || 'はいれませんでした'); return false; } mpOpen(code); return true; } catch (e) { mpErr(e); return false; }
+}
+/* 部屋の画面(待つ間) */
+function mpOpen(code) {
+  mpLeave(true); MPC.code = code; MPC.ai = 0; MPC.play = false; MPC.snK = -1; MPC.fix = 0; MPC.endSent = false;
+  const o = h('div', 'aGo mpLobby'); const sh = h('div', 'sh'); o.appendChild(sh); lay.appendChild(o); MPC.lobby = o;
+  const draw = () => { const R = MPC.room; if (!R) { sh.innerHTML = '<p style="text-align:center">部屋を読みこんでいます…</p>'; return; }
+    const st = A.STAGES[R.st], me = mpMe().pid, host = R.host === me, M = R.mem || {}, pids = Object.keys(M).sort((a, b) => (M[a].at0 || M[a].at || 0) - (M[b].at0 || M[b].at || 0));
+    const hostFirst = [R.host, ...pids.filter(p => p !== R.host)].filter(p => M[p]);
+    const ver = R.ver && R.ver !== mpVer();
+    sh.innerHTML = `<div class="tt"><b class="tb">マルチ</b><span>${esc(st ? st.n : '')}${R.hd ? '(ハード)' : ''}</span></div>
+      <div style="text-align:center;margin:6px 0 10px"><small style="opacity:.8">部屋の番号(LINEなどで伝えてください)</small><div style="font:900 44px/1.1 var(--zk);letter-spacing:.25em;color:#ffd36a">${esc(code)}</div></div>
+      ${ver ? '<p class="onote" style="color:#ff8a8a">アプリの版がちがいます。アプリを閉じて開き直してください。</p>' : ''}
+      <div class="mpMem" style="display:grid;gap:6px">${[0, 1, 2, 3].map(k => { const p = hostFirst[k], m = p && M[p];
+        if (!m) return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.08);opacity:.6"><span style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.1)"></span><span>あき(募集した人のキャラが入る)</span></div>`;
+        const c = m.u && CH[m.u.id];
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.14)"><img alt="" src="${c ? bigFaceURL(c.id, m.u.evo) : ''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><span style="flex:1;min-width:0"><b>${esc(m.n || '')}</b>${p === R.host ? ' <small style="color:#ffd36a">募集した人</small>' : ''}${p === me ? ' <small>(あなた)</small>' : ''}<br><small>${c ? esc(c.name) + ' Lv' + m.u.lv + (m.u.evo ? '・★6' : '') : 'キャラを選んでいます'}</small></span></div>`; }).join('')}</div>
+      <div class="orow" style="margin-top:12px"></div>`;
+    const r = sh.querySelector('.orow');
+    r.append(btn('sub', host ? '解散する' : '抜ける', () => mpLeave(false)), btn('sub', 'キャラを選ぶ', mpPick));
+    if (host) r.append(btn('shine', '始める', mpStart));
+    else r.insertAdjacentHTML('afterend', '<p class="onote" style="text-align:center;margin:8px 0 0">募集した人が始めるのを待っています</p>');
+  };
+  MPC.draw = draw; draw();
+  MPC.unsub = HOST.room.watch(code, R => { const was = MPC.room; MPC.room = R;
+    if (!R) { if (MPC.play) { flash('部屋がなくなりました'); } mpLeave(true); return; }
+    if (!MPC.play && R.state === 'play') mpBegin();
+    else if (!MPC.play) draw();
+    if (MPC.play) mpPump(); });
+  MPC.hb = setInterval(() => { if (MPC.code) HOST.room.mine(MPC.code, {}).catch(() => { }); }, 10000);
+}
+function mpPick() {
+  const R = MPC.room; if (!R) return; const me = mpMe().pid, M = R.mem || {};
+  const taken = new Set(Object.keys(M).filter(p => p !== me && M[p].u).map(p => M[p].u.id));
+  modal('連れていくキャラ', (b, close) => {
+    b.innerHTML = '<p class="onote" style="margin:0 0 8px">1人1体。ほかの人が選んだキャラは選べません。</p>'; const g = h('div', 'ogrid'); g.style.maxHeight = '50vh'; g.style.overflowY = 'auto'; b.appendChild(g);
+    const seen = new Set(); for (const u of S.units.slice().sort((a, b) => rarOf(b) - rarOf(a) || b.lv - a.lv)) { if (seen.has(u.id)) continue; seen.add(u.id); const e = icon(u); if (taken.has(u.id)) e.style.opacity = '.3'; else e.onclick = async () => { close(); try { await HOST.room.mine(MPC.code, { u: mpPack(u) }); } catch (er) { mpErr(er); } }; g.appendChild(e); }
+  });
+}
+async function mpStart() {
+  const R = MPC.room; if (!R || !mpIsHost()) return; const M = R.mem || {};
+  const pids = [R.host, ...Object.keys(M).filter(p => p !== R.host && !M[p].left && M[p].u).sort((a, b) => (M[a].at0 || 0) - (M[b].at0 || 0))];
+  const ids = new Set(pids.map(p => M[p].u.id)); if (ids.size !== pids.length) { flash('同じキャラを選んでいる人がいます'); return; }
+  if (pids.length < 2) { flash('ほかの人が入るのを待ってください(1人なら、ふつうに出撃できます)'); return; }
+  const fill = teamUnits().filter(u => !ids.has(u.id)).map(mpPack);
+  try { await HOST.room.host(MPC.code, { order: pids, state: 'play', mem: Object.assign({}, M, { [R.host]: Object.assign({}, M[R.host], { fill }) }) }); } catch (e) { mpErr(e); }
+}
+/* 全員: 始まった。チームを組んで、同じ種で出撃 */
+function mpBegin() {
+  const R = MPC.room, L = mpSlots(); if (!R || L.length < 1) return;
+  if (!(R.mem || {})[mpMe().pid]) { flash('この部屋のメンバーではありません'); mpLeave(true); return; }
+  MPC.play = true; if (MPC.lobby) { MPC.lobby.remove(); MPC.lobby = null; }
+  window.CA_TEAM = L.map(x => x.u.id); window.CA_PARTY = Object.fromEntries(L.map(x => [x.u.id, x.u.pm])); window.CA_ABIL = Object.fromEntries(L.map(x => [x.u.id, x.u.ab || []]));
+  window.CA_EVO = Object.fromEntries(L.map(x => [x.u.id, x.u.evo ? 1 : 0])); window.CA_SKCUT = Object.fromEntries(L.map(x => [x.u.id, x.u.sc || 0])); window.CA_SKIN = {}; window.CA_LEAD = 0;
+  window.CA_MP = { mine: s => { const o = mpOwner(s), me = mpMe().pid; return o === me || (mpIsHost() && mpAbsent(o)); },
+    name: s => { const o = mpOwner(s), m = mpMem()[o]; return (m ? m.n : '') + (mpAbsent(o) && o !== mpMe().pid ? '(代わりに募集した人)' : ''); },
+    send: mv => mpSend(mv), idle: s => { MPC.tKey = MPC.ai; MPC.tAt = Date.now(); } };
+  A.__CA_MPON = true; window.__CA.mpOn(R.seed >>> 0);
+  A.startStage(R.st, !!R.hd);
+  if (!MPC.pump) MPC.pump = setInterval(mpPump, 300);
+}
+async function mpSend(mv) {
+  if (!MPC.code || !MPC.room) return; const k = (MPC.room.mv || []).length;
+  try { const ok = await HOST.room.move(MPC.code, Object.assign({ k, by: mpMe().pid, t: Date.now() }, mv)); if (!ok) { const G = window.__CA.G; G.mpWait = false; flash('ほかの手が先に届きました'); } } catch (e) { const G = window.__CA.G; G.mpWait = false; mpErr(e); }
+}
+/* 手を順に打つ・合わせなおす・30秒の自動・終わり */
+function mpPump() {
+  if (!MPC.play || !MPC.room) return; const C = window.__CA, G = C.G, R = MPC.room, mv = R.mv || [];
+  const idle = G.phase === 'idle' && !G.busy && !G.over;
+  if (idle && MPC.ai < mv.length) { const m = mv[MPC.ai]; const ok = m.ty === 'skill' ? C.mpSkill(MPC.ai, m.i, m.pre) : C.mpShot(MPC.ai, { x: m.x, z: m.z }, m.p, m.bu, m.pre); if (ok) { MPC.ai++; G.mpWait = false; } return; }
+  if (idle && MPC.ai === mv.length) {
+    const sn = R.sn || {};
+    if (mpIsHost() && MPC.snK < MPC.ai && MPC.ai > 0) { MPC.snK = MPC.ai; const d = C.mpSnap(); HOST.room.snap(MPC.code, { k: MPC.ai, h: C.mpHash(d), d }).catch(() => { }); }
+    if (!mpIsHost() && sn.k === MPC.ai && MPC.snK < sn.k) { MPC.snK = sn.k; if (C.mpHash(C.mpSnap()) !== sn.h) { C.mpApply(sn.d); MPC.fix++; console.warn('マルチ: 盤面を合わせなおした', sn.k); } }
+    /* 30秒たったら自動で引く(番の人、または募集した人が少し遅れて) */
+    const s = C.mpSlot(), mine = window.CA_MP.mine(s), wait = Date.now() - MPC.tAt;
+    if (MPC.tKey === MPC.ai && !G.mpWait && ((mine && wait > 30000) || (mpIsHost() && wait > 36000))) { MPC.tAt = Date.now() + 99999; const e = G.bodies.filter(b => b.alive && b.k !== 'ally'); let x = 0, z = 0; for (const b of e) { x += b.x; z += b.z; } const n = e.length || 1; G.mpWait = true; mpSend({ ty: 'shot', x: +(x / n).toFixed(3), z: +(z / n).toFixed(3), p: .8, bu: 0, auto: 1, pre: C.mpSnap() }); }
+    if (mine && MPC.tKey === MPC.ai && wait > 20000 && wait < 30000) { const left = Math.ceil((30000 - wait) / 1000); const ht = document.getElementById('hint'); if (ht && left % 2 === 0) ht.textContent = 'あなたの番 ─ あと' + left + '秒で自動で引きます'; }
+  }
+  if (G.over && !MPC.endSent) { MPC.endSent = true; if (mpIsHost()) HOST.room.host(MPC.code, { state: 'end', res: { win: G.hp > 0, t: Date.now() } }).catch(() => { }); setTimeout(() => { if (MPC.play) mpLeave(true); }, 2500); }
+}
+function mpLeave(quiet) {
+  const code = MPC.code, wasHost = mpIsHost();
+  if (MPC.unsub) { try { MPC.unsub(); } catch (e) { } } clearInterval(MPC.hb); clearInterval(MPC.pump); MPC.unsub = null; MPC.hb = null; MPC.pump = null;
+  if (MPC.lobby) { MPC.lobby.remove(); MPC.lobby = null; }
+  if (code && !quiet) { if (wasHost) HOST.room.del(code); else HOST.room.mine(code, { left: true }).catch(() => { }); }
+  MPC.code = null; MPC.room = null; MPC.play = false; window.CA_MP = null; try { if (window.__CA) window.__CA.mpOff(); } catch (e) { } try { syncParty(); } catch (e) { }
+}
+window.__MP = { MPC, create: mpCreate, join: mpJoinCode, start: mpStart, slots: mpSlots };   /* 確認用 */
+/* マルチで勝ったときの報酬: 初回・★・はじめての週などはなし */
+function multiClear(st, info) {
+  const rewards = []; let msg = 'マルチで勝った! ';
+  if (st.ev === 'lev') { const m = st.md[0] + Math.floor(Math.random() * (st.md[1] - st.md[0] + 1)); S.lev.medal += m; S.lev.win[st.ti]++; msg += `イベントメダル ${m}枚(いま ${S.lev.medal}枚)。`; }
+  else if (st.ev === 'raid') { for (const d of st.drops) for (let k = 0; k < d.n; k++) if (Math.random() < d.p) rewards.push({ k: 'mat', id: d.id, n: 1 }); S.raid.win++; wmFresh(); S.wm.raid++; const dc = raidDrop(); if (dc) msg += dc; }
+  else if (st.ev === 'ex') { const R = EXRW[st.ti]; if (R && R.r) for (const r of exRw(R.r, st.el)) if (Math.random() < (r.p || 1)) rewards.push({ k: r.k, id: r.id, n: r.n }); }
+  else if (st.ev === 'tower' || st.ev === 'score') { msg += '(塔・スコアアタックはマルチでは報酬なし)'; }
+  else { rewards.push(...repeatDrops(st, info.i, !!info.h)); }
+  const merged = {}; for (const r of rewards) { const k = r.k === 'pt' ? 'pt' : r.id; merged[k] = merged[k] ? Object.assign({}, merged[k], { n: merged[k].n + r.n }) : Object.assign({}, r); }
+  const rw = Object.values(merged); give(rw); dmFresh(); S.dm.win++; wmFresh(); S.wm.win++; save(); LAST = null;
+  return msg + (rw.length ? '手に入れた: ' + rwText(rw) : '');
 }
 /* 戦闘で勝ったら呼ばれる。手に入れた物を足して、結果画面に出す文を返す */
 window.CA_OUT = { onClear: (st, info) => onClearStage(st, info || {}) };
@@ -1829,6 +1975,7 @@ function dropModal(d) {
 }
 let LAST = null;
 function onClearStage(st, info) {
+  if (info.multi) return multiClear(st, info);
   if (st.ev === 'tower' || st.ev === 'raid' || st.ev === 'score' || st.ev === 'ex' || st.ev === 'lev') {
     chFresh(); const rewards = []; let msg = '';
     if (st.ev === 'ex') { const key = st.bi + '-' + st.ti, first = !S.ex[key], R = EXRW[st.ti]; if (first) { S.ex[key] = 1; rewards.push(...exRw(R.f, st.el)); msg = `${A.EXB[st.bi].n}【${st.tier}】をはじめてクリア! ${st.ti < 2 ? '「' + A.EXT[st.ti + 1].n + '」が開きました。' : ''}`; } else { for (const r of exRw(R.r, st.el)) if (Math.random() < (r.p || 1)) rewards.push({ k: r.k, id: r.id, n: r.n }); msg = `${A.EXB[st.bi].n}【${st.tier}】に勝った! `; } }
