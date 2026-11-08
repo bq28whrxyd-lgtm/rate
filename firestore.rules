@@ -334,11 +334,12 @@ service cloud.firestore {
     // ---- (11/9) 分身のマルチ(協力)の部屋。4けたの番号=部屋。4人まで・1人1体。
     //      募集した人(host)が部屋を作り、始める・終わる。参加した人は自分の欄(mem.<自分>)だけ書ける。
     //      遊んでいる間は、参加者が手(mv)を1つずつ足し、盤面のまとめ(sn)を書く ----
-    function crKeys() { return request.resource.data.keys().hasOnly(['host', 'hn', 'st', 'hd', 'seed', 'state', 't', 'ver', 'mem', 'order', 'mv', 'sn', 'res', 'ping', 'by']); }
+    function crKeys() { return request.resource.data.keys().hasOnly(['host', 'hn', 'st', 'hd', 'seed', 'state', 't', 'ver', 'mem', 'order', 'mv', 'sn', 'res', 'ping', 'by', 'sl']); }
     function crSizes() {
       return request.resource.data.get('mem', {}) is map && request.resource.data.get('mem', {}).size() <= 4
         && request.resource.data.get('mv', []) is list && request.resource.data.get('mv', []).size() <= 600
         && request.resource.data.get('order', []) is list && request.resource.data.get('order', []).size() <= 4
+        && request.resource.data.get('sl', []) is list && request.resource.data.get('sl', []).size() <= 4
         && request.resource.data.state in ['wait', 'play', 'end'];
     }
     // 自分の欄だけを変えている(変わった欄が1つで、それが自分)
