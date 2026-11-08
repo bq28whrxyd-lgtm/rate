@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=31').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=31').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=32').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=32').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1370,7 +1370,11 @@ function mpSlots() { const R = MPC.room; if (!R) return []; const M = R.mem || {
   return out.slice(0, 4); }
 const mpOwner = s => { const L = mpSlots(); return L[s] ? L[s].pid : (MPC.room && MPC.room.host); };
 const mpIsHost = () => MPC.room && MPC.room.host === mpMe().pid;
-function mpErr(e) { flash(e && e.message ? e.message : String(e || 'うまくいきませんでした')); }
+function mpErr(e) {
+  const m = String((e && (e.code || e.message)) || e || ''); console.warn('マルチ: エラー', e);
+  const t = /permission|insufficient/i.test(m) ? '部屋に書きこむ許可がありませんでした(ルールの問題)' : /unavailable|network|offline/i.test(m) ? '電波が弱いか、つながっていません' : /ログイン/.test(m) ? m : 'うまくいきませんでした';
+  modal('マルチ', (b, close) => { b.innerHTML = `<p style="text-align:center">${esc(t)}</p><p class="onote" style="font-size:10px;opacity:.6;word-break:break-all">${esc(m.slice(0, 160))}</p>`; const r = h('div', 'orow'); r.style.padding = '10px 0 0'; r.append(btn('', 'OK', close)); b.appendChild(r); });
+}
 /* 募集する */
 async function mpCreate(i, hd) {
   const st = A.STAGES[i]; if (!canGo()) return;
