@@ -14680,7 +14680,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=25',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=29',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -17521,7 +17521,7 @@ function kmrPromoShow(P){P=P||{src:'promo_kmr.mp4',poster:'promo_kmr.jpg',key:km
   o.append(v,skip,snd);document.body.append(o);requestAnimationFrame(()=>o.classList.add('on'));
   const p=v.play();if(p&&p.catch)p.catch(()=>{/* autoplay refused: the sound button starts it */snd.textContent='再生する';snd.hidden=false;snd.onclick=e=>{e.stopPropagation();v.play().catch(()=>{});snd.hidden=true}})}
 /* (11/07) 分身(圧縮アリーナ)の紹介動画(30秒・音なし)。アプリを開いたら1人1回だけ。ほかの紹介動画・お知らせの絵より先に出す */
-const CA_PROMO_ON=false;/* 動画ができたら true */const CA_PROMO_END=Date.parse('2027-01-31T23:59:59+09:00');
+const CA_PROMO_ON=true;const CA_PROMO_END=Date.parse('2027-01-31T23:59:59+09:00');
 function caPromoKey(){return 'caPromo1_'+((typeof me!=='undefined'&&me&&me.id)||'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
 function caPromoPending(){try{if(!CA_ON||!CA_PROMO_ON||Date.now()>CA_PROMO_END)return false;return !(+localStorage.getItem(caPromoKey())||0)}catch(e){return false}}
 function caPromoShow(){kmrPromoShow({src:'promo_ca.mp4',poster:'promo_ca.jpg',key:caPromoKey(),mute:1})}
