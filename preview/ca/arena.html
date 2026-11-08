@@ -464,12 +464,17 @@ const ROSTER={};ALLIES.forEach(a=>ROSTER[a.key]=a);
  {name:'ポム',key:'pom',el:'炎',col:0xff9a3a,hp:1950,atk:.79,m:1.05,lead:'boom',ln:'爆裂圧縮',rar:4,sk:'bombs'},
  {name:'プクル',key:'pukuru',el:'水',col:0x7ad8ff,hp:2150,atk:.7,m:.85,lead:'soft',ln:'泡の守り圧縮',rar:4,sk:'bubble'},
  {name:'フウタ',key:'futa',el:'木',col:0x8ae86a,hp:1950,atk:.76,m:.9,lead:'gust',ln:'疾風圧縮',rar:4,sk:'tailwind'},
- {name:'トモリ',key:'tomori',el:'光',col:0xffe8a0,hp:2050,atk:.72,m:.95,lead:'glow',ln:'灯火圧縮',rar:4,sk:'lamp'}].forEach(a=>ROSTER[a.key]=a);
+ {name:'トモリ',key:'tomori',el:'光',col:0xffe8a0,hp:2050,atk:.72,m:.95,lead:'glow',ln:'灯火圧縮',rar:4,sk:'lamp'},
+ /* (11/9) 降臨ボスの化身(山本さん): 降臨で25%で落ちる★5。ガチャの★5より少し弱いが、特効(〜キラー)の相手には強い。ガチャには出ない */
+ {name:'ガロウ',key:'garou',el:'炎',col:0xff5a2a,hp:2200,atk:.96,m:1.25,lead:'power',ln:'剛打圧縮',rar:5,sk:'roar',drop:'紅蓮の獣王'},
+ {name:'ミズチ',key:'mizuchi',el:'水',col:0x9ad8ff,hp:2400,atk:.88,m:.95,lead:'tight',ln:'収束圧縮',rar:5,sk:'icefang',drop:'深淵の竜王'},
+ {name:'モクレン',key:'mokuren',el:'木',col:0x7ad86a,hp:2600,atk:.84,m:1.1,lead:'mend',ln:'癒やし圧縮',rar:5,sk:'bigtree',drop:'翠緑の巨樹王'},
+ {name:'セレス',key:'seres',el:'光',col:0xfff0c0,hp:2300,atk:.92,m:1.0,lead:'shine',ln:'輝き圧縮',rar:5,sk:'starwing',drop:'天光の竜王'}].forEach(a=>ROSTER[a.key]=a);
 Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=25';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=26';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -669,9 +674,11 @@ function towerK(f){const hp=f<=10?.8+f*.22:f<=20?3+(f-10)*.3:6+(f-20)*.34,atk=f<
    seed:hashStr('tower'+YM+'-'+f),pool,rate:Math.min(.7,.15+f*.02),k:towerK(f),
    mbName:'塔の番人',mbTint:th.tint,lbName:th.b+'の竜',lbTint:th.tint,boss:bs||top,waves:ws}))}}
 {const RB=[{el:'炎',n:'紅蓮の獣王',pool:['f','p'],tint:0xffc0a0,mtint:0xff6a4a,model:'beast'},{el:'水',n:'深淵の竜王',pool:['w','d'],tint:0x6ab0ff},{el:'木',n:'翠緑の巨樹王',pool:['g','k'],tint:0xd0ffc0,mtint:0x7aff8a,model:'tree'},{el:'光',n:'天光の竜王',pool:['a','m','p'],tint:0xffe07a}];
- const rb=RB[MI%RB.length];Object.assign(RAID,rb);
- STAGES.push(genStage({id:'降臨',ev:'raid',el:rb.el,n:'降臨 '+rb.n,d:'今月の降臨ボス。'+rb.el+'の竜とその仕掛けが多い。中ボス「'+rb.n+'の盾」を倒すと、'+rb.n+'が現れる。勝つたびに'+rb.el+'の宝珠が2つ。',
-  seed:hashStr('raid'+YM),pool:rb.pool,rate:.6,k:{hp:8,atk:3.3,cd:-1,boss:.8,lb:3},boss:true,mbName:rb.n+'の盾',mbTint:rb.mtint||rb.tint,lbName:rb.n,lbTint:rb.tint,lbModel:rb.model||null,
+ /* (11/9) 降臨は週ごとに入れかえ(山本さん)。月曜の朝に次のボスへ。4週でひと回り */
+ const WI=Math.round((new Date(WKID.replace(/-(\d+)-(\d+)$/,(m,a,b)=>'/'+a+'/'+b))-new Date(2026,0,5))/864e5/7);RAID.wi=WI;
+ const rb=RB[((WI%RB.length)+RB.length)%RB.length];Object.assign(RAID,rb);
+ STAGES.push(genStage({id:'降臨',ev:'raid',el:rb.el,n:'降臨 '+rb.n,d:'今週の降臨ボス。'+rb.el+'の竜とその仕掛けが多い。中ボス「'+rb.n+'の盾」を倒すと、'+rb.n+'が現れる。勝つたびに'+rb.el+'の宝珠が2つ。',
+  seed:hashStr('raid'+WKID),pool:rb.pool,rate:.6,k:{hp:8,atk:3.3,cd:-1,boss:.8,lb:3},boss:true,mbName:rb.n+'の盾',mbTint:rb.mtint||rb.tint,lbName:rb.n,lbTint:rb.tint,lbModel:rb.model||null,
   drops:[{id:'orb_'+rb.el,p:1,n:2},{id:'expL',p:.5,n:1}],
   waves:[{e:6,obj:{orb:3,bomb:1,crystal:1},heal:1},{e:4,obj:{orb:2,bomb:1,rock:1},heal:2,boss:true,n:'中ボス '+rb.n+'の盾',mb:true},{e:4,obj:{orb:3,bomb:1,jar:1,rock:1},heal:1,n:'ラスボス '+rb.n,lb:true}]}))}
 /* (v102) 高難度(D-123): 新しいボス2体に「試練・極限・絶界」の3段階。上ほど敵が強く、仕掛けが増える。
@@ -1176,7 +1183,7 @@ function impact(a,b,s,x,z){if(s<CFG.hitMin)return;const key=a.id<b.id?a.id+'_'+b
     if(p.k==='orb'&&p.el==='木'&&q.k==='ally'&&G.phase==='release'&&G.rs&&(G.rs.wh||0)<ORBV.healMax){G.rs.wh=(G.rs.wh||0)+1;const v=Math.round(G.hpMax*ORBV.healPct);G.hp=Math.min(G.hpMax,G.hp+v);num(q.x,1.5,q.z,'+'+v,'heal');burstFx(q.x,q.z,0x8affb8,10,3,.35,4);ui()}}
   let any=false,hEl=null,hDm=0;
   for(const [v,atk] of [[a,b],[b,a]]){if(!v.alive||!(v.k==='enemy'||v.k==='boss'||v.k==='claw'))continue;if(!atk.alive&&atk.k!=='bomb')continue;const K=KIND[atk.k];if(!K.atk)continue;
-    let mult=K.atk;HITAB=null;if(atk.k==='ally'){mult*=ALLIES[atk.ai].atk;if(ALLIES[G.lead].lead==='bounce'&&atk.bn)mult*=1+.1*atk.bn;if(G.rs&&G.phase==='release'&&v.k!=='claw'&&slotOf('ibara')>=0){G.rs.thHit.add(v);if(++G.rs.th>=5&&!G.rs.thorn){G.rs.thorn=true;later(.15,resThorn)}}const ab=ALLIES[atk.ai].ab;if(ab&&ab.size){HITAB=ab;if(ab.has('bossKiller')&&v.k==='boss')mult*=1.5;if(ab.has('crit')&&Math.random()<.2){mult*=2;num(v.x,1.9,v.z,'会心!','txt')}if(ab.has('shellBreak')&&v.hard&&v.g==='shell'&&s>2.2)shellPeel(v,'殻割り!')}}if(atk.k==='orb'&&atk.el){const ai=ALLIES.findIndex(q=>q.el===atk.el);if(ai>=0)mult*=ALLIES[ai].atk}
+    let mult=K.atk;HITAB=null;if(atk.k==='ally'){mult*=ALLIES[atk.ai].atk;if(ALLIES[G.lead].lead==='bounce'&&atk.bn)mult*=1+.1*atk.bn;if(G.rs&&G.phase==='release'&&v.k!=='claw'&&slotOf('ibara')>=0){G.rs.thHit.add(v);if(++G.rs.th>=5&&!G.rs.thorn){G.rs.thorn=true;later(.15,resThorn)}}const ab=ALLIES[atk.ai].ab;if(ab&&ab.size){HITAB=ab;if(ab.has('bossKiller')&&v.k==='boss')mult*=1.5;mult*=slayK(ab,v.k==='boss');if(ab.has('crit')&&Math.random()<.2){mult*=2;num(v.x,1.9,v.z,'会心!','txt')}if(ab.has('shellBreak')&&v.hard&&v.g==='shell'&&s>2.2)shellPeel(v,'殻割り!')}}if(atk.k==='orb'&&atk.el){const ai=ALLIES.findIndex(q=>q.el===atk.el);if(ai>=0)mult*=ALLIES[ai].atk}
     const em=elMul(elOf(atk),v.el);mult*=em;
     const dm=Math.round(CFG.dmgK*s*Math.sqrt(atk.m)*mult*(1+(G.cm||0)*.015)*(G.burstOn?1.5:1)*(G.fireBuff?1.5:1)*(v.k==='boss'?.8:1)*(G.mode==='press'?CFG.pressHitK:1));hurt(v,dm,x,z,false,em>1?'weak':em<1?'res':'');HITAB=null;any=true;if(dm>hDm){hDm=dm;hEl=elOf(atk)}
     if(atk.k==='orb'&&atk.el==='炎'&&v.alive&&v.k!=='claw'){if(!v.burn)burstFx(v.x,v.z,0xff7a2a,10,3,.4,4);v.burn=Math.max(v.burn||0,ORBV.burnT)}
@@ -1755,7 +1762,7 @@ function stopLB(){LB.on=false;if($('wkt'))$('wkt').hidden=true;if(LB.built){LB.g
 function moveWeak(){LB.wA=-(Math.PI*.12+Math.random()*Math.PI*.76)}
 function inWeak(a){const hw=LB.broken?CFG.brkHW:CFG.weakHW,c=LB.broken?-Math.PI/2:LB.wA;let d=a-c;while(d>Math.PI)d-=2*Math.PI;while(d<-Math.PI)d+=2*Math.PI;return Math.abs(d)<=hw}
 function lbWall(b,vn,nx,nz){if(!LB.on||LB.hp<=0||G.phase!=='release')return;const K=KIND[b.k];if(!K.atk||vn<CFG.hitMin)return;if((b.lbt||0)>G.clock-.15)return;
-  if(!inWeak(Math.atan2(nz,nx)))return;b.lbt=G.clock;let mult=K.atk;if(b.k==='ally')mult*=ALLIES[b.ai].atk;
+  if(!inWeak(Math.atan2(nz,nx)))return;b.lbt=G.clock;let mult=K.atk;if(b.k==='ally'){mult*=ALLIES[b.ai].atk;const ab=ALLIES[b.ai].ab;if(ab&&ab.size){if(ab.has('bossKiller'))mult*=1.5;mult*=slayK(ab,true,true)}}
   const dm=Math.round(CFG.dmgK*vn*Math.sqrt(b.m)*mult*(1+(G.cm||0)*.015)*(G.burstOn?1.5:1)*(G.fireBuff?1.5:1)*CFG.weakK);const x=nx*CFG.R,z=nz*CFG.R;
   lbDamage(dm,x,1.2,z,CFG.lbBrkHit);combo(1);hitStop(.05);vfHit(x,1.2,z,vn,elOf(b),true);G.shake=Math.max(G.shake,.3);ringFx(x,z,.3,2,.35,0xffc04a,.16);burstFx(x,z,0xffd070,18,6,.5,5);logC('弱点に命中 '+dm)}
 function lbDamage(dm,x,y,z,brk){if(LB.broken)dm=Math.round(dm*1.5);LB.hp=Math.max(0,LB.hp-dm);num(x,y+.4,z,dm,'big');LB.hurtT=.18;
@@ -1837,7 +1844,11 @@ const SKD={
   bombs:{n:'仕掛け爆弾',cd:5,d:'敵が集まっている所の近くに、爆弾を2つ仕掛ける',f:i=>skBombs(i)},
   bubble:{n:'泡の守り',cd:5,d:'次の敵の手番だけ、受けるダメージが半分',f:i=>skBubble(i)},
   tailwind:{n:'追い風',cd:4,d:'次の解放で飛び出す力が1.3倍',f:i=>skTailwind(i)},
-  lamp:{n:'灯りの精',cd:5,d:'ランプの精が回復球を2つ置く',f:i=>skLamp(i)}};
+  lamp:{n:'灯りの精',cd:5,d:'ランプの精が回復球を2つ置く',f:i=>skLamp(i)},
+  roar:{n:'獣王の咆哮',cd:7,d:'炎をまとって吠え、炎の衝撃波が盤面のはしまで広がる。敵全員にダメージ',f:i=>skRoar(i)},
+  icefang:{n:'深淵の氷牙',cd:6,d:'体力の多い敵3体の足元から氷の牙が突き出して大ダメージ。凍った敵は「攻撃まで」が1手番のびる',f:i=>skIceFang(i)},
+  bigtree:{n:'大樹の恵み',cd:6,d:'足元から大樹が生えて葉と光る実が降り、チームHPを25%回復。光る実(回復球)を1つ置く',f:i=>skBigTree(i)},
+  starwing:{n:'星翼の流星',cd:7,d:'星空の翼を広げ、流星を5つ降らせる。落ちた所の敵にダメージ',f:i=>skStarWing(i)}};
 /* (v102) 凸(D-124): 2凸と4凸でスキルの手番が1つずつ短くなる。★5は最短3、★3・★4は最短4 */
 const skOf=a=>{const s=SKD[a.sk],c=(window.CA_SKCUT||{})[a.key]||0;return c?Object.assign({},s,{cd:Math.max(a.rar>=5?3:4,s.cd-c)}):s};
 let SKILLS=ALLIES.map(skOf);
@@ -2108,6 +2119,73 @@ function skLamp(si){const me=allyBody(si)||{x:0,z:3};const lg=glowSpr(0xffc84a,.
   ringFx(me.x,me.z,.3,2,.4,0xfff0a0,.12);let n=0;
   for(let k=0;k<2;k++){const p=freeSpot(me.x+(k?1.5:-1.5),me.z-1.5,.35);if(!p)continue;n++;const dl=.15+k*.12;lampSpirit(me,p,dl,k?1:-1);later(dl+.8,()=>{if(G.over)return;const b=addBody('heal',p.x,p.z);b.mesh.position.set(p.x,0,p.z)})}
   if(!n)say('置ける場所がない',1.2);hint('灯りの精 ─ 回復球を'+n+'つ置いた');ui()}
+/* ===== (11/9) 降臨ボスの化身4人のスキルと特効。技の名前どおりの形にする
+   参考(作り方だけ): 氷の牙は地面から少しずつずれて突き出す波のような出方、床の霜、細かい氷の粒、冷気が少し残る(80.lv「Ice Spikes VFX」)。
+   咆哮は衝撃波の輪を何枚も重ね、地面を炎が走る。流星は白い芯+金の尾、落ちた所に十字の光と星の粒。 ===== */
+/* 特効: ガロウ=樹、ミズチ=獣、モクレン=竜、セレス=中ボス。ボスの種類はそのステージのラスボスの形で決める */
+function bossKind(){const st=STAGES[G.stage];if(!st||!st.boss)return '';const m=G.lbModel;return m==='beast'?'獣':m==='tree'?'樹':m==='golem'?'岩':'竜'}
+function slayK(ab,boss,lb){if(!boss)return 1;let k=1;const kd=bossKind();if(ab.has('killTree')&&kd==='樹')k*=2;if(ab.has('killBeast')&&kd==='獣')k*=2;if(ab.has('killDragon')&&kd==='竜')k*=1.5;if(ab.has('killGuard')&&!lb)k*=1.5;return k}
+/* --- 獣王の咆哮(ガロウ): たてがみの炎が立つ → 吠えると衝撃波の輪が3枚、地面を炎の波が盤面のはしまで走る → 届いた順に敵が炎に包まれる --- */
+function skRoar(si){const me=allyBody(si)||{x:0,z:3};const dm=Math.round(120*ALLIES[si].atk);hitStop(.05);G.shake=Math.max(G.shake,.35);
+  flamePillar(me.x,me.z,3.4,1.1,.55,0,0);ringFx(me.x,me.z,.3,1.6,.25,0xffffff,.14);streaks(me.x,1.2,me.z,{col:0xff7a2a,s:3.5,n:16,d:.3});
+  later(.16,()=>{tintFlash('rgba(255,90,30,.35)');G.shake=Math.max(G.shake,.7);screenTint('brightness(.85) saturate(1.4)',700);flameWave(me.x,me.z,CFG.R,.85,0);
+    [[0xffffff,.1,0],[0xffb040,.14,.07],[0xff4a1a,.08,.14]].forEach(([c,w,d])=>later(d,()=>ringFx(me.x,me.z,.4,CFG.R+1.5,.5,c,w)));
+    for(let k=0;k<40;k++){const a=Math.random()*6.283,s=6+Math.random()*7;const q=spark(me.x,.5,me.z,Math.cos(a)*s,1+Math.random()*2,Math.sin(a)*s,Math.random()<.4?0xffe08a:0xff6a1a,.3,.5,2,1.5);q.fl=1}});
+  const F=foes().filter(f=>f.k!=='claw');let first=true;
+  F.forEach(f=>{const d=Math.hypot(f.x-me.x,f.z-me.z);later(.2+d/(CFG.R*2)*.5,()=>{if(!f.alive)return;if(first)hitStop(.05);first=false;vf('FIRE',f.x,.9,f.z,{s:f.k==='boss'?2.6:1.8,d:.5,roll:0,gl:.35});flamePillar(f.x,f.z,2.2,f.r+.3,.5,0,0);hurt(f,dm,f.x,f.z)})});
+  later(.7,()=>{for(const c of foes().filter(f=>f.k==='claw'))hurt(c,dm,c.x,c.z)});
+  if(LB.on&&LB.hp>0)later(.65,()=>{if(LB.hp<=0)return;flamePillar(0,LBZ+3,9,2.2,.7,0,0);G.shake=Math.max(G.shake,.6);lbDamage(dm,0,6,LBZ)});
+  hint('獣王の咆哮 ─ 敵全員に'+dm+'ダメージ');logC('獣王の咆哮 '+dm)}
+/* --- 深淵の氷牙(ミズチ): 足元に霜 → 地面を氷の筋が走る → 敵の足元から氷の牙が少しずつずれて突き出す → 割れて氷の粒が散り、冷気が残る --- */
+const ICEG=new THREE.ConeGeometry(1,1,5,1);ICEG.translate(0,.5,0);ICEG.userData.keep=1;
+function iceSpikes(x,z,r,big){const g=new THREE.Group();g.position.set(x,0,z);S.add(g);const n=big?11:8,list=[];
+  for(let i=0;i<n;i++){const a=i/n*6.283+Math.random()*.5,rr=(i===0?0:r*.55+Math.random()*r*.5),h=(big?4.2:2.6)*(i===0?1.15:.6+Math.random()*.5),w=(big?.6:.38)*(.7+Math.random()*.5);
+    const body=new THREE.Mesh(ICEG,new THREE.MeshStandardMaterial({color:0xcaefff,emissive:0x2a78c8,emissiveIntensity:.55,roughness:.12,metalness:.05,transparent:true,opacity:.93}));
+    const ol=new THREE.Mesh(ICEG,new THREE.ShaderMaterial({side:THREE.BackSide,vertexShader:'void main(){gl_Position=projectionMatrix*modelViewMatrix*vec4(position*1.08,1.);}',fragmentShader:'void main(){gl_FragColor=vec4(.08,.22,.45,1.);}'}));
+    const sp=new THREE.Group();sp.add(body);sp.add(ol);sp.position.set(Math.cos(a)*rr,-.2,Math.sin(a)*rr);sp.rotation.set(Math.sin(a)*.45*(i?1:.2),0,-Math.cos(a)*.45*(i?1:.2));sp.scale.set(w,.01,w);g.add(sp);list.push({sp,h,w,dl:i*.022})}
+  ringFx(x,z,r+1.2,.3,.25,0xdaf6ff,.18);
+  RFX.push({upd(t){let alive=false;for(const o of list){const u=t-o.dl;if(u<0){alive=true;continue}let s;if(u<.13)s=eBack(u/.13);else if(u<.62)s=1;else s=Math.max(0,1-(u-.62)/.22);
+      o.sp.scale.set(o.w*(u<.62?1:s),o.h*Math.max(.01,s),o.w*(u<.62?1:s));if(u<.84)alive=true;
+      if(u>.62&&!o.br){o.br=1;const p=o.sp.position;for(let k=0;k<4;k++){const q=spark(x+p.x,.4+Math.random()*o.h*.6,z+p.z,(Math.random()-.5)*4,2+Math.random()*3,(Math.random()-.5)*4,Math.random()<.5?0xffffff:0xa8e4ff,.22,.5,9,1);q.fl=1}}}
+    if(!alive)return false},clean(){rmGrp(g)}});
+  for(let k=0;k<14;k++){const a=Math.random()*6.283,d=Math.random()*(r+.8);const q=spark(x+Math.cos(a)*d,.15,z+Math.sin(a)*d,0,.35+Math.random()*.4,0,Math.random()<.5?0xe8f8ff:0x9ad8ff,.4,1.3,-.2,1);q.fl=1}}
+function skIceFang(si){const me=allyBody(si)||{x:0,z:3};const dm=Math.round(200*ALLIES[si].atk);hitStop(.04);screenTint('saturate(.75) brightness(1.06) hue-rotate(-8deg)',900);tintFlash('rgba(170,225,255,.35)');
+  ringFx(me.x,me.z,.3,2.2,.35,0xdaf6ff,.12);for(let k=0;k<18;k++){const a=Math.random()*6.283,d=.5+Math.random()*1.6;const q=spark(me.x+Math.cos(a)*d,.2,me.z+Math.sin(a)*d,0,1+Math.random(),0,Math.random()<.5?0xffffff:0x9ad8ff,.24,.6,-.5,1);q.fl=1}
+  const T=foes().filter(f=>f.k!=='claw').sort((a,b)=>(b.hp||0)-(a.hp||0)).slice(0,3);let first=true;
+  T.forEach((f,k)=>{const dl=.22+k*.14;for(let j=0;j<14;j++){const t=j/13;later(dl-.2+t*.18,()=>{const q=spark(lerp(me.x,f.x,t)+(Math.random()-.5)*.25,.12,lerp(me.z,f.z,t)+(Math.random()-.5)*.25,0,.4,0,j%2?0xffffff:0x8ad0ff,.3,.5,0,0);q.fl=1})}
+    later(dl,()=>{if(!f.alive)return;if(first)hitStop(.07);first=false;G.shake=Math.max(G.shake,.45);iceSpikes(f.x,f.z,f.r,f.k==='boss');vf('HIT',f.x,1,f.z,{row:VFROW['水']??0,s:2.2,d:.3,gl:.6});hurt(f,dm,f.x,f.z);if(f.alive){f.cd+=1;num(f.x,2.2,f.z,'凍結 攻撃まで+1','txt')}})});
+  if(LB.on&&LB.hp>0)later(.6,()=>{if(LB.hp<=0)return;iceSpikes(0,LBZ+3,2.2,true);G.shake=Math.max(G.shake,.6);lbDamage(Math.round(dm*.8),0,6,LBZ);LB.cd+=1;lbUi();num(0,9,LBZ+4,'凍結 攻撃まで+1','txt')});
+  if(!T.length&&!(LB.on&&LB.hp>0))say('ねらえる敵がいない',1.2);
+  hint('深淵の氷牙 ─ '+T.length+'体に'+dm+'ダメージ、凍って攻撃まで+1');logC('深淵の氷牙 '+dm)}
+/* --- 大樹の恵み(モクレン): 足元から大樹が一気に伸びる → 葉が舞い、光る実が実る → 光が味方に降りて回復、実が1つ回復球として落ちる --- */
+function skBigTree(si){const me=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpMax*.25);const tx=me.x,tz=me.z-1.2;hitStop(.03);tintFlash('rgba(130,255,150,.28)');
+  const g=new THREE.Group();g.position.set(tx,0,tz);S.add(g);
+  const tr=new THREE.Mesh(new THREE.CylinderGeometry(.3,.6,3.4,9),new THREE.MeshStandardMaterial({color:0x7a5232,roughness:.9}));tr.position.y=1.7;g.add(tr);
+  const cn=[];for(const [x,y,z,r] of [[0,4,0,1.9],[-1.2,3.4,.3,1.3],[1.25,3.5,-.2,1.35],[.2,4.9,.2,1.25]]){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(r,1),new THREE.MeshStandardMaterial({color:0x5ad06a,emissive:0x1a5a24,emissiveIntensity:.35,roughness:.6,flatShading:true}));m.position.set(x,y,z);m.scale.setScalar(.01);g.add(m);cn.push(m)}
+  const fr=[];for(let k=0;k<6;k++){const s=glowSpr(0xfff0a0,.01);fr.push({s,a:k/6*6.283,y:3.2+Math.random()*1.6,r:1.2+Math.random()*.9})}
+  ringFx(tx,tz,.3,2.4,.4,0x9affa0,.12);for(let k=0;k<16;k++){const a=Math.random()*6.283;const q=spark(tx,.2,tz,Math.cos(a)*3,1+Math.random()*2,Math.sin(a)*3,0x8a6a42,.22,.45,8,1);q.fl=1}
+  RFX.push({upd(t){const gr=eBack(Math.min(1,t/.32)),out=t>1.5?Math.max(0,1-(t-1.5)/.4):1;g.scale.set(out,Math.max(.01,gr*out),out);
+      cn.forEach((m,i)=>{const u=Math.max(0,t-.18-i*.05);m.scale.setScalar(Math.max(.01,eBack(Math.min(1,u/.28))));m.rotation.y=t*.4});
+      fr.forEach((f,i)=>{const u=Math.max(0,t-.45-i*.04);f.s.position.set(tx+Math.cos(f.a+t*.6)*f.r,f.y*gr*out,tz+Math.sin(f.a+t*.6)*f.r*.6);f.s.scale.setScalar(u>0?(.6+Math.sin(t*6+i)*.12)*out:.01)});
+      if(t>.4&&t<1.6&&Math.random()<.6){const a=Math.random()*6.283,d=Math.random()*2.4;const q=spark(tx+Math.cos(a)*d,4+Math.random(),tz+Math.sin(a)*d,(Math.random()-.5)*1.2,-.4,(Math.random()-.5)*1.2,Math.random()<.5?0x7ae87a:0xc8ff8a,.3,1.4,1.2,1.5);q.fl=1}
+      if(t>1.9)return false},clean(){rmGrp(g);fr.forEach(f=>rmSpr(f.s))}});
+  later(.6,()=>{G.hp=Math.min(G.hpMax,G.hp+v);for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;a.flashA=1;ringFx(a.x,a.z,.3,1.4,.4,0x9affa0,.12);for(let k=0;k<6;k++){const q=spark(a.x+(Math.random()-.5),3,a.z+(Math.random()-.5),0,-2.5,0,0xfff0a0,.26,.6,0,1);q.fl=1}}num(me.x,1.8,me.z,'+'+v,'heal');ui()});
+  const p=freeSpot(tx,tz+.5,.35);if(p)later(.8,()=>{if(!G.over)dropBody('heal',{x:tx,z:tz},p,0xfff0a0)});
+  hint('大樹の恵み ─ チームHP+'+v+(p?'、回復球を1つ置いた':''));logC('大樹の恵み +'+v)}
+/* --- 星翼の流星(セレス): 星空の翼が広がり、あたりが夜になる → 白い芯と金の尾の流星が5つ、ななめに降る → 落ちた所に十字の光と星の粒 --- */
+function meteor(p,dl,big,cb){const hd=glowSpr(0xffffff,.01),gl=glowSpr(0xffd25a,.01);const D=.3,sx=p.x+5,sy=15,sz=p.z-7;let done=false;
+  RFX.push({upd(t){const u=t-dl;if(u<0)return;const k=Math.min(1,u/D),e=k*k;const x=lerp(sx,p.x,e),y=lerp(sy,.6,e),z=lerp(sz,p.z,e);hd.position.set(x,y,z);gl.position.set(x,y,z);hd.scale.setScalar(big?1.3:.8);gl.scale.setScalar(big?3:1.9);
+      for(let j=0;j<3;j++){const q=spark(x+(Math.random()-.5)*.3,y,z+(Math.random()-.5)*.3,(Math.random()-.5)*.6,.5,(Math.random()-.5)*.6,Math.random()<.4?0xffffff:0xffd25a,big?.36:.28,.4,0,3);q.fl=1}
+      if(k>=1&&!done){done=true;cb();return false}},clean(){rmSpr(hd);rmSpr(gl)}})}
+function skStarWing(si){const me=allyBody(si)||{x:0,z:3};const dm=Math.round(140*ALLIES[si].atk);hitStop(.04);screenTint('brightness(.72) saturate(1.25) hue-rotate(-12deg)',1500);tintFlash('rgba(40,50,140,.4)');
+  for(const sd of [-1,1]){const w=glowSpr(0x3a4ac8,.01);RFX.push({upd(t){const k=Math.min(1,t/1.1),o=eOut(Math.min(1,t/.25));w.position.set(me.x+sd*1.4*o,1.6,me.z);w.scale.set(3.2*o,1.8*o,1);w.material.rotation=sd*.35;w.material.opacity=k>.7?(1-k)/.3:1;if(k>=1)return false},clean(){rmSpr(w)}});
+    for(let k=0;k<10;k++){const q=spark(me.x+sd*(.6+Math.random()*2.4),1+Math.random()*1.4,me.z+(Math.random()-.5),sd*.4,.3,0,Math.random()<.6?0xffffff:0xffe08a,.18,1,-.3,1);q.fl=1}}
+  let T=foes().filter(f=>f.k!=='claw').sort(()=>Math.random()-.5).slice(0,5);const P=T.map(f=>({f,x:f.x,z:f.z}));
+  while(P.length<5){const a=Math.random()*6.283,d=Math.random()*(CFG.R-2);P.push({f:null,x:Math.cos(a)*d,z:Math.sin(a)*d})}
+  P.forEach((p,i)=>meteor(p,.3+i*.13,false,()=>{G.shake=Math.max(G.shake,.3);ringFx(p.x,p.z,.3,1.8,.3,0xffe08a,.14);crossFlash(p.x,p.z,.8);stars(p.x,.8,p.z,10,0xffd25a,4);
+    const f=p.f&&p.f.alive?p.f:null;if(f){vf('MB',f.x,1,f.z,{s:2.2,d:.35,tint:0xffd25a,roll:0,gl:1});hurt(f,dm,f.x,f.z)}}));
+  if(LB.on&&LB.hp>0)meteor({x:0,z:LBZ+3},.3+5*.13,true,()=>{if(LB.hp<=0)return;G.shake=Math.max(G.shake,.6);crossFlash(0,LBZ+3,1.8);stars(0,6,LBZ+3,20,0xffd25a,6);lbDamage(Math.round(dm*1.2),0,6,LBZ)});
+  hint('星翼の流星 ─ 流星5つ、当たった敵に'+dm+'ダメージ');logC('星翼の流星 '+dm)}
 /* 共鳴技の茨(resThorn)で使う */
 function thornFx(e){const y=e.k==='boss'?1.4:.7;for(let j=0;j<12;j++){const a=j/12*6.283;const q=spark(e.x+Math.cos(a)*.6,y,e.z+Math.sin(a)*.6,-Math.cos(a)*1.2,1.2,-Math.sin(a)*1.2,j%3?0x4ad06a:0xb03a6a,.2,.45,0,2);q.fl=1}flamePillar(e.x,e.z,1.6,.45,.45,0,3)}
 /* リーダー: 爆炎圧縮(解放の瞬間に中心で爆発)・引力圧縮(少しあとにもう一度引く) */
@@ -2183,7 +2261,7 @@ function stageT(i,h){const st=STAGES[i],ev=st.ev||'';
   if(ev==='ex'){const n=st.n||'';return /試練/.test(n)?70:90}
   const n=st.n||'';let j=/上級/.test(n)?2:/中級/.test(n)?1:/初級/.test(n)?0:-1;if(j<0){j=0;for(let k=i-1;k>=0&&STAGES[k].ev===ev&&(STAGES[k].n===st.n);k--)j++}return [20,40,60][Math.min(2,j)]}
 function setStageData(i,h){const st=STAGES[i];G.stage=i;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
-  Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF*(st.ev?1:.85)/* (11/8 8時) ストーリーは少しだけ弱く */;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
+  Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF*(st.ev?1:h?.85:.7)/* (11/9) ストーリーのノーマルは×0.7、ハードは×0.85 *//* (11/8 8時) ストーリーは少しだけ弱く */;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
   WAVES.length=0;{const pool=[...new Set(STAGES.slice(0,i+1).flatMap(s=>(s.gm||[]).join('').replace(/\./g,'').split('')))];if(!pool.length)pool.push('f','w');let hk=0;
    st.waves.forEach((w,wi)=>{const g=(st.gm||[])[wi]||'';let ei=0;const items=w.items.map(it=>{if(it[0]!=='enemy')return it;let c=g[ei]||'.';if(h&&c==='.'&&ei%2===1)c=pool[(hk++)%pool.length];ei++;return GL[c]?[it[0],it[1],it[2],GL[c]]:it});WAVES.push(Object.assign({},w,{items}))})}
   $('stid').textContent=st.ev?(st.tn||st.id||'EV'):st.id+(h?' H':'');rebuildDbg()}

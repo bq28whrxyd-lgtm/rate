@@ -20,6 +20,8 @@ const CHARS = [
   /* (v109) 新しい★5の4人(D-128)。数字は index.html の ROSTER と同じ */
   ...['beni', 'shion', 'ibara', 'lumie'].map(k => { const r = A.ROSTER[k]; return { id: k, name: r.name, el: r.el, rar: 5, hp: r.hp0, atk: r.atk0, battle: true, evoName: r.name + '(進化)' }; }),
   ...['kagura', 'yomogi', 'minamo', 'lux', 'pom', 'pukuru', 'futa', 'tomori', 'hinoko', 'kurumi', 'nagi', 'kirara'].map(k => { const r = A.ROSTER[k]; return { id: k, name: r.name, el: r.el, rar: r.rar, hp: r.hp0, atk: r.atk0, battle: true }; }),
+  /* (11/9) 降臨ボスの化身。降臨で25%で落ちる★5(ガチャには出ない)。数字は index.html の ROSTER と同じ */
+  ...['garou', 'mizuchi', 'mokuren', 'seres'].map(k => { const r = A.ROSTER[k]; return { id: k, name: r.name, el: r.el, rar: 5, hp: r.hp0, atk: r.atk0, battle: true, evoName: r.name + '(進化)', drop: r.drop }; }),
 ];
 const CH = Object.fromEntries(CHARS.map(c => [c.id, c]));
 const LEAD = Object.fromEntries(Object.values(A.ROSTER).map(a => [a.key, a.ln]));
@@ -42,8 +44,13 @@ const ABIL = {
   antiFog: { n: '毒霧無効', d: '毒霧を通ってもダメージを受けない' }, antiBomb: { n: '爆発無効', d: '爆弾・ふくらみ竜の爆発でダメージを受けない' },
   bossKiller: { n: 'ボスキラー', d: '中ボス・ラスボスへのダメージ1.5倍' }, crit: { n: '会心', d: '20%で、ぶつかったダメージが2倍' },
   regen: { n: '手番回復', d: '手番の終わりにチームHPを2%回復' }, guard: { n: '守り', d: '敵の攻撃で受けるダメージが3割へる' },
+  /* (11/9) 降臨キャラの特効。ボスの種類は、そのステージのラスボスの形で決まる */
+  killTree: { n: '樹キラー', d: '樹のボスがいるステージで、中ボス・ラスボスへのダメージ2倍(翠緑の巨樹王・古樹の巨人モルグなど)' },
+  killBeast: { n: '獣キラー', d: '獣のボスがいるステージで、中ボス・ラスボスへのダメージ2倍(紅蓮の獣王・炎角獣ザルガンなど)' },
+  killDragon: { n: '竜キラー', d: '竜のボスがいるステージで、中ボス・ラスボスへのダメージ1.5倍' },
+  killGuard: { n: '番人キラー', d: '中ボスへのダメージ1.5倍' },
 };
-const CABIL = { beni: ['antiBomb', 'crit'], shion: ['guard', 'regen'], ibara: ['antiFog', 'shellBreak'], lumie: ['bossKiller', 'antiAnchor'], pom: ['antiBomb'], pukuru: ['guard'], futa: ['antiAnchor'], tomori: ['regen'], jin: ['shellBreak', 'bossKiller'], riz: ['antiFog', 'regen'], gekka: ['antiAnchor', 'crit'], seira: ['antiBomb', 'guard'], kagura: ['shellBreak'], yomogi: ['regen'], minamo: ['antiAnchor'], lux: ['guard'] };
+const CABIL = { garou: ['killTree', 'crit'], mizuchi: ['killBeast', 'guard'], mokuren: ['killDragon', 'regen'], seres: ['killGuard', 'antiAnchor'], beni: ['antiBomb', 'crit'], shion: ['guard', 'regen'], ibara: ['antiFog', 'shellBreak'], lumie: ['bossKiller', 'antiAnchor'], pom: ['antiBomb'], pukuru: ['guard'], futa: ['antiAnchor'], tomori: ['regen'], jin: ['shellBreak', 'bossKiller'], riz: ['antiFog', 'regen'], gekka: ['antiAnchor', 'crit'], seira: ['antiBomb', 'guard'], kagura: ['shellBreak'], yomogi: ['regen'], minamo: ['antiAnchor'], lux: ['guard'] };
 const abilOf = u => { const a = CABIL[u.id] || []; return CH[u.id].rar === 5 && !u.evo ? a.slice(0, 1) : a; };
 const GACHA = { one: 100, ten: 900, rate: { 5: .02, 4: .26, 3: .72 } };   /* (11/7) ★5は2%(山本さん) */
    /* D-082: 装備ガチャと同じ値段。10連は★4以上1体確定 */
@@ -124,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=25').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=25').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=26').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=26').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1187,7 +1194,7 @@ const hoursLeft = () => { const d = new Date(), e = new Date(d); e.setHours(24, 
 /* (v98) チャレンジ: 塔(月替わり30階)・降臨(毎月1体)・スコアアタック(週替わり)。D-118〜120 */
 function chFresh() {
   if (!S.tower || S.tower.ym !== A.YM) S.tower = { ym: A.YM, top: 0 };
-  if (!S.raid || S.raid.ym !== A.YM) S.raid = { ym: A.YM, win: 0 };
+  if (!S.raid || S.raid.wk !== A.WKID) S.raid = { wk: A.WKID, win: 0 };   /* (11/9) 降臨は週ごと */
   if (!S.score || S.score.wk !== A.WKID) S.score = { wk: A.WKID, best: 0, last: 0, n: 0 };
   if (!S.ex) S.ex = {};
   if (!S.lev || S.lev.id !== A.LEV.id) S.lev = { id: A.LEV.id, medal: 0, buy: {}, win: [0, 0, 0] };
@@ -1264,7 +1271,8 @@ function renderChal(b) {
   if (CHSEL === 'ex') { renderEx(b); return; }
   const exN = Object.keys(S.ex).length;
   b.appendChild(qBanner({ bg: 'banner-tower', sm: '月替わり', dl: `あと${daysLeft()}日`, tt: esc(A.TOWER.name), bar: `いま <b>${S.tower.top}</b> / ${A.TOWER.n} 階 ・ 上ほど報酬アップ`, label: A.TOWER.name, onclick: () => { CHSEL = 'tower'; renderNow(); } }));
-  b.appendChild(qBanner({ bg: 'banner-raid', sm: '今月の降臨', tt: esc(A.RAID.n), boss: raidBoss(), bar: S.raid.win ? `今月 <b>${S.raid.win}</b> 回勝利` : `${esc(A.RAID.el)}の宝珠が手に入る`, label: A.RAID.n, onclick: () => goSheet(raidIdx(), false, { rw: `勝つたびに ${esc(A.RAID.el)}の宝珠 ×2${S.raid.win ? '' : '・今月はじめて勝つと 300pt'}` }) }));
+  const dc = dropChar() && hasArt(dropChar().id) ? dropChar() : null;
+  b.appendChild(qBanner({ bg: 'banner-raid', sm: '今週の降臨', tt: esc(A.RAID.n), boss: raidBoss(), bar: (S.raid.win ? `今週 <b>${S.raid.win}</b> 回勝利` : `${esc(A.RAID.el)}の宝珠が手に入る`) + (dc ? `・${esc(dc.name)}が仲間になることも` : ''), label: A.RAID.n, onclick: () => goSheet(raidIdx(), false, { rw: `勝つたびに ${esc(A.RAID.el)}の宝珠 ×2${S.raid.win ? '' : '・今週はじめて勝つと 300pt'}${dc ? `<br>勝つと25%で <b>${esc(dc.name)}(★5)</b> が仲間になる(${esc(A.RAID.n)}の化身。同じキャラは凸に使える)` : ''}` }) }));
   b.appendChild(qBanner({ bg: 'banner-ch3', sm: '高難度', tt: '試練・極限・絶界', boss: bossImg('tree', '', 'b2') + bossImg('beast'), bar: `クリア <b>${exN}</b> / ${A.EXB.length * A.EXT.length}`, label: '高難度', onclick: () => { CHSEL = 'ex'; renderNow(); } }));
   b.appendChild(qBanner({ bg: 'banner-score', sm: '今週のお題', tt: 'スコアアタック<br>「' + esc(A.SCORE.n) + '」', bar: `自己ベスト <b>${S.score.best.toLocaleString()}</b> 点`, label: 'スコアアタック', onclick: () => goSheet(scoreIdx(), false, { rw: `今週のお題「${esc(A.SCORE.n)}」 ${esc(A.SCORE.d)} 自己ベスト ${S.score.best.toLocaleString()}点` }) }));
   const rb = h('button', 'qRk', '仲間のランキングを見る'); rb.type = 'button'; rb.onclick = ranking; b.appendChild(rb);
@@ -1621,7 +1629,7 @@ function simulate(u, gain) { let lv = u.lv, exp = u.exp + gain; const ml = maxLv
 /* ---------- ガチャ ---------- */
 /* (v109) 新しい8人は、絵(portraits.js)が入るまでガチャに出さない */
 const NEW8 = ['beni', 'shion', 'ibara', 'lumie', 'pom', 'pukuru', 'futa', 'tomori'];
-function pool(r) { return CHARS.filter(c => c.rar === r && (!NEW8.includes(c.id) || (A.PORT && A.PORT.img && A.PORT.img[c.id]))); }
+function pool(r) { return CHARS.filter(c => c.rar === r && !c.drop && (!NEW8.includes(c.id) || (A.PORT && A.PORT.img && A.PORT.img[c.id]))); }
 function rollOne() { const x = Math.random(); const r = x < GACHA.rate[5] ? 5 : x < GACHA.rate[5] + GACHA.rate[4] ? 4 : 3; const p = pool(r); return p[Math.floor(Math.random() * p.length)].id; }
 const circleSVG = `<svg viewBox="0 0 200 200" fill="none" stroke="#f3d27a"><circle cx="100" cy="100" r="96" stroke-width=".8"/><circle cx="100" cy="100" r="88" stroke-width="2.2"/><circle cx="100" cy="100" r="70" stroke-width=".8" stroke-dasharray="2 4"/><circle cx="100" cy="100" r="44" stroke-width="1.4"/><path d="M100 12 176 144H24Z" stroke-width="1.1"/><path d="M100 188 24 56h152Z" stroke-width="1.1"/>${Array.from({ length: 24 }, (_, i) => { const a = i / 24 * Math.PI * 2; return `<circle cx="${100 + Math.cos(a) * 79}" cy="${100 + Math.sin(a) * 79}" r="${i % 3 ? 1.2 : 2.6}" fill="#f3d27a" stroke="none"/>`; }).join('')}</svg>`;
 /* (v114) ガチャの一覧。ほかのゲームと同じく「恒常」などとは書かず、ガチャごとに名前を付ける。
@@ -1801,6 +1809,24 @@ function repeatDrops(st, i, hd) {
   if (hd) { if (S.hd.date !== today()) S.hd = { date: today(), n: {} }; const c = S.hd.n[i] || 0; if (c < 3) { S.hd.n[i] = c + 1; out.push({ k: 'mat', id: 'orb_' + ['炎', '木', '水', '光'][Math.floor(Math.random() * 4)], n: 1 }); } }
   return out;
 }
+/* (11/9) 降臨ボスの化身が25%で仲間になる(山本さん)。絵がまだ無いキャラは落とさない。window.__DROPK でお試しの確率を変えられる */
+const DROP_P = .25;
+const dropChar = () => CHARS.find(c => c.drop === A.RAID.n);
+const hasArt = id => !!(A.PORT && A.PORT.img && A.PORT.img[id]);
+function raidDrop() {
+  const c = dropChar(); if (!c || !hasArt(c.id)) return '';
+  if (Math.random() >= (window.__DROPK != null ? +window.__DROPK : DROP_P)) return '';
+  const isNew = !S.units.some(u => u.id === c.id); const u = { u: S.next++, id: c.id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u);
+  S.raid.drop = (S.raid.drop || 0) + 1; LASTDROP = { u, isNew };
+  return `${c.name}(★5)が仲間になった!${isNew ? '' : '(同じキャラを重ねると凸で強くなる)'} `;
+}
+let LASTDROP = null;
+function dropModal(d) {
+  const c = CH[d.u.id]; modal('仲間になった!', (b, close) => {
+    b.innerHTML = `<div style="text-align:center"><img alt="" src="${bigFaceURL(c.id, 0)}" style="width:150px;height:150px;border-radius:24px;border:3px solid ${elCol(c.el)};box-shadow:0 0 24px ${elCol(c.el)}"><p style="margin:10px 0 4px;font-size:20px;font-weight:900">${esc(c.name)} <span style="color:#ffd36a">★5</span></p><p class="onote" style="margin:0">${esc(c.drop)}の化身。${d.isNew ? 'キャラのBOXに入りました。' : '同じキャラを強化の素材にすると凸で強くなります。'}<br>特効: ${esc((CABIL[c.id] || []).map(k => ABIL[k].n).filter(n => /キラー/.test(n)).join('・'))}</p></div>`;
+    const r = h('div', 'orow'); r.style.padding = '12px 0 0'; r.append(btn('shine', 'OK', close)); b.appendChild(r);
+  });
+}
 let LAST = null;
 function onClearStage(st, info) {
   if (st.ev === 'tower' || st.ev === 'raid' || st.ev === 'score' || st.ev === 'ex' || st.ev === 'lev') {
@@ -1808,7 +1834,7 @@ function onClearStage(st, info) {
     if (st.ev === 'ex') { const key = st.bi + '-' + st.ti, first = !S.ex[key], R = EXRW[st.ti]; if (first) { S.ex[key] = 1; rewards.push(...exRw(R.f, st.el)); msg = `${A.EXB[st.bi].n}【${st.tier}】をはじめてクリア! ${st.ti < 2 ? '「' + A.EXT[st.ti + 1].n + '」が開きました。' : ''}`; } else { for (const r of exRw(R.r, st.el)) if (Math.random() < (r.p || 1)) rewards.push({ k: r.k, id: r.id, n: r.n }); msg = `${A.EXB[st.bi].n}【${st.tier}】に勝った! `; } }
     if (st.ev === 'lev') { const m = st.md[0] + Math.floor(Math.random() * (st.md[1] - st.md[0] + 1)); S.lev.medal += m; if (!S.lev.win[st.ti]) rewards.push({ k: 'pt', n: 100 }); S.lev.win[st.ti]++; msg = `イベントメダル ${m}枚(いま ${S.lev.medal}枚)。`; }
     if (st.ev === 'tower') { if (st.fl === S.tower.top + 1) { S.tower.top = st.fl; rewards.push(...towerRw(st.fl)); wmFresh(); S.wm.tower++; msg = st.fl + '階をクリア! '; } else msg = st.fl + '階(クリア済み)。'; }
-    if (st.ev === 'raid') { if (!S.raid.win) rewards.push({ k: 'pt', n: 300 }); for (const d of st.drops) for (let k = 0; k < d.n; k++) if (Math.random() < d.p) rewards.push({ k: 'mat', id: d.id, n: 1 }); S.raid.win++; wmFresh(); S.wm.raid++; msg = A.RAID.n + 'に勝った! '; }
+    if (st.ev === 'raid') { if (!S.raid.win) rewards.push({ k: 'pt', n: 300 }); for (const d of st.drops) for (let k = 0; k < d.n; k++) if (Math.random() < d.p) rewards.push({ k: 'mat', id: d.id, n: 1 }); S.raid.win++; wmFresh(); S.wm.raid++; msg = A.RAID.n + 'に勝った! '; const dc = raidDrop(); if (dc) msg += dc; }
     if (st.ev === 'score') { const sc = scoreOf(info), nb = sc > S.score.best; S.score.last = sc; S.score.n++; if (nb) S.score.best = sc; wmFresh(); S.wm.score++; msg = `スコア ${sc.toLocaleString()} 点${nb ? '(自己ベスト更新!)' : `(ベスト ${S.score.best.toLocaleString()})`} `; try { window.CA_SCORE && window.CA_SCORE(sc, nb); } catch (e) { } }
     const merged = {}; for (const r of rewards) { const k = r.k === 'pt' ? 'pt' : r.id; merged[k] = merged[k] ? Object.assign({}, merged[k], { n: merged[k].n + r.n }) : Object.assign({}, r); }
     const rw = Object.values(merged); give(rw); dmFresh(); S.dm.win++; wmFresh(); S.wm.win++; save(); LAST = null;
@@ -1908,7 +1934,7 @@ function pityPull() {
   save(); summon([{ u, isNew }], 1, 0);
 }
 /* ---------- 戦闘との行き来 ---------- */
-function showOut(tab) { if (!showOut.adj) { showOut.adj = 1; try { applyAdj(); } catch (e) { console.warn('adj', e); } } document.body.classList.add('navon'); nav.hidden = false; hud.hidden = false; if (tab) TAB = tab; renderNow(); loadCover(); if (S.free10 && !needFree() && !showOut.f) { showOut.f = 1; setTimeout(() => flash('ガチャで無料の10回召喚が引けます'), 900); } }
+function showOut(tab) { if (!showOut.adj) { showOut.adj = 1; try { applyAdj(); } catch (e) { console.warn('adj', e); } } if (LASTDROP) { const d = LASTDROP; LASTDROP = null; setTimeout(() => dropModal(d), 300); } document.body.classList.add('navon'); nav.hidden = false; hud.hidden = false; if (tab) TAB = tab; renderNow(); loadCover(); if (S.free10 && !needFree() && !showOut.f) { showOut.f = 1; setTimeout(() => flash('ガチャで無料の10回召喚が引けます'), 900); } }
 /* (v68) 絵が読み終わるまで「読み込み中」を出す。読み終わったら描き直す(スマホで立ち絵や背景が出ないままだったため) */
 let LDC = null;
 function artReady() { return !!(A.PORT && A.PORT.ready) && !!window.CA_UIOK; }
