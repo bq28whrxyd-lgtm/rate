@@ -474,7 +474,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=28';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=29';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -697,7 +697,10 @@ EXB.forEach((B,bi)=>EXT.forEach((T,ti)=>{const ws=[];for(let w=0;w<T.nw;w++){con
 const LEVT=[{n:'炎角の狩猟祭',el:'炎',boss:'beast',bn:'炎角獣ザルガン',pool:['f','p','a'],mt:0xff7a4a},{n:'古樹の森の収穫祭',el:'木',boss:'tree',bn:'古樹の巨人モルグ',pool:['g','k','d'],mt:0x7ac86a},
   {n:'霧竜の夜',el:'水',boss:'mist',bn:'霧竜ミストラ',pool:['w','d','k'],mt:0x7fa8ff,tint:0xb8cad8},{n:'星降りの宴',el:'光',boss:'star',bn:'星竜アストレア',pool:['a','m','p'],mt:0xc8a8ff,tint:0xb4b8d2}];
 const LEV={};
-{const D0=Date.UTC(2026,0,5),SP=14*864e5,id=Math.floor((Date.now()-D0)/SP),th=LEVT[((id%LEVT.length)+LEVT.length)%LEVT.length];Object.assign(LEV,th,{id:'L'+id,end:D0+(id+1)*SP});
+{const D0=Date.UTC(2026,0,5),SP=14*864e5;let id=Math.floor((Date.now()-D0)/SP),end=D0+(id+1)*SP;
+ /* (11/9) 山本さん「収穫祭を1週間」: 古樹の森の収穫祭(L21)を11/16 9時までのばす。メダルはそのまま使える。そのあとの霧竜の夜は11/23 9時まで(いつもの終わり) */
+ {const now=Date.now();if((id===21||id===22)&&now<Date.UTC(2026,10,16)){id=21;end=Date.UTC(2026,10,16)}}
+ const th=LEVT[((id%LEVT.length)+LEVT.length)%LEVT.length];Object.assign(LEV,th,{id:'L'+id,end});
  [['初級',{hp:2.2,atk:1.25,cd:0,boss:.6,lb:1.1},3,[3,5]],['中級',{hp:3.8,atk:1.6,cd:0,boss:.65,lb:1.7},3,[6,9]],['上級',{hp:5.2,atk:2,cd:0,boss:.7,lb:2.3},4,[10,14]]].forEach(([tn,k,nw,md],ti)=>{
   const ws=[];for(let w=0;w<nw;w++){const last=w===nw-1;if(last){ws.push({e:3+ti,obj:{orb:3,bomb:1,rock:1},heal:1,n:'ラスボス '+th.bn,lb:true});continue}
    if(w===nw-2&&ti>0){ws.push({e:4,obj:{orb:2,bomb:1,crystal:1},heal:2,boss:true,n:'中ボス '+th.n+'の番人',mb:true});continue}ws.push({e:4+w+ti,obj:{orb:3,bomb:1,crystal:ti?1:0,jar:ti>1?1:0},heal:w?1:0})}
