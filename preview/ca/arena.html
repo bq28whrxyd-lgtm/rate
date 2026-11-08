@@ -474,7 +474,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=32';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=33';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -975,7 +975,7 @@ function elemFx(C,rad,P){const a=Math.random()*6.283,r=rad*(.3+Math.random()*.8)
 function fxSuck(dt){const C=G.C,P=EPal(),ph=G.phase,on=!!C&&(ph==='aim'||ph==='suck'||ph==='hold');const rad=G.rad||2;
   if(on){hAcc+=(ph==='suck'?120:ph==='hold'?55:4+16*G.p)*dt;
     while(hAcc>=1){hAcc--;const h=HD[hIdx=(hIdx+1)%HD.length];const r=rad*(.85+Math.random()*.5),a=Math.random()*6.283;
-      Object.assign(h,{on:1,r,a,v:1.5+Math.random()*2,w:(ALLIES[G.lead].lead==='vortex'?1.9:1)*(.9+Math.random()*.6),y:.15+Math.random()*.6,hot:Math.random()<.3,px:null})}
+      Object.assign(h,{on:1,r,a,v:1.5+Math.random()*2,w:(LDO().lead==='vortex'?1.9:1)*(.9+Math.random()*.6),y:.15+Math.random()*.6,hot:Math.random()<.3,px:null})}
     if(ph!=='aim'){dAcc+=(ph==='suck'?55:20)*(.5+G.p)*dt;while(dAcc>=1){dAcc--;spawnChip(C,rad)}}
     eAcc+=(ph==='aim'?6+10*G.p:45)*dt;while(eAcc>=1){eAcc--;elemFx(C,rad,P)}}
   for(const h of HD){if(!h.on)continue;if(!on){h.on=0;continue}
@@ -1156,7 +1156,7 @@ const FREEZE=!/loose/.test(location.hash);
 const frz=b=>FREEZE&&!b.mv&&(G.phase==='suck'||G.phase==='hold'||G.phase==='release');
 function physStep(dt){const B=G.bodies,C=G.C;
   /* 吸引 */
-  if(G.phase==='suck'&&C){const L=ALLIES[G.lead].lead,k=G.t/G.T;const F=lerp(CFG.suckF[0],CFG.suckF[1],G.p)*(L==='wide'?.85:L==='tight'?1.25:1)*(G.burstOn?1.35:1);
+  if(G.phase==='suck'&&C){const L=LDO().lead,k=G.t/G.T;const F=lerp(CFG.suckF[0],CFG.suckF[1],G.p)*(L==='wide'?.85:L==='tight'?1.25:1)*(G.burstOn?1.35:1);
     for(const b of G.cap){if(!b.alive)continue;const dx=C.x-b.x,dz=C.z-b.z,d=Math.hypot(dx,dz)+1e-6;const near=Math.min(1,Math.max(0,(d-b.r*1.2)/1.4));
       const a=F*b.pullK/Math.pow(b.m,.55)*(.35+.65*Math.min(1,d/G.rad))*near*(.6+.4*Math.sin(Math.min(1,k*1.4)*Math.PI/2));
       b.vx+=dx/d*a*dt;b.vz+=dz/d*a*dt;
@@ -1169,7 +1169,7 @@ function physStep(dt){const B=G.bodies,C=G.C;
   for(let i=0;i<B.length;i++){const a=B[i];if(!a.alive)continue;for(let j=i+1;j<B.length;j++){const b=B[j];if(!b.alive)continue;
     const dx=b.x-a.x,dz=b.z-a.z,rr=a.r+b.r,d2=dx*dx+dz*dz;if(d2>=rr*rr)continue;const d=Math.sqrt(d2)||1e-4,nx=dx/d,nz=dz/d,pen=rr-d;
     const ia=frz(a)?0:1/a.m,ib=frz(b)?0:1/b.m;if(ia+ib===0)continue;const s=pen/(ia+ib);a.x-=nx*s*ia;a.z-=nz*s*ia;b.x+=nx*s*ib;b.z+=nz*s*ib;
-    const vn=(b.vx-a.vx)*nx+(b.vz-a.vz)*nz;if(vn<0){const e=G.phase==='suck'?.15:((a.k==='orb'&&a.el==='水')||(b.k==='orb'&&b.el==='水'))?ORBV.waterE:CFG.e;const jj=-(1+e)*vn/(ia+ib);const PR=G.phase==='release'&&ALLIES[G.lead].lead==='pierce',fo=q=>q.k==='enemy'||q.k==='boss',pa=PR&&a.k==='ally'&&fo(b),pb=PR&&b.k==='ally'&&fo(a);if(!pa){a.vx-=jj*nx*ia;a.vz-=jj*nz*ia}else{a.vx*=.92;a.vz*=.92}if(!pb){b.vx+=jj*nx*ib;b.vz+=jj*nz*ib}else{b.vx*=.92;b.vz*=.92}
+    const vn=(b.vx-a.vx)*nx+(b.vz-a.vz)*nz;if(vn<0){const e=G.phase==='suck'?.15:((a.k==='orb'&&a.el==='水')||(b.k==='orb'&&b.el==='水'))?ORBV.waterE:CFG.e;const jj=-(1+e)*vn/(ia+ib);const PR=G.phase==='release'&&LDO().lead==='pierce',fo=q=>q.k==='enemy'||q.k==='boss',pa=PR&&a.k==='ally'&&fo(b),pb=PR&&b.k==='ally'&&fo(a);if(!pa){a.vx-=jj*nx*ia;a.vz-=jj*nz*ia}else{a.vx*=.92;a.vz*=.92}if(!pb){b.vx+=jj*nx*ib;b.vz+=jj*nz*ib}else{b.vx*=.92;b.vz*=.92}
       if(G.phase==='release')impact(a,b,-vn,(a.x+b.x)/2,(a.z+b.z)/2)}}}}
 
 /* 衝突で起きること */
@@ -1186,7 +1186,7 @@ function impact(a,b,s,x,z){if(s<CFG.hitMin)return;const key=a.id<b.id?a.id+'_'+b
     if(p.k==='orb'&&p.el==='木'&&q.k==='ally'&&G.phase==='release'&&G.rs&&(G.rs.wh||0)<ORBV.healMax){G.rs.wh=(G.rs.wh||0)+1;const v=Math.round(G.hpMax*ORBV.healPct);G.hp=Math.min(G.hpMax,G.hp+v);num(q.x,1.5,q.z,'+'+v,'heal');burstFx(q.x,q.z,0x8affb8,10,3,.35,4);ui()}}
   let any=false,hEl=null,hDm=0;
   for(const [v,atk] of [[a,b],[b,a]]){if(!v.alive||!(v.k==='enemy'||v.k==='boss'||v.k==='claw'))continue;if(!atk.alive&&atk.k!=='bomb')continue;const K=KIND[atk.k];if(!K.atk)continue;
-    let mult=K.atk;HITAB=null;if(atk.k==='ally'){mult*=ALLIES[atk.ai].atk;if(ALLIES[G.lead].lead==='bounce'&&atk.bn)mult*=1+.1*atk.bn;if(G.rs&&G.phase==='release'&&v.k!=='claw'&&slotOf('ibara')>=0){G.rs.thHit.add(v);if(++G.rs.th>=5&&!G.rs.thorn){G.rs.thorn=true;later(.15,resThorn)}}const ab=ALLIES[atk.ai].ab;if(ab&&ab.size){HITAB=ab;if(ab.has('bossKiller')&&v.k==='boss')mult*=1.5;mult*=slayK(ab,v.k==='boss');if(ab.has('crit')&&Math.random()<.2){mult*=2;num(v.x,1.9,v.z,'会心!','txt')}if(ab.has('shellBreak')&&v.hard&&v.g==='shell'&&s>2.2)shellPeel(v,'殻割り!')}}if(atk.k==='orb'&&atk.el){const ai=ALLIES.findIndex(q=>q.el===atk.el);if(ai>=0)mult*=ALLIES[ai].atk}
+    let mult=K.atk;HITAB=null;if(atk.k==='ally'){mult*=ALLIES[atk.ai].atk;if(LDO().lead==='bounce'&&atk.bn)mult*=1+.1*atk.bn;if(G.rs&&G.phase==='release'&&v.k!=='claw'&&slotOf('ibara')>=0){G.rs.thHit.add(v);if(++G.rs.th>=5&&!G.rs.thorn){G.rs.thorn=true;later(.15,resThorn)}}const ab=ALLIES[atk.ai].ab;if(ab&&ab.size){HITAB=ab;if(ab.has('bossKiller')&&v.k==='boss')mult*=1.5;mult*=slayK(ab,v.k==='boss');if(ab.has('crit')&&Math.random()<.2){mult*=2;num(v.x,1.9,v.z,'会心!','txt')}if(ab.has('shellBreak')&&v.hard&&v.g==='shell'&&s>2.2)shellPeel(v,'殻割り!')}}if(atk.k==='orb'&&atk.el){const ai=ALLIES.findIndex(q=>q.el===atk.el);if(ai>=0)mult*=ALLIES[ai].atk}
     const em=elMul(elOf(atk),v.el);mult*=em;
     const dm=Math.round(CFG.dmgK*s*Math.sqrt(atk.m)*mult*(1+(G.cm||0)*.015)*(G.burstOn?1.5:1)*(G.fireBuff?1.5:1)*(v.k==='boss'?.8:1)*(G.mode==='press'?CFG.pressHitK:1));hurt(v,dm,x,z,false,em>1?'weak':em<1?'res':'');HITAB=null;any=true;if(dm>hDm){hDm=dm;hEl=elOf(atk)}
     if(atk.k==='orb'&&atk.el==='炎'&&v.alive&&v.k!=='claw'){if(!v.burn)burstFx(v.x,v.z,0xff7a2a,10,3,.4,4);v.burn=Math.max(v.burn||0,ORBV.burnT)}
@@ -1215,14 +1215,14 @@ function explode(b){if(!b.alive)return;const wild=b.k==='wild';kill(b);const R0=
   for(const o of G.bodies){if(!o.alive||o===b)continue;const dx=o.x-b.x,dz=o.z-b.z,d=Math.hypot(dx,dz)+1e-4;if(d>R0+o.r)continue;const f=1-Math.min(1,d/(R0+o.r));
     const imp=11*f/Math.sqrt(o.m);o.vx+=dx/d*imp;o.vz+=dz/d*imp;
     if(o.k==='jar'&&f>.1)later(.06,()=>breakJar(o));
-    if(o.k==='enemy'||o.k==='boss'||o.k==='claw')hurt(o,Math.round((wild?55:48)*(.5+f)*(G.burstOn?1.5:1)*(1+(G.cm||0)*.015)*(ALLIES[G.lead].lead==='boom'?1.3:1)),o.x,o.z);
+    if(o.k==='enemy'||o.k==='boss'||o.k==='claw')hurt(o,Math.round((wild?55:48)*(.5+f)*(G.burstOn?1.5:1)*(1+(G.cm||0)*.015)*(LDO().lead==='boom'?1.3:1)),o.x,o.z);
     if((o.k==='bomb'||o.k==='wild')&&f>.15)GT(()=>explode(o),90);
     if(o.k==='ally'&&ALLIES[o.ai].ab&&ALLIES[o.ai].ab.has('antiBomb')){num(o.x,1.7,o.z,'爆発無効','grd');continue}if(o.k==='ally'){allyHit=(allyHit||0)+1;const v=Math.round(G.hpMax*(wild?CFG.wildAlly:CFG.bombAlly));num(o.x,1.7,o.z,'-'+v,'bad');o.sq=.8;o.flashA=1}}
   combo(1);
   if(allyHit){const v=Math.round(G.hpMax*(wild?CFG.wildAlly:CFG.bombAlly))*allyHit;G.hp=Math.max(0,G.hp-v);say((wild?'暴走爆弾':'爆弾')+'に味方が巻き込まれた!',1.4);redFlash();logC('爆発で味方 '+allyHit+' 人 -'+v);ui()}}
 function shatter(c,by){kill(c);vf('BRK',c.x,.85,c.z,{s:2.8,d:.42,tint:0xe8d8ff});burstFx(c.x,c.z,0xd8b0ff,26,6,.45,4);ringFx(c.x,c.z,.3,1.6,.3,0xd8b0ff,.12);logC('結晶が割れた');combo(1);
   const base=Math.atan2(by?c.z-by.z:1,by?c.x-by.x:0);for(let i=0;i<4;i++){const a=base+(i-1.5)*.55,sp=5.5+Math.random()*2;const s=addBody('shard',c.x+Math.cos(a)*.3,c.z+Math.sin(a)*.3,{life:3.5});s.vx=Math.cos(a)*sp;s.vz=Math.sin(a)*sp}}
-function healTeam(h){if(!h.alive)return;kill(h);const v=Math.round(G.hpMax*CFG.healOrb*(ALLIES[G.lead].lead==='glow'?1.5:1));G.hp=Math.min(G.hpMax,G.hp+v);num(h.x,1.4,h.z,'+'+v,'heal');vfHit(h.x,.7,h.z,6,'木');ringFx(h.x,h.z,.3,2.2,.5,0x6dffa6,.1);burstFx(h.x,h.z,0x8affb8,20,4,.45,5);logC('回復球で回復');ui()}
+function healTeam(h){if(!h.alive)return;kill(h);const v=Math.round(G.hpMax*CFG.healOrb*(LDO().lead==='glow'?1.5:1));G.hp=Math.min(G.hpMax,G.hp+v);num(h.x,1.4,h.z,'+'+v,'heal');vfHit(h.x,.7,h.z,6,'木');ringFx(h.x,h.z,.3,2.2,.5,0x6dffa6,.1);burstFx(h.x,h.z,0x8affb8,20,4,.45,5);logC('回復球で回復');ui()}
 function wallFx(b,v){if(v<4||!(b.k==='orb'||b.k==='shard'||b.k==='rock'||b.k==='enemy'))return;const d=Math.hypot(b.x,b.z),x=b.x/d*CFG.R,z=b.z/d*CFG.R;burstFx(x,z,0x9fe8ff,6,3,.3,2)}
 
 /* ---------------- (v1.4) 考える所: 攻撃予告・ギミック・危ない物(D-090〜D-097) ---------------- */
@@ -1357,11 +1357,11 @@ function teach(w){const has=new Set();for(const it of w.items){const o=it[3];if(
   let d=0;for(const k of ['el','puff','split','anchor','merge','shell','danger'])if(has.has(k)&&!TAUGHT.has(k)){TAUGHT.add(k);const t=T[k];setTimeout(()=>say(t,3.4),900+d);d+=3600}}
 
 /* ---------------- 圧縮の流れ ---------------- */
-function startCompress(){const L=ALLIES[G.lead].lead;resetRs();G.phase='suck';G.t=0;G.T=lerp(CFG.suckT[0],CFG.suckT[1],G.p);G.combo=0;G.cm=0;G.stats.hits=0;showCombo();
+function startCompress(){const L=LDO().lead;resetRs();G.phase='suck';G.t=0;G.T=lerp(CFG.suckT[0],CFG.suckT[1],G.p);G.combo=0;G.cm=0;G.stats.hits=0;showCombo();
   G.rad=radOf(G.p);G.cap=G.bodies.filter(b=>capOk(b,G.C,G.rad));for(const b of G.bodies){b.inCap=G.cap.includes(b);b.mv=b.inCap;if(b.alive&&b.g==='anchor'&&!b.inCap&&Math.hypot(b.x-G.C.x,b.z-G.C.z)<G.rad+b.r*.5){num(b.x,1.5,b.z,'ふんばった!','grd');b.jump=.25}}
-  logC('圧縮 中心('+G.C.x.toFixed(1)+','+G.C.z.toFixed(1)+') 強さ'+(G.p*100|0)+'% 範囲'+G.rad.toFixed(1)+'m 対象'+G.cap.length+(L!=='std'?' ['+ALLIES[G.lead].ln+']':''));
+  logC('圧縮 中心('+G.C.x.toFixed(1)+','+G.C.z.toFixed(1)+') 強さ'+(G.p*100|0)+'% 範囲'+G.rad.toFixed(1)+'m 対象'+G.cap.length+(L!=='std'?' ['+LDO().ln+']':''));
   hint('')}
-function release(strength,rad,second){const C=G.C,L=ALLIES[G.lead].lead;const V=lerp(CFG.relV[0],CFG.relV[1],G.p)*strength*(L==='wide'?.88:L==='power'?1.15:L==='gust'?1.15:1)*(G.burstOn?1.45:1)*(!second&&G.windBuff?1.3:1);let n=0;
+function release(strength,rad,second){const C=G.C,L=LDO().lead;const V=lerp(CFG.relV[0],CFG.relV[1],G.p)*strength*(L==='wide'?.88:L==='power'?1.15:L==='gust'?1.15:1)*(G.burstOn?1.45:1)*(!second&&G.windBuff?1.3:1);let n=0;
   if(!second){if(G.windBuff){G.windBuff=false;say('追い風!',.9)}for(const b of G.bodies)if(b.k==='ally')b.bn=0;if(L==='blast')later(.05,()=>leadBlast(C,rad));if(L==='gravity')later(.55,()=>leadGravity(C,rad))}
   if(!second&&L==='mend')later(.45,()=>{if(G.over)return;const v=Math.round(G.hpMax*.02);if(G.hp>=G.hpMax)return;G.hp=Math.min(G.hpMax,G.hp+v);const m=allyBody(G.lead)||{x:0,z:3};num(m.x,1.8,m.z,'+'+v,'heal');ui()});
   for(const b of G.bodies){if(!b.alive)continue;if(FREEZE&&!b.mv)continue;let dx=b.x-C.x,dz=b.z-C.z,d=Math.hypot(dx,dz);if(d>rad*1.08)continue;
@@ -1413,7 +1413,7 @@ function enemyAttack(e,T){if(G.over){telDrop(T);return}if(!e.alive){telDrop(T);r
   for(const a of hit){num(a.x,1.6,a.z,'-'+dm,'bad');vfHit(a.x,.8,a.z,9,'闇',e.k==='boss');burstFx(a.x,a.z,0xff4a5a,14,4,.4,3);a.sq=.8;a.flashA=1;playA(a,'hit',true);
     const P=T.parts.reduce((b,q)=>telSd(q,a.x,a.z)<telSd(b,a.x,a.z)?q:b,T.parts[0]);let dx=a.x-P.x,dz=a.z-P.z;if(P.k==='rect'){const c=Math.cos(P.yaw),s=Math.sin(P.yaw),side=Math.sign(dx*c-dz*s)||1;dx=c*side;dz=-s*side}const d=Math.hypot(dx,dz)+1e-3;a.vx+=dx/d*4;a.vz+=dz/d*4}
   logC(KIND[e.k].label+'の'+(ANAME[T.pat]||'')+'攻撃 味方'+hit.length+'人 -'+v);telDrop(T);ui()}
-function nextTurn(first){G.mpWait=false;if(MP.on&&window.CA_MP)later(.05,()=>{const s=mpSlot();G.lead=s;ui();hint(window.CA_MP.mine(s)?'あなたの番 ─ 好きな場所を押す → 下に引く → 離す':(window.CA_MP.name(s)||'ほかの人')+'の番です');window.CA_MP.idle&&window.CA_MP.idle(s)});if(!first){if(G.shieldT>0)G.shieldT--;G.turn++;G.sk=G.sk.map((v,i)=>Math.min(SKILLS[i].cd,v+1))}gimLabels();G.phase='idle';G.busy=false;G.C=null;resetRs();
+function nextTurn(first){G.mpWait=false;if(MP.on&&window.CA_MP)later(.05,()=>{const s=mpSlot();G.lead=s;G.ldo=mpLdo(s);ui();hint(window.CA_MP.mine(s)?'あなたの番 ─ 好きな場所を押す → 下に引く → 離す':(window.CA_MP.name(s)||'ほかの人')+'の番です');window.CA_MP.idle&&window.CA_MP.idle(s)});if(!first){if(G.shieldT>0)G.shieldT--;G.turn++;G.sk=G.sk.map((v,i)=>Math.min(SKILLS[i].cd,v+1))}gimLabels();G.phase='idle';G.busy=false;G.C=null;resetRs();
   if(LB.on&&LB.hp>0){if(!first)moveWeak();if(!LB.broken&&LB.cd===1&&!LB.claw)clawSpawn()}telSync();ui();const tn=G.bodies.some(b=>b.tel);hint((tn?'赤い円の中の味方が攻撃される ─ ':'')+'好きな場所を押す → 下に引く → 離す'+(G.sk.some((v,i)=>v>=SKILLS[i].cd)?'(光っている顔はスキルが使える)':''));if(G.mode==='press')teachOnce('press','詰めて潰す(試作): 吸った物を中心に詰めた瞬間、一緒に詰めた敵が潰れる。岩や結晶など重い物と一緒に吸うほど強い');if(tn)teachOnce('tel','赤い円の中にいる味方が、次の敵の手番で攻撃される。円の外へ出そう')}
 function restart(){startStage(G.stage??0,!!G.hard)}
 
@@ -1428,7 +1428,7 @@ function up(e){if(e.pointerId!==pid)return;pid=null;if(G.phase!=='aim')return;if
 cv.addEventListener('pointerup',up);/* (11/8 山本さんのiPhoneで、引いて離しても吸い込みが始まらず止まった) 画面のどこで離しても、指が全部離れたら離したことにする */document.addEventListener('pointerup',e=>{if(e.pointerId===pid)up(e)},true);addEventListener('touchend',e=>{if(pid!==null&&G.phase==='aim'&&e.touches.length===0)up({pointerId:pid})},true);addEventListener('touchcancel',e=>{if(pid!==null&&G.phase==='aim'&&e.touches.length===0)up({pointerId:pid})},true);for(const ev of ['pointercancel','lostpointercapture'])cv.addEventListener(ev,e=>{if(e.pointerId===pid){if(ev==='lostpointercapture'&&G.phase==='aim'){up(e);return}pid=null;if(G.phase==='aim'){G.phase='idle';G.C=null}}});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('touchmove',e=>{if(e.target===cv)e.preventDefault()},{passive:false});
-function radOf(p){const L=ALLIES[G.lead].lead;return lerp(CFG.radMin,CFG.radMax,p)*(L==='wide'?1.3:L==='tight'?.85:L==='power'?.9:1)*(G.burstOn?1.25:1)}
+function radOf(p){const L=LDO().lead;return lerp(CFG.radMin,CFG.radMax,p)*(L==='wide'?1.3:L==='tight'?.85:L==='power'?.9:1)*(G.burstOn?1.25:1)}
 
 /* ================= (v1.0) 圧壊: 圧縮そのものの火力 =================
    中心の近くにいる敵ほど強く押しつぶされる。1回ごとに小さな当たり+コンボ。敵ごとに合計の数字がふくらんでいく */
@@ -1966,7 +1966,7 @@ function skSpark(si){let n=0;for(const o of G.bodies){if(n>=2)break;if(!o.alive|
 function skCrab(si){let n=0;for(const e of G.bodies){if(!e.alive||!(e.k==='enemy'||e.k==='boss')||e.cd>1)continue;e.cd+=1;n++;num(e.x,1.8,e.z,'攻撃まで+1','txt');ringFx(e.x,e.z,.3,1.6,.45,0x55c8ff,.12)}
   if(LB.on&&LB.hp>0&&LB.cd<=1){LB.cd+=1;lbUi();n++}if(!n)say('すぐ攻撃してくる敵はいない',1.2)}
 /* ===== (v109) 新しいキャラ8人のスキル・リーダー・共鳴技(D-128)。技の名前に合った見た目にする ===== */
-function teamDmgK(){return (G.shieldT>0?.5:1)*(ALLIES[G.lead]&&ALLIES[G.lead].lead==='soft'?.9:1)}
+function teamDmgK(){return (G.shieldT>0?.5:1)*(ALLIES[G.lead]&&LDO().lead==='soft'?.9:1)}
 function freeSpot(x,z,r){for(let t=0;t<30;t++){const a=Math.random()*6.283,d=t<10?.6+Math.random()*1.4:Math.random()*(CFG.R-1.2),px=t<10?x+Math.cos(a)*d:Math.cos(a)*d,pz=t<10?z+Math.sin(a)*d:Math.sin(a)*d;if(Math.hypot(px,pz)>CFG.R-.8)continue;if(!G.bodies.some(b=>b.alive&&Math.hypot(b.x-px,b.z-pz)<b.r+r+.15))return {x:px,z:pz}}return null}
 function dropBody(k,from,to,col,o){for(let j=0;j<10;j++){const t=j/9;const q=spark(lerp(from.x,to.x,t),.6+Math.sin(t*Math.PI)*2.4,lerp(from.z,to.z,t),0,.5,0,col,.26,.35,0,0);q.fl=1}
   later(.28,()=>{if(G.over)return;const b=addBody(k,to.x,to.z,o);b.mesh.position.set(to.x,0,to.z);ringFx(to.x,to.z,.3,1.4,.35,col,.12);burstFx(to.x,to.z,col,12,3,.35,4)})}
@@ -2265,7 +2265,7 @@ function stageT(i,h){const st=STAGES[i],ev=st.ev||'';
   const n=st.n||'';let j=/上級/.test(n)?2:/中級/.test(n)?1:/初級/.test(n)?0:-1;if(j<0){j=0;for(let k=i-1;k>=0&&STAGES[k].ev===ev&&(STAGES[k].n===st.n);k--)j++}return [20,40,60][Math.min(2,j)]}
 /* (11/9) 敵の「攻撃まで」をばらす(山本さん): 一斉に攻撃せず、1手番に半分くらいずつ。攻撃の多さ(2手番に1回)は変えない */
 let CDALT=0;function cd0(b,k){if(k==='boss')return Math.max(1,2+DIF.cd);const base=Math.max(1,1+((b.id*7)%3)+DIF.cd);if(DIF.cd>=0)return base;CDALT^=1;return 1+CDALT}
-function setStageData(i,h){const st=STAGES[i];G.stage=i;G.mpN=0;G.mpWait=false;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
+function setStageData(i,h){const st=STAGES[i];G.stage=i;G.mpN=0;G.mpWait=false;G.ldo=null;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
   Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF*(st.ev?1:.85)/* (11/9) ストーリーはノーマル・ハードとも×0.85(山本さん、×0.7からもどす) *//* (11/8 8時) ストーリーは少しだけ弱く */;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
   WAVES.length=0;{const pool=[...new Set(STAGES.slice(0,i+1).flatMap(s=>(s.gm||[]).join('').replace(/\./g,'').split('')))];if(!pool.length)pool.push('f','w');let hk=0;
    st.waves.forEach((w,wi)=>{const g=(st.gm||[])[wi]||'';let ei=0;const items=w.items.map(it=>{if(it[0]!=='enemy')return it;let c=g[ei]||'.';if(h&&c==='.'&&ei%2===1)c=pool[(hk++)%pool.length];ei++;return GL[c]?[it[0],it[1],it[2],GL[c]]:it});WAVES.push(Object.assign({},w,{items}))})}
@@ -2328,7 +2328,7 @@ function rebuildDbg(){$('dbgb').querySelectorAll('.wb').forEach(b=>b.remove());c
 function logC(s){G.log.unshift((G.clock||0).toFixed(2)+' '+s);if(G.log.length>60)G.log.pop()}
 let fpsN=0,fpsT=0,fps=0,fpsMin=999;function fpsTick(now){fpsN++;if(now-fpsT>=1000){fps=Math.round(fpsN*1000/(now-fpsT));fpsMin=Math.min(fpsMin,fps);fpsN=0;fpsT=now}}
 function dbgTxt(){if(!G.dbg)return;let ms=0;for(const b of G.bodies)if(b.alive)ms=Math.max(ms,Math.hypot(b.vx,b.vz));G.stats.maxSpd=ms;
-  $('dbgt').textContent='FPS: '+fps+' (最低 '+(fpsMin===999?'-':fpsMin)+')\n段階: '+G.phase+'\n圧縮の中心: '+(G.C?G.C.x.toFixed(2)+', '+G.C.z.toFixed(2):'-')+'\n下へ引いた距離: '+(G.dragPx|0)+'px (最大 '+(innerHeight*CFG.powerPx|0)+'px)\n強さ: '+(G.p*100|0)+'%  吸引半径: '+(G.rad||0).toFixed(2)+'m\n対象: '+G.cap.length+'個  最高速度: '+ms.toFixed(2)+'m/s\n衝突(ダメージあり): '+G.stats.hits+'  コンボ: '+G.combo+'\nリーダー: '+ALLIES[G.lead].ln+'\n共鳴: 壁'+(G.rs?G.rs.wall:0)+'回 水'+(G.rs?G.rs.water:0)+'回'+(LB.on?'\nラスボス: HP'+LB.hp+' ブレイク'+(LB.broken?'中':Math.round(LB.brk)+'%')+' 攻撃まで'+LB.cd+' 弱点'+Math.round(LB.wA*180/Math.PI)+'°':'')+'\n─ 記録 ─\n'+G.log.join('\n')}
+  $('dbgt').textContent='FPS: '+fps+' (最低 '+(fpsMin===999?'-':fpsMin)+')\n段階: '+G.phase+'\n圧縮の中心: '+(G.C?G.C.x.toFixed(2)+', '+G.C.z.toFixed(2):'-')+'\n下へ引いた距離: '+(G.dragPx|0)+'px (最大 '+(innerHeight*CFG.powerPx|0)+'px)\n強さ: '+(G.p*100|0)+'%  吸引半径: '+(G.rad||0).toFixed(2)+'m\n対象: '+G.cap.length+'個  最高速度: '+ms.toFixed(2)+'m/s\n衝突(ダメージあり): '+G.stats.hits+'  コンボ: '+G.combo+'\nリーダー: '+LDO().ln+'\n共鳴: 壁'+(G.rs?G.rs.wall:0)+'回 水'+(G.rs?G.rs.water:0)+'回'+(LB.on?'\nラスボス: HP'+LB.hp+' ブレイク'+(LB.broken?'中':Math.round(LB.brk)+'%')+' 攻撃まで'+LB.cd+' 弱点'+Math.round(LB.wA*180/Math.PI)+'°':'')+'\n─ 記録 ─\n'+G.log.join('\n')}
 
 /* ===== (11/9) マルチ(協力)の土台。4人まで・1人1体・番の人だけが引く(山本さん)
    同じ手(押した中心 C と強さ p)を全員の端末で同じように動かす(ロックステップ):
@@ -2344,8 +2344,11 @@ function mpOff(){MP.on=false}
 function mpWith(fn){if(!MP.on)return fn();const o=Math.random;Math.random=MP.rng;try{return fn()}finally{Math.random=o}}
 const GT=(fn,ms)=>MP.on?later(ms/1000,fn):setTimeout(fn,ms);
 /* 1手を全員で同じに打つ。k=手の番号、C=中心、p=強さ */
+/* (11/9) マルチでは、番の人の「自分のリーダー」のリーダースキルを使う(山本さん) */
+function LDO(){return (MP.on&&G.ldo)||ALLIES[G.lead]}
+function mpLdo(s){const L=window.CA_MP&&window.CA_MP.lead&&window.CA_MP.lead(s);return L&&L.lead&&LEADS[L.lead]?L:null}
 function mpSlot(){return (G.mpN||0)%ALLIES.length}
-function mpShot(k,C,p,bu,pre){if(G.phase!=='idle'||G.busy||G.over)return false;MP.k=k;if(pre)mpApply(pre);mpSeed(k*2+1);G.lead=mpSlot();G.mpN=(G.mpN||0)+1;if(bu&&G.burst>=CFG.burstNeed&&!G.burstOn){G.burst=0;G.burstOn=true}G.C={x:C.x,z:C.z};G.p=p;G.rad=radOf(p);mpWith(startCompress);return true}
+function mpShot(k,C,p,bu,pre){if(G.phase!=='idle'||G.busy||G.over)return false;MP.k=k;if(pre)mpApply(pre);mpSeed(k*2+1);G.lead=mpSlot();G.ldo=mpLdo(G.lead);G.mpN=(G.mpN||0)+1;if(bu&&G.burst>=CFG.burstNeed&&!G.burstOn){G.burst=0;G.burstOn=true}G.C={x:C.x,z:C.z};G.p=p;G.rad=radOf(p);mpWith(startCompress);return true}
 /* 自分が動かせる番か(out.js の CA_MP が決める) */
 function mpMine(){return !MP.on||!window.CA_MP||window.CA_MP.mine(mpSlot())}
 function mpSkill(k,i,pre){if(G.phase!=='idle'||G.busy||G.over)return false;MP.k=k;if(pre)mpApply(pre);mpSeed(k*2+2);G.sk[i]=Math.max(G.sk[i],SKILLS[i].cd);mpWith(()=>useSkill(i,true));return true}
@@ -2371,7 +2374,7 @@ function frameBody(now){if(window.__PAUSE){last=now;return}fpsTick(now);let dt=M
   /* 段階の進行 */
   if(CFG.crushOn&&(G.phase==='suck'||G.phase==='hold'))crushUpd(dt);
   if(G.phase==='suck'){G.t+=dt;if(G.t>=G.T){G.phase='hold';G.t=0}}
-  else if(G.phase==='hold'){G.t+=dt;if(G.t>=CFG.hold){G.phase='release';G.t=0;G.lastDmg=G.clock;G.calmK=0;if(G.mode==='press')pressCrush();release(1,G.rad,false);if(ALLIES[G.lead].lead==='double')G.second=.35}}
+  else if(G.phase==='hold'){G.t+=dt;if(G.t>=CFG.hold){G.phase='release';G.t=0;G.lastDmg=G.clock;G.calmK=0;if(G.mode==='press')pressCrush();release(1,G.rad,false);if(LDO().lead==='double')G.second=.35}}
   else if(G.phase==='release'){G.t+=dt;if(G.second!=null){G.second-=dt;if(G.second<=0){G.second=null;release(.55,G.rad*.85,true)}}
     let ms=0;for(const b of G.bodies)if(b.alive)ms=Math.max(ms,Math.hypot(b.vx,b.vz));
     G.calm=G.second==null&&(ms<CFG.hitMin||(G.t>CFG.calmT&&G.clock-(G.lastDmg||0)>CFG.calmIdle));
@@ -2390,7 +2393,7 @@ function frameBody(now){if(window.__PAUSE){last=now;return}fpsTick(now);let dt=M
   if(AU.uWaveA.value>0){AU.uWaveR.value+=G.waveV*dt;AU.uWaveA.value=Math.max(0,AU.uWaveA.value-dt*1.1)}
   /* 渦と予告リング */
   const showV=G.phase==='aim'||G.phase==='suck'||G.phase==='hold';
-  vortex.material.uniforms.uT.value+=dt;vortex.material.uniforms.uS.value=ALLIES[G.lead].lead==='vortex'?1.8:1;
+  vortex.material.uniforms.uT.value+=dt;vortex.material.uniforms.uS.value=LDO().lead==='vortex'?1.8:1;
   vortex.material.uniforms.uA.value=lerp(vortex.material.uniforms.uA.value,showV?(G.phase==='aim'?.12+.18*G.p:G.phase==='hold'?.85+.25*Math.sin(G.t*70):.7):0,.2);
   if(C){const vr=(G.rad||2)*(G.phase==='aim'?.55:.75);vortex.scale.set(vr,vr,1);vortex.position.set(C.x,.06-Math.max(0,AU.uDepth.value)*.97,C.z);aim.position.set(C.x,.07,C.z);aim.scale.setScalar(G.rad||2);aimDot.position.set(C.x,.08-Math.max(0,AU.uDepth.value)*.97,C.z)}
   aim.material.opacity=lerp(aim.material.opacity,G.phase==='aim'?.85:0,.3);aimDot.material.opacity=lerp(aimDot.material.opacity,G.phase==='aim'?.8:showV?.3:0,.3);
@@ -2453,7 +2456,7 @@ function frameBody(now){if(window.__PAUSE){last=now;return}fpsTick(now);let dt=M
   /* 画面のゆがみ */
   {const W=innerWidth,H=innerHeight,ph=G.phase,on=ph==='aim'||ph==='suck'||ph==='hold';const wk=ph==='suck'?Math.min(1,G.t/G.T):ph==='hold'?1:ph==='aim'?.25*G.p:0;
    let ts=on?wk*(.20+.22*G.p):0;if(ph==='release'&&G.t<.12)ts=-.16*(.5+G.p);
-   const U=warp.uniforms;U.uS.value=lerp(U.uS.value,ts,ph==='release'?.4:.18);U.uTw.value=lerp(U.uTw.value,on?wk*(ALLIES[G.lead].lead==='vortex'?1.5:.9)*(.4+.6*G.p):0,.18);
+   const U=warp.uniforms;U.uS.value=lerp(U.uS.value,ts,ph==='release'?.4:.18);U.uTw.value=lerp(U.uTw.value,on?wk*(LDO().lead==='vortex'?1.5:.9)*(.4+.6*G.p):0,.18);
    U.uV.value=lerp(U.uV.value,on?wk*(.5+.5*G.p):0,.12);warp.enabled=Math.abs(U.uS.value)>=.001||U.uV.value>=.001||U.uTw.value>=.001;/* (11/8) ゆがみが無いときはこの1枚を飛ばす(絵は同じ) */U.uT.value=AU.uT.value;U.uAsp.value=W/H;
    if(G.C){cam.updateMatrixWorld();v3.set(G.C.x,-Math.max(0,AU.uDepth.value)*.5,G.C.z).project(cam);const cx=(v3.x+1)/2,cy=(v3.y+1)/2;U.uC.value.set(cx,cy);
      v3.set(G.C.x+(G.rad||2),0,G.C.z).project(cam);U.uR.value=Math.max(.05,Math.abs((v3.x+1)/2-cx)*W/H)}}

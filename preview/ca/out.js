@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=32').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=32').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=33').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=33').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1359,6 +1359,9 @@ const MPC = { code: null, room: null, unsub: null, ai: 0, play: false, hb: null,
   ok: () => !!(HOST && HOST.room && HOST.room.me()) };
 const mpVer = () => { try { return (location.search.match(/v=(\d+)/) || [])[1] || 'dev'; } catch (e) { return 'dev'; } };
 const mpPack = u => ({ id: u.id, lv: u.lv, evo: u.evo ? 1 : 0, tot: totOf(u), pm: +mult(u).toFixed(4), ab: abilOf(u), sc: skCut(u) });
+/* (11/9) 連れていくのは自分の編成のキャラ。リーダースキルは自分の編成のリーダーのもの(山本さん) */
+const mpLeadU = () => { const T = teamUnits(); return T[Math.max(0, T.findIndex(x => x.id === S.lead))] || T[0]; };
+const mpLd = () => { const u = mpLeadU(), r = u && A.ROSTER[u.id]; return r ? { lead: r.lead, ln: r.ln, by: r.name } : null; };
 const mpMe = () => (HOST && HOST.room && HOST.room.me()) || { pid: '?', n: '' };
 const mpMem = () => (MPC.room && MPC.room.mem) || {};
 const mpAbsent = pid => { const m = mpMem()[pid]; return !m || m.left || (Date.now() - (m.at || 0) > 30000); };
@@ -1379,8 +1382,8 @@ function mpErr(e) {
 async function mpCreate(i, hd) {
   const st = A.STAGES[i]; if (!canGo()) return;
   if (st.ev === 'exp' && !xpLeft()) { flash('経験値の竜の巣は今日はもう挑戦できません'); return; }
-  const lead = teamUnits()[Math.max(0, teamUnits().findIndex(x => x.id === S.lead))] || teamUnits()[0];
-  try { const code = await HOST.room.create({ st: i, hd, seed: (Math.random() * 4294967296) >>> 0, ver: mpVer(), m: { u: mpPack(lead), at0: Date.now() } }); mpOpen(code); } catch (e) { mpErr(e); }
+  const lead = mpLeadU();
+  try { const code = await HOST.room.create({ st: i, hd, seed: (Math.random() * 4294967296) >>> 0, ver: mpVer(), m: { u: mpPack(lead), ld: mpLd(), at0: Date.now() } }); mpOpen(code); } catch (e) { mpErr(e); }
 }
 /* 番号で入る */
 function mpJoinAsk() {
@@ -1395,8 +1398,8 @@ function mpJoinAsk() {
   });
 }
 async function mpJoinCode(code) {
-  const u = teamUnits()[0]; if (!u) { flash('キャラがいません'); return false; }
-  try { const res = await HOST.room.join(code, { u: mpPack(u), at0: Date.now() }); if (res !== 'ok') { flash({ none: 'その番号の部屋はありません', started: 'その部屋はもう始まっています', full: 'その部屋は4人そろっています' }[res] || 'はいれませんでした'); return false; } mpOpen(code); return true; } catch (e) { mpErr(e); return false; }
+  const u = mpLeadU(); if (!u) { flash('キャラがいません'); return false; }
+  try { const res = await HOST.room.join(code, { u: mpPack(u), ld: mpLd(), at0: Date.now() }); if (res !== 'ok') { flash({ none: 'その番号の部屋はありません', started: 'その部屋はもう始まっています', full: 'その部屋は4人そろっています' }[res] || 'はいれませんでした'); return false; } mpOpen(code); return true; } catch (e) { mpErr(e); return false; }
 }
 /* 部屋の画面(待つ間) */
 function mpOpen(code) {
@@ -1412,7 +1415,7 @@ function mpOpen(code) {
       <div class="mpMem" style="display:grid;gap:6px">${[0, 1, 2, 3].map(k => { const p = hostFirst[k], m = p && M[p];
         if (!m) return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.08);opacity:.6"><span style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.1)"></span><span>あき(募集した人のキャラが入る)</span></div>`;
         const c = m.u && CH[m.u.id];
-        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.14)"><img alt="" src="${c ? bigFaceURL(c.id, m.u.evo) : ''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><span style="flex:1;min-width:0"><b>${esc(m.n || '')}</b>${p === R.host ? ' <small style="color:#ffd36a">募集した人</small>' : ''}${p === me ? ' <small>(あなた)</small>' : ''}<br><small>${c ? esc(c.name) + ' Lv' + m.u.lv + (m.u.evo ? '・★6' : '') : 'キャラを選んでいます'}</small></span></div>`; }).join('')}</div>
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.14)"><img alt="" src="${c ? bigFaceURL(c.id, m.u.evo) : ''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><span style="flex:1;min-width:0"><b>${esc(m.n || '')}</b>${p === R.host ? ' <small style="color:#ffd36a">募集した人</small>' : ''}${p === me ? ' <small>(あなた)</small>' : ''}<br><small>${c ? esc(c.name) + ' Lv' + m.u.lv + (m.u.evo ? '・★6' : '') : 'キャラを選んでいます'}${m.ld ? '<br>リーダースキル: ' + esc(m.ld.ln) : ''}</small></span></div>`; }).join('')}</div>
       <div class="orow" style="margin-top:12px"></div>`;
     const r = sh.querySelector('.orow');
     r.append(btn('sub', host ? '解散する' : '抜ける', () => mpLeave(false)), btn('sub', 'キャラを選ぶ', mpPick));
@@ -1431,8 +1434,8 @@ function mpPick() {
   const R = MPC.room; if (!R) return; const me = mpMe().pid, M = R.mem || {};
   const taken = new Set(Object.keys(M).filter(p => p !== me && M[p].u).map(p => M[p].u.id));
   modal('連れていくキャラ', (b, close) => {
-    b.innerHTML = '<p class="onote" style="margin:0 0 8px">1人1体。ほかの人が選んだキャラは選べません。</p>'; const g = h('div', 'ogrid'); g.style.maxHeight = '50vh'; g.style.overflowY = 'auto'; b.appendChild(g);
-    const seen = new Set(); for (const u of S.units.slice().sort((a, b) => rarOf(b) - rarOf(a) || b.lv - a.lv)) { if (seen.has(u.id)) continue; seen.add(u.id); const e = icon(u); if (taken.has(u.id)) e.style.opacity = '.3'; else e.onclick = async () => { close(); try { await HOST.room.mine(MPC.code, { u: mpPack(u) }); } catch (er) { mpErr(er); } }; g.appendChild(e); }
+    b.innerHTML = '<p class="onote" style="margin:0 0 8px">自分の編成の中から1体。ほかの人が選んだキャラは選べません。リーダースキルは、いつも自分の編成のリーダーのものになります。</p>'; const g = h('div', 'ogrid'); g.style.maxHeight = '50vh'; g.style.overflowY = 'auto'; b.appendChild(g);
+    const seen = new Set(); for (const u of teamUnits()) { if (seen.has(u.id)) continue; seen.add(u.id); const e = icon(u); if (taken.has(u.id)) e.style.opacity = '.3'; else e.onclick = async () => { close(); try { await HOST.room.mine(MPC.code, { u: mpPack(u), ld: mpLd() }); } catch (er) { mpErr(er); } }; g.appendChild(e); }
   });
 }
 async function mpStart() {
@@ -1452,6 +1455,7 @@ function mpBegin() {
   window.CA_EVO = Object.fromEntries(L.map(x => [x.u.id, x.u.evo ? 1 : 0])); window.CA_SKCUT = Object.fromEntries(L.map(x => [x.u.id, x.u.sc || 0])); window.CA_SKIN = {}; window.CA_LEAD = 0;
   window.CA_MP = { mine: s => { const o = mpOwner(s), me = mpMe().pid; return o === me || (mpIsHost() && mpAbsent(o)); },
     name: s => { const o = mpOwner(s), m = mpMem()[o]; return (m ? m.n : '') + (mpAbsent(o) && o !== mpMe().pid ? '(代わりに募集した人)' : ''); },
+    lead: s => { const m = mpMem()[mpOwner(s)]; return m && m.ld; },
     send: mv => mpSend(mv), idle: s => { MPC.tKey = MPC.ai; MPC.tAt = Date.now(); } };
   A.__CA_MPON = true; window.__CA.mpOn(R.seed >>> 0);
   A.startStage(R.st, !!R.hd);
