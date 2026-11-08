@@ -474,7 +474,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=35';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=36';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -760,7 +760,10 @@ const warp=new ShaderPass({uniforms:{tDiffuse:{value:null},uC:{value:new THREE.V
    float vig=smoothstep(uR*.8,uR*2.6,r);c*=1.-uV*.5*vig;c+=uTint*uV*.06*vig;
    gl_FragColor=vec4(c,1.);}`});
 comp.addPass(warp);
-const bloom=new UnrealBloomPass(new THREE.Vector2(256,256),.42,.45,.9);comp.addPass(bloom);comp.addPass(new OutputPass());
+const bloom=new UnrealBloomPass(new THREE.Vector2(256,256),.42,.45,.9);comp.addPass(bloom);
+/* (11/9 山本さんのiPhoneで画面が黒い四角だらけになった) どこかの1点が NaN(計算できない数)になると、光のにじみがそれを広げて黒い四角になる。
+   にじみの入口で、NaN と大きすぎる明るさを捨てる(同じ処理の中なので重くならない) */
+try{const M=bloom.materialHighPassFilter;M.fragmentShader=M.fragmentShader.replace(/vec4 texel = texture2D\( tDiffuse, vUv \);/,'vec4 texel = texture2D( tDiffuse, vUv ); if(!(texel.r==texel.r&&texel.g==texel.g&&texel.b==texel.b&&texel.a==texel.a)) texel=vec4(0.); texel=min(max(texel,vec4(0.)),vec4(64.));');M.needsUpdate=true;window.__BLOOMNAN=/texel==texel|texel\.r==texel\.r/.test(M.fragmentShader)}catch(e){}comp.addPass(new OutputPass());
 /* (v1.0) 仕上げ: 彩度とコントラストを上げ、四隅を暗く(くっきり鮮やか)。
    アニメ調の「インパクトフレーム」(重い一撃の1〜3コマだけ、画面を2色の切り絵にして放射線を出す)と、ための間の集中線もここで描く */
 const grade=new ShaderPass({uniforms:{tDiffuse:{value:null},uSat:{value:1.22},uCon:{value:1.1},uVig:{value:.42},uIF:{value:0},uIFk:{value:0},uP:{value:new THREE.Vector2(.5,.5)},uTint:{value:new THREE.Color(0xff8a2a)},uSL:{value:0},uSLP:{value:new THREE.Vector2(.5,.5)},uAsp:{value:.5},uT:{value:0}},
@@ -2148,7 +2151,7 @@ function iceSpikes(x,z,r,big){const g=new THREE.Group();g.position.set(x,0,z);S.
     const sp=new THREE.Group();sp.add(body);sp.add(ol);sp.position.set(Math.cos(a)*rr,-.2,Math.sin(a)*rr);sp.rotation.set(Math.sin(a)*.45*(i?1:.2),0,-Math.cos(a)*.45*(i?1:.2));sp.scale.set(w,.01,w);g.add(sp);list.push({sp,h,w,dl:i*.022})}
   ringFx(x,z,r+1.2,.3,.25,0xdaf6ff,.18);
   RFX.push({upd(t){let alive=false;for(const o of list){const u=t-o.dl;if(u<0){alive=true;continue}let s;if(u<.13)s=eBack(u/.13);else if(u<.62)s=1;else s=Math.max(0,1-(u-.62)/.22);
-      o.sp.scale.set(o.w*(u<.62?1:s),o.h*Math.max(.01,s),o.w*(u<.62?1:s));if(u<.84)alive=true;
+      o.sp.scale.set(o.w*Math.max(.01,u<.62?1:s),o.h*Math.max(.01,s),o.w*Math.max(.01,u<.62?1:s));if(u<.84)alive=true;
       if(u>.62&&!o.br){o.br=1;const p=o.sp.position;for(let k=0;k<4;k++){const q=spark(x+p.x,.4+Math.random()*o.h*.6,z+p.z,(Math.random()-.5)*4,2+Math.random()*3,(Math.random()-.5)*4,Math.random()<.5?0xffffff:0xa8e4ff,.22,.5,9,1);q.fl=1}}}
     if(!alive)return false},clean(){rmGrp(g)}});
   for(let k=0;k<14;k++){const a=Math.random()*6.283,d=Math.random()*(r+.8);const q=spark(x+Math.cos(a)*d,.15,z+Math.sin(a)*d,0,.35+Math.random()*.4,0,Math.random()<.5?0xe8f8ff:0x9ad8ff,.4,1.3,-.2,1);q.fl=1}}
@@ -2167,7 +2170,7 @@ function skBigTree(si){const me=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpM
   const cn=[];for(const [x,y,z,r] of [[0,4,0,1.9],[-1.2,3.4,.3,1.3],[1.25,3.5,-.2,1.35],[.2,4.9,.2,1.25]]){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(r,1),new THREE.MeshStandardMaterial({color:0x5ad06a,emissive:0x1a5a24,emissiveIntensity:.35,roughness:.6,flatShading:true}));m.position.set(x,y,z);m.scale.setScalar(.01);g.add(m);cn.push(m)}
   const fr=[];for(let k=0;k<6;k++){const s=glowSpr(0xfff0a0,.01);fr.push({s,a:k/6*6.283,y:3.2+Math.random()*1.6,r:1.2+Math.random()*.9})}
   ringFx(tx,tz,.3,2.4,.4,0x9affa0,.12);for(let k=0;k<16;k++){const a=Math.random()*6.283;const q=spark(tx,.2,tz,Math.cos(a)*3,1+Math.random()*2,Math.sin(a)*3,0x8a6a42,.22,.45,8,1);q.fl=1}
-  RFX.push({upd(t){const gr=eBack(Math.min(1,t/.32)),out=t>1.5?Math.max(0,1-(t-1.5)/.4):1;g.scale.set(out,Math.max(.01,gr*out),out);
+  RFX.push({upd(t){const gr=eBack(Math.min(1,t/.32)),out=t>1.5?Math.max(0,1-(t-1.5)/.4):1;g.scale.set(Math.max(.01,out),Math.max(.01,gr*out),Math.max(.01,out));
       cn.forEach((m,i)=>{const u=Math.max(0,t-.18-i*.05);m.scale.setScalar(Math.max(.01,eBack(Math.min(1,u/.28))));m.rotation.y=t*.4});
       fr.forEach((f,i)=>{const u=Math.max(0,t-.45-i*.04);f.s.position.set(tx+Math.cos(f.a+t*.6)*f.r,f.y*gr*out,tz+Math.sin(f.a+t*.6)*f.r*.6);f.s.scale.setScalar(u>0?(.6+Math.sin(t*6+i)*.12)*out:.01)});
       if(t>.4&&t<1.6&&Math.random()<.6){const a=Math.random()*6.283,d=Math.random()*2.4;const q=spark(tx+Math.cos(a)*d,4+Math.random(),tz+Math.sin(a)*d,(Math.random()-.5)*1.2,-.4,(Math.random()-.5)*1.2,Math.random()<.5?0x7ae87a:0xc8ff8a,.3,1.4,1.2,1.5);q.fl=1}
@@ -2353,12 +2356,23 @@ function mpShot(k,C,p,bu,pre){if(G.phase!=='idle'||G.busy||G.over)return false;M
 function mpMine(){return !MP.on||!window.CA_MP||window.CA_MP.mine(mpSlot())}
 function mpSkill(k,i,pre){if(G.phase!=='idle'||G.busy||G.over)return false;MP.k=k;if(pre)mpApply(pre);mpSeed(k*2+2);G.sk[i]=Math.max(G.sk[i],SKILLS[i].cd);mpWith(()=>useSkill(i,true));return true}
 /* 盤面のまとめ(合わせなおし・ずれの確かめ用) */
-function mpSnap(){const r=v=>Math.round(v*1000)/1000;return{k:MP.k,hp:G.hp,w:G.wave,t:G.turn,sk:G.sk.slice(),bu:G.burst||0,lb:LB.on?[LB.hp,LB.cd,LB.brk||0,+!!LB.broken]:null,
-  b:G.bodies.filter(b=>b.alive).map(b=>[b.id,b.k,r(b.x),r(b.z),Math.round(b.hp||0),b.cd||0])}}
+function mpSnap(){const r=v=>Math.round(v*1000)/1000;return{k:MP.k,hp:G.hp,w:G.wave,t:G.turn,n:G.mpN||0,ic:G.idc,sk:G.sk.slice(),bu:G.burst||0,bo:G.burstOn?1:0,lb:LB.on?[LB.hp,LB.cd,LB.brk||0,LB.broken?1:0]:null,
+  b:G.bodies.filter(b=>b.alive).sort((p,q)=>p.id-q.id).map(b=>({i:b.id,k:b.k,x:r(b.x),z:r(b.z),h:Math.round(b.hp||0),m:Math.round(b.max||0),c:b.cd||0,g:b.g||0,e:b.el||0,a:b.ai??-1,d:b.hard?1:0,br:b.broken||0}))}}
 function mpHash(sn){const s=JSON.stringify(sn);let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return h}
-function mpApply(sn){if(typeof sn==='string'){try{sn=JSON.parse(sn)}catch(e){return}}if(!sn||!sn.b)return;G.hp=sn.hp;if(sn.sk)G.sk=sn.sk.slice();if(sn.bu!=null)G.burst=sn.bu;
-  const by=new Map(sn.b.map(a=>[a[0],a]));for(const b of G.bodies){if(!b.alive)continue;const a=by.get(b.id);if(!a){if(b.k!=='ally'){b.alive=false;if(b.mesh)b.mesh.visible=false}continue}b.x=a[2];b.z=a[3];b.vx=0;b.vz=0;if(b.k!=='ally'){b.hp=a[4];b.cd=a[5]}}
-  if(sn.lb&&LB.on){LB.hp=sn.lb[0];LB.cd=sn.lb[1];LB.brk=sn.lb[2];lbUi()}ui()}
+/* (11/9) 盤面をまるごと合わせる: ウェーブがちがえば読みなおし、無い物は作り、余分な物は消す(山本さん「味方と同じ結果にならない」) */
+function mpApply(sn){if(typeof sn==='string'){try{sn=JSON.parse(sn)}catch(e){return}}if(!sn||!Array.isArray(sn.b))return;
+  mpSeed(((sn.k||0)+1)*7919);mpWith(()=>{if(sn.w!=null&&sn.w!==G.wave&&WAVES[sn.w])loadWave(sn.w);
+    const want=new Map(sn.b.map(a=>[a.i,a]));
+    for(const b of G.bodies){if(!b.alive)continue;const a=want.get(b.id);if(!a||a.k!==b.k)kill(b)}
+    const have=new Map(G.bodies.filter(b=>b.alive).map(b=>[b.id,b]));
+    for(const a of sn.b){let b=have.get(a.i);
+      if(!b){const o={};if(a.g)o.g=a.g;if(a.e)o.el=a.e;if(a.a>=0)o.ai=a.a;if(a.k==='ally'&&!(a.a>=0))continue;b=addBody(a.k,a.x,a.z,o);b.id=a.i}
+      b.x=a.x;b.z=a.z;b.vx=0;b.vz=0;if(b.mesh)b.mesh.position.set(a.x,b.mesh.position.y,a.z);
+      if(b.k!=='ally'){b.hp=a.h;if(a.m)b.max=a.m;b.cd=a.c;b.hard=!!a.d;if(a.br!=null)b.broken=a.br}}
+    G.bodies=G.bodies.filter(b=>b.alive);if(sn.ic!=null)G.idc=sn.ic;
+    G.hp=sn.hp;if(sn.sk)G.sk=sn.sk.slice();if(sn.bu!=null)G.burst=sn.bu;if(sn.bo!=null)G.burstOn=!!sn.bo;if(sn.t!=null)G.turn=sn.t;if(sn.n!=null)G.mpN=sn.n;
+    if(sn.lb&&LB.on){LB.hp=sn.lb[0];LB.cd=sn.lb[1];LB.brk=sn.lb[2];lbUi()}
+    try{telSync()}catch(e){}ui()})}
 
 /* ---------------- ループ ---------------- */
 function lerp(a,b,t){return a+(b-a)*t}
@@ -2367,6 +2381,8 @@ let last=performance.now();G.clock=0;
 const v3=new THREE.Vector3(),v3b=new THREE.Vector3(),v3g=new THREE.Vector3();
 function frame(now){requestAnimationFrame(frame);if(MP.on){const o=Math.random;Math.random=MP.rng;try{frameBody(now)}finally{Math.random=o}}else frameBody(now)}
 function frameBody(now){if(window.__PAUSE){last=now;return}fpsTick(now);let dt=Math.min(.05,(now-last)/1000);last=now;if(window.__FIXDT)dt=window.__FIXDT;if(MP.on){MP.acc=Math.min(.1,MP.acc+(now-(frame.pn||now))/1000);frame.pn=now;if(MP.acc<1/60-.002)return;MP.acc-=1/60;dt=1/60}else frame.pn=now;window.__FRN=(window.__FRN||0)+1;/* __PAUSE・__FIXDT は確認用(コマ送り) */
+  /* (11/9) 位置や速さが NaN(計算できない数)になった物は、まん中で止めてもとにもどす(黒い四角の元を消す) */
+  for(const b of G.bodies){if(b.x===b.x&&b.z===b.z&&b.vx===b.vx&&b.vz===b.vz)continue;if(!b._nan){b._nan=1;console.warn('NaN body',b.k,b.id)}b.x=b.x===b.x?b.x:0;b.z=b.z===b.z?b.z:0;b.vx=0;b.vz=0}
   const real=dt;if(stopT>0){stopT-=dt;dt*=.06}
   G.clock+=dt;AU.uT.value+=real;
   {const P=EPal();if(G._pk!==G.lead){G._pk=G.lead;for(const U of [AU,vortex.material.uniforms]){U.uE0.value.setHex(P.c);U.uE1.value.setHex(P.b);U.uE2.value.setHex(P.e)}
