@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=34').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=34').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=35').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=35').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1366,7 +1366,7 @@ const mpMe = () => (HOST && HOST.room && HOST.room.me()) || { pid: '?', n: '' };
 const mpMem = () => (MPC.room && MPC.room.mem) || {};
 const mpAbsent = pid => { const m = mpMem()[pid]; return !m || m.left || (Date.now() - (m.at || 0) > 30000); };
 /* 枠(0〜3)の持ち主 */
-function mpSlots() { const R = MPC.room; if (!R) return []; const M = R.mem || {}, out = [];
+function mpSlots() { const R = MPC.room; if (!R) return []; if (Array.isArray(R.sl) && R.sl.length) return R.sl.map(x => ({ pid: x.p, u: x.u })); const M = R.mem || {}, out = [];
   for (const pid of (R.order || [])) if (M[pid] && M[pid].u) out.push({ pid, u: M[pid].u });
   const hostFill = (M[R.host] && M[R.host].fill) || [];
   for (const u of hostFill) { if (out.length >= 4) break; if (!out.some(x => x.u.id === u.id)) out.push({ pid: R.host, u, fill: 1 }); }
@@ -1383,7 +1383,7 @@ async function mpCreate(i, hd) {
   const st = A.STAGES[i]; if (!canGo()) return;
   if (st.ev === 'exp' && !xpLeft()) { flash('経験値の竜の巣は今日はもう挑戦できません'); return; }
   const lead = mpLeadU();
-  try { const code = await HOST.room.create({ st: i, hd, seed: (Math.random() * 4294967296) >>> 0, ver: mpVer(), m: { u: mpPack(lead), ld: mpLd(), at0: Date.now() } }); mpOpen(code); } catch (e) { mpErr(e); }
+  try { const code = await HOST.room.create({ st: i, hd, seed: (Math.random() * 4294967296) >>> 0, ver: mpVer(), m: { u: mpPack(lead), ld: mpLd(), pt: teamUnits().map(mpPack), at0: Date.now() } }); mpOpen(code); } catch (e) { mpErr(e); }
 }
 /* 番号で入る */
 function mpJoinAsk() {
@@ -1399,7 +1399,7 @@ function mpJoinAsk() {
 }
 async function mpJoinCode(code) {
   const u = mpLeadU(); if (!u) { flash('キャラがいません'); return false; }
-  try { const res = await HOST.room.join(code, { u: mpPack(u), ld: mpLd(), at0: Date.now() }); if (res !== 'ok') { flash({ none: 'その番号の部屋はありません', started: 'その部屋はもう始まっています', full: 'その部屋は4人そろっています' }[res] || 'はいれませんでした'); return false; } mpOpen(code); return true; } catch (e) { mpErr(e); return false; }
+  try { const res = await HOST.room.join(code, { u: mpPack(u), ld: mpLd(), pt: teamUnits().map(mpPack), at0: Date.now() }); if (res !== 'ok') { flash({ none: 'その番号の部屋はありません', started: 'その部屋はもう始まっています', full: 'その部屋は4人そろっています' }[res] || 'はいれませんでした'); return false; } mpOpen(code); return true; } catch (e) { mpErr(e); return false; }
 }
 /* 部屋の画面(待つ間) */
 function mpOpen(code) {
@@ -1413,7 +1413,7 @@ function mpOpen(code) {
       <div style="text-align:center;margin:6px 0 10px"><small style="opacity:.8">部屋の番号(LINEなどで伝えてください)</small><div style="font:900 44px/1.1 var(--zk);letter-spacing:.25em;color:#ffd36a">${esc(code)}</div></div>
       ${ver ? '<p class="onote" style="color:#ff8a8a">アプリの版がちがいます。アプリを閉じて開き直してください。</p>' : ''}
       <div class="mpMem" style="display:grid;gap:6px">${[0, 1, 2, 3].map(k => { const p = hostFirst[k], m = p && M[p];
-        if (!m) return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.08);opacity:.6"><span style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.1)"></span><span>あき(募集した人のキャラが入る)</span></div>`;
+        if (!m) return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.08);opacity:.6"><span style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.1)"></span><span>あき(2人なら1人2体ずつ、3人なら募集した人が2体)</span></div>`;
         const c = m.u && CH[m.u.id];
         return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.14)"><img alt="" src="${c ? bigFaceURL(c.id, m.u.evo) : ''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><span style="flex:1;min-width:0"><b>${esc(m.n || '')}</b>${p === R.host ? ' <small style="color:#ffd36a">募集した人</small>' : ''}${p === me ? ' <small>(あなた)</small>' : ''}<br><small>${c ? esc(c.name) + ' Lv' + m.u.lv + (m.u.evo ? '・★6' : '') : 'キャラを選んでいます'}${m.ld ? '<br>リーダースキル: ' + esc(m.ld.ln) : ''}</small></span></div>`; }).join('')}</div>
       <div class="orow" style="margin-top:12px"></div>`;
@@ -1434,7 +1434,7 @@ function mpPick() {
   const R = MPC.room; if (!R) return; const me = mpMe().pid, M = R.mem || {};
   const taken = new Set(Object.keys(M).filter(p => p !== me && M[p].u).map(p => M[p].u.id));
   modal('連れていくキャラ', (b, close) => {
-    b.innerHTML = '<p class="onote" style="margin:0 0 8px">自分の編成の中から1体。ほかの人が選んだキャラは選べません。リーダースキルは、いつも自分の編成のリーダーのものになります。</p>'; const g = h('div', 'ogrid'); g.style.maxHeight = '50vh'; g.style.overflowY = 'auto'; b.appendChild(g);
+    b.innerHTML = '<p class="onote" style="margin:0 0 8px">自分の編成の中から1体。ほかの人が選んだキャラは選べません。リーダースキルは、いつも自分の編成のリーダーのものになります。2人(や3人の募集した人)は、編成の次のキャラがもう1体、自動で入ります。</p>'; const g = h('div', 'ogrid'); g.style.maxHeight = '50vh'; g.style.overflowY = 'auto'; b.appendChild(g);
     const seen = new Set(); for (const u of teamUnits()) { if (seen.has(u.id)) continue; seen.add(u.id); const e = icon(u); if (taken.has(u.id)) e.style.opacity = '.3'; else e.onclick = async () => { close(); try { await HOST.room.mine(MPC.code, { u: mpPack(u), ld: mpLd() }); } catch (er) { mpErr(er); } }; g.appendChild(e); }
   });
 }
@@ -1443,8 +1443,13 @@ async function mpStart() {
   const pids = [R.host, ...Object.keys(M).filter(p => p !== R.host && !M[p].left && M[p].u).sort((a, b) => (M[a].at0 || 0) - (M[b].at0 || 0))];
   const ids = new Set(pids.map(p => M[p].u.id)); if (ids.size !== pids.length) { flash('同じキャラを選んでいる人がいます'); return; }
   if (pids.length < 2) { flash('ほかの人が入るのを待ってください(1人なら、ふつうに出撃できます)'); return; }
-  const fill = teamUnits().filter(u => !ids.has(u.id)).map(mpPack);
-  try { await HOST.room.host(MPC.code, { order: pids, state: 'play', mem: Object.assign({}, M, { [R.host]: Object.assign({}, M[R.host], { fill }) }) }); } catch (e) { mpErr(e); }
+  /* (11/9 山本さん) 2人なら2体ずつ(交互)、3人なら募集した人が2体・ほかは1体、4人なら1体ずつ */
+  const used = new Set(ids), second = p => { const L = (M[p].pt || []).filter(u => !used.has(u.id)); const u = L[0]; if (u) used.add(u.id); return u; };
+  let sl = pids.map(p => ({ p, u: M[p].u }));
+  if (pids.length === 2) { const a2 = second(pids[0]), b2 = second(pids[1]); sl = [sl[0], sl[1]]; if (a2) sl.push({ p: pids[0], u: a2 }); if (b2) sl.push({ p: pids[1], u: b2 }); }
+  else if (pids.length === 3) { const a2 = second(pids[0]); if (a2) sl.push({ p: pids[0], u: a2 }); }
+  for (const u of teamUnits().map(mpPack)) { if (sl.length >= 4) break; if (!used.has(u.id)) { used.add(u.id); sl.push({ p: R.host, u }); } }   /* 足りなければ募集した人のキャラで */
+  try { await HOST.room.host(MPC.code, { order: pids, sl: sl.slice(0, 4), state: 'play' }); } catch (e) { mpErr(e); }
 }
 /* 全員: 始まった。チームを組んで、同じ種で出撃 */
 function mpBegin() {
