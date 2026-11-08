@@ -14680,7 +14680,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=30',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=33',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -14733,6 +14733,37 @@ window.CAHOST={
     try{for(const o of (typeof myOshiSet==='function'?myOshiSet():[])){const k=o&&M[o.n];if(k&&!out.includes(k))out.push(k)}}catch(e){}
     try{if(window.__caSkinAll||(typeof hbSkin==='function'&&hbSkin(me.id))||(typeof isAdmin==='function'&&isAdmin()&&/\/preview\//.test(location.pathname)))out.push('knight')}catch(e){}
     return out},
+  /* (11/9) マルチ(協力)の部屋。caroom/{4けた}。分身(圧縮アリーナ)の out.js から使う */
+  room:{
+    /* undefined があると Firestore が英語のエラーを出すので、書く前に消す */
+    _c:o=>JSON.parse(JSON.stringify(o||{})),
+    me:()=>{const me=myPlayer();return me?{pid:me.id,n:me.name}:null},
+    create:async d=>{const me=myPlayer();if(!db||!me)throw new Error('ログインが必要です');
+      for(let tries=0;tries<12;tries++){const code=String(1000+Math.floor(Math.random()*9000)),ref=db.doc('caroom/'+code);
+        const ok=await db.runTransaction(async tx=>{const x=await tx.get(ref);if(x.exists){const o=x.data();if((o.t||0)>Date.now()-3*3600e3)return false}
+          tx.set(ref,{host:me.id,hn:me.name,st:d.st,hd:!!d.hd,seed:d.seed>>>0,state:'wait',t:Date.now(),ver:String(d.ver||''),mem:{[me.id]:Object.assign({n:String(me.name||''),at:Date.now()},CAHOST.room._c(d.m))},order:[],mv:[],sn:{},res:{},ping:{}});return true});
+        if(ok)return code}
+      throw new Error('部屋を作れませんでした')},
+    join:async(code,m)=>{const me=myPlayer();if(!db||!me)throw new Error('ログインが必要です');const ref=db.doc('caroom/'+code);
+      return db.runTransaction(async tx=>{const x=await tx.get(ref);if(!x.exists)return 'none';const o=x.data();if((o.t||0)<Date.now()-3*3600e3)return 'none';
+        const mem=Object.assign({},o.mem||{});if(!mem[me.id]){if(o.state!=='wait')return 'started';if(Object.keys(mem).length>=4)return 'full'}
+        mem[me.id]=Object.assign({},mem[me.id]||{},{n:String(me.name||''),at:Date.now()},CAHOST.room._c(m));tx.set(ref,Object.assign({},o,{mem}));return 'ok'})},
+    watch:(code,cb)=>{if(!db)return()=>{};return db.doc('caroom/'+code).onSnapshot(s=>cb(s.exists?s.data():null),()=>cb(null))},
+    /* 自分の欄を書きかえる(キャラを選ぶ・抜ける・生きている合図) */
+    mine:async(code,patch)=>{const me=myPlayer();if(!db||!me)return false;const ref=db.doc('caroom/'+code);
+      return db.runTransaction(async tx=>{const x=await tx.get(ref);if(!x.exists)return false;const o=x.data(),mem=Object.assign({},o.mem||{});if(!mem[me.id])return false;
+        mem[me.id]=Object.assign({},mem[me.id],CAHOST.room._c(patch),{at:Date.now()});tx.set(ref,Object.assign({},o,{mem}));return true})},
+    /* 募集した人だけ: 部屋の中身を書きかえる */
+    host:async(code,patch)=>{if(!db)return false;const ref=db.doc('caroom/'+code);
+      return db.runTransaction(async tx=>{const x=await tx.get(ref);if(!x.exists)return false;const o=x.data();tx.set(ref,Object.assign({},o,CAHOST.room._c(patch)));return true})},
+    /* 手を1つ足す。手の番号 k が今の数と同じときだけ(二重に打たない) */
+    move:async(code,mv)=>{if(!db)return false;const ref=db.doc('caroom/'+code);
+      return db.runTransaction(async tx=>{const x=await tx.get(ref);if(!x.exists)return false;const o=x.data(),L=Array.isArray(o.mv)?o.mv:[];if(o.state!=='play'||L.length!==mv.k)return false;
+        const L2=L.map((m,j)=>j<L.length-3&&m.pre?Object.assign({},m,{pre:null}):m);/* 古い手の盤面は消す(部屋の大きさを小さく) */tx.set(ref,Object.assign({},o,{mv:L2.concat([CAHOST.room._c(mv)])}));return true})},
+    snap:async(code,sn)=>{if(!db)return false;const ref=db.doc('caroom/'+code);
+      return db.runTransaction(async tx=>{const x=await tx.get(ref);if(!x.exists)return false;const o=x.data();if(o.state!=='play')return false;if(o.sn&&(o.sn.k||0)>sn.k)return false;tx.set(ref,Object.assign({},o,{sn:CAHOST.room._c(sn)}));return true})},
+    del:async code=>{try{await db.doc('caroom/'+code).delete()}catch(e){}}
+  },
   /* 師匠と弟子(前の分身の画面の右上にあったもの) */mentor:()=>{try{mtSheet()}catch(e){}},mentorDot:()=>{try{return mtDot()}catch(e){return false}}};
 /* ===== v50: golden chests, upsets, genre weeks, paid points, predictions, timeline, daily missions, weekly MVP ===== */
 const RULE4=Date.UTC(2026,9,4,10,30);
