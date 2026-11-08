@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=33').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=33').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=34').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=34').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1462,9 +1462,12 @@ function mpBegin() {
   if (!MPC.pump) MPC.pump = setInterval(mpPump, 300);
 }
 async function mpSend(mv) {
-  if (!MPC.code || !MPC.room) return; const k = (MPC.room.mv || []).length;
-  try { const ok = await HOST.room.move(MPC.code, Object.assign({ k, by: mpMe().pid, t: Date.now() }, mv)); if (!ok) { const G = window.__CA.G; G.mpWait = false; flash('ほかの手が先に届きました'); } } catch (e) { const G = window.__CA.G; G.mpWait = false; mpErr(e); }
+  const G = window.__CA.G; if (!MPC.code || !MPC.room) { G.mpWait = false; return; } const k = (MPC.room.mv || []).length;
+  try { const ok = await HOST.room.move(MPC.code, Object.assign({ k, by: mpMe().pid, t: Date.now() }, mv)); if (!ok) { G.mpWait = false; mpSay('ほかの手が先に届きました。もう一度引いてください'); } }
+  catch (e) { G.mpWait = false; console.warn('マルチ: 手を送れない', e); mpSay('手を送れませんでした(' + String(e && (e.code || e.message) || e).slice(0, 60) + ')。もう一度引いてください'); }
 }
+/* バトル中は外の画面のお知らせが見えないので、バトルの画面に出す */
+function mpSay(t) { try { const ht = document.getElementById('ht'), hb = document.getElementById('hint'); if (ht) ht.textContent = t; if (hb) hb.style.opacity = 1; } catch (e) { } flash(t); }
 /* 手を順に打つ・合わせなおす・30秒の自動・終わり */
 function mpPump() {
   if (!MPC.play || !MPC.room) return; const C = window.__CA, G = C.G, R = MPC.room, mv = R.mv || [];
@@ -1472,12 +1475,12 @@ function mpPump() {
   if (idle && MPC.ai < mv.length) { const m = mv[MPC.ai]; const ok = m.ty === 'skill' ? C.mpSkill(MPC.ai, m.i, m.pre) : C.mpShot(MPC.ai, { x: m.x, z: m.z }, m.p, m.bu, m.pre); if (ok) { MPC.ai++; G.mpWait = false; } return; }
   if (idle && MPC.ai === mv.length) {
     const sn = R.sn || {};
-    if (mpIsHost() && MPC.snK < MPC.ai && MPC.ai > 0) { MPC.snK = MPC.ai; const d = C.mpSnap(); HOST.room.snap(MPC.code, { k: MPC.ai, h: C.mpHash(d), d }).catch(() => { }); }
+    if (mpIsHost() && MPC.snK < MPC.ai && MPC.ai > 0) { MPC.snK = MPC.ai; const d = C.mpSnap(); HOST.room.snap(MPC.code, { k: MPC.ai, h: C.mpHash(d), d: JSON.stringify(d) }).catch(e => console.warn('マルチ: まとめ', e)); }
     if (!mpIsHost() && sn.k === MPC.ai && MPC.snK < sn.k) { MPC.snK = sn.k; if (C.mpHash(C.mpSnap()) !== sn.h) { C.mpApply(sn.d); MPC.fix++; console.warn('マルチ: 盤面を合わせなおした', sn.k); } }
     /* 30秒たったら自動で引く(番の人、または募集した人が少し遅れて) */
     const s = C.mpSlot(), mine = window.CA_MP.mine(s), wait = Date.now() - MPC.tAt;
-    if (MPC.tKey === MPC.ai && !G.mpWait && ((mine && wait > 30000) || (mpIsHost() && wait > 36000))) { MPC.tAt = Date.now() + 99999; const e = G.bodies.filter(b => b.alive && b.k !== 'ally'); let x = 0, z = 0; for (const b of e) { x += b.x; z += b.z; } const n = e.length || 1; G.mpWait = true; mpSend({ ty: 'shot', x: +(x / n).toFixed(3), z: +(z / n).toFixed(3), p: .8, bu: 0, auto: 1, pre: C.mpSnap() }); }
-    if (mine && MPC.tKey === MPC.ai && wait > 20000 && wait < 30000) { const left = Math.ceil((30000 - wait) / 1000); const ht = document.getElementById('hint'); if (ht && left % 2 === 0) ht.textContent = 'あなたの番 ─ あと' + left + '秒で自動で引きます'; }
+    if (MPC.tKey === MPC.ai && !G.mpWait && ((mine && wait > 30000) || (mpIsHost() && wait > 36000))) { MPC.tAt = Date.now() + 99999; const e = G.bodies.filter(b => b.alive && b.k !== 'ally'); let x = 0, z = 0; for (const b of e) { x += b.x; z += b.z; } const n = e.length || 1; G.mpWait = true; mpSend({ ty: 'shot', x: +(x / n).toFixed(3), z: +(z / n).toFixed(3), p: .8, bu: 0, auto: 1, pre: JSON.stringify(C.mpSnap()) }); }
+    if (mine && MPC.tKey === MPC.ai && wait > 20000 && wait < 30000) { const left = Math.ceil((30000 - wait) / 1000); const ht = document.getElementById('ht'); if (ht) ht.textContent = 'あなたの番 ─ あと' + left + '秒で自動で引きます'; }
   }
   if (G.over && !MPC.endSent) { MPC.endSent = true; if (mpIsHost()) HOST.room.host(MPC.code, { state: 'end', res: { win: G.hp > 0, t: Date.now() } }).catch(() => { }); setTimeout(() => { if (MPC.play) mpLeave(true); }, 2500); }
 }

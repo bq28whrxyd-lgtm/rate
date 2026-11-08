@@ -474,7 +474,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=33';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=34';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -1424,7 +1424,7 @@ let pid=null;
 cv.addEventListener('pointerdown',e=>{if(pid!==null&&G.phase!=='aim')pid=null;/* (11/8) 指を離した合図が来なかったときに、次から押せなくなる(固まる)のを防ぐ */if(pid!==null&&G.phase==='aim'&&e.pointerId!==pid){up({pointerId:pid});return}/* 引いたまま止まっていたら、次に押したときに離したことにする */if(pid!==null||G.busy||G.phase!=='idle'||G.over)return;if(!mpMine()){say((window.CA_MP&&window.CA_MP.name(mpSlot())||'ほかの人')+'の番です',1);return}if(MP.on&&G.mpWait)return;const p=groundAt(e.clientX,e.clientY);if(!p)return;const d=Math.hypot(p.x,p.z);if(d>CFG.R-.2)return;
   pid=e.pointerId;try{cv.setPointerCapture(pid)}catch(_){}G.C=p;G.y0=e.clientY;G.p=0;G.dragPx=0;G.phase='aim';e.preventDefault()});
 cv.addEventListener('pointermove',e=>{if(e.pointerId!==pid||G.phase!=='aim')return;G.dragPx=Math.max(0,e.clientY-G.y0);G.p=Math.min(1,G.dragPx/(innerHeight*CFG.powerPx));G.rad=radOf(G.p);e.preventDefault()});
-function up(e){if(e.pointerId!==pid)return;pid=null;if(G.phase!=='aim')return;if(G.p<CFG.minPow){G.phase='idle';G.C=null;hint('指を「下」に引くと強さが決まります');return}if(MP.on&&window.CA_MP){const C=G.C,pp=G.p;G.phase='idle';G.mpWait=true;hint('送っています…');window.CA_MP.send({ty:'shot',x:Math.round(C.x*1000)/1000,z:Math.round(C.z*1000)/1000,p:Math.round(pp*1000)/1000,bu:G.burstOn?1:0,pre:mpSnap()});return}startCompress()}
+function up(e){if(e.pointerId!==pid)return;pid=null;if(G.phase!=='aim')return;if(G.p<CFG.minPow){G.phase='idle';G.C=null;hint('指を「下」に引くと強さが決まります');return}if(MP.on&&window.CA_MP){const C=G.C,pp=G.p;G.phase='idle';G.mpWait=true;hint('送っています…');window.CA_MP.send({ty:'shot',x:Math.round(C.x*1000)/1000,z:Math.round(C.z*1000)/1000,p:Math.round(pp*1000)/1000,bu:G.burstOn?1:0,pre:JSON.stringify(mpSnap())});return}startCompress()}
 cv.addEventListener('pointerup',up);/* (11/8 山本さんのiPhoneで、引いて離しても吸い込みが始まらず止まった) 画面のどこで離しても、指が全部離れたら離したことにする */document.addEventListener('pointerup',e=>{if(e.pointerId===pid)up(e)},true);addEventListener('touchend',e=>{if(pid!==null&&G.phase==='aim'&&e.touches.length===0)up({pointerId:pid})},true);addEventListener('touchcancel',e=>{if(pid!==null&&G.phase==='aim'&&e.touches.length===0)up({pointerId:pid})},true);for(const ev of ['pointercancel','lostpointercapture'])cv.addEventListener(ev,e=>{if(e.pointerId===pid){if(ev==='lostpointercapture'&&G.phase==='aim'){up(e);return}pid=null;if(G.phase==='aim'){G.phase='idle';G.C=null}}});
 cv.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('touchmove',e=>{if(e.target===cv)e.preventDefault()},{passive:false});
@@ -1860,7 +1860,7 @@ function skillPop(i,refresh){const S_=SKILLS[i],a=ALLIES[i],ready=G.sk[i]>=S_.cd
   $('skn').innerHTML=a.name+'「'+S_.n+'」<small>'+a.el+'属性 / '+S_.cd+'手番でたまる</small>';$('skd').textContent=S_.d;
   $('sks').textContent=ready?'使えます':'あと '+(S_.cd-G.sk[i])+' 手番';const go=$('skgo');go.disabled=!(ready&&G.phase==='idle'&&!G.busy&&!G.over);go.onclick=()=>useSkill(i);$('skp').hidden=false}
 function skillClose(){SKP=-1;$('skp').hidden=true}
-function useSkill(i,fromMp){if(G.sk[i]<SKILLS[i].cd||G.phase!=='idle'||G.busy||G.over)return;if(MP.on&&window.CA_MP&&!fromMp){if(!mpMine()||mpSlot()!==i){say('自分のキャラのスキルを、自分の番に使えます',1.4);return}if(G.mpWait)return;G.mpWait=true;skillClose();window.CA_MP.send({ty:'skill',i,pre:mpSnap()});return}G.sk[i]=0;skillClose();
+function useSkill(i,fromMp){if(G.sk[i]<SKILLS[i].cd||G.phase!=='idle'||G.busy||G.over)return;if(MP.on&&window.CA_MP&&!fromMp){if(!mpMine()||mpSlot()!==i){say('自分のキャラのスキルを、自分の番に使えます',1.4);return}if(G.mpWait)return;G.mpWait=true;skillClose();window.CA_MP.send({ty:'skill',i,pre:JSON.stringify(mpSnap())});return}G.sk[i]=0;skillClose();
   const a=ALLIES[i],el=document.createElement('div');el.className='rsb';el.style.setProperty('--c','#'+a.col.toString(16).padStart(6,'0'));el.innerHTML='<small>スキル</small><b>'+a.name+'「'+SKILLS[i].n+'」</b>';el.style.top='calc(env(safe-area-inset-top,0px) + 160px)';$('lay').appendChild(el);
   el.animate([{transform:'translateX(-110%)',opacity:0},{transform:'translateX(0)',opacity:1,offset:.14},{transform:'translateX(0)',opacity:1,offset:.8},{transform:'translateX(-20px)',opacity:0}],{duration:1500,easing:'cubic-bezier(.2,.9,.3,1)'}).onfinish=()=>el.remove();
   logC('スキル '+a.name+'「'+SKILLS[i].n+'」');{const ab=allyBody(i);if(ab){ab.flashA=1.2;ab.sq=.6}}SKILLS[i].f(i);telSync();ui()}
@@ -2356,7 +2356,7 @@ function mpSkill(k,i,pre){if(G.phase!=='idle'||G.busy||G.over)return false;MP.k=
 function mpSnap(){const r=v=>Math.round(v*1000)/1000;return{k:MP.k,hp:G.hp,w:G.wave,t:G.turn,sk:G.sk.slice(),bu:G.burst||0,lb:LB.on?[LB.hp,LB.cd,LB.brk||0,+!!LB.broken]:null,
   b:G.bodies.filter(b=>b.alive).map(b=>[b.id,b.k,r(b.x),r(b.z),Math.round(b.hp||0),b.cd||0])}}
 function mpHash(sn){const s=JSON.stringify(sn);let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0}return h}
-function mpApply(sn){if(!sn)return;G.hp=sn.hp;if(sn.sk)G.sk=sn.sk.slice();if(sn.bu!=null)G.burst=sn.bu;
+function mpApply(sn){if(typeof sn==='string'){try{sn=JSON.parse(sn)}catch(e){return}}if(!sn||!sn.b)return;G.hp=sn.hp;if(sn.sk)G.sk=sn.sk.slice();if(sn.bu!=null)G.burst=sn.bu;
   const by=new Map(sn.b.map(a=>[a[0],a]));for(const b of G.bodies){if(!b.alive)continue;const a=by.get(b.id);if(!a){if(b.k!=='ally'){b.alive=false;if(b.mesh)b.mesh.visible=false}continue}b.x=a[2];b.z=a[3];b.vx=0;b.vz=0;if(b.k!=='ally'){b.hp=a[4];b.cd=a[5]}}
   if(sn.lb&&LB.on){LB.hp=sn.lb[0];LB.cd=sn.lb[1];LB.brk=sn.lb[2];lbUi()}ui()}
 
