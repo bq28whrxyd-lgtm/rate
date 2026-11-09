@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=51').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=51').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=52').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=52').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1080,7 +1080,7 @@ if (BRT) document.head.appendChild(h('style', null, `
 #lay.brt .qPl .st3 i.on{color:#ffd23a;-webkit-text-stroke:2.5px #6a3a00}
 #lay.brt .qPl .nx{font:900 12px var(--rd);top:-10px;padding:3px 12px;border-radius:6px;background:linear-gradient(#ff8a9a,#f0203e 55%,#b00a22);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 0 #4a0410;animation:brBob 1.2s ease-in-out infinite}
 @keyframes brBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-#lay.brt .qPl.cur::after{content:"";position:absolute;inset:2.5px;border-radius:10px;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.45) 45%,transparent 60%) no-repeat;background-size:220% 100%;animation:brSweep 2.6s ease-in-out infinite}
+#lay.brt .qPl.cur::after{content:"";position:absolute;inset:2.5px;border-radius:10px;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.45) 45%,transparent 60%) no-repeat;background-size:220% 100%;animation:brSweep 2.6s ease-in-out infinite;will-change:transform}
 @keyframes brSweep{0%,55%{background-position:160% 0}100%{background-position:-60% 0}}
 #lay.brt .qPl.art{min-height:78px}
 #lay.brt .qPl.art::before{background:linear-gradient(90deg,#1a44a4 0,#1a44a4 26%,rgba(26,68,164,.78) 44%,rgba(26,68,164,.15) 70%,rgba(26,68,164,0)),var(--art) right center/auto 100% no-repeat,#1a44a4}
@@ -1202,11 +1202,12 @@ if (BRT) document.head.appendChild(h('style', null, `
 #lay.brt .aIb .bd{animation:bdPulse 1.4s ease-in-out infinite}
 @keyframes bdPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 #lay.brt .aMotes{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden}
-#lay.brt .aMotes i{position:absolute;bottom:18%;border-radius:50%;background:#fff6c8;box-shadow:0 0 6px 2px rgba(255,220,120,.7);opacity:0;animation:mote var(--d) linear infinite}
+#lay.brt .aMotes i{position:absolute;bottom:18%;border-radius:50%;background:radial-gradient(circle,#fffbe6 0 30%,rgba(255,220,120,.6) 45%,rgba(255,220,120,0) 70%);will-change:transform,opacity;opacity:0;animation:mote var(--d) linear infinite}
 @keyframes mote{0%{opacity:0;transform:translateY(0)}15%{opacity:.9}80%{opacity:.6}100%{opacity:0;transform:translateY(-55vh) translateX(14px)}}
 /* 大事なボタン(オレンジ・青)に、ときどき光が走る */
-#lay.brt .aBtn:not(.sub)::before{content:"";position:absolute;inset:-14px;pointer-events:none;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.55) 48%,transparent 60%) no-repeat;background-size:250% 100%;animation:btnSweep 3.4s ease-in-out infinite;mix-blend-mode:screen}
+#lay.brt .aBtn.shine::before{content:"";position:absolute;inset:-14px;pointer-events:none;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.4) 48%,transparent 60%) no-repeat;background-size:250% 100%;animation:btnSweep 3.4s ease-in-out infinite;will-change:transform}#lay.brt .aBtn.shine::after{animation:none;display:none}
 @keyframes btnSweep{0%,62%{background-position:170% 0}100%{background-position:-70% 0}}
+#lay.brt .aHero img,#lay.brt .aGa .chars img.fr,#lay.brt .aSide.r .aIb .ic img,#lay.brt .aIb .bd,#lay.brt #onav .mid .md{will-change:transform}
 @media (prefers-reduced-motion:reduce){#lay.brt *{animation:none!important}}
 `));
 
@@ -1352,7 +1353,7 @@ function renderHome() {
   if (!BRT) root.appendChild(cta);
   if (BRT && !RM) {   /* (11/9) 動き: ホームに、ゆっくり上る光の粒 */
     const mo = h('div', 'aMotes'); let hs = '';
-    for (let i = 0; i < 16; i++) { const x = (i * 61 + 7) % 100, d = 6 + (i * 37 % 50) / 10, dl = -((i * 1.7) % d), sz = 2 + (i % 3); hs += `<i style="left:${x}%;--d:${d}s;animation-delay:${dl.toFixed(1)}s;width:${sz}px;height:${sz}px"></i>`; }
+    for (let i = 0; i < 10; i++) { const x = (i * 61 + 7) % 100, d = 6 + (i * 37 % 50) / 10, dl = -((i * 1.7) % d), sz = 6 + (i % 3) * 2; hs += `<i style="left:${x}%;--d:${d}s;animation-delay:${dl.toFixed(1)}s;width:${sz}px;height:${sz}px"></i>`; }
     mo.innerHTML = hs; root.insertBefore(mo, root.firstChild.nextSibling);
   }   /* (11/9) 山本さん「ホームのクエスト欄いらない」。クエストは下のバーのまん中から。イベントは右のアイコンへ */
   setTimeout(talk, 700);

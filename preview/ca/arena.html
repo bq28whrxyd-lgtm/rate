@@ -474,7 +474,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=51';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=52';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2379,6 +2379,7 @@ function lerp(a,b,t){return a+(b-a)*t}
 let stopT=0;function hitStop(t){stopT=Math.max(stopT,t)}
 let last=performance.now();G.clock=0;
 const v3=new THREE.Vector3(),v3b=new THREE.Vector3(),v3g=new THREE.Vector3();
+let _ORT=null;function OUTCOVER(){const r=_ORT||(_ORT=document.getElementById('oroot'));return !!(r&&!r.hidden)}
 function frame(now){requestAnimationFrame(frame);if(MP.on){const o=Math.random;Math.random=MP.rng;try{frameBody(now)}finally{Math.random=o}}else frameBody(now)}
 function frameBody(now){if(window.__PAUSE){last=now;return}fpsTick(now);let dt=Math.min(.05,(now-last)/1000);last=now;if(window.__FIXDT)dt=window.__FIXDT;if(MP.on){MP.acc=Math.min(.1,MP.acc+(now-(frame.pn||now))/1000);frame.pn=now;if(MP.acc<1/60-.002)return;MP.acc-=1/60;dt=1/60}else frame.pn=now;window.__FRN=(window.__FRN||0)+1;/* __PAUSE・__FIXDT は確認用(コマ送り) */
   /* (11/9) 位置や速さが NaN(計算できない数)になった物は、まん中で止めてもとにもどす(黒い四角の元を消す) */
@@ -2478,7 +2479,7 @@ function frameBody(now){if(window.__PAUSE){last=now;return}fpsTick(now);let dt=M
      v3.set(G.C.x+(G.rad||2),0,G.C.z).project(cam);U.uR.value=Math.max(.05,Math.abs((v3.x+1)/2-cx)*W/H)}}
   {const U=grade.uniforms;IFt+=real;U.uIF.value=IFt<IFd?1:0;U.uIFk.value=IFt>IFd*.5?1:0;U.uAsp.value=innerWidth/innerHeight;U.uT.value=AU.uT.value;
    const slk=G.phase==='hold'?1:G.phase==='suck'?Math.max(0,(G.t/G.T-.45)/.55)*.7:0;U.uSL.value=lerp(U.uSL.value,slk*(.4+.6*G.p),.3);U.uSLP.value.copy(warp.uniforms.uC.value)}
-  if(!G.noRender)comp.render(real);/* (v1.2) 自動テストで速く回すときだけ描画を止める */
+  if(!G.noRender&&!OUTCOVER())comp.render(real);/* (11/10) メニュー画面が上をおおっている間は、見えない3Dを描かない(重さの一番の原因) *//* (v1.2) 自動テストで速く回すときだけ描画を止める */
   /* 頭の上の表示(HPと攻撃までの数) */
   const W=innerWidth,H=innerHeight;
   for(const b of G.bodies){if(!b.alive||!b.tag)continue;v3.set(b.mesh.position.x,b.mesh.position.y+(b.tagH||(b.k==='boss'?3:b.k==='claw'?2.4:b.hz?1.35:1.5))*VSZ,b.mesh.position.z).project(cam);/* (11/8 ラグ) left/top を毎コマ変えると画面全体の並べ直しが起きるので、見た目が同じ transform で動かす */b.tag.style.transform='translate('+((v3.x+1)/2*W).toFixed(1)+'px,'+((1-v3.y)/2*H).toFixed(1)+'px) translate(-50%,-100%)';
