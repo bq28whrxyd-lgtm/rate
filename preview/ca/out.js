@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=40').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=40').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=41').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=41').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -943,6 +943,11 @@ document.head.appendChild(h('style', null, CSS + `
 .aStaH{margin:10px 0 4px;font:900 13px var(--zk);color:#6b5b45}
 .aStaP{display:grid;gap:4px;max-height:34vh;overflow-y:auto}.aStaR{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px rgba(160,120,40,.35)}
 .aStaR span{flex:1;min-width:0;font:800 14px var(--zk);color:#2a2117;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aStaR .aBtn{min-height:32px;padding:4px 12px;font-size:12px;flex:none}
+/* (11/9) フレンド */
+.aFrB{position:absolute;right:calc(max(12px,env(safe-area-inset-right,0px)) + 48px);top:calc(env(safe-area-inset-top,0px) + 54px);z-index:5;height:40px;display:flex;align-items:center;gap:5px;padding:0 12px;border:0;border-radius:20px;cursor:pointer;color:var(--aG1);font:800 12px var(--zk);background:rgba(14,24,66,.92);box-shadow:inset 0 0 0 1px var(--aLine)}
+.aFrB svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9}.aFrB span{color:#fff}
+.aFrB i{position:absolute;right:-3px;top:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;font:900 10px/16px var(--zk);font-style:normal;color:#fff;background:#ff4d6a}
+.aStaR .aBtn+.aBtn{margin-left:2px}
 /* (11/9) プロフィール */
 .aGear{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 54px);z-index:5;width:40px;height:40px;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--aG1);background:rgba(14,24,66,.92);box-shadow:inset 0 0 0 1px var(--aLine)}
 .aGear svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9}
@@ -2001,7 +2006,7 @@ function staMenu() {
   modal('スタミナ', async (b, close) => {
     const n = staNow();
     b.innerHTML = `<div class="aStaM"><div class="big">⚡ <b>${n.v}</b> / ${STA_MAX}</div><p class="onote">${n.v < STA_MAX ? `次の1つまで ${mmss(n.next)}・満タンまで ${mmss(n.full)}` : '満タンです'}(30分で1つ回復・出撃1回で1つ)</p></div>
-      <div class="orow" style="padding:6px 0"></div><h4 class="aStaH">仲間からのスタミナ</h4><div class="aStaG"><p class="onote">確かめています…</p></div><h4 class="aStaH">仲間に送る(1人に3時間に1回)</h4><div class="aStaP"></div>`;
+      <div class="orow" style="padding:6px 0"></div><h4 class="aStaH">仲間からのスタミナ</h4><div class="aStaG"><p class="onote">確かめています…</p></div><h4 class="aStaH">フレンドに送る(1人に3時間に1回)</h4><div class="aStaP"></div>`;
     const r = b.querySelector('.orow');
     r.append(btn('shine', '100ptで満タンにする', () => { if (staNow().v >= STA_MAX) { flash('もう満タンです'); return; } if (!ptSpend(100, 'sta')) { flash('ptが足りません'); return; } S.sta.v = Math.max(S.sta.v, STA_MAX); S.sta.t = Date.now(); save(); renderTop(); close(); flash('スタミナが満タンになりました'); }));
     /* もらう */
@@ -2010,8 +2015,9 @@ function staMenu() {
     else { try { const g = await HOST.sta.peek(); if (!g.length) G.innerHTML = '<p class="onote">届いていません</p>'; else { G.innerHTML = `<p class="onote">${g.slice(0, 6).map(x => esc(x.fn || '')).join('・')}${g.length > 6 ? ' ほか' : ''}から ${g.length}つ</p>`; G.appendChild(btn('', `${g.length}つ受け取る`, async () => { try { const got = await HOST.sta.take(); staNow(); S.sta.v = Math.min(99, S.sta.v + got.length); save(); staGift = 0; renderTop(); close(); flash(`スタミナを ${got.length} 受け取りました`); } catch (e) { flash('受け取れませんでした'); } })); } } catch (e) { G.innerHTML = '<p class="onote">読み込めませんでした</p>'; } }
     /* 送る */
     const P = b.querySelector('.aStaP');
-    const L = HOST && HOST.sta ? HOST.sta.players() : [];
-    if (!L.length) P.innerHTML = '<p class="onote">アプリの中で、仲間に送れます</p>';
+    let L = HOST && HOST.sta ? HOST.sta.players() : [];
+    if (HOST && HOST.friend) { try { const F = await HOST.friend.get(); L = L.filter(p => F.f.includes(p.id)); } catch (e) { L = []; } }
+    if (!L.length) { P.innerHTML = HOST ? '<p class="onote">フレンドにだけ送れます。プロフィールの「フレンド」から申請してください。</p>' : '<p class="onote">アプリの中で、仲間に送れます</p>'; }
     S.staSent = S.staSent || {};
     for (const p of L) {
       const left = (S.staSent[p.id] || 0) + STA_GIFT_MS - Date.now();
@@ -2020,6 +2026,32 @@ function staMenu() {
       if (left > 0) bt.disabled = true; row.appendChild(bt); P.appendChild(row);
     }
     const r2 = h('div', 'orow'); r2.style.padding = '10px 0 0'; r2.appendChild(btn('sub', '閉じる', close)); b.appendChild(r2);
+  });
+}
+/* ===== (11/9) フレンド(山本さん): 申請して相手が承認・上限なし。スタミナを送れるのはフレンドだけ ===== */
+let frIn = 0;
+async function frPeek() { try { if (HOST && HOST.friend) { const F = await HOST.friend.get(); const was = frIn; frIn = F.in.length; if (was !== frIn && TAB === 'other') renderNow(); } } catch (e) { } }
+setInterval(frPeek, 60000); setTimeout(frPeek, 4000);
+function frMenu() {
+  modal('フレンド', async (b, close) => {
+    if (!(HOST && HOST.friend)) { b.innerHTML = '<p class="onote">アプリの中で使えます</p>'; const r = h('div', 'orow'); r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); return; }
+    const draw = async () => {
+      b.innerHTML = '<p class="onote">読み込み中…</p>';
+      let F; try { F = await HOST.friend.get(); } catch (e) { b.innerHTML = '<p class="onote">読み込めませんでした</p>'; return; }
+      const all = HOST.sta.players(), nm = id => (all.find(p => p.id === id) || {}).n || '(いない人)';
+      frIn = F.in.length;
+      b.innerHTML = `${F.in.length ? `<h4 class="aStaH">届いた申請</h4><div class="aStaP fIn"></div>` : ''}<h4 class="aStaH">フレンド(${F.f.length}人)</h4><div class="aStaP fF"></div><h4 class="aStaH">申請する</h4><div class="aStaP fAdd"></div>`;
+      const row = (name, ...btns) => { const r = h('div', 'aStaR', `<span>${esc(name)}</span>`); btns.forEach(x => r.appendChild(x)); return r; };
+      const act = (label, kind, fn) => { const x = btn(kind, label, async () => { x.disabled = true; try { await fn(); } catch (e) { flash('うまくいきませんでした'); } draw(); }); return x; };
+      const I = b.querySelector('.fIn'); if (I) for (const x of F.in) I.appendChild(row(x.n || nm(x.p), act('ことわる', 'sub', () => HOST.friend.decline(x.p)), act('承認', '', () => HOST.friend.accept(x.p))));
+      const L = b.querySelector('.fF'); if (!F.f.length) L.innerHTML = '<p class="onote">まだいません。下から申請してください。</p>';
+      for (const id of F.f) { const pv = btn('sub', 'プロフィール', () => profOpen(id, nm(id))); const rm = btn('sub', 'はずす', async () => { if (rm.dataset.ok !== '1') { rm.dataset.ok = '1'; rm.textContent = 'もう一度押す'; return; } rm.disabled = true; try { await HOST.friend.remove(id); } catch (e) { } draw(); }); L.appendChild(row(nm(id), pv, rm)); }
+      const A = b.querySelector('.fAdd'); const rest = all.filter(p => !F.f.includes(p.id) && !F.in.some(x => x.p === p.id));
+      if (!rest.length) A.innerHTML = '<p class="onote">申請できる人はいません</p>';
+      for (const p of rest) A.appendChild(row(p.n, F.out.includes(p.id) ? Object.assign(btn('sub', '申請中', () => { }), { disabled: true }) : act('申請', '', async () => { const r = await HOST.friend.request(p.id); flash(r === 'friend' ? 'フレンドになりました' : r === 'full' ? '相手の申請がいっぱいです' : '申請しました'); })));
+      const r = h('div', 'orow'); r.style.padding = '10px 0 0'; r.appendChild(btn('sub', '閉じる', () => { close(); if (TAB === 'other') renderNow(); })); b.appendChild(r);
+    };
+    draw();
   });
 }
 /* ===== (11/9) 「その他」→ プロフィール(山本さん)。参考: 原神・スターレイルのプロフィール(名刺・キャラの展示・実績の数・高難度の進み具合)、
@@ -2062,6 +2094,7 @@ function profView(P, mine) {
 }
 function renderOther() {
   const b = shell('プロフィール', 'PROFILE');
+  const fb = h('button', 'aFrB', `${svg('party')}<span>フレンド</span>${frIn ? `<i>${frIn}</i>` : ''}`); fb.type = 'button'; fb.onclick = frMenu; root.appendChild(fb);
   const g = h('button', 'aGear', '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/><circle cx="12" cy="12" r="6.4"/></svg>'); g.type = 'button'; g.setAttribute('aria-label', '設定・お知らせ'); g.onclick = settingsMenu; root.appendChild(g);
   const P = Object.assign(profPack(), { st: profStats(), av: myAv() });
   const v = profView(P, true); b.appendChild(v);

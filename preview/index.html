@@ -14680,7 +14680,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=40',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=41',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -14733,6 +14733,24 @@ window.CAHOST={
     try{for(const o of (typeof myOshiSet==='function'?myOshiSet():[])){const k=o&&M[o.n];if(k&&!out.includes(k))out.push(k)}}catch(e){}
     try{if(window.__caSkinAll||(typeof hbSkin==='function'&&hbSkin(me.id))||(typeof isAdmin==='function'&&isAdmin()&&/\/preview\//.test(location.pathname)))out.push('knight')}catch(e){}
     return out},
+  /* (11/9) フレンド(山本さん): 申請して相手が承認。cafriend/{pid} = {f:[フレンド], in:[{p,n,t}]届いた申請, out:[申請中], by:書いた人} */
+  friend:{
+    _ref:p=>db.doc('cafriend/'+p),
+    _d:x=>{const o=x.exists?x.data():{};return{f:Array.isArray(o.f)?o.f:[],in:Array.isArray(o.in)?o.in:[],out:Array.isArray(o.out)?o.out:[]}},
+    get:async()=>{const me=myPlayer();if(!db||!me)return{f:[],in:[],out:[]};const F=CAHOST.friend;return db.runTransaction(async tx=>F._d(await tx.get(F._ref(me.id))))},
+    request:async to=>{const me=myPlayer();if(!db||!me||to===me.id)return false;const F=CAHOST.friend,a=F._ref(me.id),b=F._ref(to);
+      return db.runTransaction(async tx=>{const A=F._d(await tx.get(a)),B=F._d(await tx.get(b));if(A.f.includes(to))return 'already';
+        if(A.in.some(x=>x.p===to)){/* 相手からも申請が来ていれば、そのままフレンドに */A.f.push(to);A.in=A.in.filter(x=>x.p!==to);B.f.push(me.id);B.out=B.out.filter(x=>x!==me.id);tx.set(a,Object.assign(A,{by:me.id}));tx.set(b,Object.assign(B,{by:me.id}));return 'friend'}
+        if(A.out.includes(to))return 'sent';if(B.in.length>=100)return 'full';
+        A.out.push(to);B.in.push({p:me.id,n:String(me.name||''),t:Date.now()});tx.set(a,Object.assign(A,{by:me.id}));tx.set(b,Object.assign(B,{by:me.id}));return 'sent'})},
+    accept:async from=>{const me=myPlayer();if(!db||!me)return false;const F=CAHOST.friend,a=F._ref(me.id),b=F._ref(from);
+      return db.runTransaction(async tx=>{const A=F._d(await tx.get(a)),B=F._d(await tx.get(b));A.in=A.in.filter(x=>x.p!==from);if(!A.f.includes(from))A.f.push(from);if(!B.f.includes(me.id))B.f.push(me.id);B.out=B.out.filter(x=>x!==me.id);
+        tx.set(a,Object.assign(A,{by:me.id}));tx.set(b,Object.assign(B,{by:me.id}));return true})},
+    decline:async from=>{const me=myPlayer();if(!db||!me)return false;const F=CAHOST.friend,a=F._ref(me.id),b=F._ref(from);
+      return db.runTransaction(async tx=>{const A=F._d(await tx.get(a)),B=F._d(await tx.get(b));A.in=A.in.filter(x=>x.p!==from);B.out=B.out.filter(x=>x!==me.id);tx.set(a,Object.assign(A,{by:me.id}));tx.set(b,Object.assign(B,{by:me.id}));return true})},
+    remove:async p=>{const me=myPlayer();if(!db||!me)return false;const F=CAHOST.friend,a=F._ref(me.id),b=F._ref(p);
+      return db.runTransaction(async tx=>{const A=F._d(await tx.get(a)),B=F._d(await tx.get(b));A.f=A.f.filter(x=>x!==p);B.f=B.f.filter(x=>x!==me.id);tx.set(a,Object.assign(A,{by:me.id}));tx.set(b,Object.assign(B,{by:me.id}));return true})}
+  },
   /* (11/9) スタミナを仲間に送る(ツムツム風・山本さん)。castam/{pid}.g に {f:送った人,fn:名前,t} を1つ足す。受け取ると空にする */
   sta:{
     players:()=>{const me=myPlayer();return (players||[]).filter(p=>!p.ban&&!p.retired&&(!me||p.id!==me.id)).map(p=>({id:p.id,n:p.name}))},
