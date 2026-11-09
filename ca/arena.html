@@ -474,7 +474,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=36';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=41';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2232,7 +2232,7 @@ function ui(){const F=party.querySelectorAll('.face');F.forEach((f,i)=>{f.classL
 let comboT=0;function showCombo(){const el=$('combo');if(G.combo<=0){el.style.opacity=0;return}$('cn').textContent=G.combo;$('cs').textContent='連鎖ダメージ +'+Math.round((G.cm||0)*1.5)+'%';el.style.opacity=1;comboT=performance.now();
   el.animate([{transform:'scale(1.35)'},{transform:'scale(1)'}],{duration:180,easing:'cubic-bezier(.2,1.6,.4,1)'})}
 function hint(t){const h=$('hint');if(!t){h.style.opacity=0;return}$('ht').textContent=t;h.style.opacity=1}
-const nums=[];function num(x,y,z,v,cls){const d=document.createElement('div');d.className='dmg '+(cls||'')+(typeof v==='string'&&!/^[-+]?\d/.test(v)?' txt':'');d.textContent=typeof v==='number'?v.toLocaleString():v;d.style.opacity=0;tagsEl.appendChild(d);nums.push({d,x,y,z,t:0,dx:(Math.random()-.5)*.6})}
+const nums=[];function num(x,y,z,v,cls){if(typeof v==='number'&&v>0&&!/heal|hl|rec/.test(cls||''))G.dmgMax=Math.max(G.dmgMax||0,v);const d=document.createElement('div');d.className='dmg '+(cls||'')+(typeof v==='string'&&!/^[-+]?\d/.test(v)?' txt':'');d.textContent=typeof v==='number'?v.toLocaleString():v;d.style.opacity=0;tagsEl.appendChild(d);nums.push({d,x,y,z,t:0,dx:(Math.random()-.5)*.6})}
 /* (v1.0) 知らせの文字: 画面の上の決まった場所に縦に積む(重ならない)。古いものから消える */
 function say(t,dur){const box=$('msgs');const d=document.createElement('div');d.className='say';d.textContent=t;box.appendChild(d);while(box.children.length>3)box.firstChild.remove();
   d.animate([{transform:'scale(1.6)',opacity:0},{transform:'scale(.94)',opacity:1,offset:.12},{transform:'scale(1)',opacity:1,offset:.2},{transform:'scale(1)',opacity:1,offset:.82},{transform:'translateY(-8px)',opacity:0}],{duration:(dur||1.4)*1000,easing:'cubic-bezier(.2,.9,.3,1)'}).onfinish=()=>d.remove()}
@@ -2268,7 +2268,7 @@ function stageT(i,h){const st=STAGES[i],ev=st.ev||'';
   const n=st.n||'';let j=/上級/.test(n)?2:/中級/.test(n)?1:/初級/.test(n)?0:-1;if(j<0){j=0;for(let k=i-1;k>=0&&STAGES[k].ev===ev&&(STAGES[k].n===st.n);k--)j++}return [20,40,60][Math.min(2,j)]}
 /* (11/9) 敵の「攻撃まで」をばらす(山本さん): 一斉に攻撃せず、1手番に半分くらいずつ。攻撃の多さ(2手番に1回)は変えない */
 let CDALT=0;function cd0(b,k){if(k==='boss')return Math.max(1,2+DIF.cd);const base=Math.max(1,1+((b.id*7)%3)+DIF.cd);if(DIF.cd>=0)return base;CDALT^=1;return 1+CDALT}
-function setStageData(i,h){const st=STAGES[i];G.stage=i;G.mpN=0;G.mpWait=false;G.ldo=null;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
+function setStageData(i,h){const st=STAGES[i];G.stage=i;G.dmgMax=0;G.mpN=0;G.mpWait=false;G.ldo=null;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
   Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF*(st.ev?1:.85)/* (11/9) ストーリーはノーマル・ハードとも×0.85(山本さん、×0.7からもどす) *//* (11/8 8時) ストーリーは少しだけ弱く */;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
   WAVES.length=0;{const pool=[...new Set(STAGES.slice(0,i+1).flatMap(s=>(s.gm||[]).join('').replace(/\./g,'').split('')))];if(!pool.length)pool.push('f','w');let hk=0;
    st.waves.forEach((w,wi)=>{const g=(st.gm||[])[wi]||'';let ei=0;const items=w.items.map(it=>{if(it[0]!=='enemy')return it;let c=g[ei]||'.';if(h&&c==='.'&&ei%2===1)c=pool[(hk++)%pool.length];ei++;return GL[c]?[it[0],it[1],it[2],GL[c]]:it});WAVES.push(Object.assign({},w,{items}))})}
@@ -2283,7 +2283,7 @@ function showRes(ok,msg,btns){G.over=true;G.runId++;const st=STAGES[G.stage];$('
   const rr=$('rr');rr.textContent='';for(const [t,fn,cls] of btns){const b=document.createElement('button');b.type='button';b.className='btn'+(cls?' '+cls:'');b.textContent=t;b.onclick=fn;rr.appendChild(b)}
   $('res').hidden=false;playResultArt(ok);emitScreen('result',{ok});setTimeout(()=>{const b=rr.querySelector('button');b&&b.focus()},60)}
 function stageClear(){const i=G.stage,h=G.hard,st0=STAGES[i];
-  const info={i,h,first:h?!PROG.h[i]:!PROG.n[i],turn:G.turn,hp:G.hp,hpMax:G.hpMax,cm:G.comboMax,multi:MP.on};
+  const info={i,h,first:h?!PROG.h[i]:!PROG.n[i],turn:G.turn,hp:G.hp,hpMax:G.hpMax,cm:G.comboMax,dm:G.dmgMax||0,multi:MP.on};
   if(st0.ev){const got=window.CA_OUT&&window.CA_OUT.onClear?window.CA_OUT.onClear(st0,info):'';
     const ch=st0.ev==='tower'||st0.ev==='raid'||st0.ev==='score'||st0.ev==='ex';const bt=[];
     if(st0.ev==='tower'&&STAGES[i+1]&&STAGES[i+1].ev==='tower')bt.push(['次の階へ',()=>startStage(i+1,false),'go']);else if(st0.ev==='ex'&&STAGES[i+1]&&STAGES[i+1].ev==='ex'&&STAGES[i+1].bi===st0.bi)bt.push(['次の段階へ',()=>startStage(i+1,false),'go']);else bt.push(['もう一度',()=>startStage(i,false),'go']);

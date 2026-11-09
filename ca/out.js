@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=36').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=36').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=41').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=41').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -192,7 +192,7 @@ const CSS = `
 /* 上の帯(高さ40) */
 #ohud{position:absolute;left:0;right:0;top:0;z-index:41;box-sizing:border-box;display:flex;gap:6px;align-items:center;height:calc(env(safe-area-inset-top,0px) + 44px);padding:env(safe-area-inset-top,0px) max(8px,env(safe-area-inset-right,0px)) 0 max(8px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(5,10,32,.92),rgba(5,10,32,.55));pointer-events:none}
 #ohud>*{pointer-events:auto}
-.aPl{display:flex;align-items:center;gap:7px;min-width:0;flex:1;max-width:190px;padding:3px 10px 3px 3px;border-radius:20px;cursor:pointer;border:0;color:#fff;font:inherit;text-align:left;background:rgba(14,24,66,.9);box-shadow:inset 0 0 0 1px var(--aLine)}
+.aPl{display:flex;align-items:center;gap:7px;min-width:0;flex:1;max-width:150px;padding:3px 10px 3px 3px;border-radius:20px;cursor:pointer;border:0;color:#fff;font:inherit;text-align:left;background:rgba(14,24,66,.9);box-shadow:inset 0 0 0 1px var(--aLine)}
 .aAv{width:30px;height:30px;flex:none;border-radius:50%;background:#1a2654 center/cover no-repeat;box-shadow:0 0 0 1.5px var(--aG)}
 .aPn{display:block;font:700 12px var(--zk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aRk{display:flex;align-items:center;gap:5px;font:700 9px var(--zk);color:var(--aMut)}
@@ -934,14 +934,71 @@ const CSS = `
 .aSheet .x{color:var(--crTx)!important;font-weight:700}
 .aBan.aGl{background:#0e1842!important;box-shadow:0 0 0 1.5px var(--aG),0 2px 8px rgba(0,0,0,.5)!important}.aBan .tx{color:#fff}
 `;
-document.head.appendChild(h('style', null, CSS));
+document.head.appendChild(h('style', null, CSS + `
+/* (11/9) スタミナ */
+.aSta{display:flex;align-items:center;gap:3px;height:26px;padding:0 7px;border:0;border-radius:13px;cursor:pointer;color:#fff;position:relative;flex:none}
+.aSta i{font-style:normal;font-size:12px}.aSta b{font:900 12px var(--zk);font-variant-numeric:tabular-nums}.aSta small{font:700 9px var(--zk);color:#c3cbe6;font-variant-numeric:tabular-nums}
+.aSta .dot{position:absolute;right:-2px;top:-2px;width:9px;height:9px;border-radius:50%;background:#ff4d6a;box-shadow:0 0 0 1.5px #0e1842}
+.aStaM{text-align:center}.aStaM .big{font:900 28px var(--zk);color:#2a2117}.aStaM .big b{font-size:36px}
+.aStaH{margin:10px 0 4px;font:900 13px var(--zk);color:#6b5b45}
+.aStaP{display:grid;gap:4px;max-height:34vh;overflow-y:auto}.aStaR{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px rgba(160,120,40,.35)}
+.aStaR span{flex:1;min-width:0;font:800 14px var(--zk);color:#2a2117;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aStaR .aBtn{min-height:32px;padding:4px 12px;font-size:12px;flex:none}
+/* (11/9) フレンド */
+.aFrB{position:absolute;right:calc(max(12px,env(safe-area-inset-right,0px)) + 48px);top:calc(env(safe-area-inset-top,0px) + 54px);z-index:5;height:40px;display:flex;align-items:center;gap:5px;padding:0 12px;border:0;border-radius:20px;cursor:pointer;color:var(--aG1);font:800 12px var(--zk);background:rgba(14,24,66,.92);box-shadow:inset 0 0 0 1px var(--aLine)}
+.aFrB svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9}.aFrB span{color:#fff}
+.aFrB i{position:absolute;right:-3px;top:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;font:900 10px/16px var(--zk);font-style:normal;color:#fff;background:#ff4d6a}
+.aStaR .aBtn+.aBtn{margin-left:2px}
+/* (11/9) プロフィール */
+.aGear{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 54px);z-index:5;width:40px;height:40px;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--aG1);background:rgba(14,24,66,.92);box-shadow:inset 0 0 0 1px var(--aLine)}
+.aGear svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9}
+.aProf{display:grid;gap:8px}
+.aProf .pc{position:relative;display:flex;align-items:center;gap:12px;min-height:92px;padding:12px 14px;border-radius:12px;background-size:cover;background-position:center;box-shadow:inset 0 0 0 1.5px var(--aG),0 4px 12px rgba(0,0,0,.45);color:#fff}
+.aProf .av{flex:0 0 64px;height:64px;border-radius:10px;background:#16255a center/cover;box-shadow:0 0 0 2px var(--aG)}
+.aProf .who{display:grid;gap:2px;min-width:0}.aProf .who b{font:900 20px var(--zk);text-shadow:0 1px 3px #000}.aProf .who small{font:800 11px var(--zk);letter-spacing:.12em;color:#c3cbe6}.aProf .who small i{font-style:normal;font-size:15px;color:var(--aG1)}
+.aProf .who em{font:700 12px/1.4 var(--zk);font-style:normal;color:#e6ebff;text-shadow:0 1px 2px #000}
+.aProf .ed{position:absolute;right:10px;bottom:8px;border:0;border-radius:6px;padding:4px 10px;font:800 11px var(--zk);color:#2b1a02;background:linear-gradient(#fff2c2,#e8b84a);cursor:pointer}
+.aProf h4{margin:6px 2px 0;font:900 13px var(--zk);color:var(--aG1);letter-spacing:.1em}
+.aProf .pfs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.aProf .pf{position:relative;height:150px;border-radius:10px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,#2a3a80,#0b1236);box-shadow:inset 0 0 0 1.5px var(--aLine);cursor:pointer}
+.aProf .pf img{position:absolute;left:50%;top:-2%;height:230%;transform:translateX(-50%);object-fit:contain;max-width:none}
+.aProf .pf .pn{position:absolute;left:0;right:0;bottom:0;padding:16px 4px 3px;font:900 12px var(--zk);color:#fff;text-align:center;background:linear-gradient(transparent,rgba(5,8,24,.95))}
+.aProf .pf .pl{position:absolute;right:4px;top:4px;padding:1px 5px;border-radius:4px;font:800 10px var(--zk);color:#fff;background:rgba(5,8,24,.7)}
+.aProf .pst{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.aProf .pst div{display:grid;gap:1px;padding:8px 10px;border-radius:9px;background:rgba(14,24,66,.92);box-shadow:inset 0 0 0 1px var(--aLine)}
+.aProf .pst small{font:700 11px var(--zk);color:#c3cbe6}.aProf .pst b{font:900 19px var(--zk);color:#fff;font-variant-numeric:tabular-nums}.aProf .pst b small{font-size:11px;color:#97a2c6}
+.aPe .sh{max-height:92vh;display:flex;flex-direction:column}
+.aPe .pTop{display:flex;gap:10px;align-items:center;margin:4px 0 8px}
+.aPe .pAv{flex:0 0 auto;border:0;background:none;cursor:pointer;display:grid;justify-items:center;gap:2px;color:#2a2117;font:800 11px var(--zk)}
+.aPe .pAv span{width:58px;height:58px;border-radius:10px;background:#16255a center/cover;box-shadow:0 0 0 2px #c9a14a}
+.aPe .pMsg{flex:1;display:grid;gap:2px;font:800 11px var(--zk);color:#6b5b45}.aPe .pMsg input{width:100%;box-sizing:border-box;padding:10px;border-radius:8px;border:1.5px solid #c9a14a;font:700 15px var(--zk);background:#fff;color:#1a1530}
+.aPe .pTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px}.aPe .pTabs button{border:0;border-radius:8px;padding:9px 0;font:900 13px var(--zk);color:#fff;background:#24346f;cursor:pointer}.aPe .pTabs button.on{color:#2b1a02;background:linear-gradient(#fff2c2,#e8b84a)}
+.aPe .pSlots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.aPe .ps{position:relative;height:118px;border:0;border-radius:10px;overflow:hidden;cursor:pointer;background:radial-gradient(120% 90% at 50% 20%,#2a3a80,#0b1236);box-shadow:inset 0 0 0 2px #c9a14a}
+.aPe .ps img{position:absolute;left:50%;top:-2%;height:230%;transform:translateX(-50%);max-width:none}
+.aPe .ps b{position:absolute;left:0;right:0;bottom:0;padding:14px 2px 3px;font:900 12px var(--zk);color:#fff;background:linear-gradient(transparent,rgba(5,8,24,.95))}
+.aPe .ps i{position:absolute;left:4px;top:4px;width:20px;height:20px;border-radius:5px;font:900 13px/20px var(--zk);font-style:normal;color:#2b1a02;background:#e8c878}
+.aPe .ps u{position:absolute;right:4px;top:4px;padding:2px 6px;border-radius:5px;font:800 10px var(--zk);text-decoration:none;color:#fff;background:rgba(5,8,24,.75)}
+.aPe .ps.em{display:grid;place-content:center;justify-items:center;color:#c3cbe6;background:rgba(14,24,66,.5);box-shadow:inset 0 0 0 2px dashed}.aPe .ps.em span{font:900 26px var(--zk);color:#e8c878}.aPe .ps.em small{font:800 11px var(--zk)}
+.aPe .pHint{margin:6px 2px;font:700 12px/1.5 var(--zk);color:#6b5b45}
+.aPe .pGrid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:2px}
+.aPe .pGrid.card{grid-template-columns:repeat(2,1fr)}
+.aPe .pc{position:relative;border:0;border-radius:10px;padding:0 0 4px;cursor:pointer;display:grid;justify-items:center;gap:1px;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(160,120,40,.4);overflow:hidden}
+.aPe .pc img{width:100%;aspect-ratio:1;object-fit:cover;max-width:100%}
+.aPe .pc b{font:900 11px var(--zk);color:#2a2117;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.aPe .pc small{font:800 9px var(--zk);color:#b58a1e;min-height:11px}
+.aPe .pc.on{box-shadow:0 0 0 3px #e8b84a,inset 0 0 0 1.5px #e8b84a;background:#fff6d8}
+.aPe .pc i{position:absolute;left:4px;top:4px;width:20px;height:20px;border-radius:5px;font:900 13px/20px var(--zk);font-style:normal;color:#2b1a02;background:#e8c878;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.aPe .pcd{position:relative;height:70px;border:0;border-radius:8px;cursor:pointer;background:#16255a center/cover}.aPe .pcd span{position:absolute;left:0;right:0;bottom:0;padding:3px;font:900 12px var(--zk);color:#fff;background:rgba(5,8,24,.7)}.aPe .pcd.on{box-shadow:0 0 0 3px #e8b84a}
+.aPe .pBtm{padding:10px 0 0}
+.aCards{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.aCards button{position:relative;height:44px;border:0;border-radius:6px;background:#16255a center/cover;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)}
+.aCards button span{position:absolute;left:0;right:0;bottom:0;font:800 10px var(--zk);color:#fff;background:rgba(5,8,24,.7)}.aCards button.on{box-shadow:0 0 0 3px #e8c878}
+`));
 
 const IC = {
   home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/>',
   quest: '<path d="M5 19 19 5"/><path d="M14 5h5v5"/><path d="M5 14l5 5"/><path d="M8 16l-3 3"/>',
   chara: '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.9-4 3.8-6 7.5-6s6.6 2 7.5 6"/>',
   gacha: '<path d="M12 2.5 14.6 9 21 9.6 16.2 14 17.6 20.5 12 17.2 6.4 20.5 7.8 14 3 9.6 9.4 9z"/>',
-  other: '<circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/>',
+  other: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.6-1.7 1.8-2.5 3.2-2.5s2.6.8 3.2 2.5M14 10h4M14 13.5h3"/>',
   news: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',
   party: '<circle cx="8" cy="8" r="3"/><circle cx="16.5" cy="8" r="3"/><path d="M2.5 20c0-4 2.6-6 5.5-6s5.5 2 5.5 6M14 14.3c.8-.3 1.6-.3 2.5-.3 3 0 5.5 2 5.5 6"/>',
   power: '<path d="M12 3v14M6 9l6-6 6 6"/><path d="M5 21h14"/>',
@@ -964,7 +1021,7 @@ document.addEventListener('pointerdown', e => {
 }, { passive: true });
 
 /* ---------- 画面の骨組み ---------- */
-const TABS = [['home', 'ホーム'], ['chara', 'キャラ'], ['quest', 'クエスト'], ['gacha', 'ガチャ'], ['other', 'その他']];
+const TABS = [['home', 'ホーム'], ['chara', 'キャラ'], ['quest', 'クエスト'], ['gacha', 'ガチャ'], ['other', 'プロフィール']];
 const lay = $('lay');
 const nav = h('nav'); nav.id = 'onav'; nav.setAttribute('aria-label', 'メニュー');
 for (const [k, label] of TABS) {
@@ -982,10 +1039,11 @@ let TAB = 'home', SUB = { quest: 'main', chara: 'box' }, PICK = null;
 
 function rankInfo() { const n = A.PROG.n.filter(Boolean).length + A.PROG.h.filter(Boolean).length; const lvSum = S.units.reduce((a, u) => a + u.lv, 0); const xp = n * 120 + lvSum * 6; const rk = 1 + Math.floor(xp / 100); return { rk, f: (xp % 100) / 100 }; }
 function renderTop() {
-  const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(), f = S.home ? faceURL(S.home, homeEvo()) : '';   /* アプリの中ではアプリのランク(レベル)を出す */
+  const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(), f = myAv();   /* アプリの中ではアプリのランク(レベル)を出す */
   hud.innerHTML = `<button class="aPl aGl" type="button" aria-label="ホームに出すキャラを変える"><span class="aAv" style="${f ? `background-image:url(${f})` : ''}"></span><span style="min-width:0"><span class="aPn">${esc(S.name)}</span><span class="aRk">RANK <b>${ri.rk}</b><span class="bar"><i style="width:${Math.round(ri.f * 100)}%"></i></span></span></span></button>
-  <div class="aCur aGl" title="きもオタレートと共通のポイント。ガチャに使う。ステージの初回クリア・★・ミッションでもらえる">${svg('pt', '0 0 16 16')}<b>${ptNow().toLocaleString()}</b>${HOST ? '' : '<button type="button" aria-label="ptを足す(テスト用)">+</button>'}</div>${HOST ? '<button class="aX" type="button" aria-label="アプリに戻る">×</button>' : ''}`;
+  <button class="aSta aGl" type="button" aria-label="スタミナ"><i>⚡</i><b></b><small></small>${staGift ? '<em class="dot"></em>' : ''}</button><div class="aCur aGl" title="きもオタレートと共通のポイント。ガチャに使う。ステージの初回クリア・★・ミッションでもらえる">${svg('pt', '0 0 16 16')}<b>${ptNow().toLocaleString()}</b>${HOST ? '' : '<button type="button" aria-label="ptを足す(テスト用)">+</button>'}</div>${HOST ? '<button class="aX" type="button" aria-label="アプリに戻る">×</button>' : ''}`;
   hud.querySelector('.aPl').onclick = () => { if (TAB !== 'home') go('home'); else nextHome(); };
+  hud.querySelector('.aSta').onclick = staMenu; staTick();
   if (!HOST) hud.querySelector('.aCur button').onclick = () => { S.pt += 1000; save(); flash('+1,000pt(テスト用)'); };
   else hud.querySelector('.aX').onclick = () => { try { HOST.close(); } catch (e) { } };
 }
@@ -1415,8 +1473,9 @@ function mpOpen(code) {
       <div class="mpMem" style="display:grid;gap:6px">${[0, 1, 2, 3].map(k => { const p = hostFirst[k], m = p && M[p];
         if (!m) return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.08);opacity:.6"><span style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.1)"></span><span>あき(2人なら1人2体ずつ、3人なら募集した人が2体)</span></div>`;
         const c = m.u && CH[m.u.id];
-        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.14)"><img alt="" src="${c ? bigFaceURL(c.id, m.u.evo) : ''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><span style="flex:1;min-width:0"><b>${esc(m.n || '')}</b>${p === R.host ? ' <small style="color:#ffd36a">募集した人</small>' : ''}${p === me ? ' <small>(あなた)</small>' : ''}<br><small>${c ? esc(c.name) + ' Lv' + m.u.lv + (m.u.evo ? '・★6' : '') : 'キャラを選んでいます'}${m.ld ? '<br>リーダースキル: ' + esc(m.ld.ln) : ''}</small></span></div>`; }).join('')}</div>
+        return `<div class="mpRow" data-pid="${esc(p)}" data-n="${esc(m.n || '')}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.14);cursor:pointer"><img alt="" src="${c ? bigFaceURL(c.id, m.u.evo) : ''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><span style="flex:1;min-width:0"><b>${esc(m.n || '')}</b>${p === R.host ? ' <small style="color:#ffd36a">募集した人</small>' : ''}${p === me ? ' <small>(あなた)</small>' : ''}<br><small>${c ? esc(c.name) + ' Lv' + m.u.lv + (m.u.evo ? '・★6' : '') : 'キャラを選んでいます'}${m.ld ? '<br>リーダースキル: ' + esc(m.ld.ln) : ''}</small></span></div>`; }).join('')}</div>
       <div class="orow" style="margin-top:12px"></div>`;
+    sh.querySelectorAll('.mpRow').forEach(e => e.onclick = () => profOpen(e.dataset.pid, e.dataset.n));
     const r = sh.querySelector('.orow');
     r.append(btn('sub', host ? '解散する' : '抜ける', () => mpLeave(false)), btn('sub', 'キャラを選ぶ', mpPick));
     if (host) r.append(btn('shine', '始める', mpStart));
@@ -1443,13 +1502,14 @@ async function mpStart() {
   const pids = [R.host, ...Object.keys(M).filter(p => p !== R.host && !M[p].left && M[p].u).sort((a, b) => (M[a].at0 || 0) - (M[b].at0 || 0))];
   const ids = new Set(pids.map(p => M[p].u.id)); if (ids.size !== pids.length) { flash('同じキャラを選んでいる人がいます'); return; }
   if (pids.length < 2) { flash('ほかの人が入るのを待ってください(1人なら、ふつうに出撃できます)'); return; }
+  if (!staCan()) { staOut(); return; }
   /* (11/9 山本さん) 2人なら2体ずつ(交互)、3人なら募集した人が2体・ほかは1体、4人なら1体ずつ */
   const used = new Set(ids), second = p => { const L = (M[p].pt || []).filter(u => !used.has(u.id)); const u = L[0]; if (u) used.add(u.id); return u; };
   let sl = pids.map(p => ({ p, u: M[p].u }));
   if (pids.length === 2) { const a2 = second(pids[0]), b2 = second(pids[1]); sl = [sl[0], sl[1]]; if (a2) sl.push({ p: pids[0], u: a2 }); if (b2) sl.push({ p: pids[1], u: b2 }); }
   else if (pids.length === 3) { const a2 = second(pids[0]); if (a2) sl.push({ p: pids[0], u: a2 }); }
   for (const u of teamUnits().map(mpPack)) { if (sl.length >= 4) break; if (!used.has(u.id)) { used.add(u.id); sl.push({ p: R.host, u }); } }   /* 足りなければ募集した人のキャラで */
-  try { await HOST.room.host(MPC.code, { order: pids, sl: sl.slice(0, 4), state: 'play' }); } catch (e) { mpErr(e); }
+  try { if (await HOST.room.host(MPC.code, { order: pids, sl: sl.slice(0, 4), state: 'play' })) staUse(); } catch (e) { mpErr(e); }
 }
 /* 全員: 始まった。チームを組んで、同じ種で出撃 */
 function mpBegin() {
@@ -1924,8 +1984,163 @@ function evoTrial() {
 }
 
 /* ---------- その他 ---------- */
+/* ===== (11/9) スタミナ(山本さん): 最大7(はじめ10→11/9に7)・30分で1つ回復・出撃1回で1つ(マルチは募集した人だけ)。
+   100ptで満タン(何回でも)。仲間に3時間に1回1つ送れる(ツムツム風)。もらった分は最大を超えて貯まる ===== */
+const STA_MAX = 7, STA_MS = 30 * 60 * 1000, STA_GIFT_MS = 3 * 3600 * 1000;
+let staGift = 0;
+function staNow() {
+  const o = S.sta = S.sta || { v: STA_MAX, t: Date.now() }, now = Date.now();
+  if (o.v < STA_MAX) { const n = Math.floor((now - o.t) / STA_MS); if (n > 0) { o.v = Math.min(STA_MAX, o.v + n); o.t += n * STA_MS; } if (o.v >= STA_MAX) o.t = now; } else o.t = now;
+  return { v: o.v, next: o.v < STA_MAX ? STA_MS - (now - o.t) : 0, full: o.v < STA_MAX ? (STA_MAX - o.v - 1) * STA_MS + (STA_MS - (now - o.t)) : 0 };
+}
+const staCan = () => staNow().v >= 1;
+function staUse() { const s0 = staNow(); if (s0.v >= STA_MAX) S.sta.t = Date.now(); S.sta.v = Math.max(0, S.sta.v - 1); save(); staTick(); }
+const mmss = ms => { const m = Math.ceil(ms / 1000), h0 = Math.floor(m / 3600), mm = Math.floor(m % 3600 / 60), ss = m % 60; return (h0 ? h0 + ':' + String(mm).padStart(2, '0') : mm) + ':' + String(ss).padStart(2, '0'); };
+function staTick() { const e = hud.querySelector('.aSta'); if (!e) return; const n = staNow(); e.querySelector('b').textContent = `${n.v}/${STA_MAX}`; e.querySelector('small').textContent = n.v < STA_MAX ? mmss(n.next) : ''; }
+setInterval(staTick, 1000);
+/* 仲間からのスタミナが届いているか(1分ごと) */
+async function staPeek() { try { if (HOST && HOST.sta) { const g = await HOST.sta.peek(); const was = staGift; staGift = g.length; if (!!was !== !!staGift) renderTop(); } } catch (e) { } }
+setInterval(staPeek, 60000); setTimeout(staPeek, 3000);
+function staOut() { flash('スタミナが足りません'); staMenu(); }
+function staMenu() {
+  modal('スタミナ', async (b, close) => {
+    const n = staNow();
+    b.innerHTML = `<div class="aStaM"><div class="big">⚡ <b>${n.v}</b> / ${STA_MAX}</div><p class="onote">${n.v < STA_MAX ? `次の1つまで ${mmss(n.next)}・満タンまで ${mmss(n.full)}` : '満タンです'}(30分で1つ回復・出撃1回で1つ)</p></div>
+      <div class="orow" style="padding:6px 0"></div><h4 class="aStaH">仲間からのスタミナ</h4><div class="aStaG"><p class="onote">確かめています…</p></div><h4 class="aStaH">フレンドに送る(1人に3時間に1回)</h4><div class="aStaP"></div>`;
+    const r = b.querySelector('.orow');
+    r.append(btn('shine', '100ptで満タンにする', () => { if (staNow().v >= STA_MAX) { flash('もう満タンです'); return; } if (!ptSpend(100, 'sta')) { flash('ptが足りません'); return; } S.sta.v = Math.max(S.sta.v, STA_MAX); S.sta.t = Date.now(); save(); renderTop(); close(); flash('スタミナが満タンになりました'); }));
+    /* もらう */
+    const G = b.querySelector('.aStaG');
+    if (!(HOST && HOST.sta)) G.innerHTML = '<p class="onote">アプリの中で使えます</p>';
+    else { try { const g = await HOST.sta.peek(); if (!g.length) G.innerHTML = '<p class="onote">届いていません</p>'; else { G.innerHTML = `<p class="onote">${g.slice(0, 6).map(x => esc(x.fn || '')).join('・')}${g.length > 6 ? ' ほか' : ''}から ${g.length}つ</p>`; G.appendChild(btn('', `${g.length}つ受け取る`, async () => { try { const got = await HOST.sta.take(); staNow(); S.sta.v = Math.min(99, S.sta.v + got.length); save(); staGift = 0; renderTop(); close(); flash(`スタミナを ${got.length} 受け取りました`); } catch (e) { flash('受け取れませんでした'); } })); } } catch (e) { G.innerHTML = '<p class="onote">読み込めませんでした</p>'; } }
+    /* 送る */
+    const P = b.querySelector('.aStaP');
+    let L = HOST && HOST.sta ? HOST.sta.players() : [];
+    if (HOST && HOST.friend) { try { const F = await HOST.friend.get(); L = L.filter(p => F.f.includes(p.id)); } catch (e) { L = []; } }
+    if (!L.length) { P.innerHTML = HOST ? '<p class="onote">フレンドにだけ送れます。プロフィールの「フレンド」から申請してください。</p>' : '<p class="onote">アプリの中で、仲間に送れます</p>'; }
+    S.staSent = S.staSent || {};
+    for (const p of L) {
+      const left = (S.staSent[p.id] || 0) + STA_GIFT_MS - Date.now();
+      const row = h('div', 'aStaR', `<span>${esc(p.n)}</span>`);
+      const bt = btn(left > 0 ? 'sub' : '', left > 0 ? `あと${mmss(left)}` : '送る', async () => { if ((S.staSent[p.id] || 0) + STA_GIFT_MS > Date.now()) return; bt.disabled = true; try { if (await HOST.sta.send(p.id)) { S.staSent[p.id] = Date.now(); save(); bt.textContent = '送った'; bt.className = 'aBtn sub'; } else { bt.disabled = false; flash('送れませんでした'); } } catch (e) { bt.disabled = false; flash('送れませんでした'); } });
+      if (left > 0) bt.disabled = true; row.appendChild(bt); P.appendChild(row);
+    }
+    const r2 = h('div', 'orow'); r2.style.padding = '10px 0 0'; r2.appendChild(btn('sub', '閉じる', close)); b.appendChild(r2);
+  });
+}
+/* ===== (11/9) フレンド(山本さん): 申請して相手が承認・上限なし。スタミナを送れるのはフレンドだけ ===== */
+let frIn = 0;
+async function frPeek() { try { if (HOST && HOST.friend) { const F = await HOST.friend.get(); const was = frIn; frIn = F.in.length; if (was !== frIn && TAB === 'other') renderNow(); } } catch (e) { } }
+setInterval(frPeek, 60000); setTimeout(frPeek, 4000);
+function frMenu() {
+  modal('フレンド', async (b, close) => {
+    if (!(HOST && HOST.friend)) { b.innerHTML = '<p class="onote">アプリの中で使えます</p>'; const r = h('div', 'orow'); r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); return; }
+    const draw = async () => {
+      b.innerHTML = '<p class="onote">読み込み中…</p>';
+      let F; try { F = await HOST.friend.get(); } catch (e) { b.innerHTML = '<p class="onote">読み込めませんでした</p>'; return; }
+      const all = HOST.sta.players(), nm = id => (all.find(p => p.id === id) || {}).n || '(いない人)';
+      frIn = F.in.length;
+      b.innerHTML = `${F.in.length ? `<h4 class="aStaH">届いた申請</h4><div class="aStaP fIn"></div>` : ''}<h4 class="aStaH">フレンド(${F.f.length}人)</h4><div class="aStaP fF"></div><h4 class="aStaH">申請する</h4><div class="aStaP fAdd"></div>`;
+      const row = (name, ...btns) => { const r = h('div', 'aStaR', `<span>${esc(name)}</span>`); btns.forEach(x => r.appendChild(x)); return r; };
+      const act = (label, kind, fn) => { const x = btn(kind, label, async () => { x.disabled = true; try { await fn(); } catch (e) { flash('うまくいきませんでした'); } draw(); }); return x; };
+      const I = b.querySelector('.fIn'); if (I) for (const x of F.in) I.appendChild(row(x.n || nm(x.p), act('ことわる', 'sub', () => HOST.friend.decline(x.p)), act('承認', '', () => HOST.friend.accept(x.p))));
+      const L = b.querySelector('.fF'); if (!F.f.length) L.innerHTML = '<p class="onote">まだいません。下から申請してください。</p>';
+      for (const id of F.f) { const pv = btn('sub', 'プロフィール', () => profOpen(id, nm(id))); const rm = btn('sub', 'はずす', async () => { if (rm.dataset.ok !== '1') { rm.dataset.ok = '1'; rm.textContent = 'もう一度押す'; return; } rm.disabled = true; try { await HOST.friend.remove(id); } catch (e) { } draw(); }); L.appendChild(row(nm(id), pv, rm)); }
+      const A = b.querySelector('.fAdd'); const rest = all.filter(p => !F.f.includes(p.id) && !F.in.some(x => x.p === p.id));
+      if (!rest.length) A.innerHTML = '<p class="onote">申請できる人はいません</p>';
+      for (const p of rest) A.appendChild(row(p.n, F.out.includes(p.id) ? Object.assign(btn('sub', '申請中', () => { }), { disabled: true }) : act('申請', '', async () => { const r = await HOST.friend.request(p.id); flash(r === 'friend' ? 'フレンドになりました' : r === 'full' ? '相手の申請がいっぱいです' : '申請しました'); })));
+      const r = h('div', 'orow'); r.style.padding = '10px 0 0'; r.appendChild(btn('sub', '閉じる', () => { close(); if (TAB === 'other') renderNow(); })); b.appendChild(r);
+    };
+    draw();
+  });
+}
+/* ===== (11/9) 「その他」→ プロフィール(山本さん)。参考: 原神・スターレイルのプロフィール(名刺・キャラの展示・実績の数・高難度の進み具合)、
+   ウマ娘のトレーナー情報(代表・称号・ファン数)、ブルアカの先生のプロフィール。ほかの人もマルチの部屋から見られる(caprof/{pid}) ===== */
+const REC0 = () => ({ win: 0, cm: 0, dm: 0, raid: 0, multi: 0, tw: 0, since: Date.now() });
+function recWin(st, info) {
+  const R = S.rec = Object.assign(REC0(), S.rec || {}); R.win++; R.cm = Math.max(R.cm, info.cm || 0); R.dm = Math.max(R.dm, info.dm || 0);
+  if (st.ev === 'raid') R.raid++; if (info.multi) R.multi++; if (st.ev === 'tower') R.tw = Math.max(R.tw, (st.fl || 0));
+  profDirty = true;
+}
+let profDirty = true;
+function profStats() {
+  const R = Object.assign(REC0(), S.rec || {}), ids = new Set(S.units.map(u => u.id)), all = Object.keys(CH).length;
+  let stars = 0, starMax = 0; for (let i = 0; i < A.STAGES.length; i++) { const st = A.STAGES[i]; if (st.ev) continue; for (const hd of [false, true]) { starMax += 3; stars += bitsN(S.stars[skey(i, hd)] || 0); } }
+  const clr = A.PROG.n.filter(Boolean).length + A.PROG.h.filter(Boolean).length;
+  const r5 = [...ids].filter(id => CH[id] && CH[id].rar === 5).length, evo = S.units.filter(u => u.evo).length;
+  return [
+    ['★を取った数', `${stars}<small> / ${starMax}</small>`], ['クリアしたステージ', `${clr}`],
+    ['最高コンボ', `${R.cm}`], ['1回の最大ダメージ', `${(R.dm || 0).toLocaleString()}`],
+    ['集めたキャラ', `${ids.size}<small> / ${all}</small>`], ['★5のキャラ', `${r5}`],
+    ['★6に進化', `${evo}`], ['勝った回数', `${R.win}`],
+    ['降臨で勝った', `${R.raid}`], ['マルチで勝った', `${R.multi}`],
+    ['塔の最高', `${Math.max(R.tw || 0, (S.tower && S.tower.top) || 0)}<small>階</small>`], ['始めた日', `${new Date(R.since).toLocaleDateString('ja-JP')}`],
+  ];
+}
+const favUnits = () => { const F = (S.fav || []).map(id => S.units.filter(u => u.id === id).sort((a, b) => b.lv - a.lv)[0]).filter(Boolean); if (F.length) return F.slice(0, 3); return S.units.slice().sort((a, b) => rarOf(b) - rarOf(a) || b.lv - a.lv).filter((u, i, L) => L.findIndex(x => x.id === u.id) === i).slice(0, 3); };
+/* ほかの人に見せる分(caprof/{pid})。名前・ランク・ひとこと・お気に入り3体・記録 */
+function profPack() { const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(); return { n: String(S.name || '').slice(0, 12), rk: ri.rk || 1, msg: String(S.msg || '').slice(0, 30), card: S.card || 'banner-ch1', ai: S.av && CH[S.av.id] ? S.av : (S.home ? { id: S.home, evo: homeEvo() ? 1 : 0 } : null), fav: favUnits().map(u => ({ id: u.id, lv: u.lv, evo: u.evo ? 1 : 0 })), st: profStats().map(([k, v]) => ({ k, v: String(v).replace(/<[^>]+>/g, '') })), t: Date.now() }; }   /* Firestore は配列の中の配列を保存できないので {k,v} */
+function profPush() { if (!profDirty || !(HOST && HOST.prof)) return; profDirty = false; HOST.prof.save(profPack()).catch(() => { profDirty = true; }); }
+const CARDS = [['banner-ch1', '第1章'], ['banner-ch2', '第2章'], ['banner-ch3', '第3章'], ['banner-ch4', '第4章'], ['banner-raid', '降臨'], ['banner-tower', '塔'], ['banner-gacha', '召喚']];
+function profView(P, mine) {
+  const w = h('div', 'aProf');
+  const fav = (P.fav || []).map(f => { const c = CH[f.id]; if (!c) return ''; const src = PORT[evoArt(f.id, !!f.evo)] || CHIBI[evoArt(f.id, !!f.evo)] || ''; return `<div class="pf" data-id="${esc(f.id)}"><img alt="" src="${src}"><span class="pn">${esc(c.name)}</span><span class="pl">Lv${f.lv}${f.evo ? '・★6' : ''}</span></div>`; }).join('');
+  w.innerHTML = `<div class="pc" style="background-image:linear-gradient(90deg,rgba(5,8,24,.92),rgba(5,8,24,.55) 60%,rgba(5,8,24,.2)),url(${UI}${esc(P.card || 'banner-ch1')}.webp)">
+      <span class="av" style="${(P.av || (P.ai && CH[P.ai.id] && faceURL(P.ai.id, !!P.ai.evo))) ? `background-image:url(${P.av || faceURL(P.ai.id, !!P.ai.evo)})` : ''}"></span>
+      <span class="who"><b>${esc(P.n || '')}</b><small>RANK <i>${P.rk || 1}</i></small><em>${esc(P.msg || (mine ? 'ひとことを書けます' : ''))}</em></span>${mine ? '<button class="ed" type="button">編集</button>' : ''}</div>
+    <h4>お気に入り</h4><div class="pfs">${fav || '<p class="onote">まだいません</p>'}</div>
+    <h4>記録</h4><div class="pst">${(P.st || []).map(x => { const k = Array.isArray(x) ? x[0] : x.k, v = Array.isArray(x) ? x[1] : esc(x.v); return `<div><small>${esc(k)}</small><b>${v}</b></div>`; }).join('')}</div>`;
+  return w;
+}
 function renderOther() {
-  const b = shell('その他', 'MENU');
+  const b = shell('プロフィール', 'PROFILE');
+  const fb = h('button', 'aFrB', `${svg('party')}<span>フレンド</span>${frIn ? `<i>${frIn}</i>` : ''}`); fb.type = 'button'; fb.onclick = frMenu; root.appendChild(fb);
+  const g = h('button', 'aGear', '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/><circle cx="12" cy="12" r="6.4"/></svg>'); g.type = 'button'; g.setAttribute('aria-label', '設定・お知らせ'); g.onclick = settingsMenu; root.appendChild(g);
+  const P = Object.assign(profPack(), { st: profStats(), av: myAv() });
+  const v = profView(P, true); b.appendChild(v);
+  v.querySelector('.ed').onclick = profEdit;
+  v.querySelectorAll('.pf').forEach(e => e.onclick = profEdit);
+  profPush();
+}
+/* (11/9) 編集は全画面(山本さん「お気に入り設定するとき見にくい」「アイコン変えれない」)。上に今の3枠、下にキャラを大きめの札で並べる */
+const myAv = () => (S.av && CH[S.av.id]) ? faceURL(S.av.id, !!S.av.evo) : (S.home ? faceURL(S.home, homeEvo()) : '');
+function profEdit() {
+  const o = h('div', 'aGo aPe'); const sh = h('div', 'sh'); o.appendChild(sh); lay.appendChild(o);
+  let card = S.card || 'banner-ch1', fav = favUnits().map(u => u.id), av = S.av && CH[S.av.id] ? Object.assign({}, S.av) : (S.home ? { id: S.home, evo: homeEvo() ? 1 : 0 } : null), mode = 'fav';
+  const owned = []; const seen = new Set(); for (const u of S.units.slice().sort((a, b) => rarOf(b) - rarOf(a) || b.lv - a.lv)) { if (seen.has(u.id)) continue; seen.add(u.id); owned.push(u); }
+  const best = id => S.units.filter(u => u.id === id).sort((a, b) => (b.evo ? 1 : 0) - (a.evo ? 1 : 0) || b.lv - a.lv)[0];
+  const draw = () => {
+    const slot = k => { const id = fav[k], u = id && best(id), c = id && CH[id]; return `<button type="button" class="ps${id ? '' : ' em'}" data-k="${k}">${c ? `<img alt="" src="${PORT[evoArt(id, !!(u && u.evo))] || ''}"><b>${esc(c.name)}</b><i>${k + 1}</i><u>はずす</u>` : `<span>${k + 1}</span><small>あき</small>`}</button>`; };
+    sh.innerHTML = `<div class="tt"><b class="tb">編集</b><span>プロフィール</span></div>
+      <div class="pTop"><button type="button" class="pAv"><span style="${av ? `background-image:url(${faceURL(av.id, !!av.evo)})` : ''}"></span><small>アイコン</small></button>
+        <label class="pMsg"><small>ひとこと(30文字まで)</small><input maxlength="30" value="${esc(S.msg || '')}"></label></div>
+      <div class="pTabs"><button type="button" data-m="fav" class="${mode === 'fav' ? 'on' : ''}">お気に入り</button><button type="button" data-m="av" class="${mode === 'av' ? 'on' : ''}">アイコン</button><button type="button" data-m="card" class="${mode === 'card' ? 'on' : ''}">名刺の背景</button></div>
+      ${mode === 'fav' ? `<div class="pSlots">${[0, 1, 2].map(slot).join('')}</div><p class="pHint">下のキャラを押すと、あいている枠に入ります。枠を押すと外れます。</p>` : mode === 'av' ? '<p class="pHint">アイコンにする顔を選んでください(★6に進化したキャラは、進化後の顔も選べます)。</p>' : '<p class="pHint">名刺の背景を選んでください。</p>'}
+      <div class="pGrid ${mode}"></div>
+      <div class="orow pBtm"></div>`;
+    const G = sh.querySelector('.pGrid');
+    if (mode === 'fav') for (const u of owned) { const c = CH[u.id], k = fav.indexOf(u.id); const e = h('button', 'pc' + (k >= 0 ? ' on' : ''), `<img alt="" src="${faceURL(u.id, !!u.evo)}"><b>${esc(c.name)}</b><small>${'★'.repeat(rarOf(u))}</small>${k >= 0 ? `<i>${k + 1}</i>` : ''}`); e.type = 'button'; e.onclick = () => { const j = fav.indexOf(u.id); if (j >= 0) fav.splice(j, 1); else if (fav.length < 3) fav.push(u.id); else flash('3体まで。上の枠を押して外してください'); draw(); }; G.appendChild(e); }
+    if (mode === 'av') for (const u of owned) for (const ev of (best(u.id).evo ? [0, 1] : [0])) { const c = CH[u.id], on = av && av.id === u.id && !!av.evo === !!ev; const e = h('button', 'pc' + (on ? ' on' : ''), `<img alt="" src="${faceURL(u.id, !!ev)}"><b>${esc(c.name)}</b><small>${ev ? '★6' : ''}</small>`); e.type = 'button'; e.onclick = () => { av = { id: u.id, evo: ev }; draw(); }; G.appendChild(e); }
+    if (mode === 'card') for (const [k, n] of CARDS) { const e = h('button', 'pcd' + (card === k ? ' on' : ''), `<span>${n}</span>`); e.type = 'button'; e.style.backgroundImage = `url(${UI}${k}.webp)`; e.onclick = () => { card = k; draw(); }; G.appendChild(e); }
+    sh.querySelectorAll('.ps').forEach(e => e.onclick = () => { const k = +e.dataset.k; if (fav[k]) { fav.splice(k, 1); draw(); } });
+    sh.querySelectorAll('.pTabs button').forEach(e => e.onclick = () => { S.msgDraft = sh.querySelector('.pMsg input').value; mode = e.dataset.m; draw(); sh.querySelector('.pMsg input').value = S.msgDraft; });
+    sh.querySelector('.pAv').onclick = () => { S.msgDraft = sh.querySelector('.pMsg input').value; mode = 'av'; draw(); sh.querySelector('.pMsg input').value = S.msgDraft; };
+    const r = sh.querySelector('.pBtm');
+    r.append(btn('sub', 'やめる', () => { delete S.msgDraft; o.remove(); }), btn('shine', '保存', () => { S.msg = sh.querySelector('.pMsg input').value.trim().slice(0, 30); delete S.msgDraft; S.card = card; S.fav = fav.slice(0, 3); if (av) S.av = av; save(); profDirty = true; o.remove(); renderTop(); renderNow(); }));
+  };
+  draw();
+}
+/* ほかの人のプロフィール(マルチの部屋から) */
+async function profOpen(pid, name) {
+  modal(`${name || ''}のプロフィール`, async (b, close) => {
+    b.innerHTML = '<p class="onote">読み込み中…</p>';
+    let P = null; try { P = HOST && HOST.prof ? await HOST.prof.load(pid) : null; } catch (e) { }
+    b.innerHTML = ''; if (!P) b.innerHTML = '<p class="onote">まだプロフィールがありません(その人が一度プロフィールを開くと見られるようになります)</p>'; else b.appendChild(profView(P, false));
+    const r = h('div', 'orow'); r.style.padding = '10px 0 0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r);
+  });
+}
+function settingsMenu() {
+  modal('設定・お知らせ', (b, closeM) => {
   const L = h('div', 'aList aGl'); b.appendChild(L);
   const item = (k, t, sub, fn) => { const e = h('button', null, `${svg(k)}<span>${esc(t)}<small>${esc(sub)}</small></span><span class="ar">›</span>`); e.type = 'button'; e.onclick = fn; L.appendChild(e); return e; };
   if (HOST) item('home', 'アプリに戻る', 'きもオタレートのホームへ', () => { try { HOST.close(); } catch (e) { } });
@@ -1944,6 +2159,8 @@ function renderOther() {
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('red', '初めに戻す', () => { S = fresh(); save(); try { localStorage.removeItem('ca_prog_v1'); } catch (e) { } A.PROG.n.fill(false); A.PROG.h.fill(false); close(); flash('最初の状態に戻しました'); renderNow(); })); bd.appendChild(r);
   });
   item('info', 'このゲームについて', HOST ? '分身(圧縮アリーナ)' : '圧縮アリーナ 試作', () => modal('このゲームについて', (bd, close) => { bd.innerHTML = HOST ? '<p>分身(圧縮アリーナ)。押した所に敵や球を吸い寄せて、まとめてぶつけるバトルです。ptはアプリと共通です。</p>' : '<p>圧縮アリーナ 試作。きもオタレートの「分身バトル」の新しいバージョンです。</p>'; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); bd.appendChild(r); }));
+  const r = h('div', 'orow'); r.style.padding = '10px 0 0'; r.appendChild(btn('sub', '閉じる', closeM)); b.appendChild(r);
+  });
 }
 
 
@@ -1964,7 +2181,7 @@ const day5 = () => { const d = new Date(Date.now() - 5 * 3600e3); return d.getFu
 function xpFresh() { if (!S.xp || S.xp.d !== day5()) S.xp = { d: day5(), n: 0 }; }
 function xpLeft() { xpFresh(); return Math.max(0, XP_MAX - S.xp.n); }
 function xpTake(i) { const st = A.STAGES[i]; if (!st || st.ev !== 'exp') return true; if (xpLeft() <= 0) { flash('経験値の竜の巣は今日はもう挑戦できません(朝5時に戻ります)'); return false; } S.xp.n++; save(); return true; }
-window.CA_GATE = (i) => xpTake(i);
+window.CA_GATE = (i) => { if (MPC.play) return xpTake(i); if (!staCan()) { staOut(); return false; } if (!xpTake(i)) return false; staUse(); return true; };   /* (11/9) スタミナ1つ(マルチは募集した人だけ・始めるときに) */
 function dmFresh() { if (S.dm.date !== today()) S.dm = { date: today(), win: 0, power: 0, gacha: 0, got: [] }; }
 /* くり返しクリアの報酬(初回とは別)。ハードは1日3回まで宝珠が出る */
 function repeatDrops(st, i, hd) {
@@ -1993,6 +2210,7 @@ function dropModal(d) {
 }
 let LAST = null;
 function onClearStage(st, info) {
+  recWin(st, info);
   if (info.multi) return multiClear(st, info);
   if (st.ev === 'tower' || st.ev === 'raid' || st.ev === 'score' || st.ev === 'ex' || st.ev === 'lev') {
     chFresh(); const rewards = []; let msg = '';
@@ -2026,7 +2244,8 @@ function resultBlock(ok) {
 }
 /* スキップ(★3を取ったステージだけ): 戦わずにくり返しの報酬をもらう */
 function skipStage(i, hd) {
-  if (!xpTake(i)) return;
+  if (!staCan()) { staOut(); return; }
+  if (!xpTake(i)) return; staUse();
   const st = A.STAGES[i], r = repeatDrops(st, i, hd); give(r); dmFresh(); S.dm.win++; save();
   modal('スキップ', (b, close) => { b.innerHTML = `<p style="text-align:center">${esc(st.id || '')} ${esc(st.n)} をスキップしました</p><div class="aRl">${r.length ? r.map(rwChip).join('') : '<p>今回は何も落ちませんでした</p>'}</div>`; const row = h('div', 'orow'); row.style.padding = '0'; row.append(btn('sub', '閉じる', close), btn('', 'もう一度', () => { close(); skipStage(i, hd); })); b.appendChild(row); });
   renderNow();
