@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=37').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=37').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=38').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=38').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -953,6 +953,29 @@ document.head.appendChild(h('style', null, CSS + `
 .aProf .pst{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .aProf .pst div{display:grid;gap:1px;padding:8px 10px;border-radius:9px;background:rgba(14,24,66,.92);box-shadow:inset 0 0 0 1px var(--aLine)}
 .aProf .pst small{font:700 11px var(--zk);color:#c3cbe6}.aProf .pst b{font:900 19px var(--zk);color:#fff;font-variant-numeric:tabular-nums}.aProf .pst b small{font-size:11px;color:#97a2c6}
+.aPe .sh{max-height:92vh;display:flex;flex-direction:column}
+.aPe .pTop{display:flex;gap:10px;align-items:center;margin:4px 0 8px}
+.aPe .pAv{flex:0 0 auto;border:0;background:none;cursor:pointer;display:grid;justify-items:center;gap:2px;color:#2a2117;font:800 11px var(--zk)}
+.aPe .pAv span{width:58px;height:58px;border-radius:10px;background:#16255a center/cover;box-shadow:0 0 0 2px #c9a14a}
+.aPe .pMsg{flex:1;display:grid;gap:2px;font:800 11px var(--zk);color:#6b5b45}.aPe .pMsg input{width:100%;box-sizing:border-box;padding:10px;border-radius:8px;border:1.5px solid #c9a14a;font:700 15px var(--zk);background:#fff;color:#1a1530}
+.aPe .pTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:8px}.aPe .pTabs button{border:0;border-radius:8px;padding:9px 0;font:900 13px var(--zk);color:#fff;background:#24346f;cursor:pointer}.aPe .pTabs button.on{color:#2b1a02;background:linear-gradient(#fff2c2,#e8b84a)}
+.aPe .pSlots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.aPe .ps{position:relative;height:118px;border:0;border-radius:10px;overflow:hidden;cursor:pointer;background:radial-gradient(120% 90% at 50% 20%,#2a3a80,#0b1236);box-shadow:inset 0 0 0 2px #c9a14a}
+.aPe .ps img{position:absolute;left:50%;top:-2%;height:230%;transform:translateX(-50%);max-width:none}
+.aPe .ps b{position:absolute;left:0;right:0;bottom:0;padding:14px 2px 3px;font:900 12px var(--zk);color:#fff;background:linear-gradient(transparent,rgba(5,8,24,.95))}
+.aPe .ps i{position:absolute;left:4px;top:4px;width:20px;height:20px;border-radius:5px;font:900 13px/20px var(--zk);font-style:normal;color:#2b1a02;background:#e8c878}
+.aPe .ps u{position:absolute;right:4px;top:4px;padding:2px 6px;border-radius:5px;font:800 10px var(--zk);text-decoration:none;color:#fff;background:rgba(5,8,24,.75)}
+.aPe .ps.em{display:grid;place-content:center;justify-items:center;color:#c3cbe6;background:rgba(14,24,66,.5);box-shadow:inset 0 0 0 2px dashed}.aPe .ps.em span{font:900 26px var(--zk);color:#e8c878}.aPe .ps.em small{font:800 11px var(--zk)}
+.aPe .pHint{margin:6px 2px;font:700 12px/1.5 var(--zk);color:#6b5b45}
+.aPe .pGrid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:2px}
+.aPe .pGrid.card{grid-template-columns:repeat(2,1fr)}
+.aPe .pc{position:relative;border:0;border-radius:10px;padding:0 0 4px;cursor:pointer;display:grid;justify-items:center;gap:1px;background:#fff;box-shadow:inset 0 0 0 1.5px rgba(160,120,40,.4);overflow:hidden}
+.aPe .pc img{width:100%;aspect-ratio:1;object-fit:cover;max-width:100%}
+.aPe .pc b{font:900 11px var(--zk);color:#2a2117;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.aPe .pc small{font:800 9px var(--zk);color:#b58a1e;min-height:11px}
+.aPe .pc.on{box-shadow:0 0 0 3px #e8b84a,inset 0 0 0 1.5px #e8b84a;background:#fff6d8}
+.aPe .pc i{position:absolute;left:4px;top:4px;width:20px;height:20px;border-radius:5px;font:900 13px/20px var(--zk);font-style:normal;color:#2b1a02;background:#e8c878;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.aPe .pcd{position:relative;height:70px;border:0;border-radius:8px;cursor:pointer;background:#16255a center/cover}.aPe .pcd span{position:absolute;left:0;right:0;bottom:0;padding:3px;font:900 12px var(--zk);color:#fff;background:rgba(5,8,24,.7)}.aPe .pcd.on{box-shadow:0 0 0 3px #e8b84a}
+.aPe .pBtm{padding:10px 0 0}
 .aCards{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.aCards button{position:relative;height:44px;border:0;border-radius:6px;background:#16255a center/cover;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)}
 .aCards button span{position:absolute;left:0;right:0;bottom:0;font:800 10px var(--zk);color:#fff;background:rgba(5,8,24,.7)}.aCards button.on{box-shadow:0 0 0 3px #e8c878}
 `));
@@ -1003,7 +1026,7 @@ let TAB = 'home', SUB = { quest: 'main', chara: 'box' }, PICK = null;
 
 function rankInfo() { const n = A.PROG.n.filter(Boolean).length + A.PROG.h.filter(Boolean).length; const lvSum = S.units.reduce((a, u) => a + u.lv, 0); const xp = n * 120 + lvSum * 6; const rk = 1 + Math.floor(xp / 100); return { rk, f: (xp % 100) / 100 }; }
 function renderTop() {
-  const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(), f = S.home ? faceURL(S.home, homeEvo()) : '';   /* アプリの中ではアプリのランク(レベル)を出す */
+  const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(), f = myAv();   /* アプリの中ではアプリのランク(レベル)を出す */
   hud.innerHTML = `<button class="aPl aGl" type="button" aria-label="ホームに出すキャラを変える"><span class="aAv" style="${f ? `background-image:url(${f})` : ''}"></span><span style="min-width:0"><span class="aPn">${esc(S.name)}</span><span class="aRk">RANK <b>${ri.rk}</b><span class="bar"><i style="width:${Math.round(ri.f * 100)}%"></i></span></span></span></button>
   <div class="aCur aGl" title="きもオタレートと共通のポイント。ガチャに使う。ステージの初回クリア・★・ミッションでもらえる">${svg('pt', '0 0 16 16')}<b>${ptNow().toLocaleString()}</b>${HOST ? '' : '<button type="button" aria-label="ptを足す(テスト用)">+</button>'}</div>${HOST ? '<button class="aX" type="button" aria-label="アプリに戻る">×</button>' : ''}`;
   hud.querySelector('.aPl').onclick = () => { if (TAB !== 'home') go('home'); else nextHome(); };
@@ -1971,14 +1994,14 @@ function profStats() {
 }
 const favUnits = () => { const F = (S.fav || []).map(id => S.units.filter(u => u.id === id).sort((a, b) => b.lv - a.lv)[0]).filter(Boolean); if (F.length) return F.slice(0, 3); return S.units.slice().sort((a, b) => rarOf(b) - rarOf(a) || b.lv - a.lv).filter((u, i, L) => L.findIndex(x => x.id === u.id) === i).slice(0, 3); };
 /* ほかの人に見せる分(caprof/{pid})。名前・ランク・ひとこと・お気に入り3体・記録 */
-function profPack() { const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(); return { n: String(S.name || '').slice(0, 12), rk: ri.rk || 1, msg: String(S.msg || '').slice(0, 30), card: S.card || 'banner-ch1', fav: favUnits().map(u => ({ id: u.id, lv: u.lv, evo: u.evo ? 1 : 0 })), st: profStats().map(([k, v]) => ({ k, v: String(v).replace(/<[^>]+>/g, '') })), t: Date.now() }; }   /* Firestore は配列の中の配列を保存できないので {k,v} */
+function profPack() { const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(); return { n: String(S.name || '').slice(0, 12), rk: ri.rk || 1, msg: String(S.msg || '').slice(0, 30), card: S.card || 'banner-ch1', ai: S.av && CH[S.av.id] ? S.av : (S.home ? { id: S.home, evo: homeEvo() ? 1 : 0 } : null), fav: favUnits().map(u => ({ id: u.id, lv: u.lv, evo: u.evo ? 1 : 0 })), st: profStats().map(([k, v]) => ({ k, v: String(v).replace(/<[^>]+>/g, '') })), t: Date.now() }; }   /* Firestore は配列の中の配列を保存できないので {k,v} */
 function profPush() { if (!profDirty || !(HOST && HOST.prof)) return; profDirty = false; HOST.prof.save(profPack()).catch(() => { profDirty = true; }); }
 const CARDS = [['banner-ch1', '第1章'], ['banner-ch2', '第2章'], ['banner-ch3', '第3章'], ['banner-ch4', '第4章'], ['banner-raid', '降臨'], ['banner-tower', '塔'], ['banner-gacha', '召喚']];
 function profView(P, mine) {
   const w = h('div', 'aProf');
   const fav = (P.fav || []).map(f => { const c = CH[f.id]; if (!c) return ''; const src = PORT[evoArt(f.id, !!f.evo)] || CHIBI[evoArt(f.id, !!f.evo)] || ''; return `<div class="pf" data-id="${esc(f.id)}"><img alt="" src="${src}"><span class="pn">${esc(c.name)}</span><span class="pl">Lv${f.lv}${f.evo ? '・★6' : ''}</span></div>`; }).join('');
   w.innerHTML = `<div class="pc" style="background-image:linear-gradient(90deg,rgba(5,8,24,.92),rgba(5,8,24,.55) 60%,rgba(5,8,24,.2)),url(${UI}${esc(P.card || 'banner-ch1')}.webp)">
-      <span class="av" style="${P.av ? `background-image:url(${P.av})` : ''}"></span>
+      <span class="av" style="${(P.av || (P.ai && CH[P.ai.id] && faceURL(P.ai.id, !!P.ai.evo))) ? `background-image:url(${P.av || faceURL(P.ai.id, !!P.ai.evo)})` : ''}"></span>
       <span class="who"><b>${esc(P.n || '')}</b><small>RANK <i>${P.rk || 1}</i></small><em>${esc(P.msg || (mine ? 'ひとことを書けます' : ''))}</em></span>${mine ? '<button class="ed" type="button">編集</button>' : ''}</div>
     <h4>お気に入り</h4><div class="pfs">${fav || '<p class="onote">まだいません</p>'}</div>
     <h4>記録</h4><div class="pst">${(P.st || []).map(x => { const k = Array.isArray(x) ? x[0] : x.k, v = Array.isArray(x) ? x[1] : esc(x.v); return `<div><small>${esc(k)}</small><b>${v}</b></div>`; }).join('')}</div>`;
@@ -1987,25 +2010,39 @@ function profView(P, mine) {
 function renderOther() {
   const b = shell('プロフィール', 'PROFILE');
   const g = h('button', 'aGear', '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/><circle cx="12" cy="12" r="6.4"/></svg>'); g.type = 'button'; g.setAttribute('aria-label', '設定・お知らせ'); g.onclick = settingsMenu; root.appendChild(g);
-  const P = Object.assign(profPack(), { st: profStats(), av: S.home ? faceURL(S.home, homeEvo()) : '' });
+  const P = Object.assign(profPack(), { st: profStats(), av: myAv() });
   const v = profView(P, true); b.appendChild(v);
   v.querySelector('.ed').onclick = profEdit;
   v.querySelectorAll('.pf').forEach(e => e.onclick = profEdit);
   profPush();
 }
+/* (11/9) 編集は全画面(山本さん「お気に入り設定するとき見にくい」「アイコン変えれない」)。上に今の3枠、下にキャラを大きめの札で並べる */
+const myAv = () => (S.av && CH[S.av.id]) ? faceURL(S.av.id, !!S.av.evo) : (S.home ? faceURL(S.home, homeEvo()) : '');
 function profEdit() {
-  modal('プロフィールを編集', (b, close) => {
-    b.innerHTML = `<p class="onote" style="margin:0 0 4px">ひとこと(30文字まで)</p><input maxlength="30" value="${esc(S.msg || '')}" style="width:100%;box-sizing:border-box;padding:10px;border-radius:8px;border:1px solid #c9a14a;font:700 15px var(--zk)">
-      <p class="onote" style="margin:10px 0 4px">名刺の背景</p><div class="aCards">${CARDS.map(([k, n]) => `<button type="button" data-k="${k}" class="${(S.card || 'banner-ch1') === k ? 'on' : ''}" style="background-image:url(${UI}${k}.webp)"><span>${n}</span></button>`).join('')}</div>
-      <p class="onote" style="margin:10px 0 4px">お気に入り(3体まで。押した順)</p><div class="ogrid aFavG" style="max-height:34vh;overflow-y:auto"></div>`;
-    let card = S.card || 'banner-ch1', fav = favUnits().map(u => u.id);
-    b.querySelectorAll('.aCards button').forEach(e => e.onclick = () => { card = e.dataset.k; b.querySelectorAll('.aCards button').forEach(x => x.classList.toggle('on', x === e)); });
-    const G = b.querySelector('.aFavG'); const seen = new Set();
-    const draw = () => { G.innerHTML = ''; seen.clear(); for (const u of S.units.slice().sort((a, b) => rarOf(b) - rarOf(a) || b.lv - a.lv)) { if (seen.has(u.id)) continue; seen.add(u.id); const e = icon(u); const k = fav.indexOf(u.id); if (k >= 0) { e.style.outline = '3px solid #e8c878'; e.insertAdjacentHTML('beforeend', `<i style="position:absolute;left:3px;top:3px;background:#e8c878;color:#2b1a02;font:900 11px/16px var(--zk);width:16px;text-align:center;border-radius:3px">${k + 1}</i>`); e.style.position = 'relative'; } e.onclick = () => { const j = fav.indexOf(u.id); if (j >= 0) fav.splice(j, 1); else { if (fav.length >= 3) fav.shift(); fav.push(u.id); } draw(); }; G.appendChild(e); } };
-    draw();
-    const r = h('div', 'orow'); r.style.padding = '12px 0 0'; b.appendChild(r);
-    r.append(btn('sub', 'やめる', close), btn('shine', '保存', () => { S.msg = b.querySelector('input').value.trim().slice(0, 30); S.card = card; S.fav = fav.slice(0, 3); save(); profDirty = true; close(); renderNow(); }));
-  });
+  const o = h('div', 'aGo aPe'); const sh = h('div', 'sh'); o.appendChild(sh); lay.appendChild(o);
+  let card = S.card || 'banner-ch1', fav = favUnits().map(u => u.id), av = S.av && CH[S.av.id] ? Object.assign({}, S.av) : (S.home ? { id: S.home, evo: homeEvo() ? 1 : 0 } : null), mode = 'fav';
+  const owned = []; const seen = new Set(); for (const u of S.units.slice().sort((a, b) => rarOf(b) - rarOf(a) || b.lv - a.lv)) { if (seen.has(u.id)) continue; seen.add(u.id); owned.push(u); }
+  const best = id => S.units.filter(u => u.id === id).sort((a, b) => (b.evo ? 1 : 0) - (a.evo ? 1 : 0) || b.lv - a.lv)[0];
+  const draw = () => {
+    const slot = k => { const id = fav[k], u = id && best(id), c = id && CH[id]; return `<button type="button" class="ps${id ? '' : ' em'}" data-k="${k}">${c ? `<img alt="" src="${PORT[evoArt(id, !!(u && u.evo))] || ''}"><b>${esc(c.name)}</b><i>${k + 1}</i><u>はずす</u>` : `<span>${k + 1}</span><small>あき</small>`}</button>`; };
+    sh.innerHTML = `<div class="tt"><b class="tb">編集</b><span>プロフィール</span></div>
+      <div class="pTop"><button type="button" class="pAv"><span style="${av ? `background-image:url(${faceURL(av.id, !!av.evo)})` : ''}"></span><small>アイコン</small></button>
+        <label class="pMsg"><small>ひとこと(30文字まで)</small><input maxlength="30" value="${esc(S.msg || '')}"></label></div>
+      <div class="pTabs"><button type="button" data-m="fav" class="${mode === 'fav' ? 'on' : ''}">お気に入り</button><button type="button" data-m="av" class="${mode === 'av' ? 'on' : ''}">アイコン</button><button type="button" data-m="card" class="${mode === 'card' ? 'on' : ''}">名刺の背景</button></div>
+      ${mode === 'fav' ? `<div class="pSlots">${[0, 1, 2].map(slot).join('')}</div><p class="pHint">下のキャラを押すと、あいている枠に入ります。枠を押すと外れます。</p>` : mode === 'av' ? '<p class="pHint">アイコンにする顔を選んでください(★6に進化したキャラは、進化後の顔も選べます)。</p>' : '<p class="pHint">名刺の背景を選んでください。</p>'}
+      <div class="pGrid ${mode}"></div>
+      <div class="orow pBtm"></div>`;
+    const G = sh.querySelector('.pGrid');
+    if (mode === 'fav') for (const u of owned) { const c = CH[u.id], k = fav.indexOf(u.id); const e = h('button', 'pc' + (k >= 0 ? ' on' : ''), `<img alt="" src="${faceURL(u.id, !!u.evo)}"><b>${esc(c.name)}</b><small>${'★'.repeat(rarOf(u))}</small>${k >= 0 ? `<i>${k + 1}</i>` : ''}`); e.type = 'button'; e.onclick = () => { const j = fav.indexOf(u.id); if (j >= 0) fav.splice(j, 1); else if (fav.length < 3) fav.push(u.id); else flash('3体まで。上の枠を押して外してください'); draw(); }; G.appendChild(e); }
+    if (mode === 'av') for (const u of owned) for (const ev of (best(u.id).evo ? [0, 1] : [0])) { const c = CH[u.id], on = av && av.id === u.id && !!av.evo === !!ev; const e = h('button', 'pc' + (on ? ' on' : ''), `<img alt="" src="${faceURL(u.id, !!ev)}"><b>${esc(c.name)}</b><small>${ev ? '★6' : ''}</small>`); e.type = 'button'; e.onclick = () => { av = { id: u.id, evo: ev }; draw(); }; G.appendChild(e); }
+    if (mode === 'card') for (const [k, n] of CARDS) { const e = h('button', 'pcd' + (card === k ? ' on' : ''), `<span>${n}</span>`); e.type = 'button'; e.style.backgroundImage = `url(${UI}${k}.webp)`; e.onclick = () => { card = k; draw(); }; G.appendChild(e); }
+    sh.querySelectorAll('.ps').forEach(e => e.onclick = () => { const k = +e.dataset.k; if (fav[k]) { fav.splice(k, 1); draw(); } });
+    sh.querySelectorAll('.pTabs button').forEach(e => e.onclick = () => { S.msgDraft = sh.querySelector('.pMsg input').value; mode = e.dataset.m; draw(); sh.querySelector('.pMsg input').value = S.msgDraft; });
+    sh.querySelector('.pAv').onclick = () => { S.msgDraft = sh.querySelector('.pMsg input').value; mode = 'av'; draw(); sh.querySelector('.pMsg input').value = S.msgDraft; };
+    const r = sh.querySelector('.pBtm');
+    r.append(btn('sub', 'やめる', () => { delete S.msgDraft; o.remove(); }), btn('shine', '保存', () => { S.msg = sh.querySelector('.pMsg input').value.trim().slice(0, 30); delete S.msgDraft; S.card = card; S.fav = fav.slice(0, 3); if (av) S.av = av; save(); profDirty = true; o.remove(); renderTop(); renderNow(); }));
+  };
+  draw();
 }
 /* ほかの人のプロフィール(マルチの部屋から) */
 async function profOpen(pid, name) {
