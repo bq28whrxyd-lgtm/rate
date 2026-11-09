@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=43').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=43').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=44').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=44').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1032,7 +1032,7 @@ const svg = (k, vb) => `<svg viewBox="${vb || '0 0 24 24'}" aria-hidden="true">$
 /* (11/9 試し) 「ソシャゲ寄り」の見た目(山本さん「色や雰囲気そのもの」「動きがない」)。?ui=b か ca_ui=b のときだけ。
    モンスト・パズドラの画面を1コマずつ見て分かったこと: 地は紺のままでも、押す所は水色・橙・赤のあざやかな立体ボタン、
    下のバーは色つきの絵のアイコン、行や板は金属・木のような厚み、どの行にも絵がある、ずっと何かが動いている */
-const BRT = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q) localStorage.setItem('ca_ui', q); return (q || localStorage.getItem('ca_ui')) === 'b'; } catch (e) { return false; } })();
+const BRT = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q) localStorage.setItem('ca_ui', q); return (q || localStorage.getItem('ca_ui')) !== 'a'; } catch (e) { return true; } })();
 const NI = {
   home: '<defs><linearGradient id="niR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a4a"/><stop offset="1" stop-color="#e2401e"/></linearGradient></defs><path d="M6 15v12h20V15" fill="#fff4d6" stroke="#2a1606" stroke-width="2.2" stroke-linejoin="round"/><path d="M3 16 16 5l13 11" fill="url(#niR)" stroke="#2a1606" stroke-width="2.4" stroke-linejoin="round"/><rect x="13" y="19" width="6" height="8" rx="1" fill="#8a4a1a" stroke="#2a1606" stroke-width="2"/>',
   chara: '<defs><linearGradient id="niB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd8ff"/><stop offset="1" stop-color="#2a6ae0"/></linearGradient></defs><path d="M5 28c0-6 5-10 11-10s11 4 11 10z" fill="url(#niB)" stroke="#0a1838" stroke-width="2.2" stroke-linejoin="round"/><circle cx="16" cy="11" r="6.5" fill="#ffe2c4" stroke="#0a1838" stroke-width="2.2"/><path d="M9.6 10c1-5 11-6 12.8 0-3-1.5-7-1.8-12.8 0z" fill="#3a2a5a" stroke="#0a1838" stroke-width="1.6" stroke-linejoin="round"/>',
@@ -1040,19 +1040,25 @@ const NI = {
   gacha: '<defs><linearGradient id="niG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb0f0"/><stop offset=".5" stop-color="#d040e0"/><stop offset="1" stop-color="#7a18b8"/></linearGradient></defs><path d="M16 3 26 13 16 29 6 13z" fill="url(#niG)" stroke="#2a0838" stroke-width="2.2" stroke-linejoin="round"/><path d="M6 13h20M16 3l-4 10 4 16 4-16z" fill="none" stroke="#fff" stroke-width="1.2" opacity=".7"/>',
   other: '<defs><linearGradient id="niP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ff0a8"/><stop offset="1" stop-color="#1ea85a"/></linearGradient></defs><rect x="3.5" y="7" width="25" height="18" rx="3" fill="url(#niP)" stroke="#06301a" stroke-width="2.2"/><circle cx="11" cy="15" r="3.6" fill="#fff" stroke="#06301a" stroke-width="1.6"/><path d="M6.5 22c.8-3 2.4-4 4.5-4s3.7 1 4.5 4" fill="#fff" stroke="#06301a" stroke-width="1.6"/><path d="M18 13h7M18 17.5h5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>',
 };
-const niSvg = k => `<svg class="ni" viewBox="0 0 32 32" aria-hidden="true">${NI[k]}</svg>`;
+const NIMG = { home: 'nav_home', chara: 'nav_chara', quest: 'nav_quest', gacha: 'nav_gacha', other: 'nav_profile' };   /* (11/9) Codex T-026 の絵 */
+const niSvg = k => NIMG[k] ? `<img class="ni" alt="" src="${UI}nav/${NIMG[k]}.webp">` : `<svg class="ni" viewBox="0 0 32 32" aria-hidden="true">${NI[k]}</svg>`;
 if (BRT) document.head.appendChild(h('style', null, `
 #lay.brt{--rd:"M PLUS Rounded 1c","M PLUS 1p","Zen Kaku Gothic New",system-ui,sans-serif;--cy1:#8ff4ff;--cy2:#1fb4ff;--cy3:#0a5ad0;--or1:#ffd08a;--or2:#ff8a1a;--or3:#c84a06}
 #lay.brt #onav{height:calc(env(safe-area-inset-bottom,0px) + 62px);background:linear-gradient(180deg,#1c2e78,#0a1440 60%,#060c2a);box-shadow:0 -2px 0 #4ab8ff,0 -3px 0 #0a1a50,0 -8px 18px rgba(0,0,0,.6)}
 #lay.brt #onav button{color:#fff;font:900 10.5px var(--rd);-webkit-text-stroke:2.5px #071030;paint-order:stroke fill;padding-bottom:6px;margin:5px 2px 0;border-radius:9px 9px 0 0}
-#lay.brt #onav svg.ni{width:30px;height:30px;fill:initial;stroke:initial;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
+#lay.brt #onav .ni{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
 #lay.brt #onav button[aria-current="page"]:not(.mid){background:linear-gradient(180deg,var(--cy1),var(--cy2) 45%,var(--cy3));box-shadow:inset 0 2px 0 rgba(255,255,255,.7),inset 0 0 0 2px #072050}
 #lay.brt #onav button[aria-current="page"]::before{display:none}
-#lay.brt #onav button:not(.mid):not([aria-current="page"]) svg.ni{filter:drop-shadow(0 2px 0 rgba(0,0,0,.5)) saturate(.85)}
+#lay.brt #onav button:not(.mid):not([aria-current="page"]) .ni{filter:drop-shadow(0 2px 0 rgba(0,0,0,.5)) saturate(.85)}
 #lay.brt #onav .mid{margin-top:0}
 #lay.brt #onav .mid .md{width:58px;height:58px;margin-top:-22px;color:#fff;background:radial-gradient(circle at 50% 28%,#e8ffff,var(--cy2) 45%,var(--cy3) 80%);box-shadow:0 0 0 3px #e8f4ff,0 0 0 5.5px #0a3070,0 0 0 7px #8fd8ff,0 5px 12px rgba(0,0,0,.6),0 0 22px rgba(80,200,255,.6);animation:brPulse 2.2s ease-in-out infinite}
-#lay.brt #onav .mid .md svg.ni{width:34px;height:34px}
+#lay.brt #onav .mid .md .ni{width:40px;height:40px}
 @keyframes brPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+#lay.brt .aIb{width:58px}
+#lay.brt .aIb .ic{width:52px;height:52px;background:radial-gradient(circle at 50% 35%,#3a5ab8,#14246a 70%);box-shadow:0 0 0 2.5px #e8f4ff,0 0 0 4.5px #0a2060,0 4px 8px rgba(0,0,0,.5)}
+#lay.brt .aIb .ic img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 2px 0 rgba(0,0,0,.45))}
+#lay.brt .aIb span{font:900 11px var(--rd);-webkit-text-stroke:3px #071030;paint-order:stroke fill}
+#lay.brt .aIb .bd{font:900 11px/18px var(--rd);min-width:18px;height:18px;top:-4px;right:0;background:linear-gradient(#ff7a8a,#e8183a);box-shadow:0 0 0 2px #fff,0 2px 0 #4a0410}
 #lay.brt .ssqt{background:linear-gradient(#22357e,#0e1a50);box-shadow:inset 0 0 0 2px #6ab0ff,inset 0 3px 0 rgba(255,255,255,.18),0 3px 0 #050c2a}
 #lay.brt .ssqt button{font:900 15px var(--rd);color:#cfe0ff;-webkit-text-stroke:3px #071030;paint-order:stroke fill}
 #lay.brt .ssqt button[aria-selected="true"]{color:#fff;background:linear-gradient(180deg,var(--or1),var(--or2) 50%,var(--or3));box-shadow:inset 0 2px 0 rgba(255,255,255,.75),inset 0 -3px 0 rgba(120,40,0,.55),0 2px 0 #3a1400;-webkit-text-stroke:3.5px #5a2000}
@@ -1211,7 +1217,8 @@ function renderHome() {
   banT = setInterval(() => { if (TAB !== 'home' || root.hidden) return; banI = (banI + 1) % BANS.length; setBan(); }, 3600);
   /* 右: 丸いボタン */
   const R = h('div', 'aSide r');
-  const ib = (k, label, fn, bd) => { const b = h('button', 'aIb', `<span class="ic">${svg(k)}</span><span>${label}</span>${bd ? `<i class="bd">${bd}</i>` : ''}`); b.type = 'button'; b.onclick = fn; return b; };
+  const HIMG = { news: 'home_news', mission: 'home_mission', gift: 'home_gift', party: 'home_party', ev: 'home_event' };
+  const ib = (k, label, fn, bd) => { const b = h('button', 'aIb', `<span class="ic">${BRT && HIMG[k] ? `<img alt="" src="${UI}home/${HIMG[k]}.webp">` : svg(k)}</span><span>${label}</span>${bd ? `<i class="bd">${bd}</i>` : ''}`); b.type = 'button'; b.onclick = fn; return b; };
   const nNew = S.newIds.length;
   R.append(ib('news', 'お知らせ', news), ib('mission', 'ミッション', missions, dmClaimable()), ib('gift', 'プレゼント', presents, S.box.length), ib('party', '編成', () => { TAB = 'chara'; SUB.chara = 'party'; renderNow(); }));
   if (MPC.ok()) R.append(ib('party', 'マルチ', mpJoinAsk));
@@ -2232,7 +2239,7 @@ function settingsMenu() {
   const L = h('div', 'aList aGl'); b.appendChild(L);
   const item = (k, t, sub, fn) => { const e = h('button', null, `${svg(k)}<span>${esc(t)}<small>${esc(sub)}</small></span><span class="ar">›</span>`); e.type = 'button'; e.onclick = fn; L.appendChild(e); return e; };
   if (HOST) item('home', 'アプリに戻る', 'きもオタレートのホームへ', () => { try { HOST.close(); } catch (e) { } });
-  item('ev', '画面の見た目(試し)', BRT ? '今: ソシャゲ寄り(押すと元にもどす)' : '今: いつもの(押すとソシャゲ寄りにする)', () => { try { localStorage.setItem('ca_ui', BRT ? 'a' : 'b'); } catch (e) { } location.reload(); });   /* (11/9) 見くらべ用 */
+  item('ev', '画面の見た目(試し)', BRT ? '今: ソシャゲ寄り(押すと前の見た目にする)' : '今: 前の見た目(押すとソシャゲ寄りにもどす)', () => { try { localStorage.setItem('ca_ui', BRT ? 'a' : 'b'); } catch (e) { } location.reload(); });   /* (11/9) 見くらべ用 */
   if (!HOST) item('name', 'プレイヤー名', S.name, () => modal('プレイヤー名', (bd, close) => {
     bd.innerHTML = `<input maxlength="10" value="${esc(S.name)}" aria-label="プレイヤー名" style="width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;border:0;font:700 16px var(--zk);color:#fff;background:#060c24;box-shadow:inset 0 0 0 1px var(--aG)">`;
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('', '決める', () => { const v = bd.querySelector('input').value.trim(); if (v) { S.name = v.slice(0, 10); save(); } close(); renderNow(); })); bd.appendChild(r);
