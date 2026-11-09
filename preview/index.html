@@ -14680,15 +14680,15 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=53',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=55',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
 function bunRefund(pid){if(!CA_ON)return 0;const d=bunDocs[pid];if(!d)return 0;return Math.max(0,bunSpent(d)-CA_REFUND_CUT)}/* (11/7) 上限なし(山本さん) */
-function caPts(pid){if(!CA_ON)return 0;const d=caDocs[pid];return d?(+d.pe||0)-(+d.g1||0)*100-(+d.g10||0)*900-(+d.st||0)*100:0}/* (11/9) st: スタミナを100ptで満タンにした回数 */
+function caPts(pid){if(!CA_ON)return 0;const d=caDocs[pid];return d?(+d.pe||0)-(+d.g1||0)*100-(+d.g10||0)*900-(+d.st||0)*100-(+d.l1||0)*150-(+d.l10||0)*1350:0}/* (11/9) st: スタミナを100ptで満タンにした回数 */
 function caWatch(){if(!CA_ON||!db||caWatch.on)return;caWatch.on=1;db.collection('ca').onSnapshot(s=>{const me=myPlayer(),mine=me&&caDocs[me.id];caDocs={};s.docs.forEach(d=>{caDocs[d.id]=d.data()});
     /* 自分の分は、まだ送っていない手元の数字のほうが大きければそちらを使う */
-    if(mine&&me){const sv=caDocs[me.id]||{};caDocs[me.id]={...sv,...['pe','g1','g10'].reduce((o,k)=>(o[k]=Math.max(+sv[k]||0,+mine[k]||0),o),{}),pd:mine.pd!=null?mine.pd:sv.pd,pn:mine.pn!=null?mine.pn:sv.pn,pq:mine.pq!=null?mine.pq:sv.pq}}
+    if(mine&&me){const sv=caDocs[me.id]||{};caDocs[me.id]={...sv,...['pe','g1','g10','st','l1','l10'].reduce((o,k)=>(o[k]=Math.max(+sv[k]||0,+mine[k]||0),o),{}),pd:mine.pd!=null?mine.pd:sv.pd,pn:mine.pn!=null?mine.pn:sv.pn,pq:mine.pq!=null?mine.pq:sv.pq}}
     queueRender()},()=>{})}
 const caParse=t=>{try{return t?JSON.parse(t):null}catch(e){return null}};
 /* (11/9) 読み直したあと、分身を自動で開く */
@@ -14713,7 +14713,7 @@ function caFlush(){clearTimeout(caT);const me=myPlayer();if(!me||!db||!Object.ke
   caQ=caQ.then(run,run);return caQ}
 /* pt の数字を送る。カウンターは減らない(2台で同時に動いても、多いほうが残る) */
 function caPtSend(){const me=myPlayer();if(!me||!db)return;const L=caDocs[me.id]||{};const ref=db.doc('ca/'+me.id);
-  const run=()=>db.runTransaction(async tx=>{const d=await tx.get(ref),cur=d.exists?d.data():{};const o={pe:Math.max(+L.pe||0,+cur.pe||0),g1:Math.max(+L.g1||0,+cur.g1||0),g10:Math.max(+L.g10||0,+cur.g10||0),st:Math.max(+L.st||0,+cur.st||0),pd:+L.pd||0,pn:+L.pn||0,pq:+L.pq||0};tx.set(ref,o)})
+  const run=()=>db.runTransaction(async tx=>{const d=await tx.get(ref),cur=d.exists?d.data():{};const o={pe:Math.max(+L.pe||0,+cur.pe||0),g1:Math.max(+L.g1||0,+cur.g1||0),g10:Math.max(+L.g10||0,+cur.g10||0),st:Math.max(+L.st||0,+cur.st||0),pd:+L.pd||0,pn:+L.pn||0,pq:+L.pq||0};/* (11/10) 限定ガチャの回数は、引いたときだけ書く(前の版のルールでも通るように) */['l1','l10'].forEach(k=>{const v=Math.max(+L[k]||0,+cur[k]||0);if(v)o[k]=v});tx.set(ref,o)})
     .catch(e=>toast('分身の pt を保存できませんでした('+(e&&(e.code||e.message)||'?')+')'));
   caPtQ=caPtQ.then(run,run)}
 function caEarn(n){const me=myPlayer();if(!me)return 0;const d={...(caDocs[me.id]||{})},day=dayNo(now());if(d.pd!==day){d.pd=day;d.pn=0}
@@ -14731,9 +14731,10 @@ window.CAHOST={
   load:k=>caCache[k]?JSON.parse(JSON.stringify(caCache[k])):null,
   save:(k,v)=>{if(k!=='s'&&k!=='p')return;caCache[k]=JSON.parse(JSON.stringify(v));caDirty[k]=1;clearTimeout(caT);caT=setTimeout(caFlush,1500)},
   /* ガチャ: 1回 100pt、10回 900pt だけ。足りなければ false */
-  spend:(cost,n)=>{const me=myPlayer();if(!me)return false;const k=n==='sta'&&cost===100?'st':n===10&&cost===900?'g10':n===1&&cost===100?'g1':null;if(!k||balance(me.id)<cost)return false;
+  spend:(cost,n)=>{const me=myPlayer();if(!me)return false;const k=n==='sta'&&cost===100?'st':n===10&&cost===900?'g10':n===1&&cost===100?'g1':n===10&&cost===1350?'l10':n===1&&cost===150?'l1':null;/* (11/10) l1・l10 はゲームバカイベントの限定ガチャ */if(!k||balance(me.id)<cost)return false;
     const d={...(caDocs[me.id]||{})};d[k]=(+d[k]||0)+1;caDocs[me.id]=d;caPtSend();queueRender();return true},
   earn:n=>caEarn(n),
+  gbOn:()=>{try{return typeof gbOn==='function'&&gbOn()}catch(e){return false}},
   /* (v145) スキン: 前の分身でもらったスキン。推しスキン(スキンガチャのKMRの対戦演出と勝利演出がそろったもの)と、かぼちゃ頭の騎士(ハロウィン) */
   skins:()=>{const me=myPlayer();if(!me)return[];const M={'オーバーサイズ':'hood','ふくれっつら':'chibi','ひだまりニット':'vt1','はなかんむり':'vt2','堕ちた天使':'vt3','夜宴の小悪魔':'hw'},out=[];
     try{for(const o of (typeof myOshiSet==='function'?myOshiSet():[])){const k=o&&M[o.n];if(k&&!out.includes(k))out.push(k)}}catch(e){}

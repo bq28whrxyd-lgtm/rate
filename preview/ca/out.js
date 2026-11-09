@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=53').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=53').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=55').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=55').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -649,6 +649,11 @@ const CSS = `
 .aGa .hd b{font:900 16px var(--zk);color:#fff}
 .aGa .hd span{font:700 11px var(--zk);color:var(--aDim)}
 .aGa .hd .rate{margin-left:auto;border:0;cursor:pointer;height:28px;padding:0 10px;border-radius:6px;font:700 11px var(--zk);color:var(--aG1);background:#1a2760;box-shadow:inset 0 0 0 1px var(--aLine)}
+.aGa .gBan{position:absolute;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 112px);z-index:4;display:flex;gap:6px}
+.aGa .gBt{flex:1;min-height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(8,12,30,.72);color:#dfe6ff;font:800 12.5px var(--zk);display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+.aGa .gBt.on{background:linear-gradient(180deg,#fff2c2,#e8b54a);color:#2b1a02;border-color:transparent}.aGa .gBt.lim.on{background:linear-gradient(90deg,#59f0ff,#ff5ad8);color:#07070d}
+.aGa .gBt em{font-style:normal;font-size:10px;padding:1px 5px;border-radius:4px;background:#ff3b6b;color:#fff}
+.aGa.gbl .gbg{background:radial-gradient(60% 40% at 30% 30%,#ff5ad855,transparent),radial-gradient(60% 40% at 75% 60%,#36d6ff55,transparent),linear-gradient(180deg,#1a1236,#07070d)!important}
 .aGa .btns{position:absolute;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 68px);z-index:3;display:flex;gap:8px}
 .aGa .btns .aBtn{flex:1;min-height:52px;padding:5px 6px;font-size:15px}
 .aGa .btns .aBtn small{display:flex;align-items:center;justify-content:center;gap:3px;font:900 12px var(--zk)}
@@ -2077,16 +2082,25 @@ function simulate(u, gain) { let lv = u.lv, exp = u.exp + gain; const ml = maxLv
 /* ---------- ガチャ ---------- */
 /* (v109) 新しい8人は、絵(portraits.js)が入るまでガチャに出さない */
 const NEW8 = ['beni', 'shion', 'ibara', 'lumie', 'pom', 'pukuru', 'futa', 'tomori'];
-function pool(r) { return CHARS.filter(c => c.rar === r && !c.drop && (!NEW8.includes(c.id) || (A.PORT && A.PORT.img && A.PORT.img[c.id]))); }
-function rollOne() { const x = Math.random(); const r = x < GACHA.rate[5] ? 5 : x < GACHA.rate[5] + GACHA.rate[4] ? 4 : 3; const p = pool(r); return p[Math.floor(Math.random() * p.length)].id; }
+function pool(r) { return CHARS.filter(c => c.rar === r && !c.drop && !c.lim && (!NEW8.includes(c.id) || (A.PORT && A.PORT.img && A.PORT.img[c.id]))); }
+function rollOne(ban) { const x = Math.random(); const r = x < GACHA.rate[5] ? 5 : x < GACHA.rate[5] + GACHA.rate[4] ? 4 : 3; if (ban === 'gb') { const pk = gbPick(r); if (pk && Math.random() < GBG.share[r]) return pk; } const p = pool(r); return p[Math.floor(Math.random() * p.length)].id; }
 const circleSVG = `<svg viewBox="0 0 200 200" fill="none" stroke="#f3d27a"><circle cx="100" cy="100" r="96" stroke-width=".8"/><circle cx="100" cy="100" r="88" stroke-width="2.2"/><circle cx="100" cy="100" r="70" stroke-width=".8" stroke-dasharray="2 4"/><circle cx="100" cy="100" r="44" stroke-width="1.4"/><path d="M100 12 176 144H24Z" stroke-width="1.1"/><path d="M100 188 24 56h152Z" stroke-width="1.1"/>${Array.from({ length: 24 }, (_, i) => { const a = i / 24 * Math.PI * 2; return `<circle cx="${100 + Math.cos(a) * 79}" cy="${100 + Math.sin(a) * 79}" r="${i % 3 ? 1.2 : 2.6}" fill="#f3d27a" stroke="none"/>`; }).join('')}</svg>`;
 /* (v114) ガチャの一覧。ほかのゲームと同じく「恒常」などとは書かず、ガチャごとに名前を付ける。
    限定ガチャを作るときは、ここに足すと下にガチャの切りかえが出る */
-const BANNERS = [{ id: 'std', name: '英雄召喚', en: 'HERO SUMMON' }];
+const BANNERS = [{ id: 'std', name: '英雄召喚', en: 'HERO SUMMON' }, { id: 'gb', name: 'ゲーマー女子召喚', en: 'GAMER GIRLS', lim: 1 }];
+/* (11/10) ゲームバカイベントの限定ガチャ(山本さん): 1回150pt・10連1350pt・100回で★5のピックアップと交換。
+   ピックアップは★5・★4・★3の1人ずつ。各レア度のうち share の割合でピックアップが出る。キャラの絵がそろうまでは「準備中」 */
+const GBG = { one: 150, ten: 1350, pity: 100, pick: { 5: 'gbsolo', 4: 'gbmulti', 3: 'gbret' }, share: { 5: .5, 4: .3, 3: .25 } };
+const gbBanOn = () => { try { if (HOST && HOST.gbOn) return !!HOST.gbOn(); } catch (e) { } const t = Date.now(); return t >= Date.UTC(2026, 10, 13, 20) && t < Date.UTC(2026, 10, 28, 20); };
+const gbPick = r => { const id = GBG.pick[r]; return CH[id] && A.PORT && A.PORT.img && A.PORT.img[id] ? id : null; };
+const gbReady = () => !!(gbPick(5) && gbPick(4) && gbPick(3));
+const banList = () => BANNERS.filter(b => !b.lim || gbBanOn());
 let gaSel = null, gaB = 'std';
 function renderGacha() {
   root.innerHTML = '';
-  const bn = BANNERS.find(x => x.id === gaB) || BANNERS[0];
+  if (!banList().some(b => b.id === gaB)) gaB = 'std';
+  const bn = BANNERS.find(x => x.id === gaB) || BANNERS[0], LIM = gaB === 'gb';
+  if (LIM) return renderGbGacha(bn);
   const p5 = pool(5);
   if (!gaSel || !p5.some(c => c.id === gaSel)) gaSel = p5[gaI % p5.length].id;
   const w = h('div', 'aGa'); root.appendChild(w);
@@ -2112,15 +2126,39 @@ function renderGacha() {
   bs.insertAdjacentHTML('beforeend', S.free10 ? '<em class="gK">無料・★4以上1体確定</em>' : '<em class="gK">★4以上1体確定</em>');
   if (needFree()) w.appendChild(h('div', 'gFirst', '<b>まずは仲間を呼ぼう</b><span>無料の10回召喚で、最初の仲間がそろいます</span>'));
   const pt = h('div', 'gPt', `<span>交換pt <b>${S.pity}</b>/${PITY}</span><span class="bar"><i style="width:${Math.min(100, S.pity / PITY * 100)}%"></i></span>`); const tr = btn('sm', '★5確定召喚', pityTrade); tr.disabled = S.pity < PITY; if (S.pity >= PITY) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
-  w.appendChild(bs);
+  w.appendChild(bs); banTabs(w);
 }
+/* ガチャの切りかえ(限定ガチャがあるときだけ) */
+function banTabs(w) { const L = banList(); if (L.length < 2) return; const t = h('div', 'gBan'); for (const b of L) { const e = h('button', 'gBt' + (b.id === gaB ? ' on' : '') + (b.lim ? ' lim' : ''), `${b.lim ? '<em>限定</em>' : ''}${esc(b.name)}`); e.type = 'button'; e.onclick = () => { if (b.id === gaB) return; gaB = b.id; gaSel = null; renderNow(); }; t.appendChild(e); } w.appendChild(t); }
+function renderGbGacha(bn) {
+  clearInterval(gaT); const w = h('div', 'aGa gbl'); root.appendChild(w); const ok = gbReady();
+  w.innerHTML = `<div class="gbg"></div><div class="chars"></div>
+    <div class="gLogo"><small>${esc(bn.en)}</small><b>${esc(bn.name)}</b></div><button class="gDt" type="button">詳細</button>
+    <div class="gWho"></div><div class="gFs"></div>`;
+  const cs = w.querySelector('.chars'), who = w.querySelector('.gWho');
+  const ids = [5, 4, 3].map(r => gbPick(r)).filter(Boolean);
+  if (ids.length) { const id = ids[0]; cs.innerHTML = PORT[id] ? `<img class="fr" alt="" src="${PORT[id]}">` : ''; who.innerHTML = `<span class="st">★★★★★</span><b>${esc(CH[id].name)}</b><span class="el">${elGem(CH[id].el, 20)}ピックアップ</span>`; }
+  else who.innerHTML = '<b>ゲーマー女子 3人</b><span class="el">★5・★4・★3 のピックアップ  ·  準備中</span>';
+  w.querySelector('.gDt').onclick = rates;
+  const bs = h('div', 'btns');
+  const b1 = btn('sub', `1回召喚<small>${svg('pt', '0 0 16 16')}${GBG.one}</small>`, () => pull(1, GBG.one)), b10 = btn('shine', `10回召喚<small>${svg('pt', '0 0 16 16')}${GBG.ten.toLocaleString()}</small>`, () => pull(10, GBG.ten));
+  if (!ok) { b1.disabled = b10.disabled = true; }
+  bs.append(b1, b10); bs.insertAdjacentHTML('beforeend', ok ? '<em class="gK">★4以上1体確定</em>' : '<em class="gK">キャラの準備中です</em>');
+  const lp = S.lp || 0, pt = h('div', 'gPt', `<span>限定の交換pt <b>${lp}</b>/${GBG.pity}</span><span class="bar"><i style="width:${Math.min(100, lp / GBG.pity * 100)}%"></i></span>`), tr = btn('sm', '★5と交換', gbPityPull); tr.disabled = lp < GBG.pity || !gbPick(5); if (lp >= GBG.pity) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
+  w.appendChild(bs); banTabs(w);
+}
+function gbPityPull() { const id = gbPick(5); if (!id || (S.lp || 0) < GBG.pity) return; S.lp -= GBG.pity; const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); save(); summon([{ u, isNew }], 1, 0); }
 function rates() {
+  if (gaB === 'gb') return gbRates();
   modal(`${(BANNERS.find(x => x.id === gaB) || BANNERS[0]).name} の詳細`, (b, close) => {
     const row = r => { const p = pool(r), each = GACHA.rate[r] / p.length * 100; return `<div class="gRw"><p><b class="s${r}">${'★'.repeat(r)}</b> 合計 <b>${Math.round(GACHA.rate[r] * 100)}%</b><small>(1人あたり ${each.toFixed(2)}%)</small></p><div class="gIc">${p.map(c => { const f = faceURL(c.id, 0, 1); return `<span style="--ec:${elCol(c.el)}">${f ? `<img alt="" src="${f}">` : ''}<i>${esc(c.name)}</i></span>`; }).join('')}</div></div>`; };
     b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">10回召喚は、★4以上が1体も出なかったとき、最後の1体が★4以上になります。<br>1回引くごとに交換ptが1たまり、${PITY}たまると★5が必ず出る1回召喚が引けます(どの★5かはランダム)。<br>かぶったキャラは強化や凸に使えます。${HOST ? '' : 'pt はテスト用です。'}</p>`;
     const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r);
   });
 }
+function gbRates() { modal('ゲーマー女子召喚 の詳細', (b, close) => { const row = r => { const pk = gbPick(r), all = Math.round(GACHA.rate[r] * 1000) / 10; return `<p><b class="s${r}">${'★'.repeat(r)}</b> 合計 <b>${all}%</b>${pk ? `<small>(ピックアップ ${esc(CH[pk].name)} ${(GACHA.rate[r] * GBG.share[r] * 100).toFixed(2)}%)</small>` : ''}</p>`; };
+  b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">期間: 11/14 5:00 〜 11/29 5:00(ゲームバカイベント)。1回 ${GBG.one}pt、10回 ${GBG.ten.toLocaleString()}pt。10回召喚は★4以上が1体確定。<br>この召喚を1回引くごとに限定の交換ptが1たまり、${GBG.pity}たまると★5のピックアップと交換できます。ピックアップ以外は「英雄召喚」と同じキャラが出ます。</p>`;
+  const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); }
 function pull(n, cost) {
   if (ptNow() < cost) { modal('ptが足りません', (b, close) => { b.innerHTML = `<p>あと ${(cost - ptNow()).toLocaleString()}pt 必要です。ステージの初回クリア・★・デイリーミッションでもらえます。</p>`; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); return; }
   modal(n === 1 ? '1回召喚' : '10回召喚', (b, close) => {
@@ -2130,14 +2168,14 @@ function pull(n, cost) {
 }
 function doPull(n, cost, free) {
   if (free) { if (!S.free10) return; S.free10 = 0; } else if (!ptSpend(cost, n)) { flash('ptが足りません'); return; } const got = [];
-  const ids = []; for (let k = 0; k < n; k++) ids.push(rollOne());
+  const lim = gaB === 'gb' && !free && gbReady(); const ids = []; for (let k = 0; k < n; k++) ids.push(rollOne(lim ? 'gb' : 0));
   /* 無料の10回召喚は、編成の4人がそろうように、ちがうキャラが4人以上になるまで同じレア度で引き直す(確率は変えない) */
   const have = new Set(S.units.map(x => x.id));
   if (free) for (let g = 0; g < 50 && new Set([...have, ...ids]).size < 4; g++) { const j = ids.findIndex((id, k) => ids.indexOf(id) !== k); const p = pool(CH[ids[j]].rar); ids[j] = p[Math.floor(Math.random() * p.length)].id; }
   /* 10連は★4以上を1枠確定: 1つも無ければ最後を★4以上に引き直す(★5:★4 = 4:26) */
-  if (n === 10 && !ids.some(id => CH[id].rar >= 4)) { const r = Math.random() < GACHA.rate[5] / (GACHA.rate[5] + GACHA.rate[4]) ? 5 : 4, p = pool(r); ids[9] = p[Math.floor(Math.random() * p.length)].id; }
+  if (n === 10 && !ids.some(id => CH[id].rar >= 4)) { const r = Math.random() < GACHA.rate[5] / (GACHA.rate[5] + GACHA.rate[4]) ? 5 : 4, p = pool(r), pk = lim && gbPick(r); ids[9] = pk && Math.random() < GBG.share[r] ? pk : p[Math.floor(Math.random() * p.length)].id; }
   for (const id of ids) { const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); got.push({ u, isNew }); }
-  S.pity += n; dmFresh(); S.dm.gacha += n; fixTeam();
+  if (lim) S.lp = (S.lp || 0) + n; else S.pity += n; dmFresh(); S.dm.gacha += n; fixTeam();
   save(); summon(got, n, cost, free);
 }
 /* 召喚の演出: 魔法陣が回って光が集まる → 光の柱の色でレア度が先に分かる → カードがめくれる。押すと飛ばせる */
