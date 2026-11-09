@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=50').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=50').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=51').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=51').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1177,6 +1177,36 @@ if (BRT) document.head.appendChild(h('style', null, `
 #lay.brt .aNm .nm{font:400 20px/1.25 var(--rd);-webkit-text-stroke:3px #071030;paint-order:stroke fill;text-shadow:none}
 #lay.brt .aNm .ld{font:400 11px var(--rd);color:#e9c56a}
 #lay.brt .aTalk{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}
+/* (11/9) 動き。モンストの画面を1コマずつ見て: 切りかえは0.3秒ほどで下からすっと出る、押すと沈んで離すと少しはねる、ホームは光や粒がいつも動いている */
+#lay.brt #oroot.enter>*:not(.aBg):not(.aHero):not(.aMotes):not(.aTalk){animation:scIn .34s cubic-bezier(.16,1,.3,1) both}
+#lay.brt #oroot.enter>*:nth-child(3){animation-delay:.04s}#lay.brt #oroot.enter>*:nth-child(4){animation-delay:.08s}#lay.brt #oroot.enter>*:nth-child(5){animation-delay:.12s}#lay.brt #oroot.enter>*:nth-child(6){animation-delay:.16s}#lay.brt #oroot.enter>*:nth-child(n+7){animation-delay:.2s}
+@keyframes scIn{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+#lay.brt #oroot.enter>.aHero{animation:heroIn .5s cubic-bezier(.16,1,.3,1) both}
+@keyframes heroIn{from{opacity:0;transform:translateX(-46%) translateY(10px)}to{opacity:1;transform:translateX(-50%)}}
+#lay.brt #oroot.enter .aCard{animation:cardIn .32s cubic-bezier(.34,1.4,.64,1) both;animation-delay:calc(var(--i,0) * 25ms + .1s)}
+@keyframes cardIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+#lay.brt #oroot.enter .aSide .aIb{animation:ibIn .4s cubic-bezier(.34,1.5,.64,1) both}
+#lay.brt #oroot.enter .aSide .aIb:nth-child(2){animation-delay:.05s}#lay.brt #oroot.enter .aSide .aIb:nth-child(3){animation-delay:.1s}#lay.brt #oroot.enter .aSide .aIb:nth-child(4){animation-delay:.15s}#lay.brt #oroot.enter .aSide .aIb:nth-child(5){animation-delay:.2s}
+@keyframes ibIn{from{opacity:0;transform:translateX(24px) scale(.8)}to{opacity:1;transform:none}}
+/* 押した時: すぐ沈む(0.06秒)、離すと少しはねてもどる */
+#lay.brt .aBtn,#lay.brt .aTabs button,#lay.brt .ssqt button,#lay.brt .qDf button,#lay.brt .aChips button,#lay.brt .qPl,#lay.brt .aIb .ic,#lay.brt #onav button,#lay.brt .aCard{transition:transform .2s cubic-bezier(.34,1.8,.64,1),filter .2s}
+#lay.brt .aBtn:active,#lay.brt .aTabs button:active,#lay.brt .ssqt button:active,#lay.brt .qDf button:active,#lay.brt .aChips button:active,#lay.brt .aIb:active .ic,#lay.brt #onav button:active{transform:translateY(2px) scale(.94);filter:brightness(.88);transition-duration:.06s}
+#lay.brt .qPl:active,#lay.brt .aCard:active{transform:scale(.97);filter:brightness(.9);transition-duration:.06s}
+/* 下のバー: 選んだアイコンがぽんとはねる */
+#lay.brt #onav button[aria-current="page"]:not(.mid) .ni{animation:niPop .45s cubic-bezier(.34,1.8,.64,1)}
+@keyframes niPop{0%{transform:scale(.7) translateY(4px)}60%{transform:scale(1.18) translateY(-4px)}100%{transform:none}}
+/* ホーム: 右のアイコンが少しずつずれてゆれる、赤い数字が脈打つ、光の粒 */
+#lay.brt .aSide.r .aIb .ic img{animation:ibBob 3.2s ease-in-out infinite}
+#lay.brt .aSide.r .aIb:nth-child(2) .ic img{animation-delay:-.6s}#lay.brt .aSide.r .aIb:nth-child(3) .ic img{animation-delay:-1.2s}#lay.brt .aSide.r .aIb:nth-child(4) .ic img{animation-delay:-1.8s}#lay.brt .aSide.r .aIb:nth-child(5) .ic img{animation-delay:-2.4s}
+@keyframes ibBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-3deg)}}
+#lay.brt .aIb .bd{animation:bdPulse 1.4s ease-in-out infinite}
+@keyframes bdPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+#lay.brt .aMotes{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+#lay.brt .aMotes i{position:absolute;bottom:18%;border-radius:50%;background:#fff6c8;box-shadow:0 0 6px 2px rgba(255,220,120,.7);opacity:0;animation:mote var(--d) linear infinite}
+@keyframes mote{0%{opacity:0;transform:translateY(0)}15%{opacity:.9}80%{opacity:.6}100%{opacity:0;transform:translateY(-55vh) translateX(14px)}}
+/* 大事なボタン(オレンジ・青)に、ときどき光が走る */
+#lay.brt .aBtn:not(.sub)::before{content:"";position:absolute;inset:-14px;pointer-events:none;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.55) 48%,transparent 60%) no-repeat;background-size:250% 100%;animation:btnSweep 3.4s ease-in-out infinite;mix-blend-mode:screen}
+@keyframes btnSweep{0%,62%{background-position:170% 0}100%{background-position:-70% 0}}
 @media (prefers-reduced-motion:reduce){#lay.brt *{animation:none!important}}
 `));
 
@@ -1236,8 +1266,13 @@ function renderNow() {
   root.hidden = false; $('ss').hidden = true;
   if (needFree() && TAB !== 'gacha' && TAB !== 'other') { if (TAB !== 'home') flash('まずは無料の10回召喚で仲間を呼ぼう'); TAB = 'gacha'; nav.querySelectorAll('button').forEach(b => b.setAttribute('aria-current', b.dataset.k === TAB ? 'page' : 'false')); }
   ({ home: renderHome, quest: renderQuest, chara: renderChara, gacha: renderGacha, other: renderOther })[TAB]();
+  /* (11/9) 動き: 画面を切りかえた時だけ、中身が下から順に出てくる(同じ画面を描き直した時は出さない) */
+  const ek = TAB + ':' + (SUB[TAB] || '');
+  if (BRT && !RM && ek !== ENTERK) { root.classList.remove('enter'); void root.offsetWidth; root.classList.add('enter'); root.querySelectorAll('.aCard').forEach((c, i) => c.style.setProperty('--i', Math.min(i, 18))); clearTimeout(ENTERT); ENTERT = setTimeout(() => root.classList.remove('enter'), 1400); }
+  ENTERK = ek;
   fitNav();
 }
+let ENTERK = '', ENTERT = 0;
 function qTabs() {
   const t = h('div', 'ssqt'); t.setAttribute('role', 'tablist');
   for (const [k, label] of [['main', 'メイン'], ['event', 'イベント'], ['chal', 'チャレンジ']]) { const b = h('button', null, label); b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(SUB.quest === k)); b.onclick = () => { SUB.quest = k; EVSEL = null; renderNow(); }; t.appendChild(b); }
@@ -1314,7 +1349,12 @@ function renderHome() {
   const ni = nextMain(), st = A.STAGES[ni];
   const cta = h('div', 'aCta');
   cta.append(btn('shine', `クエスト<small>つづきから ${esc(st.id)} ${esc(st.n)}</small>`, () => goSheet(ni, false)), btn('sub', `${svg('ev')}イベント`, () => { TAB = 'quest'; SUB.quest = 'event'; renderNow(); }));
-  if (!BRT) root.appendChild(cta);   /* (11/9) 山本さん「ホームのクエスト欄いらない」。クエストは下のバーのまん中から。イベントは右のアイコンへ */
+  if (!BRT) root.appendChild(cta);
+  if (BRT && !RM) {   /* (11/9) 動き: ホームに、ゆっくり上る光の粒 */
+    const mo = h('div', 'aMotes'); let hs = '';
+    for (let i = 0; i < 16; i++) { const x = (i * 61 + 7) % 100, d = 6 + (i * 37 % 50) / 10, dl = -((i * 1.7) % d), sz = 2 + (i % 3); hs += `<i style="left:${x}%;--d:${d}s;animation-delay:${dl.toFixed(1)}s;width:${sz}px;height:${sz}px"></i>`; }
+    mo.innerHTML = hs; root.insertBefore(mo, root.firstChild.nextSibling);
+  }   /* (11/9) 山本さん「ホームのクエスト欄いらない」。クエストは下のバーのまん中から。イベントは右のアイコンへ */
   setTimeout(talk, 700);
 }
 function news() {
