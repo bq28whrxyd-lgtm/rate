@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=44').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=44').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=45').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=45').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1082,6 +1082,11 @@ if (BRT) document.head.appendChild(h('style', null, `
 @keyframes brBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 #lay.brt .qPl.cur::after{content:"";position:absolute;inset:2.5px;border-radius:10px;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.45) 45%,transparent 60%) no-repeat;background-size:220% 100%;animation:brSweep 2.6s ease-in-out infinite}
 @keyframes brSweep{0%,55%{background-position:160% 0}100%{background-position:-60% 0}}
+#lay.brt .qPl.art{min-height:78px}
+#lay.brt .qPl.art::before{background:linear-gradient(90deg,#1a44a4 0,#1a44a4 26%,rgba(26,68,164,.78) 44%,rgba(26,68,164,.15) 70%,rgba(26,68,164,0)),var(--art) right center/auto 100% no-repeat,#1a44a4}
+#lay.brt .qPl.art.boss::before{background:linear-gradient(90deg,#9a1e2a 0,#9a1e2a 26%,rgba(154,30,42,.8) 44%,rgba(154,30,42,.15) 70%,rgba(154,30,42,0)),var(--art) right center/auto 100% no-repeat,#9a1e2a}
+#lay.brt .qPl.art.hd::before{background:linear-gradient(90deg,#6a1a5a 0,#6a1a5a 26%,rgba(106,26,90,.8) 44%,rgba(106,26,90,.2) 70%,rgba(106,26,90,.05)),var(--art) right center/auto 100% no-repeat,#6a1a5a}
+#lay.brt .qPl.art .rt{text-shadow:0 1px 3px #000}
 #lay.brt .qPl.lock{filter:none;background:linear-gradient(180deg,#8a94b0,#3a4460 50%,#6a7490)}
 #lay.brt .qPl.lock::before{background:linear-gradient(180deg,#2a3250,#1a2038)}
 #lay.brt .qPl.lock .cn{background:radial-gradient(circle at 40% 30%,#8a94b0,#3a4460 75%);box-shadow:0 0 0 3px #aab4cc,0 0 0 5px #141a30}
@@ -1302,6 +1307,7 @@ function renderQuest() {
     }
     const st = A.STAGES[i], open = A.stageOpen(i, hard), c = clr(i), sv = A.stageStrength(i, hard), bits = S.stars[skey(i, hard)] || 0;
     const r = h('button', 'qPl' + (st.boss ? ' boss' : '') + (open ? '' : ' lock') + (i === cur ? ' cur' : '') + (hard ? ' hd' : '')); r.type = 'button';
+    if (BRT && open && /^\d-\d$/.test(st.id)) { r.classList.add('art'); r.style.setProperty('--art', `url(${UI}stage/s${st.id}.webp)`); }   /* (11/9) Codex T-026 のステージの帯の絵 */
     r.innerHTML = `<span class="cn">${st.boss && open ? `<img alt="" src="${UI}boss-${CHBOSS[st.ch] || 'base'}.webp">` : `<b>${esc(st.id)}</b>`}</span>${c ? `<i class="ck">${BRT ? 'CLEAR' : '✓'}</i>` : ''}
       <span class="md"><b>${st.boss && open ? esc(st.id) + ' ' : ''}${open ? esc(st.n) : '？？？'}</b><span>${open ? kindImgs(i, 5) + svGem(sv) : '前のステージをクリアすると開く'}</span></span>
       <span class="rt">${open ? `<span class="st3">${[0, 1, 2].map(k => `<i class="${bits >> k & 1 ? 'on' : ''}">★</i>`).join('')}</span>` : `<span class="lk">${LOCK}</span>`}${!c && open ? `<i class="fr2">${svg('pt', '0 0 16 16')}初回 ${RW.first}</i>` : ''}</span>${i === cur ? '<i class="nx">NEXT</i>' : ''}`;
