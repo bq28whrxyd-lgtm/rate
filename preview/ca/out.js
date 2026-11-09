@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=39').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=39').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=40').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=40').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1979,9 +1979,9 @@ function evoTrial() {
 }
 
 /* ---------- その他 ---------- */
-/* ===== (11/9) スタミナ(山本さん): 最大10・30分で1つ回復・出撃1回で1つ(マルチは募集した人だけ)。
+/* ===== (11/9) スタミナ(山本さん): 最大7(はじめ10→11/9に7)・30分で1つ回復・出撃1回で1つ(マルチは募集した人だけ)。
    100ptで満タン(何回でも)。仲間に3時間に1回1つ送れる(ツムツム風)。もらった分は最大を超えて貯まる ===== */
-const STA_MAX = 10, STA_MS = 30 * 60 * 1000, STA_GIFT_MS = 3 * 3600 * 1000;
+const STA_MAX = 7, STA_MS = 30 * 60 * 1000, STA_GIFT_MS = 3 * 3600 * 1000;
 let staGift = 0;
 function staNow() {
   const o = S.sta = S.sta || { v: STA_MAX, t: Date.now() }, now = Date.now();
