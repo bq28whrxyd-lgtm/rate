@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=36').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=36').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=37').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=37').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -934,14 +934,35 @@ const CSS = `
 .aSheet .x{color:var(--crTx)!important;font-weight:700}
 .aBan.aGl{background:#0e1842!important;box-shadow:0 0 0 1.5px var(--aG),0 2px 8px rgba(0,0,0,.5)!important}.aBan .tx{color:#fff}
 `;
-document.head.appendChild(h('style', null, CSS));
+document.head.appendChild(h('style', null, CSS + `
+/* (11/9) プロフィール */
+.aGear{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 54px);z-index:5;width:40px;height:40px;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--aG1);background:rgba(14,24,66,.92);box-shadow:inset 0 0 0 1px var(--aLine)}
+.aGear svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9}
+.aProf{display:grid;gap:8px}
+.aProf .pc{position:relative;display:flex;align-items:center;gap:12px;min-height:92px;padding:12px 14px;border-radius:12px;background-size:cover;background-position:center;box-shadow:inset 0 0 0 1.5px var(--aG),0 4px 12px rgba(0,0,0,.45);color:#fff}
+.aProf .av{flex:0 0 64px;height:64px;border-radius:10px;background:#16255a center/cover;box-shadow:0 0 0 2px var(--aG)}
+.aProf .who{display:grid;gap:2px;min-width:0}.aProf .who b{font:900 20px var(--zk);text-shadow:0 1px 3px #000}.aProf .who small{font:800 11px var(--zk);letter-spacing:.12em;color:#c3cbe6}.aProf .who small i{font-style:normal;font-size:15px;color:var(--aG1)}
+.aProf .who em{font:700 12px/1.4 var(--zk);font-style:normal;color:#e6ebff;text-shadow:0 1px 2px #000}
+.aProf .ed{position:absolute;right:10px;bottom:8px;border:0;border-radius:6px;padding:4px 10px;font:800 11px var(--zk);color:#2b1a02;background:linear-gradient(#fff2c2,#e8b84a);cursor:pointer}
+.aProf h4{margin:6px 2px 0;font:900 13px var(--zk);color:var(--aG1);letter-spacing:.1em}
+.aProf .pfs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.aProf .pf{position:relative;height:150px;border-radius:10px;overflow:hidden;background:radial-gradient(120% 90% at 50% 20%,#2a3a80,#0b1236);box-shadow:inset 0 0 0 1.5px var(--aLine);cursor:pointer}
+.aProf .pf img{position:absolute;left:50%;top:-2%;height:230%;transform:translateX(-50%);object-fit:contain;max-width:none}
+.aProf .pf .pn{position:absolute;left:0;right:0;bottom:0;padding:16px 4px 3px;font:900 12px var(--zk);color:#fff;text-align:center;background:linear-gradient(transparent,rgba(5,8,24,.95))}
+.aProf .pf .pl{position:absolute;right:4px;top:4px;padding:1px 5px;border-radius:4px;font:800 10px var(--zk);color:#fff;background:rgba(5,8,24,.7)}
+.aProf .pst{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.aProf .pst div{display:grid;gap:1px;padding:8px 10px;border-radius:9px;background:rgba(14,24,66,.92);box-shadow:inset 0 0 0 1px var(--aLine)}
+.aProf .pst small{font:700 11px var(--zk);color:#c3cbe6}.aProf .pst b{font:900 19px var(--zk);color:#fff;font-variant-numeric:tabular-nums}.aProf .pst b small{font-size:11px;color:#97a2c6}
+.aCards{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.aCards button{position:relative;height:44px;border:0;border-radius:6px;background:#16255a center/cover;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)}
+.aCards button span{position:absolute;left:0;right:0;bottom:0;font:800 10px var(--zk);color:#fff;background:rgba(5,8,24,.7)}.aCards button.on{box-shadow:0 0 0 3px #e8c878}
+`));
 
 const IC = {
   home: '<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M10 19.5v-5h4v5"/>',
   quest: '<path d="M5 19 19 5"/><path d="M14 5h5v5"/><path d="M5 14l5 5"/><path d="M8 16l-3 3"/>',
   chara: '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.9-4 3.8-6 7.5-6s6.6 2 7.5 6"/>',
   gacha: '<path d="M12 2.5 14.6 9 21 9.6 16.2 14 17.6 20.5 12 17.2 6.4 20.5 7.8 14 3 9.6 9.4 9z"/>',
-  other: '<circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/>',
+  other: '<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.6-1.7 1.8-2.5 3.2-2.5s2.6.8 3.2 2.5M14 10h4M14 13.5h3"/>',
   news: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',
   party: '<circle cx="8" cy="8" r="3"/><circle cx="16.5" cy="8" r="3"/><path d="M2.5 20c0-4 2.6-6 5.5-6s5.5 2 5.5 6M14 14.3c.8-.3 1.6-.3 2.5-.3 3 0 5.5 2 5.5 6"/>',
   power: '<path d="M12 3v14M6 9l6-6 6 6"/><path d="M5 21h14"/>',
@@ -964,7 +985,7 @@ document.addEventListener('pointerdown', e => {
 }, { passive: true });
 
 /* ---------- 画面の骨組み ---------- */
-const TABS = [['home', 'ホーム'], ['chara', 'キャラ'], ['quest', 'クエスト'], ['gacha', 'ガチャ'], ['other', 'その他']];
+const TABS = [['home', 'ホーム'], ['chara', 'キャラ'], ['quest', 'クエスト'], ['gacha', 'ガチャ'], ['other', 'プロフィール']];
 const lay = $('lay');
 const nav = h('nav'); nav.id = 'onav'; nav.setAttribute('aria-label', 'メニュー');
 for (const [k, label] of TABS) {
@@ -1415,8 +1436,9 @@ function mpOpen(code) {
       <div class="mpMem" style="display:grid;gap:6px">${[0, 1, 2, 3].map(k => { const p = hostFirst[k], m = p && M[p];
         if (!m) return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.08);opacity:.6"><span style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.1)"></span><span>あき(2人なら1人2体ずつ、3人なら募集した人が2体)</span></div>`;
         const c = m.u && CH[m.u.id];
-        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.14)"><img alt="" src="${c ? bigFaceURL(c.id, m.u.evo) : ''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><span style="flex:1;min-width:0"><b>${esc(m.n || '')}</b>${p === R.host ? ' <small style="color:#ffd36a">募集した人</small>' : ''}${p === me ? ' <small>(あなた)</small>' : ''}<br><small>${c ? esc(c.name) + ' Lv' + m.u.lv + (m.u.evo ? '・★6' : '') : 'キャラを選んでいます'}${m.ld ? '<br>リーダースキル: ' + esc(m.ld.ln) : ''}</small></span></div>`; }).join('')}</div>
+        return `<div class="mpRow" data-pid="${esc(p)}" data-n="${esc(m.n || '')}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.14);cursor:pointer"><img alt="" src="${c ? bigFaceURL(c.id, m.u.evo) : ''}" style="width:44px;height:44px;border-radius:8px;object-fit:cover"><span style="flex:1;min-width:0"><b>${esc(m.n || '')}</b>${p === R.host ? ' <small style="color:#ffd36a">募集した人</small>' : ''}${p === me ? ' <small>(あなた)</small>' : ''}<br><small>${c ? esc(c.name) + ' Lv' + m.u.lv + (m.u.evo ? '・★6' : '') : 'キャラを選んでいます'}${m.ld ? '<br>リーダースキル: ' + esc(m.ld.ln) : ''}</small></span></div>`; }).join('')}</div>
       <div class="orow" style="margin-top:12px"></div>`;
+    sh.querySelectorAll('.mpRow').forEach(e => e.onclick = () => profOpen(e.dataset.pid, e.dataset.n));
     const r = sh.querySelector('.orow');
     r.append(btn('sub', host ? '解散する' : '抜ける', () => mpLeave(false)), btn('sub', 'キャラを選ぶ', mpPick));
     if (host) r.append(btn('shine', '始める', mpStart));
@@ -1924,8 +1946,78 @@ function evoTrial() {
 }
 
 /* ---------- その他 ---------- */
+/* ===== (11/9) 「その他」→ プロフィール(山本さん)。参考: 原神・スターレイルのプロフィール(名刺・キャラの展示・実績の数・高難度の進み具合)、
+   ウマ娘のトレーナー情報(代表・称号・ファン数)、ブルアカの先生のプロフィール。ほかの人もマルチの部屋から見られる(caprof/{pid}) ===== */
+const REC0 = () => ({ win: 0, cm: 0, dm: 0, raid: 0, multi: 0, tw: 0, since: Date.now() });
+function recWin(st, info) {
+  const R = S.rec = Object.assign(REC0(), S.rec || {}); R.win++; R.cm = Math.max(R.cm, info.cm || 0); R.dm = Math.max(R.dm, info.dm || 0);
+  if (st.ev === 'raid') R.raid++; if (info.multi) R.multi++; if (st.ev === 'tower') R.tw = Math.max(R.tw, (st.fl || 0));
+  profDirty = true;
+}
+let profDirty = true;
+function profStats() {
+  const R = Object.assign(REC0(), S.rec || {}), ids = new Set(S.units.map(u => u.id)), all = Object.keys(CH).length;
+  let stars = 0, starMax = 0; for (let i = 0; i < A.STAGES.length; i++) { const st = A.STAGES[i]; if (st.ev) continue; for (const hd of [false, true]) { starMax += 3; stars += bitsN(S.stars[skey(i, hd)] || 0); } }
+  const clr = A.PROG.n.filter(Boolean).length + A.PROG.h.filter(Boolean).length;
+  const r5 = [...ids].filter(id => CH[id] && CH[id].rar === 5).length, evo = S.units.filter(u => u.evo).length;
+  return [
+    ['★を取った数', `${stars}<small> / ${starMax}</small>`], ['クリアしたステージ', `${clr}`],
+    ['最高コンボ', `${R.cm}`], ['1回の最大ダメージ', `${(R.dm || 0).toLocaleString()}`],
+    ['集めたキャラ', `${ids.size}<small> / ${all}</small>`], ['★5のキャラ', `${r5}`],
+    ['★6に進化', `${evo}`], ['勝った回数', `${R.win}`],
+    ['降臨で勝った', `${R.raid}`], ['マルチで勝った', `${R.multi}`],
+    ['塔の最高', `${Math.max(R.tw || 0, (S.tower && S.tower.top) || 0)}<small>階</small>`], ['始めた日', `${new Date(R.since).toLocaleDateString('ja-JP')}`],
+  ];
+}
+const favUnits = () => { const F = (S.fav || []).map(id => S.units.filter(u => u.id === id).sort((a, b) => b.lv - a.lv)[0]).filter(Boolean); if (F.length) return F.slice(0, 3); return S.units.slice().sort((a, b) => rarOf(b) - rarOf(a) || b.lv - a.lv).filter((u, i, L) => L.findIndex(x => x.id === u.id) === i).slice(0, 3); };
+/* ほかの人に見せる分(caprof/{pid})。名前・ランク・ひとこと・お気に入り3体・記録 */
+function profPack() { const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(); return { n: String(S.name || '').slice(0, 12), rk: ri.rk || 1, msg: String(S.msg || '').slice(0, 30), card: S.card || 'banner-ch1', fav: favUnits().map(u => ({ id: u.id, lv: u.lv, evo: u.evo ? 1 : 0 })), st: profStats().map(([k, v]) => ({ k, v: String(v).replace(/<[^>]+>/g, '') })), t: Date.now() }; }   /* Firestore は配列の中の配列を保存できないので {k,v} */
+function profPush() { if (!profDirty || !(HOST && HOST.prof)) return; profDirty = false; HOST.prof.save(profPack()).catch(() => { profDirty = true; }); }
+const CARDS = [['banner-ch1', '第1章'], ['banner-ch2', '第2章'], ['banner-ch3', '第3章'], ['banner-ch4', '第4章'], ['banner-raid', '降臨'], ['banner-tower', '塔'], ['banner-gacha', '召喚']];
+function profView(P, mine) {
+  const w = h('div', 'aProf');
+  const fav = (P.fav || []).map(f => { const c = CH[f.id]; if (!c) return ''; const src = PORT[evoArt(f.id, !!f.evo)] || CHIBI[evoArt(f.id, !!f.evo)] || ''; return `<div class="pf" data-id="${esc(f.id)}"><img alt="" src="${src}"><span class="pn">${esc(c.name)}</span><span class="pl">Lv${f.lv}${f.evo ? '・★6' : ''}</span></div>`; }).join('');
+  w.innerHTML = `<div class="pc" style="background-image:linear-gradient(90deg,rgba(5,8,24,.92),rgba(5,8,24,.55) 60%,rgba(5,8,24,.2)),url(${UI}${esc(P.card || 'banner-ch1')}.webp)">
+      <span class="av" style="${P.av ? `background-image:url(${P.av})` : ''}"></span>
+      <span class="who"><b>${esc(P.n || '')}</b><small>RANK <i>${P.rk || 1}</i></small><em>${esc(P.msg || (mine ? 'ひとことを書けます' : ''))}</em></span>${mine ? '<button class="ed" type="button">編集</button>' : ''}</div>
+    <h4>お気に入り</h4><div class="pfs">${fav || '<p class="onote">まだいません</p>'}</div>
+    <h4>記録</h4><div class="pst">${(P.st || []).map(x => { const k = Array.isArray(x) ? x[0] : x.k, v = Array.isArray(x) ? x[1] : esc(x.v); return `<div><small>${esc(k)}</small><b>${v}</b></div>`; }).join('')}</div>`;
+  return w;
+}
 function renderOther() {
-  const b = shell('その他', 'MENU');
+  const b = shell('プロフィール', 'PROFILE');
+  const g = h('button', 'aGear', '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/><circle cx="12" cy="12" r="6.4"/></svg>'); g.type = 'button'; g.setAttribute('aria-label', '設定・お知らせ'); g.onclick = settingsMenu; root.appendChild(g);
+  const P = Object.assign(profPack(), { st: profStats(), av: S.home ? faceURL(S.home, homeEvo()) : '' });
+  const v = profView(P, true); b.appendChild(v);
+  v.querySelector('.ed').onclick = profEdit;
+  v.querySelectorAll('.pf').forEach(e => e.onclick = profEdit);
+  profPush();
+}
+function profEdit() {
+  modal('プロフィールを編集', (b, close) => {
+    b.innerHTML = `<p class="onote" style="margin:0 0 4px">ひとこと(30文字まで)</p><input maxlength="30" value="${esc(S.msg || '')}" style="width:100%;box-sizing:border-box;padding:10px;border-radius:8px;border:1px solid #c9a14a;font:700 15px var(--zk)">
+      <p class="onote" style="margin:10px 0 4px">名刺の背景</p><div class="aCards">${CARDS.map(([k, n]) => `<button type="button" data-k="${k}" class="${(S.card || 'banner-ch1') === k ? 'on' : ''}" style="background-image:url(${UI}${k}.webp)"><span>${n}</span></button>`).join('')}</div>
+      <p class="onote" style="margin:10px 0 4px">お気に入り(3体まで。押した順)</p><div class="ogrid aFavG" style="max-height:34vh;overflow-y:auto"></div>`;
+    let card = S.card || 'banner-ch1', fav = favUnits().map(u => u.id);
+    b.querySelectorAll('.aCards button').forEach(e => e.onclick = () => { card = e.dataset.k; b.querySelectorAll('.aCards button').forEach(x => x.classList.toggle('on', x === e)); });
+    const G = b.querySelector('.aFavG'); const seen = new Set();
+    const draw = () => { G.innerHTML = ''; seen.clear(); for (const u of S.units.slice().sort((a, b) => rarOf(b) - rarOf(a) || b.lv - a.lv)) { if (seen.has(u.id)) continue; seen.add(u.id); const e = icon(u); const k = fav.indexOf(u.id); if (k >= 0) { e.style.outline = '3px solid #e8c878'; e.insertAdjacentHTML('beforeend', `<i style="position:absolute;left:3px;top:3px;background:#e8c878;color:#2b1a02;font:900 11px/16px var(--zk);width:16px;text-align:center;border-radius:3px">${k + 1}</i>`); e.style.position = 'relative'; } e.onclick = () => { const j = fav.indexOf(u.id); if (j >= 0) fav.splice(j, 1); else { if (fav.length >= 3) fav.shift(); fav.push(u.id); } draw(); }; G.appendChild(e); } };
+    draw();
+    const r = h('div', 'orow'); r.style.padding = '12px 0 0'; b.appendChild(r);
+    r.append(btn('sub', 'やめる', close), btn('shine', '保存', () => { S.msg = b.querySelector('input').value.trim().slice(0, 30); S.card = card; S.fav = fav.slice(0, 3); save(); profDirty = true; close(); renderNow(); }));
+  });
+}
+/* ほかの人のプロフィール(マルチの部屋から) */
+async function profOpen(pid, name) {
+  modal(`${name || ''}のプロフィール`, async (b, close) => {
+    b.innerHTML = '<p class="onote">読み込み中…</p>';
+    let P = null; try { P = HOST && HOST.prof ? await HOST.prof.load(pid) : null; } catch (e) { }
+    b.innerHTML = ''; if (!P) b.innerHTML = '<p class="onote">まだプロフィールがありません(その人が一度プロフィールを開くと見られるようになります)</p>'; else b.appendChild(profView(P, false));
+    const r = h('div', 'orow'); r.style.padding = '10px 0 0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r);
+  });
+}
+function settingsMenu() {
+  modal('設定・お知らせ', (b, closeM) => {
   const L = h('div', 'aList aGl'); b.appendChild(L);
   const item = (k, t, sub, fn) => { const e = h('button', null, `${svg(k)}<span>${esc(t)}<small>${esc(sub)}</small></span><span class="ar">›</span>`); e.type = 'button'; e.onclick = fn; L.appendChild(e); return e; };
   if (HOST) item('home', 'アプリに戻る', 'きもオタレートのホームへ', () => { try { HOST.close(); } catch (e) { } });
@@ -1944,6 +2036,8 @@ function renderOther() {
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('red', '初めに戻す', () => { S = fresh(); save(); try { localStorage.removeItem('ca_prog_v1'); } catch (e) { } A.PROG.n.fill(false); A.PROG.h.fill(false); close(); flash('最初の状態に戻しました'); renderNow(); })); bd.appendChild(r);
   });
   item('info', 'このゲームについて', HOST ? '分身(圧縮アリーナ)' : '圧縮アリーナ 試作', () => modal('このゲームについて', (bd, close) => { bd.innerHTML = HOST ? '<p>分身(圧縮アリーナ)。押した所に敵や球を吸い寄せて、まとめてぶつけるバトルです。ptはアプリと共通です。</p>' : '<p>圧縮アリーナ 試作。きもオタレートの「分身バトル」の新しいバージョンです。</p>'; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); bd.appendChild(r); }));
+  const r = h('div', 'orow'); r.style.padding = '10px 0 0'; r.appendChild(btn('sub', '閉じる', closeM)); b.appendChild(r);
+  });
 }
 
 
@@ -1993,6 +2087,7 @@ function dropModal(d) {
 }
 let LAST = null;
 function onClearStage(st, info) {
+  recWin(st, info);
   if (info.multi) return multiClear(st, info);
   if (st.ev === 'tower' || st.ev === 'raid' || st.ev === 'score' || st.ev === 'ex' || st.ev === 'lev') {
     chFresh(); const rewards = []; let msg = '';

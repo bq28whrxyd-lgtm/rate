@@ -14680,7 +14680,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=36',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=37',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -14733,6 +14733,11 @@ window.CAHOST={
     try{for(const o of (typeof myOshiSet==='function'?myOshiSet():[])){const k=o&&M[o.n];if(k&&!out.includes(k))out.push(k)}}catch(e){}
     try{if(window.__caSkinAll||(typeof hbSkin==='function'&&hbSkin(me.id))||(typeof isAdmin==='function'&&isAdmin()&&/\/preview\//.test(location.pathname)))out.push('knight')}catch(e){}
     return out},
+  /* (11/9) 分身のプロフィール。caprof/{pid}。自分の分を書き、ほかの人のを読む */
+  prof:{
+    save:async o=>{const me=myPlayer();if(!db||!me)return false;await db.doc('caprof/'+me.id).set(JSON.parse(JSON.stringify(o||{})));return true},
+    load:async pid=>{if(!db)return null;const ref=db.doc('caprof/'+pid);return db.runTransaction(async tx=>{const x=await tx.get(ref);return x.exists?x.data():null})}
+  },
   /* (11/9) マルチ(協力)の部屋。caroom/{4けた}。分身(圧縮アリーナ)の out.js から使う */
   room:{
     /* undefined があると Firestore が英語のエラーを出すので、書く前に消す */
