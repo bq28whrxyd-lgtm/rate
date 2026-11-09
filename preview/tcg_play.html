@@ -2520,7 +2520,7 @@ const HWV=[['q2','hq2','魔女コスのギャル'],['n3','hn3','かぼちゃの�
 HWV.forEach(([b,id,n])=>{const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,n,set:'hw',hwOf:b,img:b});C.push(c);BY[id]=c});
 /* (10/26) スペシャルアート: 夜宴くじのS賞だけで手に入る、絵とカードの作りが特別な版。効果は元のカードと同じで、デッキには合わせて2枚まで */
 const SAV=[['x5','sx5']];
-SAV.forEach(([b,id])=>{const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,set:'sa',saOf:b});C.push(c);BY[id]=c});
+SAV.forEach(([b,id])=>{const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,set:'sa',saOf:b});C.push(c);BY[id]=c}); /* (11/10) ゲームバカイベント: ゲーマー女子のゲーマー版。クレーンゲームの景品だけで手に入る。効果は元のカードと同じ(スペシャルアートと同じ扱い、gbv で見出しだけ変える) */ const GBV=[['g8','gm8','廃課金の女王'],['w8','gm9','覚醒した陰キャゲーマー女子'],['v3','gm3','ゲーム実況女子'],['g3','gm4','徹夜でランク上げ女子'],['g13','gm13','積みゲーに埋もれる女子'],['v13','gm14','耐久配信女子']]; GBV.forEach(([b,id,n])=>{if(!BY[b])return;const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,n,set:'sa',saOf:b,gbv:1,img:b});C.push(c);BY[id]=c});
 const fk=id=>(BY[id]&&(BY[id].hwOf||BY[id].saOf))||id;
 /* (10/27) a deck is DECK_SIZE (20) to DECK_MAX (30) cards (the user's call). Same card still 2 at most */
 const DECK_SIZE=20,DECK_MAX=30,MAX_COPY=2;
@@ -2664,7 +2664,7 @@ function text(c){const t=[],k=c.kw||{};
   if(c.aw)t.push('★3覚醒:'+awText(c.aw));
   if(c.lim)t.unshift('【制限】デッキに1枚しか入れられない');
   {const cn={fam3:'味方の族が3種類以上のときだけ使える',gySpell:'捨て札に魔法があるときだけ使える',shk1:'仕込みが1個以上あるときだけ使える',shk3:'仕込みが3個あるときだけ使える'}[c.cond];if(cn&&c.type==='spell')t.unshift(cn)}
-  if(c.saOf&&BY[c.saOf])t.unshift('【スペシャルアート】「'+BY[c.saOf].n+'」と同じカード。デッキには合わせて'+(c.lim||MAX_COPY)+'枚まで');
+  if(c.saOf&&BY[c.saOf])t.unshift((c.gbv?'【ゲーマー版】「':'【スペシャルアート】「')+BY[c.saOf].n+'」と同じカード。デッキには合わせて'+(c.lim||MAX_COPY)+'枚まで');
   if(c.hwOf&&BY[c.hwOf])t.unshift('【ハロウィン版】「'+BY[c.hwOf].n+'」と同じカード。デッキには合わせて'+(c.lim||MAX_COPY)+'枚まで');
   if(c.same)t.unshift('【二体生贄】自分の'+FNAME[c.f]+'のキャラ2体を生贄にして出す');else if(c.trib)t.unshift('【リーダー】リーダーにできる。リーダーにしたときだけ、同じカードをデッキに2枚まで入れられる。引いて手札に来たら、自分のキャラ1体を生贄にして出す');
   return t.join('\n')}

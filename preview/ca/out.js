@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=52').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=52').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=53').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=53').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -2436,6 +2436,7 @@ function dropModal(d) {
 let LAST = null;
 function onClearStage(st, info) {
   recWin(st, info);
+  try { if (HOST && HOST.gb) HOST.gb(info.multi ? 'm' : 's'); } catch (e) { } /* (11/10) ゲームバカイベントのメダル */
   if (info.multi) return multiClear(st, info);
   if (st.ev === 'tower' || st.ev === 'raid' || st.ev === 'score' || st.ev === 'ex' || st.ev === 'lev') {
     chFresh(); const rewards = []; let msg = '';
@@ -2472,6 +2473,7 @@ function skipStage(i, hd) {
   if (!staCan()) { staOut(); return; }
   if (!xpTake(i)) return; staUse();
   const st = A.STAGES[i], r = repeatDrops(st, i, hd); give(r); dmFresh(); S.dm.win++; save();
+  try { if (HOST && HOST.gb) HOST.gb('s'); } catch (e) { } /* (11/10) スキップもソロのクリアとして数える */
   modal('スキップ', (b, close) => { b.innerHTML = `<p style="text-align:center">${esc(st.id || '')} ${esc(st.n)} をスキップしました</p><div class="aRl">${r.length ? r.map(rwChip).join('') : '<p>今回は何も落ちませんでした</p>'}</div>`; const row = h('div', 'orow'); row.style.padding = '0'; row.append(btn('sub', '閉じる', close), btn('', 'もう一度', () => { close(); skipStage(i, hd); })); b.appendChild(row); });
   renderNow();
 }
