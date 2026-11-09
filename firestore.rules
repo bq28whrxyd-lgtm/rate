@@ -369,6 +369,15 @@ service cloud.firestore {
         );
       allow delete: if signedIn() && (bunMine(resource.data.host) || isAdmin());
     }
+    // ---- (11/9) 分身のプロフィール(本人だけ書ける・ログインしていれば読める) ----
+    match /caprof/{pid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && bunMine(pid)
+        && request.resource.data.keys().hasOnly(['n', 'rk', 'msg', 'card', 'fav', 'st', 't'])
+        && request.resource.data.get('msg', '') is string && request.resource.data.get('msg', '').size() <= 30
+        && request.resource.data.get('fav', []) is list && request.resource.data.get('fav', []).size() <= 3
+        && request.resource.data.get('st', []) is list && request.resource.data.get('st', []).size() <= 20;
+    }
     match /caadj/{pid} {
       allow read: if signedIn() && (bunMine(pid) || isAdmin());
       allow create, update: if isAdmin() && request.resource.data.keys().hasOnly(['list']) && request.resource.data.list is list && request.resource.data.list.size() <= 50;
