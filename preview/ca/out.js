@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=47').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=47').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=48').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=48').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1131,6 +1131,45 @@ if (BRT) document.head.appendChild(h('style', null, `
 #lay.brt .qChH .fr .art,#lay.brt .qChH .fr .sh{inset:6px;border-radius:2px}
 #lay.brt .qChH .fr::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border:20px solid transparent;border-image:url(${UI}frame/chapter_frame.webp) 64 / 20px stretch}
 #lay.brt #onav{background:none;box-shadow:0 -6px 16px rgba(0,0,0,.6);border:solid transparent;border-width:13px 20px 0;border-image:url(${UI}frame/navbar.webp) 40 60 0 60 fill / 13px 20px 0 20px stretch}
+
+/* (11/9) ほかの画面もそろえる(T-027 の部品を共通の部品に) */
+#lay.brt{--mi:var(--rd)}
+#lay.brt .aTitle{margin:2px 2px 8px}
+#lay.brt .aTitle h2{font:400 22px var(--rd);letter-spacing:.04em;-webkit-text-stroke:4px #071030;paint-order:stroke fill;text-shadow:0 3px 0 rgba(0,0,0,.4)}
+#lay.brt .aTitle small{display:none}
+#lay.brt .aTabs{padding:0;background:none;box-shadow:0 4px 8px rgba(0,0,0,.45);border:14px solid transparent;border-image:url(${UI}frame/tabbar.webp) 44 fill / 14px stretch;border-radius:0}
+#lay.brt .aTabs button{margin:-10px 0;height:44px;border-radius:0;background:none;box-shadow:none;border:12px solid transparent;border-image:url(${UI}frame/btn_steel.webp) 48 fill / 12px stretch;font:400 14px var(--rd);color:#cfe0ff;-webkit-text-stroke:3px #071030;paint-order:stroke fill;padding:0}
+#lay.brt .aTabs button[aria-selected="true"]{color:#fff;background:none;box-shadow:none;border-image-source:url(${UI}frame/btn_orange.webp);-webkit-text-stroke:3.5px #5a2000}
+#lay.brt .aBtn{border-radius:0;background:none;box-shadow:0 4px 8px rgba(0,0,0,.45);border:14px solid transparent;border-image:url(${UI}frame/btn_orange.webp) 48 fill / 14px stretch;padding:0 6px;min-height:52px;color:#fff;font:400 16px var(--rd);letter-spacing:.04em;-webkit-text-stroke:3.5px #5a2000;paint-order:stroke fill;overflow:visible}
+#lay.brt .aBtn small{font:700 10.5px var(--zk);-webkit-text-stroke:2.5px #5a2000}
+#lay.brt .aBtn::after{display:none}
+#lay.brt .aBtn.sub{border-image-source:url(${UI}frame/btn_steel.webp);-webkit-text-stroke:3px #071030}
+#lay.brt .aBtn.sub small{-webkit-text-stroke:2.5px #071030}
+#lay.brt .aBtn.blue{border-image-source:url(${UI}frame/btn_blue.webp);-webkit-text-stroke:3.5px #062060}
+#lay.brt .aBtn.red{border-image-source:url(${UI}frame/btn_red.webp);-webkit-text-stroke:3.5px #4a0410}
+#lay.brt .aBtn.sm{min-height:40px;border-width:11px;border-image-width:11px;font-size:13px}
+#lay.brt .aPanel{border-radius:0;background:none;box-shadow:0 5px 12px rgba(0,0,0,.5);border:18px solid transparent;border-image:url(${UI}frame/panel.webp) 72 fill / 18px stretch;padding:0}
+#lay.brt .aPanel h3{font:400 16px var(--rd);-webkit-text-stroke:3px #071030;paint-order:stroke fill}
+#lay.brt .aChips{gap:2px;padding:2px 0}
+#lay.brt .aChips button{height:36px;padding:0 4px;border-radius:0;background:none;box-shadow:none;border:10px solid transparent;border-image:url(${UI}frame/btn_steel.webp) 48 fill / 10px stretch;font:400 12.5px var(--rd);color:#d6e2ff;-webkit-text-stroke:2.5px #071030;paint-order:stroke fill}
+#lay.brt .aChips button[aria-pressed="true"]{color:#fff;background:none;border-image-source:url(${UI}frame/btn_blue.webp);-webkit-text-stroke:2.5px #062060}
+#lay.brt .aChips .lb{font:400 12px var(--rd);color:#e9c56a}
+#lay.brt .aPl,#lay.brt .aCur,#lay.brt .aSta{border-radius:0;background:none;box-shadow:0 2px 5px rgba(0,0,0,.5);border:9px solid transparent;border-image:url(${UI}frame/btn_steel.webp) 48 fill / 9px stretch;height:auto;min-height:34px;padding:0 2px}
+#lay.brt .aPl{padding:0 4px 0 0}
+#lay.brt .aCur b,#lay.brt .aSta b{font:400 13px var(--rd);-webkit-text-stroke:2.5px #071030;paint-order:stroke fill}
+#lay.brt .aCard .fr{background:linear-gradient(160deg,#fff4c8,#e2b347 22%,#9a6a16 50%,#f2cf6a 78%,#8a5a12);padding:2.5px;box-shadow:0 0 0 1px #3a2200,0 3px 6px rgba(0,0,0,.55)}
+
+#lay.brt .aCta{align-items:stretch}
+#lay.brt .aCta .aBtn{min-height:62px;font-size:20px;letter-spacing:.1em}
+#lay.brt .aCta .aBtn.shine{border-image-source:url(${UI}frame/btn_blue.webp);-webkit-text-stroke:4px #062060}
+#lay.brt .aCta .aBtn.shine small{-webkit-text-stroke:2.5px #062060}
+#lay.brt .aCta .aBtn.sub{flex:0 0 74px;border-width:10px;border-image-width:10px;font-size:11px;padding:0;min-height:62px}
+#lay.brt .aCta .aBtn.sub svg{width:20px;height:20px}
+#lay.brt .gLogo small{display:none}
+#lay.brt .gLogo b{font-family:var(--rd);font-weight:400}
+#lay.brt .aPe .pst>div,#lay.brt .pst>div{border-radius:0;background:none;box-shadow:0 3px 6px rgba(0,0,0,.4);border:12px solid transparent;border-image:url(${UI}frame/panel.webp) 72 fill / 12px stretch;padding:0 2px}
+#lay.brt .pst b{font-family:var(--rd);font-weight:400;-webkit-text-stroke:2.5px #071030;paint-order:stroke fill}
+#lay.brt .aSta i{font-size:13px}#lay.brt .aSta b{-webkit-text-stroke:2px #071030;letter-spacing:.02em}
 @media (prefers-reduced-motion:reduce){#lay.brt *{animation:none!important}}
 `));
 
