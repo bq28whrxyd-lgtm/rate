@@ -14680,7 +14680,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=41',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=52',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -14691,8 +14691,14 @@ function caWatch(){if(!CA_ON||!db||caWatch.on)return;caWatch.on=1;db.collection(
     if(mine&&me){const sv=caDocs[me.id]||{};caDocs[me.id]={...sv,...['pe','g1','g10'].reduce((o,k)=>(o[k]=Math.max(+sv[k]||0,+mine[k]||0),o),{}),pd:mine.pd!=null?mine.pd:sv.pd,pn:mine.pn!=null?mine.pn:sv.pn,pq:mine.pq!=null?mine.pq:sv.pq}}
     queueRender()},()=>{})}
 const caParse=t=>{try{return t?JSON.parse(t):null}catch(e){return null}};
+/* (11/9) 読み直したあと、分身を自動で開く */
+(()=>{let f=0;try{f=sessionStorage.getItem('caReopen')==='1'}catch(e){}if(!f)return;try{sessionStorage.removeItem('caReopen')}catch(e){}let k=0;const t=setInterval(()=>{k++;try{if(db&&myPlayer()){clearInterval(t);caOpen();return}}catch(e){}if(k>30)clearInterval(t)},700)})();
 async function caOpen(){const me=myPlayer();if(!me){toast('プレイヤーを選んでから遊べます');return}if($('bunw')||$('tcgw'))return;caWatch();
-  if(db&&(!caSaveReady||caSave&&caSave.pid!==me.id)){try{/* (v145) スマホの中の古い控えではなく、必ずサーバーの今の版を読む(古い控えだと「別の端末で更新」と出ていた) */const d=await db.runTransaction(async tx=>{const x=await tx.get(db.doc('casave/'+me.id));return x.exists?x.data():null});caSave=d?{...d,pid:me.id}:{pid:me.id,u:0};caSaveReady=true}catch(e){toast('分身のデータを読めませんでした('+(e&&(e.code||e.message)||'?')+')');return}}
+  if(db&&(!caSaveReady||caSave&&caSave.pid!==me.id)){try{/* (v145) スマホの中の古い控えではなく、必ずサーバーの今の版を読む(古い控えだと「別の端末で更新」と出ていた) */const rd=()=>db.runTransaction(async tx=>{const x=await tx.get(db.doc('casave/'+me.id));return x.exists?x.data():null});let d;
+    /* (11/9) iPhoneでアプリを裏に回したあと、Firestoreの中が壊れて「INTERNAL ASSERTION FAILED: Unexpected state」になることがある。1回やり直し、だめならアプリを読み直して分身を自動で開く */
+    try{d=await rd()}catch(e1){const bad=String(e1&&e1.message||e1).includes('ASSERTION');if(!bad)throw e1;await new Promise(r=>setTimeout(r,700));try{d=await rd()}catch(e2){let n=0;try{n=+sessionStorage.getItem('caReload')||0}catch(_){}if(n<1){try{sessionStorage.setItem('caReload',String(n+1));sessionStorage.setItem('caReopen','1')}catch(_){}toast('通信をつなぎ直しています…');setTimeout(()=>location.reload(),600);return}throw e2}}
+    try{sessionStorage.removeItem('caReload')}catch(_){}
+    caSave=d?{...d,pid:me.id}:{pid:me.id,u:0};caSaveReady=true}catch(e){toast(String(e&&e.message||'').includes('ASSERTION')?'分身を開けませんでした。アプリを一度とじて、開き直してください':'分身のデータを読めませんでした('+(e&&(e.code||e.message)||'?')+')');return}}
   caAdj=[];if(db){try{const a=await db.runTransaction(async tx=>{const x=await tx.get(db.doc('caadj/'+me.id));return x.exists?x.data():null});caAdj=a&&Array.isArray(a.list)?a.list:[]}catch(e){}}/* (11/8) 管理者の経験値の竜の回収 */
   caBase=+(caSave&&caSave.u)||0;caCache={s:caParse(caSave&&caSave.s),p:caParse(caSave&&caSave.p)};caDirty={};
   caEarn(0);/* 次の日に回していた分を入れる */
@@ -22222,7 +22228,13 @@ import {getMessaging,getToken,deleteToken,isSupported} from 'https://www.gstatic
 const app=initializeApp({apiKey:"AIzaSyDv_SJ6OgLHYXiZx6iKS1rcNk1RqqsKkwk",authDomain:"kimoota-15777.firebaseapp.com",projectId:"kimoota-15777",storageBucket:"kimoota-15777.firebasestorage.app",messagingSenderId:"86788820983",appId:"1:86788820983:web:c129695a288eb9ce05e8f2"});
 const auth=getAuth(app);
 let FS;
-try{FS=initializeFirestore(app,{ignoreUndefinedProperties:true,localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})})}
+/* (11/9) お試し版は本番と同じ場所(github.io)にあるので、手元の控え(IndexedDB)を本番と取り合って「INTERNAL ASSERTION FAILED: Unexpected state」で止まることがあった。お試し版は控えを使わない */
+const FS_MEM=location.pathname.includes('/preview/');
+/* Firestore の中が壊れたら、1回だけ読み直す */
+{const fsBad=m=>String(m||'').includes('INTERNAL ASSERTION FAILED');const fsFix=m=>{if(!fsBad(m))return;let n=0;try{n=+sessionStorage.getItem('fsFix')||0}catch(e){}if(n>=1)return;try{sessionStorage.setItem('fsFix','1')}catch(e){}setTimeout(()=>location.reload(),300)};
+ addEventListener('error',e=>fsFix(e.message||(e.error&&e.error.message)));addEventListener('unhandledrejection',e=>fsFix(e.reason&&(e.reason.message||e.reason)));
+ setTimeout(()=>{try{sessionStorage.removeItem('fsFix')}catch(e){}},60000)}
+try{if(FS_MEM)throw 0;FS=initializeFirestore(app,{ignoreUndefinedProperties:true,localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})})}
 catch(e){FS=initializeFirestore(app,{ignoreUndefinedProperties:true})}
 /* same small API the app was written against: db.doc(path) / db.collection(name) */
 const snap=s=>({id:s.id,exists:s.exists(),data:()=>s.data()});

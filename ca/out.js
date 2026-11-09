@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=41').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=41').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=52').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=52').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -213,6 +213,21 @@ const CSS = `
 #oroot[hidden]{display:none}
 #oroot>.aBg{position:absolute;inset:0;z-index:-1;pointer-events:none;background:url(${UI}home-bg.webp) center top/cover no-repeat,#0b1a45;opacity:.32;filter:saturate(.7) blur(2px)}
 #oroot>.aBg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,11,34,.5),rgba(5,11,34,.92) 40%)}
+#oroot>.aBg.qbg{background:url(${ST}chapter-01-normal.webp) center top/cover no-repeat,#0b2a6a;opacity:1;filter:none}
+#oroot>.aBg.qbg.hd{background:url(${ST}chapter-01-hard.webp) center top/cover no-repeat,#200d23}
+#oroot>.aBg.qbg::after{background:linear-gradient(180deg,rgba(4,10,34,.2),rgba(4,10,34,.5) 30%,rgba(4,10,34,.45) 62%,rgba(4,10,34,.1))}
+#oroot>.aBg.qbg.hd::after{background:linear-gradient(180deg,rgba(26,4,14,.2),rgba(26,4,14,.5) 30%,rgba(26,4,14,.45) 62%,rgba(26,4,14,.1))}
+.qin{animation:qIn .38s cubic-bezier(.16,1,.3,1) both}
+@keyframes qIn{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+.qPl.cur.qin{animation:qIn .38s cubic-bezier(.16,1,.3,1) both,qPulse 1.6s ease-in-out .5s infinite}
+.qMore{position:relative;display:flex;align-items:center;gap:10px;min-height:56px;margin-top:2px;padding:8px 14px;border-radius:10px;background:rgba(6,10,30,.55);box-shadow:inset 0 0 0 1.5px rgba(233,197,106,.45);overflow:hidden}
+.qMore .lks{display:flex;gap:2px;color:#e9c56a;opacity:.85}
+.qMore .t{font:800 14px var(--zk);color:#d6dcf0;white-space:nowrap}.qMore .t b{font-size:18px;color:#fff;-webkit-text-stroke:3px #0a1030;paint-order:stroke fill}
+.qMore .lb{margin-left:auto;display:flex;align-items:center;gap:6px}
+.qMore .lb img{position:static;height:46px;width:auto;max-width:none;filter:brightness(0) drop-shadow(0 0 6px rgba(255,90,90,.7));opacity:.9}
+.qMore .lb em{font:800 11px var(--zk);font-style:normal;color:#ff9a9a}
+.qDf button .lk{display:inline-flex;vertical-align:-2px;margin-right:4px}.qDf button small{display:block;margin-top:-2px;font:700 10px var(--zk);color:#c6cbe0;-webkit-text-stroke:0}
+.qDf button:disabled{opacity:.7;line-height:1.2}
 .aTitle{display:flex;align-items:baseline;gap:8px;margin:2px 2px 6px}
 .aTitle h2{margin:0;font:800 20px var(--mi);color:#fff;letter-spacing:.08em}
 .aTitle small{font:700 9px var(--cin);letter-spacing:.3em;color:var(--aG)}
@@ -1014,6 +1029,188 @@ const IC = {
 };
 const svg = (k, vb) => `<svg viewBox="${vb || '0 0 24 24'}" aria-hidden="true">${IC[k]}</svg>`;
 
+/* (11/9 試し) 「ソシャゲ寄り」の見た目(山本さん「色や雰囲気そのもの」「動きがない」)。?ui=b か ca_ui=b のときだけ。
+   モンスト・パズドラの画面を1コマずつ見て分かったこと: 地は紺のままでも、押す所は水色・橙・赤のあざやかな立体ボタン、
+   下のバーは色つきの絵のアイコン、行や板は金属・木のような厚み、どの行にも絵がある、ずっと何かが動いている */
+const BRT = (() => { try { const q = new URLSearchParams(location.search).get('ui'); if (q) localStorage.setItem('ca_ui', q); return (q || localStorage.getItem('ca_ui')) !== 'a'; } catch (e) { return true; } })();
+const NI = {
+  home: '<defs><linearGradient id="niR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a4a"/><stop offset="1" stop-color="#e2401e"/></linearGradient></defs><path d="M6 15v12h20V15" fill="#fff4d6" stroke="#2a1606" stroke-width="2.2" stroke-linejoin="round"/><path d="M3 16 16 5l13 11" fill="url(#niR)" stroke="#2a1606" stroke-width="2.4" stroke-linejoin="round"/><rect x="13" y="19" width="6" height="8" rx="1" fill="#8a4a1a" stroke="#2a1606" stroke-width="2"/>',
+  chara: '<defs><linearGradient id="niB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd8ff"/><stop offset="1" stop-color="#2a6ae0"/></linearGradient></defs><path d="M5 28c0-6 5-10 11-10s11 4 11 10z" fill="url(#niB)" stroke="#0a1838" stroke-width="2.2" stroke-linejoin="round"/><circle cx="16" cy="11" r="6.5" fill="#ffe2c4" stroke="#0a1838" stroke-width="2.2"/><path d="M9.6 10c1-5 11-6 12.8 0-3-1.5-7-1.8-12.8 0z" fill="#3a2a5a" stroke="#0a1838" stroke-width="1.6" stroke-linejoin="round"/>',
+  quest: '<path d="M6 25 24 7l1.5 4L10 27z" fill="#e8f4ff" stroke="#08203a" stroke-width="2" stroke-linejoin="round"/><path d="M26 25 8 7 6.5 11 22 27z" fill="#e8f4ff" stroke="#08203a" stroke-width="2" stroke-linejoin="round"/><path d="M4 23l5 5M28 23l-5 5" stroke="#ffc83a" stroke-width="4" stroke-linecap="round"/><path d="M4 23l5 5M28 23l-5 5" stroke="#08203a" stroke-width="1.4" stroke-linecap="round" fill="none" opacity=".5"/>',
+  gacha: '<defs><linearGradient id="niG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb0f0"/><stop offset=".5" stop-color="#d040e0"/><stop offset="1" stop-color="#7a18b8"/></linearGradient></defs><path d="M16 3 26 13 16 29 6 13z" fill="url(#niG)" stroke="#2a0838" stroke-width="2.2" stroke-linejoin="round"/><path d="M6 13h20M16 3l-4 10 4 16 4-16z" fill="none" stroke="#fff" stroke-width="1.2" opacity=".7"/>',
+  other: '<defs><linearGradient id="niP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ff0a8"/><stop offset="1" stop-color="#1ea85a"/></linearGradient></defs><rect x="3.5" y="7" width="25" height="18" rx="3" fill="url(#niP)" stroke="#06301a" stroke-width="2.2"/><circle cx="11" cy="15" r="3.6" fill="#fff" stroke="#06301a" stroke-width="1.6"/><path d="M6.5 22c.8-3 2.4-4 4.5-4s3.7 1 4.5 4" fill="#fff" stroke="#06301a" stroke-width="1.6"/><path d="M18 13h7M18 17.5h5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>',
+};
+const NIMG = { home: 'nav_home', chara: 'nav_chara', quest: 'nav_quest', gacha: 'nav_gacha', other: 'nav_profile' };   /* (11/9) Codex T-026 の絵 */
+const niSvg = k => NIMG[k] ? `<img class="ni" alt="" src="${UI}nav/${NIMG[k]}.webp">` : `<svg class="ni" viewBox="0 0 32 32" aria-hidden="true">${NI[k]}</svg>`;
+if (BRT) document.head.appendChild(h('style', null, `
+#lay.brt{--rd:"RocknRoll One","M PLUS Rounded 1c","M PLUS 1p","Zen Kaku Gothic New",system-ui,sans-serif;--cy1:#8ff4ff;--cy2:#1fb4ff;--cy3:#0a5ad0;--or1:#ffd08a;--or2:#ff8a1a;--or3:#c84a06}
+#lay.brt #onav{height:calc(env(safe-area-inset-bottom,0px) + 62px);background:linear-gradient(180deg,#1c2e78,#0a1440 60%,#060c2a);box-shadow:0 -2px 0 #4ab8ff,0 -3px 0 #0a1a50,0 -8px 18px rgba(0,0,0,.6)}
+#lay.brt #onav button{color:#fff;font:900 10.5px var(--rd);-webkit-text-stroke:2.5px #071030;paint-order:stroke fill;padding-bottom:6px;margin:5px 2px 0;border-radius:9px 9px 0 0}
+#lay.brt #onav .ni{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
+#lay.brt #onav button[aria-current="page"]:not(.mid){background:linear-gradient(180deg,var(--cy1),var(--cy2) 45%,var(--cy3));box-shadow:inset 0 2px 0 rgba(255,255,255,.7),inset 0 0 0 2px #072050}
+#lay.brt #onav button[aria-current="page"]::before{display:none}
+#lay.brt #onav button:not(.mid):not([aria-current="page"]) .ni{filter:drop-shadow(0 2px 0 rgba(0,0,0,.5)) saturate(.85)}
+#lay.brt #onav .mid{margin-top:0}
+#lay.brt #onav .mid .md{width:58px;height:58px;margin-top:-22px;color:#fff;background:radial-gradient(circle at 50% 28%,#e8ffff,var(--cy2) 45%,var(--cy3) 80%);box-shadow:0 0 0 3px #e8f4ff,0 0 0 5.5px #0a3070,0 0 0 7px #8fd8ff,0 5px 12px rgba(0,0,0,.6),0 0 22px rgba(80,200,255,.6);animation:brPulse 2.2s ease-in-out infinite}
+#lay.brt #onav .mid .md .ni{width:40px;height:40px}
+@keyframes brPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+#lay.brt .aIb{width:58px}
+#lay.brt .aIb .ic{width:52px;height:52px;background:radial-gradient(circle at 50% 35%,#3a5ab8,#14246a 70%);box-shadow:0 0 0 2.5px #e8f4ff,0 0 0 4.5px #0a2060,0 4px 8px rgba(0,0,0,.5)}
+#lay.brt .aIb .ic img{width:46px;height:46px;object-fit:contain;filter:drop-shadow(0 2px 0 rgba(0,0,0,.45))}
+#lay.brt .aIb span{font:900 11px var(--rd);-webkit-text-stroke:3px #071030;paint-order:stroke fill}
+#lay.brt .aIb .bd{font:900 11px/18px var(--rd);min-width:18px;height:18px;top:-4px;right:0;background:linear-gradient(#ff7a8a,#e8183a);box-shadow:0 0 0 2px #fff,0 2px 0 #4a0410}
+#lay.brt .ssqt{background:linear-gradient(#22357e,#0e1a50);box-shadow:inset 0 0 0 2px #6ab0ff,inset 0 3px 0 rgba(255,255,255,.18),0 3px 0 #050c2a}
+#lay.brt .ssqt button{font:900 15px var(--rd);color:#cfe0ff;-webkit-text-stroke:3px #071030;paint-order:stroke fill}
+#lay.brt .ssqt button[aria-selected="true"]{color:#fff;background:linear-gradient(180deg,var(--or1),var(--or2) 50%,var(--or3));box-shadow:inset 0 2px 0 rgba(255,255,255,.75),inset 0 -3px 0 rgba(120,40,0,.55),0 2px 0 #3a1400;-webkit-text-stroke:3.5px #5a2000}
+#lay.brt .qDf button{font:900 17px var(--rd);height:44px;border-radius:12px;color:#9fb4e8;background:linear-gradient(#2a3c88,#121e58);box-shadow:inset 0 0 0 2px #5a78c8,inset 0 2px 0 rgba(255,255,255,.2),0 4px 0 #050c2a;-webkit-text-stroke:3px #071030;paint-order:stroke fill}
+#lay.brt .qDf button[aria-pressed="true"]{color:#fff;background:linear-gradient(180deg,var(--cy1),var(--cy2) 48%,var(--cy3));box-shadow:inset 0 0 0 2px #e8faff,inset 0 3px 0 rgba(255,255,255,.6),0 4px 0 #031a50,0 0 16px rgba(60,190,255,.6);-webkit-text-stroke:3.5px #052a6a}
+#lay.brt .qDf button.h[aria-pressed="true"]{background:linear-gradient(180deg,#ffb0b8,#ff3a50 48%,#a8102a);box-shadow:inset 0 0 0 2px #ffe8ea,inset 0 3px 0 rgba(255,255,255,.6),0 4px 0 #4a0410,0 0 16px rgba(255,70,90,.6);-webkit-text-stroke:3.5px #5a0414}
+#lay.brt .qPl{min-height:70px;border-radius:12px;padding:8px 12px 8px 8px;background:linear-gradient(180deg,#e8f6ff,#5a9ae8 30%,#2a5ab8 70%,#9ac8ff);box-shadow:0 4px 0 #061440,0 6px 12px rgba(0,0,0,.5)}
+#lay.brt .qPl::before{inset:2.5px;border-radius:10px;background:linear-gradient(105deg,rgba(255,255,255,.14) 0 30%,transparent 30.5%),linear-gradient(180deg,#3a74d8,#1d48a8 55%,#14347e);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),inset 0 -2px 0 rgba(0,0,0,.25)}
+#lay.brt .qPl.boss{background:linear-gradient(180deg,#fff0e0,#e85a4a 30%,#a8202a 70%,#ffb0a0)}
+#lay.brt .qPl.boss::before{background:linear-gradient(105deg,rgba(255,255,255,.14) 0 30%,transparent 30.5%),linear-gradient(180deg,#d8443a,#a01e2a 55%,#6a0e1e)}
+#lay.brt .qPl.hd::before{background:linear-gradient(105deg,rgba(255,255,255,.12) 0 30%,transparent 30.5%),linear-gradient(180deg,#a83a8a,#6a1a5a 55%,#3a0a34)}
+#lay.brt .qPl.hd{background:linear-gradient(180deg,#ffe0f4,#c84aa0 30%,#7a1a6a 70%,#ffb0e0)}
+#lay.brt .qPl .cn{width:50px;height:50px;background:radial-gradient(circle at 40% 30%,#ffffff,#bfe8ff 30%,#2a8ae0 75%);box-shadow:0 0 0 3px #f4fbff,0 0 0 5px #0a2a6a,inset 0 -3px 4px rgba(0,30,90,.4)}
+#lay.brt .qPl .cn b{font:900 16px var(--rd);color:#fff;-webkit-text-stroke:4px #08245a}
+#lay.brt .qPl .md>b{font:900 17px var(--rd);-webkit-text-stroke:4px #061440}
+#lay.brt .qPl .md>span{color:#e0ecff;font-weight:800}
+#lay.brt .qPl .fr2{font:900 11.5px var(--rd);color:#fff;-webkit-text-stroke:2.5px #6a2400;paint-order:stroke fill;background:linear-gradient(180deg,var(--or1),var(--or2) 55%,var(--or3));box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 2px 0 #3a1400;padding:2px 9px}
+#lay.brt .qPl .st3 i{font-size:19px;color:#0e2a6a;-webkit-text-stroke:2.5px #e8f4ff}
+#lay.brt .qPl .st3 i.on{color:#ffd23a;-webkit-text-stroke:2.5px #6a3a00}
+#lay.brt .qPl .nx{font:900 12px var(--rd);top:-10px;padding:3px 12px;border-radius:6px;background:linear-gradient(#ff8a9a,#f0203e 55%,#b00a22);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 0 #4a0410;animation:brBob 1.2s ease-in-out infinite}
+@keyframes brBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+#lay.brt .qPl.cur::after{content:"";position:absolute;inset:2.5px;border-radius:10px;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.45) 45%,transparent 60%) no-repeat;background-size:220% 100%;animation:brSweep 2.6s ease-in-out infinite;will-change:transform}
+@keyframes brSweep{0%,55%{background-position:160% 0}100%{background-position:-60% 0}}
+#lay.brt .qPl.art{min-height:78px}
+#lay.brt .qPl.art::before{background:linear-gradient(90deg,#1a44a4 0,#1a44a4 26%,rgba(26,68,164,.78) 44%,rgba(26,68,164,.15) 70%,rgba(26,68,164,0)),var(--art) right center/auto 100% no-repeat,#1a44a4}
+#lay.brt .qPl.art.boss::before{background:linear-gradient(90deg,#9a1e2a 0,#9a1e2a 26%,rgba(154,30,42,.8) 44%,rgba(154,30,42,.15) 70%,rgba(154,30,42,0)),var(--art) right center/auto 100% no-repeat,#9a1e2a}
+#lay.brt .qPl.art.hd::before{background:linear-gradient(90deg,#6a1a5a 0,#6a1a5a 26%,rgba(106,26,90,.8) 44%,rgba(106,26,90,.2) 70%,rgba(106,26,90,.05)),var(--art) right center/auto 100% no-repeat,#6a1a5a}
+#lay.brt .qPl.art .rt{text-shadow:0 1px 3px #000}
+#lay.brt .qPl.lock{filter:none;background:linear-gradient(180deg,#8a94b0,#3a4460 50%,#6a7490)}
+#lay.brt .qPl.lock::before{background:linear-gradient(180deg,#2a3250,#1a2038)}
+#lay.brt .qPl.lock .cn{background:radial-gradient(circle at 40% 30%,#8a94b0,#3a4460 75%);box-shadow:0 0 0 3px #aab4cc,0 0 0 5px #141a30}
+#lay.brt .qPl.lock .md>b,#lay.brt .qPl.lock .md>span{color:#9aa4c0}
+#lay.brt .qPl .ck{left:auto;right:auto;top:-8px;left:6px;width:auto;height:auto;padding:1px 8px;border-radius:5px;font:900 10.5px var(--rd);background:linear-gradient(#9af0a0,#22b04a 55%,#0a7a2a);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 0 #043a14;-webkit-text-stroke:2px #04401a;paint-order:stroke fill}
+#lay.brt .qMore{background:linear-gradient(180deg,#2a3a78,#141e50);box-shadow:inset 0 0 0 2px #6a90e0,inset 0 2px 0 rgba(255,255,255,.2),0 4px 0 #050c2a}
+#lay.brt .qMore .t{font-family:var(--rd)}
+#lay.brt #oroot>.aBg.qbg{animation:brDrift 24s ease-in-out infinite alternate}
+@keyframes brDrift{from{transform:scale(1.06) translateX(-10px)}to{transform:scale(1.06) translateX(10px)}}
+#lay.brt .qChH .bs{animation:brFloat 3.2s ease-in-out infinite}
+@keyframes brFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* (11/9) T-027 金属と金の飾り(9スライス)。四すみはそのまま、辺は伸ばす */
+#lay.brt .ssqt{padding:6px;background:none;box-shadow:0 4px 8px rgba(0,0,0,.45);border:14px solid transparent;border-image:url(${UI}frame/tabbar.webp) 44 fill / 14px stretch;margin:0 0 8px;padding:0}
+#lay.brt .ssqt button{height:38px;border-radius:0;background:none;box-shadow:none;border:0}
+#lay.brt .ssqt button{border:12px solid transparent;border-image:url(${UI}frame/btn_steel.webp) 48 fill / 12px stretch;margin:-10px 0;height:44px}
+#lay.brt .ssqt button[aria-selected="true"]{background:none;box-shadow:none;border-image:url(${UI}frame/btn_orange.webp) 48 fill / 12px stretch}
+#lay.brt .qDf button,#lay.brt .qDf button[aria-pressed="true"],#lay.brt .qDf button.h[aria-pressed="true"]{background:none;box-shadow:0 4px 8px rgba(0,0,0,.45);border-radius:0;border:14px solid transparent;border-image:url(${UI}frame/btn_steel.webp) 48 fill / 14px stretch;height:50px;padding:0}
+#lay.brt .qDf button[aria-pressed="true"]{border-image-source:url(${UI}frame/btn_blue.webp);box-shadow:0 4px 8px rgba(0,0,0,.45),0 0 16px rgba(60,140,255,.45)}
+#lay.brt .qDf button.h[aria-pressed="true"]{border-image-source:url(${UI}frame/btn_red.webp);box-shadow:0 4px 8px rgba(0,0,0,.45),0 0 16px rgba(255,60,60,.45)}
+#lay.brt .qDf button:disabled{opacity:.85}
+#lay.brt .qPl{background:none;box-shadow:0 5px 10px rgba(0,0,0,.5);border-radius:6px}
+#lay.brt .qPl::before{inset:4px;border-radius:4px}
+#lay.brt .qPl .frm{position:absolute;inset:0;z-index:3;pointer-events:none;border:18px solid transparent;border-image:url(${UI}frame/plate_blue.webp) 56 / 18px stretch}
+#lay.brt .qPl.boss .frm{border-image-source:url(${UI}frame/plate_red.webp)}
+#lay.brt .qPl.hd .frm{border-image-source:url(${UI}frame/plate_purple.webp)}
+#lay.brt .qPl.lock .frm{border-image-source:url(${UI}frame/plate_iron.webp)}
+#lay.brt .qPl.lock,#lay.brt .qPl.hd,#lay.brt .qPl.boss{background:none}
+#lay.brt .qPl .cn,#lay.brt .qPl.lock .cn{width:54px;height:54px;background:url(${UI}frame/medal.webp) center/contain no-repeat;box-shadow:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}
+#lay.brt .qPl.boss .cn,#lay.brt .qPl.hd .cn{background-image:url(${UI}frame/medal_red.webp)}
+#lay.brt .qPl.lock .cn{filter:grayscale(.85) brightness(.75)}
+#lay.brt .qPl .ck,#lay.brt .qPl .nx,#lay.brt .qPl .fr2{background:none;box-shadow:none;border-radius:0;border:0 solid transparent;border-width:0 9px;border-image:url(${UI}frame/ribbon_green.webp) 0 28 fill / 0 9px stretch;padding:2px 2px 3px;z-index:4;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+#lay.brt .qPl .nx{border-image-source:url(${UI}frame/ribbon_red.webp)}
+#lay.brt .qPl .fr2{border-image-source:url(${UI}frame/ribbon_orange.webp)}
+#lay.brt .qPl .ck{top:-9px;left:10px}
+#lay.brt .qPl .nx{top:-11px;right:6px}
+#lay.brt .qPl .md,#lay.brt .qPl .rt,#lay.brt .qPl .cn{z-index:4}
+#lay.brt .qMore{background:linear-gradient(180deg,#1a2240,#0e1430);box-shadow:0 4px 8px rgba(0,0,0,.45);border:16px solid transparent;border-image:url(${UI}frame/plate_iron.webp) 56 fill / 16px stretch;padding:0 4px;min-height:40px}
+#lay.brt .qMore{background-clip:padding-box}
+#lay.brt .qMore .lb em{white-space:nowrap;font-size:10px}
+#lay.brt .qChH .fr{background:none;padding:0;box-shadow:0 5px 12px rgba(0,0,0,.55)}
+#lay.brt .qChH .fr .art,#lay.brt .qChH .fr .sh{inset:6px;border-radius:2px}
+#lay.brt .qChH .fr::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border:20px solid transparent;border-image:url(${UI}frame/chapter_frame.webp) 64 / 20px stretch}
+#lay.brt #onav{background:none;box-shadow:0 -6px 16px rgba(0,0,0,.6);border:solid transparent;border-width:13px 20px 0;border-image:url(${UI}frame/navbar.webp) 40 60 0 60 fill / 13px 20px 0 20px stretch}
+
+/* (11/9) ほかの画面もそろえる(T-027 の部品を共通の部品に) */
+#lay.brt{--mi:var(--rd)}
+#lay.brt .aTitle{margin:2px 2px 8px}
+#lay.brt .aTitle h2{font:400 22px var(--rd);letter-spacing:.04em;-webkit-text-stroke:4px #071030;paint-order:stroke fill;text-shadow:0 3px 0 rgba(0,0,0,.4)}
+#lay.brt .aTitle small{display:none}
+#lay.brt .aTabs{padding:0;background:none;box-shadow:0 4px 8px rgba(0,0,0,.45);border:14px solid transparent;border-image:url(${UI}frame/tabbar.webp) 44 fill / 14px stretch;border-radius:0}
+#lay.brt .aTabs button{margin:-10px 0;height:44px;border-radius:0;background:none;box-shadow:none;border:12px solid transparent;border-image:url(${UI}frame/btn_steel.webp) 48 fill / 12px stretch;font:400 14px var(--rd);color:#cfe0ff;-webkit-text-stroke:3px #071030;paint-order:stroke fill;padding:0}
+#lay.brt .aTabs button[aria-selected="true"]{color:#fff;background:none;box-shadow:none;border-image-source:url(${UI}frame/btn_orange.webp);-webkit-text-stroke:3.5px #5a2000}
+#lay.brt .aBtn{border-radius:0;background:none;box-shadow:0 4px 8px rgba(0,0,0,.45);border:14px solid transparent;border-image:url(${UI}frame/btn_orange.webp) 48 fill / 14px stretch;padding:0 6px;min-height:52px;color:#fff;font:400 16px var(--rd);letter-spacing:.04em;-webkit-text-stroke:3.5px #5a2000;paint-order:stroke fill;overflow:visible}
+#lay.brt .aBtn small{font:700 10.5px var(--zk);-webkit-text-stroke:2.5px #5a2000}
+#lay.brt .aBtn::after{display:none}
+#lay.brt .aBtn.sub{border-image-source:url(${UI}frame/btn_steel.webp);-webkit-text-stroke:3px #071030}
+#lay.brt .aBtn.sub small{-webkit-text-stroke:2.5px #071030}
+#lay.brt .aBtn.blue{border-image-source:url(${UI}frame/btn_blue.webp);-webkit-text-stroke:3.5px #062060}
+#lay.brt .aBtn.red{border-image-source:url(${UI}frame/btn_red.webp);-webkit-text-stroke:3.5px #4a0410}
+#lay.brt .aBtn.sm{min-height:40px;border-width:11px;border-image-width:11px;font-size:13px}
+#lay.brt .aPanel{border-radius:0;background:none;box-shadow:0 5px 12px rgba(0,0,0,.5);border:18px solid transparent;border-image:url(${UI}frame/panel.webp) 72 fill / 18px stretch;padding:0}
+#lay.brt .aPanel h3{font:400 16px var(--rd);-webkit-text-stroke:3px #071030;paint-order:stroke fill}
+#lay.brt .aChips{gap:2px;padding:2px 0}
+#lay.brt .aChips button{height:36px;padding:0 4px;border-radius:0;background:none;box-shadow:none;border:10px solid transparent;border-image:url(${UI}frame/btn_steel.webp) 48 fill / 10px stretch;font:400 12.5px var(--rd);color:#d6e2ff;-webkit-text-stroke:2.5px #071030;paint-order:stroke fill}
+#lay.brt .aChips button[aria-pressed="true"]{color:#fff;background:none;border-image-source:url(${UI}frame/btn_blue.webp);-webkit-text-stroke:2.5px #062060}
+#lay.brt .aChips .lb{font:400 12px var(--rd);color:#e9c56a}
+#lay.brt .aPl,#lay.brt .aCur,#lay.brt .aSta{border-radius:0;background:none;box-shadow:0 2px 5px rgba(0,0,0,.5);border:9px solid transparent;border-image:url(${UI}frame/btn_steel.webp) 48 fill / 9px stretch;height:auto;min-height:34px;padding:0 2px}
+#lay.brt .aPl{padding:0 4px 0 0}
+#lay.brt .aCur b,#lay.brt .aSta b{font:400 13px var(--rd);-webkit-text-stroke:2.5px #071030;paint-order:stroke fill}
+#lay.brt .aCard .fr{background:linear-gradient(160deg,#fff4c8,#e2b347 22%,#9a6a16 50%,#f2cf6a 78%,#8a5a12);padding:2.5px;box-shadow:0 0 0 1px #3a2200,0 3px 6px rgba(0,0,0,.55)}
+
+#lay.brt .aCta{align-items:stretch}
+#lay.brt .aCta .aBtn{min-height:62px;font-size:20px;letter-spacing:.1em}
+#lay.brt .aCta .aBtn.shine{border-image-source:url(${UI}frame/btn_blue.webp);-webkit-text-stroke:4px #062060}
+#lay.brt .aCta .aBtn.shine small{-webkit-text-stroke:2.5px #062060}
+#lay.brt .aCta .aBtn.sub{flex:0 0 74px;border-width:10px;border-image-width:10px;font-size:11px;padding:0;min-height:62px}
+#lay.brt .aCta .aBtn.sub svg{width:20px;height:20px}
+#lay.brt .gLogo small{display:none}
+#lay.brt .gLogo b{font-family:var(--rd);font-weight:400}
+#lay.brt .aPe .pst>div,#lay.brt .pst>div{border-radius:0;background:none;box-shadow:0 3px 6px rgba(0,0,0,.4);border:12px solid transparent;border-image:url(${UI}frame/panel.webp) 72 fill / 12px stretch;padding:0 2px}
+#lay.brt .pst b{font-family:var(--rd);font-weight:400;-webkit-text-stroke:2.5px #071030;paint-order:stroke fill}
+#lay.brt .aSta i{font-size:13px}#lay.brt .aSta b{-webkit-text-stroke:2px #071030;letter-spacing:.02em}
+#lay.brt .aSta b,#lay.brt .aCur b{color:#fff!important;opacity:1}#lay.brt .aSta i{color:#ffd23a;filter:drop-shadow(0 1px 0 #3a2000)}
+/* (11/9) ホームのクエスト欄をなくした分、キャラを下へ */
+#lay.brt .aHero{bottom:calc(env(safe-area-inset-bottom,0px) + 70px);height:58%}
+#lay.brt .aNm{bottom:calc(env(safe-area-inset-bottom,0px) + 82px);border-radius:0;background:none;box-shadow:0 3px 8px rgba(0,0,0,.5);border:12px solid transparent;border-image:url(${UI}frame/panel.webp) 72 fill / 12px stretch;padding:0 4px}
+#lay.brt .aNm .nm{font:400 20px/1.25 var(--rd);-webkit-text-stroke:3px #071030;paint-order:stroke fill;text-shadow:none}
+#lay.brt .aNm .ld{font:400 11px var(--rd);color:#e9c56a}
+#lay.brt .aTalk{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}
+/* (11/9) 動き。モンストの画面を1コマずつ見て: 切りかえは0.3秒ほどで下からすっと出る、押すと沈んで離すと少しはねる、ホームは光や粒がいつも動いている */
+#lay.brt #oroot.enter>*:not(.aBg):not(.aHero):not(.aMotes):not(.aTalk){animation:scIn .34s cubic-bezier(.16,1,.3,1) both}
+#lay.brt #oroot.enter>*:nth-child(3){animation-delay:.04s}#lay.brt #oroot.enter>*:nth-child(4){animation-delay:.08s}#lay.brt #oroot.enter>*:nth-child(5){animation-delay:.12s}#lay.brt #oroot.enter>*:nth-child(6){animation-delay:.16s}#lay.brt #oroot.enter>*:nth-child(n+7){animation-delay:.2s}
+@keyframes scIn{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+#lay.brt #oroot.enter>.aHero{animation:heroIn .5s cubic-bezier(.16,1,.3,1) both}
+@keyframes heroIn{from{opacity:0;transform:translateX(-46%) translateY(10px)}to{opacity:1;transform:translateX(-50%)}}
+#lay.brt #oroot.enter .aCard{animation:cardIn .32s cubic-bezier(.34,1.4,.64,1) both;animation-delay:calc(var(--i,0) * 25ms + .1s)}
+@keyframes cardIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+#lay.brt #oroot.enter .aSide .aIb{animation:ibIn .4s cubic-bezier(.34,1.5,.64,1) both}
+#lay.brt #oroot.enter .aSide .aIb:nth-child(2){animation-delay:.05s}#lay.brt #oroot.enter .aSide .aIb:nth-child(3){animation-delay:.1s}#lay.brt #oroot.enter .aSide .aIb:nth-child(4){animation-delay:.15s}#lay.brt #oroot.enter .aSide .aIb:nth-child(5){animation-delay:.2s}
+@keyframes ibIn{from{opacity:0;transform:translateX(24px) scale(.8)}to{opacity:1;transform:none}}
+/* 押した時: すぐ沈む(0.06秒)、離すと少しはねてもどる */
+#lay.brt .aBtn,#lay.brt .aTabs button,#lay.brt .ssqt button,#lay.brt .qDf button,#lay.brt .aChips button,#lay.brt .qPl,#lay.brt .aIb .ic,#lay.brt #onav button,#lay.brt .aCard{transition:transform .2s cubic-bezier(.34,1.8,.64,1),filter .2s}
+#lay.brt .aBtn:active,#lay.brt .aTabs button:active,#lay.brt .ssqt button:active,#lay.brt .qDf button:active,#lay.brt .aChips button:active,#lay.brt .aIb:active .ic,#lay.brt #onav button:active{transform:translateY(2px) scale(.94);filter:brightness(.88);transition-duration:.06s}
+#lay.brt .qPl:active,#lay.brt .aCard:active{transform:scale(.97);filter:brightness(.9);transition-duration:.06s}
+/* 下のバー: 選んだアイコンがぽんとはねる */
+#lay.brt #onav button[aria-current="page"]:not(.mid) .ni{animation:niPop .45s cubic-bezier(.34,1.8,.64,1)}
+@keyframes niPop{0%{transform:scale(.7) translateY(4px)}60%{transform:scale(1.18) translateY(-4px)}100%{transform:none}}
+/* ホーム: 右のアイコンが少しずつずれてゆれる、赤い数字が脈打つ、光の粒 */
+#lay.brt .aSide.r .aIb .ic img{animation:ibBob 3.2s ease-in-out infinite}
+#lay.brt .aSide.r .aIb:nth-child(2) .ic img{animation-delay:-.6s}#lay.brt .aSide.r .aIb:nth-child(3) .ic img{animation-delay:-1.2s}#lay.brt .aSide.r .aIb:nth-child(4) .ic img{animation-delay:-1.8s}#lay.brt .aSide.r .aIb:nth-child(5) .ic img{animation-delay:-2.4s}
+@keyframes ibBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-3deg)}}
+#lay.brt .aIb .bd{animation:bdPulse 1.4s ease-in-out infinite}
+@keyframes bdPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+#lay.brt .aMotes{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+#lay.brt .aMotes i{position:absolute;bottom:18%;border-radius:50%;background:radial-gradient(circle,#fffbe6 0 30%,rgba(255,220,120,.6) 45%,rgba(255,220,120,0) 70%);will-change:transform,opacity;opacity:0;animation:mote var(--d) linear infinite}
+@keyframes mote{0%{opacity:0;transform:translateY(0)}15%{opacity:.9}80%{opacity:.6}100%{opacity:0;transform:translateY(-55vh) translateX(14px)}}
+/* 大事なボタン(オレンジ・青)に、ときどき光が走る */
+#lay.brt .aBtn.shine::before{content:"";position:absolute;inset:-14px;pointer-events:none;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.4) 48%,transparent 60%) no-repeat;background-size:250% 100%;animation:btnSweep 3.4s ease-in-out infinite;will-change:transform}#lay.brt .aBtn.shine::after{animation:none;display:none}
+@keyframes btnSweep{0%,62%{background-position:170% 0}100%{background-position:-70% 0}}
+#lay.brt .aHero img,#lay.brt .aGa .chars img.fr,#lay.brt .aSide.r .aIb .ic img,#lay.brt .aIb .bd,#lay.brt #onav .mid .md{will-change:transform}
+@media (prefers-reduced-motion:reduce){#lay.brt *{animation:none!important}}
+`));
+
 /* 押したときの光の輪(どのボタンにも) */
 document.addEventListener('pointerdown', e => {
   const b = e.target.closest && e.target.closest('.aBtn,.aIb .ic,.aCard .fr,.aSlot');
@@ -1022,11 +1219,12 @@ document.addEventListener('pointerdown', e => {
 
 /* ---------- 画面の骨組み ---------- */
 const TABS = [['home', 'ホーム'], ['chara', 'キャラ'], ['quest', 'クエスト'], ['gacha', 'ガチャ'], ['other', 'プロフィール']];
-const lay = $('lay');
+const lay = $('lay'); if (BRT) lay.classList.add('brt');
 const nav = h('nav'); nav.id = 'onav'; nav.setAttribute('aria-label', 'メニュー');
 for (const [k, label] of TABS) {
   const mid = k === 'quest';
-  const b = h('button', mid ? 'mid' : null, mid ? `<span class="md">${svg(k)}</span><span>${label}</span>` : `${svg(k)}<span>${label}</span>`);
+  const ic = BRT ? niSvg(k) : svg(k);   /* (11/9 試し) 色つきのアイコン */
+  const b = h('button', mid ? 'mid' : null, mid ? `<span class="md">${ic}</span><span>${label}</span>` : `${ic}<span>${label}</span>`);
   b.type = 'button'; b.dataset.k = k; b.onclick = () => go(k); nav.appendChild(b);
 }
 const hud = h('div'); hud.id = 'ohud';
@@ -1057,7 +1255,8 @@ function shell(title, en, opts) {
   }
   const body = h('div', 'obody'); root.appendChild(body); return body;
 }
-function go(k) { TAB = k; PICK = null; renderNow(); }
+let QIN = '';
+function go(k) { if (k !== TAB) QIN = ''; TAB = k; PICK = null; renderNow(); }
 /* (11/7) 4人そろっていなくて、無料の10回召喚が残っているあいだは、ガチャとその他だけ */
 function needFree() { return S.free10 && new Set(S.units.map(x => x.id)).size < 4; }
 function canGo() { if (teamUnits().length >= 4) return true; modal('仲間が足りません', (b, close) => { b.innerHTML = `<p style="text-align:center">出撃には4人の仲間が必要です。<br>ガチャで仲間を呼びましょう。</p>`; const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', '閉じる', close), btn('shine', 'ガチャへ', () => { close(); go('gacha'); })); b.appendChild(r); }); return false; }
@@ -1068,8 +1267,13 @@ function renderNow() {
   root.hidden = false; $('ss').hidden = true;
   if (needFree() && TAB !== 'gacha' && TAB !== 'other') { if (TAB !== 'home') flash('まずは無料の10回召喚で仲間を呼ぼう'); TAB = 'gacha'; nav.querySelectorAll('button').forEach(b => b.setAttribute('aria-current', b.dataset.k === TAB ? 'page' : 'false')); }
   ({ home: renderHome, quest: renderQuest, chara: renderChara, gacha: renderGacha, other: renderOther })[TAB]();
+  /* (11/9) 動き: 画面を切りかえた時だけ、中身が下から順に出てくる(同じ画面を描き直した時は出さない) */
+  const ek = TAB + ':' + (SUB[TAB] || '');
+  if (BRT && !RM && ek !== ENTERK) { root.classList.remove('enter'); void root.offsetWidth; root.classList.add('enter'); root.querySelectorAll('.aCard').forEach((c, i) => c.style.setProperty('--i', Math.min(i, 18))); clearTimeout(ENTERT); ENTERT = setTimeout(() => root.classList.remove('enter'), 1400); }
+  ENTERK = ek;
   fitNav();
 }
+let ENTERK = '', ENTERT = 0;
 function qTabs() {
   const t = h('div', 'ssqt'); t.setAttribute('role', 'tablist');
   for (const [k, label] of [['main', 'メイン'], ['event', 'イベント'], ['chal', 'チャレンジ']]) { const b = h('button', null, label); b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', String(SUB.quest === k)); b.onclick = () => { SUB.quest = k; EVSEL = null; renderNow(); }; t.appendChild(b); }
@@ -1133,9 +1337,11 @@ function renderHome() {
   banT = setInterval(() => { if (TAB !== 'home' || root.hidden) return; banI = (banI + 1) % BANS.length; setBan(); }, 3600);
   /* 右: 丸いボタン */
   const R = h('div', 'aSide r');
-  const ib = (k, label, fn, bd) => { const b = h('button', 'aIb', `<span class="ic">${svg(k)}</span><span>${label}</span>${bd ? `<i class="bd">${bd}</i>` : ''}`); b.type = 'button'; b.onclick = fn; return b; };
+  const HIMG = { news: 'home_news', mission: 'home_mission', gift: 'home_gift', party: 'home_party', ev: 'home_event' };
+  const ib = (k, label, fn, bd) => { const b = h('button', 'aIb', `<span class="ic">${BRT && HIMG[k] ? `<img alt="" src="${UI}home/${HIMG[k]}.webp">` : svg(k)}</span><span>${label}</span>${bd ? `<i class="bd">${bd}</i>` : ''}`); b.type = 'button'; b.onclick = fn; return b; };
   const nNew = S.newIds.length;
   R.append(ib('news', 'お知らせ', news), ib('mission', 'ミッション', missions, dmClaimable()), ib('gift', 'プレゼント', presents, S.box.length), ib('party', '編成', () => { TAB = 'chara'; SUB.chara = 'party'; renderNow(); }));
+  if (BRT) R.append(ib('ev', 'イベント', () => { TAB = 'quest'; SUB.quest = 'event'; renderNow(); }));
   if (MPC.ok()) R.append(ib('party', 'マルチ', mpJoinAsk));
   root.appendChild(R);
   /* (v121) 上の帯(名前の札・pt・閉じるボタン)の下から並べる。(v122) 札が縦に伸びていたのは、ランキングの一覧と見た目の名前(.aRk)がかぶっていたため。一覧は .aRkL にした。アプリの中では札が大きくなって重なっていた */
@@ -1144,7 +1350,12 @@ function renderHome() {
   const ni = nextMain(), st = A.STAGES[ni];
   const cta = h('div', 'aCta');
   cta.append(btn('shine', `クエスト<small>つづきから ${esc(st.id)} ${esc(st.n)}</small>`, () => goSheet(ni, false)), btn('sub', `${svg('ev')}イベント`, () => { TAB = 'quest'; SUB.quest = 'event'; renderNow(); }));
-  root.appendChild(cta);
+  if (!BRT) root.appendChild(cta);
+  if (BRT && !RM) {   /* (11/9) 動き: ホームに、ゆっくり上る光の粒 */
+    const mo = h('div', 'aMotes'); let hs = '';
+    for (let i = 0; i < 10; i++) { const x = (i * 61 + 7) % 100, d = 6 + (i * 37 % 50) / 10, dl = -((i * 1.7) % d), sz = 6 + (i % 3) * 2; hs += `<i style="left:${x}%;--d:${d}s;animation-delay:${dl.toFixed(1)}s;width:${sz}px;height:${sz}px"></i>`; }
+    mo.innerHTML = hs; root.insertBefore(mo, root.firstChild.nextSibling);
+  }   /* (11/9) 山本さん「ホームのクエスト欄いらない」。クエストは下のバーのまん中から。イベントは右のアイコンへ */
   setTimeout(talk, 700);
 }
 function news() {
@@ -1184,6 +1395,9 @@ const raidBoss = () => { const R = A.RAID; if (R.model) return bossImg(R.model);
 function kindImgs(i, max) { return A.stageKinds(i).filter(k => !k.startsWith('g_')).slice(0, max).map(k => `<img alt="" src="./assets/icons/${k}.png">`).join(''); }
 function renderQuest() {
   const b = shell(null); root.insertBefore(qTabs(), b);
+  /* (11/9) 画面くらべ: クエストは画面ごとの背景(ノーマルは青空・ハードは赤)。入ったときだけ行が順に出る */
+  const qIn = QIN !== TAB + SUB.quest + (Q.hard ? 'h' : 'n') + Q.ch; QIN = TAB + SUB.quest + (Q.hard ? 'h' : 'n') + Q.ch;
+  if (SUB.quest === 'main') { root.querySelector('.aBg').classList.add('qbg'); if (Q.hard) root.querySelector('.aBg').classList.add('hd'); }
   if (SUB.quest === 'event') { renderEvents(b); return; }
   if (SUB.quest === 'chal') { renderChal(b); return; }
   const MN = A.MAIN_N, hard = Q.hard, clr = i => hard ? A.PROG.h[i] : A.PROG.n[i];
@@ -1201,20 +1415,30 @@ function renderQuest() {
   const df = h('div', 'qDf'); const anyN = A.PROG.n.slice(0, MN).some(Boolean);
   const bN = h('button', null, 'ノーマル'), bH = h('button', 'h', 'ハード'); bN.type = bH.type = 'button';
   bN.setAttribute('aria-pressed', String(!hard)); bH.setAttribute('aria-pressed', String(hard)); bH.disabled = !anyN;
+  if (!anyN) bH.innerHTML = `<span class="lk">${LOCK}</span>ハード<small>1-1をクリアで開く</small>`;   /* (11/9) 説明の文をやめてボタンの中に */
   bN.onclick = () => { Q.hard = false; renderNow(); }; bH.onclick = () => { Q.hard = true; renderNow(); }; df.append(bN, bH); b.appendChild(df);
-  if (!anyN) b.appendChild(h('p', 'onote', 'ハードは、ノーマルを1つクリアすると開きます。'));
   const L = h('div', 'qL'); b.appendChild(L); let curEl = null;
   const cur = A.STAGES.slice(0, MN).findIndex((_, i) => A.stageOpen(i, hard) && !clr(i));
+  let firstLock = -1; for (let i = B0; i < N; i++) if (!A.stageOpen(i, hard)) { firstLock = i; break; }
   for (let i = B0; i < N; i++) {
+    if (firstLock >= 0 && i > firstLock) {   /* (11/9) まだ開いていないステージは1行にまとめる(「？？？」の板がならぶと画面がからっぽに見える) */
+      const rest = N - i, lb = A.STAGES[N - 1], m = h('div', 'qMore');
+      m.innerHTML = `<span class="lks">${LOCK.repeat(Math.min(rest, 3))}</span><span class="t">あと <b>${rest}</b> ステージ</span>${lb.boss ? `<span class="lb">${bossImg(CHBOSS[Q.ch] || 'base')}<em>ラスボスが待っている</em></span>` : ''}`;
+      L.appendChild(m); break;
+    }
     const st = A.STAGES[i], open = A.stageOpen(i, hard), c = clr(i), sv = A.stageStrength(i, hard), bits = S.stars[skey(i, hard)] || 0;
     const r = h('button', 'qPl' + (st.boss ? ' boss' : '') + (open ? '' : ' lock') + (i === cur ? ' cur' : '') + (hard ? ' hd' : '')); r.type = 'button';
-    r.innerHTML = `<span class="cn">${st.boss && open ? `<img alt="" src="${UI}boss-${CHBOSS[st.ch] || 'base'}.webp">` : `<b>${esc(st.id)}</b>`}</span>${c ? '<i class="ck">✓</i>' : ''}
+    if (BRT && open && /^\d-\d$/.test(st.id)) { r.classList.add('art'); r.style.setProperty('--art', `url(${UI}stage/s${st.id}.webp)`); }
+   /* (11/9) Codex T-026 のステージの帯の絵 */
+    r.innerHTML = `<span class="cn">${st.boss && open ? `<img alt="" src="${UI}boss-${CHBOSS[st.ch] || 'base'}.webp">` : `<b>${esc(st.id)}</b>`}</span>${c ? `<i class="ck">${BRT ? 'CLEAR' : '✓'}</i>` : ''}
       <span class="md"><b>${st.boss && open ? esc(st.id) + ' ' : ''}${open ? esc(st.n) : '？？？'}</b><span>${open ? kindImgs(i, 5) + svGem(sv) : '前のステージをクリアすると開く'}</span></span>
       <span class="rt">${open ? `<span class="st3">${[0, 1, 2].map(k => `<i class="${bits >> k & 1 ? 'on' : ''}">★</i>`).join('')}</span>` : `<span class="lk">${LOCK}</span>`}${!c && open ? `<i class="fr2">${svg('pt', '0 0 16 16')}初回 ${RW.first}</i>` : ''}</span>${i === cur ? '<i class="nx">NEXT</i>' : ''}`;
     r.setAttribute('aria-label', `${st.id} ${open ? st.n : 'まだ開いていない'}${c ? ' クリア済み' : ''}`);
+    if (BRT) r.insertAdjacentHTML('beforeend', '<i class="frm"></i>');   /* (11/9) Codex T-027 の金属のわく(innerHTML のあとに足す) */
     r.onclick = () => { if (!open) { flash(hard ? 'ノーマルでクリアすると開きます' : '前のステージをクリアすると開きます'); return; } goSheet(i, hard); };
     if (i === cur) curEl = r; L.appendChild(r);
   }
+  if (qIn && !RM) [...L.children].forEach((e, k) => { e.style.animationDelay = (k * 45) + 'ms'; e.classList.add('qin'); });
   if (curEl) requestAnimationFrame(() => { const br = b.getBoundingClientRect(), r = curEl.getBoundingClientRect(); if (r.bottom > br.bottom - 8) b.scrollTop += r.top - br.top - b.clientHeight / 2 + r.height / 2; });
 }
 function starBox(i, hard, ev) {
@@ -1602,7 +1826,7 @@ function charaBox(b) {
   chip('↕ 逆にする', BOXF.asc, () => { BOXF.asc = !BOXF.asc; }, so); so.lastChild.classList.add('dir');
   b.appendChild(so);
   const list = boxSort(S.units.filter(u => (BOXF.el === 'all' || CH[u.id].el === BOXF.el) && (!BOXF.rar || rarOf(u) === BOXF.rar)));
-  b.appendChild(h('p', 'onote', `${list.length} / ${S.units.length}体 ・ 押すとくわしく見られます`));
+  b.appendChild(h('p', 'onote', BRT ? `${list.length} / ${S.units.length}体` : `${list.length} / ${S.units.length}体 ・ 押すとくわしく見られます`));
   const g = h('div', 'ogrid'); b.appendChild(g);
   for (const u of list) { const e = icon(u, { tag: inParty(u) ? '編成中' : (S.newIds.includes(u.u) ? 'NEW' : '') }); e.onclick = () => { S.newIds = S.newIds.filter(x => x !== u.u); save(); detail(u); }; g.appendChild(e); }
 }
@@ -2144,6 +2368,7 @@ function settingsMenu() {
   const L = h('div', 'aList aGl'); b.appendChild(L);
   const item = (k, t, sub, fn) => { const e = h('button', null, `${svg(k)}<span>${esc(t)}<small>${esc(sub)}</small></span><span class="ar">›</span>`); e.type = 'button'; e.onclick = fn; L.appendChild(e); return e; };
   if (HOST) item('home', 'アプリに戻る', 'きもオタレートのホームへ', () => { try { HOST.close(); } catch (e) { } });
+  item('ev', '画面の見た目(試し)', BRT ? '今: ソシャゲ寄り(押すと前の見た目にする)' : '今: 前の見た目(押すとソシャゲ寄りにもどす)', () => { try { localStorage.setItem('ca_ui', BRT ? 'a' : 'b'); } catch (e) { } location.reload(); });   /* (11/9) 見くらべ用 */
   if (!HOST) item('name', 'プレイヤー名', S.name, () => modal('プレイヤー名', (bd, close) => {
     bd.innerHTML = `<input maxlength="10" value="${esc(S.name)}" aria-label="プレイヤー名" style="width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;border:0;font:700 16px var(--zk);color:#fff;background:#060c24;box-shadow:inset 0 0 0 1px var(--aG)">`;
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('', '決める', () => { const v = bd.querySelector('input').value.trim(); if (v) { S.name = v.slice(0, 10); save(); } close(); renderNow(); })); bd.appendChild(r);
