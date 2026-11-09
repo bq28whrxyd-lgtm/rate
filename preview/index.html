@@ -18434,7 +18434,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
       {const hb=q('[data-hw]'),sh=!(typeof hwOn==='function'&&(hwOn()||(typeof hwRankShow==='function'&&hwRankShow())));if(hb&&hb.hidden!==sh){hb.hidden=sh;try{paintNew()}catch(e){}}const hd=q('.lb-hw');if(hd){const n=sh?0:hwMisReady();hd.textContent=n?String(n):''}}
       const dot=q('.lb-farm');if(dot)dot.textContent=(mr.length||players.some(p=>p.id!==me.id&&farmPlots(p.id).some(x=>x&&canSteal(p.id,x))))?' ':''}}catch(e){}
     try{if(typeof hwOn==='function'&&hwOn()&&ME()){const me=ME(),n=hwNightNow();items.unshift({c:'e9',k:'HALLOWEEN',t:n?'ハロウィンナイト':'ハロウィン'+(hwPart()===1?' 前編':' 後編'),s:(n?'いまお菓子が2倍  ·  ':'')+'お菓子 '+hwBal(me.id).toLocaleString()+'  ·  '+(hwPart()===1?'かぼちゃ頭の騎士':'夜宴の魔女'),chip:'あと '+hwLeft(hwT1()),w:true,go:()=>hwOpen()})}}catch(e){}
-    try{if(typeof gbOn==='function'&&gbOn()&&ME()){const me=ME();items.unshift({c:'e9',k:'GAME BAKA',t:'ゲームバカイベント',s:'メダル '+gbBal(me.id).toLocaleString()+'  ·  '+(inv&&inv[GBK.f]?GB_F[inv[GBK.f]].n:'派閥を選ぼう')+'  ·  クレーンゲーム',chip:'あと '+gbLeft(gbT1()),w:true,go:()=>gbOpen()})}}catch(e){}/*gb-strip*/ try{if(typeof hwOn==='function'&&hwOn()&&ME()){const me=ME(),ti=totIn(me.id);if(ti.length)items.unshift({c:'e9',k:'TRICK OR TREAT',t:pname(ti[0].f)+'からトリック・オア・トリート',s:'1日以内にお菓子をあげないと、いたずらで'+TOT_TRICK+'個とられる',chip:'答える',w:true,go:()=>hwOpen()})}}catch(e){}
+    try{if(typeof gbOn==='function'&&gbOn()&&ME()){const me=ME();items.unshift({c:'e9',k:'GAME BAKA',t:'ゲームバカイベント',s:'メダル '+gbBal(me.id).toLocaleString()+'  ·  '+(inv&&inv[GBK.f]?GB_F[inv[GBK.f]].n:'派閥を選ぼう')+'  ·  ボックスガチャ',chip:'あと '+gbLeft(gbT1()),w:true,go:()=>gbOpen()})}}catch(e){}/*gb-strip*/ try{if(typeof hwOn==='function'&&hwOn()&&ME()){const me=ME(),ti=totIn(me.id);if(ti.length)items.unshift({c:'e9',k:'TRICK OR TREAT',t:pname(ti[0].f)+'からトリック・オア・トリート',s:'1日以内にお菓子をあげないと、いたずらで'+TOT_TRICK+'個とられる',chip:'答える',w:true,go:()=>hwOpen()})}}catch(e){}
     try{const W=typeof bountyInfo==='function'?bountyInfo().wanted:[];if(W.length){const t=W[0],nm=(players.find(p=>p.id===t.p)||{}).name||'?';items.unshift({c:'e6',k:'WANTED',t:'賞金首 '+W.length+'人',s:nm+' '+t.s+'連勝中 · 倒すと'+t.v.toLocaleString()+'pt',chip:'レートの対戦で',w:true,go:()=>setTimeout(()=>{const s=mk('div','lsec lwan');renderWanted(s);sheet('賞金首',s)},380)})}}catch(e){}
     /* (10/23) 仲間株: the stock that moved most since yesterday */
     try{if(typeof kbuSyms==='function'&&ME()){const S=kbuSyms();let top=null;if(S.length>1)S.forEach(p=>{const c=kbuChange(p.id);if(!top||Math.abs(c)>Math.abs(top.c))top={p,c}});
@@ -19454,7 +19454,7 @@ window.KMotion={makeSplash,makeBonus,makeStage,makeStageW,runner,RM,SFX,Q,ease,s
       const v=mk('div','kpc-rrv');v.append(mk('b','kx-num',String(x.r)),mk('em',null,esc(en)));
       box.append(e,nm,v);rg.append(box)});
     c.append(rg);
-    try{const cb=typeof colBlock==='function'?colBlock(p):null;if(cb){const cw=mk('div','kpc-colw');cw.append(mk('div','kpc-sh','コレクション'),cb);c.append(cw)}}catch(e){}
+    try{const cb=typeof colBlock==='function'?colBlock(p):null;if(cb){const cw=mk('div','kpc-colw');cw.append(mk('div','kpc-sh','コレクション'),cb);c.append(cw)}}catch(e){}try{const tb=typeof gbTrophyEl==='function'?gbTrophyEl(p):null;if(tb)c.append(tb)}catch(e){}/*gb-tro*/
     const on=[['a','アイコン'],['f','フレーム'],['x','対戦演出'],['v','勝利演出'],['b','背景'],['c','コイン']].map(([k,n])=>[n,eq[k]&&ITEM(eq[k])]).filter(x=>x[1]);
     if(on.length){const col=mk('div','kpc-eq');col.append(mk('div','kpc-sh','つけているもの'));const L2=mk('div','kpc-eql');
       on.forEach(([n,i])=>{const d=mk('div','kpc-eqi q'+(i.r|0));d.append(mk('span',null,n),mk('b',null,esc(i.n)));L2.append(d)});col.append(L2);c.append(col)}
@@ -22282,10 +22282,10 @@ const gbAchPts=()=>gbAchGot().reduce((a,id)=>{const A=GB_A.find(x=>x[0]===id);re
 function gbBal(pid){if(pid!==invFor||!inv)return 0;return gbStat(pid).earn+gbAchPts()+(+inv[GBK.b]||0)*GB_BUY+(+inv[GBK.mr]||0)-(+inv[GBK.u]||0)*GB_PLAY}
 function gbScore(pid){const f=inv&&inv[GBK.f];if(!f)return 0;return Math.floor(gbEv(pid).reduce((a,e)=>a+e[0]*(e[2]===f?GB_X:1),0))}
 /* ---- 派閥の点: 1分ごとに自分の点を gbpub/{pid} に出す。合計はみんなの分を足す ---- */
-let gbPubs={},gbPubOn=false,gbPubLast='';const GBP=GB_PV?{f:'pvf',c:'pvc'}:{f:'f',c:'c'};
+let gbPubs={},gbPubOn=false,gbPubLast='';const GBP=GB_PV?{f:'pvf',c:'pvc',x:'pvx'}:{f:'f',c:'c',x:'x'};
 function gbPubWatch(){if(gbPubOn||!db)return;gbPubOn=true;db.collection('gbpub').onSnapshot(s=>{gbPubs={};s.docs.forEach(d=>gbPubs[d.id]=d.data());try{gbRedraw()}catch(e){}},()=>{gbPubOn=false})}
-function gbPub(){const me=gbMe();if(!me||!db||!invLoaded||invFor!==me.id||!gbOn())return;const f=inv[GBK.f];if(!f)return;const c=gbScore(me.id),k=f+'|'+c;if(k===gbPubLast)return;gbPubLast=k;
-  db.doc('gbpub/'+me.id).set({[GBP.f]:f,[GBP.c]:c,u:now()},{merge:true}).catch(()=>{gbPubLast=''})}
+function gbPub(){const me=gbMe();if(!me||!db||!invLoaded||invFor!==me.id||!gbOn())return;const f=inv[GBK.f],x=gbAchGot();if(!f&&!x.length)return;const c=f?gbScore(me.id):0,k=f+'|'+c+'|'+x.join(',');if(k===gbPubLast)return;gbPubLast=k;
+  db.doc('gbpub/'+me.id).set(Object.assign({[GBP.x]:x,u:now()},f?{[GBP.f]:f,[GBP.c]:c}:{}),{merge:true}).catch(()=>{gbPubLast=''})}
 function gbTotals(){const T={s:0,m:0,ns:0,nm:0};const me=gbMe();for(const [pid,d] of Object.entries(gbPubs)){const f=d[GBP.f],c=+d[GBP.c]||0;if(f!=='s'&&f!=='m')continue;if(me&&pid===me.id)continue;T[f]+=c;T['n'+f]++}
   if(me&&inv&&inv[GBK.f]&&invFor===me.id){const f=inv[GBK.f];T[f]+=gbScore(me.id);T['n'+f]++}return T}
 const gbWinner=()=>{const T=gbTotals();return T.s===T.m?null:T.s>T.m?'s':'m'};
@@ -22319,6 +22319,12 @@ function gbArena(k){const me=gbMe();if(!gbOn()||!db||!me||!invLoaded||invFor!==m
 function gbCpuWin(r){if(!gbOn()||!r||r.pvp||r.w!=='win'||!db||!invFor)return;const t=now(),strong=r.lv==='strong',L=gbL(GBK.s).concat([strong?t:-t]).slice(-600);inv=Object.assign({},inv,{[GBK.s]:L});gbMemo.k='';
   db.doc('inv/'+invFor).set({[GBK.s]:L},{merge:true}).catch(()=>{});setTimeout(()=>gbToast(strong?GB_C.cs:GB_C.cn,'TCGのCPUに勝利'),2600)}
 try{if(window.CAHOST)CAHOST.gb=k=>{try{gbArena(k)}catch(e){}}}catch(e){}
+/* ---- プロフィールのトロフィー棚: 取った実績(銅・銀・金)とプラチナ。ほかの人の分は gbpub の x を見る ---- */
+function gbTrophyEl(p){const me=gbMe();let got;if(me&&p&&p.id===me.id&&invFor===me.id)got=gbAchGot();else{try{gbPubWatch()}catch(e){}const d=p&&gbPubs[p.id];got=d&&Array.isArray(d[GBP.x])?d[GBP.x]:[]}
+  if(!got.length)return null;const w=el('div','gb-shelf'),hd=el('div','gb-shh');hd.append(el('b',null,'ゲームバカのトロフィー'),el('span',null,got.filter(x=>x!=='plat').length+' / '+GB_A.length));w.append(hd);
+  const row=el('div','gb-shr');if(got.includes('plat')){const t=el('i','gb-tro p');t.title='プラチナ';row.append(t)}
+  for(const t of ['g','s','b'])for(const A of GB_A.filter(a=>a[1]===t)){const i=el('i','gb-tro '+t+(got.includes(A[0])?'':' no'));i.title=A[2];row.append(i)}
+  w.append(row);return w}
 /* ---- 小さなお知らせ ---- */
 const GB_MEDAL='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><defs><linearGradient id="gbmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6c8"/><stop offset=".5" stop-color="#ffc83a"/><stop offset="1" stop-color="#c47a12"/></linearGradient></defs><circle cx="12" cy="12" r="10" fill="url(#gbmg)" stroke="#7a4a08" stroke-width="1.2"/><circle cx="12" cy="12" r="6.6" fill="none" stroke="#fff3c0" stroke-width="1"/><path d="M9 9.5h6M9 12h6M9 14.5h6" stroke="#8a560c" stroke-width="1.2" stroke-linecap="round"/></svg>';
 function gbToast(n,why){if(!n)return;document.querySelectorAll('.gb-tst').forEach(x=>x.remove());const t=el('button','gb-tst');t.type='button';t.innerHTML=GB_MEDAL;t.append(el('b',null,'メダル +'+n),el('span',null,why));t.onclick=()=>{t.remove();gbOpen()};document.body.append(t);setTimeout(()=>t.remove(),3800)}
@@ -22419,7 +22425,7 @@ window.__gbOpen=gbOpen;
 .gbx-tab.on{color:#07070d;background:linear-gradient(90deg,#59f0ff,#ff5ad8);border-color:transparent;box-shadow:0 0 14px rgba(255,90,216,.4)}
 .gbx-tab em{position:absolute;top:-6px;right:-4px;min-width:18px;height:18px;border-radius:9px;background:#ff3b6b;color:#fff;font:800 11px/18px system-ui;font-style:normal;padding:0 5px}
 .gbx-body{display:flex;flex-direction:column;gap:10px}
-.gbx-kv{position:relative;overflow:hidden;border-radius:16px;padding:22px 16px 18px;background:radial-gradient(120% 120% at 20% 0%,#2a1650,#0d0f1c 60%);display:flex;flex-direction:column;gap:6px}
+.gbx-kv{position:relative;overflow:hidden;border-radius:16px;padding:96px 16px 16px;background:linear-gradient(180deg,rgba(7,7,13,0) 30%,rgba(7,7,13,.92) 78%),url(gb_kv.webp) center top/cover,#0d0f1c;display:flex;flex-direction:column;gap:6px}
 .gbx-kvg{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 4px);pointer-events:none}
 .gbx-kv b{font-size:22px;color:#fff;text-shadow:0 0 12px #ff5ad8}.gbx-kv p{margin:0;font-size:13.5px;line-height:1.7;color:#cfd4e3}
 .gbx-h{margin:6px 0 0;font-size:15px;font-weight:800}
@@ -22451,6 +22457,12 @@ body.ui2 #lob .lside button.lgb svg{color:#59f0ff;stroke:#59f0ff;filter:drop-sha
 .gbx-boxx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.gbx-boxx small{font-size:11.5px;color:#a5acc0}.gbx-boxx b{font-size:16px;line-height:1.35}.gbx-boxx span{font-size:12.5px;color:#ffd35a}.gbx-boxx em{font-style:normal;font-size:13px;color:#cfd4e3}
 .gbx-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .gbx-ar.out{opacity:.4}
+body.ui2 .gb-shelf,.gb-shelf{margin-top:10px;padding:10px 12px;border-radius:14px;background:linear-gradient(180deg,#14172a,#0b0d18);border:1px solid #2a3042;color:#eef0f7}
+.gb-shh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}.gb-shh b{font-size:13.5px}.gb-shh span{font-size:12px;color:#a5acc0}
+.gb-shr{display:flex;flex-wrap:wrap;gap:5px;padding:8px 6px 6px;border-radius:8px;background:linear-gradient(180deg,transparent 70%,rgba(255,255,255,.06) 70%,rgba(255,255,255,.06) 76%,transparent 76%)}
+.gb-tro{width:16px;height:20px;background:var(--tc);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 20'%3E%3Cpath d='M3 1h10v5c0 3-2 5-5 5S3 9 3 6Z M6 11h4v3H6Z M3 15h10v4H3Z M0 2h3v3C1 5 0 4 0 2Z M13 2h3c0 2-1 3-3 3Z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 20'%3E%3Cpath d='M3 1h10v5c0 3-2 5-5 5S3 9 3 6Z M6 11h4v3H6Z M3 15h10v4H3Z M0 2h3v3C1 5 0 4 0 2Z M13 2h3c0 2-1 3-3 3Z'/%3E%3C/svg%3E") center/contain no-repeat}
+.gb-tro.b{--tc:linear-gradient(180deg,#f0b27a,#9a5a24)}.gb-tro.s{--tc:linear-gradient(180deg,#ffffff,#9aa8bc)}.gb-tro.g{--tc:linear-gradient(180deg,#fff2a8,#d89a1a)}.gb-tro.p{width:22px;height:27px;--tc:linear-gradient(135deg,#ffffff,#b8d8ff 40%,#ffd0f4 70%,#ffffff)}
+.gb-tro.no{--tc:#2a2f42}
 @media (prefers-reduced-motion:reduce){.gbx-glow{animation:none}.gb-tst{animation:none}}
 `;document.head.append(s)})();
 
