@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=41').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=41').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=42').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=42').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -213,6 +213,21 @@ const CSS = `
 #oroot[hidden]{display:none}
 #oroot>.aBg{position:absolute;inset:0;z-index:-1;pointer-events:none;background:url(${UI}home-bg.webp) center top/cover no-repeat,#0b1a45;opacity:.32;filter:saturate(.7) blur(2px)}
 #oroot>.aBg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,11,34,.5),rgba(5,11,34,.92) 40%)}
+#oroot>.aBg.qbg{background:url(${ST}chapter-01-normal.webp) center top/cover no-repeat,#0b2a6a;opacity:1;filter:none}
+#oroot>.aBg.qbg.hd{background:url(${ST}chapter-01-hard.webp) center top/cover no-repeat,#200d23}
+#oroot>.aBg.qbg::after{background:linear-gradient(180deg,rgba(4,10,34,.2),rgba(4,10,34,.5) 30%,rgba(4,10,34,.45) 62%,rgba(4,10,34,.1))}
+#oroot>.aBg.qbg.hd::after{background:linear-gradient(180deg,rgba(26,4,14,.2),rgba(26,4,14,.5) 30%,rgba(26,4,14,.45) 62%,rgba(26,4,14,.1))}
+.qin{animation:qIn .38s cubic-bezier(.16,1,.3,1) both}
+@keyframes qIn{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+.qPl.cur.qin{animation:qIn .38s cubic-bezier(.16,1,.3,1) both,qPulse 1.6s ease-in-out .5s infinite}
+.qMore{position:relative;display:flex;align-items:center;gap:10px;min-height:56px;margin-top:2px;padding:8px 14px;border-radius:10px;background:rgba(6,10,30,.55);box-shadow:inset 0 0 0 1.5px rgba(233,197,106,.45);overflow:hidden}
+.qMore .lks{display:flex;gap:2px;color:#e9c56a;opacity:.85}
+.qMore .t{font:800 14px var(--zk);color:#d6dcf0;white-space:nowrap}.qMore .t b{font-size:18px;color:#fff;-webkit-text-stroke:3px #0a1030;paint-order:stroke fill}
+.qMore .lb{margin-left:auto;display:flex;align-items:center;gap:6px}
+.qMore .lb img{position:static;height:46px;width:auto;max-width:none;filter:brightness(0) drop-shadow(0 0 6px rgba(255,90,90,.7));opacity:.9}
+.qMore .lb em{font:800 11px var(--zk);font-style:normal;color:#ff9a9a}
+.qDf button .lk{display:inline-flex;vertical-align:-2px;margin-right:4px}.qDf button small{display:block;margin-top:-2px;font:700 10px var(--zk);color:#c6cbe0;-webkit-text-stroke:0}
+.qDf button:disabled{opacity:.7;line-height:1.2}
 .aTitle{display:flex;align-items:baseline;gap:8px;margin:2px 2px 6px}
 .aTitle h2{margin:0;font:800 20px var(--mi);color:#fff;letter-spacing:.08em}
 .aTitle small{font:700 9px var(--cin);letter-spacing:.3em;color:var(--aG)}
@@ -1057,7 +1072,8 @@ function shell(title, en, opts) {
   }
   const body = h('div', 'obody'); root.appendChild(body); return body;
 }
-function go(k) { TAB = k; PICK = null; renderNow(); }
+let QIN = '';
+function go(k) { if (k !== TAB) QIN = ''; TAB = k; PICK = null; renderNow(); }
 /* (11/7) 4人そろっていなくて、無料の10回召喚が残っているあいだは、ガチャとその他だけ */
 function needFree() { return S.free10 && new Set(S.units.map(x => x.id)).size < 4; }
 function canGo() { if (teamUnits().length >= 4) return true; modal('仲間が足りません', (b, close) => { b.innerHTML = `<p style="text-align:center">出撃には4人の仲間が必要です。<br>ガチャで仲間を呼びましょう。</p>`; const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', '閉じる', close), btn('shine', 'ガチャへ', () => { close(); go('gacha'); })); b.appendChild(r); }); return false; }
@@ -1184,6 +1200,9 @@ const raidBoss = () => { const R = A.RAID; if (R.model) return bossImg(R.model);
 function kindImgs(i, max) { return A.stageKinds(i).filter(k => !k.startsWith('g_')).slice(0, max).map(k => `<img alt="" src="./assets/icons/${k}.png">`).join(''); }
 function renderQuest() {
   const b = shell(null); root.insertBefore(qTabs(), b);
+  /* (11/9) 画面くらべ: クエストは画面ごとの背景(ノーマルは青空・ハードは赤)。入ったときだけ行が順に出る */
+  const qIn = QIN !== TAB + SUB.quest + (Q.hard ? 'h' : 'n') + Q.ch; QIN = TAB + SUB.quest + (Q.hard ? 'h' : 'n') + Q.ch;
+  if (SUB.quest === 'main') { root.querySelector('.aBg').classList.add('qbg'); if (Q.hard) root.querySelector('.aBg').classList.add('hd'); }
   if (SUB.quest === 'event') { renderEvents(b); return; }
   if (SUB.quest === 'chal') { renderChal(b); return; }
   const MN = A.MAIN_N, hard = Q.hard, clr = i => hard ? A.PROG.h[i] : A.PROG.n[i];
@@ -1201,11 +1220,17 @@ function renderQuest() {
   const df = h('div', 'qDf'); const anyN = A.PROG.n.slice(0, MN).some(Boolean);
   const bN = h('button', null, 'ノーマル'), bH = h('button', 'h', 'ハード'); bN.type = bH.type = 'button';
   bN.setAttribute('aria-pressed', String(!hard)); bH.setAttribute('aria-pressed', String(hard)); bH.disabled = !anyN;
+  if (!anyN) bH.innerHTML = `<span class="lk">${LOCK}</span>ハード<small>1-1をクリアで開く</small>`;   /* (11/9) 説明の文をやめてボタンの中に */
   bN.onclick = () => { Q.hard = false; renderNow(); }; bH.onclick = () => { Q.hard = true; renderNow(); }; df.append(bN, bH); b.appendChild(df);
-  if (!anyN) b.appendChild(h('p', 'onote', 'ハードは、ノーマルを1つクリアすると開きます。'));
   const L = h('div', 'qL'); b.appendChild(L); let curEl = null;
   const cur = A.STAGES.slice(0, MN).findIndex((_, i) => A.stageOpen(i, hard) && !clr(i));
+  let firstLock = -1; for (let i = B0; i < N; i++) if (!A.stageOpen(i, hard)) { firstLock = i; break; }
   for (let i = B0; i < N; i++) {
+    if (firstLock >= 0 && i > firstLock) {   /* (11/9) まだ開いていないステージは1行にまとめる(「？？？」の板がならぶと画面がからっぽに見える) */
+      const rest = N - i, lb = A.STAGES[N - 1], m = h('div', 'qMore');
+      m.innerHTML = `<span class="lks">${LOCK.repeat(Math.min(rest, 3))}</span><span class="t">あと <b>${rest}</b> ステージ</span>${lb.boss ? `<span class="lb">${bossImg(CHBOSS[Q.ch] || 'base')}<em>ラスボスが待っている</em></span>` : ''}`;
+      L.appendChild(m); break;
+    }
     const st = A.STAGES[i], open = A.stageOpen(i, hard), c = clr(i), sv = A.stageStrength(i, hard), bits = S.stars[skey(i, hard)] || 0;
     const r = h('button', 'qPl' + (st.boss ? ' boss' : '') + (open ? '' : ' lock') + (i === cur ? ' cur' : '') + (hard ? ' hd' : '')); r.type = 'button';
     r.innerHTML = `<span class="cn">${st.boss && open ? `<img alt="" src="${UI}boss-${CHBOSS[st.ch] || 'base'}.webp">` : `<b>${esc(st.id)}</b>`}</span>${c ? '<i class="ck">✓</i>' : ''}
@@ -1215,6 +1240,7 @@ function renderQuest() {
     r.onclick = () => { if (!open) { flash(hard ? 'ノーマルでクリアすると開きます' : '前のステージをクリアすると開きます'); return; } goSheet(i, hard); };
     if (i === cur) curEl = r; L.appendChild(r);
   }
+  if (qIn && !RM) [...L.children].forEach((e, k) => { e.style.animationDelay = (k * 45) + 'ms'; e.classList.add('qin'); });
   if (curEl) requestAnimationFrame(() => { const br = b.getBoundingClientRect(), r = curEl.getBoundingClientRect(); if (r.bottom > br.bottom - 8) b.scrollTop += r.top - br.top - b.clientHeight / 2 + r.height / 2; });
 }
 function starBox(i, hard, ev) {
