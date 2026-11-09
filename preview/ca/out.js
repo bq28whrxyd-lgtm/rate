@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=48').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=48').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=49').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=49').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1170,6 +1170,7 @@ if (BRT) document.head.appendChild(h('style', null, `
 #lay.brt .aPe .pst>div,#lay.brt .pst>div{border-radius:0;background:none;box-shadow:0 3px 6px rgba(0,0,0,.4);border:12px solid transparent;border-image:url(${UI}frame/panel.webp) 72 fill / 12px stretch;padding:0 2px}
 #lay.brt .pst b{font-family:var(--rd);font-weight:400;-webkit-text-stroke:2.5px #071030;paint-order:stroke fill}
 #lay.brt .aSta i{font-size:13px}#lay.brt .aSta b{-webkit-text-stroke:2px #071030;letter-spacing:.02em}
+#lay.brt .aSta b,#lay.brt .aCur b{color:#fff!important;opacity:1}#lay.brt .aSta i{color:#ffd23a;filter:drop-shadow(0 1px 0 #3a2000)}
 @media (prefers-reduced-motion:reduce){#lay.brt *{animation:none!important}}
 `));
 
@@ -1777,7 +1778,7 @@ function charaBox(b) {
   chip('↕ 逆にする', BOXF.asc, () => { BOXF.asc = !BOXF.asc; }, so); so.lastChild.classList.add('dir');
   b.appendChild(so);
   const list = boxSort(S.units.filter(u => (BOXF.el === 'all' || CH[u.id].el === BOXF.el) && (!BOXF.rar || rarOf(u) === BOXF.rar)));
-  b.appendChild(h('p', 'onote', `${list.length} / ${S.units.length}体 ・ 押すとくわしく見られます`));
+  b.appendChild(h('p', 'onote', BRT ? `${list.length} / ${S.units.length}体` : `${list.length} / ${S.units.length}体 ・ 押すとくわしく見られます`));
   const g = h('div', 'ogrid'); b.appendChild(g);
   for (const u of list) { const e = icon(u, { tag: inParty(u) ? '編成中' : (S.newIds.includes(u.u) ? 'NEW' : '') }); e.onclick = () => { S.newIds = S.newIds.filter(x => x !== u.u); save(); detail(u); }; g.appendChild(e); }
 }
