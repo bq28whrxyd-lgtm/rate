@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=45').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=45').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=46').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=46').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1043,7 +1043,7 @@ const NI = {
 const NIMG = { home: 'nav_home', chara: 'nav_chara', quest: 'nav_quest', gacha: 'nav_gacha', other: 'nav_profile' };   /* (11/9) Codex T-026 の絵 */
 const niSvg = k => NIMG[k] ? `<img class="ni" alt="" src="${UI}nav/${NIMG[k]}.webp">` : `<svg class="ni" viewBox="0 0 32 32" aria-hidden="true">${NI[k]}</svg>`;
 if (BRT) document.head.appendChild(h('style', null, `
-#lay.brt{--rd:"M PLUS Rounded 1c","M PLUS 1p","Zen Kaku Gothic New",system-ui,sans-serif;--cy1:#8ff4ff;--cy2:#1fb4ff;--cy3:#0a5ad0;--or1:#ffd08a;--or2:#ff8a1a;--or3:#c84a06}
+#lay.brt{--rd:"RocknRoll One","M PLUS Rounded 1c","M PLUS 1p","Zen Kaku Gothic New",system-ui,sans-serif;--cy1:#8ff4ff;--cy2:#1fb4ff;--cy3:#0a5ad0;--or1:#ffd08a;--or2:#ff8a1a;--or3:#c84a06}
 #lay.brt #onav{height:calc(env(safe-area-inset-bottom,0px) + 62px);background:linear-gradient(180deg,#1c2e78,#0a1440 60%,#060c2a);box-shadow:0 -2px 0 #4ab8ff,0 -3px 0 #0a1a50,0 -8px 18px rgba(0,0,0,.6)}
 #lay.brt #onav button{color:#fff;font:900 10.5px var(--rd);-webkit-text-stroke:2.5px #071030;paint-order:stroke fill;padding-bottom:6px;margin:5px 2px 0;border-radius:9px 9px 0 0}
 #lay.brt #onav .ni{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
