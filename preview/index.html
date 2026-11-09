@@ -14680,7 +14680,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=55',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=56',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -22234,7 +22234,7 @@ const GB_PV=/\/preview\//.test(location.pathname),GB_DEMO=/^(localhost|127\.0\.0
 const GB0=Date.UTC(2026,10,13,20,0),GB_LEN=15*864e5,GB_PV0=Date.UTC(2026,10,8,20,0);
 const gbT0=()=>window.__gb0||((GB_PV||GB_DEMO)?GB_PV0:GB0),gbT1=()=>gbT0()+GB_LEN,gbMid=()=>gbT0()+7*864e5;
 const gbIn=t=>(t=+t||0)>=gbT0()&&t<gbT1(),gbOn=()=>gbIn(now()),gbShow=()=>now()>=gbT0()&&now()<gbT1()+7*864e5;
-const GBK=GB_PV?{mr:'pvgbmr',f:'pvgbf',b:'pvgbb',s:'pvgbs',a:'pvgba',u:'pvgbu',c:'pvgbc',x:'pvgbx',p:'pvgbp',w:'pvgbw',tp:'pvgbtp'}:{mr:'gbmr',f:'gbf',b:'gbb',s:'gbs',a:'gba',u:'gbu',c:'gbc',x:'gbx',p:'gbp',w:'gbw',tp:'gbtp'};
+const GBK=GB_PV?{q:'pvgbq',mr:'pvgbmr',f:'pvgbf',b:'pvgbb',s:'pvgbs',a:'pvgba',u:'pvgbu',c:'pvgbc',x:'pvgbx',p:'pvgbp',w:'pvgbw',tp:'pvgbtp'}:{q:'gbq',mr:'gbmr',f:'gbf',b:'gbb',s:'gbs',a:'gba',u:'gbu',c:'gbc',x:'gbx',p:'gbp',w:'gbw',tp:'gbtp'};
 const GB_C={rw:10,rl:3,tw:10,tl:3,cs:8,cn:4,as:5,am:5},GB_PLAY=100,GB_BUY=100,GB_BUY_PT=150,GB_X=1.5;
 const GB_F={s:{n:'ソロ派',e:'SOLO',c:'#59f0ff',d:'一人でじっくり。CPU戦・分身のソロで点が1.5倍'},m:{n:'マルチ派',e:'MULTI',c:'#ff5ad8',d:'みんなでわいわい。レート対戦・TCGの対人戦・分身のマルチで点が1.5倍'}};
 /* ---- 景品(限定のスキンと称号)。ITEMS に足すので、持ち物・プロフィール・着せかえはいつもの仕組みで動く ---- */
@@ -22269,11 +22269,12 @@ const GB_A=[
 const gbL=k=>Array.isArray(inv&&inv[k])?inv[k]:[];
 let gbMemo={k:'',v:null};
 function gbEv(pid){/* [メダル, 時刻, 's'|'m'] — 自分のものだけ */
-  const key=[pid,matches.length,typeof tcgms!=='undefined'?tcgms.length+':'+tcgms.reduce((a,d)=>a+(tcgDone(d)?1:0),0):0,gbL(GBK.s).length,gbL(GBK.a).length,gbT0()].join('|');if(gbMemo.k===key)return gbMemo.v;
+  const key=[pid,matches.length,typeof tcgms!=='undefined'?tcgms.length+':'+tcgms.reduce((a,d)=>a+(tcgDone(d)?1:0),0):0,gbL(GBK.s).length,gbL(GBK.a).length,gbL(GBK.q).length,gbT0()].join('|');if(gbMemo.k===key)return gbMemo.v;
   const ev=[];for(const m of matches){if(!gbIn(m.t))continue;if(m.w===pid)ev.push([GB_C.rw,m.t,'m','rw']);else if(m.l===pid)ev.push([GB_C.rl,m.t,'m'])}
   if(typeof tcgms!=='undefined')for(const d of tcgms){if(!tcgDone(d)||!gbIn(d.t)||(d.a!==pid&&d.b!==pid)||d.wa==='draw')continue;ev.push(d.wa===pid?[GB_C.tw,d.t,'m','tw']:[GB_C.tl,d.t,'m'])}
   if(pid===invFor){for(const x of gbL(GBK.s)){const t=Math.abs(+x);if(gbIn(t))ev.push([x>0?GB_C.cs:GB_C.cn,t,'s','cw'])}
-    for(const x of gbL(GBK.a)){const t=Math.abs(+x);if(gbIn(t))ev.push(x>0?[GB_C.as,t,'s','as']:[GB_C.am,t,'m','am'])}}
+    for(const x of gbL(GBK.a)){const t=Math.abs(+x);if(gbIn(t))ev.push(x>0?[GB_C.as,t,'s','as']:[GB_C.am,t,'m','am'])}
+    /* (11/10) イベントのステージ(ゲーセンナイト・限定降臨)は決まった枚数: [時刻, 枚数, マルチなら1] */for(const q of gbL(GBK.q)){if(!Array.isArray(q)||!gbIn(q[0]))continue;ev.push([+q[1]||0,+q[0],q[2]?'m':'s',q[2]?'am':'as'])}}
   gbMemo={k:key,v:ev};return ev}
 function gbStat(pid){const ev=gbEv(pid),c=k=>ev.filter(e=>e[3]===k).length,BX=inv&&pid===invFor?gbBoxSt():{n:0,d:{}};
   return{fac:inv&&inv[GBK.f]?1:0,rw:c('rw'),tw:c('tw'),cw:c('cw'),ac:c('as')+c('am'),am:c('am'),cr:+(inv&&inv[GBK.u])||0,pz:BX.n+(+BX.d.top||0),earn:Math.floor(ev.reduce((a,e)=>a+e[0],0))}}
@@ -22313,12 +22314,14 @@ async function gbFacClaim(){const f=inv[GBK.f];if(!f||now()<gbT1()||inv[GBK.w])r
   if(win){nv.own=Object.assign({},nv.own||{});const k=f==='s'?'lgb5':'lgb6';nv.own[k]=(+nv.own[k]||0)+1;if(!GB_PV)nv.wkc=wkConvL().concat([{k:'ltk',n:5,t:now(),gb:1}])}
   await gbSave(nv);return win}
 /* 分身(圧縮アリーナ)のクリア: ソロは +時刻、マルチは -時刻 */
-function gbArena(k){const me=gbMe();if(!gbOn()||!db||!me||!invLoaded||invFor!==me.id)return;const t=now(),L=gbL(GBK.a).concat([k==='m'?-t:t]).slice(-600);inv=Object.assign({},inv,{[GBK.a]:L});gbMemo.k='';
+function gbArena(k,n){const me=gbMe();if(!gbOn()||!db||!me||!invLoaded||invFor!==me.id)return;const t=now();n=Math.max(0,Math.min(200,Math.round(+n||0)));
+  if(n){const L=gbL(GBK.q).concat([[t,n,k==='m'?1:0]]).slice(-600);inv=Object.assign({},inv,{[GBK.q]:L});gbMemo.k='';db.doc('inv/'+me.id).set({[GBK.q]:L},{merge:true}).catch(()=>{});gbToast(n,'分身のイベントでクリア');return}
+  const L=gbL(GBK.a).concat([k==='m'?-t:t]).slice(-600);inv=Object.assign({},inv,{[GBK.a]:L});gbMemo.k='';
   db.doc('inv/'+me.id).set({[GBK.a]:L},{merge:true}).catch(()=>{});gbToast(k==='m'?GB_C.am:GB_C.as,k==='m'?'分身のマルチでクリア':'分身でクリア')}
 /* TCG の CPU に勝った(つよいは+、ほかは-) */
 function gbCpuWin(r){if(!gbOn()||!r||r.pvp||r.w!=='win'||!db||!invFor)return;const t=now(),strong=r.lv==='strong',L=gbL(GBK.s).concat([strong?t:-t]).slice(-600);inv=Object.assign({},inv,{[GBK.s]:L});gbMemo.k='';
   db.doc('inv/'+invFor).set({[GBK.s]:L},{merge:true}).catch(()=>{});setTimeout(()=>gbToast(strong?GB_C.cs:GB_C.cn,'TCGのCPUに勝利'),2600)}
-try{if(window.CAHOST)CAHOST.gb=k=>{try{gbArena(k)}catch(e){}}}catch(e){}
+try{if(window.CAHOST)CAHOST.gb=(k,n)=>{try{gbArena(k,n)}catch(e){}}}catch(e){}
 /* ---- プロフィールのトロフィー棚: 取った実績(銅・銀・金)とプラチナ。ほかの人の分は gbpub の x を見る ---- */
 function gbTrophyEl(p){const me=gbMe();let got;if(me&&p&&p.id===me.id&&invFor===me.id)got=gbAchGot();else{try{gbPubWatch()}catch(e){}const d=p&&gbPubs[p.id];got=d&&Array.isArray(d[GBP.x])?d[GBP.x]:[]}
   if(!got.length)return null;const w=el('div','gb-shelf'),hd=el('div','gb-shh');hd.append(el('b',null,'ゲームバカのトロフィー'),el('span',null,got.filter(x=>x!=='plat').length+' / '+GB_A.length));w.append(hd);
@@ -22347,7 +22350,7 @@ function gbOpen(tab){const me=gbMe();if(!me)return;try{gbPubWatch()}catch(e){}do
     if(cur==='top')gbTop(body,me,on,f,k=>{cur=k;draw()});else if(cur==='fac')gbFacPage(body,me,on,f,draw);else if(cur==='ach')gbAchPage(body,me,draw);else gbBoxPage(body,me,on,draw)};
   gbRedraw=()=>{try{if(o.isConnected&&!o.querySelector('.gbc-play'))draw()}catch(e){}};draw()}
 function gbTop(body,me,on,f,go){const kv=el('div','gbx-kv');kv.append(el('i','gbx-kvg'),el('b',null,'ゲーマー女子、集合。'),el('p',null,'遊ぶとゲーセンメダルがたまる。メダルで派閥を応援して、実績を集めて、クレーンゲームで限定の景品をねらおう。'));body.append(kv);
-  const how=el('div','gbx-how');[['レート対戦','勝ち10・負け3'],['TCGの対人戦','勝ち10・負け3'],['TCGのCPU','つよい8・ほか4'],['分身のクリア','ソロもマルチも5']].forEach(([a,c])=>{const r=el('div','gbx-hr');r.append(el('span',null,a),el('b',null,c));how.append(r)});
+  const how=el('div','gbx-how');[['レート対戦','勝ち10・負け3'],['TCGの対人戦','勝ち10・負け3'],['TCGのCPU','つよい8・ほか4'],['分身のクリア','ふつう5・イベント10〜60・降臨50']].forEach(([a,c])=>{const r=el('div','gbx-hr');r.append(el('span',null,a),el('b',null,c));how.append(r)});
   body.append(el('h3','gbx-h','メダルのため方'),how);
   const T=gbTotals(),fac=el('button','gbx-card');fac.type='button';fac.onclick=()=>go('fac');fac.append(el('b',null,f?'あなたは '+GB_F[f].n:'派閥をまだ選んでいません'),el('span',null,now()<gbMid()?'途中の結果は 11/21 5:00 に出ます':(GB_F.s.n+' '+T.s.toLocaleString()+'  対  '+T.m.toLocaleString()+' '+GB_F.m.n)));body.append(fac);
   const cr=el('button','gbx-card cr');cr.type='button';cr.onclick=()=>go('box');cr.append(el('b',null,'ボックスガチャ  1回 '+GB_PLAY+'枚'),el('span',null,'ゲーマー女子のTCGカード・光るフレーム・背景・称号'));body.append(cr);

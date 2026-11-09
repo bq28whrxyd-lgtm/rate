@@ -474,7 +474,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=55';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=56';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -531,7 +531,7 @@ const LEADS={none:{d:'リーダースキルなし(標準と同じ)'},power:{d:'�
    k = 強さの倍率【仮設定】 hp:敵の体力 atk:敵の攻撃 cd:攻撃までの手番に足す数 boss:中ボスの体力(hpにさらに掛ける) lb:ラスボスの体力 ===== */
 const WAVES=[];
 const AL=[['ally',-4,4.6],['ally',-1.4,5.6],['ally',1.4,5.6],['ally',4,4.6]];
-const E=(x,z)=>['enemy',x,z],O=(x,z)=>['orb',x,z],B=(x,z)=>['bomb',x,z],Wd=(x,z)=>['wild',x,z],Cr=(x,z)=>['crystal',x,z],Rk=(x,z)=>['rock',x,z],Hl=(x,z)=>['heal',x,z],Jr=(x,z)=>['jar',x,z],Bs=(x,z)=>['boss',x,z];
+const E=(x,z)=>['enemy',x,z],O=(x,z)=>['orb',x,z],B=(x,z)=>['bomb',x,z],Wd=(x,z)=>['wild',x,z],Cr=(x,z)=>['crystal',x,z],Rk=(x,z)=>['rock',x,z],Hl=(x,z)=>['heal',x,z],Jr=(x,z)=>['jar',x,z],Bs=(x,z)=>['boss',x,z],Gl=(x,z)=>['glitch',x,z];
 const W=(items,o)=>Object.assign({items:items.concat(AL)},o||{});
 /* (v1.4) 敵のギミック。ステージの gm に、ウェーブごとに敵(E)の順で1文字ずつ書く。. はふつうの竜 */
 const GL={f:{el:'炎'},w:{el:'水'},g:{el:'木'},p:{g:'puff'},d:{g:'split'},a:{g:'anchor'},m:{g:'merge'},k:{g:'shell'}};
@@ -543,8 +543,8 @@ const CHAPS=[{no:'第1章',n:'天空の闘技場'},{no:'第2章',n:'霧の湿原
 /* (v98) ステージの量産: seed が同じなら同じ配置になる。章2〜4・塔・降臨・スコアで使う */
 function rng(seed){let s=(seed>>>0)||1;return()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296}}
 function hashStr(t){let h=2166136261;for(let i=0;i<t.length;i++){h^=t.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
-const GENF={orb:O,bomb:B,crystal:Cr,rock:Rk,jar:Jr,wild:Wd};
-const GENZ={enemy:[-7,-1.4],orb:[-3.4,1.4],bomb:[-6.6,-1],crystal:[-6.4,.6],rock:[-4.6,1.2],jar:[-6.6,-1],wild:[-6.4,1]};
+const GENF={orb:O,bomb:B,crystal:Cr,rock:Rk,jar:Jr,wild:Wd,glitch:Gl};
+const GENZ={enemy:[-7,-1.4],orb:[-3.4,1.4],bomb:[-6.6,-1],crystal:[-6.4,.6],rock:[-4.6,1.2],jar:[-6.6,-1],wild:[-6.4,1],glitch:[-5.4,2.2]};
 /* 1つのウェーブ。o={e:敵の数, obj:{orb:3,bomb:1…}, heal:回復球の数, boss:中ボスを置く} */
 function genWave(r,o,wo){const pts=[],items=[];const free=(x,z,d)=>pts.every(p=>Math.hypot(p[0]-x,p[1]-z)>d);
   const put=(k,f)=>{const zr=GENZ[k]||[-6,1];for(let t=0;t<80;t++){const x=(r()*2-1)*5.6,z=zr[0]+r()*(zr[1]-zr[0]);if(Math.hypot(x,z)<6.7&&free(x,z,k==='enemy'?1.55:1.35)){pts.push([x,z]);items.push(f(+x.toFixed(1),+z.toFixed(1)));return}}};
@@ -556,8 +556,11 @@ function genWave(r,o,wo){const pts=[],items=[];const free=(x,z,d)=>pts.every(p=>
 /* gm(能力つきの竜)をウェーブごとに作る。pool の文字から rate の割合で */
 function genGm(r,waves,pool,rate){return waves.map(w=>{let t='';for(const it of w.items)if(it[0]==='enemy')t+=(pool.length&&r()<rate)?pool[Math.floor(r()*pool.length)]:'.';return t})}
 /* 章のステージ1つ分。spec={id,n,d,ch,seed,k,pool,rate,waves:[{e,obj,heal,boss,n,mb,lb}],mbName,lbName,mbTint,lbTint,boss} */
-function genStage(sp){const r=rng(sp.seed);const waves=sp.waves.map(w=>genWave(r,w,w.n?{n:w.n,mb:w.mb,lb:w.lb}:(w.mb||w.lb?{mb:w.mb,lb:w.lb}:undefined)));
-  return Object.assign({},sp,{waves,gm:genGm(r,waves,sp.pool||[],sp.rate||0)})}
+/* (11/10) ギミックは難しさ(gd 0〜4)で強くなる(山本さん): ダメージのあるもの=大きさ・数・ダメージ、ないもの=大きさ・数。数はここ、大きさとダメージは setStageData で */
+const GIMK=['bomb','wild','jar','rock','crystal','glitch'];
+const gdOf=sp=>sp.gd!=null?sp.gd:(sp.k&&sp.k.hp?Math.max(0,Math.min(4,(sp.k.hp-1)/1.75)):0);
+function genStage(sp){const r=rng(sp.seed),gd=gdOf(sp),nM=1+.25*gd;const W0=gd?sp.waves.map(w=>{if(!w.obj)return w;const o={};for(const k in w.obj)o[k]=GIMK.includes(k)?Math.round(w.obj[k]*nM):w.obj[k];return Object.assign({},w,{obj:o})}):sp.waves;const waves=W0.map(w=>genWave(r,w,w.n?{n:w.n,mb:w.mb,lb:w.lb}:(w.mb||w.lb?{mb:w.mb,lb:w.lb}:undefined)));
+  return Object.assign({},sp,{waves,gd,gm:genGm(r,waves,sp.pool||[],sp.rate||0)})}
 const HARD={hp:1.3,atk:1.15,cd:-1,boss:.8,lb:1.25};   /* 中ボスは hp と boss の両方が掛かるので boss は1より小さく(自動プレイで中ボスが長すぎたため) */
 const STAGES=[
  {id:'1-1',n:'はじまりの闘技場',d:'どこでも押して、下に引いて、離す。吸い込んだ物が飛び散って、敵にぶつかる。',k:{hp:.6,atk:.5,cd:1,boss:1},waves:[
@@ -697,22 +700,30 @@ EXB.forEach((B,bi)=>EXT.forEach((T,ti)=>{const ws=[];for(let w=0;w<T.nw;w++){con
 const LEVT=[{n:'炎角の狩猟祭',el:'炎',boss:'beast',bn:'炎角獣ザルガン',pool:['f','p','a'],mt:0xff7a4a},{n:'古樹の森の収穫祭',el:'木',boss:'tree',bn:'古樹の巨人モルグ',pool:['g','k','d'],mt:0x7ac86a},
   {n:'霧竜の夜',el:'水',boss:'mist',bn:'霧竜ミストラ',pool:['w','d','k'],mt:0x7fa8ff,tint:0xb8cad8},{n:'星降りの宴',el:'光',boss:'star',bn:'星竜アストレア',pool:['a','m','p'],mt:0xc8a8ff,tint:0xb4b8d2}];
 const LEV={};
+/* (11/10) ゲームバカイベント(11/14 5:00〜11/29 5:00)。外のアプリ(CAHOST.gbOn)が決める。#gb で確認用に出す */
+const GBON=(()=>{try{if(/gb/.test(location.hash))return true;const H=window.parent!==window&&window.parent.CAHOST;if(H&&H.gbOn)return !!H.gbOn()}catch(e){}const t=Date.now();return t>=Date.UTC(2026,10,13,20)&&t<Date.UTC(2026,10,28,20)})();
+const GBEV={n:'ゲーセンナイト',el:'光',boss:'golem',bn:'ハイスコアの番人',pool:['a','m','p','k'],mt:0xff5ad8,tint:0x9a6aff,end:Date.UTC(2026,10,28,20)};
 {const D0=Date.UTC(2026,0,5),SP=14*864e5;let id=Math.floor((Date.now()-D0)/SP),end=D0+(id+1)*SP;
  /* (11/9) 山本さん「収穫祭を1週間」: 古樹の森の収穫祭(L21)を11/16 9時までのばす。メダルはそのまま使える。そのあとの霧竜の夜は11/23 9時まで(いつもの終わり) */
  {const now=Date.now();if((id===21||id===22)&&now<Date.UTC(2026,10,16)){id=21;end=Date.UTC(2026,10,16)}}
- const th=LEVT[((id%LEVT.length)+LEVT.length)%LEVT.length];Object.assign(LEV,th,{id:'L'+id,end});
- [['初級',{hp:2.2,atk:1.25,cd:0,boss:.6,lb:1.1},3,[3,5]],['中級',{hp:3.8,atk:1.6,cd:0,boss:.65,lb:1.7},3,[6,9]],['上級',{hp:5.2,atk:2,cd:0,boss:.7,lb:2.3},4,[10,14]]].forEach(([tn,k,nw,md],ti)=>{
+ const th=GBON?GBEV:LEVT[((id%LEVT.length)+LEVT.length)%LEVT.length];Object.assign(LEV,th,GBON?{id:'GB2611',end:GBEV.end,gb:1}:{id:'L'+id,end});
+ (GBON?[['初級',{hp:2.2,atk:1.25,cd:0,boss:.6,lb:1.1},3,[10,10]],['中級',{hp:3.8,atk:1.6,cd:0,boss:.65,lb:1.7},3,[20,20]],['上級',{hp:5.2,atk:2,cd:0,boss:.7,lb:2.3},4,[35,35]],['超級',{hp:6.6,atk:2.4,cd:0,boss:.78,lb:2.8},4,[60,60]]]:[['初級',{hp:2.2,atk:1.25,cd:0,boss:.6,lb:1.1},3,[3,5]],['中級',{hp:3.8,atk:1.6,cd:0,boss:.65,lb:1.7},3,[6,9]],['上級',{hp:5.2,atk:2,cd:0,boss:.7,lb:2.3},4,[10,14]]]).forEach(([tn,k,nw,md],ti)=>{
   const ws=[];for(let w=0;w<nw;w++){const last=w===nw-1;if(last){ws.push({e:3+ti,obj:{orb:3,bomb:1,rock:1},heal:1,n:'ラスボス '+th.bn,lb:true});continue}
-   if(w===nw-2&&ti>0){ws.push({e:4,obj:{orb:2,bomb:1,crystal:1},heal:2,boss:true,n:'中ボス '+th.n+'の番人',mb:true});continue}ws.push({e:4+w+ti,obj:{orb:3,bomb:1,crystal:ti?1:0,jar:ti>1?1:0},heal:w?1:0})}
-  STAGES.push(genStage({id:'期間限定',ev:'lev',ti,tier:tn,el:th.el,md,n:th.n+' '+tn,d:'期間限定。勝つとイベントメダルが'+md[0]+'〜'+md[1]+'枚。最後に'+th.bn+'が現れる。',
+   if(w===nw-2&&ti>0){ws.push({e:4,obj:{orb:2,bomb:1,crystal:1},heal:2,boss:true,n:'中ボス '+th.n+'の番人',mb:true});continue}ws.push({e:4+w+ti,obj:Object.assign({orb:3,bomb:1,crystal:ti?1:0,jar:ti>1?1:0},GBON&&ti>0?{glitch:1}:{}),heal:w?1:0})}
+  STAGES.push(genStage({id:'期間限定',ev:'lev',ti,tier:tn,el:th.el,md,gbm:GBON?md[0]:0,n:th.n+' '+tn,d:GBON?'ゲームバカイベント。勝つとゲーセンメダルが'+md[0]+'枚。'+(ti>0?'グリッチゾーン(入ると向きが45°曲がる)がある。':'')+'最後に'+th.bn+'が現れる。':'期間限定。勝つとイベントメダルが'+md[0]+'〜'+md[1]+'枚。最後に'+th.bn+'が現れる。',
    seed:hashStr(LEV.id+'-'+ti),pool:th.pool,rate:.25+ti*.15,k,boss:true,mbName:th.n+'の番人',mbTint:th.mt,lbName:th.bn,lbTint:th.tint||null,lbModel:th.boss,waves:ws}))})}
+/* (11/10) ゲームバカの限定降臨「ガチャ魔神」: 主ギミックはグリッチゾーン、副ギミックは毒霧。適正=グリッチ無効・毒霧無効、魔神キラーで2倍。
+   勝つとゲーセンメダル50枚、25%で化身。いちばん強い段階(gd 4) */
+if(GBON){const ws=[{e:6,obj:{orb:3,glitch:2,jar:1,crystal:1},heal:1},{e:5,obj:{orb:2,glitch:2,jar:2},heal:2,boss:true,n:'中ボス カプセルの番兵',mb:true},{e:4,obj:{orb:3,glitch:3,jar:2,bomb:1},heal:1,n:'ラスボス ガチャ魔神',lb:true}];
+ STAGES.push(genStage({id:'限定降臨',ev:'gbr',el:'光',gd:4,kind:'魔神',gbm:50,n:'限定降臨 ガチャ魔神',d:'ゲームバカイベントの限定降臨。グリッチゾーン(入ると向きが45°曲がる)と毒霧の壺が多い。適正: グリッチ無効・毒霧無効。魔神キラーのキャラはダメージ2倍。勝つとゲーセンメダル50枚、25%でガチャ魔神の化身。',
+  seed:hashStr('gbr2611'),pool:['a','m','p','k','d'],rate:.6,k:{hp:8.5,atk:3.4,cd:-1,boss:.85,lb:3.4},boss:true,mbName:'カプセルの番兵',mbTint:0xff5ad8,lbName:'ガチャ魔神',lbTint:0xffd35a,lbModel:'golem',waves:ws}))}
 {const SA=[{t:'combo',n:'コンボ',d:'1手でつないだコンボの最大数が多いほど高い点。'},{t:'turn',n:'早さ',d:'少ない手数でクリアするほど高い点。'},{t:'hp',n:'無傷',d:'のこった体力が多いほど高い点。'}];
  const sa=SA[hashStr(WKID)%SA.length];Object.assign(SCORE,sa,{wk:WKID});
  STAGES.push(genStage({id:'SCORE',ev:'score',sa:sa.t,n:'スコアアタック「'+sa.n+'」',d:'今週のお題は「'+sa.n+'」。'+sa.d+'クリアすると点が出て、仲間とくらべられる。',
   seed:hashStr('score'+WKID),pool:['f','w','g','p','k'],rate:.35,k:{hp:2.2,atk:1.25,cd:0,boss:1},
   waves:[{e:6,obj:{orb:3,bomb:2,crystal:1},heal:0},{e:7,obj:{orb:3,bomb:1,crystal:1,rock:1},heal:1},{e:8,obj:{orb:4,bomb:2,jar:1,wild:1},heal:1}]}))}
 /* 出てくる物の名前(ステージの説明に出す)。初めて出る物には NEW を付ける */
-const KNAME={g_el:'属性の竜',g_puff:'ふくらみ竜',g_split:'分裂竜',g_anchor:'ふんばり竜',g_merge:'合体竜',g_shell:'殻の竜',enemy:'小さな竜',orb:'属性の球',heal:'回復球',bomb:'爆弾',crystal:'結晶',rock:'岩',jar:'毒霧の壺',wild:'暴走爆弾',boss:'岩殻のゴーレム',lb:'終焉竜グラヴドラ'};
+const KNAME={g_el:'属性の竜',g_puff:'ふくらみ竜',g_split:'分裂竜',g_anchor:'ふんばり竜',g_merge:'合体竜',g_shell:'殻の竜',enemy:'小さな竜',orb:'属性の球',heal:'回復球',bomb:'爆弾',crystal:'結晶',rock:'岩',jar:'毒霧の壺',wild:'暴走爆弾',glitch:'グリッチゾーン',boss:'岩殻のゴーレム',lb:'終焉竜グラヴドラ'};
 function stageKinds(i){const seen=new Set();const out=[];const add=k=>{if(!seen.has(k)){seen.add(k);out.push(k)}};STAGES[i].waves.forEach((w,wi)=>{const g=(STAGES[i].gm||[])[wi]||'';let ei=0;for(const [k] of w.items){if(k==='ally')continue;add(k);if(k==='enemy'){const c=g[ei++];if(GKIND[c])add(GKIND[c])}}if(w.lb)add('lb')});return out}
 function kindsBefore(i){const s=new Set();for(let j=0;j<i;j++)for(const k of stageKinds(j))s.add(k);return s}
 /* 進み具合(この端末だけに保存。使えなくてもゲームは動く) */
@@ -1131,6 +1142,7 @@ function addBody(k,x,z,o){const K=KIND[k];const b={id:G.idc++,k,x,z,vx:0,vz:0,r:
   if(k==='claw')b.hp=b.max=Math.round(CFG.clawHP*DIF.lb);
   if(k==='enemy'||k==='boss'||k==='claw'){const t=document.createElement('div');t.className='tag'+(k==='boss'?' boss':'');t.innerHTML='<div class="cd"></div><div class="hb"><i></i></div>'+(k==='boss'?'<div class="bk"><i></i></div><div class="nm">岩殻のゴーレム</div>':k==='claw'?'<div class="nm">竜の爪</div>':'');tagsEl.appendChild(t);b.tag=t;if(b.g||b.el){const c=document.createElement('div');c.className='gm'+(b.el?' e'+b.el:'');c.textContent=b.el?b.el+'の竜':GNAME[b.g]||'';t.prepend(c);b.gmEl=c}}
   if(b.g||b.el)gmFx(b);
+  if(GIMK.includes(k)&&(G.gdS||1)>1){b.r*=G.gdS;b.sc=(b.sc||1)*G.gdS}
   if(k==='jar'||k==='wild'){const t=document.createElement('div');t.className='tag hz';t.innerHTML=k==='jar'?'<span class="pz">毒</span>':'<span class="wd">暴走</span>';tagsEl.appendChild(t);b.tag=t;b.hz=true}
   return b}
 function kill(b){if(!b.alive)return;b.alive=false;S.remove(b.mesh);telClear(b);if(b.gx){S.remove(b.gx);b.gx=null}if(b.tag){b.tag.remove();ui()}}
@@ -1146,8 +1158,8 @@ function scatter(items){const fixed=items.filter(it=>it[0]==='ally'||it[0]==='bo
   en.forEach((it,i)=>{const c=cs[i%nc];place(it,t=>{const sp=2.6+t*.06;return [c.x+(Math.random()*2-1)*sp,c.z+(Math.random()*2-1)*sp*.8]},1.35,true)});
   ob.forEach(it=>place(it,()=>[(Math.random()*2-1)*6.4,-7.4+Math.random()*8.6],.8,false));
   return fixed.concat(out)}
-function loadWave(i){clearResFx();for(const b of G.bodies)kill(b);G.bodies=[];G.wave=i;let ai=0;clearFog();SH.length=0;LQ.length=0;LB.claw=null;if(WAVES[i].lb)startLB();else stopLB();
-  const sc=CFG.R/9;let oi=0;for(const [k,x,z,o] of (CFG.scatter?scatter(WAVES[i].items):WAVES[i].items)){if(k==='ally'){addBody('ally',x*sc,z*sc,{ai:ai++})}else if(k==='orb'){addBody('orb',x*sc,z*sc,{el:ALLIES[(oi++)%4].el})}else addBody(k,x*sc,z*sc,o?Object.assign({},o):undefined)}
+function loadWave(i){clearResFx();for(const b of G.bodies)kill(b);G.bodies=[];G.wave=i;let ai=0;clearFog();clearGlitch();SH.length=0;LQ.length=0;LB.claw=null;if(WAVES[i].lb)startLB();else stopLB();
+  const sc=CFG.R/9;let oi=0;for(const [k,x,z,o] of (CFG.scatter?scatter(WAVES[i].items):WAVES[i].items)){if(k==='glitch'){glitchAdd(x*sc,z*sc)}else if(k==='ally'){addBody('ally',x*sc,z*sc,{ai:ai++})}else if(k==='orb'){addBody('orb',x*sc,z*sc,{el:ALLIES[(oi++)%4].el})}else addBody(k,x*sc,z*sc,o?Object.assign({},o):undefined)}
   teach(WAVES[i]);{const GT={puff:'ふくらみ竜: 3手たつと自分で破裂して、近くの味方にダメージ。その前に強く引いて吸えば、敵のまん中で破裂させられる',split:'分裂竜: 吸わずに2手たつと、同じ強さの竜が増える。吸いこめば増えない',shell:'殻の竜: ぶつけても効かない。強めに引いて、殻の竜をふくめ4つ以上を中心に詰めると割れる。2手で殻が戻る',anchor:'ふんばり竜: 吸いこまれていない手番は、ダメージが3割しか通らない。中心を近くにして吸おう',merge:'合体竜: 2体を一緒に吸うと合体して強くなる'};
     let dl=0;for(const b of G.bodies)if(b.alive&&b.g&&GT[b.g]&&!TAUGHT.has('g_'+b.g)){TAUGHT.add('g_'+b.g);const t=GT[b.g];setTimeout(()=>say(t,4.2),900+dl);dl+=4300}}
   G.phase='idle';G.busy=false;ui();say(WAVES[i].n||('WAVE '+(i+1)+' / '+WAVES.length),2.2)}
@@ -1212,7 +1224,7 @@ function combo(n,crush){G.combo+=n;G.cm=(G.cm||0)+(crush?n*.25:n);G.comboMax=Mat
   /* (v1.1) ジンの共鳴技「烈火追撃」: 5コンボ以上で発動(以前は発動する所がなかった) */
   if(G.rs&&!G.rs.fire&&G.combo>=5&&G.phase!=='idle'){G.rs.fire=true;later(.1,resFire)}
   if(G.rs&&!G.rs.trail&&G.combo>=4&&G.phase!=='idle'&&slotOf('lumie')>=0){G.rs.trail=true;later(.15,resTrail)}}
-function explode(b){if(!b.alive)return;const wild=b.k==='wild';kill(b);const R0=wild?3.1:2.7;if(G.rs&&slotOf('beni')>=0&&G.rs.boom<2){G.rs.boom++;const bx=b.x,bz=b.z;later(.3,()=>resBoom(bx,bz))}
+function explode(b){if(!b.alive)return;const wild=b.k==='wild';kill(b);const R0=(wild?3.1:2.7)*(G.gdS||1);if(G.rs&&slotOf('beni')>=0&&G.rs.boom<2){G.rs.boom++;const bx=b.x,bz=b.z;later(.3,()=>resBoom(bx,bz))}
   vfBoom(b.x,b.z,R0,wild);ringFx(b.x,b.z,.5,R0*1.25,.5,wild?0xff4a5a:0xffc06a,.15);burstFx(b.x,b.z,wild?0xff5a6a:0xffb04a,40,9,.55,6);G.shake=Math.max(G.shake,.45);hitStop(.07);
   logC((wild?'暴走爆弾':'爆弾')+'が爆発');let allyHit=false;
   for(const o of G.bodies){if(!o.alive||o===b)continue;const dx=o.x-b.x,dz=o.z-b.z,d=Math.hypot(dx,dz)+1e-4;if(d>R0+o.r)continue;const f=1-Math.min(1,d/(R0+o.r));
@@ -1220,9 +1232,9 @@ function explode(b){if(!b.alive)return;const wild=b.k==='wild';kill(b);const R0=
     if(o.k==='jar'&&f>.1)later(.06,()=>breakJar(o));
     if(o.k==='enemy'||o.k==='boss'||o.k==='claw')hurt(o,Math.round((wild?55:48)*(.5+f)*(G.burstOn?1.5:1)*(1+(G.cm||0)*.015)*(LDO().lead==='boom'?1.3:1)),o.x,o.z);
     if((o.k==='bomb'||o.k==='wild')&&f>.15)GT(()=>explode(o),90);
-    if(o.k==='ally'&&ALLIES[o.ai].ab&&ALLIES[o.ai].ab.has('antiBomb')){num(o.x,1.7,o.z,'爆発無効','grd');continue}if(o.k==='ally'){allyHit=(allyHit||0)+1;const v=Math.round(G.hpMax*(wild?CFG.wildAlly:CFG.bombAlly));num(o.x,1.7,o.z,'-'+v,'bad');o.sq=.8;o.flashA=1}}
+    if(o.k==='ally'&&ALLIES[o.ai].ab&&ALLIES[o.ai].ab.has('antiBomb')){num(o.x,1.7,o.z,'爆発無効','grd');continue}if(o.k==='ally'){allyHit=(allyHit||0)+1;const v=Math.round(G.hpMax*(wild?CFG.wildAlly:CFG.bombAlly)*(G.gdD||1));num(o.x,1.7,o.z,'-'+v,'bad');o.sq=.8;o.flashA=1}}
   combo(1);
-  if(allyHit){const v=Math.round(G.hpMax*(wild?CFG.wildAlly:CFG.bombAlly))*allyHit;G.hp=Math.max(0,G.hp-v);say((wild?'暴走爆弾':'爆弾')+'に味方が巻き込まれた!',1.4);redFlash();logC('爆発で味方 '+allyHit+' 人 -'+v);ui()}}
+  if(allyHit){const v=Math.round(G.hpMax*(wild?CFG.wildAlly:CFG.bombAlly)*(G.gdD||1))*allyHit;G.hp=Math.max(0,G.hp-v);say((wild?'暴走爆弾':'爆弾')+'に味方が巻き込まれた!',1.4);redFlash();logC('爆発で味方 '+allyHit+' 人 -'+v);ui()}}
 function shatter(c,by){kill(c);vf('BRK',c.x,.85,c.z,{s:2.8,d:.42,tint:0xe8d8ff});burstFx(c.x,c.z,0xd8b0ff,26,6,.45,4);ringFx(c.x,c.z,.3,1.6,.3,0xd8b0ff,.12);logC('結晶が割れた');combo(1);
   const base=Math.atan2(by?c.z-by.z:1,by?c.x-by.x:0);for(let i=0;i<4;i++){const a=base+(i-1.5)*.55,sp=5.5+Math.random()*2;const s=addBody('shard',c.x+Math.cos(a)*.3,c.z+Math.sin(a)*.3,{life:3.5});s.vx=Math.cos(a)*sp;s.vz=Math.sin(a)*sp}}
 function healTeam(h){if(!h.alive)return;kill(h);const v=Math.round(G.hpMax*CFG.healOrb*(LDO().lead==='glow'?1.5:1));G.hp=Math.min(G.hpMax,G.hp+v);num(h.x,1.4,h.z,'+'+v,'heal');vfHit(h.x,.7,h.z,6,'木');ringFx(h.x,h.z,.3,2.2,.5,0x6dffa6,.1);burstFx(h.x,h.z,0x8affb8,20,4,.45,5);logC('回復球で回復');ui()}
@@ -1620,7 +1632,7 @@ const FOG=[];let fogTex=null;
 function fogTexture(){if(fogTex)return fogTex;const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');const gr=g.createRadialGradient(32,32,2,32,32,32);
   gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.5,'rgba(255,255,255,.45)');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,64,64);return fogTex=new THREE.CanvasTexture(c)}
 function breakJar(j){if(!j.alive)return;kill(j);logC('毒霧の壺が割れた');burstFx(j.x,j.z,0x7aff6a,26,4,.5,4);burstFx(j.x,j.z,0xa05aff,14,3,.45,3);
-  const g=new THREE.Group();g.position.set(j.x,0,j.z);const r=CFG.fogR;
+  const g=new THREE.Group();g.position.set(j.x,0,j.z);const r=CFG.fogR*(G.gdS||1);
   const disc=new THREE.Mesh(new THREE.CircleGeometry(r,40),new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uT:{value:0},uA:{value:0}},
     vertexShader:'varying vec2 vU;void main(){vU=uv*2.-1.;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
     fragmentShader:'uniform float uT,uA;varying vec2 vU;void main(){float r=length(vU);float a=atan(vU.y,vU.x);float n=.5+.5*sin(a*5.+r*9.-uT*2.)*sin(a*3.-r*6.+uT*1.3);float e=smoothstep(1.,.75,r);vec3 c=mix(vec3(.15,.55,.18),vec3(.45,.2,.7),n);float rim=smoothstep(.05,0.,abs(r-.95));gl_FragColor=vec4(c+vec3(.3,.8,.3)*rim,(e*(.38+.22*n)+rim*.5)*uA);}'}));
@@ -1633,11 +1645,27 @@ function fogUpd(dt){for(let i=FOG.length-1;i>=0;i--){const f=FOG[i];f.t+=dt;cons
     for(const p of f.puffs){const u=p.userData;u.a+=dt*.35;p.position.x=Math.cos(u.a)*u.d;p.position.z=Math.sin(u.a)*u.d;p.position.y=.5+Math.sin(f.t*1.3+u.ph)*.15;p.material.opacity=a*.42}
     if(f.out>0&&a<=0){S.remove(f.g);FOG.splice(i,1)}}
   if(G.rs&&(G.phase==='suck'||G.phase==='hold'||G.phase==='release'))for(const b of G.bodies){if(!b.alive||b.k!=='ally'||G.rs.pz.has(b.id)||(ALLIES[b.ai].ab&&ALLIES[b.ai].ab.has('antiFog')))continue;
-    for(const f of FOG){if(f.out>0)continue;if(Math.hypot(b.x-f.x,b.z-f.z)<f.r+b.r*.3){G.rs.pz.add(b.id);const v=Math.round(G.hpMax*CFG.fogHurt);G.hp=Math.max(0,G.hp-v);
+    for(const f of FOG){if(f.out>0)continue;if(Math.hypot(b.x-f.x,b.z-f.z)<f.r+b.r*.3){G.rs.pz.add(b.id);const v=Math.round(G.hpMax*CFG.fogHurt*(G.gdD||1));G.hp=Math.max(0,G.hp-v);
       num(b.x,1.6,b.z,'毒 -'+v,'bad');tintFlash('#6a2aba');logC('毒霧で '+ALLIES[b.ai].name+' -'+v);ui();break}}}}
 function fogTurn(){for(const f of FOG){if(f.out>0)continue;for(const e of G.bodies){if(!e.alive||!(e.k==='enemy'||e.k==='boss'))continue;if(Math.hypot(e.x-f.x,e.z-f.z)<f.r+e.r*.3)hurt(e,CFG.fogFoe,e.x,e.z)}
   f.turns--;if(f.turns<=0)f.out=f.t}}
 function clearFog(){for(const f of FOG)S.remove(f.g);FOG.length=0}
+/* (11/10) グリッチゾーン(ゲームバカの新しいギミック): バグった地面。解放で飛んでいる味方が入ると、向きが45°曲がる(1手で1つのゾーンにつき1回)。
+   「グリッチ無効」(antiGlitch)のキャラは曲がらない。大きさは難しさで変わる(数は genStage) */
+const GZ=[];const GZ_ANG=Math.PI/4;
+function glitchAdd(x,z){const r=1.35*(G.gdS||1),g=new THREE.Group();g.position.set(x,0,z);
+  const disc=new THREE.Mesh(new THREE.PlaneGeometry(r*2,r*2),new THREE.ShaderMaterial({transparent:true,depthWrite:false,fog:false,uniforms:{uT:{value:0}},
+    vertexShader:'varying vec2 vU;void main(){vU=uv*2.-1.;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader:'uniform float uT;varying vec2 vU;float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}void main(){float r=length(vU);if(r>1.)discard;vec2 c=floor((vU+1.)*7.);float t=floor(uT*9.);float n=h(c+t);float bar=step(.82,h(vec2(floor((vU.y+1.)*10.),t*1.7)));vec3 col=mix(vec3(.15,.95,1.),vec3(1.,.25,.85),step(.5,n));col=mix(col,vec3(1.),bar*.6);float rim=smoothstep(.06,0.,abs(r-.94));float a=(.22+.38*step(.62,n)+bar*.3)*smoothstep(1.,.8,r)+rim*.8;gl_FragColor=vec4(col,a);}'}));
+  disc.rotation.x=-Math.PI/2;disc.position.y=.08;g.add(disc);S.add(g);GZ.push({id:GZ.length,x,z,r,g,disc,t:Math.random()*5})}
+function clearGlitch(){for(const q of GZ)S.remove(q.g);GZ.length=0}
+function glitchUpd(dt){for(const q of GZ){q.t+=dt;q.disc.material.uniforms.uT.value=q.t;q.disc.position.x=Math.sin(q.t*91)>.96?Math.sin(q.t*53)*.06:0}/* 見た目だけのゆれ(マルチで同じ乱数を使わないように Math.random は使わない) */
+  if(!GZ.length||!G.rs||G.phase!=='release')return;G.rs.gl=G.rs.gl||new Set();
+  for(const b of G.bodies){if(!b.alive||b.k!=='ally')continue;const sp=Math.hypot(b.vx,b.vz);if(sp<1.2)continue;
+    for(const q of GZ){const key=b.id+':'+q.id;if(G.rs.gl.has(key)||Math.hypot(b.x-q.x,b.z-q.z)>q.r+b.r*.3)continue;G.rs.gl.add(key);
+      if(ALLIES[b.ai].ab&&ALLIES[b.ai].ab.has('antiGlitch')){num(b.x,1.7,b.z,'グリッチ無効','grd');continue}
+      const s=Math.random()<.5?1:-1,a=GZ_ANG*s,c=Math.cos(a),n=Math.sin(a),vx=b.vx*c-b.vz*n,vz=b.vx*n+b.vz*c;b.vx=vx;b.vz=vz;
+      num(b.x,1.7,b.z,'グリッチ!','bad');burstFx(b.x,b.z,s>0?0x36d6ff:0xff4ad8,14,4,.35,3)}}}
 function tintFlash(c){const f=$('flash');f.style.background=c;f.style.transition='none';f.style.opacity=.3;requestAnimationFrame(()=>{f.style.transition='opacity .45s';f.style.opacity=0;setTimeout(()=>f.style.background='',460)})}
 
 /* 中ボスのブレイク: ダメージでゲージがたまる → 殻が割れて軽くなり(吸い込める)、受けるダメージ1.5倍。2手番で戻る */
@@ -2129,8 +2157,8 @@ function skLamp(si){const me=allyBody(si)||{x:0,z:3};const lg=glowSpr(0xffc84a,.
    参考(作り方だけ): 氷の牙は地面から少しずつずれて突き出す波のような出方、床の霜、細かい氷の粒、冷気が少し残る(80.lv「Ice Spikes VFX」)。
    咆哮は衝撃波の輪を何枚も重ね、地面を炎が走る。流星は白い芯+金の尾、落ちた所に十字の光と星の粒。 ===== */
 /* 特効: ガロウ=樹、ミズチ=獣、モクレン=竜、セレス=中ボス。ボスの種類はそのステージのラスボスの形で決める */
-function bossKind(){const st=STAGES[G.stage];if(!st||!st.boss)return '';const m=G.lbModel;return m==='beast'?'獣':m==='tree'?'樹':m==='golem'?'岩':'竜'}
-function slayK(ab,boss,lb){if(!boss)return 1;let k=1;const kd=bossKind();if(ab.has('killTree')&&kd==='樹')k*=2;if(ab.has('killBeast')&&kd==='獣')k*=2;if(ab.has('killDragon')&&kd==='竜')k*=1.5;if(ab.has('killGuard')&&!lb)k*=1.5;return k}
+function bossKind(){const st=STAGES[G.stage];if(!st||!st.boss)return '';if(st.kind)return st.kind;const m=G.lbModel;return m==='beast'?'獣':m==='tree'?'樹':m==='golem'?'岩':'竜'}
+function slayK(ab,boss,lb){if(!boss)return 1;let k=1;const kd=bossKind();if(ab.has('killTree')&&kd==='樹')k*=2;if(ab.has('killBeast')&&kd==='獣')k*=2;if(ab.has('killDragon')&&kd==='竜')k*=1.5;if(ab.has('killGuard')&&!lb)k*=1.5;if(ab.has('killGacha')&&kd==='魔神')k*=2;return k}/* (11/10) 魔神キラー: ゲームバカの限定降臨「ガチャ魔神」 */
 /* --- 獣王の咆哮(ガロウ): たてがみの炎が立つ → 吠えると衝撃波の輪が3枚、地面を炎の波が盤面のはしまで走る → 届いた順に敵が炎に包まれる --- */
 function skRoar(si){const me=allyBody(si)||{x:0,z:3};const dm=Math.round(120*ALLIES[si].atk);hitStop(.05);G.shake=Math.max(G.shake,.35);
   flamePillar(me.x,me.z,3.4,1.1,.55,0,0);ringFx(me.x,me.z,.3,1.6,.25,0xffffff,.14);streaks(me.x,1.2,me.z,{col:0xff7a2a,s:3.5,n:16,d:.3});
@@ -2268,7 +2296,7 @@ function stageT(i,h){const st=STAGES[i],ev=st.ev||'';
   const n=st.n||'';let j=/上級/.test(n)?2:/中級/.test(n)?1:/初級/.test(n)?0:-1;if(j<0){j=0;for(let k=i-1;k>=0&&STAGES[k].ev===ev&&(STAGES[k].n===st.n);k--)j++}return [20,40,60][Math.min(2,j)]}
 /* (11/9) 敵の「攻撃まで」をばらす(山本さん): 一斉に攻撃せず、1手番に半分くらいずつ。攻撃の多さ(2手番に1回)は変えない */
 let CDALT=0;function cd0(b,k){if(k==='boss')return Math.max(1,2+DIF.cd);const base=Math.max(1,1+((b.id*7)%3)+DIF.cd);if(DIF.cd>=0)return base;CDALT^=1;return 1+CDALT}
-function setStageData(i,h){const st=STAGES[i];G.stage=i;G.dmgMax=0;G.mpN=0;G.mpWait=false;G.ldo=null;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
+function setStageData(i,h){const st=STAGES[i];G.stage=i;{let gd=st.gd;if(gd==null)gd=Math.min(4,Math.min(2.4,i/Math.max(1,MAIN_N-1)*2.4)+(h?1.2:0));G.gd=gd;G.gdS=1+.12*gd;G.gdD=1+.35*gd}G.dmgMax=0;G.mpN=0;G.mpWait=false;G.ldo=null;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
   Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF*(st.ev?1:.85)/* (11/9) ストーリーはノーマル・ハードとも×0.85(山本さん、×0.7からもどす) *//* (11/8 8時) ストーリーは少しだけ弱く */;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
   WAVES.length=0;{const pool=[...new Set(STAGES.slice(0,i+1).flatMap(s=>(s.gm||[]).join('').replace(/\./g,'').split('')))];if(!pool.length)pool.push('f','w');let hk=0;
    st.waves.forEach((w,wi)=>{const g=(st.gm||[])[wi]||'';let ei=0;const items=w.items.map(it=>{if(it[0]!=='enemy')return it;let c=g[ei]||'.';if(h&&c==='.'&&ei%2===1)c=pool[(hk++)%pool.length];ei++;return GL[c]?[it[0],it[1],it[2],GL[c]]:it});WAVES.push(Object.assign({},w,{items}))})}
@@ -2418,7 +2446,7 @@ function frameBody(now){if(window.__PAUSE){last=now;return}fpsTick(now);let dt=M
   if((G.phase==='suck'||G.phase==='aim')&&C&&Math.random()<(G.phase==='suck'?1:.4)){for(let k=0;k<(G.phase==='suck'?6:1);k++){const a=Math.random()*Math.PI*2,r=(G.rad||2)*(.7+Math.random()*.35);spark(C.x+Math.cos(a)*r,.15+Math.random()*.5,C.z+Math.sin(a)*r,0,0,0,EPal().b,.32,.55,0,0,{x:C.x,z:C.z,a})}}
   fxSuck(dt);
   if(LQ.length){const due=[];for(let i=LQ.length-1;i>=0;i--){LQ[i].t-=dt;if(LQ[i].t<=0)due.push(LQ.splice(i,1)[0])}due.reverse().forEach(q=>q.fn())}
-  shotsUpd(dt);fireBuffFx(dt);rfxUpd(dt);fogUpd(dt);lbUpd(dt,real);vfUpd(dt);stkUpd(dt);
+  shotsUpd(dt);fireBuffFx(dt);rfxUpd(dt);fogUpd(dt);glitchUpd(dt);lbUpd(dt,real);vfUpd(dt);stkUpd(dt);
   SKY.sky.uniforms.uT.value=AU.uT.value;SKY.sea[0].uniforms.uT.value=SKY.sea[1].uniforms.uT.value=AU.uT.value;for(const c of CLOUDS){c.position.x+=c.userData.drift*real;if(c.position.x>110)c.position.x=-110}
   if(Math.random()<.35){const a=Math.random()*6.283,d=Math.random()*(CFG.R+2);const q=spark(Math.cos(a)*d,.4+Math.random()*3,Math.sin(a)*d,0,.25+Math.random()*.3,0,Math.random()<.5?0xd8f0ff:0xfff0c8,.12+Math.random()*.1,2.2,-.05,.2);q.fl=1}
   /* 物体の表示 */

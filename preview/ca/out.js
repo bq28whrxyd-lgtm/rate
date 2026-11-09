@@ -49,6 +49,8 @@ const ABIL = {
   killBeast: { n: '獣キラー', d: '獣のボスがいるステージで、中ボス・ラスボスへのダメージ2倍(紅蓮の獣王・炎角獣ザルガンなど)' },
   killDragon: { n: '竜キラー', d: '竜のボスがいるステージで、中ボス・ラスボスへのダメージ1.5倍' },
   killGuard: { n: '番人キラー', d: '中ボスへのダメージ1.5倍' },
+  /* (11/10) ゲームバカイベント */
+  antiGlitch: { n: 'グリッチ無効', d: 'グリッチゾーンに入っても向きが曲がらない' }, killGacha: { n: '魔神キラー', d: 'ガチャ魔神(ゲームバカの限定降臨)へのダメージ2倍' },
 };
 const CABIL = { garou: ['killTree', 'crit'], mizuchi: ['killBeast', 'guard'], mokuren: ['killDragon', 'regen'], seres: ['killGuard', 'antiAnchor'], beni: ['antiBomb', 'crit'], shion: ['guard', 'regen'], ibara: ['antiFog', 'shellBreak'], lumie: ['bossKiller', 'antiAnchor'], pom: ['antiBomb'], pukuru: ['guard'], futa: ['antiAnchor'], tomori: ['regen'], jin: ['shellBreak', 'bossKiller'], riz: ['antiFog', 'regen'], gekka: ['antiAnchor', 'crit'], seira: ['antiBomb', 'guard'], kagura: ['shellBreak'], yomogi: ['regen'], minamo: ['antiAnchor'], lux: ['guard'] };
 const abilOf = u => { const a = CABIL[u.id] || []; return CH[u.id].rar === 5 && !u.evo ? a.slice(0, 1) : a; };
@@ -131,8 +133,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=55').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=55').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=56').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=56').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -417,6 +419,7 @@ const CSS = `
 .qTi button>*{position:relative}
 .qTi b{font:900 20px var(--zk);-webkit-text-stroke:4px #140a02;paint-order:stroke fill;text-shadow:0 2px 0 #140a02}
 .qTi small{font:800 11px var(--zk);color:#ffe7a1;text-shadow:0 1px 2px #000}
+.qTi.t4{grid-template-columns:repeat(4,1fr)}.qTi .tx{--tb:linear-gradient(#c84aff,#3a0a5a)!important}
 .qTi .t0{--tb:linear-gradient(#3ab06a,#0e4a2a)}.qTi .t1{--tb:linear-gradient(#4a7ae8,#16307a)}.qTi .t2{--tb:linear-gradient(#e0403a,#5a0a14)}
 .qTi .x0{--tb:linear-gradient(#b87a3a,#4a2a10)}.qTi .x1{--tb:linear-gradient(#8a5ad8,#2a1060)}.qTi .x2{--tb:linear-gradient(#e8303a,#300408)}
 .qTi .lock{filter:grayscale(.85) brightness(.55)}
@@ -1453,7 +1456,8 @@ function starBox(i, hard, ev) {
 function goSheet(i, hard, op) {
   op = op || {}; const st = A.STAGES[i], before = A.kindsBefore(i), sv = A.stageStrength(i, hard);
   const o = h('div', 'aGo'); const sh = h('div', 'sh'); o.appendChild(sh);
-  const kinds = A.stageKinds(i).map(k => `<span class="${before.has(k) ? '' : 'nw'}">${k.startsWith('g_') ? '' : `<img alt="" src="./assets/icons/${k}.png">`}${esc(A.KNAME[k])}${before.has(k) ? '' : ' NEW'}</span>`).join('');
+  const stI = A.STAGES[i], kName = k => k === 'boss' && stI.mbName ? stI.mbName : k === 'lb' && stI.lbName ? stI.lbName : A.KNAME[k]; /* (11/10) ボスの名前はステージのものを出す */
+  const kinds = A.stageKinds(i).map(k => `<span class="${before.has(k) ? '' : 'nw'}">${k.startsWith('g_') || k === 'glitch' ? '' : `<img alt="" src="./assets/icons/${k}.png">`}${esc(kName(k))}${before.has(k) ? '' : ' NEW'}</span>`).join('');
   const lead = A.ROSTER[S.lead] || A.ALLIES[0];
   const faces = teamUnits().map(x => { const k = x.id, f = faceURL(k, x.evo); return `<span class="f" style="${f ? `background-image:url(${f})` : `background:${elCol(CH[k].el)}`}">${k === S.lead ? '<i>L</i>' : ''}</span>`; }).join('');
   let hp = 0; for (const x of teamUnits()) hp += stats(x).hp;
@@ -1585,11 +1589,16 @@ function renderEvents(b) {
   chFresh();
   /* 期間限定: 大きな絵のバナー+3つの難しさ+メダルと交換所 */
   const BX = h('div', 'qBox'); BX.style.marginTop = '14px';
-  BX.appendChild(qBanner({ div: 1, bg: LEVBG[A.LEV.boss] || 'ev-forest', rb: '期間限定', dl: `あと${levLeft()}日`, tt: esc(A.LEV.n), bar: `最後に ${esc(A.LEV.bn)} が現れる`, boss: bossImg(A.LEV.boss) }));
+  BX.appendChild(qBanner(A.LEV.gb ? { div: 1, bg: 'ev-gb', rb: 'ゲームバカ', dl: `あと${levLeft()}日`, tt: esc(A.LEV.n), bar: 'グリッチゾーンに注意(中級から)' } : { div: 1, bg: LEVBG[A.LEV.boss] || 'ev-forest', rb: '期間限定', dl: `あと${levLeft()}日`, tt: esc(A.LEV.n), bar: `最後に ${esc(A.LEV.bn)} が現れる`, boss: bossImg(A.LEV.boss) }));
   BX.lastChild.style.margin = '0 0 10px';
-  const T = h('div', 'qTi'); for (let ti = 0; ti < 3; ti++) { const j = levIdx(ti), st = A.STAGES[j]; const e = h('button', 't' + ti, `<b>${esc(st.tier)}</b><small>メダル ${st.md[0]}〜${st.md[1]}</small>`); e.type = 'button'; e.onclick = () => goSheet(j, false, { rw: `勝つとイベントメダル ${st.md[0]}〜${st.md[1]}枚${S.lev.win[ti] ? '' : '・はじめて勝つと 100pt'}` }); T.appendChild(e); }
+  const GBL = !!A.LEV.gb, NT = A.STAGES.filter(st => st.ev === 'lev').length;
+  const T = h('div', 'qTi' + (NT > 3 ? ' t4' : '')); for (let ti = 0; ti < NT; ti++) { const j = levIdx(ti), st = A.STAGES[j]; const e = h('button', 't' + Math.min(ti, 2) + (ti > 2 ? ' tx' : ''), GBL ? `<b>${esc(st.tier)}</b><small>メダル ${st.gbm}</small>` : `<b>${esc(st.tier)}</b><small>メダル ${st.md[0]}〜${st.md[1]}</small>`); e.type = 'button'; e.onclick = () => goSheet(j, false, { rw: GBL ? `勝つとゲーセンメダル ${st.gbm}枚${S.lev.win[ti] ? '' : '・はじめて勝つと 100pt'}` : `勝つとイベントメダル ${st.md[0]}〜${st.md[1]}枚${S.lev.win[ti] ? '' : '・はじめて勝つと 100pt'}` }); T.appendChild(e); }
   BX.appendChild(T);
-  const F = h('div', 'ft'); F.innerHTML = `<span>メダル <b class="aMd">${S.lev.medal}</b> 枚</span>`; F.appendChild(btn('', '交換所', levShop)); BX.appendChild(F); b.appendChild(BX);
+  if (!GBL) { const F = h('div', 'ft'); F.innerHTML = `<span>メダル <b class="aMd">${S.lev.medal}</b> 枚</span>`; F.appendChild(btn('', '交換所', levShop)); BX.appendChild(F); }
+  else { const F = h('div', 'ft'); F.innerHTML = '<span>ゲーセンメダルは、きもオタレートのゲームバカイベントで使えます</span>'; BX.appendChild(F); }
+  b.appendChild(BX);
+  /* (11/10) ゲームバカの限定降臨 */
+  { const j = A.STAGES.findIndex(st => st.ev === 'gbr'); if (j >= 0) { const st = A.STAGES[j]; const e = qBanner({ cls: 'sm', bgCss: 'background:radial-gradient(90% 160% at 80% 50%,#ff5ad8,#2a1650 55%,#07070d)', sm: '限定降臨', dl: 'ゲームバカ', tt: esc(st.n.replace('限定降臨 ', '')), onclick: () => goSheet(j, false, { rw: `勝つとゲーセンメダル ${st.gbm}枚・25%でガチャ魔神の化身` }) }); b.appendChild(e); } }
   /* いつものイベント: 経験値の竜の巣・宝珠の祭壇 */
   for (const { g, st } of evGroups()) {
     const op = evOpen(st), tiers = [0, 1, 2].map(t => { const j = evIdx(g, t), n = bitsN(S.stars[skey(j, false)] || 0); return `<i class="${n ? 'on' : ''}">${esc(A.STAGES[j].tn)}${n ? ' ' + '★'.repeat(n) : ''}</i>`; }).join('');
@@ -2091,6 +2100,7 @@ const BANNERS = [{ id: 'std', name: '英雄召喚', en: 'HERO SUMMON' }, { id: '
 /* (11/10) ゲームバカイベントの限定ガチャ(山本さん): 1回150pt・10連1350pt・100回で★5のピックアップと交換。
    ピックアップは★5・★4・★3の1人ずつ。各レア度のうち share の割合でピックアップが出る。キャラの絵がそろうまでは「準備中」 */
 const GBG = { one: 150, ten: 1350, pity: 100, pick: { 5: 'gbsolo', 4: 'gbmulti', 3: 'gbret' }, share: { 5: .5, 4: .3, 3: .25 } };
+const GB_KESHIN = 'gbkeshin';   /* 限定降臨の化身。絵が届いたら8人のうち1人を入れる */
 const gbBanOn = () => { try { if (HOST && HOST.gbOn) return !!HOST.gbOn(); } catch (e) { } const t = Date.now(); return t >= Date.UTC(2026, 10, 13, 20) && t < Date.UTC(2026, 10, 28, 20); };
 const gbPick = r => { const id = GBG.pick[r]; return CH[id] && A.PORT && A.PORT.img && A.PORT.img[id] ? id : null; };
 const gbReady = () => !!(gbPick(5) && gbPick(4) && gbPick(3));
@@ -2474,12 +2484,14 @@ function dropModal(d) {
 let LAST = null;
 function onClearStage(st, info) {
   recWin(st, info);
-  try { if (HOST && HOST.gb) HOST.gb(info.multi ? 'm' : 's'); } catch (e) { } /* (11/10) ゲームバカイベントのメダル */
+  try { if (HOST && HOST.gb) HOST.gb(info.multi ? 'm' : 's', st.gbm || 0); } catch (e) { } /* (11/10) ゲームバカイベントのメダル(イベントのステージは決まった枚数) */
   if (info.multi) return multiClear(st, info);
-  if (st.ev === 'tower' || st.ev === 'raid' || st.ev === 'score' || st.ev === 'ex' || st.ev === 'lev') {
+  if (st.ev === 'tower' || st.ev === 'raid' || st.ev === 'score' || st.ev === 'ex' || st.ev === 'lev' || st.ev === 'gbr') {
     chFresh(); const rewards = []; let msg = '';
     if (st.ev === 'ex') { const key = st.bi + '-' + st.ti, first = !S.ex[key], R = EXRW[st.ti]; if (first) { S.ex[key] = 1; rewards.push(...exRw(R.f, st.el)); msg = `${A.EXB[st.bi].n}【${st.tier}】をはじめてクリア! ${st.ti < 2 ? '「' + A.EXT[st.ti + 1].n + '」が開きました。' : ''}`; } else { for (const r of exRw(R.r, st.el)) if (Math.random() < (r.p || 1)) rewards.push({ k: r.k, id: r.id, n: r.n }); msg = `${A.EXB[st.bi].n}【${st.tier}】に勝った! `; } }
-    if (st.ev === 'lev') { const m = st.md[0] + Math.floor(Math.random() * (st.md[1] - st.md[0] + 1)); S.lev.medal += m; if (!S.lev.win[st.ti]) rewards.push({ k: 'pt', n: 100 }); S.lev.win[st.ti]++; msg = `イベントメダル ${m}枚(いま ${S.lev.medal}枚)。`; }
+    if (st.ev === 'gbr') { msg = `ゲーセンメダル ${st.gbm}枚。`; const kid = GB_KESHIN; if (CH[kid] && Math.random() < .25) { const isNew = !S.units.some(u => u.id === kid); const u = { u: S.next++, id: kid, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); msg += `${CH[kid].name}(ガチャ魔神の化身)が仲間になった!${isNew ? '' : '(かぶり)'} `; } }
+    if (st.ev === 'lev' && st.gbm) { msg = `ゲーセンメダル ${st.gbm}枚。`; }
+    else if (st.ev === 'lev') { const m = st.md[0] + Math.floor(Math.random() * (st.md[1] - st.md[0] + 1)); S.lev.medal += m; if (!S.lev.win[st.ti]) rewards.push({ k: 'pt', n: 100 }); S.lev.win[st.ti]++; msg = `イベントメダル ${m}枚(いま ${S.lev.medal}枚)。`; }
     if (st.ev === 'tower') { if (st.fl === S.tower.top + 1) { S.tower.top = st.fl; rewards.push(...towerRw(st.fl)); wmFresh(); S.wm.tower++; msg = st.fl + '階をクリア! '; } else msg = st.fl + '階(クリア済み)。'; }
     if (st.ev === 'raid') { if (!S.raid.win) rewards.push({ k: 'pt', n: 300 }); for (const d of st.drops) for (let k = 0; k < d.n; k++) if (Math.random() < d.p) rewards.push({ k: 'mat', id: d.id, n: 1 }); S.raid.win++; wmFresh(); S.wm.raid++; msg = A.RAID.n + 'に勝った! '; const dc = raidDrop(); if (dc) msg += dc; }
     if (st.ev === 'score') { const sc = scoreOf(info), nb = sc > S.score.best; S.score.last = sc; S.score.n++; if (nb) S.score.best = sc; wmFresh(); S.wm.score++; msg = `スコア ${sc.toLocaleString()} 点${nb ? '(自己ベスト更新!)' : `(ベスト ${S.score.best.toLocaleString()})`} `; try { window.CA_SCORE && window.CA_SCORE(sc, nb); } catch (e) { } }
