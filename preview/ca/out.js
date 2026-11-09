@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=38').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=38').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=39').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=39').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -192,7 +192,7 @@ const CSS = `
 /* 上の帯(高さ40) */
 #ohud{position:absolute;left:0;right:0;top:0;z-index:41;box-sizing:border-box;display:flex;gap:6px;align-items:center;height:calc(env(safe-area-inset-top,0px) + 44px);padding:env(safe-area-inset-top,0px) max(8px,env(safe-area-inset-right,0px)) 0 max(8px,env(safe-area-inset-left,0px));background:linear-gradient(180deg,rgba(5,10,32,.92),rgba(5,10,32,.55));pointer-events:none}
 #ohud>*{pointer-events:auto}
-.aPl{display:flex;align-items:center;gap:7px;min-width:0;flex:1;max-width:190px;padding:3px 10px 3px 3px;border-radius:20px;cursor:pointer;border:0;color:#fff;font:inherit;text-align:left;background:rgba(14,24,66,.9);box-shadow:inset 0 0 0 1px var(--aLine)}
+.aPl{display:flex;align-items:center;gap:7px;min-width:0;flex:1;max-width:150px;padding:3px 10px 3px 3px;border-radius:20px;cursor:pointer;border:0;color:#fff;font:inherit;text-align:left;background:rgba(14,24,66,.9);box-shadow:inset 0 0 0 1px var(--aLine)}
 .aAv{width:30px;height:30px;flex:none;border-radius:50%;background:#1a2654 center/cover no-repeat;box-shadow:0 0 0 1.5px var(--aG)}
 .aPn{display:block;font:700 12px var(--zk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .aRk{display:flex;align-items:center;gap:5px;font:700 9px var(--zk);color:var(--aMut)}
@@ -935,6 +935,14 @@ const CSS = `
 .aBan.aGl{background:#0e1842!important;box-shadow:0 0 0 1.5px var(--aG),0 2px 8px rgba(0,0,0,.5)!important}.aBan .tx{color:#fff}
 `;
 document.head.appendChild(h('style', null, CSS + `
+/* (11/9) スタミナ */
+.aSta{display:flex;align-items:center;gap:3px;height:26px;padding:0 7px;border:0;border-radius:13px;cursor:pointer;color:#fff;position:relative;flex:none}
+.aSta i{font-style:normal;font-size:12px}.aSta b{font:900 12px var(--zk);font-variant-numeric:tabular-nums}.aSta small{font:700 9px var(--zk);color:#c3cbe6;font-variant-numeric:tabular-nums}
+.aSta .dot{position:absolute;right:-2px;top:-2px;width:9px;height:9px;border-radius:50%;background:#ff4d6a;box-shadow:0 0 0 1.5px #0e1842}
+.aStaM{text-align:center}.aStaM .big{font:900 28px var(--zk);color:#2a2117}.aStaM .big b{font-size:36px}
+.aStaH{margin:10px 0 4px;font:900 13px var(--zk);color:#6b5b45}
+.aStaP{display:grid;gap:4px;max-height:34vh;overflow-y:auto}.aStaR{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:#fff;box-shadow:inset 0 0 0 1px rgba(160,120,40,.35)}
+.aStaR span{flex:1;min-width:0;font:800 14px var(--zk);color:#2a2117;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.aStaR .aBtn{min-height:32px;padding:4px 12px;font-size:12px;flex:none}
 /* (11/9) プロフィール */
 .aGear{position:absolute;right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 54px);z-index:5;width:40px;height:40px;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--aG1);background:rgba(14,24,66,.92);box-shadow:inset 0 0 0 1px var(--aLine)}
 .aGear svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9}
@@ -1028,8 +1036,9 @@ function rankInfo() { const n = A.PROG.n.filter(Boolean).length + A.PROG.h.filte
 function renderTop() {
   const ri = HOST && HOST.rank ? HOST.rank() : rankInfo(), f = myAv();   /* アプリの中ではアプリのランク(レベル)を出す */
   hud.innerHTML = `<button class="aPl aGl" type="button" aria-label="ホームに出すキャラを変える"><span class="aAv" style="${f ? `background-image:url(${f})` : ''}"></span><span style="min-width:0"><span class="aPn">${esc(S.name)}</span><span class="aRk">RANK <b>${ri.rk}</b><span class="bar"><i style="width:${Math.round(ri.f * 100)}%"></i></span></span></span></button>
-  <div class="aCur aGl" title="きもオタレートと共通のポイント。ガチャに使う。ステージの初回クリア・★・ミッションでもらえる">${svg('pt', '0 0 16 16')}<b>${ptNow().toLocaleString()}</b>${HOST ? '' : '<button type="button" aria-label="ptを足す(テスト用)">+</button>'}</div>${HOST ? '<button class="aX" type="button" aria-label="アプリに戻る">×</button>' : ''}`;
+  <button class="aSta aGl" type="button" aria-label="スタミナ"><i>⚡</i><b></b><small></small>${staGift ? '<em class="dot"></em>' : ''}</button><div class="aCur aGl" title="きもオタレートと共通のポイント。ガチャに使う。ステージの初回クリア・★・ミッションでもらえる">${svg('pt', '0 0 16 16')}<b>${ptNow().toLocaleString()}</b>${HOST ? '' : '<button type="button" aria-label="ptを足す(テスト用)">+</button>'}</div>${HOST ? '<button class="aX" type="button" aria-label="アプリに戻る">×</button>' : ''}`;
   hud.querySelector('.aPl').onclick = () => { if (TAB !== 'home') go('home'); else nextHome(); };
+  hud.querySelector('.aSta').onclick = staMenu; staTick();
   if (!HOST) hud.querySelector('.aCur button').onclick = () => { S.pt += 1000; save(); flash('+1,000pt(テスト用)'); };
   else hud.querySelector('.aX').onclick = () => { try { HOST.close(); } catch (e) { } };
 }
@@ -1488,13 +1497,14 @@ async function mpStart() {
   const pids = [R.host, ...Object.keys(M).filter(p => p !== R.host && !M[p].left && M[p].u).sort((a, b) => (M[a].at0 || 0) - (M[b].at0 || 0))];
   const ids = new Set(pids.map(p => M[p].u.id)); if (ids.size !== pids.length) { flash('同じキャラを選んでいる人がいます'); return; }
   if (pids.length < 2) { flash('ほかの人が入るのを待ってください(1人なら、ふつうに出撃できます)'); return; }
+  if (!staCan()) { staOut(); return; }
   /* (11/9 山本さん) 2人なら2体ずつ(交互)、3人なら募集した人が2体・ほかは1体、4人なら1体ずつ */
   const used = new Set(ids), second = p => { const L = (M[p].pt || []).filter(u => !used.has(u.id)); const u = L[0]; if (u) used.add(u.id); return u; };
   let sl = pids.map(p => ({ p, u: M[p].u }));
   if (pids.length === 2) { const a2 = second(pids[0]), b2 = second(pids[1]); sl = [sl[0], sl[1]]; if (a2) sl.push({ p: pids[0], u: a2 }); if (b2) sl.push({ p: pids[1], u: b2 }); }
   else if (pids.length === 3) { const a2 = second(pids[0]); if (a2) sl.push({ p: pids[0], u: a2 }); }
   for (const u of teamUnits().map(mpPack)) { if (sl.length >= 4) break; if (!used.has(u.id)) { used.add(u.id); sl.push({ p: R.host, u }); } }   /* 足りなければ募集した人のキャラで */
-  try { await HOST.room.host(MPC.code, { order: pids, sl: sl.slice(0, 4), state: 'play' }); } catch (e) { mpErr(e); }
+  try { if (await HOST.room.host(MPC.code, { order: pids, sl: sl.slice(0, 4), state: 'play' })) staUse(); } catch (e) { mpErr(e); }
 }
 /* 全員: 始まった。チームを組んで、同じ種で出撃 */
 function mpBegin() {
@@ -1969,6 +1979,49 @@ function evoTrial() {
 }
 
 /* ---------- その他 ---------- */
+/* ===== (11/9) スタミナ(山本さん): 最大10・30分で1つ回復・出撃1回で1つ(マルチは募集した人だけ)。
+   100ptで満タン(何回でも)。仲間に3時間に1回1つ送れる(ツムツム風)。もらった分は最大を超えて貯まる ===== */
+const STA_MAX = 10, STA_MS = 30 * 60 * 1000, STA_GIFT_MS = 3 * 3600 * 1000;
+let staGift = 0;
+function staNow() {
+  const o = S.sta = S.sta || { v: STA_MAX, t: Date.now() }, now = Date.now();
+  if (o.v < STA_MAX) { const n = Math.floor((now - o.t) / STA_MS); if (n > 0) { o.v = Math.min(STA_MAX, o.v + n); o.t += n * STA_MS; } if (o.v >= STA_MAX) o.t = now; } else o.t = now;
+  return { v: o.v, next: o.v < STA_MAX ? STA_MS - (now - o.t) : 0, full: o.v < STA_MAX ? (STA_MAX - o.v - 1) * STA_MS + (STA_MS - (now - o.t)) : 0 };
+}
+const staCan = () => staNow().v >= 1;
+function staUse() { const s0 = staNow(); if (s0.v >= STA_MAX) S.sta.t = Date.now(); S.sta.v = Math.max(0, S.sta.v - 1); save(); staTick(); }
+const mmss = ms => { const m = Math.ceil(ms / 1000), h0 = Math.floor(m / 3600), mm = Math.floor(m % 3600 / 60), ss = m % 60; return (h0 ? h0 + ':' + String(mm).padStart(2, '0') : mm) + ':' + String(ss).padStart(2, '0'); };
+function staTick() { const e = hud.querySelector('.aSta'); if (!e) return; const n = staNow(); e.querySelector('b').textContent = `${n.v}/${STA_MAX}`; e.querySelector('small').textContent = n.v < STA_MAX ? mmss(n.next) : ''; }
+setInterval(staTick, 1000);
+/* 仲間からのスタミナが届いているか(1分ごと) */
+async function staPeek() { try { if (HOST && HOST.sta) { const g = await HOST.sta.peek(); const was = staGift; staGift = g.length; if (!!was !== !!staGift) renderTop(); } } catch (e) { } }
+setInterval(staPeek, 60000); setTimeout(staPeek, 3000);
+function staOut() { flash('スタミナが足りません'); staMenu(); }
+function staMenu() {
+  modal('スタミナ', async (b, close) => {
+    const n = staNow();
+    b.innerHTML = `<div class="aStaM"><div class="big">⚡ <b>${n.v}</b> / ${STA_MAX}</div><p class="onote">${n.v < STA_MAX ? `次の1つまで ${mmss(n.next)}・満タンまで ${mmss(n.full)}` : '満タンです'}(30分で1つ回復・出撃1回で1つ)</p></div>
+      <div class="orow" style="padding:6px 0"></div><h4 class="aStaH">仲間からのスタミナ</h4><div class="aStaG"><p class="onote">確かめています…</p></div><h4 class="aStaH">仲間に送る(1人に3時間に1回)</h4><div class="aStaP"></div>`;
+    const r = b.querySelector('.orow');
+    r.append(btn('shine', '100ptで満タンにする', () => { if (staNow().v >= STA_MAX) { flash('もう満タンです'); return; } if (!ptSpend(100, 'sta')) { flash('ptが足りません'); return; } S.sta.v = Math.max(S.sta.v, STA_MAX); S.sta.t = Date.now(); save(); renderTop(); close(); flash('スタミナが満タンになりました'); }));
+    /* もらう */
+    const G = b.querySelector('.aStaG');
+    if (!(HOST && HOST.sta)) G.innerHTML = '<p class="onote">アプリの中で使えます</p>';
+    else { try { const g = await HOST.sta.peek(); if (!g.length) G.innerHTML = '<p class="onote">届いていません</p>'; else { G.innerHTML = `<p class="onote">${g.slice(0, 6).map(x => esc(x.fn || '')).join('・')}${g.length > 6 ? ' ほか' : ''}から ${g.length}つ</p>`; G.appendChild(btn('', `${g.length}つ受け取る`, async () => { try { const got = await HOST.sta.take(); staNow(); S.sta.v = Math.min(99, S.sta.v + got.length); save(); staGift = 0; renderTop(); close(); flash(`スタミナを ${got.length} 受け取りました`); } catch (e) { flash('受け取れませんでした'); } })); } } catch (e) { G.innerHTML = '<p class="onote">読み込めませんでした</p>'; } }
+    /* 送る */
+    const P = b.querySelector('.aStaP');
+    const L = HOST && HOST.sta ? HOST.sta.players() : [];
+    if (!L.length) P.innerHTML = '<p class="onote">アプリの中で、仲間に送れます</p>';
+    S.staSent = S.staSent || {};
+    for (const p of L) {
+      const left = (S.staSent[p.id] || 0) + STA_GIFT_MS - Date.now();
+      const row = h('div', 'aStaR', `<span>${esc(p.n)}</span>`);
+      const bt = btn(left > 0 ? 'sub' : '', left > 0 ? `あと${mmss(left)}` : '送る', async () => { if ((S.staSent[p.id] || 0) + STA_GIFT_MS > Date.now()) return; bt.disabled = true; try { if (await HOST.sta.send(p.id)) { S.staSent[p.id] = Date.now(); save(); bt.textContent = '送った'; bt.className = 'aBtn sub'; } else { bt.disabled = false; flash('送れませんでした'); } } catch (e) { bt.disabled = false; flash('送れませんでした'); } });
+      if (left > 0) bt.disabled = true; row.appendChild(bt); P.appendChild(row);
+    }
+    const r2 = h('div', 'orow'); r2.style.padding = '10px 0 0'; r2.appendChild(btn('sub', '閉じる', close)); b.appendChild(r2);
+  });
+}
 /* ===== (11/9) 「その他」→ プロフィール(山本さん)。参考: 原神・スターレイルのプロフィール(名刺・キャラの展示・実績の数・高難度の進み具合)、
    ウマ娘のトレーナー情報(代表・称号・ファン数)、ブルアカの先生のプロフィール。ほかの人もマルチの部屋から見られる(caprof/{pid}) ===== */
 const REC0 = () => ({ win: 0, cm: 0, dm: 0, raid: 0, multi: 0, tw: 0, since: Date.now() });
@@ -2095,7 +2148,7 @@ const day5 = () => { const d = new Date(Date.now() - 5 * 3600e3); return d.getFu
 function xpFresh() { if (!S.xp || S.xp.d !== day5()) S.xp = { d: day5(), n: 0 }; }
 function xpLeft() { xpFresh(); return Math.max(0, XP_MAX - S.xp.n); }
 function xpTake(i) { const st = A.STAGES[i]; if (!st || st.ev !== 'exp') return true; if (xpLeft() <= 0) { flash('経験値の竜の巣は今日はもう挑戦できません(朝5時に戻ります)'); return false; } S.xp.n++; save(); return true; }
-window.CA_GATE = (i) => xpTake(i);
+window.CA_GATE = (i) => { if (MPC.play) return xpTake(i); if (!staCan()) { staOut(); return false; } if (!xpTake(i)) return false; staUse(); return true; };   /* (11/9) スタミナ1つ(マルチは募集した人だけ・始めるときに) */
 function dmFresh() { if (S.dm.date !== today()) S.dm = { date: today(), win: 0, power: 0, gacha: 0, got: [] }; }
 /* くり返しクリアの報酬(初回とは別)。ハードは1日3回まで宝珠が出る */
 function repeatDrops(st, i, hd) {
@@ -2158,7 +2211,8 @@ function resultBlock(ok) {
 }
 /* スキップ(★3を取ったステージだけ): 戦わずにくり返しの報酬をもらう */
 function skipStage(i, hd) {
-  if (!xpTake(i)) return;
+  if (!staCan()) { staOut(); return; }
+  if (!xpTake(i)) return; staUse();
   const st = A.STAGES[i], r = repeatDrops(st, i, hd); give(r); dmFresh(); S.dm.win++; save();
   modal('スキップ', (b, close) => { b.innerHTML = `<p style="text-align:center">${esc(st.id || '')} ${esc(st.n)} をスキップしました</p><div class="aRl">${r.length ? r.map(rwChip).join('') : '<p>今回は何も落ちませんでした</p>'}</div>`; const row = h('div', 'orow'); row.style.padding = '0'; row.append(btn('sub', '閉じる', close), btn('', 'もう一度', () => { close(); skipStage(i, hd); })); b.appendChild(row); });
   renderNow();
