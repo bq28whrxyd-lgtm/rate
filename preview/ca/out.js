@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=49').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=49').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=50').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=50').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1171,6 +1171,12 @@ if (BRT) document.head.appendChild(h('style', null, `
 #lay.brt .pst b{font-family:var(--rd);font-weight:400;-webkit-text-stroke:2.5px #071030;paint-order:stroke fill}
 #lay.brt .aSta i{font-size:13px}#lay.brt .aSta b{-webkit-text-stroke:2px #071030;letter-spacing:.02em}
 #lay.brt .aSta b,#lay.brt .aCur b{color:#fff!important;opacity:1}#lay.brt .aSta i{color:#ffd23a;filter:drop-shadow(0 1px 0 #3a2000)}
+/* (11/9) ホームのクエスト欄をなくした分、キャラを下へ */
+#lay.brt .aHero{bottom:calc(env(safe-area-inset-bottom,0px) + 70px);height:58%}
+#lay.brt .aNm{bottom:calc(env(safe-area-inset-bottom,0px) + 82px);border-radius:0;background:none;box-shadow:0 3px 8px rgba(0,0,0,.5);border:12px solid transparent;border-image:url(${UI}frame/panel.webp) 72 fill / 12px stretch;padding:0 4px}
+#lay.brt .aNm .nm{font:400 20px/1.25 var(--rd);-webkit-text-stroke:3px #071030;paint-order:stroke fill;text-shadow:none}
+#lay.brt .aNm .ld{font:400 11px var(--rd);color:#e9c56a}
+#lay.brt .aTalk{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}
 @media (prefers-reduced-motion:reduce){#lay.brt *{animation:none!important}}
 `));
 
@@ -1299,6 +1305,7 @@ function renderHome() {
   const ib = (k, label, fn, bd) => { const b = h('button', 'aIb', `<span class="ic">${BRT && HIMG[k] ? `<img alt="" src="${UI}home/${HIMG[k]}.webp">` : svg(k)}</span><span>${label}</span>${bd ? `<i class="bd">${bd}</i>` : ''}`); b.type = 'button'; b.onclick = fn; return b; };
   const nNew = S.newIds.length;
   R.append(ib('news', 'お知らせ', news), ib('mission', 'ミッション', missions, dmClaimable()), ib('gift', 'プレゼント', presents, S.box.length), ib('party', '編成', () => { TAB = 'chara'; SUB.chara = 'party'; renderNow(); }));
+  if (BRT) R.append(ib('ev', 'イベント', () => { TAB = 'quest'; SUB.quest = 'event'; renderNow(); }));
   if (MPC.ok()) R.append(ib('party', 'マルチ', mpJoinAsk));
   root.appendChild(R);
   /* (v121) 上の帯(名前の札・pt・閉じるボタン)の下から並べる。(v122) 札が縦に伸びていたのは、ランキングの一覧と見た目の名前(.aRk)がかぶっていたため。一覧は .aRkL にした。アプリの中では札が大きくなって重なっていた */
@@ -1307,7 +1314,7 @@ function renderHome() {
   const ni = nextMain(), st = A.STAGES[ni];
   const cta = h('div', 'aCta');
   cta.append(btn('shine', `クエスト<small>つづきから ${esc(st.id)} ${esc(st.n)}</small>`, () => goSheet(ni, false)), btn('sub', `${svg('ev')}イベント`, () => { TAB = 'quest'; SUB.quest = 'event'; renderNow(); }));
-  root.appendChild(cta);
+  if (!BRT) root.appendChild(cta);   /* (11/9) 山本さん「ホームのクエスト欄いらない」。クエストは下のバーのまん中から。イベントは右のアイコンへ */
   setTimeout(talk, 700);
 }
 function news() {
