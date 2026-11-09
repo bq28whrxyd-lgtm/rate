@@ -131,8 +131,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=46').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=46').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=47').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=47').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1098,6 +1098,39 @@ if (BRT) document.head.appendChild(h('style', null, `
 @keyframes brDrift{from{transform:scale(1.06) translateX(-10px)}to{transform:scale(1.06) translateX(10px)}}
 #lay.brt .qChH .bs{animation:brFloat 3.2s ease-in-out infinite}
 @keyframes brFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* (11/9) T-027 金属と金の飾り(9スライス)。四すみはそのまま、辺は伸ばす */
+#lay.brt .ssqt{padding:6px;background:none;box-shadow:0 4px 8px rgba(0,0,0,.45);border:14px solid transparent;border-image:url(${UI}frame/tabbar.webp) 44 fill / 14px stretch;margin:0 0 8px;padding:0}
+#lay.brt .ssqt button{height:38px;border-radius:0;background:none;box-shadow:none;border:0}
+#lay.brt .ssqt button{border:12px solid transparent;border-image:url(${UI}frame/btn_steel.webp) 48 fill / 12px stretch;margin:-10px 0;height:44px}
+#lay.brt .ssqt button[aria-selected="true"]{background:none;box-shadow:none;border-image:url(${UI}frame/btn_orange.webp) 48 fill / 12px stretch}
+#lay.brt .qDf button,#lay.brt .qDf button[aria-pressed="true"],#lay.brt .qDf button.h[aria-pressed="true"]{background:none;box-shadow:0 4px 8px rgba(0,0,0,.45);border-radius:0;border:14px solid transparent;border-image:url(${UI}frame/btn_steel.webp) 48 fill / 14px stretch;height:50px;padding:0}
+#lay.brt .qDf button[aria-pressed="true"]{border-image-source:url(${UI}frame/btn_blue.webp);box-shadow:0 4px 8px rgba(0,0,0,.45),0 0 16px rgba(60,140,255,.45)}
+#lay.brt .qDf button.h[aria-pressed="true"]{border-image-source:url(${UI}frame/btn_red.webp);box-shadow:0 4px 8px rgba(0,0,0,.45),0 0 16px rgba(255,60,60,.45)}
+#lay.brt .qDf button:disabled{opacity:.85}
+#lay.brt .qPl{background:none;box-shadow:0 5px 10px rgba(0,0,0,.5);border-radius:6px}
+#lay.brt .qPl::before{inset:4px;border-radius:4px}
+#lay.brt .qPl .frm{position:absolute;inset:0;z-index:3;pointer-events:none;border:18px solid transparent;border-image:url(${UI}frame/plate_blue.webp) 56 / 18px stretch}
+#lay.brt .qPl.boss .frm{border-image-source:url(${UI}frame/plate_red.webp)}
+#lay.brt .qPl.hd .frm{border-image-source:url(${UI}frame/plate_purple.webp)}
+#lay.brt .qPl.lock .frm{border-image-source:url(${UI}frame/plate_iron.webp)}
+#lay.brt .qPl.lock,#lay.brt .qPl.hd,#lay.brt .qPl.boss{background:none}
+#lay.brt .qPl .cn,#lay.brt .qPl.lock .cn{width:54px;height:54px;background:url(${UI}frame/medal.webp) center/contain no-repeat;box-shadow:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}
+#lay.brt .qPl.boss .cn,#lay.brt .qPl.hd .cn{background-image:url(${UI}frame/medal_red.webp)}
+#lay.brt .qPl.lock .cn{filter:grayscale(.85) brightness(.75)}
+#lay.brt .qPl .ck,#lay.brt .qPl .nx,#lay.brt .qPl .fr2{background:none;box-shadow:none;border-radius:0;border:0 solid transparent;border-width:0 9px;border-image:url(${UI}frame/ribbon_green.webp) 0 28 fill / 0 9px stretch;padding:2px 2px 3px;z-index:4;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+#lay.brt .qPl .nx{border-image-source:url(${UI}frame/ribbon_red.webp)}
+#lay.brt .qPl .fr2{border-image-source:url(${UI}frame/ribbon_orange.webp)}
+#lay.brt .qPl .ck{top:-9px;left:10px}
+#lay.brt .qPl .nx{top:-11px;right:6px}
+#lay.brt .qPl .md,#lay.brt .qPl .rt,#lay.brt .qPl .cn{z-index:4}
+#lay.brt .qMore{background:linear-gradient(180deg,#1a2240,#0e1430);box-shadow:0 4px 8px rgba(0,0,0,.45);border:16px solid transparent;border-image:url(${UI}frame/plate_iron.webp) 56 fill / 16px stretch;padding:0 4px;min-height:40px}
+#lay.brt .qMore{background-clip:padding-box}
+#lay.brt .qMore .lb em{white-space:nowrap;font-size:10px}
+#lay.brt .qChH .fr{background:none;padding:0;box-shadow:0 5px 12px rgba(0,0,0,.55)}
+#lay.brt .qChH .fr .art,#lay.brt .qChH .fr .sh{inset:6px;border-radius:2px}
+#lay.brt .qChH .fr::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border:20px solid transparent;border-image:url(${UI}frame/chapter_frame.webp) 64 / 20px stretch}
+#lay.brt #onav{background:none;box-shadow:0 -6px 16px rgba(0,0,0,.6);border:solid transparent;border-width:13px 20px 0;border-image:url(${UI}frame/navbar.webp) 40 60 0 60 fill / 13px 20px 0 20px stretch}
 @media (prefers-reduced-motion:reduce){#lay.brt *{animation:none!important}}
 `));
 
@@ -1307,11 +1340,13 @@ function renderQuest() {
     }
     const st = A.STAGES[i], open = A.stageOpen(i, hard), c = clr(i), sv = A.stageStrength(i, hard), bits = S.stars[skey(i, hard)] || 0;
     const r = h('button', 'qPl' + (st.boss ? ' boss' : '') + (open ? '' : ' lock') + (i === cur ? ' cur' : '') + (hard ? ' hd' : '')); r.type = 'button';
-    if (BRT && open && /^\d-\d$/.test(st.id)) { r.classList.add('art'); r.style.setProperty('--art', `url(${UI}stage/s${st.id}.webp)`); }   /* (11/9) Codex T-026 のステージの帯の絵 */
+    if (BRT && open && /^\d-\d$/.test(st.id)) { r.classList.add('art'); r.style.setProperty('--art', `url(${UI}stage/s${st.id}.webp)`); }
+   /* (11/9) Codex T-026 のステージの帯の絵 */
     r.innerHTML = `<span class="cn">${st.boss && open ? `<img alt="" src="${UI}boss-${CHBOSS[st.ch] || 'base'}.webp">` : `<b>${esc(st.id)}</b>`}</span>${c ? `<i class="ck">${BRT ? 'CLEAR' : '✓'}</i>` : ''}
       <span class="md"><b>${st.boss && open ? esc(st.id) + ' ' : ''}${open ? esc(st.n) : '？？？'}</b><span>${open ? kindImgs(i, 5) + svGem(sv) : '前のステージをクリアすると開く'}</span></span>
       <span class="rt">${open ? `<span class="st3">${[0, 1, 2].map(k => `<i class="${bits >> k & 1 ? 'on' : ''}">★</i>`).join('')}</span>` : `<span class="lk">${LOCK}</span>`}${!c && open ? `<i class="fr2">${svg('pt', '0 0 16 16')}初回 ${RW.first}</i>` : ''}</span>${i === cur ? '<i class="nx">NEXT</i>' : ''}`;
     r.setAttribute('aria-label', `${st.id} ${open ? st.n : 'まだ開いていない'}${c ? ' クリア済み' : ''}`);
+    if (BRT) r.insertAdjacentHTML('beforeend', '<i class="frm"></i>');   /* (11/9) Codex T-027 の金属のわく(innerHTML のあとに足す) */
     r.onclick = () => { if (!open) { flash(hard ? 'ノーマルでクリアすると開きます' : '前のステージをクリアすると開きます'); return; } goSheet(i, hard); };
     if (i === cur) curEl = r; L.appendChild(r);
   }
