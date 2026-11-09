@@ -389,6 +389,29 @@ service cloud.firestore {
               && bunMine(request.resource.data.g[request.resource.data.g.size() - 1].f))
         );
     }
+    // ---- (11/9) 分身のフレンド。本人は自由に書ける。ほかの人(by)は自分のことだけ変えられる:
+    //      申請(in に自分を1つ足す)・承認されて f に自分を足す/f から自分を消す・out から自分を消す ----
+    function frL(d, k) { return d.get(k, []); }
+    function frIns(o, n) {
+      return frL(n, 'in').size() == frL(o, 'in').size()
+        || (frL(n, 'in').size() == frL(o, 'in').size() + 1 && frL(n, 'in')[frL(n, 'in').size() - 1].p == n.by);
+    }
+    match /cafriend/{pid} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.resource.data.keys().hasOnly(['f', 'in', 'out', 'by'])
+        && frL(request.resource.data, 'f') is list && frL(request.resource.data, 'f').size() <= 300
+        && frL(request.resource.data, 'in') is list && frL(request.resource.data, 'in').size() <= 100
+        && frL(request.resource.data, 'out') is list && frL(request.resource.data, 'out').size() <= 300
+        && (
+          bunMine(pid)
+          || (request.resource.data.get('by', '') is string && bunMine(request.resource.data.get('by', ''))
+              && frIns(resource == null ? {} : resource.data, request.resource.data)
+              && frL(request.resource.data, 'f').toSet().difference(frL(resource == null ? {} : resource.data, 'f').toSet()).hasOnly([request.resource.data.by])
+              && frL(resource == null ? {} : resource.data, 'f').toSet().difference(frL(request.resource.data, 'f').toSet()).hasOnly([request.resource.data.by])
+              && frL(request.resource.data, 'out').toSet().difference(frL(resource == null ? {} : resource.data, 'out').toSet()).size() == 0
+              && frL(resource == null ? {} : resource.data, 'out').toSet().difference(frL(request.resource.data, 'out').toSet()).hasOnly([request.resource.data.by]))
+        );
+    }
     match /caadj/{pid} {
       allow read: if signedIn() && (bunMine(pid) || isAdmin());
       allow create, update: if isAdmin() && request.resource.data.keys().hasOnly(['list']) && request.resource.data.list is list && request.resource.data.list.size() <= 50;
