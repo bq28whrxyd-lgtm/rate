@@ -313,15 +313,16 @@ service cloud.firestore {
     // (11/7) 分身を「圧縮アリーナ」に入れ替え。ca = pt の数字(みんなの pt の計算に使うので、だれでも読める)、casave = セーブ(本人だけ)
     // (11/7) 1日の上限はなし(山本さん)。回数(g1・g10)ともらった合計(pe)は減らない
     function caOk() {
-      return request.resource.data.keys().hasOnly(['pe', 'g1', 'g10', 'pd', 'pn', 'pq'])
+      return request.resource.data.keys().hasOnly(['pe', 'g1', 'g10', 'st', 'pd', 'pn', 'pq'])
         && newV('pe', 0) is int && newV('g1', 0) is int && newV('g10', 0) is int && newV('pd', 0) is int && newV('pn', 0) is int && newV('pq', 0) is int
+        && newV('st', 0) is int && newV('st', 0) >= 0
         && newV('pe', 0) >= 0 && newV('g1', 0) >= 0 && newV('g10', 0) >= 0 && newV('pq', 0) >= 0 && newV('pn', 0) >= 0;
     }
     match /ca/{pid} {
       allow read: if signedIn();
       allow create: if signedIn() && bunMine(pid) && caOk();
       allow update: if signedIn() && bunMine(pid) && caOk()
-        && newV('pe', 0) >= oldV('pe', 0) && newV('g1', 0) >= oldV('g1', 0) && newV('g10', 0) >= oldV('g10', 0);
+        && newV('pe', 0) >= oldV('pe', 0) && newV('g1', 0) >= oldV('g1', 0) && newV('g10', 0) >= oldV('g10', 0) && newV('st', 0) >= oldV('st', 0);
       allow delete: if isAdmin();
     }
     match /casave/{pid} {
@@ -377,6 +378,16 @@ service cloud.firestore {
         && request.resource.data.get('msg', '') is string && request.resource.data.get('msg', '').size() <= 30
         && request.resource.data.get('fav', []) is list && request.resource.data.get('fav', []).size() <= 3
         && request.resource.data.get('st', []) is list && request.resource.data.get('st', []).size() <= 20;
+    }
+    // ---- (11/9) 分身のスタミナを仲間に送る。本人は受け取って空にできる。ほかの人は1つだけ足せる(送った人=本人) ----
+    match /castam/{pid} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.resource.data.keys().hasOnly(['g']) && request.resource.data.g is list && request.resource.data.g.size() <= 200
+        && (
+          (bunMine(pid) && request.resource.data.g.size() == 0)
+          || (request.resource.data.g.size() == (resource == null ? 0 : resource.data.get('g', []).size()) + 1
+              && bunMine(request.resource.data.g[request.resource.data.g.size() - 1].f))
+        );
     }
     match /caadj/{pid} {
       allow read: if signedIn() && (bunMine(pid) || isAdmin());
