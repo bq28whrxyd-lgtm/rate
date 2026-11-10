@@ -137,8 +137,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=66').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=66').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=67').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=67').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };

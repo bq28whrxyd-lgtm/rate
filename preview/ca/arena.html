@@ -513,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=66';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=67';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2884,7 +2884,7 @@ function frameBody(now){if(window.__PAUSE){last=now;return}fpsTick(now);let dt=M
      v3.set(G.C.x+(G.rad||2),0,G.C.z).project(cam);U.uR.value=Math.max(.05,Math.abs((v3.x+1)/2-cx)*W/H)}}
   {const U=grade.uniforms;IFt+=real;U.uIF.value=IFt<IFd?1:0;U.uIFk.value=IFt>IFd*.5?1:0;U.uAsp.value=innerWidth/innerHeight;U.uT.value=AU.uT.value;
    const slk=G.phase==='hold'?1:G.phase==='suck'?Math.max(0,(G.t/G.T-.45)/.55)*.7:0;U.uSL.value=lerp(U.uSL.value,slk*(.4+.6*G.p),.3);U.uSLP.value.copy(warp.uniforms.uC.value)}
-  if(!G.noRender&&!OUTCOVER())comp.render(real);/* (11/10) メニュー画面が上をおおっている間は、見えない3Dを描かない(重さの一番の原因) *//* (v1.2) 自動テストで速く回すときだけ描画を止める */
+  if(!G.noRender&&!OUTCOVER()){comp.render(real);prTick()}/* (11/10) メニュー画面が上をおおっている間は、見えない3Dを描かない(重さの一番の原因) *//* (v1.2) 自動テストで速く回すときだけ描画を止める */
   /* 頭の上の表示(HPと攻撃までの数) */
   const W=innerWidth,H=innerHeight;
   for(const b of G.bodies){if(!b.alive||!b.tag)continue;v3.set(b.mesh.position.x,b.mesh.position.y+(b.tagH||(b.k==='boss'?3:b.k==='claw'?2.4:b.hz?1.35:1.5))*VSZ,b.mesh.position.z).project(cam);/* (11/8 ラグ) left/top を毎コマ変えると画面全体の並べ直しが起きるので、見た目が同じ transform で動かす */b.tag.style.transform='translate('+((v3.x+1)/2*W).toFixed(1)+'px,'+((1-v3.y)/2*H).toFixed(1)+'px) translate(-50%,-100%)';
@@ -2909,6 +2909,13 @@ function fitCam(pitch,pts,y0,y1,wk,lookY,outB,outL){let d=34,lz=0;const C=cam;
     let x0=1e9,x1=-1e9,ya=1e9,yb=-1e9;for(const q of pts){v3.copy(q).project(C);x0=Math.min(x0,v3.x);x1=Math.max(x1,v3.x);ya=Math.min(ya,v3.y);yb=Math.max(yb,v3.y)}
     const sx=(x1-x0)/wk,sy=(yb-ya)/(y1-y0),sc=Math.max(sx,sy);d*=1+(sc-1)*.7;lz+=((y1+y0)/2-(yb+ya)/2)*d*.18}
   outB.copy(C.position);outL.set(0,lookY,lz)}
+/* (11/11) 山本さん「ラグさ減らしたい」: 重い端末では描く解像度を自動で下げる。
+   スマホは倍率3(1206x2622)で後処理を5回ほど通すので、画面を埋める処理がいちばん重い。
+   1秒半ほど続けて 46fps を下回ったら倍率を .5 ずつ下げる(下は1.5まで)。一瞬のひっかかり(読み込み・技の初回)では下げない。下げたら、その起動のあいだは上げない */
+let PRC=0,prT0=0,prN=0,prSlow=0,prHold=0;
+function prTick(){if(window.__FIXDT||window.__NOPR)return;const now=performance.now();if(!PRC){PRC=R.getPixelRatio();prHold=now+3000}if(PRC<=1.5||now<prHold)return;
+  if(!prT0||now-prT0>4000){prT0=now;prN=0;return}/* 長く止まっていた(別の画面・裏に回った)あとは測り直す */prN++;const el=now-prT0;if(el<750)return;
+  const ms=el/prN;prT0=now;prN=0;if(ms>21.5){if(++prSlow>=2){prSlow=0;PRC=Math.max(1.5,PRC-.5);R.setPixelRatio(PRC);resize();prHold=now+1500;prT0=0;try{window.__PRLOG=(window.__PRLOG||[]).concat([[Math.round(now),PRC,+ms.toFixed(1)]])}catch(e){}}}else prSlow=0}
 function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);comp.setPixelRatio(R.getPixelRatio());comp.setSize(w,h);smaa.setSize(w*R.getPixelRatio(),h*R.getPixelRatio());bloom.resolution.set(w/2,h/2);cam.aspect=w/h;cam.updateProjectionMatrix();
   const tb=document.querySelector('.top').getBoundingClientRect(),pb=document.querySelector('.bot').getBoundingClientRect();document.documentElement.style.setProperty('--panelH',(h-pb.top)+'px');
   const ny=y=>1-2*y/h;const top=ny(tb.bottom+4),bot=ny(pb.top+8);
