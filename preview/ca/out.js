@@ -22,7 +22,11 @@ const CHARS = [
   ...['kagura', 'yomogi', 'minamo', 'lux', 'pom', 'pukuru', 'futa', 'tomori', 'hinoko', 'kurumi', 'nagi', 'kirara'].map(k => { const r = A.ROSTER[k]; return { id: k, name: r.name, el: r.el, rar: r.rar, hp: r.hp0, atk: r.atk0, battle: true }; }),
   /* (11/9) 降臨ボスの化身。降臨で25%で落ちる★5(ガチャには出ない)。数字は index.html の ROSTER と同じ */
   ...['garou', 'mizuchi', 'mokuren', 'seres'].map(k => { const r = A.ROSTER[k]; return { id: k, name: r.name, el: r.el, rar: 5, hp: r.hp0, atk: r.atk0, battle: true, evoName: r.name + '(進化)', drop: r.drop }; }),
+  /* (11/10) ゲームバカイベントのゲーマー女子。lim = 限定ガチャだけ(英雄召喚には出ない)。ソラは降臨の化身 */
+  ...['gbpro', 'gbsnp', 'gbrhy', 'gbret', 'gbfgt', 'gbhea', 'gbstr', 'gbpzl'].map(k => { const r = A.ROSTER[k]; return Object.assign({ id: k, name: r.name, el: r.el, rar: r.rar, hp: r.hp0, atk: r.atk0, battle: true }, r.rar === 5 ? { evoName: r.name + '(進化)' } : {}, r.drop ? { drop: r.drop } : { lim: 1 }); }),
 ];
+/* ゲーマー女子の二つ名(キャラ画面などで使う) */
+const GB_TITLE = { gbret: 'ドット森の妖精', gbsnp: '蒼眼の狙撃姫', gbfgt: '紅蓮の拳姫', gbrhy: '天奏の歌姫', gbhea: '森癒の賢者', gbstr: '爆盛り配信姫', gbpro: '孤高の電脳覇者', gbpzl: '蒼き解答者' };
 const CH = Object.fromEntries(CHARS.map(c => [c.id, c]));
 const LEAD = Object.fromEntries(Object.values(A.ROSTER).map(a => [a.key, a.ln]));
 const OLDID = { t40: 'kagura', t41: 'yomogi', t42: 'minamo', t43: 'lux', t30: 'hinoko', t31: 'kurumi', t32: 'nagi', t33: 'kirara' };
@@ -52,7 +56,7 @@ const ABIL = {
   /* (11/10) ゲームバカイベント */
   antiGlitch: { n: 'グリッチ無効', d: 'グリッチゾーンに入っても向きが曲がらない' }, killGacha: { n: '魔神キラー', d: 'ガチャ魔神(ゲームバカの限定降臨)へのダメージ2倍' },
 };
-const CABIL = { garou: ['killTree', 'crit'], mizuchi: ['killBeast', 'guard'], mokuren: ['killDragon', 'regen'], seres: ['killGuard', 'antiAnchor'], beni: ['antiBomb', 'crit'], shion: ['guard', 'regen'], ibara: ['antiFog', 'shellBreak'], lumie: ['bossKiller', 'antiAnchor'], pom: ['antiBomb'], pukuru: ['guard'], futa: ['antiAnchor'], tomori: ['regen'], jin: ['shellBreak', 'bossKiller'], riz: ['antiFog', 'regen'], gekka: ['antiAnchor', 'crit'], seira: ['antiBomb', 'guard'], kagura: ['shellBreak'], yomogi: ['regen'], minamo: ['antiAnchor'], lux: ['guard'] };
+const CABIL = { gbpro: ['antiGlitch', 'killGacha'], gbsnp: ['antiFog', 'antiGlitch'], gbrhy: ['killGacha', 'regen'], gbpzl: ['antiGlitch', 'killGacha'], gbret: ['antiGlitch'], gbfgt: ['killGacha'], gbhea: ['antiFog'], gbstr: ['antiBomb'], garou: ['killTree', 'crit'], mizuchi: ['killBeast', 'guard'], mokuren: ['killDragon', 'regen'], seres: ['killGuard', 'antiAnchor'], beni: ['antiBomb', 'crit'], shion: ['guard', 'regen'], ibara: ['antiFog', 'shellBreak'], lumie: ['bossKiller', 'antiAnchor'], pom: ['antiBomb'], pukuru: ['guard'], futa: ['antiAnchor'], tomori: ['regen'], jin: ['shellBreak', 'bossKiller'], riz: ['antiFog', 'regen'], gekka: ['antiAnchor', 'crit'], seira: ['antiBomb', 'guard'], kagura: ['shellBreak'], yomogi: ['regen'], minamo: ['antiAnchor'], lux: ['guard'] };
 const abilOf = u => { const a = CABIL[u.id] || []; return CH[u.id].rar === 5 && !u.evo ? a.slice(0, 1) : a; };
 const GACHA = { one: 100, ten: 900, rate: { 5: .02, 4: .26, 3: .72 } };   /* (11/7) ★5は2%(山本さん) */
    /* D-082: 装備ガチャと同じ値段。10連は★4以上1体確定 */
@@ -133,8 +137,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=56').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=56').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=57').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=57').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -652,6 +656,9 @@ const CSS = `
 .aGa .hd b{font:900 16px var(--zk);color:#fff}
 .aGa .hd span{font:700 11px var(--zk);color:var(--aDim)}
 .aGa .hd .rate{margin-left:auto;border:0;cursor:pointer;height:28px;padding:0 10px;border-radius:6px;font:700 11px var(--zk);color:var(--aG1);background:#1a2760;box-shadow:inset 0 0 0 1px var(--aLine)}
+.gbl .gWho .gTi{display:block;font:800 12px/1.2 var(--zk);letter-spacing:.12em;color:#ffd6ec;-webkit-text-stroke:3px #1a0a30;paint-order:stroke fill;margin-bottom:2px}
+.gPk{display:flex;gap:8px;justify-content:center;margin:10px 0 14px}.gPkB{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:12px;border:1.5px solid var(--ec);background:#0e1838;color:#fff}
+.gPkB img{width:64px;height:64px;border-radius:10px}.gPkB small{font-size:10px;opacity:.8}.gPkB b{font-size:14px}
 .aGa .gBan{position:absolute;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 112px);z-index:4;display:flex;gap:6px}
 .aGa .gBt{flex:1;min-height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(8,12,30,.72);color:#dfe6ff;font:800 12.5px var(--zk);display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer}
 .aGa .gBt.on{background:linear-gradient(180deg,#fff2c2,#e8b54a);color:#2b1a02;border-color:transparent}.aGa .gBt.lim.on{background:linear-gradient(90deg,#59f0ff,#ff5ad8);color:#07070d}
@@ -2099,11 +2106,12 @@ const circleSVG = `<svg viewBox="0 0 200 200" fill="none" stroke="#f3d27a"><circ
 const BANNERS = [{ id: 'std', name: '英雄召喚', en: 'HERO SUMMON' }, { id: 'gb', name: 'ゲーマー女子召喚', en: 'GAMER GIRLS', lim: 1 }];
 /* (11/10) ゲームバカイベントの限定ガチャ(山本さん): 1回150pt・10連1350pt・100回で★5のピックアップと交換。
    ピックアップは★5・★4・★3の1人ずつ。各レア度のうち share の割合でピックアップが出る。キャラの絵がそろうまでは「準備中」 */
-const GBG = { one: 150, ten: 1350, pity: 100, pick: { 5: 'gbsolo', 4: 'gbmulti', 3: 'gbret' }, share: { 5: .5, 4: .3, 3: .25 } };
-const GB_KESHIN = 'gbkeshin';   /* 限定降臨の化身。絵が届いたら8人のうち1人を入れる */
+const GBG = { one: 150, ten: 1350, pity: 100, pick: { 5: ['gbpro', 'gbsnp', 'gbrhy'], 4: ['gbret', 'gbfgt', 'gbhea', 'gbstr'] }, share: { 5: .5, 4: .4 } };
+const GB_KESHIN = 'gbpzl';   /* 限定降臨「ガチャ魔神」の化身 = ソラ */
 const gbBanOn = () => { try { if (HOST && HOST.gbOn) return !!HOST.gbOn(); } catch (e) { } const t = Date.now(); return t >= Date.UTC(2026, 10, 13, 20) && t < Date.UTC(2026, 10, 28, 20); };
-const gbPick = r => { const id = GBG.pick[r]; return CH[id] && A.PORT && A.PORT.img && A.PORT.img[id] ? id : null; };
-const gbReady = () => !!(gbPick(5) && gbPick(4) && gbPick(3));
+const gbPicks = r => (GBG.pick[r] || []).filter(id => CH[id] && A.PORT && A.PORT.img && A.PORT.img[id]);
+const gbPick = r => { const L = gbPicks(r); return L.length ? L[Math.floor(Math.random() * L.length)] : null; };
+const gbReady = () => gbPicks(5).length > 0 && gbPicks(4).length > 0;
 const banList = () => BANNERS.filter(b => !b.lim || gbBanOn());
 let gaSel = null, gaB = 'std';
 function renderGacha() {
@@ -2146,9 +2154,17 @@ function renderGbGacha(bn) {
     <div class="gLogo"><small>${esc(bn.en)}</small><b>${esc(bn.name)}</b></div><button class="gDt" type="button">詳細</button>
     <div class="gWho"></div><div class="gFs"></div>`;
   const cs = w.querySelector('.chars'), who = w.querySelector('.gWho');
-  const ids = [5, 4, 3].map(r => gbPick(r)).filter(Boolean);
-  if (ids.length) { const id = ids[0]; cs.innerHTML = PORT[id] ? `<img class="fr" alt="" src="${PORT[id]}">` : ''; who.innerHTML = `<span class="st">★★★★★</span><b>${esc(CH[id].name)}</b><span class="el">${elGem(CH[id].el, 20)}ピックアップ</span>`; }
-  else who.innerHTML = '<b>ゲーマー女子 3人</b><span class="el">★5・★4・★3 のピックアップ  ·  準備中</span>';
+  /* (11/10) ピックアップ7人を順に大きく見せる(★5の3人が先)。下の顔を押すとその子に切りかわる */
+  const ids = [...gbPicks(5), ...gbPicks(4)], fs = w.querySelector('.gFs');
+  if (ids.length) {
+    if (!ids.includes(gaSel)) gaSel = ids[0];
+    const show = id => { gaSel = id; const c = CH[id]; cs.innerHTML = PORT[id] ? `<img class="fr" alt="" src="${PORT[id]}">` : ''; who.innerHTML = `<span class="st">${'★'.repeat(c.rar)}</span><small class="gTi">${esc(GB_TITLE[id] || '')}</small><b>${esc(c.name)}</b><span class="el">${elGem(c.el, 20)}ピックアップ</span>`; fs.querySelectorAll('button').forEach(e => e.classList.toggle('on', e.dataset.id === id)); };
+    const swap = id => { if (id === gaSel) return; cs.classList.add('sw'); who.classList.add('sw'); setTimeout(() => { show(id); cs.classList.remove('sw'); who.classList.remove('sw'); }, 200); };
+    for (const id of ids) { const c = CH[id], f = faceURL(id, 0, 1); const e = h('button', 'gF', f ? `<img alt="" src="${f}">` : `<b>${esc(c.el)}</b>`); e.type = 'button'; e.dataset.id = id; e.style.setProperty('--ec', elCol(c.el)); e.setAttribute('aria-label', c.name); e.onclick = () => { clearInterval(gaT); swap(id); }; fs.appendChild(e); }
+    show(gaSel);
+    if (!RM) gaT = setInterval(() => { if (TAB !== 'gacha' || root.hidden) return; swap(ids[(ids.indexOf(gaSel) + 1) % ids.length]); }, 3600);
+  }
+  else who.innerHTML = '<b>ゲーマー女子 7人</b><span class="el">ピックアップ  ·  準備中</span>';
   w.querySelector('.gDt').onclick = rates;
   const bs = h('div', 'btns');
   const b1 = btn('sub', `1回召喚<small>${svg('pt', '0 0 16 16')}${GBG.one}</small>`, () => pull(1, GBG.one)), b10 = btn('shine', `10回召喚<small>${svg('pt', '0 0 16 16')}${GBG.ten.toLocaleString()}</small>`, () => pull(10, GBG.ten));
@@ -2157,7 +2173,9 @@ function renderGbGacha(bn) {
   const lp = S.lp || 0, pt = h('div', 'gPt', `<span>限定の交換pt <b>${lp}</b>/${GBG.pity}</span><span class="bar"><i style="width:${Math.min(100, lp / GBG.pity * 100)}%"></i></span>`), tr = btn('sm', '★5と交換', gbPityPull); tr.disabled = lp < GBG.pity || !gbPick(5); if (lp >= GBG.pity) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
   w.appendChild(bs); banTabs(w);
 }
-function gbPityPull() { const id = gbPick(5); if (!id || (S.lp || 0) < GBG.pity) return; S.lp -= GBG.pity; const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); save(); summon([{ u, isNew }], 1, 0); }
+function gbPityPull() { const L = gbPicks(5); if (!L.length || (S.lp || 0) < GBG.pity) return;
+  const give = id => { if ((S.lp || 0) < GBG.pity) return; S.lp -= GBG.pity; const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); save(); summon([{ u, isNew }], 1, 0); };
+  modal('★5と交換', (b, close) => { b.innerHTML = `<p class="onote">限定の交換pt ${GBG.pity} で、好きな★5のピックアップ1人と交換できます。</p>`; const r = h('div', 'gPk'); for (const id of L) { const c = CH[id], f = faceURL(id, 0, 1); const e = h('button', 'gPkB', `${f ? `<img alt="" src="${f}">` : ''}<small>${esc(GB_TITLE[id] || '')}</small><b>${esc(c.name)}</b>`); e.type = 'button'; e.style.setProperty('--ec', elCol(c.el)); e.onclick = () => { close(); give(id); }; r.appendChild(e); } b.appendChild(r); const o = h('div', 'orow'); o.style.padding = '0'; o.appendChild(btn('sub', 'やめる', close)); b.appendChild(o); }); }
 function rates() {
   if (gaB === 'gb') return gbRates();
   modal(`${(BANNERS.find(x => x.id === gaB) || BANNERS[0]).name} の詳細`, (b, close) => {
@@ -2166,8 +2184,8 @@ function rates() {
     const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r);
   });
 }
-function gbRates() { modal('ゲーマー女子召喚 の詳細', (b, close) => { const row = r => { const pk = gbPick(r), all = Math.round(GACHA.rate[r] * 1000) / 10; return `<p><b class="s${r}">${'★'.repeat(r)}</b> 合計 <b>${all}%</b>${pk ? `<small>(ピックアップ ${esc(CH[pk].name)} ${(GACHA.rate[r] * GBG.share[r] * 100).toFixed(2)}%)</small>` : ''}</p>`; };
-  b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">期間: 11/14 5:00 〜 11/29 5:00(ゲームバカイベント)。1回 ${GBG.one}pt、10回 ${GBG.ten.toLocaleString()}pt。10回召喚は★4以上が1体確定。<br>この召喚を1回引くごとに限定の交換ptが1たまり、${GBG.pity}たまると★5のピックアップと交換できます。ピックアップ以外は「英雄召喚」と同じキャラが出ます。</p>`;
+function gbRates() { modal('ゲーマー女子召喚 の詳細', (b, close) => { const row = r => { const L = gbPicks(r), all = Math.round(GACHA.rate[r] * 1000) / 10, each = L.length ? GACHA.rate[r] * (GBG.share[r] || 0) / L.length * 100 : 0; return `<div class="gRw"><p><b class="s${r}">${'★'.repeat(r)}</b> 合計 <b>${all}%</b>${L.length ? `<small>(ピックアップ 1人あたり ${each.toFixed(2)}%)</small>` : ''}</p>${L.length ? `<div class="gIc">${L.map(id => { const c = CH[id], f = faceURL(id, 0, 1); return `<span style="--ec:${elCol(c.el)}">${f ? `<img alt="" src="${f}">` : ''}<i>${esc(c.name)}</i></span>`; }).join('')}</div>` : ''}</div>`; };
+  b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">期間: 11/14 5:00 〜 11/29 5:00(ゲームバカイベント)。1回 ${GBG.one}pt、10回 ${GBG.ten.toLocaleString()}pt。10回召喚は★4以上が1体確定。<br>この召喚を1回引くごとに限定の交換ptが1たまり、${GBG.pity}たまると★5のピックアップと交換できます。ピックアップ以外は「英雄召喚」と同じキャラが出ます。ゲーマー女子はこの召喚だけで出ます(ソラは限定降臨「ガチャ魔神」でだけ仲間になります)。</p>`;
   const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); }
 function pull(n, cost) {
   if (ptNow() < cost) { modal('ptが足りません', (b, close) => { b.innerHTML = `<p>あと ${(cost - ptNow()).toLocaleString()}pt 必要です。ステージの初回クリア・★・デイリーミッションでもらえます。</p>`; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); return; }
