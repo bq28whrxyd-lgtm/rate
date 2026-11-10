@@ -513,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=63';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=64';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -747,9 +747,9 @@ const GBEV={n:'ゲーセンナイト',el:'光',boss:'golem',bn:'ハイスコア�
  {const now=Date.now();if((id===21||id===22)&&now<Date.UTC(2026,10,16)){id=21;end=Date.UTC(2026,10,16)}}
  const th=GBON?GBEV:LEVT[((id%LEVT.length)+LEVT.length)%LEVT.length];Object.assign(LEV,th,GBON?{id:'GB2611',end:GBEV.end,gb:1}:{id:'L'+id,end});
  (GBON?[['初級',{hp:2.2,atk:1.25,cd:0,boss:.6,lb:1.1},3,[10,10]],['中級',{hp:3.8,atk:1.6,cd:0,boss:.65,lb:1.7},3,[20,20]],['上級',{hp:5.2,atk:2,cd:0,boss:.7,lb:2.3},4,[35,35]],['超級',{hp:6.6,atk:2.4,cd:0,boss:.78,lb:2.8},4,[60,60]]]:[['初級',{hp:2.2,atk:1.25,cd:0,boss:.6,lb:1.1},3,[3,5]],['中級',{hp:3.8,atk:1.6,cd:0,boss:.65,lb:1.7},3,[6,9]],['上級',{hp:5.2,atk:2,cd:0,boss:.7,lb:2.3},4,[10,14]]]).forEach(([tn,k,nw,md],ti)=>{
-  const ws=[];for(let w=0;w<nw;w++){const last=w===nw-1;if(last){ws.push({e:3+ti,obj:{orb:3,bomb:1,rock:1},heal:1,n:'ラスボス '+th.bn,lb:true});continue}
-   if(w===nw-2&&ti>0){ws.push({e:4,obj:{orb:2,bomb:1,crystal:1},heal:2,boss:true,n:'中ボス '+th.n+'の番人',mb:true});continue}ws.push({e:4+w+ti,obj:Object.assign({orb:3,bomb:1,crystal:ti?1:0,jar:ti>1?1:0},GBON&&ti>0?{glitch:1}:{}),heal:w?1:0})}
-  STAGES.push(genStage({id:'期間限定',ev:'lev',ti,tier:tn,el:th.el,md,gbm:GBON?md[0]:0,n:th.n+' '+tn,d:GBON?'ゲームバカイベント。勝つとゲーセンメダルが'+md[0]+'枚。'+(ti>0?'グリッチゾーン(入ると向きが45°曲がる)がある。':'')+'最後に'+th.bn+'が現れる。':'期間限定。勝つとイベントメダルが'+md[0]+'〜'+md[1]+'枚。最後に'+th.bn+'が現れる。',
+  const ws=[];for(let w=0;w<nw;w++){const last=w===nw-1;if(last){ws.push({e:3+ti,obj:Object.assign({orb:3,bomb:1,rock:1},GBON?{glitch:1+(ti>1?1:0)}:{}),heal:1,n:'ラスボス '+th.bn,lb:true});continue}
+   if(w===nw-2&&ti>0){ws.push({e:4,obj:Object.assign({orb:2,bomb:1,crystal:1},GBON?{glitch:1,jar:ti>1?1:0}:{}),heal:2,boss:true,n:'中ボス '+th.n+'の番人',mb:true});continue}ws.push({e:4+w+ti,obj:Object.assign({orb:3,bomb:1,crystal:ti?1:0,jar:ti>1?1:0},GBON?{glitch:1+(ti>1?1:0),jar:ti>0?1:0}:{}),heal:w?1:0})}
+  STAGES.push(genStage({id:'期間限定',ev:'lev',ti,tier:tn,el:th.el,md,gbm:GBON?md[0]:0,n:th.n+' '+tn,d:GBON?'ゲームバカイベント。勝つとゲーセンメダルが'+md[0]+'枚。'+'グリッチゾーン(入ると向きが45°曲がる)がある。'+(ti>0?'毒霧の壺も出る。':'')+'最後に'+th.bn+'が現れる。':'期間限定。勝つとイベントメダルが'+md[0]+'〜'+md[1]+'枚。最後に'+th.bn+'が現れる。',
    seed:hashStr(LEV.id+'-'+ti),pool:th.pool,rate:.25+ti*.15,k,boss:true,mbName:th.n+'の番人',mbTint:th.mt,lbName:th.bn,lbTint:th.tint||null,lbModel:th.boss,waves:ws}))})}
 /* (11/10) ゲームバカの限定降臨「ガチャ魔神」: 主ギミックはグリッチゾーン、副ギミックは毒霧。適正=グリッチ無効・毒霧無効、魔神キラーで2倍。
    勝つとゲーセンメダル50枚、25%で化身。いちばん強い段階(gd 4) */
