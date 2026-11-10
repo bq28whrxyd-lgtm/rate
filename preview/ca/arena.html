@@ -510,7 +510,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=61';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=62';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2542,19 +2542,21 @@ function gbRetOn(f,dur){const w=document.createElement('div'),d=document.createE
 function resAim(){const si=slotOf('gbpro');if(si<0||G.over)return;const me=allyBody(si);resBanner(si);const dm=Math.round(110*(1+(G.cm||0)*.015));
   const t=foes().filter(f=>f.k!=='claw').sort((a,b)=>a.hp-b.hp)[0];
   if(!t){if(LB.on&&LB.hp>0){gbPillar(0,LBZ+3,.9,0x3ad0ff,.16,.5);later(.2,()=>{if(LB.hp>0)lbDamage(dm,0,6,LBZ)})}return}
-  gbRetOn(t,.5);if(me)gbLine(me.x,me.z,t.x,t.z,GBC.cy,.07,.22);ringFx(t.x,t.z,t.r*2.6,t.r*1.1,.18,GBC.cy,.1);
-  later(.2,()=>{const x=t.x,z=t.z;gbPillar(x,z,.45,0x3ad0ff,0,.5);crossFlash(x,z,.9);ringFx(x,z,.3,1.6,.28,GBC.cy,.14);pixBurst(x,.5,z,[GBC.cy,GBC.vi,GBC.wh],10,3,4.5,.6);gbPop('AUTO AIM',x,t.k==='boss'?2.8:1.9,z,'hs sm',.6);if(t.alive)hurt(t,dm,x,z)})}
+  gbRetOn(t,.5);if(me){gbLine(me.x,me.z,t.x,t.z,GBC.cy,.09,.22);ringFx(me.x,me.z,.3,1.6,.25,GBC.cy,.1)}ringFx(t.x,t.z,t.r*2.6,t.r*1.1,.18,GBC.cy,.1);gbSword(t.x,t.z,t.k==='boss'?1.1:.75,.09,.45);
+  later(.2,()=>{const x=t.x,z=t.z;G.shake=Math.max(G.shake,.28);gbPillar(x,z,.62,0x3ad0ff,0,.55);crossFlash(x,z,1.2);ringFx(x,z,.3,2.2,.3,GBC.cy,.14);ringFx(x,z,.2,1.3,.2,GBC.wh,.2);gbPixScar(x,z,1.5,0x4ad8ff,.05,.9);streaks(x,1,z,{col:0x9af4ff,s:2.4,n:10,d:.22});pixBurst(x,.5,z,[GBC.cy,GBC.vi,GBC.wh,0xffd35a],16,3.4,5,.7);gbPop('AUTO AIM',x,t.k==='boss'?2.8:1.9,z,'hs sm',.6);if(t.alive)hurt(t,dm,x,z)})}
 function resRico(){const si=slotOf('gbsnp');if(si<0||G.over)return;const me=allyBody(si);if(!me)return;resBanner(si);const dm=Math.round(170*(1+(G.cm||0)*.015));
   const t=foes().filter(f=>f.k!=='claw').sort((a,b)=>Math.hypot(b.x-me.x,b.z-me.z)-Math.hypot(a.x-me.x,a.z-me.z))[0];const to=t?{x:t.x,z:t.z}:LB.on&&LB.hp>0?{x:0,z:LBZ+3}:null;if(!to)return;
   gbLine(me.x,me.z,to.x,to.z,0xff4a6a,.05,.16);ringFx(me.x,me.z,.2,1.2,.2,0x9ae8ff,.14);
-  later(.16,()=>{gbTracer(me.x,me.z,to.x,to.z,0x3aa8ff,.4);streaks(me.x,1,me.z,{col:0x9ae8ff,s:2,n:8,d:.18});
-    later(.05,()=>{crossFlash(to.x,to.z,1.1);iceSpikes(to.x,to.z,.6,false);ringFx(to.x,to.z,.3,1.9,.3,GBC.cy,.12);gbPop('跳弾!',to.x,t&&t.k==='boss'?2.8:1.9,to.z,'ch c0',.6);if(t){if(t.alive)hurt(t,dm,t.x,t.z)}else if(LB.hp>0)lbDamage(dm,0,6,LBZ)})})}
+  later(.16,()=>{G.shake=Math.max(G.shake,.32);tintFlash('rgba(190,240,255,.28)');gbTracer(me.x,me.z,to.x,to.z,0x3aa8ff,.5);gbTracer(me.x,me.z,to.x,to.z,0xbfe8ff,.25);streaks(me.x,1,me.z,{col:0x9ae8ff,s:2.8,n:12,d:.2});ringFx(me.x,me.z,.2,1.8,.22,GBC.wh,.12);
+    {const L=Math.hypot(to.x-me.x,to.z-me.z)||1;for(let d=1.6;d<L-1;d+=1.7){const px=me.x+(to.x-me.x)*d/L,pz=me.z+(to.z-me.z)*d/L;later(d/50,()=>iceSpikes(px,pz,.3,false))}}
+    later(.05,()=>{crossFlash(to.x,to.z,1.5);iceSpikes(to.x,to.z,(t?t.r:1.2)*1.1,true);ringFx(to.x,to.z,.3,2.6,.35,GBC.cy,.12);ringFx(to.x,to.z,.2,1.5,.2,GBC.wh,.2);streaks(to.x,1,to.z,{col:0xbff4ff,s:2.8,n:12,d:.26});gbPop('跳弾!',to.x,t&&t.k==='boss'?2.8:1.9,to.z,'ch c0',.6);if(t){if(t.alive)hurt(t,dm,t.x,t.z)}else if(LB.hp>0)lbDamage(dm,0,6,LBZ)})})}
 function resBonus(){const si=slotOf('gbrhy');if(si<0||G.over)return;resBanner(si);const m=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpMax*.025);G.hp=Math.min(G.hpMax,G.hp+v);
-  ringFx(m.x,m.z,.3,2.4,.4,GBC.pk,.1);ringFx(m.x,m.z,.2,1.4,.25,GBC.gd,.14);for(let k=0;k<5;k++)later(k*.05,()=>noteFly(m.x,m.z,k,.9));stars(m.x,1.2,m.z,10,GBC.gd,3);
+  ringFx(m.x,m.z,.3,CFG.R*.8,.5,GBC.pk,.05);ringFx(m.x,m.z,.3,2.6,.4,GBC.pk,.1);ringFx(m.x,m.z,.2,1.5,.25,GBC.gd,.16);for(let k=0;k<8;k++)later(k*.04,()=>noteFly(m.x,m.z,k,1.1));stars(m.x,1.2,m.z,16,GBC.gd,4);
+  gbFirework(m.x-1.2,5.5,m.z-2,GBC.pk,0);gbFirework(m.x+1.4,6.2,m.z-2.6,GBC.gd,.1);for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;gbPillar(a.x,a.z,.32,0xff9ac8,.04,.5);ringFx(a.x,a.z,.2,1.3,.3,GBC.pk,.12)}
   gbPop('COMBO BONUS',m.x,2.7,m.z,'pf',.7);num(m.x,1.8,m.z,'+'+v,'heal');ui()}
 function resChainB(x,z,n){const si=slotOf('gbpzl');if(si<0||G.over)return;resBanner(si);const cols=[0x4adcff,0xffd35a,0xb08aff],col=cols[n-1]||cols[2],dm=Math.round([45,60,75][n-1]*(1+(G.cm||0)*.015)),R=2.2;
-  gbBlock(x,z,col,0,2.4+n*.6);ringFx(x,z,R,.4,.16,col,.07);
-  later(.16,()=>{pixBurst(x,.8,z,[col,0xffffff],12+n*4,2.6+n*.5,4.5,.7);ringFx(x,z,.3,R,.3,col,.12);crossFlash(x,z,.6+n*.2);gbPop(n+'連鎖!',x,2+n*.15,z,'ch c'+[0,2,4][n-1],.7);G.shake=Math.max(G.shake,.1+n*.06);
+  gbBlock(x,z,col,0,3.2+n*.9);ringFx(x,z,R,.4,.16,col,.07);
+  later(.16,()=>{pixBurst(x,.8,z,[col,0xffffff,cols[n%3]],18+n*6,3+n*.7,5+n,.8);ringFx(x,z,.3,R+.3,.32,col,.13);ringFx(x,z,.2,R*.6,.2,GBC.wh,.2);crossFlash(x,z,.9+n*.25);gbPixScar(x,z,R*.8,col,.04,.9);streaks(x,1,z,{col,s:2+n*.5,n:8+n*2,d:.22});if(n>=3){gbPillar(x,z,.7,col,0,.55);tintFlash('rgba(190,170,255,.28)')}gbPop(n+'連鎖!',x,2+n*.15,z,'ch c'+[0,2,4][n-1],.7);G.shake=Math.max(G.shake,.16+n*.1);
     for(const f of foes()){if(Math.hypot(f.x-x,f.z-z)<R+f.r)hurt(f,dm,f.x,f.z)}})}
 /* 共鳴技の茨(resThorn)で使う */
 function thornFx(e){const y=e.k==='boss'?1.4:.7;for(let j=0;j<12;j++){const a=j/12*6.283;const q=spark(e.x+Math.cos(a)*.6,y,e.z+Math.sin(a)*.6,-Math.cos(a)*1.2,1.2,-Math.sin(a)*1.2,j%3?0x4ad06a:0xb03a6a,.2,.45,0,2);q.fl=1}flamePillar(e.x,e.z,1.6,.45,.45,0,3)}
