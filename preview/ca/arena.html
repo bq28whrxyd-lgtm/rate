@@ -513,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=71';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=72';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -1056,7 +1056,11 @@ function ballFx(x,y,z,r,dur,col){const m=new THREE.Mesh(new THREE.SphereGeometry
    分身バトルで作った絵(当たり6属性・会心・ブレイク・爆発・煙・魔法陣・光の破裂・炎)を板に貼り、時間でコマを進める。
    当たりは「速く来る→短く強く止まる→不ぞろいに消える」。光るのは芯だけにして、敵の形が見えるようにする */
 const VFT={};let VFok=false;
-const VFS={HIT:{c:8,r:6,n:8,st:1},CRIT:{c:8,r:1,n:8,st:1},BRK:{c:10,r:1,n:10,st:1},BOOM:{c:4,r:4,n:16,m:2},SMOKE:{c:4,r:4,n:16},CIRC:{c:4,r:4,n:16,m:1},MB:{c:4,r:4,n:16,m:1},FIRE:{c:4,r:4,n:16,st:1},XFIRE:{c:6,r:5,n:30},XWATER:{c:6,r:5,n:30},XLIGHT:{c:6,r:5,n:30},XLEAF:{c:6,r:5,n:30}};
+const VFS={HIT:{c:8,r:6,n:8,st:1},CRIT:{c:8,r:1,n:8,st:1},BRK:{c:10,r:1,n:10,st:1},BOOM:{c:4,r:4,n:16,m:2},SMOKE:{c:4,r:4,n:16},CIRC:{c:4,r:4,n:16,m:1},MB:{c:4,r:4,n:16,m:1},FIRE:{c:4,r:4,n:16,st:1},XFIRE:{c:6,r:5,n:30},XWATER:{c:6,r:5,n:30},XLIGHT:{c:6,r:5,n:30},XLEAF:{c:6,r:5,n:30},XBOMB:{c:6,r:5,n:30},XRIPPLE:{c:6,r:5,n:30},XTHORN:{c:6,r:5,n:30},XSTAR:{c:6,r:5,n:30},XDIGI:{c:6,r:5,n:30},XICE:{c:6,r:5,n:30},XNOTE:{c:6,r:5,n:30},XBLOCK:{c:6,r:5,n:30}};
+/* (11/11) 共鳴技ごとの専用の絵(fxres.js)。キャラ → 絵。編成にいるキャラの分だけ絵として広げる */
+const RESX={jin:'XFIRE',riz:'XLEAF',gekka:'XWATER',seira:'XLIGHT',beni:'XBOMB',shion:'XRIPPLE',ibara:'XTHORN',lumie:'XSTAR',gbpro:'XDIGI',gbsnp:'XICE',gbrhy:'XNOTE',gbpzl:'XBLOCK'};let XRES=null;
+function xNeed(key){if(VFT[key]||!XRES||!XRES[key])return;const t=new THREE.TextureLoader().load(XRES[key]);t.colorSpace=THREE.SRGBColorSpace;t.generateMipmaps=false;t.minFilter=THREE.LinearFilter;VFT[key]=t}
+function xTeam(){try{for(const a of ALLIES){const k=a&&RESX[a.key];if(k)xNeed(k)}}catch(e){}}
 const VFROW={炎:1,水:2,木:3,光:4,闇:5};
 const VFQ=new THREE.PlaneGeometry(1,1);
 const VF_V='varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}';
@@ -1070,9 +1074,10 @@ void main(){float f0=floor(uF);vec4 t=uBl>.5?mix(fr(f0),fr(f0+1.),uF-f0):fr(f0);
    gl_FragColor=vec4(c*a+ts*g*uGl*.6,a)*uA;return;}
  vec3 c=v<.2?vec3(.42,.07,.03):v<.46?vec3(1.,.36,.06):v<.74?vec3(1.,.72,.14):vec3(1.,.95,.66);c=pow(c,vec3(2.2))*uTint;gl_FragColor=vec4(c*a*(1.+uGl*step(.74,v))+vec3(1.,.4,.05)*g*.15,a)*uA;}`;
 const VF=[];
+imp('./fxres.js').then(m=>{XRES=m;xTeam()}).catch(()=>{});
 imp('./fxtex.js').then(m=>{const L=new THREE.TextureLoader();for(const k in m){const t=L.load(m[k]);t.colorSpace=VFS[k].m?THREE.NoColorSpace:THREE.SRGBColorSpace;t.anisotropy=4;VFT[k]=t}VFok=true}).catch(e=>console.warn('エフェクトの絵を読み込めませんでした',e));
 /* key=絵 x,y,z=場所 o: s=大きさ d=長さ(秒) row=当たりの属性の段 tint=色 flat=床に寝かせる roll=回転 dl=遅らせる gl=芯の光 a=濃さ sy=縦の倍率 grow=大きくなる量 rot=回る速さ */
-function vf(key,x,y,z,o){if(!VFok)return null;o=o||{};const S_=VFS[key];
+function vf(key,x,y,z,o){if(!VFok)return null;if(!VFT[key]){xNeed(key);return null}o=o||{};const S_=VFS[key];
   const mat=new THREE.ShaderMaterial({uniforms:{uMap:{value:VFT[key]},uTint:{value:new THREE.Color(o.tint??0xffffff)},uGrid:{value:new THREE.Vector2(S_.c,S_.r)},uF:{value:0},uRow:{value:o.row??-1},uA:{value:0},uM:{value:S_.m||0},uGl:{value:o.gl??.6},uBl:{value:S_.st?0:1}},
     vertexShader:VF_V,fragmentShader:VF_F,transparent:true,depthWrite:false,depthTest:o.depth??!!o.flat,toneMapped:false,side:THREE.DoubleSide,blending:THREE.CustomBlending,blendSrc:THREE.OneFactor,blendDst:THREE.OneMinusSrcAlphaFactor});
   const m=new THREE.Mesh(VFQ,mat);m.frustumCulled=false;m.renderOrder=o.ro??12;m.position.set(x,y,z);m.visible=false;S.add(m);
@@ -2580,21 +2585,21 @@ function gbRetOn(f,dur){const w=document.createElement('div'),d=document.createE
 function resAim(){const si=slotOf('gbpro');if(si<0||G.over)return;const me=allyBody(si);resBanner(si);const dm=Math.round(110*(1+(G.cm||0)*.015));
   const t=foes().filter(f=>f.k!=='claw').sort((a,b)=>a.hp-b.hp)[0];
   if(!t){if(LB.on&&LB.hp>0){gbPillar(0,LBZ+3,.9,0x3ad0ff,.16,.5);later(.2,()=>{if(LB.hp>0)lbDamage(dm,0,6,LBZ)})}return}
-  gbRetOn(t,.5);if(me){gbLine(me.x,me.z,t.x,t.z,GBC.cy,.09,.22);ringFx(me.x,me.z,.3,1.6,.25,GBC.cy,.1)}ringFx(t.x,t.z,t.r*2.6,t.r*1.1,.18,GBC.cy,.1);gbSword(t.x,t.z,t.k==='boss'?1.1:.75,.09,.45);
-  later(.2,()=>{const x=t.x,z=t.z;G.shake=Math.max(G.shake,.28);gbPillar(x,z,.62,0x3ad0ff,0,.55);vf('XLIGHT',x,1.4,z,{s:4.4,d:.7,tint:0xbff0ff,roll:0,gl:.7,fade:.15,ro:14});crossFlash(x,z,1.2);ringFx(x,z,.3,2.2,.3,GBC.cy,.14);ringFx(x,z,.2,1.3,.2,GBC.wh,.2);gbPixScar(x,z,1.5,0x4ad8ff,.05,.9);streaks(x,1,z,{col:0x9af4ff,s:2.4,n:10,d:.22});pixBurst(x,.5,z,[GBC.cy,GBC.vi,GBC.wh,0xffd35a],16,3.4,5,.7);gbPop('AUTO AIM',x,t.k==='boss'?2.8:1.9,z,'hs sm',.6);if(t.alive)hurt(t,dm,x,z)})}
+  vf('XDIGI',t.x,t.k==='boss'?1.6:1,t.z,{s:t.k==='boss'?5.4:4.2,d:.73,roll:0,gl:.5,fade:.12,ro:15});/* 絵の中の照準が .2 秒でロックする(レーザーの当たりと同じ時) */if(me){gbLine(me.x,me.z,t.x,t.z,GBC.cy,.09,.22);ringFx(me.x,me.z,.3,1.6,.25,GBC.cy,.1)}ringFx(t.x,t.z,t.r*2.6,t.r*1.1,.18,GBC.cy,.1);gbSword(t.x,t.z,t.k==='boss'?1.1:.75,.09,.45);
+  later(.2,()=>{const x=t.x,z=t.z;G.shake=Math.max(G.shake,.28);gbPillar(x,z,.62,0x3ad0ff,0,.55);crossFlash(x,z,1.2);ringFx(x,z,.3,2.2,.3,GBC.cy,.14);ringFx(x,z,.2,1.3,.2,GBC.wh,.2);gbPixScar(x,z,1.5,0x4ad8ff,.05,.9);streaks(x,1,z,{col:0x9af4ff,s:2.4,n:10,d:.22});pixBurst(x,.5,z,[GBC.cy,GBC.vi,GBC.wh,0xffd35a],16,3.4,5,.7);gbPop('AUTO AIM',x,t.k==='boss'?2.8:1.9,z,'hs sm',.6);if(t.alive)hurt(t,dm,x,z)})}
 function resRico(){const si=slotOf('gbsnp');if(si<0||G.over)return;const me=allyBody(si);if(!me)return;resBanner(si);const dm=Math.round(170*(1+(G.cm||0)*.015));
   const t=foes().filter(f=>f.k!=='claw').sort((a,b)=>Math.hypot(b.x-me.x,b.z-me.z)-Math.hypot(a.x-me.x,a.z-me.z))[0];const to=t?{x:t.x,z:t.z}:LB.on&&LB.hp>0?{x:0,z:LBZ+3}:null;if(!to)return;
   gbLine(me.x,me.z,to.x,to.z,0xff4a6a,.05,.16);ringFx(me.x,me.z,.2,1.2,.2,0x9ae8ff,.14);
   later(.16,()=>{G.shake=Math.max(G.shake,.32);tintFlash('rgba(190,240,255,.28)');gbTracer(me.x,me.z,to.x,to.z,0x3aa8ff,.5);gbTracer(me.x,me.z,to.x,to.z,0xbfe8ff,.25);streaks(me.x,1,me.z,{col:0x9ae8ff,s:2.8,n:12,d:.2});ringFx(me.x,me.z,.2,1.8,.22,GBC.wh,.12);
     {const L=Math.hypot(to.x-me.x,to.z-me.z)||1;for(let d=1.6;d<L-1;d+=1.7){const px=me.x+(to.x-me.x)*d/L,pz=me.z+(to.z-me.z)*d/L;later(d/50,()=>iceSpikes(px,pz,.3,false))}}
-    later(.05,()=>{crossFlash(to.x,to.z,1.5);vf('XWATER',to.x,1.3,to.z,{s:4.8,d:.75,tint:0xe4f6ff,roll:(Math.random()-.5)*.5,gl:.5,fade:.15,ro:14});iceSpikes(to.x,to.z,(t?t.r:1.2)*1.1,true);ringFx(to.x,to.z,.3,2.6,.35,GBC.cy,.12);ringFx(to.x,to.z,.2,1.5,.2,GBC.wh,.2);streaks(to.x,1,to.z,{col:0xbff4ff,s:2.8,n:12,d:.26});gbPop('跳弾!',to.x,t&&t.k==='boss'?2.8:1.9,to.z,'ch c0',.6);if(t){if(t.alive)hurt(t,dm,t.x,t.z)}else if(LB.hp>0)lbDamage(dm,0,6,LBZ)})})}
+    later(.05,()=>{crossFlash(to.x,to.z,1.5);vf('XICE',to.x,1.3,to.z,{s:5,d:.8,roll:(Math.random()-.5)*.6,gl:.5,fade:.12,ro:14});iceSpikes(to.x,to.z,(t?t.r:1.2)*1.1,true);ringFx(to.x,to.z,.3,2.6,.35,GBC.cy,.12);ringFx(to.x,to.z,.2,1.5,.2,GBC.wh,.2);streaks(to.x,1,to.z,{col:0xbff4ff,s:2.8,n:12,d:.26});gbPop('跳弾!',to.x,t&&t.k==='boss'?2.8:1.9,to.z,'ch c0',.6);if(t){if(t.alive)hurt(t,dm,t.x,t.z)}else if(LB.hp>0)lbDamage(dm,0,6,LBZ)})})}
 function resBonus(){const si=slotOf('gbrhy');if(si<0||G.over)return;resBanner(si);const m=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpMax*.025);G.hp=Math.min(G.hpMax,G.hp+v);
   ringFx(m.x,m.z,.3,CFG.R*.8,.5,GBC.pk,.05);ringFx(m.x,m.z,.3,2.6,.4,GBC.pk,.1);ringFx(m.x,m.z,.2,1.5,.25,GBC.gd,.16);for(let k=0;k<8;k++)later(k*.04,()=>noteFly(m.x,m.z,k,1.1));stars(m.x,1.2,m.z,16,GBC.gd,4);
   gbFirework(m.x-1.2,5.5,m.z-2,GBC.pk,0);gbFirework(m.x+1.4,6.2,m.z-2.6,GBC.gd,.1);for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;gbPillar(a.x,a.z,.2,0xff9ac8,.04,.5);ringFx(a.x,a.z,.2,1.3,.3,GBC.pk,.12)}
-  vf('XLIGHT',m.x,1.6,m.z,{s:4.8,d:.75,tint:0xffd0e8,roll:0,gl:.6,fade:.15,ro:14});gbPop('COMBO BONUS',m.x,2.7,m.z,'pf',.7);num(m.x,1.8,m.z,'+'+v,'heal');ui()}
+  vf('XNOTE',m.x,1.7,m.z,{s:5,d:.85,roll:0,gl:.5,fade:.12,ro:14});gbPop('COMBO BONUS',m.x,2.7,m.z,'pf',.7);num(m.x,1.8,m.z,'+'+v,'heal');ui()}
 function resChainB(x,z,n){const si=slotOf('gbpzl');if(si<0||G.over)return;resBanner(si);const cols=[0x4adcff,0xffd35a,0xb08aff],col=cols[n-1]||cols[2],dm=Math.round([45,60,75][n-1]*(1+(G.cm||0)*.015)),R=2.2;
   gbBlock(x,z,col,0,3.2+n*.9);ringFx(x,z,R,.4,.16,col,.07);
-  later(.16,()=>{pixBurst(x,.8,z,[col,0xffffff,cols[n%3]],18+n*6,3+n*.7,5+n,.8);ringFx(x,z,.3,R+.3,.32,col,.13);ringFx(x,z,.2,R*.6,.2,GBC.wh,.2);crossFlash(x,z,.9+n*.25);gbPixScar(x,z,R*.8,col,.04,.9);streaks(x,1,z,{col,s:2+n*.5,n:8+n*2,d:.22});if(n>=3){gbPillar(x,z,.7,col,0,.55);tintFlash('rgba(190,170,255,.28)')}gbPop(n+'連鎖!',x,2+n*.15,z,'ch c'+[0,2,4][n-1],.7);G.shake=Math.max(G.shake,.16+n*.1);
+  later(.16,()=>{pixBurst(x,.8,z,[col,0xffffff,cols[n%3]],18+n*6,3+n*.7,5+n,.8);ringFx(x,z,.3,R+.3,.32,col,.13);ringFx(x,z,.2,R*.6,.2,GBC.wh,.2);crossFlash(x,z,.9+n*.25);gbPixScar(x,z,R*.8,col,.04,.9);streaks(x,1,z,{col,s:2+n*.5,n:8+n*2,d:.22});if(n>=3){gbPillar(x,z,.7,col,0,.55);tintFlash('rgba(190,170,255,.28)')}{const e=vf('XBLOCK',x,1.3,z,{s:3.6+n*.7,d:.9,roll:0,gl:.4,fade:.12,ro:14});if(e)e.t=.9*.3}/* 絵の前半(くっついてふくらむ所)は立体のブロックが担当するので飛ばす */gbPop(n+'連鎖!',x,2+n*.15,z,'ch c'+[0,2,4][n-1],.7);G.shake=Math.max(G.shake,.16+n*.1);
     for(const f of foes()){if(Math.hypot(f.x-x,f.z-z)<R+f.r)hurt(f,dm,f.x,f.z)}})}
 /* 共鳴技の茨(resThorn)で使う */
 function thornFx(e){const y=e.k==='boss'?1.4:.7;for(let j=0;j<12;j++){const a=j/12*6.283;const q=spark(e.x+Math.cos(a)*.6,y,e.z+Math.sin(a)*.6,-Math.cos(a)*1.2,1.2,-Math.sin(a)*1.2,j%3?0x4ad06a:0xb03a6a,.2,.45,0,2);q.fl=1}flamePillar(e.x,e.z,1.6,.45,.45,0,3)}
@@ -2604,15 +2609,15 @@ function leadBlast(C,rad){if(G.over||!C)return;const R=Math.min(2.6,rad*.7),dm=M
 function leadGravity(C,rad){if(G.over||!C)return;const R=rad*1.4;ringFx(C.x,C.z,R,.4,.45,0x6ad07a,.1);ringFx(C.x,C.z,R*.7,.3,.4,0xd0ffa0,.06);
   for(const b of G.bodies){if(!b.alive||b.k==='claw')continue;const dx=C.x-b.x,dz=C.z-b.z,d=Math.hypot(dx,dz);if(d<.3||d>R)continue;const v=3*(1-d/R)/Math.pow(b.m,.25);b.vx+=dx/d*v;b.vz+=dz/d*v}}
 /* 共鳴技 */
-function resBoom(x,z){const si=slotOf('beni');if(si<0||G.over)return;resBanner(si);vf('XFIRE',x,1.5,z,{s:5.4,d:.8,roll:(Math.random()-.5)*.7,gl:.45,fade:.12,ro:14});flameWave(x,z,2,.3,0);ringFx(x,z,.3,2.4,.35,0xff6a3a,.12);ringFx(x,z,.2,1.6,.2,0xfff0c0,.18);G.shake=Math.max(G.shake,.3);for(const f of foes())if(Math.hypot(f.x-x,f.z-z)<1.9+f.r)hurt(f,38,f.x,f.z)}
-function resTide(al){const si=slotOf('shion');if(si<0||!al)return;resBanner(si);const v=Math.round(G.hpMax*.02);G.hp=Math.min(G.hpMax,G.hp+v);num(al.x,1.8,al.z,'+'+v,'heal');vf('XWATER',al.x,1.2,al.z,{s:3.8,d:.75,roll:(Math.random()-.5)*.5,gl:.4,fade:.15,ro:13});ringFx(al.x,al.z,.3,2,.4,0x7ae0ff,.12);ringFx(al.x,al.z,.2,1.2,.25,0xffffff,.16);ui()}
-function resThorn(){const si=slotOf('ibara');if(si<0||!G.rs)return;resBanner(si);for(const f of G.rs.thHit){if(!f.alive)continue;thornFx(f);vf('XLEAF',f.x,1.1,f.z,{s:3.4,d:.75,roll:Math.random()*6.28,gl:.4,fade:.15,ro:13});ringFx(f.x,f.z,.2,1.4,.3,0x6dffa6,.14);hurt(f,40,f.x,f.z);f.psn=Math.max(f.psn||0,1);f.psnD=f.psnD||40}}
+function resBoom(x,z){const si=slotOf('beni');if(si<0||G.over)return;resBanner(si);vf('XBOMB',x,1.5,z,{s:5.6,d:.8,roll:(Math.random()-.5)*.5,gl:.45,fade:.1,ro:14});flameWave(x,z,2,.3,0);ringFx(x,z,.3,2.4,.35,0xff6a3a,.12);ringFx(x,z,.2,1.6,.2,0xfff0c0,.18);G.shake=Math.max(G.shake,.3);for(const f of foes())if(Math.hypot(f.x-x,f.z-z)<1.9+f.r)hurt(f,38,f.x,f.z)}
+function resTide(al){const si=slotOf('shion');if(si<0||!al)return;resBanner(si);const v=Math.round(G.hpMax*.02);G.hp=Math.min(G.hpMax,G.hp+v);num(al.x,1.8,al.z,'+'+v,'heal');vf('XRIPPLE',al.x,1.3,al.z,{s:4.2,d:.85,roll:0,gl:.4,fade:.12,ro:13});ringFx(al.x,al.z,.3,2,.4,0x7ae0ff,.12);ringFx(al.x,al.z,.2,1.2,.25,0xffffff,.16);ui()}
+function resThorn(){const si=slotOf('ibara');if(si<0||!G.rs)return;resBanner(si);for(const f of G.rs.thHit){if(!f.alive)continue;thornFx(f);vf('XTHORN',f.x,1.1,f.z,{s:3.6,d:.75,roll:Math.random()*6.28,gl:.4,fade:.12,ro:13});ringFx(f.x,f.z,.2,1.4,.3,0x6dffa6,.14);hurt(f,40,f.x,f.z);f.psn=Math.max(f.psn||0,1);f.psnD=f.psnD||40}}
 function resTrail(){const si=slotOf('lumie');if(si<0)return;const me=allyBody(si);if(!me)return;resBanner(si);let t=foes().filter(f=>f.k!=='claw').sort((a,b)=>b.hp-a.hp)[0];const dm=Math.round(80*(1+(G.cm||0)*.015));
   const to=t?{x:t.x,z:t.z}:LB.on&&LB.hp>0?{x:0,z:LBZ+3}:null;if(!to)return;for(let j=0;j<16;j++){const k=j/15;later(k*.12,()=>{const q=spark(lerp(me.x,to.x,k),.9+Math.sin(k*Math.PI)*1.5,lerp(me.z,to.z,k),0,0,0,j%2?0xffffff:0xffe08a,.32,.3,0,0);q.fl=1})}
-  later(.16,()=>{flamePillar(to.x,to.z,4,.6,.45,0,1);vf('XLIGHT',to.x,1.5,to.z,{s:5.2,d:.75,roll:0,gl:.7,fade:.15,ro:14});ringFx(to.x,to.z,.3,2,.3,0xffe08a,.14);G.shake=Math.max(G.shake,.22);if(t&&t.alive)hurt(t,dm,t.x,t.z);else if(LB.on&&LB.hp>0)lbDamage(dm,0,6,LBZ)})}
+  later(.16,()=>{flamePillar(to.x,to.z,4,.6,.45,0,1);vf('XSTAR',to.x,1.5,to.z,{s:5.2,d:.8,roll:0,gl:.6,fade:.12,ro:14});ringFx(to.x,to.z,.3,2,.3,0xffe08a,.14);G.shake=Math.max(G.shake,.22);if(t&&t.alive)hurt(t,dm,t.x,t.z);else if(LB.on&&LB.hp>0)lbDamage(dm,0,6,LBZ)})}
 /* 編成を入れ替える(出撃のとき out.js の window.CA_TEAM から) */
 function setTeam(keys){if(!keys||keys.length!==4)return;const ok=keys.every(k=>ROSTER[k]);if(!ok)return;
-  if(keys.every((k,i)=>ALLIES[i].key===k))return;keys.forEach((k,i)=>{ALLIES[i]=ROSTER[k]});SKILLS=ALLIES.map(skOf);buildFaces();
+  if(keys.every((k,i)=>ALLIES[i].key===k))return;keys.forEach((k,i)=>{ALLIES[i]=ROSTER[k]});SKILLS=ALLIES.map(skOf);buildFaces();xTeam();
   for(const k of keys)if(CHB.tex[k]===undefined&&CHB.ready){}}
 
 /* ---------------- UI ---------------- */
@@ -2679,7 +2684,7 @@ function setStageData(i,h){const st=STAGES[i];G.stage=i;{let gd=st.gd;if(gd==nul
   $('stid').textContent=st.ev?(st.tn||st.id||'EV'):st.id+(h?' H':'');rebuildDbg()}
 function emitScreen(s,extra){try{window.dispatchEvent(new CustomEvent('ca:screen',{detail:Object.assign({s},extra||{})}))}catch(e){}}
 function applyParty(){const P=window.CA_PARTY||{},AB=window.CA_ABIL||{};ALLIES.forEach(a=>{a.ab=new Set(AB[a.key]||[]);const m=P[a.key]||1;a.hp=Math.round(a.hp0*m);a.atk=+(a.atk0*m).toFixed(3)});G.hpMax=ALLIES.reduce((s,a)=>s+a.hp,0);SKILLS=ALLIES.map(skOf)}
-function startStage(i,h){/* (11/8) 外の画面が回数の制限をかける(経験値の竜の巣は一日5回) */if(MP.on&&!startStage.w){startStage.w=1;try{mpSeed(0);return mpWith(()=>startStage(i,h))}finally{startStage.w=0}}if(window.CA_GATE&&!window.CA_GATE(i,!!h))return;stopResultArt();G.runId++;G.windBuff=false;G.tideT=0;G.gbRg=0;G.skZ=0;G.shieldT=0;if(window.CA_TEAM)setTeam(window.CA_TEAM);if(window.CA_LEAD!=null)G.lead=window.CA_LEAD;$('lay').classList.remove('insel');applyParty();setStageData(i,h);emitScreen('battle',{i});['ss','res','mn','ov'].forEach(id=>$(id).hidden=true);skillClose();
+function startStage(i,h){/* (11/8) 外の画面が回数の制限をかける(経験値の竜の巣は一日5回) */if(MP.on&&!startStage.w){startStage.w=1;try{mpSeed(0);return mpWith(()=>startStage(i,h))}finally{startStage.w=0}}if(window.CA_GATE&&!window.CA_GATE(i,!!h))return;stopResultArt();G.runId++;G.windBuff=false;G.tideT=0;G.gbRg=0;G.skZ=0;xTeam();G.shieldT=0;if(window.CA_TEAM)setTeam(window.CA_TEAM);if(window.CA_LEAD!=null)G.lead=window.CA_LEAD;$('lay').classList.remove('insel');applyParty();setStageData(i,h);emitScreen('battle',{i});['ss','res','mn','ov'].forEach(id=>$(id).hidden=true);skillClose();
   G.sk=[0,0,0,0];G.fireBuff=false;G.hp=G.hpMax;G.turn=1;G.cur=0;G.burst=0;G.burstOn=false;G.comboMax=0;G.over=false;G.busy=false;
   const st=STAGES[i];say(st.id+'  '+st.n+(h?'(ハード)':''),2.4);loadWave(0);nextTurn(true)}
 function showRes(ok,msg,btns){G.over=true;G.runId++;const st=STAGES[G.stage];$('res').classList.toggle('fail',!ok);
