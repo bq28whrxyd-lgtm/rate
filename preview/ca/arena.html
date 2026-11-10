@@ -513,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=65';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=66';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -746,7 +746,7 @@ const GBEV={n:'ゲーセンナイト',el:'光',boss:'golem',bn:'ハイスコア�
  /* (11/9) 山本さん「収穫祭を1週間」: 古樹の森の収穫祭(L21)を11/16 9時までのばす。メダルはそのまま使える。そのあとの霧竜の夜は11/23 9時まで(いつもの終わり) */
  {const now=Date.now();if((id===21||id===22)&&now<Date.UTC(2026,10,16)){id=21;end=Date.UTC(2026,10,16)}}
  const th=GBON?GBEV:LEVT[((id%LEVT.length)+LEVT.length)%LEVT.length];Object.assign(LEV,th,GBON?{id:'GB2611',end:GBEV.end,gb:1}:{id:'L'+id,end});
- (GBON?[['初級',{hp:2.2,atk:1.25,cd:0,boss:.6,lb:1.1},3,[10,10]],['中級',{hp:3.8,atk:1.6,cd:0,boss:.65,lb:1.7},3,[20,20]],['上級',{hp:5.2,atk:2,cd:0,boss:.7,lb:2.3},4,[35,35]],['超級',{hp:6.6,atk:2.4,cd:0,boss:.78,lb:2.8},4,[60,60]]]:[['初級',{hp:2.2,atk:1.25,cd:0,boss:.6,lb:1.1},3,[3,5]],['中級',{hp:3.8,atk:1.6,cd:0,boss:.65,lb:1.7},3,[6,9]],['上級',{hp:5.2,atk:2,cd:0,boss:.7,lb:2.3},4,[10,14]]]).forEach(([tn,k,nw,md],ti)=>{
+ (GBON?[['初級',{hp:2.2,atk:1.25,cd:0,boss:.6,lb:1.1},3,[10,10]],['中級',{hp:3.8,atk:1.6,cd:0,boss:.65,lb:1.7},3,[20,20]],['上級',{hp:5.2,atk:2,cd:0,boss:.7,lb:2.3},4,[35,35]],['超級',{hp:6.05,atk:2.25,cd:0,boss:.78,lb:2.8},4,[60,60]]]:[['初級',{hp:2.2,atk:1.25,cd:0,boss:.6,lb:1.1},3,[3,5]],['中級',{hp:3.8,atk:1.6,cd:0,boss:.65,lb:1.7},3,[6,9]],['上級',{hp:5.2,atk:2,cd:0,boss:.7,lb:2.3},4,[10,14]]]).forEach(([tn,k,nw,md],ti)=>{
   const ws=[];for(let w=0;w<nw;w++){const last=w===nw-1;if(last){ws.push({e:3+ti,obj:Object.assign({orb:3,bomb:1,rock:1},GBON?{glitch:1+(ti>1?1:0)}:{}),heal:1,n:'ラスボス '+th.bn,lb:true});continue}
    if(w===nw-2&&ti>0){ws.push({e:4,obj:Object.assign({orb:2,bomb:1,crystal:1},GBON?{glitch:1,jar:ti>1?1:0}:{}),heal:2,boss:true,n:'中ボス '+th.n+'の番人',mb:true});continue}ws.push({e:4+w+ti,obj:Object.assign({orb:3,bomb:1,crystal:ti?1:0,jar:ti>1?1:0},GBON?{glitch:1+(ti>1?1:0),jar:ti>0?1:0}:{}),heal:w?1:0})}
   STAGES.push(genStage({id:'期間限定',ev:'lev',ti,tier:tn,el:th.el,md,gbm:GBON?md[0]:0,n:th.n+' '+tn,d:GBON?'ゲームバカイベント。勝つとゲーセンメダルが'+md[0]+'枚。'+'グリッチゾーン(入ると向きが45°曲がる)がある。'+(ti>0?'毒霧の壺も出る。':'')+'最後に'+th.bn+'が現れる。':'期間限定。勝つとイベントメダルが'+md[0]+'〜'+md[1]+'枚。最後に'+th.bn+'が現れる。',
@@ -754,8 +754,8 @@ const GBEV={n:'ゲーセンナイト',el:'光',boss:'golem',bn:'ハイスコア�
 /* (11/10) ゲームバカの限定降臨「ガチャ魔神」: 主ギミックはグリッチゾーン、副ギミックは毒霧。適正=グリッチ無効・毒霧無効、魔神キラーで2倍。
    勝つとゲーセンメダル50枚、25%で化身。いちばん強い段階(gd 4) */
 if(GBON){const ws=[{e:6,obj:{orb:3,glitch:2,jar:1,crystal:1},heal:1},{e:5,obj:{orb:2,glitch:2,jar:2},heal:2,boss:true,n:'中ボス カプセルの番兵',mb:true},{e:4,obj:{orb:3,glitch:3,jar:2,bomb:1},heal:1,n:'ラスボス ガチャ魔神',lb:true}];
- STAGES.push(genStage({id:'限定降臨',ev:'gbr',el:'光',gd:4,kind:'魔神',gbm:50,n:'限定降臨 ガチャ魔神',d:'ゲームバカイベントの限定降臨。グリッチゾーン(入ると向きが45°曲がる)と毒霧の壺が多い。適正: グリッチ無効・毒霧無効。魔神キラーのキャラはダメージ2倍。勝つとゲーセンメダル50枚、25%でガチャ魔神の化身。',
-  seed:hashStr('gbr2611'),pool:['a','m','p','k','d'],rate:.6,k:{hp:7.6,atk:3.05,cd:-1,boss:.85,lb:3.1}/* (11/11) 山本さん「ちょっと降臨強いかも少しだけね」: 体力と攻撃を1割ほど下げた(前は hp8.5 atk3.4 lb3.4) */,boss:true,mbName:'カプセルの番兵',mbTint:0xff5ad8,lbName:'ガチャ魔神',lbTint:null,lbModel:'gacha',waves:ws}))}
+ STAGES.push(genStage({id:'限定降臨',ev:'gbr',el:'光',gd:4,kind:'魔神',gbm:50,n:'限定降臨 ガチャ魔神',d:'ゲームバカイベントの限定降臨。グリッチゾーン(入ると向きが45°曲がる)と毒霧の壺が多い。適正: グリッチ無効・毒霧無効。魔神キラーのキャラはダメージ2倍。目安 ★5 Lv70。勝つとゲーセンメダル50枚、25%でガチャ魔神の化身。',
+  seed:hashStr('gbr2611'),pool:['a','m','p','k','d'],rate:.6,k:{hp:4.4,atk:1.65,cd:0,boss:.8,lb:2.4}/* (11/11) 山本さん「★5 Lv70くらい」: 試練と同じ強さ(目安Lv70の計算で 体力8.7・攻撃3.3)。前は hp7.6 atk3.05 cd-1 lb3.1 を Lv20 の計算で使っていた */,boss:true,mbName:'カプセルの番兵',mbTint:0xff5ad8,lbName:'ガチャ魔神',lbTint:null,lbModel:'gacha',waves:ws}))}
 {const SA=[{t:'combo',n:'コンボ',d:'1手でつないだコンボの最大数が多いほど高い点。'},{t:'turn',n:'早さ',d:'少ない手数でクリアするほど高い点。'},{t:'hp',n:'無傷',d:'のこった体力が多いほど高い点。'}];
  const sa=SA[hashStr(WKID)%SA.length];Object.assign(SCORE,sa,{wk:WKID});
  STAGES.push(genStage({id:'SCORE',ev:'score',sa:sa.t,n:'スコアアタック「'+sa.n+'」',d:'今週のお題は「'+sa.n+'」。'+sa.d+'クリアすると点が出て、仲間とくらべられる。',
@@ -2667,9 +2667,9 @@ const XDIF=+window.__XDIF||2.5;/* 目安Lvちょうどで、いまの本番(2倍
 function stageT(i,h){const st=STAGES[i],ev=st.ev||'';
   if(!ev){const c=st.ch||0,j=STAGES.slice(0,i).filter(s=>!s.ev&&(s.ch||0)===c).length,A=[[1,10],[10,25],[25,40],[40,55]][Math.min(3,c)];return A[0]+(A[1]-A[0])*j/7+(h?15:0)}
   if(ev==='tower'){const f=+((st.n||'').match(/(\d+)階/)||[0,1])[1];return 5+75*(f-1)/29}
-  if(ev==='raid')return 60;if(ev==='score')return 30;
+  if(ev==='raid')return 60;if(ev==='score')return 30;if(ev==='gbr')return 70;/* (11/11) 限定降臨ガチャ魔神: 山本さん「★5 Lv70くらい」 */
   if(ev==='ex'){const n=st.n||'';return /試練/.test(n)?70:90}
-  const n=st.n||'';let j=/上級/.test(n)?2:/中級/.test(n)?1:/初級/.test(n)?0:-1;if(j<0){j=0;for(let k=i-1;k>=0&&STAGES[k].ev===ev&&(STAGES[k].n===st.n);k--)j++}return [20,40,60][Math.min(2,j)]}
+  const n=st.n||'';if(/超級/.test(n))return 75;/* (11/11) 超級: 上級の1.25倍くらい */let j=/上級/.test(n)?2:/中級/.test(n)?1:/初級/.test(n)?0:-1;if(j<0){j=0;for(let k=i-1;k>=0&&STAGES[k].ev===ev&&(STAGES[k].n===st.n);k--)j++}return [20,40,60][Math.min(2,j)]}
 /* (11/9) 敵の「攻撃まで」をばらす(山本さん): 一斉に攻撃せず、1手番に半分くらいずつ。攻撃の多さ(2手番に1回)は変えない */
 let CDALT=0;function cd0(b,k){if(k==='boss')return Math.max(1,2+DIF.cd);const base=Math.max(1,1+((b.id*7)%3)+DIF.cd);if(DIF.cd>=0)return base;CDALT^=1;return 1+CDALT}
 function setStageData(i,h){const st=STAGES[i];G.stage=i;{let gd=st.gd;if(gd==null)gd=Math.min(4,Math.min(2.4,i/Math.max(1,MAIN_N-1)*2.4)+(h?1.2:0));G.gd=gd;G.gdS=1+.12*gd;G.gdD=1+.35*gd}G.dmgMax=0;G.mpN=0;G.mpWait=false;G.ldo=null;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
