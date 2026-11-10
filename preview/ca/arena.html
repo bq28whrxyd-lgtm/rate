@@ -513,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=68';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=69';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2912,14 +2912,21 @@ function fitCam(pitch,pts,y0,y1,wk,lookY,outB,outL){let d=34,lz=0;const C=cam;
 /* (11/11) 山本さん「ラグさ減らしたい」: 重い端末では描く解像度を自動で下げる。
    スマホは倍率3(1206x2622)で後処理を5回ほど通すので、画面を埋める処理がいちばん重い。
    1秒半ほど続けて 46fps を下回ったら倍率を .5 ずつ下げる(下は1.5まで)。一瞬のひっかかり(読み込み・技の初回)では下げない。下げたら、その起動のあいだは上げない */
-let PRC=0,prT0=0,prN=0,prSlow=0,prHold=0;
-/* ふちをなめらかにする後処理(SMAA)は画面いっぱいを3回描く。倍率2.5以上(スマホ)では点が細かくてギザギザがほぼ見えないので、最初から切る(描く量がおよそ半分になる) */
-function prInit(){PRC=R.getPixelRatio();if(!window.__KEEPSMAA&&PRC>=2.5)smaa.enabled=false;prHold=performance.now()+3000}
-function prDown(now,ms){if(smaa.enabled&&PRC>=2)smaa.enabled=false;else if(PRC>1.5){PRC=Math.max(1.5,PRC-.5);R.setPixelRatio(PRC);resize()}else if(smaa.enabled)smaa.enabled=false;else return;
-  prHold=now+1500;prT0=0;try{window.__PRLOG=(window.__PRLOG||[]).concat([[Math.round(now),PRC,smaa.enabled?1:0,+ms.toFixed(1)]])}catch(e){}}
-function prTick(){const now=performance.now();if(!PRC)prInit();if(window.__FIXDT||window.__NOPR)return;if((PRC<=1.5&&!smaa.enabled)||now<prHold)return;
+/* (11/11) 画質の設定(山本さん「画質下がった(ぼやけた)」→「設定で選べるように」)。その他 → 設定 で切りかえる。保存は ca_q
+   max  = 最高(最初はこれ。前と同じ): 端末の倍率(最大3)+ふちをなめらかにする後処理(SMAA)。自動では下げない
+   std  = 標準: 倍率はそのまま。SMAA だけ切る(画面いっぱいを3回描く分がなくなり、描く量がおよそ半分。倍率2.5以上では見た目の差はほぼ無い)
+   lite = 軽い: SMAA を切り、重い状態が3秒続いたら倍率を .5 ずつ下げる(下は2まで)。軽い状態が続いたら1段もどす */
+const PR0=R.getPixelRatio();let PRQ='max';try{const q=localStorage.getItem('ca_q');if(q==='std'||q==='lite')PRQ=q}catch(e){}
+let PRC=0,prT0=0,prN=0,prSlow=0,prFast=0,prHold=0,prUps=0;
+function prApply(){PRC=PR0;prSlow=prFast=prUps=0;prT0=0;prHold=performance.now()+4000;smaa.enabled=PRQ==='max'||PR0<2.5;if(R.getPixelRatio()!==PR0){R.setPixelRatio(PR0);resize()}}
+function setQuality(q){PRQ=q==='std'||q==='lite'?q:'max';try{localStorage.setItem('ca_q',PRQ)}catch(e){}prApply();return PRQ}
+function prSet(p,now,ms){PRC=p;R.setPixelRatio(PRC);resize();prHold=now+2000;prT0=0;prSlow=prFast=0;try{window.__PRLOG=(window.__PRLOG||[]).concat([[Math.round(now),PRC,+ms.toFixed(1)]])}catch(e){}}
+function prTick(){const now=performance.now();if(!PRC)prApply();if(PRQ!=='lite'||window.__FIXDT||window.__NOPR||now<prHold)return;
   if(!prT0||now-prT0>4000){prT0=now;prN=0;return}/* 長く止まっていた(別の画面・裏に回った)あとは測り直す */prN++;const el=now-prT0;if(el<750)return;
-  const ms=el/prN;prT0=now;prN=0;if(ms>21.5){if(++prSlow>=2){prSlow=0;prDown(now,ms)}}else prSlow=0}
+  const ms=el/prN;prT0=now;prN=0;
+  if(ms>21.5){prFast=0;if(++prSlow>=4&&PRC>2)prSet(Math.max(2,PRC-.5),now,ms)}       /* 46fps を下回る状態が3秒 → 1段下げる */
+  else if(ms<17.4){prSlow=0;if(PRC<PR0&&prUps<1&&++prFast>=12){prUps++;prSet(Math.min(PR0,PRC+.5),now,ms)}}   /* 60fps 近くが9秒 → 1段だけもどす(行ったり来たりしないよう1回まで) */
+  else{prSlow=0;prFast=0}}
 function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);comp.setPixelRatio(R.getPixelRatio());comp.setSize(w,h);smaa.setSize(w*R.getPixelRatio(),h*R.getPixelRatio());bloom.resolution.set(w/2,h/2);cam.aspect=w/h;cam.updateProjectionMatrix();
   const tb=document.querySelector('.top').getBoundingClientRect(),pb=document.querySelector('.bot').getBoundingClientRect();document.documentElement.style.setProperty('--panelH',(h-pb.top)+'px');
   const ny=y=>1-2*y/h;const top=ny(tb.bottom+4),bot=ny(pb.top+8);
@@ -2970,7 +2977,7 @@ loadPortraits();loadIcons();
   if(/dbg/.test(h)){G.dbg=true;$('dbg').hidden=false}}
 modeLabel();
 requestAnimationFrame(frame);
-window.CA_API={loadWave,TOWER,RAID,SCORE,EXB,EXT,LEV,YM,WKID,CHAPS,genStage,genWave,rng,hashStr,RES,RESK,demoRes,demoFire,ROSTER,SKD,setTeam,STAGES,PROG,MAIN_N,ALLIES,OEL,PORT,G,startStage,showSelect,faceTex,portCanvas,applyParty,ui,stageOpen,stageStrength,stageKinds,kindsBefore,KNAME,HARD,LEADS};
+window.CA_API={setQuality,getQuality:()=>PRQ,loadWave,TOWER,RAID,SCORE,EXB,EXT,LEV,YM,WKID,CHAPS,genStage,genWave,rng,hashStr,RES,RESK,demoRes,demoFire,ROSTER,SKD,setTeam,STAGES,PROG,MAIN_N,ALLIES,OEL,PORT,G,startStage,showSelect,faceTex,portCanvas,applyParty,ui,stageOpen,stageStrength,stageKinds,kindsBefore,KNAME,HARD,LEADS};
 imp('./out.js').catch(e=>console.warn('out.js を読めませんでした',e));
 window.__CA={riStart(){R.info.autoReset=false;R.info.reset()},riEnd(){R.info.autoReset=true},get RI(){return {calls:R.info.render.calls,tris:R.info.render.triangles,geo:R.info.memory.geometries,tex:R.info.memory.textures,prog:R.info.programs?R.info.programs.length:0,pr:R.getPixelRatio()}},resAim,resRico,resBonus,resChainB,MP,mpOn,mpOff,mpShot,mpSkill,mpSlot,mpSnap,mpHash,mpApply,gimTurn,addBody,STAGES,PROG,DIF,startStage,showSelect,stageClear,stageFail,useSkill,get SKILLS(){return SKILLS},get ALLIES(){return ALLIES},combo,resFire,resWood,resWater,resLight,allyBody,G,CFG,KIND,LB,startCompress,release,groundAt,cam,loadWave,nextTurn,resize,vf,vfHit,vfPop,vfBoom,VF,explode,addBody,hurt,streaks,impactFrame,
   stageT,resFxState:()=>({active:RFX.length,holding:RFX.filter(e=>e.hold).length,stopT,geometries:R.info.memory.geometries,textures:R.info.memory.textures,programs:(R.info.programs||[]).length})};

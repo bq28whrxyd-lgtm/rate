@@ -137,8 +137,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=68').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=68').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=69').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=69').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -2434,6 +2434,11 @@ function settingsMenu() {
   const L = h('div', 'aList aGl'); b.appendChild(L);
   const item = (k, t, sub, fn) => { const e = h('button', null, `${svg(k)}<span>${esc(t)}<small>${esc(sub)}</small></span><span class="ar">›</span>`); e.type = 'button'; e.onclick = fn; L.appendChild(e); return e; };
   if (HOST) item('home', 'アプリに戻る', 'きもオタレートのホームへ', () => { try { HOST.close(); } catch (e) { } });
+  /* (11/11) 画質: 最高 → 標準 → 軽い の順に切りかわる(山本さん「設定で選べるように」) */
+  { const QN = { max: ['最高', '前と同じ。いちばんきれい(重い端末ではカクつくことがある)'], std: ['標準', '細かさはそのまま、ふちの仕上げだけ省く。かなり軽くなる'], lite: ['軽い', '重いときだけ少しぼやける(細かさを自動で下げる)。いちばん軽い'] }, ORD = ['max', 'std', 'lite'];
+    const cur = () => { try { return A.getQuality(); } catch (e) { return 'max'; } };
+    const e = item('ev', 'バトルの画質', '', () => { const q = ORD[(ORD.indexOf(cur()) + 1) % 3]; try { A.setQuality(q); } catch (er) { } show(); });
+    const show = () => { const q = cur(); e.querySelector('small').textContent = '今: ' + QN[q][0] + ' ― ' + QN[q][1] + '(押すと切りかえ)'; }; show(); }
   item('ev', '画面の見た目(試し)', BRT ? '今: ソシャゲ寄り(押すと前の見た目にする)' : '今: 前の見た目(押すとソシャゲ寄りにもどす)', () => { try { localStorage.setItem('ca_ui', BRT ? 'a' : 'b'); } catch (e) { } location.reload(); });   /* (11/9) 見くらべ用 */
   if (!HOST) item('name', 'プレイヤー名', S.name, () => modal('プレイヤー名', (bd, close) => {
     bd.innerHTML = `<input maxlength="10" value="${esc(S.name)}" aria-label="プレイヤー名" style="width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;border:0;font:700 16px var(--zk);color:#fff;background:#060c24;box-shadow:inset 0 0 0 1px var(--aG)">`;
