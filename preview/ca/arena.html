@@ -513,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=69';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=70';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -1056,7 +1056,7 @@ function ballFx(x,y,z,r,dur,col){const m=new THREE.Mesh(new THREE.SphereGeometry
    分身バトルで作った絵(当たり6属性・会心・ブレイク・爆発・煙・魔法陣・光の破裂・炎)を板に貼り、時間でコマを進める。
    当たりは「速く来る→短く強く止まる→不ぞろいに消える」。光るのは芯だけにして、敵の形が見えるようにする */
 const VFT={};let VFok=false;
-const VFS={HIT:{c:8,r:6,n:8,st:1},CRIT:{c:8,r:1,n:8,st:1},BRK:{c:10,r:1,n:10,st:1},BOOM:{c:4,r:4,n:16,m:2},SMOKE:{c:4,r:4,n:16},CIRC:{c:4,r:4,n:16,m:1},MB:{c:4,r:4,n:16,m:1},FIRE:{c:4,r:4,n:16,st:1}};
+const VFS={HIT:{c:8,r:6,n:8,st:1},CRIT:{c:8,r:1,n:8,st:1},BRK:{c:10,r:1,n:10,st:1},BOOM:{c:4,r:4,n:16,m:2},SMOKE:{c:4,r:4,n:16},CIRC:{c:4,r:4,n:16,m:1},MB:{c:4,r:4,n:16,m:1},FIRE:{c:4,r:4,n:16,st:1},XFIRE:{c:6,r:6,n:30}};
 const VFROW={炎:1,水:2,木:3,光:4,闇:5};
 const VFQ=new THREE.PlaneGeometry(1,1);
 const VF_V='varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}';
@@ -1595,7 +1595,7 @@ function rfxFireShot(from,tg,dmg,i,n){const st=new THREE.Vector3(from.x,1.3,from
     if(hitT<0){pos.set(0,0,0).addScaledVector(st,(1-e)*(1-e)).addScaledVector(ctrl,2*(1-e)*e).addScaledVector(last,e*e);
       head.position.copy(pos);core.position.copy(pos);const fl=1+.12*Math.sin(u*47+i);head.scale.setScalar(1.5*fl);core.scale.setScalar(1.05*fl);
       if(Math.random()<.7){const q=spark(pos.x+(Math.random()-.5)*.3,pos.y,pos.z+(Math.random()-.5)*.3,(Math.random()-.5)*.8,.6+Math.random(),(Math.random()-.5)*.8,Math.random()<.5?0xffb040:0xff5a14,.22+Math.random()*.12,.35,-.5,1.5);q.fl=1}
-      if(k>=1){hitT=u;head.visible=core.visible=false;const p=last;rfxDamage(tg,dmg,p);flamePillar(p.x,p.z,2.6,.48,.45,0,0);flameWave(p.x,p.z,1.7,.28,0);
+      if(k>=1){hitT=u;head.visible=core.visible=false;const p=last;rfxDamage(tg,dmg,p);/* (11/11) 当たりは、コードで焼いた連続絵の爆発にする(見本)。地面の輪と火の粉は今までどおりその場で描く */vf('XFIRE',p.x,1.5,p.z,{s:4.6,d:.8,roll:(Math.random()-.5)*.7,gl:.45,fade:.12,ro:14});flameWave(p.x,p.z,1.9,.3,0);ringFx(p.x,p.z,.2,1.9,.22,0xfff0c0,.16);G.shake=Math.max(G.shake,.22);
         vfHit(p.x,p.y,p.z,10,'炎',true);vf('FIRE',p.x,p.y-.2,p.z,{s:3,d:.62,roll:0,gl:.35});ringFx(p.x,p.z,.4,2.4,.42,0xff7a2a,.16);streaks(p.x,p.y,p.z,{col:0xff8a2a,s:3.2,n:10,d:.24});
         for(let j=0;j<14;j++){const a=Math.random()*6.283,s=3+Math.random()*4;const q=spark(p.x,p.y,p.z,Math.cos(a)*s,1+Math.random()*3,Math.sin(a)*s,Math.random()<.5?0xffc060:0xff4a10,.28,.45,6,1.2);q.fl=1}}}
     ribUpd(R,hitT<0?pos:last,u,.22,hitT<0?1:Math.max(0,1-(u-hitT)/.26));if(hitT>=0&&u-hitT>.28)return false},
@@ -2979,6 +2979,6 @@ modeLabel();
 requestAnimationFrame(frame);
 window.CA_API={setQuality,getQuality:()=>PRQ,loadWave,TOWER,RAID,SCORE,EXB,EXT,LEV,YM,WKID,CHAPS,genStage,genWave,rng,hashStr,RES,RESK,demoRes,demoFire,ROSTER,SKD,setTeam,STAGES,PROG,MAIN_N,ALLIES,OEL,PORT,G,startStage,showSelect,faceTex,portCanvas,applyParty,ui,stageOpen,stageStrength,stageKinds,kindsBefore,KNAME,HARD,LEADS};
 imp('./out.js').catch(e=>console.warn('out.js を読めませんでした',e));
-window.__CA={riStart(){R.info.autoReset=false;R.info.reset()},riEnd(){R.info.autoReset=true},get RI(){return {calls:R.info.render.calls,tris:R.info.render.triangles,geo:R.info.memory.geometries,tex:R.info.memory.textures,prog:R.info.programs?R.info.programs.length:0,pr:R.getPixelRatio()}},resAim,resRico,resBonus,resChainB,MP,mpOn,mpOff,mpShot,mpSkill,mpSlot,mpSnap,mpHash,mpApply,gimTurn,addBody,STAGES,PROG,DIF,startStage,showSelect,stageClear,stageFail,useSkill,get SKILLS(){return SKILLS},get ALLIES(){return ALLIES},combo,resFire,resWood,resWater,resLight,allyBody,G,CFG,KIND,LB,startCompress,release,groundAt,cam,loadWave,nextTurn,resize,vf,vfHit,vfPop,vfBoom,VF,explode,addBody,hurt,streaks,impactFrame,
+window.__CA={resFire,riStart(){R.info.autoReset=false;R.info.reset()},riEnd(){R.info.autoReset=true},get RI(){return {calls:R.info.render.calls,tris:R.info.render.triangles,geo:R.info.memory.geometries,tex:R.info.memory.textures,prog:R.info.programs?R.info.programs.length:0,pr:R.getPixelRatio()}},resAim,resRico,resBonus,resChainB,MP,mpOn,mpOff,mpShot,mpSkill,mpSlot,mpSnap,mpHash,mpApply,gimTurn,addBody,STAGES,PROG,DIF,startStage,showSelect,stageClear,stageFail,useSkill,get SKILLS(){return SKILLS},get ALLIES(){return ALLIES},combo,resFire,resWood,resWater,resLight,allyBody,G,CFG,KIND,LB,startCompress,release,groundAt,cam,loadWave,nextTurn,resize,vf,vfHit,vfPop,vfBoom,VF,explode,addBody,hurt,streaks,impactFrame,
   stageT,resFxState:()=>({active:RFX.length,holding:RFX.filter(e=>e.hold).length,stopT,geometries:R.info.memory.geometries,textures:R.info.memory.textures,programs:(R.info.programs||[]).length})};
 </script>
