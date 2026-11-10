@@ -315,7 +315,7 @@ body{font-family:var(--ui);-webkit-user-select:none;user-select:none;-webkit-tou
 .gbP.sc{font:900 20px/1 'Hiragino Sans','Noto Sans JP',sans-serif;color:#fff;-webkit-text-stroke-color:#7a1048}.gbP.ch{font:900 26px/1 'Hiragino Sans','Noto Sans JP',sans-serif;-webkit-text-stroke-width:6px}
 .gbP.c0{color:#8ae8ff;-webkit-text-stroke-color:#063a5a}.gbP.c1{color:#ff9ab0;-webkit-text-stroke-color:#5a0a1e}.gbP.c2{color:#ffe08a;-webkit-text-stroke-color:#5a3a00}.gbP.c3{color:#9affc0;-webkit-text-stroke-color:#0a3a1e}.gbP.c4{font-size:40px;color:#d8c8ff;-webkit-text-stroke:8px #2a1060}
 .gbBan{position:absolute;left:50%;top:42%;z-index:31;text-align:center;pointer-events:none;white-space:nowrap}
-.gbBan b{display:block;font:italic 900 44px/1 'Inter Tight',system-ui,sans-serif;letter-spacing:.01em;color:#fff;-webkit-text-stroke:8px #0a1430;paint-order:stroke fill;text-shadow:0 0 18px var(--g,#67e8f9)}
+.gbBan b{display:block;font:italic 900 min(44px,9.4vw)/1 'Inter Tight',system-ui,sans-serif;letter-spacing:.01em;color:#fff;-webkit-text-stroke:8px #0a1430;paint-order:stroke fill;text-shadow:0 0 18px var(--g,#67e8f9)}
 .gbBan small{display:block;margin-top:6px;font:900 15px/1 'Hiragino Sans','Noto Sans JP',sans-serif;letter-spacing:.3em;color:#fff;-webkit-text-stroke:4px #0a1430;paint-order:stroke fill}
 .gbBan.cy{--g:#67e8f9}.gbBan.cy b{color:#e6fbff}.gbBan.pk{--g:#ff6aa8}.gbBan.pk b{color:#fff0f7}
 .gbBanL{position:absolute;left:0;right:0;top:42%;height:64px;z-index:30;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(10,20,48,.72) 18%,rgba(10,20,48,.72) 82%,transparent);border-top:1.5px solid #67e8f9aa;border-bottom:1.5px solid #ff6aa8aa;transform-origin:50% 50%}
@@ -327,7 +327,8 @@ body{font-family:var(--ui);-webkit-user-select:none;user-select:none;-webkit-tou
 .gbO.gbScope .r{width:26px;height:26px;border:2px solid #ff4a6a;border-radius:50%;background:none;transform:translate(-50%,-50%)}
 .gbO.gbScope em{position:absolute;left:var(--x);top:var(--y);transform:translate(30px,-60px);font:italic 900 14px/1 'Inter Tight',system-ui,sans-serif;color:#ff6a8a;letter-spacing:.2em}
 .gbO.gbStage{background:radial-gradient(ellipse at 20% 0%,rgba(255,106,168,.28),transparent 45%),radial-gradient(ellipse at 80% 0%,rgba(103,232,249,.25),transparent 45%),radial-gradient(ellipse at 50% 100%,rgba(255,211,90,.18),transparent 50%)}
-.gbRet{position:absolute;z-index:25;width:calc(54px*var(--s,1));height:calc(54px*var(--s,1));pointer-events:none;border:2px solid #67e8f9;border-radius:6px;-webkit-mask:linear-gradient(#000 0 0) top left/14px 14px no-repeat,linear-gradient(#000 0 0) top right/14px 14px no-repeat,linear-gradient(#000 0 0) bottom left/14px 14px no-repeat,linear-gradient(#000 0 0) bottom right/14px 14px no-repeat;box-shadow:0 0 10px #67e8f9}
+.gbRet{position:absolute;z-index:25;width:calc(54px*var(--s,1));height:calc(54px*var(--s,1));pointer-events:none;background:linear-gradient(#67e8f9 0 0) left top/16px 3px no-repeat,linear-gradient(#67e8f9 0 0) left top/3px 16px no-repeat,linear-gradient(#67e8f9 0 0) right top/16px 3px no-repeat,linear-gradient(#67e8f9 0 0) right top/3px 16px no-repeat,linear-gradient(#67e8f9 0 0) left bottom/16px 3px no-repeat,linear-gradient(#67e8f9 0 0) left bottom/3px 16px no-repeat,linear-gradient(#67e8f9 0 0) right bottom/16px 3px no-repeat,linear-gradient(#67e8f9 0 0) right bottom/3px 16px no-repeat;filter:drop-shadow(0 0 4px #67e8f9) drop-shadow(0 0 1px #06305a)}
+.gbRet::before{content:'';position:absolute;inset:22%;border:1.5px solid #ff4a6a;border-radius:50%}.gbRet::after{content:'LOCK';position:absolute;left:0;right:0;top:100%;margin-top:3px;text-align:center;font:italic 900 9px/1 'Inter Tight',system-ui,sans-serif;letter-spacing:.18em;color:#bff4ff;text-shadow:0 0 3px #06305a,0 1px 0 #06305a}
 .gbCm{position:absolute;left:100%;z-index:22;pointer-events:none;white-space:nowrap;font:800 15px/1 'Hiragino Sans','Noto Sans JP',sans-serif;color:#fff;-webkit-text-stroke:3px #1a0a20;paint-order:stroke fill}
 .gbCm.sc{padding:6px 10px;border-radius:8px;background:var(--c);color:#1a0a20;-webkit-text-stroke:0;box-shadow:0 3px 10px #0008}
 </style>
@@ -505,7 +506,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=57';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=58';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2346,15 +2347,17 @@ function skEncore(si){const me=allyBody(si)||{x:0,z:3};const dm=Math.round(72*AL
     const m=allyBody(si)||me;num(m.x,1.8,m.z,'+'+v,'heal');ui()});
   hint('フルコンボ・アンコール ─ 音符8つ(1つ'+dm+'ダメージ)、チームHP+'+v);logC('フルコンボ・アンコール '+dm+'x8 +'+v)}
 
+/* 空から落ちてくるパズルのブロック(連鎖のたびに1つ) */
+function gbBlock(x,z,col,dl,sc){const m=new THREE.Mesh(GBCUBE,new THREE.MeshBasicMaterial({color:col,toneMapped:false})),e=new THREE.Mesh(GBCUBE,new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false,side:THREE.BackSide}));e.scale.setScalar(1.12);m.add(e);m.visible=false;S.add(m);const D=.16;
+  RFX.push({upd(t){const u=t-dl;if(u<0)return;m.visible=true;const k=Math.min(1,u/D);m.position.set(x,.6+(1-k*k)*8,z);m.scale.set(sc*(1-k*.1),sc*(1+ (1-k)*.5),sc*(1-k*.1));m.rotation.y=k*1.57;if(k>=1)return false},clean(){S.remove(m);m.material.dispose();e.material.dispose()}})}
 /* --- ★5(化身) ソラ「連鎖消し」: 場の球を2つ水球に変える → 落ちものパズルのように 1連鎖〜5連鎖。連鎖のたびにダメージが大きくなる --- */
 function skChain(si){const me=allyBody(si)||{x:0,z:3};const base=ALLIES[si].atk,K=[55,70,90,115,160];const cols=[0x4adcff,0xff5a7a,0xffd35a,0x6dffa6,0xb08aff];
   let n=0;for(const o of G.bodies){if(n>=2)break;if(!o.alive||o.k!=='orb'||o.el==='水')continue;setOrbEl(o,'水');pixBurst(o.x,.6,o.z,[0x4adcff,0xffffff],10,2.4,4,.6);ringFx(o.x,o.z,.2,1,.3,0x8ae0ff,.14);n++}
   hitStop(.03);ringFx(me.x,me.z,.3,2,.35,0x4adcff,.1);pixBurst(me.x,1.2,me.z,cols,16,2.2,4,.8);
   K.forEach((k,i)=>later(.22+i*.24,()=>{const L=foes().filter(f=>f.k!=='claw');const f=L.length?L[Math.floor(Math.random()*L.length)]:null;const dm=Math.round(k*base);const big=i===4;
-    G.shake=Math.max(G.shake,big?.5:.12+i*.05);if(big){hitStop(.08);tintFlash('rgba(140,220,255,.45)')}
-    const x=f?f.x:0,z=f?f.z:LBZ+3;pixBurst(x,.8,z,[cols[i],0xffffff],10+i*4,2+i*.6,4+i,.7);ringFx(x,z,.3,1.2+i*.3,.3,cols[i],.12);if(big)gbBeam(x,z,cols[i],0,1.6);
+    const x=f?f.x:0,z=f?f.z:LBZ+3;gbBlock(x,z,cols[i],0,3+i*.6);later(.16,()=>{G.shake=Math.max(G.shake,big?.5:.12+i*.05);if(big){hitStop(.08);tintFlash('rgba(140,220,255,.45)')}pixBurst(x,.8,z,[cols[i],0xffffff],10+i*4,2+i*.6,4+i,.7);ringFx(x,z,.3,1.2+i*.3,.3,cols[i],.12);if(big)gbBeam(x,z,cols[i],0,1.6);
     gbPop((i+1)+'連鎖!',x,(f&&f.k==='boss'?2.8:1.8)+i*.15,z,'ch c'+i,.75);
-    if(f){hurt(f,dm,f.x,f.z)}else if(LB.on&&LB.hp>0)lbDamage(dm,0,6,LBZ)}));
+    if(f){if(f.alive)hurt(f,dm,f.x,f.z)}else if(LB.on&&LB.hp>0)lbDamage(dm,0,6,LBZ)})}));
   hint('連鎖消し ─ 球'+n+'つを水球に、5連鎖で'+Math.round(K.reduce((a,b)=>a+b)*base)+'ダメージ');logC('連鎖消し')}
 
 /* --- ★4 ピコ「8ビット・ヒール」: ドットのハートがいくつも上がって「1UP」。チームHPを回復し、グリッチゾーンを1つ消す --- */
@@ -2370,7 +2373,7 @@ function skKoCombo(si){const me=allyBody(si)||{x:0,z:3};const hit=Math.round(20*
   if(!at){say('相手がいない',1);return}
   vf('FIRE',me.x,1,me.z,{s:1.6,d:.3,roll:0,gl:.5});streaks(me.x,1,me.z,{col:0xff7a2a,s:2.2,n:10,d:.2});
   let c=0;for(let k=0;k<10;k++)later(.14+k*.055,()=>{c++;const x=at.x+(Math.random()-.5)*.8,z=at.z+(Math.random()-.5)*.6;const q=spark(x,1,z,(Math.random()-.5)*4,2+Math.random()*2,(Math.random()-.5)*4,k%2?0xffe08a:0xffffff,.3,.25,6,2);q.fl=1;
-    ringFx(x,z,.1,.6,.12,0xfff0c0,.2);G.shake=Math.max(G.shake,.1);hitStop(.02);if(t&&t.alive)hurt(t,hit,t.x,t.z,true);else if(LB.on&&LB.hp>0&&!t)lbDamage(hit,0,6,LBZ);
+    ringFx(x,z,.1,.9,.14,0xfff0c0,.22);crossFlash(x,z,.55+(k%3)*.12);vf('MB',x,1,z,{s:1.5+(k%3)*.3,d:.16,tint:k%2?0xffe08a:0xff9a4a,roll:0,gl:1});streaks(x,1,z,{col:0xffd35a,s:1.3,n:5,d:.12});G.shake=Math.max(G.shake,.14);hitStop(.02);if(t&&t.alive)hurt(t,hit,t.x,t.z,true);else if(LB.on&&LB.hp>0&&!t)lbDamage(hit,0,6,LBZ);
     gbPop(c+' HIT',at.x+1.4,1.6,at.z,'hit',.4)});
   later(.14+10*.055+.08,()=>{hitStop(.15);G.shake=Math.max(G.shake,.7);tintFlash('rgba(255,160,80,.5)');flamePillar(at.x,at.z,5,1,.6,0,0);vfBoom(at.x,at.z,1.6,false,true);
     for(const f of foes()){if(Math.hypot(f.x-at.x,f.z-at.z)<2+f.r&&f!==t)hurt(f,Math.round(fin*.4),f.x,f.z)}
