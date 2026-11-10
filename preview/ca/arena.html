@@ -317,6 +317,9 @@ body{font-family:var(--ui);-webkit-user-select:none;user-select:none;-webkit-tou
 .gbCmb{position:absolute;right:max(14px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 120px);z-index:29;text-align:right;pointer-events:none;transform-origin:100% 50%}
 .gbCmb b{display:block;font:italic 900 54px/1 'Inter Tight',system-ui,sans-serif;color:#fff0f7;-webkit-text-stroke:8px #5a1440;paint-order:stroke fill;text-shadow:0 0 16px #ff6aa8}
 .gbCmb small{display:block;font:italic 900 14px/1 'Inter Tight',system-ui,sans-serif;letter-spacing:.2em;color:#ffd35a;-webkit-text-stroke:4px #5a1440;paint-order:stroke fill}
+.gbCmb.hit b{color:#fff3d0;-webkit-text-stroke-color:#6a1400;text-shadow:0 0 16px #ff8a2a}.gbCmb.hit small{color:#ffb04a;-webkit-text-stroke-color:#6a1400}
+.gbLive{position:absolute;left:0;top:calc(env(safe-area-inset-top,0px) + 118px);z-index:28;display:flex;align-items:center;gap:7px;padding:7px 14px 7px max(12px,env(safe-area-inset-left,0px));border-radius:0 999px 999px 0;background:rgba(20,8,28,.82);pointer-events:none;font:800 12px/1 'Hiragino Sans','Noto Sans JP',sans-serif;color:#fff}
+.gbLive i{font:italic 900 12px/1 'Inter Tight',system-ui,sans-serif;padding:4px 7px;border-radius:5px;background:#ff2a4a;letter-spacing:.08em}.gbLive b{font:900 15px/1 'Inter Tight',system-ui,sans-serif;color:#ffd35a}.gbLive small{font-size:10px;opacity:.85}
 .gbBan{position:absolute;left:50%;top:42%;z-index:31;text-align:center;pointer-events:none;white-space:nowrap}
 .gbBan b{display:block;font:italic 900 min(44px,9.4vw)/1 'Inter Tight',system-ui,sans-serif;letter-spacing:.01em;color:#fff;-webkit-text-stroke:8px #0a1430;paint-order:stroke fill;text-shadow:0 0 18px var(--g,#67e8f9)}
 .gbBan small{display:block;margin-top:6px;font:900 15px/1 'Hiragino Sans','Noto Sans JP',sans-serif;letter-spacing:.3em;color:#fff;-webkit-text-stroke:4px #0a1430;paint-order:stroke fill}
@@ -510,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=62';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=63';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2466,7 +2469,7 @@ function skEncore(si){const me=allyBody(si)||{x:0,z:3};const dm=Math.round(72*AL
   later(TE,()=>{hitStop(.1);G.hp=Math.min(G.hpMax,G.hp+v);tintFlash('rgba(255,210,235,.6)');G.shake=Math.max(G.shake,.45);impactFrame(0,1,0,0xff6aa8,.08);gbPunch({x:0,z:0},.6,.05,.4);gbBan('FULL COMBO',cmb+' COMBO  ／  アンコール','pk',1.5);
     [[-3.2,6.5,-3,GBC.pk,0],[3,7,-4,GBC.gd,.1],[0,8,-5.5,GBC.cy,.2],[-1.6,5.6,-1,GBC.vi,.3],[2.2,5.8,-1.6,GBC.pk,.38]].forEach(a=>gbFirework(...a));
     pixBurst(0,6,-1,[GBC.pk,GBC.gd,GBC.cy,GBC.vi,GBC.wh],40,5,2,1.6);
-    for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;ringFx(a.x,a.z,.3,2,.45,GBC.pk,.1);gbPillar(a.x,a.z,.42,0xff9ac8,.05,.6);for(let k=0;k<3;k++)later(k*.07,()=>noteFly(a.x,a.z,k,.9))}
+    for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;ringFx(a.x,a.z,.3,2,.45,GBC.pk,.1);gbPillar(a.x,a.z,.26,0xff9ac8,.05,.6);for(let k=0;k<3;k++)later(k*.07,()=>noteFly(a.x,a.z,k,.9))}
     const m=allyBody(si)||me;num(m.x,1.8,m.z,'+'+v,'heal');ui()});
   hint('フルコンボ・アンコール ─ 音符8つ(1つ'+dm+'ダメージ)、チームHP+'+v);logC('フルコンボ・アンコール '+dm+'x8 +'+v)}
 
@@ -2494,44 +2497,79 @@ function skChain(si){const me=allyBody(si)||{x:0,z:3};const base=ALLIES[si].atk,
       if(f){if(f.alive)hurt(f,dm,f.x,f.z)}else if(LB.on&&LB.hp>0)lbDamage(dm,0,6,LBZ)})}));
   hint('連鎖消し ─ 球'+n+'つを水球に、5連鎖で'+Math.round(K.reduce((a,b)=>a+b)*base)+'ダメージ');logC('連鎖消し')}
 
-/* --- ★4 ピコ「8ビット・ヒール」: ドットのハートがいくつも上がって「1UP」。チームHPを回復し、グリッチゾーンを1つ消す --- */
-function skOneUp(si){const me=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpMax*.22);G.hp=Math.min(G.hpMax,G.hp+v);
-  tintFlash('rgba(120,255,170,.3)');ringFx(me.x,me.z,.3,2.2,.35,GBC.gr,.1);pixBurst(me.x,1,me.z,[GBC.gr,0xffffff,0xff5a8a],22,2.6,5,.9);
-  let i=0;for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;pixHeart(a.x,a.z,.06+i*.08,i%2?0x6dffa6:0xff5a8a);i++}
-  later(.15,()=>gbPop('1UP',me.x,2.6,me.z,'up',1.1));num(me.x,1.8,me.z,'+'+v,'heal');const fx=gbFixGlitch(1);if(fx)later(.3,()=>say('グリッチを修正',1));
-  hint('8ビット・ヒール ─ チームHP+'+v+(fx?'、グリッチゾーンを1つ消した':''));logC('8ビット・ヒール +'+v);ui()}
+/* (11/10 作り直し) ★4の4人。★5と同じ方向だが、短め・少し控えめ(決めゴマは入れるが、カメラの寄りは小さく) */
+/* 弧を描いて飛ぶ光の玉(着いたら cb) */
+function gbArc(from,to,col,dl,D,cb){const hd=glowSpr(col,.9),co=glowSpr(0xffffff,.35);hd.visible=co.visible=false;const P0=new THREE.Vector3(from.x,from.y||1.4,from.z),P2=new THREE.Vector3(to.x,1,to.z),P1=new THREE.Vector3((from.x+to.x)/2,4.2,(from.z+to.z)/2),cv=new THREE.QuadraticBezierCurve3(P0,P1,P2),q=new THREE.Vector3();let done=false;
+  RFX.push({upd(t){const u=t-dl;if(u<0)return;hd.visible=co.visible=true;const k=Math.min(1,u/D);cv.getPoint(k*k*(3-2*k),q);hd.position.copy(q);co.position.copy(q);if(Math.random()<.8){const s=spark(q.x,q.y,q.z,0,.1,0,col,.2,.3,0,2);s.fl=1}if(k>=1&&!done){done=true;cb&&cb();return false}},clean(){rmSpr(hd);rmSpr(co)}})}
+/* 右上の数字(コンボ・ヒット数)。返り値の bump() で1ふえる、end() で消える */
+function gbCounter(label,cls){const cb=document.createElement('div');cb.className='gbCmb '+(cls||'');cb.innerHTML='<b>0</b><small>'+label+'</small>';cb.style.opacity=0;$('lay').appendChild(cb);let n=0,dead=false;const rid=G.runId;
+  const end=()=>{if(dead)return;dead=true;cb.animate([{opacity:1},{opacity:0}],{duration:220}).onfinish=()=>cb.remove()};RFX.push({upd(t){if(dead)return false;if(G.runId!==rid||t>5){dead=true;cb.remove();return false}}});
+  return {bump(){n++;cb.style.opacity=1;cb.firstChild.textContent=n;cb.animate([{transform:'scale(1.5)'},{transform:'scale(1)'}],{duration:140,easing:'cubic-bezier(.2,.9,.3,1)'});return n},end,get n(){return n}}}
 
-/* --- ★4 ヒバナ「超必殺コンボ」: いちばん近い敵に、拳の連打が10発 → 最後にアッパーで炎の柱 → K.O. --- */
+/* --- ★4 ピコ「8ビット・ヒール」(作り直し): 頭上にドットの宝箱がぽんと出て開く → 大きなドットのハートが飛び出す → 小さな光に分かれて味方へ飛び、着いた所に緑の柱とハート → 1UP --- */
+function gbChest(x,z,dur){const g=new THREE.Group(),M=c=>new THREE.MeshBasicMaterial({color:c,toneMapped:false}),mats=[M(0x9a5a2a),M(0xffd35a),M(0x4a2a12),M(0xfff6c8)];
+  const box=(mi,w,h,d,y,par)=>{const m=new THREE.Mesh(GBBOX,mats[mi]);m.scale.set(w,h,d);m.position.y=y;(par||g).add(m);return m};
+  box(2,1.3,.7,.9,.35);box(0,1.2,.6,.8,.35);box(1,.2,.72,.92,.35);const lid=new THREE.Group();lid.position.set(0,.7,-.4);g.add(lid);
+  {const a=new THREE.Mesh(GBBOX,mats[2]);a.scale.set(1.3,.32,.9);a.position.set(0,.16,.4);lid.add(a);const b=new THREE.Mesh(GBBOX,mats[0]);b.scale.set(1.2,.26,.8);b.position.set(0,.16,.4);lid.add(b);const c=new THREE.Mesh(GBBOX,mats[1]);c.scale.set(.24,.34,.92);c.position.set(0,.16,.4);lid.add(c)}
+  const gl=new THREE.Mesh(GBBOX,mats[3]);gl.scale.set(1,.1,.6);gl.position.y=.72;g.add(gl);g.position.set(x,0,z);g.visible=false;S.add(g);
+  RFX.push({upd(t){g.visible=true;const k=Math.min(1,t/dur),o=t<.16?eBack(t/.16):k>.85?Math.max(0,(1-k)/.15):1;g.position.y=2.2+(t<.16?(1-t/.16)*1.5:0);g.scale.setScalar(.95*o);g.rotation.y=-.5;const op=Math.max(0,Math.min(1,(t-.2)/.1));lid.rotation.x=-op*1.9;gl.visible=op>.2;if(k>=1)return false},clean(){S.remove(g);mats.forEach(m=>m.dispose())}})}
+function skOneUp(si){const me=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpMax*.22);
+  hitStop(.03);tintFlash('rgba(120,255,170,.28)');ringFx(me.x,me.z,.3,2.2,.35,GBC.gr,.1);gbChest(me.x,me.z,1.1);gbPixScar(me.x,me.z,2,0x6dffa6,0,1.2);
+  later(.28,()=>{pixBurst(me.x,3,me.z,[GBC.gr,0xffffff,0xff5a8a,0xffd35a],26,3,5,.9);pixHeart(me.x,me.z,0,0xff5a8a);G.shake=Math.max(G.shake,.2);ringFx(me.x,me.z,.3,2.8,.35,0xfff6c8,.1);
+    let i=0;for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;const dl=.14+i*.06;i++;gbArc({x:me.x,y:3.4,z:me.z},a,i%2?0x6dffa6:0xff8ab0,dl,.3,()=>{gbPillar(a.x,a.z,.2,0x6dffa6,0,.5);ringFx(a.x,a.z,.2,1.5,.3,GBC.gr,.14);pixHeart(a.x,a.z,0,i%2?0x6dffa6:0xff5a8a);pixBurst(a.x,.6,a.z,[GBC.gr,0xffffff],8,2,4,.6)})}
+    later(.5,()=>{G.hp=Math.min(G.hpMax,G.hp+v);impactFrame(me.x,1,me.z,0x6dffa6,.06);gbPop('1UP',me.x,3.2,me.z,'up',1.1);num(me.x,1.8,me.z,'+'+v,'heal');const fx=gbFixGlitch(1);if(fx)later(.3,()=>say('グリッチを修正',1));ui()})});
+  hint('8ビット・ヒール ─ チームHP+'+v+'、グリッチゾーンを1つ消す');logC('8ビット・ヒール +'+v)}
+
+/* --- ★4 ヒバナ「超必殺コンボ」(作り直し): 炎の線を引いて敵の前へ → 拳の10連打(右上にヒット数) → ためてアッパー。決めゴマ・炎の柱・K.O. --- */
 function skKoCombo(si){const me=allyBody(si)||{x:0,z:3};const hit=Math.round(20*ALLIES[si].atk),fin=Math.round(120*ALLIES[si].atk);
   const t=foes().filter(f=>f.k!=='claw').sort((a,b)=>Math.hypot(a.x-me.x,a.z-me.z)-Math.hypot(b.x-me.x,b.z-me.z))[0];const at=t?{x:t.x,z:t.z}:LB.on&&LB.hp>0?{x:0,z:LBZ+3}:null;
   if(!at){say('相手がいない',1);return}
-  vf('FIRE',me.x,1,me.z,{s:1.6,d:.3,roll:0,gl:.5});streaks(me.x,1,me.z,{col:0xff7a2a,s:2.2,n:10,d:.2});
-  let c=0;for(let k=0;k<10;k++)later(.14+k*.055,()=>{c++;const x=at.x+(Math.random()-.5)*.8,z=at.z+(Math.random()-.5)*.6;const q=spark(x,1,z,(Math.random()-.5)*4,2+Math.random()*2,(Math.random()-.5)*4,k%2?0xffe08a:0xffffff,.3,.25,6,2);q.fl=1;
-    ringFx(x,z,.1,.9,.14,0xfff0c0,.22);crossFlash(x,z,.55+(k%3)*.12);vf('MB',x,1,z,{s:1.5+(k%3)*.3,d:.16,tint:k%2?0xffe08a:0xff9a4a,roll:0,gl:1});streaks(x,1,z,{col:0xffd35a,s:1.3,n:5,d:.12});G.shake=Math.max(G.shake,.14);hitStop(.02);if(t&&t.alive)hurt(t,hit,t.x,t.z,true);else if(LB.on&&LB.hp>0&&!t)lbDamage(hit,0,6,LBZ);
-    gbPop(c+' HIT',at.x+1.4,1.6,at.z,'hit',.4)});
-  later(.14+10*.055+.08,()=>{hitStop(.15);G.shake=Math.max(G.shake,.7);tintFlash('rgba(255,160,80,.5)');flamePillar(at.x,at.z,5,1,.6,0,0);vfBoom(at.x,at.z,1.6,false,true);
+  const H0=.2,HT=.055,TF=H0+10*HT+.14;hitStop(.03);screenTint('brightness(.72) saturate(1.3)',(TF+.3)*1000);
+  vf('FIRE',me.x,1,me.z,{s:1.8,d:.3,roll:0,gl:.5});streaks(me.x,1,me.z,{col:0xff7a2a,s:2.6,n:12,d:.2});gbTracer(me.x,me.z,at.x,at.z,0xff6a2a,.35);gbLine(me.x,me.z,at.x,at.z,0xffd35a,.08,.3);
+  gbPunch(at,.5,.18,.12,0);const ct=gbCounter('HIT','hit');
+  for(let k=0;k<10;k++)later(H0+k*HT,()=>{ct.bump();const sd=k%2?1:-1,x=at.x+sd*(.25+Math.random()*.4),z=at.z+(Math.random()-.5)*.7;
+    for(let j=0;j<4;j++){const q=spark(x,1,z,(Math.random()-.5)*5+sd*2,2+Math.random()*2.5,(Math.random()-.5)*5,j%2?0xffe08a:0xffffff,.3,.26,6,2);q.fl=1}
+    ringFx(x,z,.1,1,.14,0xfff0c0,.22);crossFlash(x,z,.6+(k%3)*.14);vf('MB',x,1,z,{s:1.6+(k%3)*.35,d:.16,tint:k%2?0xffe08a:0xff9a4a,roll:0,gl:1});streaks(x,1,z,{col:0xffd35a,s:1.5,n:6,d:.12});
+    G.shake=Math.max(G.shake,.16);hitStop(.02);if(t&&t.alive)hurt(t,hit,t.x,t.z,true);else if(LB.on&&LB.hp>0&&!t)lbDamage(hit,0,6,LBZ)});
+  later(TF-.12,()=>{ringFx(at.x,at.z,2.4,.4,.12,0xffd35a,.08);for(let j=0;j<14;j++){const a=Math.random()*6.283;const q=spark(at.x+Math.cos(a)*2,.4+Math.random()*1.5,at.z+Math.sin(a)*2,-Math.cos(a)*14,0,-Math.sin(a)*14,0xffe08a,.24,.14,0,0);q.fl=1}});
+  later(TF,()=>{hitStop(.16);G.shake=Math.max(G.shake,.8);tintFlash('rgba(255,170,90,.6)');impactFrame(at.x,1,at.z,0xff8a2a,.09);gbPunch(at,.85,.05,.4);
+    flamePillar(at.x,at.z,6.5,1.1,.7,0,0);flamePillar(at.x,at.z,4,1.9,.5,.04,0);vfBoom(at.x,at.z,1.8,false,true);ringFx(at.x,at.z,.3,3.2,.4,0xff8a3a,.12);ringFx(at.x,at.z,.2,2,.25,GBC.wh,.2);streaks(at.x,1,at.z,{col:0xffb04a,s:4,n:18,d:.3});
+    for(let j=0;j<22;j++){const a=Math.random()*6.283,sp=3+Math.random()*4;const q=spark(at.x,.6,at.z,Math.cos(a)*sp,5+Math.random()*5,Math.sin(a)*sp,j%3?0xff8a3a:0xffe08a,.34,.8,9,1);q.fl=1}
     for(const f of foes()){if(Math.hypot(f.x-at.x,f.z-at.z)<2+f.r&&f!==t)hurt(f,Math.round(fin*.4),f.x,f.z)}
-    if(t&&t.alive)hurt(t,fin,t.x,t.z);else if(!t&&LB.on&&LB.hp>0)lbDamage(fin,0,6,LBZ);gbPop('K.O.',at.x,3,at.z,'ko',1)});
+    if(t&&t.alive)hurt(t,fin,t.x,t.z);else if(!t&&LB.on&&LB.hp>0)lbDamage(fin,0,6,LBZ);later(.12,()=>{gbPop('K.O.',at.x,3.2,at.z,'ko',1.1);ct.end()})});
   hint('超必殺コンボ ─ '+hit+'x10 と '+fin+'ダメージ');logC('超必殺コンボ')}
 
-/* --- ★4 ミント「森のリジェネ」: 葉と光の粒が味方を包み、すぐ12%回復。そのあと3手番、手番の終わりに7%ずつ回復(リジェネ) --- */
-function skRegen(si){const me=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpMax*.12);G.hp=Math.min(G.hpMax,G.hp+v);G.gbRg=3;G.gbRgS=si;
-  tintFlash('rgba(130,255,170,.3)');ringFx(me.x,me.z,.3,3,.5,GBC.gr,.06);
-  for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;ringFx(a.x,a.z,.2,1.5,.45,0xa8ffc8,.12);for(let k=0;k<5;k++)flyer(RT.leaf,.36,.05+k*.06,false);for(let k=0;k<8;k++){const q=spark(a.x+(Math.random()-.5),.3,a.z+(Math.random()-.5),0,1.4+Math.random(),0,k%2?0xffffff:0x8affb0,.24,.9,-.4,1);q.fl=1}}
-  gbPop('REGEN',me.x,2.4,me.z,'rg',1);num(me.x,1.8,me.z,'+'+v,'heal');hint('森のリジェネ ─ チームHP+'+v+'、3手番のあいだ毎手番7%回復');logC('森のリジェネ +'+v);ui()}
-function gbRegenTurn(){if(!(G.gbRg>0)||G.hp<=0)return;G.gbRg--;const v=Math.round(G.hpMax*.07);G.hp=Math.min(G.hpMax,G.hp+v);const m=allyBody(G.gbRgS)||{x:0,z:3};num(m.x,1.8,m.z,'+'+v,'heal');ringFx(m.x,m.z,.3,2.4,.5,GBC.gr,.08);for(let k=0;k<6;k++){const q=spark(m.x+(Math.random()-.5)*1.4,.3,m.z+(Math.random()-.5)*1.4,0,1.5,0,0x8affb0,.22,.8,-.4,1);q.fl=1}}
+/* --- ★4 ミント「森のリジェネ」(作り直し): 足元から緑の波が広がり、味方ひとりずつに光の柱と葉のうず。REGEN の印が付く。そのあと3手番、毎手番回復 --- */
+function gbLeafSwirl(a,dl){for(let k=0;k<16;k++)later(dl+k*.025,()=>{const an=k*.9,r=.9;const q=spark(a.x+Math.cos(an)*r,.2+k*.12,a.z+Math.sin(an)*r,-Math.sin(an)*2.4,1.8,Math.cos(an)*2.4,k%3?0x8affb0:0xffffff,.26,.7,-.6,1.2);q.fl=1})}
+function skRegen(si){const me=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpMax*.12);G.gbRg=3;G.gbRgS=si;
+  hitStop(.03);tintFlash('rgba(130,255,170,.3)');flameWave(me.x,me.z,CFG.R*.9,.8,3);ringFx(me.x,me.z,.3,3.4,.5,GBC.gr,.06);ringFx(me.x,me.z,.3,2,.35,0xd8ffe6,.12);
+  for(let k=0;k<10;k++)flyer(RT.leaf,.4+Math.random()*.2,.05+k*.05,false);
+  let i=0;for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;const dl=.16+i*.08;i++;gbLeafSwirl(a,dl);gbPillar(a.x,a.z,.22,0x6dffa6,dl,.7);later(dl,()=>{ringFx(a.x,a.z,.2,1.7,.4,0xa8ffc8,.12);ringFx(a.x,a.z,1.4,.6,.5,GBC.gr,.05);gbPop('REGEN',a.x,2.3,a.z,'rg sm',.9)})}
+  later(.3,()=>{G.hp=Math.min(G.hpMax,G.hp+v);G.shake=Math.max(G.shake,.15);num(me.x,1.8,me.z,'+'+v,'heal');ui()});
+  hint('森のリジェネ ─ チームHP+'+v+'、3手番のあいだ毎手番7%回復');logC('森のリジェネ +'+v)}
+function gbRegenTurn(){if(!(G.gbRg>0)||G.hp<=0)return;G.gbRg--;const v=Math.round(G.hpMax*.07);G.hp=Math.min(G.hpMax,G.hp+v);const m=allyBody(G.gbRgS)||{x:0,z:3};num(m.x,1.8,m.z,'+'+v,'heal');ringFx(m.x,m.z,.3,2.6,.5,GBC.gr,.08);
+  let i=0;for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;gbLeafSwirl(a,i*.05);gbPillar(a.x,a.z,.15,0x6dffa6,i*.05,.45);i++}}
 
-/* --- ★4 モモカ「スパチャの嵐」: 配信のコメントとスパチャが画面を流れる → ハートとメダルが敵全員に降る --- */
-const GB_CMT=[['かわいい',0],['神回','#ffd35a'],['¥500 がんばれ','#67e8f9'],['¥2,000 爆盛り!','#ffd35a'],['¥10,000 優勝','#ff4a3a'],['888888',0],['え、強','#ff6aa8'],['¥1,000 いけー','#6dffa6'],['草',0],['¥5,000 推し','#ff6aa8']];
-function skSpacha(si){const me=allyBody(si)||{x:0,z:3};const dm=Math.round(95*ALLIES[si].atk);
-  hitStop(.03);tintFlash('rgba(255,120,190,.3)');ringFx(me.x,me.z,.3,2,.35,GBC.pk,.1);
-  GB_CMT.forEach(([t,c],i)=>later(i*.07,()=>{const d=document.createElement('div');d.className='gbCm'+(c?' sc':'');if(c)d.style.setProperty('--c',c);d.textContent=t;d.style.top=(18+((i*37)%62))+'%';$('lay').appendChild(d);
-    d.animate([{transform:'translateX(0)'},{transform:'translateX(calc(-100vw - 100%))'}],{duration:1600+((i*131)%500),easing:'linear'}).onfinish=()=>d.remove()}));
-  for(let k=0;k<16;k++){const q=spark(me.x+(Math.random()-.5),1.4,me.z+(Math.random()-.5),(Math.random()-.5)*2,3+Math.random()*2,(Math.random()-.5)*2,k%2?GBC.pk:GBC.gd,.3,.8,4,1);q.fl=1}
-  later(.5,()=>{G.shake=Math.max(G.shake,.4);let i=0;for(const f of foes()){const dl=i*.04;i++;for(let j=0;j<3;j++)later(dl+j*.05,()=>{const q=spark(f.x+(Math.random()-.5)*.8,5,f.z+(Math.random()-.5)*.8,0,-8,0,j%2?GBC.gd:GBC.pk,.4,.5,10,0);q.fl=1});
-      later(dl+.2,()=>{if(!f.alive)return;ringFx(f.x,f.z,.3,1.3,.3,GBC.pk,.14);stars(f.x,1,f.z,8,GBC.gd,3);hurt(f,dm,f.x,f.z)})}
-    if(LB.on&&LB.hp>0)later(.25,()=>{stars(0,6,LBZ+3,16,GBC.gd,6);lbDamage(dm,0,6,LBZ)})});
-  later(.2,()=>gbPop('スパチャ感謝!',me.x,2.6,me.z,'sc',1.1));
+/* --- ★4 モモカ「スパチャの嵐」(作り直し): 画面に LIVE と見ている人の数 → コメントとスパチャが流れる → 金のメダルとハートが敵全員に降る → 最後に大きなハートの花火 --- */
+const GB_CMT=[['かわいい',0],['神回','#ffd35a'],['¥500 がんばれ','#67e8f9'],['¥2,000 爆盛り!','#ffd35a'],['¥10,000 優勝','#ff4a3a'],['888888',0],['え、強','#ff6aa8'],['¥1,000 いけー','#6dffa6'],['草',0],['¥5,000 推し','#ff6aa8'],['つよい',0],['¥3,000 ないすー','#67e8f9']];
+const GBCOIN=new THREE.CylinderGeometry(.26,.26,.07,16);GBCOIN.userData.keep=1;
+function gbCoin(x,z,dl,cb){const m=new THREE.Mesh(GBCOIN,new THREE.MeshBasicMaterial({color:0xffd35a,toneMapped:false})),e=new THREE.Mesh(GBCOIN,new THREE.MeshBasicMaterial({color:0xfff6c8,toneMapped:false}));e.scale.set(.66,1.1,.66);m.add(e);m.visible=false;S.add(m);const D=.3;let done=false;
+  RFX.push({upd(t){const u=t-dl;if(u<0)return;m.visible=true;const k=Math.min(1,u/D);m.position.set(x,.5+(1-k*k)*9,z);m.rotation.set(u*14,u*5,1.2);if(k>=1&&!done){done=true;cb&&cb();return false}},clean(){S.remove(m);m.material.dispose();e.material.dispose()}})}
+function skSpacha(si){const me=allyBody(si)||{x:0,z:3};const dm=Math.round(95*ALLIES[si].atk),T0=.62;
+  hitStop(.03);screenTint('brightness(.7) saturate(1.3)',(T0+.5)*1000);tintFlash('rgba(255,120,190,.3)');ringFx(me.x,me.z,.3,2.2,.35,GBC.pk,.1);ringFx(me.x,me.z,.2,1.3,.25,GBC.gd,.16);
+  const lv=document.createElement('div');lv.className='gbLive';lv.innerHTML='<i>LIVE</i><b>12,345</b><small>人が視聴中</small>';$('lay').appendChild(lv);const rid=G.runId;let n0=12345;
+  lv.animate([{transform:'translateX(-120%)',opacity:0},{transform:'translateX(0)',opacity:1,offset:.1},{transform:'translateX(0)',opacity:1,offset:.85},{transform:'translateX(-20px)',opacity:0}],{duration:1700,easing:'cubic-bezier(.2,.9,.3,1)'}).onfinish=()=>lv.remove();
+  RFX.push({upd(t){if(G.runId!==rid||t>1.7)return false;n0+=137;lv.children[1].textContent=n0.toLocaleString()},clean(){lv.remove()}});
+  GB_CMT.forEach(([t,c],i)=>later(i*.055,()=>{const d=document.createElement('div');d.className='gbCm'+(c?' sc':'');if(c)d.style.setProperty('--c',c);d.textContent=t;d.style.top=(16+((i*37)%58))+'%';$('lay').appendChild(d);
+    d.animate([{transform:'translateX(0)'},{transform:'translateX(calc(-100vw - 100%))'}],{duration:1300+((i*131)%450),easing:'linear'}).onfinish=()=>d.remove()}));
+  for(let k=0;k<18;k++)later(k*.02,()=>{const q=spark(me.x+(Math.random()-.5),1.4,me.z+(Math.random()-.5),(Math.random()-.5)*2.4,3+Math.random()*2.5,(Math.random()-.5)*2.4,k%2?GBC.pk:GBC.gd,.3,.8,4,1);q.fl=1});
+  /* メダルの雨: 敵ひとりに3枚ずつ、少しずつずらして落ちる */
+  let i=0;for(const f of foes()){const b=T0-.3+i*.03;i++;for(let j=0;j<3;j++)gbCoin(f.x+(j-1)*.45,f.z+(Math.random()-.5)*.5,b+j*.05,()=>{ringFx(f.x,f.z,.15,.9,.16,GBC.gd,.2);for(let q=0;q<4;q++){const s=spark(f.x,.5,f.z,(Math.random()-.5)*4,3+Math.random()*2,(Math.random()-.5)*4,q%2?GBC.gd:0xffffff,.26,.4,9,1);s.fl=1}})}
+  for(let k=0;k<5;k++)gbCoin((Math.random()-.5)*CFG.R*1.2,(Math.random()-.5)*CFG.R*1.2,T0-.3+k*.05,null);
+  later(T0,()=>{hitStop(.08);G.shake=Math.max(G.shake,.5);tintFlash('rgba(255,200,230,.5)');impactFrame(0,1,0,0xff6aa8,.07);gbPunch({x:0,z:0},.45,.05,.3);
+    for(const f of foes()){ringFx(f.x,f.z,.3,1.7,.3,GBC.pk,.14);ringFx(f.x,f.z,.2,1,.2,GBC.wh,.2);crossFlash(f.x,f.z,.9);stars(f.x,1,f.z,12,GBC.gd,4);pixHeart(f.x,f.z,.02,0xff6aa8);hurt(f,dm,f.x,f.z)}
+    if(LB.on&&LB.hp>0){stars(0,6,LBZ+3,18,GBC.gd,6);lbDamage(dm,0,6,LBZ)}
+    gbFirework(me.x,5.6,me.z-2.5,GBC.pk,.05);gbFirework(me.x-2,6.4,me.z-3.4,GBC.gd,.16);gbPop('スパチャ感謝!',me.x,2.8,me.z,'sc',1.1)});
   hint('スパチャの嵐 ─ 敵全員に'+dm+'ダメージ');logC('スパチャの嵐 '+dm)}
 
 /* ===== (11/10) ゲームバカ★5の共鳴技。ゲームの動きは止めない(D-034)。見た目は0.6〜0.8秒 ===== */
@@ -2552,7 +2590,7 @@ function resRico(){const si=slotOf('gbsnp');if(si<0||G.over)return;const me=ally
     later(.05,()=>{crossFlash(to.x,to.z,1.5);iceSpikes(to.x,to.z,(t?t.r:1.2)*1.1,true);ringFx(to.x,to.z,.3,2.6,.35,GBC.cy,.12);ringFx(to.x,to.z,.2,1.5,.2,GBC.wh,.2);streaks(to.x,1,to.z,{col:0xbff4ff,s:2.8,n:12,d:.26});gbPop('跳弾!',to.x,t&&t.k==='boss'?2.8:1.9,to.z,'ch c0',.6);if(t){if(t.alive)hurt(t,dm,t.x,t.z)}else if(LB.hp>0)lbDamage(dm,0,6,LBZ)})})}
 function resBonus(){const si=slotOf('gbrhy');if(si<0||G.over)return;resBanner(si);const m=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpMax*.025);G.hp=Math.min(G.hpMax,G.hp+v);
   ringFx(m.x,m.z,.3,CFG.R*.8,.5,GBC.pk,.05);ringFx(m.x,m.z,.3,2.6,.4,GBC.pk,.1);ringFx(m.x,m.z,.2,1.5,.25,GBC.gd,.16);for(let k=0;k<8;k++)later(k*.04,()=>noteFly(m.x,m.z,k,1.1));stars(m.x,1.2,m.z,16,GBC.gd,4);
-  gbFirework(m.x-1.2,5.5,m.z-2,GBC.pk,0);gbFirework(m.x+1.4,6.2,m.z-2.6,GBC.gd,.1);for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;gbPillar(a.x,a.z,.32,0xff9ac8,.04,.5);ringFx(a.x,a.z,.2,1.3,.3,GBC.pk,.12)}
+  gbFirework(m.x-1.2,5.5,m.z-2,GBC.pk,0);gbFirework(m.x+1.4,6.2,m.z-2.6,GBC.gd,.1);for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;gbPillar(a.x,a.z,.2,0xff9ac8,.04,.5);ringFx(a.x,a.z,.2,1.3,.3,GBC.pk,.12)}
   gbPop('COMBO BONUS',m.x,2.7,m.z,'pf',.7);num(m.x,1.8,m.z,'+'+v,'heal');ui()}
 function resChainB(x,z,n){const si=slotOf('gbpzl');if(si<0||G.over)return;resBanner(si);const cols=[0x4adcff,0xffd35a,0xb08aff],col=cols[n-1]||cols[2],dm=Math.round([45,60,75][n-1]*(1+(G.cm||0)*.015)),R=2.2;
   gbBlock(x,z,col,0,3.2+n*.9);ringFx(x,z,R,.4,.16,col,.07);
