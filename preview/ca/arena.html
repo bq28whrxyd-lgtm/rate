@@ -310,7 +310,7 @@ body{font-family:var(--ui);-webkit-user-select:none;user-select:none;-webkit-tou
 @media (max-width:360px){.top .pill.t{display:none}}
 /* (11/10) ゲームバカの技の文字と板 */
 .gbP{position:absolute;z-index:30;font:italic 900 22px/1 'Inter Tight',system-ui,sans-serif;letter-spacing:.02em;color:#fff;white-space:nowrap;pointer-events:none;-webkit-text-stroke:5px #0a1430;paint-order:stroke fill;text-shadow:0 3px 0 #0a1430}
-.gbP.hs{font-size:30px;color:#bff4ff;-webkit-text-stroke-color:#06305a}.gbP.pf{font-size:19px;color:#ffd6ec;-webkit-text-stroke-color:#5a1440}.gbP.hit{font-size:20px;color:#ffe08a;-webkit-text-stroke-color:#5a1a00}
+.gbP.sm{font-size:19px!important}.gbP.hs{font-size:30px;color:#bff4ff;-webkit-text-stroke-color:#06305a}.gbP.pf{font-size:19px;color:#ffd6ec;-webkit-text-stroke-color:#5a1440}.gbP.hit{font-size:20px;color:#ffe08a;-webkit-text-stroke-color:#5a1a00}
 .gbP.ko{font-size:46px;color:#ffeaa0;-webkit-text-stroke:7px #6a1400}.gbP.up{font:900 30px/1 ui-monospace,'Courier New',monospace;color:#7aff9a;-webkit-text-stroke:6px #08321a}.gbP.rg{color:#a8ffc8;-webkit-text-stroke-color:#0a3a1e}
 .gbP.sc{font:900 20px/1 'Hiragino Sans','Noto Sans JP',sans-serif;color:#fff;-webkit-text-stroke-color:#7a1048}.gbP.ch{font:900 26px/1 'Hiragino Sans','Noto Sans JP',sans-serif;-webkit-text-stroke-width:6px}
 .gbP.c0{color:#8ae8ff;-webkit-text-stroke-color:#063a5a}.gbP.c1{color:#ff9ab0;-webkit-text-stroke-color:#5a0a1e}.gbP.c2{color:#ffe08a;-webkit-text-stroke-color:#5a3a00}.gbP.c3{color:#9affc0;-webkit-text-stroke-color:#0a3a1e}.gbP.c4{font-size:40px;color:#d8c8ff;-webkit-text-stroke:8px #2a1060}
@@ -507,10 +507,10 @@ const ROSTER={};ALLIES.forEach(a=>ROSTER[a.key]=a);
  {name:'ミント',key:'gbhea',el:'木',col:0x9affc0,hp:2200,atk:.68,m:.95,lead:'mend',ln:'癒やし圧縮',rar:4,sk:'gbregen'},
  {name:'モモカ',key:'gbstr',el:'炎',col:0xff8ac0,hp:2000,atk:.76,m:1.0,lead:'boom',ln:'爆裂圧縮',rar:4,sk:'gbspacha'}].forEach(a=>ROSTER[a.key]=a);
 Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
-const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
+const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=60';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=61';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -1181,7 +1181,7 @@ function addBody(k,x,z,o){const K=KIND[k];const b={id:G.idc++,k,x,z,vx:0,vz:0,r:
   if(GIMK.includes(k)&&(G.gdS||1)>1){b.r*=G.gdS;b.sc=(b.sc||1)*G.gdS}
   if(k==='jar'||k==='wild'){const t=document.createElement('div');t.className='tag hz';t.innerHTML=k==='jar'?'<span class="pz">毒</span>':'<span class="wd">暴走</span>';tagsEl.appendChild(t);b.tag=t;b.hz=true}
   return b}
-function kill(b){if(!b.alive)return;b.alive=false;S.remove(b.mesh);telClear(b);if(b.gx){S.remove(b.gx);b.gx=null}if(b.tag){b.tag.remove();ui()}}
+function kill(b){if(!b.alive)return;if((b.k==='enemy'||b.k==='boss')&&G.phase==='release'&&G.rs&&G.rs.chn<3&&slotOf('gbpzl')>=0){const n=++G.rs.chn,kx=b.x,kz=b.z;later(.16,()=>resChainB(kx,kz,n))}b.alive=false;S.remove(b.mesh);telClear(b);if(b.gx){S.remove(b.gx);b.gx=null}if(b.tag){b.tag.remove();ui()}}
 const tagsEl=document.getElementById('tags');
 
 /* (v1.7) 配置をばらばらに: 味方・ボス・回復の玉はそのまま。敵は1〜3のかたまりで毎回ちがう場所に、ほかの物はばらけて置く(座標は設計の単位: 闘技場の半径9) */
@@ -1216,7 +1216,7 @@ function physStep(dt){const B=G.bodies,C=G.C;
   for(const b of B){if(!b.alive)continue;if(b.k==='claw'||frz(b)){b.vx=0;b.vz=0;continue}b.x+=b.vx*dt;b.z+=b.vz*dt;const sp=Math.hypot(b.vx,b.vz);
     const dmp=Math.exp(-(CFG.damp*(G.mode==='press'?CFG.pressDamp:1)*(b.fr??1)+(sp<1.2?1.6:0)+(G.calmK||0))*dt*(b.k==='orb'&&b.el==='水'?ORBV.waterDamp:1));b.vx*=dmp;b.vz*=dmp;if(sp<.04){b.vx=0;b.vz=0}
     if(b.k==='shard'){b.life=(b.life??4)-dt;if(b.life<=0)kill(b)}
-    const d=Math.hypot(b.x,b.z),lim=CFG.R-b.r;if(d>lim){const nx=b.x/d,nz=b.z/d;b.x=nx*lim;b.z=nz*lim;const vn=b.vx*nx+b.vz*nz;if(vn>0){const we=b.k==='orb'&&b.el==='水'?ORBV.waterE:CFG.wallE;b.vx-=(1+we)*vn*nx;b.vz-=(1+we)*vn*nz;if(vn>2){b.wall++;if(b.k==='ally'&&G.phase==='release')b.bn=Math.min(5,(b.bn||0)+1);wallFx(b,vn);if(G.phase==='release'&&G.rs&&!G.rs.wood){G.rs.wall++;if(G.rs.wall>=RESV.wood.wall){G.rs.wood=true;later(.05,resWood)}}}if(LB.on)lbWall(b,vn,nx,nz)}}}
+    const d=Math.hypot(b.x,b.z),lim=CFG.R-b.r;if(d>lim){const nx=b.x/d,nz=b.z/d;b.x=nx*lim;b.z=nz*lim;const vn=b.vx*nx+b.vz*nz;if(vn>0){const we=b.k==='orb'&&b.el==='水'?ORBV.waterE:CFG.wallE;b.vx-=(1+we)*vn*nx;b.vz-=(1+we)*vn*nz;if(vn>2){b.wall++;if(b.k==='ally'&&G.phase==='release'&&G.rs&&slotOf('gbsnp')>=0&&++G.rs.rico===3)later(.1,resRico);if(b.k==='ally'&&G.phase==='release')b.bn=Math.min(5,(b.bn||0)+1);wallFx(b,vn);if(G.phase==='release'&&G.rs&&!G.rs.wood){G.rs.wall++;if(G.rs.wall>=RESV.wood.wall){G.rs.wood=true;later(.05,resWood)}}}if(LB.on)lbWall(b,vn,nx,nz)}}}
   for(let i=0;i<B.length;i++){const a=B[i];if(!a.alive)continue;for(let j=i+1;j<B.length;j++){const b=B[j];if(!b.alive)continue;
     const dx=b.x-a.x,dz=b.z-a.z,rr=a.r+b.r,d2=dx*dx+dz*dz;if(d2>=rr*rr)continue;const d=Math.sqrt(d2)||1e-4,nx=dx/d,nz=dz/d,pen=rr-d;
     const ia=frz(a)?0:1/a.m,ib=frz(b)?0:1/b.m;if(ia+ib===0)continue;const s=pen/(ia+ib);a.x-=nx*s*ia;a.z-=nz*s*ia;b.x+=nx*s*ib;b.z+=nz*s*ib;
@@ -1259,7 +1259,9 @@ function hurt(v,dm,x,z,quiet,cls){if(!v.alive)return;G.lastDmg=G.clock;if(v.g===
 function combo(n,crush){G.combo+=n;G.cm=(G.cm||0)+(crush?n*.25:n);G.comboMax=Math.max(G.comboMax,G.combo);showCombo();
   /* (v1.1) ジンの共鳴技「烈火追撃」: 5コンボ以上で発動(以前は発動する所がなかった) */
   if(G.rs&&!G.rs.fire&&G.combo>=5&&G.phase!=='idle'){G.rs.fire=true;later(.1,resFire)}
-  if(G.rs&&!G.rs.trail&&G.combo>=4&&G.phase!=='idle'&&slotOf('lumie')>=0){G.rs.trail=true;later(.15,resTrail)}}
+  if(G.rs&&!G.rs.trail&&G.combo>=4&&G.phase!=='idle'&&slotOf('lumie')>=0){G.rs.trail=true;later(.15,resTrail)}
+  if(G.rs&&G.phase!=='idle'&&G.rs.aim<2&&G.combo>=3*(G.rs.aim+1)&&slotOf('gbpro')>=0){G.rs.aim++;later(.12,resAim)}
+  if(G.rs&&G.phase!=='idle'&&G.rs.bon<3&&G.combo>=5*(G.rs.bon+1)&&slotOf('gbrhy')>=0){G.rs.bon++;later(.14,resBonus)}}
 function explode(b){if(!b.alive)return;const wild=b.k==='wild';kill(b);const R0=(wild?3.1:2.7)*(G.gdS||1);if(G.rs&&slotOf('beni')>=0&&G.rs.boom<2){G.rs.boom++;const bx=b.x,bz=b.z;later(.3,()=>resBoom(bx,bz))}
   vfBoom(b.x,b.z,R0,wild);ringFx(b.x,b.z,.5,R0*1.25,.5,wild?0xff4a5a:0xffc06a,.15);burstFx(b.x,b.z,wild?0xff5a6a:0xffb04a,40,9,.55,6);G.shake=Math.max(G.shake,.45);hitStop(.07);
   logC((wild?'暴走爆弾':'爆弾')+'が爆発');let allyHit=false;
@@ -1514,9 +1516,14 @@ const RES=[
   {n:'連爆',d:'爆弾が爆発すると、同じ所でもう一度小さな爆発(2回まで)'},
   {n:'さざ波の歌',d:'味方に水の球が当たると、チームHPを2%回復(3回まで)'},
   {n:'茨のとげ',d:'解放で敵に5回当たると、当たった敵すべてに茨のとげ'},
-  {n:'光の軌跡',d:'4コンボ以上で、いちばん体力の多い敵に光の追撃'}];
+  {n:'光の軌跡',d:'4コンボ以上で、いちばん体力の多い敵に光の追撃'},
+  /* (11/10) ゲームバカの★5 4人(山本さん「ゲームっぽく」「今のより少しだけ強い感じで」) */
+  {n:'オートエイム',d:'3コンボごとに、いちばん体力の少ない敵をロックオンしてレーザーで追撃(2回まで)'},
+  {n:'跳弾ショット',d:'味方が壁に3回はね返ると、いちばん遠い敵を狙撃'},
+  {n:'コンボボーナス',d:'コンボが5・10・15になるたび、チームHPを2.5%回復'},
+  {n:'連鎖ボーナス',d:'解放中に敵を倒すと、その場所でブロックがはじけて近くの敵にダメージ(3回まで。出るたびに強くなる)'}];
 const RESV={fire:{n:3,dmg:85},wood:{wall:6,heal:.04},water:{n:3,dmg:60},light:{need:3,dmg:70,r:.75}};
-function resetRs(){G.rs={fire:false,wall:0,wood:false,water:0,light:false,pz:new Set(),boom:0,tide:0,th:0,thHit:new Set(),thorn:false,trail:false}}
+function resetRs(){G.rs={fire:false,wall:0,wood:false,water:0,light:false,pz:new Set(),boom:0,tide:0,th:0,thHit:new Set(),thorn:false,trail:false,aim:0,rico:0,bon:0,chn:0}}
 /* ゲームの時間で「あとで実行」(ヒットストップの間は止まる) */
 const LQ=[];function later(t,fn){LQ.push({t,fn})}
 function allyBody(ai){return G.bodies.find(b=>b.alive&&b.k==='ally'&&b.ai===ai)}
@@ -2527,6 +2534,28 @@ function skSpacha(si){const me=allyBody(si)||{x:0,z:3};const dm=Math.round(95*AL
   later(.2,()=>gbPop('スパチャ感謝!',me.x,2.6,me.z,'sc',1.1));
   hint('スパチャの嵐 ─ 敵全員に'+dm+'ダメージ');logC('スパチャの嵐 '+dm)}
 
+/* ===== (11/10) ゲームバカ★5の共鳴技。ゲームの動きは止めない(D-034)。見た目は0.6〜0.8秒 ===== */
+/* 敵についていく照準(dur 秒) */
+function gbRetOn(f,dur){const w=document.createElement('div'),d=document.createElement('div');w.className='gbRetW';d.className='gbRet';w.appendChild(d);$('lay').appendChild(w);let live=true;
+  RFX.push({upd(){if(!live)return false;const p=gbScr(f.x,f.k==='boss'?1.6:.8,f.z);w.style.transform='translate('+p.x.toFixed(1)+'px,'+p.y.toFixed(1)+'px)'},clean(){live=false;w.remove()}});
+  d.animate([{transform:'translate(-50%,-50%) scale(2.2) rotate(90deg)',opacity:0},{transform:'translate(-50%,-50%) scale(1) rotate(0deg)',opacity:1,offset:.3},{transform:'translate(-50%,-50%) scale(1) rotate(0deg)',opacity:1,offset:.85},{transform:'translate(-50%,-50%) scale(.5)',opacity:0}],{duration:dur*1000,easing:'cubic-bezier(.2,.9,.3,1)'}).onfinish=()=>{live=false;w.remove()}}
+function resAim(){const si=slotOf('gbpro');if(si<0||G.over)return;const me=allyBody(si);resBanner(si);const dm=Math.round(110*(1+(G.cm||0)*.015));
+  const t=foes().filter(f=>f.k!=='claw').sort((a,b)=>a.hp-b.hp)[0];
+  if(!t){if(LB.on&&LB.hp>0){gbPillar(0,LBZ+3,.9,0x3ad0ff,.16,.5);later(.2,()=>{if(LB.hp>0)lbDamage(dm,0,6,LBZ)})}return}
+  gbRetOn(t,.5);if(me)gbLine(me.x,me.z,t.x,t.z,GBC.cy,.07,.22);ringFx(t.x,t.z,t.r*2.6,t.r*1.1,.18,GBC.cy,.1);
+  later(.2,()=>{const x=t.x,z=t.z;gbPillar(x,z,.45,0x3ad0ff,0,.5);crossFlash(x,z,.9);ringFx(x,z,.3,1.6,.28,GBC.cy,.14);pixBurst(x,.5,z,[GBC.cy,GBC.vi,GBC.wh],10,3,4.5,.6);gbPop('AUTO AIM',x,t.k==='boss'?2.8:1.9,z,'hs sm',.6);if(t.alive)hurt(t,dm,x,z)})}
+function resRico(){const si=slotOf('gbsnp');if(si<0||G.over)return;const me=allyBody(si);if(!me)return;resBanner(si);const dm=Math.round(170*(1+(G.cm||0)*.015));
+  const t=foes().filter(f=>f.k!=='claw').sort((a,b)=>Math.hypot(b.x-me.x,b.z-me.z)-Math.hypot(a.x-me.x,a.z-me.z))[0];const to=t?{x:t.x,z:t.z}:LB.on&&LB.hp>0?{x:0,z:LBZ+3}:null;if(!to)return;
+  gbLine(me.x,me.z,to.x,to.z,0xff4a6a,.05,.16);ringFx(me.x,me.z,.2,1.2,.2,0x9ae8ff,.14);
+  later(.16,()=>{gbTracer(me.x,me.z,to.x,to.z,0x3aa8ff,.4);streaks(me.x,1,me.z,{col:0x9ae8ff,s:2,n:8,d:.18});
+    later(.05,()=>{crossFlash(to.x,to.z,1.1);iceSpikes(to.x,to.z,.6,false);ringFx(to.x,to.z,.3,1.9,.3,GBC.cy,.12);gbPop('跳弾!',to.x,t&&t.k==='boss'?2.8:1.9,to.z,'ch c0',.6);if(t){if(t.alive)hurt(t,dm,t.x,t.z)}else if(LB.hp>0)lbDamage(dm,0,6,LBZ)})})}
+function resBonus(){const si=slotOf('gbrhy');if(si<0||G.over)return;resBanner(si);const m=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpMax*.025);G.hp=Math.min(G.hpMax,G.hp+v);
+  ringFx(m.x,m.z,.3,2.4,.4,GBC.pk,.1);ringFx(m.x,m.z,.2,1.4,.25,GBC.gd,.14);for(let k=0;k<5;k++)later(k*.05,()=>noteFly(m.x,m.z,k,.9));stars(m.x,1.2,m.z,10,GBC.gd,3);
+  gbPop('COMBO BONUS',m.x,2.7,m.z,'pf',.7);num(m.x,1.8,m.z,'+'+v,'heal');ui()}
+function resChainB(x,z,n){const si=slotOf('gbpzl');if(si<0||G.over)return;resBanner(si);const cols=[0x4adcff,0xffd35a,0xb08aff],col=cols[n-1]||cols[2],dm=Math.round([45,60,75][n-1]*(1+(G.cm||0)*.015)),R=2.2;
+  gbBlock(x,z,col,0,2.4+n*.6);ringFx(x,z,R,.4,.16,col,.07);
+  later(.16,()=>{pixBurst(x,.8,z,[col,0xffffff],12+n*4,2.6+n*.5,4.5,.7);ringFx(x,z,.3,R,.3,col,.12);crossFlash(x,z,.6+n*.2);gbPop(n+'連鎖!',x,2+n*.15,z,'ch c'+[0,2,4][n-1],.7);G.shake=Math.max(G.shake,.1+n*.06);
+    for(const f of foes()){if(Math.hypot(f.x-x,f.z-z)<R+f.r)hurt(f,dm,f.x,f.z)}})}
 /* 共鳴技の茨(resThorn)で使う */
 function thornFx(e){const y=e.k==='boss'?1.4:.7;for(let j=0;j<12;j++){const a=j/12*6.283;const q=spark(e.x+Math.cos(a)*.6,y,e.z+Math.sin(a)*.6,-Math.cos(a)*1.2,1.2,-Math.sin(a)*1.2,j%3?0x4ad06a:0xb03a6a,.2,.45,0,2);q.fl=1}flamePillar(e.x,e.z,1.6,.45,.45,0,3)}
 /* リーダー: 爆炎圧縮(解放の瞬間に中心で爆発)・引力圧縮(少しあとにもう一度引く) */
@@ -2892,6 +2921,6 @@ modeLabel();
 requestAnimationFrame(frame);
 window.CA_API={loadWave,TOWER,RAID,SCORE,EXB,EXT,LEV,YM,WKID,CHAPS,genStage,genWave,rng,hashStr,RES,RESK,demoRes,demoFire,ROSTER,SKD,setTeam,STAGES,PROG,MAIN_N,ALLIES,OEL,PORT,G,startStage,showSelect,faceTex,portCanvas,applyParty,ui,stageOpen,stageStrength,stageKinds,kindsBefore,KNAME,HARD,LEADS};
 imp('./out.js').catch(e=>console.warn('out.js を読めませんでした',e));
-window.__CA={MP,mpOn,mpOff,mpShot,mpSkill,mpSlot,mpSnap,mpHash,mpApply,gimTurn,addBody,STAGES,PROG,DIF,startStage,showSelect,stageClear,stageFail,useSkill,get SKILLS(){return SKILLS},get ALLIES(){return ALLIES},combo,resFire,resWood,resWater,resLight,allyBody,G,CFG,KIND,LB,startCompress,release,groundAt,cam,loadWave,nextTurn,resize,vf,vfHit,vfPop,vfBoom,VF,explode,addBody,hurt,streaks,impactFrame,
+window.__CA={resAim,resRico,resBonus,resChainB,MP,mpOn,mpOff,mpShot,mpSkill,mpSlot,mpSnap,mpHash,mpApply,gimTurn,addBody,STAGES,PROG,DIF,startStage,showSelect,stageClear,stageFail,useSkill,get SKILLS(){return SKILLS},get ALLIES(){return ALLIES},combo,resFire,resWood,resWater,resLight,allyBody,G,CFG,KIND,LB,startCompress,release,groundAt,cam,loadWave,nextTurn,resize,vf,vfHit,vfPop,vfBoom,VF,explode,addBody,hurt,streaks,impactFrame,
   stageT,resFxState:()=>({active:RFX.length,holding:RFX.filter(e=>e.hold).length,stopT,geometries:R.info.memory.geometries,textures:R.info.memory.textures,programs:(R.info.programs||[]).length})};
 </script>
