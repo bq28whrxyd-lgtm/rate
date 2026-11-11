@@ -8866,7 +8866,7 @@ body.ui2 #lob .ktour button.ktno,body .ktour button.ktno{font-size:13.5px!import
 <button id="admPassGo" style="width:100%;margin-top:8px">月額パスを付ける</button><div id="admPassMsg" class="sub" style="margin-top:6px;min-height:18px"></div>
 <div id="admPassList" class="sub" style="margin-top:6px"></div>
 </div>
-<div class="admcard" id="admHwPass"><div class="admct">ハロウィンパス・限定セット</div><div class="admcd">応援値をもらったときに使います。パス 2,000・セット 2,000(どちらも1人1回)。付けるとすぐに、パスは限定ガチャチケット1枚、セットは限定ガチャチケット8枚とTCG ハロウィンパック券5枚がプレゼントに入ります。</div>
+<div class="admcard" id="admHwPass"><div class="admct">パス・限定セット(ハロウィン・ゲームバカ)</div><div class="admcd">応援値をもらったときに使います。パス 2,000・セット 2,000(どちらも1人1回)。付けるとすぐに、パスは限定ガチャチケット1枚、セットは限定ガチャチケット8枚とTCG ハロウィンパック券5枚がプレゼントに入ります。</div>
 <div class="row" style="margin-top:8px"><select id="admHwP" aria-label="買った人" style="flex:1;min-width:0"></select><select id="admHwK" aria-label="種類" style="flex:1;min-width:0"><option value="pass">ハロウィンパス 2,000</option><option value="set">ハロウィン限定セット 2,000</option><option value="p5">ハロウィンの小袋 500</option><option value="p10">ハロウィンの大袋 1,000</option><option value="gbs1">ゲーセンセット 1,000</option><option value="gbs2">ゲーセンセットDX 2,000</option><!--gb-opt--></select></div>
 <div class="row supvrow" style="margin-top:8px"><span class="sub" style="flex:none">サポーターランクに</span><input id="admHwV" type="number" inputmode="numeric" min="0" value="2000" aria-label="ランクに足す値" style="flex:1;min-width:0"><span class="sub supunit" style="flex:none"></span></div>
 <button id="admHwGo" style="width:100%;margin-top:8px">付ける</button><div id="admHwMsg" class="sub" style="margin-top:6px;min-height:18px"></div>
@@ -14680,7 +14680,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=82',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=83',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -14734,7 +14734,7 @@ window.CAHOST={
   spend:(cost,n)=>{const me=myPlayer();if(!me)return false;const k=n==='sta'&&cost===100?'st':n===10&&cost===900?'g10':n===1&&cost===100?'g1':n===10&&cost===1350?'l10':n===1&&cost===150?'l1':null;/* (11/10) l1・l10 はゲームバカイベントの限定ガチャ */if(!k||balance(me.id)<cost)return false;
     const d={...(caDocs[me.id]||{})};d[k]=(+d[k]||0)+1;caDocs[me.id]=d;caPtSend();queueRender();return true},
   earn:n=>caEarn(n),
-  gbOn:()=>{try{return typeof gbOn==='function'&&gbOn()}catch(e){return false}},gbTen:()=>{try{const m=myPlayer();return m&&typeof gbSetAt==='function'&&gbOn()?gbSetAt(m.id,'gbs2'):0}catch(e){return 0}},/*gb-ten*/
+  gbOn:()=>{try{return typeof gbOn==='function'&&gbOn()}catch(e){return false}},gbEnd:()=>{try{return gbT1()}catch(e){return 0}},/*gb-end*/gbTen:()=>{try{const m=myPlayer();return m&&typeof gbSetAt==='function'&&gbOn()?gbSetAt(m.id,'gbs2'):0}catch(e){return 0}},/*gb-ten*/
   /* (v145) スキン: 前の分身でもらったスキン。推しスキン(スキンガチャのKMRの対戦演出と勝利演出がそろったもの)と、かぼちゃ頭の騎士(ハロウィン) */
   skins:()=>{const me=myPlayer();if(!me)return[];const M={'オーバーサイズ':'hood','ふくれっつら':'chibi','ひだまりニット':'vt1','はなかんむり':'vt2','堕ちた天使':'vt3','夜宴の小悪魔':'hw'},out=[];
     try{for(const o of (typeof myOshiSet==='function'?myOshiSet():[])){const k=o&&M[o.n];if(k&&!out.includes(k))out.push(k)}}catch(e){}
@@ -17428,7 +17428,20 @@ const NEWS_EXP=typeof TCGD!=='undefined'&&!!TCGD.packs.c;
 /* (10/17) v135: when ハロウィン is in this build (the release switches HW_ON_REL on; the お試し版 always has it) the notice is the Halloween one
    and the v134 notice moves to これまでのアップデート */
 const NEWS_HW=HW_HERE()&&NEWS_EXP;
-const NEWS_ID=NEWS_HW?'2026-v141':NEWS_EXP?'2026-v134':'2026-v121';
+const NEWS_ID=NEWS_HW?'2026-v172':NEWS_EXP?'2026-v134':'2026-v121';
+/* (11/11) v172: ゲームバカイベントと、分身(圧縮アリーナ)の大きな変更 */
+const NEWS_V172=[
+ ['ゲームバカイベント(15日間)',['ホーム左の「ゲームバカ」からイベント画面へ','レート対戦・TCG・分身で遊ぶと、ゲーセンメダルがたまる(もらえる数はイベント画面に)','メダルでボックスガチャ(1回100枚)。1箱40個の中身が決まっていて、目玉を引くと次の箱へ。箱ごとに目玉が変わる']],
+ ['派閥バトル',['ソロ派かマルチ派を選ぶ(一度決めたら変えられない)','自分の派閥に合った遊び方は、派閥の点が1.5倍','8日目に途中の結果。終わったら、勝った派閥も負けた派閥もごほうびを受け取れる']],
+ ['TCGボス戦',['ゲーマー女子7人と対戦(イベント画面の「ボス戦」)','勝つとメダル: ふつう12枚・つよい20枚。はじめて勝った相手は+30枚','勝った数のランキングつき']],
+ ['限定セット',['イベント画面のいちばん下。ゲーセンセット(メダル2,000枚・これからのメダル+10%)と、ゲーセンセットDX(メダル4,500枚・分身の限定ガチャ10連1回・これからのメダル+20%)','1人それぞれ1回。セットのメダルと+%は、派閥の点には入らない']],
+ ['分身: ゲーマー女子召喚',['イベントの間だけの限定ガチャ。★5が4人(ノア・ルリ・カノン・ソラ)と★4が4人','1回150pt・10連1,350pt。100回ぶんで、好きな★5のピックアップ1人と交換','イベントのステージ「ゲーセンナイト」と、限定の降臨']],
+ ['分身: 共鳴技',['共鳴技ごとに専用の絵に','限定の★5の4人は、床いっぱいに広がり、通り道や離れた敵にも当たる','攻撃の共鳴技は、キャラのレベルと進化で強くなる']],
+ ['分身: ★6がもっと豪華に',['★6に進化する瞬間に演出','★6の立ち絵に、後ろの光・足元の円・きらめき。限定の4人は★6の絵が新しい姿に']],
+ ['分身: BOXと強化',['BOXは100体まで。100ptで+10体ずつ、最大200体まで広げられる。いっぱいのときはガチャと出撃ができない','BOXの画面を見やすく(数と上限、★ごとの見出し、名前つきの大きいアイコン)','強化: 「★3全部」「★4以下全部」でキャラをまとめて素材に(50体まで)。同じキャラは「まとめて重ねる」']],
+ ['分身: バトルの画質',['分身の中の「プロフィール」→ 設定 → バトルの画質で「最高・標準・軽い」を選べる。重いときは「標準」か「軽い」に']],
+ ['ハロウィンの入口',['イベントが終わったので、ホームの「ハロウィン」はなくなりました']],
+];
 const NEWS_V141=[
  ['自分のお店',['取引所に「お店」。持っているカードに値段を付けて並べると、仲間がすぐ買える(オークションと違って競り合いなし)','1人6枠。同じカードは同じ枠に重ねて並べられる','売れると販売手数料15%を引いた額が入る(オークションは10%のまま)','安売りで相場が崩れないように、相場の80%より安くは並べられない']],
  ['相場の下がり方',['相場は1回の取引で最大10%しか下がらない。下がってもレアの基本の値段の半分で止まる']],
@@ -17469,7 +17482,7 @@ const NEWS_V134=NEWS_EXP?[
  ['分身バトル',['対戦タブを「ボス・クエスト・スコアアタック・仲間と戦う」の4つの大きなタイルに','スコアアタック: 平日に1日3回。ベスト記録で順位が決まり、金曜に報酬(1位500ptなど)','週末のボス: 挑むたびに参加報酬+15pt。倒したら全員に200pt+削った量で最大350pt、一番削った人は+120pt、とどめを刺した人は+80pt']],
  ['ホーム',['今日のイベントの帯(自動でスライド)。開催中のイベント・収穫・鑑定結果がひと目でわかる','新しい機能にNEWの印','iPhoneで下のバーが浮くことがあったのを直した','アップデートの通知が前の版の文で届いていたのを直した']]
 ]:null;
-const NEWS=NEWS_HW?NEWS_V141.concat(NEWS_V136,NEWS_V135):NEWS_V134||[ ['アプリの見た目を新しく',['下のメニューは「ホーム・ランキング・対戦・ガチャ・プロフィール」の5つ。TCGは「対戦」の中に入り、パックは「ガチャ」に名前が変わった','ホームはゲームのロビーのような画面に。真ん中にランクの紋章、上にレベル・ポイント・プレゼント・通知、左右にお題・MVP・シーズン・開催中のイベント・みんなの速報','「対戦」はレート対戦・TCG・デッキ・大会と履歴を上の切り替えでまとめた','ランクの紋章を新しいデザインにそろえた(ホーム・ランキング・プロフィールなど全部)','画面の切り替えやボタンの動きをなめらかに']],
+const NEWS=NEWS_HW?NEWS_V172.concat(NEWS_V141,NEWS_V136,NEWS_V135):NEWS_V134||[ ['アプリの見た目を新しく',['下のメニューは「ホーム・ランキング・対戦・ガチャ・プロフィール」の5つ。TCGは「対戦」の中に入り、パックは「ガチャ」に名前が変わった','ホームはゲームのロビーのような画面に。真ん中にランクの紋章、上にレベル・ポイント・プレゼント・通知、左右にお題・MVP・シーズン・開催中のイベント・みんなの速報','「対戦」はレート対戦・TCG・デッキ・大会と履歴を上の切り替えでまとめた','ランクの紋章を新しいデザインにそろえた(ホーム・ランキング・プロフィールなど全部)','画面の切り替えやボタンの動きをなめらかに']],
  ['ガチャ画面',['開催中のガチャが上に並び、選ぶと大きなバナーに。中身の一部、天井(GR確定まで)、1パック / 10連のボタンが1枚にまとまった','ポイントが足りないときは「あと何P」と出る']],
  ['ガチャの演出',['通常パックはメガネのレンズに光がたまり、その色が「いちばんいいレア度」の合図(白N・青R・紫SR・金UR・虹GR)。ときどき色が一段上がる','Vtuberガチャは配信画面に。スーパーチャットの色と金額がレア度の合図。KMRのときは虹色の¥1,000,000スパチャ']],
  ['起動画面とログインボーナス',['アプリを開くと、光の点がロゴを描いてからホームへ(触れると飛ばせる)','ログインボーナスは光の柱と3Dのコイン。月額パスの毎日のptも同じ演出で、パスの種類で色が変わる','効果音と振動は「設定・要望」の「効果音」でオンにできる(最初はオフ)']],
