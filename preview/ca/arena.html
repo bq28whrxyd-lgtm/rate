@@ -513,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=90';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=91';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -755,7 +755,7 @@ const GBEV={n:'ゲーセンナイト',el:'光',boss:'golem',bn:'ハイスコア�
    勝つとゲーセンメダル50枚、25%で化身。いちばん強い段階(gd 4) */
 if(GBON){const ws=[{e:6,obj:{orb:3,glitch:2,jar:1,crystal:1},heal:1},{e:5,obj:{orb:2,glitch:2,jar:2},heal:2,boss:true,n:'中ボス カプセルの番兵',mb:true},{e:4,obj:{orb:3,glitch:3,jar:2,bomb:1},heal:1,n:'ラスボス ガチャ魔神',lb:true}];
  STAGES.push(genStage({id:'限定降臨',ev:'gbr',el:'光',gd:4,kind:'魔神',gbm:50,n:'限定降臨 ガチャ魔神',d:'ゲームバカイベントの限定降臨。グリッチゾーン(入ると向きが45°曲がる)と毒霧の壺が多い。適正: グリッチ無効・毒霧無効。魔神キラーのキャラはダメージ2倍。目安 ★5 Lv70。勝つとゲーセンメダル50枚、25%でガチャ魔神の化身。',
-  seed:hashStr('gbr2611'),pool:['a','m','p','k','d'],rate:.6,k:{hp:4.4,atk:1.3,cd:0,boss:.8,lb:2.4}/* (11/11 夜) 山本さん「限定降臨強すぎる・敵の攻撃が痛すぎる・★5 Lv60で勝てるくらい」: 攻撃だけ 1.65→1.3(約2割下げ)。体力はそのまま *//* (11/11) 山本さん「★5 Lv70くらい」: 試練と同じ強さ(目安Lv70の計算で 体力8.7・攻撃3.3)。前は hp7.6 atk3.05 cd-1 lb3.1 を Lv20 の計算で使っていた */,boss:true,mbName:'カプセルの番兵',mbTint:0xff5ad8,lbName:'ガチャ魔神',lbTint:null,lbModel:'gacha',waves:ws}))}
+  seed:hashStr('gbr2611'),pool:['a','m','p','k','d'],rate:.6,k:{hp:4.4,atk:1.65,cd:0,boss:.8,lb:2.4}/* (11/12) 山本さん「両方元の70パーにしよう」: 攻撃を元の1.65にもどす。下げるのは全体の EASE(0.7倍)だけ *//* (11/11 夜) 山本さん「限定降臨強すぎる・敵の攻撃が痛すぎる・★5 Lv60で勝てるくらい」: 攻撃だけ 1.65→1.3(約2割下げ)。体力はそのまま *//* (11/11) 山本さん「★5 Lv70くらい」: 試練と同じ強さ(目安Lv70の計算で 体力8.7・攻撃3.3)。前は hp7.6 atk3.05 cd-1 lb3.1 を Lv20 の計算で使っていた */,boss:true,mbName:'カプセルの番兵',mbTint:0xff5ad8,lbName:'ガチャ魔神',lbTint:null,lbModel:'gacha',waves:ws}))}
 {const SA=[{t:'combo',n:'コンボ',d:'1手でつないだコンボの最大数が多いほど高い点。'},{t:'turn',n:'早さ',d:'少ない手数でクリアするほど高い点。'},{t:'hp',n:'無傷',d:'のこった体力が多いほど高い点。'}];
  const sa=SA[hashStr(WKID)%SA.length];Object.assign(SCORE,sa,{wk:WKID});
  STAGES.push(genStage({id:'SCORE',ev:'score',sa:sa.t,n:'スコアアタック「'+sa.n+'」',d:'今週のお題は「'+sa.n+'」。'+sa.d+'クリアすると点が出て、仲間とくらべられる。',
