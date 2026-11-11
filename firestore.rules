@@ -960,7 +960,7 @@ service cloud.firestore {
       allow read: if isAdmin() || (signedIn() && myPid() != '' && resource.data.pid == myPid());
       allow create: if signedIn() && myPid() != '' && request.resource.data.pid == myPid()
         && request.resource.data.keys().hasOnly(['pid', 'pn', 'kind', 'code', 't', 'st', 'pl'])
-        && request.resource.data.st == 'wait' && request.resource.data.kind in ['hwpass', 'hwset', 'hwp5', 'hwp10', 'pt', 'mpass']
+        && request.resource.data.st == 'wait' && request.resource.data.kind in ['hwpass', 'hwset', 'hwp5', 'hwp10', 'pt', 'mpass', 'gbs1', 'gbs2']   // (11/11) gbs1・gbs2 = ゲームバカの限定セット
         && (request.resource.data.kind != 'pt' || (request.resource.data.get('pl', -1) is int && request.resource.data.get('pl', -1) >= 0 && request.resource.data.get('pl', -1) <= 7))
         && (request.resource.data.kind != 'mpass' || (request.resource.data.get('pl', -1) is int && request.resource.data.get('pl', -1) >= 1 && request.resource.data.get('pl', -1) <= 3))
         && request.resource.data.code is string && request.resource.data.code.size() <= 12
