@@ -12182,7 +12182,7 @@ function shopPassTab(b,me,u){const ks=typeof passLive==='function'?passLive(me.i
   for(let k=1;k<=3;k++){const P=PASS[k],own=ks.includes(k),left=own?Math.ceil(((+d['e'+k])-t)/864e5):0,c=el('div','shp-pass shp-g'+k+(own?' own':''));
     const top=el('div','shp-ph');const nm=el('div','shp-pn');nm.append(el('small',null,P.en),el('b',null,P.n));top.append(nm,shopPrice(P.yen,u+' / 30日'));c.append(top);
     if(own)c.append(el('div','shp-own','使っています  ·  あと '+left+'日'));
-    const li=el('ul','shp-pl');[['すぐ',P.now.toLocaleString()+'pt'],['毎日',P.day.toLocaleString()+'pt'],['経験値',P.xp+'倍'],['今月の絵違い',P.g.replace(/\(.*\)/,'')]].forEach(([a,v])=>{const x=el('li');x.append(el('span',null,a),el('b',null,v));li.append(x)});c.append(li);
+    const li=el('ul','shp-pl');[['すぐ',P.now.toLocaleString()+'pt'],['毎日',P.day.toLocaleString()+'pt'],['経験値',P.xp+'倍'],['好きなガチャ券',passTkTxt(k)+'(30日で'+passTkN(k)+'枚)']].forEach(([a,v])=>{const x=el('li');x.append(el('span',null,a),el('b',null,v));li.append(x)});c.append(li);
     c.append(el('div','shp-tot','30日で合計 '+(P.now+P.day*PASS_DAYS).toLocaleString()+'pt'));
     const go=el('button','shp-go',!sale?'販売期間の外です':own?'30日のばす':'申し込む');go.type='button';go.disabled=!sale||!!cur||!!HW_PV;
     go.onclick=()=>shopAsk(P.n+(own?'(30日のばす)':'')+'を申し込む',P.yen,u,'パスがすぐに付きます',()=>mpOrder(me,k));c.append(go);g.append(c)}
@@ -12211,7 +12211,7 @@ async function mpOrder(me,k){if(HW_PV||shopPend('mpass')||!PASS[k])return;
 /* the monthly pass give (the admin card's 月額パスを付ける, and approving an mpass order). Same pass again = 30 more days */
 async function mpGiveCore(p,k,v){const P=PASS[k];if(!isAdmin()||!p||!P)return{msg:'付けられませんでした'};
   const t=now(),cur=passes[p.id]||{},e0=Math.max(t,+cur['e'+k]||0),e=e0+PASS_DAYS*864e5;
-  const h=(Array.isArray(cur.h)?cur.h:[]).concat([{k,s:e0,e,art:PASS_ART.id,at:t}]);
+  const h=(Array.isArray(cur.h)?cur.h:[]).concat([Object.assign({k,s:e0,e,at:t},PASS_ART.id?{art:PASS_ART.id}:{tk:1})]);
   try{await db.doc('pass/'+p.id).set(Object.assign({},cur,{['e'+k]:e,h}));
     await db.collection('grants').add({pid:p.id,pn:p.name,kind:'buy',pt:P.now,note:P.n+'(すぐもらえるぶん)',t});
     if(v>0){await db.collection('suplog').add({pid:p.id,v,note:P.n,t});try{supRecalc()}catch(_){}}
@@ -14436,7 +14436,7 @@ function wkTop(w){const CE=typeof tcgcEvents==='function'&&typeof MVP_CPU!=='und
     let best=-1e9,top=[];[...ids].filter(ok).forEach(id=>{const r=rateAt(rateSeries(id,g),t1-1);if(r==null)return;if(r>best){best=r;top=[id]}else if(r===best)top.push(id)});
     if(top.length)out[g]={ids:top,r:best}});
   wkMemo[w]={k:key,v:out};return out}
-function wkEarned(pid){const cw=weekNo(now());let n=0;for(let w=WK1_0;w<cw;w++){const T=wkTop(w);Object.entries(T).forEach(([g,x])=>{if(x.ids.includes(pid))n+=WK1_N(g)})}return n+(typeof saTk==='function'?saTk(pid):0)}
+function wkEarned(pid){const cw=weekNo(now());let n=0;for(let w=WK1_0;w<cw;w++){const T=wkTop(w);Object.entries(T).forEach(([g,x])=>{if(x.ids.includes(pid))n+=WK1_N(g)})}return n+(typeof saTk==='function'?saTk(pid):0)+(typeof passTk==='function'?passTk(pid):0)}
 const wkConvL=()=>Array.isArray(inv.wkc)?inv.wkc:[];
 const wkConv=(k,ev)=>wkConvL().reduce((a,e)=>a+(e.k===k&&(ev==null||e.ev===ev)?(+e.n||0):0),0);
 const wkLeft=pid=>pid===invFor?Math.max(0,wkEarned(pid)-wkConvL().filter(e=>!e.ap&&!e.hw).reduce((a,e)=>a+(+e.n||0),0)):0;/* ap = 抜き打ちガチャ, not paid with 週間1位 tickets */
@@ -14446,7 +14446,7 @@ function openWkPick(){const me=myPlayer();if(!me)return;const left=wkLeft(me.id)
   if(typeof TCG_TK!=='undefined')Object.keys(TCG_TK).filter(k=>TCG_TK[k].k===1).forEach(k=>opts.push([k,'TCG '+TCG_TK[k].n,null]));
   if(limActive())opts.push(['ltk','限定ガチャチケット('+LIMS[banner.set].name+')',banner.start]);
   document.querySelectorAll('.wkp').forEach(x=>x.remove());const o=el('div','md ask wkp'),c=el('div','mdc');o.append(c);
-  c.append(el('div','mdt','好きなガチャのチケットにする'),el('p','sub','好きなガチャのチケット(週間1位・スコアアタック) 残り '+left+'枚。1枚ずつ、好きなガチャの1回分のチケットに変えられます(10連・ボックスは選べません)。'));
+  c.append(el('div','mdt','好きなガチャのチケットにする'),el('p','sub','好きなガチャのチケット(月額パス・週間1位・スコアアタック) 残り '+left+'枚。1枚ずつ、好きなガチャの1回分のチケットに変えられます(10連・ボックスは選べません)。分身のガチャは、分身のガチャ画面でそのまま使えます。'));
   let sel=0,n=left;const L=el('div','wkol');opts.forEach(([k,lab],i)=>{const b=el('button','wko'+(i===0?' on':''),lab);b.onclick=()=>{sel=i;L.querySelectorAll('.wko').forEach((x,j)=>x.classList.toggle('on',j===i))};L.append(b)});
   const q=el('div','wkq'),mi=el('button','sec','−'),pl=el('button','sec','＋'),v=el('b',null,String(n));const upd=()=>{v.textContent=n+'枚';mi.disabled=n<=1;pl.disabled=n>=left};mi.onclick=()=>{n=Math.max(1,n-1);upd()};pl.onclick=()=>{n=Math.min(left,n+1);upd()};q.append(mi,v,pl);upd();
   const ok=el('button','askok','このチケットにする'),cn=el('button','sec askno','キャンセル'),close=()=>o.remove();cn.onclick=close;o.onclick=e=>{if(e.target===o)close()};
@@ -14680,7 +14680,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=88',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=89',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -14734,6 +14734,9 @@ window.CAHOST={
   spend:(cost,n)=>{const me=myPlayer();if(!me)return false;const k=n==='sta'&&cost===100?'st':n===10&&cost===900?'g10':n===1&&cost===100?'g1':n===10&&cost===1350?'l10':n===1&&cost===150?'l1':null;/* (11/10) l1・l10 はゲームバカイベントの限定ガチャ */if(!k||balance(me.id)<cost)return false;
     const d={...(caDocs[me.id]||{})};d[k]=(+d[k]||0)+1;caDocs[me.id]=d;caPtSend();queueRender();return true},
   earn:n=>caEarn(n),
+  /* (11/11) 好きなガチャのチケットを分身のガチャで使う: tk() = のこり枚数、tkUse() = 1枚使う(inv.wkc に {k:'catk'} を足す) */
+  tk:()=>{try{const me=myPlayer();return me&&invLoaded&&invFor===me.id?wkLeft(me.id):0}catch(e){return 0}},
+  tkUse:async()=>{const me=myPlayer();if(!db||!me||!invLoaded||invFor!==me.id||wkLeft(me.id)<1)return false;const nv=Object.assign({},inv,{wkc:wkConvL().concat([{k:'catk',n:1,t:now()}])});try{await db.doc('inv/'+me.id).set(nv);inv=nv;return true}catch(e){return false}},
   gbOn:()=>{try{return typeof gbOn==='function'&&gbOn()}catch(e){return false}},gbEnd:()=>{try{return gbT1()}catch(e){return 0}},/*gb-end*/gbTen:()=>{try{const m=myPlayer();return m&&typeof gbSetAt==='function'&&gbOn()?gbSetAt(m.id,'gbs2'):0}catch(e){return 0}},/*gb-ten*/
   /* (v145) スキン: 前の分身でもらったスキン。推しスキン(スキンガチャのKMRの対戦演出と勝利演出がそろったもの)と、かぼちゃ頭の騎士(ハロウィン) */
   skins:()=>{const me=myPlayer();if(!me)return[];const M={'オーバーサイズ':'hood','ふくれっつら':'chibi','ひだまりニット':'vt1','はなかんむり':'vt2','堕ちた天使':'vt3','夜宴の小悪魔':'hw'},out=[];
@@ -15261,7 +15264,13 @@ const PASS_DAYS=30;
 /* prices are shown in the supporter unit (応援値), never in yen */
 const passUnit=()=>(supPub&&supPub.unit)||(typeof supUnit==='function'?supUnit():'応援値');
 /* this month's alternate-art card (one card; the grade decides how it is finished) */
-const PASS_ART={id:'n6',n:'大喜利'};
+const PASS_ART={id:'',n:''};/* (11/11) 山本さん: 今月は絵違いの代わりに「好きなガチャのチケット」。前の月の絵違い(n6 大喜利)は持っている人にそのまま残る(pass/{pid}.h の art) */
+/* (11/11) 月額パスの好きなガチャのチケット(山本さん「1日に一回、好きな、がちゃ1連チケット 分身も含む」「3日2日1日にする」「ためられる」):
+   ライト 3日に1枚・プレミアム 2日に1枚・ロイヤル 毎日1枚。付いた時から数える(開かなかった日の分もたまる)。週間1位などの「好きなガチャのチケット」と同じ箱(wkEarned)に入る */
+const PASS_TKD=[0,3,2,1];
+const passTkTxt=k=>(PASS_TKD[k]===1?'毎日':PASS_TKD[k]+'日に')+'1枚';
+const passTkN=k=>Math.ceil(PASS_DAYS/PASS_TKD[k]);
+function passTk(pid){const t=now();let n=0;try{for(const x of passH(pid)){if(!x.tk||![1,2,3].includes(x.k)||x.s>t)continue;n+=Math.min(passTkN(x.k),Math.floor((Math.min(t,x.e)-x.s)/(PASS_TKD[x.k]*864e5))+1)}}catch(e){}return n}
 /* sale window (config/passsale: {art, st, en}): a month's pass is sold for 20 days from when it comes out.
    After that only the admin can bring it back (復刻: a new 20-day window). Passes already bought keep running their 30 days. */
 const PASS_SALE_DAYS=20;let passSale=null,passSaleLoaded=false,passSaleInitDone=false;
@@ -15269,8 +15278,10 @@ const passOnSale=()=>!!(passSale&&now()>=(+passSale.st||0)&&now()<(+passSale.en|
 const passSaleLeft=()=>passSale?Math.max(0,Math.ceil(((+passSale.en||0)-now())/864e5)):0;
 const passMD=t=>new Date(t).toLocaleDateString('ja-JP',{month:'numeric',day:'numeric'});
 /* the first time the admin opens this version, the sale starts by itself */
-async function passSaleInit(){if(passSaleInitDone||!passSaleLoaded||passSale||!db||!isAdmin())return;passSaleInitDone=true;const t=now();try{await db.doc('config/passsale').set({art:PASS_ART.id,st:t,en:t+PASS_SALE_DAYS*864e5})}catch(e){passSaleInitDone=false}}
-async function passSaleSet(open){const t=now();try{if(open)await db.doc('config/passsale').set({art:PASS_ART.id,st:t,en:t+PASS_SALE_DAYS*864e5});else await db.doc('config/passsale').set(Object.assign({},passSale||{art:PASS_ART.id,st:t},{en:t}));toast(open?'今日から'+PASS_SALE_DAYS+'日間、月額パスを販売します':'月額パスの販売を終えました')}catch(e){toast('変更できませんでした')}}
+/* (11/11) 新しい月のパス(PASS_ID)が出たら、管理者が本番を開いたときに販売が自動で始まる(山本さん「本番に上げたらすぐ」)。お試し版では始めない(本番と同じデータなので) */
+const PASS_ID='2026-11-tk';
+async function passSaleInit(){if(passSaleInitDone||!passSaleLoaded||(passSale&&passSale.art===PASS_ID)||!db||!isAdmin()||/\/preview\//.test(location.pathname))return;passSaleInitDone=true;const t=now();try{await db.doc('config/passsale').set({art:PASS_ID,st:t,en:t+PASS_SALE_DAYS*864e5})}catch(e){passSaleInitDone=false}}
+async function passSaleSet(open){const t=now();try{if(open)await db.doc('config/passsale').set({art:PASS_ID,st:t,en:t+PASS_SALE_DAYS*864e5});else await db.doc('config/passsale').set(Object.assign({},passSale||{art:PASS_ID,st:t},{en:t}));toast(open?'今日から'+PASS_SALE_DAYS+'日間、月額パスを販売します':'月額パスの販売を終えました')}catch(e){toast('変更できませんでした')}}
 function admPassSale(){const box=$('admPassSale');if(!box)return;box.replaceChildren();const on=passOnSale();
   box.append(el('div','pssale'+(on?' on':''),passSale?(on?'販売中  ·  '+passMD(passSale.st)+'〜'+passMD(passSale.en)+'(あと'+passSaleLeft()+'日)':'販売していません  ·  前回 '+passMD(passSale.st)+'〜'+passMD(passSale.en)):'まだ販売を始めていません'));
   const b=el('button',on?'sec':null,on?'販売を今すぐ終える':'今日から'+PASS_SALE_DAYS+'日間販売する(復刻)');b.onclick=()=>askSheet({title:on?'販売を終える':'月額パスを販売する',lines:[on?'月額パスの販売を今すぐ終えます。買った人のパスはそのまま30日続きます。':'今日から'+PASS_SALE_DAYS+'日間、月額パスを販売します。ホームの紹介もまた出るようになります。'],ok:on?'終える':'販売する',danger:on,run:()=>passSaleSet(!on)});box.append(b);
@@ -15348,11 +15359,11 @@ function passAd(){const me=myPlayer();if(!me||me.ban||!passesLoaded||!invLoaded|
 /* marked as seen only when it really shows (the launch gate may hold it back for a later launch) */
 function passAdView(first){try{const me=myPlayer();if(me)localStorage.setItem('passAd2_'+me.id,String(now()))}catch(e){}const o=el('div','pad pg3'),close=()=>{if(!o.isConnected)return;o.classList.add('out');setTimeout(()=>o.remove(),360)};
   o.append(el('i','pwray'),el('i','pwglow'));const s=el('div','padst');o.append(s);
-  s.append(el('div','pwk','MONTHLY PASS'),el('div','padt',first?'月額パス\nはじまりました':'月額パス'),el('div','pads','毎月、TCGカードの絵違いがもらえる。毎日のptと経験値もアップ'));
+  s.append(el('div','pwk','MONTHLY PASS'),el('div','padt',first?'月額パス\nはじまりました':'月額パス'),el('div','pads','好きなガチャを1回引けるチケットがもらえる(分身のガチャもOK)。毎日のptと経験値もアップ'));
   /* this month's card, 極 (it moves) */
   if(typeof tcgFace==='function'&&typeof TC!=='undefined'&&TC[PASS_ART.id]){const cw=el('div','padcard');cw.append(tcgFace(PASS_ART.id,'padtcf',false,3));const cc=el('div','padcc');cc.append(el('b',null,'今月の絵違い「'+PASS_ART.n+'」'),el('span',null,'ノーマル / キラ / 極(絵が動く)'));s.append(cw,cc)}
   const G=el('div','padg');for(let k=1;k<=3;k++){const P=PASS[k],r=el('div','padr pg'+k);const a=el('div','padn');a.append(el('b',null,P.n),el('span',null,P.yen.toLocaleString()+' '+passUnit()+' / 30日'));
-    const b=el('div','padv');b.append(el('span',null,'すぐ '+P.now.toLocaleString()+'pt'),el('span',null,'毎日 +'+P.day+'pt'),el('span',null,'経験値 '+P.xp+'倍'),el('span',null,'絵違い '+P.g.replace(/\(.*\)/,'')));r.append(a,b);G.append(r)}
+    const b=el('div','padv');b.append(el('span',null,'すぐ '+P.now.toLocaleString()+'pt'),el('span',null,'毎日 +'+P.day+'pt'),el('span',null,'経験値 '+P.xp+'倍'),el('span',null,'ガチャ券 '+passTkTxt(k)));r.append(a,b);G.append(r)}
   s.append(G,el('div','padsale','販売は '+passMD(passSale.en)+' まで(あと'+passSaleLeft()+'日)'),el('div','padnote','3つ全部持つこともできます。申し込みは管理者に直接どうぞ'));
   const more=el('button','pwgo','くわしく見る');more.onclick=e=>{e.stopPropagation();close();setTimeout(()=>{setView('profile');psubSet('set');setTimeout(()=>{const x=$('passsec');x&&x.scrollIntoView({block:'start',behavior:'smooth'})},350)},300)};
   const cl=el('button','pwsub','閉じる');cl.onclick=e=>{e.stopPropagation();close()};s.append(more,cl);
@@ -15364,7 +15375,7 @@ function passWelcomeView(ks,cards,pid){const top=Math.max(...ks),d=passes[pid]||
   stage.append(el('div','pwk','MONTHLY PASS'),el('div','pwt'+(ks.length>1?' pwtm':''),ks.slice().reverse().map(k=>PASS[k].n).join('\n')),el('div','pwd',end?'〜'+end+'まで  ·  30日間':'30日間'));
   const L=el('div','pwl'),row=(a,b,i)=>{const r=el('div','pwr');r.style.animationDelay=(.55+i*.12)+'s';r.append(el('span',null,a),el('b',null,b));L.append(r)};
   const now0=ks.reduce((a,k)=>a+PASS[k].now,0),day=ks.reduce((a,k)=>a+PASS[k].day,0),xp=Math.max(...ks.map(k=>PASS[k].xp));
-  [['すぐもらえる','+'+now0.toLocaleString()+'pt'],['毎日','+'+day+'pt(開いた日)'],['経験値',xp+'倍'],['今月の絵違い','「'+PASS_ART.n+'」'+ks.map(k=>PASS[k].g.replace(/\(.*\)/,'')).join('・')]].forEach(([a,b],i)=>row(a,b,i));
+  [['すぐもらえる','+'+now0.toLocaleString()+'pt'],['毎日','+'+day+'pt(開いた日)'],['経験値',xp+'倍'],['好きなガチャのチケット',ks.slice().sort((a,b)=>b-a).map(k=>passTkTxt(k)).join(' + ')]].forEach(([a,b],i)=>row(a,b,i));
   stage.append(L,el('div','pwn','パスのptはパック専用です'));
   const go=el('button','pwgo',cards.length?'特典のカードを受け取る':'はじめる');go.style.animationDelay='1.2s';stage.append(go);
   go.onclick=e=>{e.stopPropagation();if(!cards.length){close();return}stage.classList.add('out');setTimeout(()=>{stage.remove();passCardReveal(o,cards,0,close)},320)}}
@@ -16071,12 +16082,12 @@ function renderPass(){const box=$('passbox');if(!box)return;const me=myPlayer();
   const ks=passLive(me.id),t=now(),d=passes[me.id]||{};box.replaceChildren();
   if(ks.length){const top=Math.max(...ks),c=el('div','passcur pg'+top);c.append(el('div','passey','MONTHLY PASS'),el('b',null,ks.map(k=>PASS[k].n).join(' + ')));
     const L=el('div','passl');ks.forEach(k=>{const left=Math.ceil(((+d['e'+k])-t)/864e5);L.append(el('div',null,PASS[k].n+'  残り '+left+'日'+(left<=3?'  ・ もうすぐ終わります':'')))});
-    c.append(L,el('div','passn','毎日 +'+passDay(me.id)+'pt(パック専用) ・ 経験値 '+Math.max(...ks.map(k=>PASS[k].xp))+'倍'),el('div','passn','今月の絵違い「'+PASS_ART.n+'」 '+ks.slice().sort((a,b)=>a-b).map(k=>PASS[k].g.replace(/\(.*\)/,'')).join('・')+' をもらっています(1種類1枚)'));box.append(c)}
+    c.append(L,el('div','passn','毎日 +'+passDay(me.id)+'pt(パック専用) ・ 経験値 '+Math.max(...ks.map(k=>PASS[k].xp))+'倍'),el('div','passn','好きなガチャのチケット(分身のガチャもOK): これまで '+passTk(me.id)+'枚 ・ のこり '+wkLeft(me.id)+'枚'));box.append(c)}
   {const src=typeof TCGD!=='undefined'&&TCGD.alt&&TCGD.alt[PASS_ART.id];if(src){const f=el('div','passart'),im=el('img');im.src=src;im.alt='今月の絵違い「'+PASS_ART.n+'」';f.append(im,el('div','passartc','今月の絵違い「'+PASS_ART.n+'」  ·  ライト ノーマル / プレミアム キラ / ロイヤル 極(キラ+動く)'));box.append(f)}}
   if(passSaleLoaded)box.append(el('div','pssale'+(passOnSale()?' on':''),passOnSale()?'販売中  ·  '+passMD(passSale.en)+' まで(あと'+passSaleLeft()+'日)':'今は販売していません(次の販売は管理者が決めます)'));
   const g=el('div','passg');for(let k=1;k<=3;k++){const P=PASS[k],c=el('div','passt pg'+k+(ks.includes(k)?' on':''));
     c.append(el('div','passey',P.en),el('b',null,P.n),el('div','passy',P.yen.toLocaleString()+' '+passUnit()+' / 30日'),
-      el('ul',null));const ul=c.querySelector('ul');[['すぐ',P.now+'pt'],['毎日',' +'+P.day+'pt(30日で'+(P.day*30).toLocaleString()+'pt)'],['経験値',P.xp+'倍'],['絵違い','「'+PASS_ART.n+'」'+P.g+' 1枚']].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));ul.append(li)});g.append(c)}
+      el('ul',null));const ul=c.querySelector('ul');[['すぐ',P.now+'pt'],['毎日',' +'+P.day+'pt(30日で'+(P.day*30).toLocaleString()+'pt)'],['経験値',P.xp+'倍'],['ガチャ券','好きなガチャ1回分を'+passTkTxt(k)+'(30日で'+passTkN(k)+'枚)']].forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));ul.append(li)});g.append(c)}
   {const soon=ks.map(k=>[k,Math.ceil(((+d['e'+k])-t)/864e5)]).filter(([,n])=>n<=3);if(soon.length){const key='passSoon_'+me.id,day=dayNo(t);let last=-1;try{last=+localStorage.getItem(key)}catch(e){}if(last!==day){try{localStorage.setItem(key,day)}catch(e){}setTimeout(()=>toast(soon.map(([k,n])=>PASS[k].n+' はあと'+n+'日で終わります').join(' / ')),1500)}}}
   box.append(g,el('div','sub passnote','3つのパスは全部同時に持てます。毎日のptは合計、経験値は一番高い倍率になり、絵違いはそれぞれのグレードを1枚ずつもらえます。パスのptはパック専用です(賭けや予想には使えません)。毎日のぶんはアプリを開いた日だけもらえます。申し込みは管理者に直接どうぞ。'))}
 async function saveGw(L,msg){try{await db.doc('config/gweek').set({list:L});$('admGwMsg').textContent=msg}catch(e){$('admGwMsg').textContent='保存できませんでした('+(e.code||e.message)+')'}}
@@ -17431,6 +17442,7 @@ const NEWS_HW=HW_HERE()&&NEWS_EXP;
 const NEWS_ID=NEWS_HW?'2026-v172':NEWS_EXP?'2026-v134':'2026-v121';
 /* (11/11) v172: ゲームバカイベントと、分身(圧縮アリーナ)の大きな変更 */
 const NEWS_V172=[
+ ['新しい月額パス',['今月の特典は「好きなガチャのチケット」。ガチャ1回分で、通常パック・TCGパック・限定ガチャ・分身のガチャ(限定もOK)のどれにでも使える','ライト 3日に1枚(30日で10枚)・プレミアム 2日に1枚(15枚)・ロイヤル 毎日1枚(30枚)','使わなかったチケットはたまる。すぐもらえるpt・毎日のpt・経験値アップは今までと同じ','分身では、ガチャの画面の「チケットで1回召喚」から']],
  ['ゲームバカイベント(15日間)',['ホーム左の「ゲームバカ」からイベント画面へ','レート対戦・TCG・分身で遊ぶと、ゲーセンメダルがたまる(もらえる数はイベント画面に)','メダルでボックスガチャ(1回100枚)。1箱40個の中身が決まっていて、目玉を引くと次の箱へ。箱ごとに目玉が変わる']],
  ['派閥バトル',['ソロ派かマルチ派を選ぶ(一度決めたら変えられない)','自分の派閥に合った遊び方は、派閥の点が1.5倍','8日目に途中の結果。終わったら、勝った派閥も負けた派閥もごほうびを受け取れる']],
  ['TCGボス戦',['ゲーマー女子7人と対戦(イベント画面の「ボス戦」)','勝つとメダル: ふつう12枚・つよい20枚。はじめて勝った相手は+30枚','勝った数のランキングつき']],
@@ -22090,13 +22102,13 @@ window.__tcgOnly=true;/*TCGONLY*/
       const s=mk('div','kps-sum');
       const a=mk('div');a.append(mk('small',null,'毎日'),mk('b',null,'+'+fmt(passDay(me.id))+'pt'));
       const x=mk('div');x.append(mk('small',null,'経験値'),mk('b',null,Math.max(...ks.map(k=>PASS[k].xp))+'倍'));
-      const g=mk('div');g.append(mk('small',null,'絵違い'),mk('b',null,ks.slice().sort((p,q)=>p-q).map(k=>GRADE[k]).join('・')));
+      const g=mk('div');g.append(mk('small',null,'ガチャ券'),mk('b',null,'のこり '+wkLeft(me.id)+'枚'));
       s.append(a,x,g);c.append(s,mk('p','kps-fine','毎日のptはパック専用です。アプリを開いた日にもらえます'));box.append(c)}
     /* 2. this month's alternate art */
     {const src=typeof TCGD!=='undefined'&&TCGD.alt&&TCGD.alt[PASS_ART.id];const f=mk('div','kps-art');
       if(src){const im=mk('img');im.src=src;im.alt='';im.decoding='async';im.loading='lazy';const fr=mk('div','kps-thumb');fr.append(im);f.append(fr)}
-      const tx=mk('div','kps-artt');tx.append(mk('small',null,'今月の絵違い'),mk('b',null,'「'+PASS_ART.n+'」'));
-      const chips=mk('div','kps-chips');[1,2,3].forEach(k=>{chips.append(mk('span','kps-chip pg'+k,PASS[k].n.replace('パス','')+' '+GRADE[k]))});tx.append(chips);f.append(tx);box.append(f)}
+      const tx=mk('div','kps-artt');tx.append(mk('small',null,'今月の特典'),mk('b',null,'好きなガチャのチケット'));
+      const chips=mk('div','kps-chips');[1,2,3].forEach(k=>{chips.append(mk('span','kps-chip pg'+k,PASS[k].n.replace('パス','')+' '+passTkTxt(k)))});tx.append(chips);f.append(tx);box.append(f)}
     /* 3. sale window */
     if(passSaleLoaded){const onS=passOnSale(),s=mk('div','kps-sale'+(onS?' on':''));s.append(mk('i'),mk('span',null,onS?'販売中 ・ '+passMD(passSale.en)+' まで(あと'+passSaleLeft()+'日)':'いまは販売していません。次の販売は管理者が決めます'));box.append(s)}
     /* 4. the three passes */

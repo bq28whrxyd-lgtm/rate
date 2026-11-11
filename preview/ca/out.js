@@ -142,8 +142,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=88').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=88').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=89').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=89').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -893,6 +893,7 @@ const CSS = `
 .aGa .gF img{width:100%;height:100%;object-fit:cover;display:block}.aGa .gF b{font:900 13px var(--zk);color:#fff}
 .aGa .gF:active{transform:scale(.92)}
 .aGa .gF.on{opacity:1;transform:scale(1.12);box-shadow:0 0 0 2px #fff,0 0 0 4px #e0a020,0 0 12px rgba(255,190,60,.85)}
+.aGa .gTk{position:absolute;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(var(--nb,90px) + 136px);z-index:3;min-height:40px}
 .aGa .gPt{position:absolute;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(var(--nb,90px) + 94px);z-index:3;display:flex;align-items:center;gap:8px;height:34px;padding:0 4px 0 12px;border-radius:17px;background:rgba(8,12,34,.86);box-shadow:inset 0 0 0 1px rgba(232,200,120,.5)}
 .aGa .gPt>span:first-child{font:800 12px var(--zk);color:#d8def2;white-space:nowrap}.aGa .gPt b{font-size:15px;color:#fff}
 .aGa .gPt .bar{flex:1;height:7px;border-radius:4px;background:rgba(255,255,255,.15);overflow:hidden}.aGa .gPt .bar i{display:block;height:100%;background:linear-gradient(90deg,#e0a020,#ffd36a)}
@@ -2354,7 +2355,7 @@ function renderGacha() {
   bs.insertAdjacentHTML('beforeend', S.free10 ? '<em class="gK">無料・★4以上1体確定</em>' : '<em class="gK">★4以上1体確定</em>');
   if (needFree()) w.appendChild(h('div', 'gFirst', '<b>まずは仲間を呼ぼう</b><span>無料の10回召喚で、最初の仲間がそろいます</span>'));
   const pt = h('div', 'gPt', `<span>交換pt <b>${S.pity}</b>/${PITY}</span><span class="bar"><i style="width:${Math.min(100, S.pity / PITY * 100)}%"></i></span>`); const tr = btn('sm', '★5確定召喚', pityTrade); tr.disabled = S.pity < PITY; if (S.pity >= PITY) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
-  w.appendChild(bs); banTabs(w);
+  tkBtn(w); w.appendChild(bs); banTabs(w);
 }
 /* ガチャの切りかえ(限定ガチャがあるときだけ) */
 function banTabs(w) { const L = banList(); if (L.length < 2) return; const t = h('div', 'gBan'); for (const b of L) { const e = h('button', 'gBt' + (b.id === gaB ? ' on' : '') + (b.lim ? ' lim' : ''), `${b.lim ? '<em>限定</em>' : ''}${esc(b.name)}`); e.type = 'button'; e.onclick = () => { if (b.id === gaB) return; gaB = b.id; gaSel = null; renderNow(); }; t.appendChild(e); } w.appendChild(t); }
@@ -2383,7 +2384,7 @@ function renderGbGacha(bn) {
   const lp = S.lp || 0, pt = h('div', 'gPt', `<span>限定の交換pt <b>${lp}</b>/${GBG.pity}</span><span class="bar"><i style="width:${Math.min(100, lp / GBG.pity * 100)}%"></i></span>`), tr = btn('sm', '★5確定召喚', gbPityPull); tr.disabled = lp < GBG.pity || !gbPick(5); if (lp >= GBG.pity) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
   /* (11/11) 限定セットDXを買った人: 無料の10連を1回 */
   { let ts = 0; try { ts = HOST && HOST.gbTen ? +HOST.gbTen() || 0 : 0; } catch (e) { } if (ts && S.gbt10 !== ts && ok) { const fb = btn('shine', 'セットの無料10連を引く', () => { if (boxFull(10)) { boxFullAsk(10); return; } doPull(10, 0, false, ts); }); fb.style.cssText = 'display:block;width:calc(100% - 24px);margin:8px 12px 0'; w.appendChild(fb); } }
-  w.appendChild(bs); banTabs(w);
+  tkBtn(w, ok); w.appendChild(bs); banTabs(w);
 }
 /* (11/11 17時) 山本さん「天井選択式じゃなくて今出てる星5の中でランダムにして」「恒常ガチャに限定キャラ出したような感じだから、そもそもそのランダムでも恒常は出る」: えらぶ画面をやめる。このガチャで★5が出たときと同じ決め方(ピックアップか、英雄召喚と同じ★5か)で1人 */
 function gbPityPull() { const L = gbPicks(5); if (!L.length || (S.lp || 0) < GBG.pity) return; if (boxFull(1)) { boxFullAsk(1); return; }
@@ -2408,10 +2409,14 @@ function pull(n, cost) {
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('shine', '召喚する', () => { close(); doPull(n, cost); })); b.appendChild(r);
   });
 }
-function doPull(n, cost, free, gift) {
+/* (11/11) 好きなガチャのチケット(月額パスなど): アプリ側のチケットを1枚使って1回召喚。どのガチャ(英雄召喚・限定)でも使える */
+const tkLeft = () => { try { return HOST && HOST.tk ? +HOST.tk() || 0 : 0; } catch (e) { return 0; } };
+let tkBusy = false;
+function tkBtn(w, ok) { const n = tkLeft(); if (n < 1 || ok === false) return; const b = btn('sub', `チケットで1回召喚<small>好きなガチャのチケット のこり${n}枚</small>`, async () => { if (tkBusy) return; if (boxFull(1)) { boxFullAsk(1); return; } tkBusy = true; let r = false; try { r = await HOST.tkUse(); } catch (e) { } tkBusy = false; if (!r) { flash('チケットを使えませんでした'); return; } doPull(1, 0, false, 0, true); }); b.classList.add('gTk'); w.appendChild(b); }
+function doPull(n, cost, free, gift, tk) {
   if (!free && boxFull(n)) { boxFullAsk(n); return; }
   /* (11/11) gift = 限定セットDXの無料10連(付いた時刻)。pt は使わず、使ったことを覚えておく */
-  if (free) { if (!S.free10) return; S.free10 = 0; } else if (gift) { if (S.gbt10 === gift) return; S.gbt10 = gift; } else if (!ptSpend(cost, n)) { flash('ptが足りません'); return; } const got = [];
+  if (free) { if (!S.free10) return; S.free10 = 0; } else if (gift) { if (S.gbt10 === gift) return; S.gbt10 = gift; } else if (tk) { /* チケットはアプリ側でもう使ってある */ } else if (!ptSpend(cost, n)) { flash('ptが足りません'); return; } const got = [];
   const lim = gaB === 'gb' && !free && gbReady(); const ids = []; for (let k = 0; k < n; k++) ids.push(rollOne(lim ? 'gb' : 0));
   /* 無料の10回召喚は、編成の4人がそろうように、ちがうキャラが4人以上になるまで同じレア度で引き直す(確率は変えない) */
   const have = new Set(S.units.map(x => x.id));
@@ -2863,6 +2868,8 @@ function tRoute() {
   if (hs === '#t-sum10' || hs === '#t-sum1' || hs === '#t-sum5') { showOut('gacha'); const n = hs === '#t-sum1' ? 1 : 10; const got = []; for (let k = 0; k < n; k++) { const id = hs === '#t-sum5' && k === 3 ? 'seira' : rollOne(); got.push({ u: { u: -1 - k, id, lv: 1, exp: 0, evo: 0 }, isNew: k % 4 === 0 }); } setTimeout(() => summon(got, n, 0), 600); }
   if (hs === '#t-detail') { showOut('chara'); setTimeout(() => detail(unit(S.team[0])), 600); }
   if (hs === '#t-news') { showOut('home'); setTimeout(news, 600); }
+  /* (11/11) 好きなガチャのチケットの確認用: ガチャの画面を開くだけ */
+  if (hs === '#t-tk') { showOut('gacha'); }
   /* (v70) 新キャラの確認用(保存しない) */
   if (hs === '#t-np' || hs === '#t-nb') { let u = 900; for (const k of ['kagura', 'yomogi', 'minamo', 'lux', 'hinoko', 'kurumi', 'nagi', 'kirara']) if (!S.units.some(x => x.id === k)) S.units.push({ u: u++, id: k, lv: 1, exp: 0, evo: 0 }); const id = k => S.units.find(x => x.id === k).u; S.team = [id('kagura'), id('minamo'), id('lux'), id('kirara')]; S.lead = 'kagura'; syncParty();
     if (hs === '#t-np') { SUB.chara = 'party'; PICK = { slot: 0 }; showOut('chara'); } else setTimeout(() => A.startStage(3, false), 1500); }
