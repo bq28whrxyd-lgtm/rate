@@ -142,8 +142,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=84').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=84').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=85').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=85').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -2380,14 +2380,15 @@ function renderGbGacha(bn) {
   const b1 = btn('sub', `1回召喚<small>${svg('pt', '0 0 16 16')}${GBG.one}</small>`, () => pull(1, GBG.one)), b10 = btn('shine', `10回召喚<small>${svg('pt', '0 0 16 16')}${GBG.ten.toLocaleString()}</small>`, () => pull(10, GBG.ten));
   if (!ok) { b1.disabled = b10.disabled = true; }
   bs.append(b1, b10); bs.insertAdjacentHTML('beforeend', ok ? '<em class="gK">★4以上1体確定</em>' : '<em class="gK">キャラの準備中です</em>');
-  const lp = S.lp || 0, pt = h('div', 'gPt', `<span>限定の交換pt <b>${lp}</b>/${GBG.pity}</span><span class="bar"><i style="width:${Math.min(100, lp / GBG.pity * 100)}%"></i></span>`), tr = btn('sm', '★5と交換', gbPityPull); tr.disabled = lp < GBG.pity || !gbPick(5); if (lp >= GBG.pity) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
+  const lp = S.lp || 0, pt = h('div', 'gPt', `<span>限定の交換pt <b>${lp}</b>/${GBG.pity}</span><span class="bar"><i style="width:${Math.min(100, lp / GBG.pity * 100)}%"></i></span>`), tr = btn('sm', '★5確定召喚', gbPityPull); tr.disabled = lp < GBG.pity || !gbPick(5); if (lp >= GBG.pity) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
   /* (11/11) 限定セットDXを買った人: 無料の10連を1回 */
   { let ts = 0; try { ts = HOST && HOST.gbTen ? +HOST.gbTen() || 0 : 0; } catch (e) { } if (ts && S.gbt10 !== ts && ok) { const fb = btn('shine', 'セットの無料10連を引く', () => { if (boxFull(10)) { boxFullAsk(10); return; } doPull(10, 0, false, ts); }); fb.style.cssText = 'display:block;width:calc(100% - 24px);margin:8px 12px 0'; w.appendChild(fb); } }
   w.appendChild(bs); banTabs(w);
 }
+/* (11/11 17時) 山本さん「天井選択式じゃなくて今出てる星5の中でランダムにして」: えらぶ画面をやめて、いま出ている★5のピックアップからランダムに1人 */
 function gbPityPull() { const L = gbPicks(5); if (!L.length || (S.lp || 0) < GBG.pity) return; if (boxFull(1)) { boxFullAsk(1); return; }
-  const give = id => { if ((S.lp || 0) < GBG.pity) return; S.lp -= GBG.pity; const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); save(); summon([{ u, isNew }], 1, 0); };
-  modal('★5と交換', (b, close) => { b.innerHTML = `<p class="onote">限定の交換pt ${GBG.pity} で、好きな★5のピックアップ1人と交換できます。</p>`; const r = h('div', 'gPk'); for (const id of L) { const c = CH[id], f = faceURL(id, 0, 1); const e = h('button', 'gPkB', `${f ? `<img alt="" src="${f}">` : ''}<small>${esc(GB_TITLE[id] || '')}</small><b>${esc(c.name)}</b>`); e.type = 'button'; e.style.setProperty('--ec', elCol(c.el)); e.onclick = () => { close(); give(id); }; r.appendChild(e); } b.appendChild(r); const o = h('div', 'orow'); o.style.padding = '0'; o.appendChild(btn('sub', 'やめる', close)); b.appendChild(o); }); }
+  modal('★5確定召喚', (b, close) => { b.innerHTML = `<p style="text-align:center">限定の交換ptを ${GBG.pity} 使って、<b>★5のピックアップが必ず出る1回召喚</b>をします。<br><span style="font-size:12px">どの★5が出るかはランダムです(いま ${L.length}人: ${L.map(id => esc(CH[id].name)).join('・')})</span></p>`;
+    const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('shine', '召喚する', () => { close(); if ((S.lp || 0) < GBG.pity) return; S.lp -= GBG.pity; const id = L[Math.floor(Math.random() * L.length)]; const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); save(); summon([{ u, isNew }], 1, 0); })); b.appendChild(r); }); }
 function rates() {
   if (gaB === 'gb') return gbRates();
   modal(`${(BANNERS.find(x => x.id === gaB) || BANNERS[0]).name} の詳細`, (b, close) => {
@@ -2397,7 +2398,7 @@ function rates() {
   });
 }
 function gbRates() { modal('ゲーマー女子召喚 の詳細', (b, close) => { const row = r => { const L = gbPicks(r), all = Math.round(GACHA.rate[r] * 1000) / 10, each = L.length ? GACHA.rate[r] * (GBG.share[r] || 0) / L.length * 100 : 0; return `<div class="gRw"><p><b class="s${r}">${'★'.repeat(r)}</b> 合計 <b>${all}%</b>${L.length ? `<small>(ピックアップ 1人あたり ${each.toFixed(2)}%)</small>` : ''}</p>${L.length ? `<div class="gIc">${L.map(id => { const c = CH[id], f = faceURL(id, 0, 1); return `<span style="--ec:${elCol(c.el)}">${f ? `<img alt="" src="${f}">` : ''}<i>${esc(c.name)}</i></span>`; }).join('')}</div>` : ''}</div>`; };
-  b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">期間: ゲームバカイベントの間。1回 ${GBG.one}pt、10回 ${GBG.ten.toLocaleString()}pt。10回召喚は★4以上が1体確定。<br>この召喚を1回引くごとに限定の交換ptが1たまり、${GBG.pity}たまると★5のピックアップと交換できます。ピックアップ以外は「英雄召喚」と同じキャラが出ます。ゲーマー女子はこの召喚だけで出ます(ソラは限定降臨「ガチャ魔神」でだけ仲間になります)。</p>`;
+  b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">期間: ゲームバカイベントの間。1回 ${GBG.one}pt、10回 ${GBG.ten.toLocaleString()}pt。10回召喚は★4以上が1体確定。<br>この召喚を1回引くごとに限定の交換ptが1たまり、${GBG.pity}たまると、★5のピックアップが必ず出る1回召喚が引けます(どの★5かはランダム)。ピックアップ以外は「英雄召喚」と同じキャラが出ます。ゲーマー女子はこの召喚だけで出ます(ソラは限定降臨「ガチャ魔神」でだけ仲間になります)。</p>`;
   const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); }
 function pull(n, cost) {
   if (boxFull(n)) { boxFullAsk(n); return; }
