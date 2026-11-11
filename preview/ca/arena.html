@@ -513,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=95';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=96';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2793,10 +2793,14 @@ function dbgTxt(){if(!G.dbg)return;let ms=0;for(const b of G.bodies)if(b.alive)m
    - 時間は 1/60 秒きざみで進める(画面が120Hzでも同じ)
    - ゲームの中のタイマーは later(フレームで数える)を使う
    手の終わりに、番の人の盤面(位置・体力)で全員を合わせなおす(MPsnap/MPapply) ===== */
-const MP={on:false,seed:1,k:0,acc:0,rnd0:Math.random};
-function mpSeed(n){let a=(MP.seed^Math.imul(n+1,2654435761))>>>0;MP.rng=function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+const MP={on:false,seed:1,k:0,acc:0,rnd0:Math.random,base:0,n:0,ff:false,sub:false,idleN:0};
+/* (11/12) 山本さん「マルチのバグ: 画面に差がある・スローモーションみたいにガクガク」
+   - 乱数は1コマごとに決め直す(mpStep)。重い端末でエフェクトを減らしても、乱数のずれが次のコマに残らない
+   - 時間は frame() で 1/60 秒きざみにまとめて進める(描くのが30fpsでも、ゲームの速さは同じ) */
+function mpStep(){let a=(MP.seed^Math.imul(MP.base+1,2654435761)^Math.imul(++MP.n,0x9E3779B1))>>>0;a=Math.imul(a^a>>>16,0x85EBCA6B)>>>0;MP.rng=function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function mpSeed(n){MP.base=n;MP.n=0;let a=(MP.seed^Math.imul(n+1,2654435761))>>>0;MP.rng=function(){a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
 function mpOn(seed){MP.on=true;MP.seed=seed>>>0;MP.k=0;MP.acc=0;mpSeed(0)}
-function mpOff(){MP.on=false}
+function mpOff(){MP.on=false;MP.ff=false}
 /* 決まった種の乱数は、ゲームの1コマの中と、手を打つ瞬間だけ使う(ほかの画面の動きが乱数を使っても、ずれないように) */
 function mpWith(fn){if(!MP.on)return fn();const o=Math.random;Math.random=MP.rng;try{return fn()}finally{Math.random=o}}
 const GT=(fn,ms)=>MP.on?later(ms/1000,fn):setTimeout(fn,ms);
@@ -2805,10 +2809,13 @@ const GT=(fn,ms)=>MP.on?later(ms/1000,fn):setTimeout(fn,ms);
 function LDO(){return (MP.on&&G.ldo)||ALLIES[G.lead]}
 function mpLdo(s){const L=window.CA_MP&&window.CA_MP.lead&&window.CA_MP.lead(s);return L&&L.lead&&LEADS[L.lead]?L:null}
 function mpSlot(){return (G.mpN||0)%ALLIES.length}
-function mpShot(k,C,p,bu,pre){if(G.phase!=='idle'||G.busy||G.over)return false;MP.k=k;if(pre)mpApply(pre);mpSeed(k*2+1);G.lead=mpSlot();G.ldo=mpLdo(G.lead);G.mpN=(G.mpN||0)+1;if(bu&&G.burst>=CFG.burstNeed&&!G.burstOn){G.burst=0;G.burstOn=true}G.C={x:C.x,z:C.z};G.p=p;G.rad=radOf(p);mpWith(startCompress);return true}
+/* (11/12) 手を打ってよいか: 前の手が終わってから、残りのタイマー(later)が全部終わり、30コマ(0.5秒)静かになるまで待つ。
+   手が届く早さは端末ごとにちがうので、タイマーが残ったまま打つと端末ごとに結果がずれる(測って確かめた: 待てば全員同じ盤面になる) */
+function mpReady(){return MP.idleN>=30&&(LQ.length===0||MP.idleN>=180)}
+function mpShot(k,C,p,bu,pre){if(G.phase!=='idle'||G.busy||G.over||!mpReady())return false;MP.k=k;if(pre)mpApply(pre);mpSeed(k*2+1);G.lead=mpSlot();G.ldo=mpLdo(G.lead);G.mpN=(G.mpN||0)+1;if(bu&&G.burst>=CFG.burstNeed&&!G.burstOn){G.burst=0;G.burstOn=true}G.C={x:C.x,z:C.z};G.p=p;G.rad=radOf(p);mpWith(startCompress);return true}
 /* 自分が動かせる番か(out.js の CA_MP が決める) */
 function mpMine(){return !MP.on||!window.CA_MP||window.CA_MP.mine(mpSlot())}
-function mpSkill(k,i,pre){if(G.phase!=='idle'||G.busy||G.over)return false;MP.k=k;if(pre)mpApply(pre);mpSeed(k*2+2);G.sk[i]=Math.max(G.sk[i],SKILLS[i].cd);mpWith(()=>useSkill(i,true));return true}
+function mpSkill(k,i,pre){if(G.phase!=='idle'||G.busy||G.over||!mpReady())return false;MP.k=k;if(pre)mpApply(pre);mpSeed(k*2+2);G.sk[i]=Math.max(G.sk[i],SKILLS[i].cd);mpWith(()=>useSkill(i,true));return true}
 /* 盤面のまとめ(合わせなおし・ずれの確かめ用) */
 function mpSnap(){const r=v=>Math.round(v*1000)/1000;return{k:MP.k,hp:G.hp,w:G.wave,t:G.turn,n:G.mpN||0,ic:G.idc,sk:G.sk.slice(),bu:G.burst||0,bo:G.burstOn?1:0,lb:LB.on?[LB.hp,LB.cd,LB.brk||0,LB.broken?1:0]:null,
   b:G.bodies.filter(b=>b.alive).sort((p,q)=>p.id-q.id).map(b=>({i:b.id,k:b.k,x:r(b.x),z:r(b.z),h:Math.round(b.hp||0),m:Math.round(b.max||0),c:b.cd||0,g:b.g||0,e:b.el||0,a:b.ai??-1,d:b.hard?1:0,br:b.broken||0}))}}
@@ -2834,8 +2841,16 @@ let stopT=0;function hitStop(t){stopT=Math.max(stopT,t)}
 let last=performance.now();G.clock=0;
 const v3=new THREE.Vector3(),v3b=new THREE.Vector3(),v3g=new THREE.Vector3();
 let _ORT=null;function OUTCOVER(){const r=_ORT||(_ORT=document.getElementById('oroot'));return !!(r&&!r.hidden)}
-function frame(now){requestAnimationFrame(frame);if(MP.on){const o=Math.random;Math.random=MP.rng;try{frameBody(now)}finally{Math.random=o}}else frameBody(now)}
-function frameBody(now){if(window.__PAUSE){last=now;return}fpsTick(now);let dt=Math.min(.05,(now-last)/1000);last=now;if(window.__FIXDT)dt=window.__FIXDT;if(MP.on){MP.acc=Math.min(.1,MP.acc+(now-(frame.pn||now))/1000);frame.pn=now;if(MP.acc<1/60-.002)return;MP.acc-=1/60;dt=1/60}else frame.pn=now;window.__FRN=(window.__FRN||0)+1;/* __PAUSE・__FIXDT は確認用(コマ送り) */
+function frame(now){requestAnimationFrame(frame);if(!MP.on){frame.pn=now;frameBody(now);return}
+  if(window.__PAUSE){frame.pn=now;last=now;return}
+  /* マルチ: たまった時間のぶんだけ 1/60 秒のコマを進める。1回描く間に最大4コマ(早送りのときは6コマ)。最後のコマだけ描く */
+  MP.acc=Math.min(.25,MP.acc+(now-(frame.pn||now))/1000);frame.pn=now;
+  const mx=MP.ff?6:4;let n=0;while(MP.acc>=1/60-.002&&n<mx){MP.acc-=1/60;n++}
+  if(n>=mx)MP.acc=Math.min(MP.acc,1/60);/* 追いつけない重さのときは、ためこまない */
+  if(MP.ff&&n>0&&n<3)n=3;/* 遅れているとき(次の手がもう来ている)は早送りで追いつく */
+  if(!n)return;const o=Math.random,nr=G.noRender;
+  try{for(let i=0;i<n;i++){MP.sub=i<n-1;G.noRender=nr||MP.sub;mpStep();Math.random=MP.rng;frameBody(now);if(G.phase==='idle'&&!G.busy&&!G.over)MP.idleN++;else MP.idleN=0}}finally{Math.random=o;G.noRender=nr;MP.sub=false}}
+function frameBody(now){if(window.__PAUSE){last=now;return}if(!MP.sub)fpsTick(now);let dt=Math.min(.05,(now-last)/1000);last=now;if(window.__FIXDT)dt=window.__FIXDT;if(MP.on)dt=1/60;window.__FRN=(window.__FRN||0)+1;/* __PAUSE・__FIXDT は確認用(コマ送り) */
   /* (11/9) 位置や速さが NaN(計算できない数)になった物は、まん中で止めてもとにもどす(黒い四角の元を消す) */
   for(const b of G.bodies){if(b.x===b.x&&b.z===b.z&&b.vx===b.vx&&b.vz===b.vz)continue;if(!b._nan){b._nan=1;console.warn('NaN body',b.k,b.id)}b.x=b.x===b.x?b.x:0;b.z=b.z===b.z?b.z:0;b.vx=0;b.vz=0}
   const real=dt;if(stopT>0){stopT-=dt;dt*=.06}
@@ -3029,6 +3044,6 @@ modeLabel();
 requestAnimationFrame(frame);
 window.CA_API={setQuality,getQuality:()=>PRQ,loadWave,TOWER,RAID,SCORE,EXB,EXT,LEV,YM,WKID,CHAPS,genStage,genWave,rng,hashStr,RES,RESK,demoRes,demoFire,ROSTER,SKD,setTeam,STAGES,PROG,MAIN_N,ALLIES,OEL,PORT,G,startStage,showSelect,faceTex,portCanvas,applyParty,ui,stageOpen,stageStrength,stageKinds,kindsBefore,KNAME,HARD,LEADS};
 imp('./out.js').catch(e=>console.warn('out.js を読めませんでした',e));
-window.__CA={get S(){return S},/* 確認用: 場面の中身を数える */resFire,resBoom,resTide,resThorn,resTrail,resWood,resLight,resWater,riStart(){R.info.autoReset=false;R.info.reset()},riEnd(){R.info.autoReset=true},get RI(){return {calls:R.info.render.calls,tris:R.info.render.triangles,geo:R.info.memory.geometries,tex:R.info.memory.textures,prog:R.info.programs?R.info.programs.length:0,pr:R.getPixelRatio()}},resAim,resRico,resBonus,resChainB,MP,mpOn,mpOff,mpShot,mpSkill,mpSlot,mpSnap,mpHash,mpApply,gimTurn,addBody,STAGES,PROG,DIF,startStage,showSelect,stageClear,stageFail,useSkill,get SKILLS(){return SKILLS},get ALLIES(){return ALLIES},combo,resFire,resWood,resWater,resLight,allyBody,G,CFG,KIND,LB,startCompress,release,groundAt,cam,loadWave,nextTurn,resize,vf,vfHit,vfPop,vfBoom,VF,explode,addBody,hurt,streaks,impactFrame,
+window.__CA={get S(){return S},/* 確認用: 場面の中身を数える */resFire,resBoom,resTide,resThorn,resTrail,resWood,resLight,resWater,riStart(){R.info.autoReset=false;R.info.reset()},riEnd(){R.info.autoReset=true},get RI(){return {calls:R.info.render.calls,tris:R.info.render.triangles,geo:R.info.memory.geometries,tex:R.info.memory.textures,prog:R.info.programs?R.info.programs.length:0,pr:R.getPixelRatio()}},resAim,resRico,resBonus,resChainB,MP,mpOn,mpOff,mpFF(v){MP.ff=!!v},mpDump(){const pr=o=>{const r={};for(const k in o){const v=o[k];if(typeof v==='number'||typeof v==='boolean'||typeof v==='string')r[k]=typeof v==='number'?Math.round(v*1e5)/1e5:v}return r};return{G:pr(G),stopT,LB:pr(LB),b:G.bodies.filter(b=>b.alive).sort((p,q)=>p.id-q.id).map(pr),sh:SH.length,rfx:RFX.length,fx:FX.length}},mpDbg(){return{idleN:MP.idleN,lq:LQ.length,mt:LQ.length?Math.max(...LQ.map(q=>q.t)):0}},mpShot,mpSkill,mpSlot,mpSnap,mpHash,mpApply,gimTurn,addBody,STAGES,PROG,DIF,startStage,showSelect,stageClear,stageFail,useSkill,get SKILLS(){return SKILLS},get ALLIES(){return ALLIES},combo,resFire,resWood,resWater,resLight,allyBody,G,CFG,KIND,LB,startCompress,release,groundAt,cam,loadWave,nextTurn,resize,vf,vfHit,vfPop,vfBoom,VF,explode,addBody,hurt,streaks,impactFrame,
   stageT,resFxState:()=>({active:RFX.length,holding:RFX.filter(e=>e.hold).length,stopT,geometries:R.info.memory.geometries,textures:R.info.memory.textures,programs:(R.info.programs||[]).length})};
 </script>
