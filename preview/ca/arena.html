@@ -513,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=89';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=90';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -2712,6 +2712,8 @@ function stageOpen(i,h){return h?PROG.n[i]&&(i===0||PROG.h[i-1]):(i===0||PROG.n[
 function stageStrength(i,h){const k=STAGES[i].k;const v=(k.hp*(h?HARD.hp:1)+k.atk*(h?HARD.atk:1))/2;return Math.max(1,Math.min(5,Math.round(1+(v-.55)/2.3*4)))}
 /* 見えない目安Lv(画面には出さない)。メイン: 第1章1→10・第2章10→25・第3章25→40・第4章40→55、ハードは+15。曜日・イベント: 初級20・中級40・上級60。塔: 1階5→30階80。降臨60、試練70、極限・絶界90 */
 const XDIF=+window.__XDIF||2.5;/* 目安Lvちょうどで、いまの本番(2倍)の1.25倍の強さ。目安より下だとレベルの差でもっときびしい */
+/* (11/12) 山本さん「全体的に難易度下げたい、0.7倍くらいに」「攻撃と体力の両方」「全部」: 全ステージの敵の体力と攻撃に 0.7 を掛ける。表示の★や目安レベルは変えない */
+const EASE=.7;
 function stageT(i,h){const st=STAGES[i],ev=st.ev||'';
   if(!ev){const c=st.ch||0,j=STAGES.slice(0,i).filter(s=>!s.ev&&(s.ch||0)===c).length,A=[[1,10],[10,25],[25,40],[40,55]][Math.min(3,c)];return A[0]+(A[1]-A[0])*j/7+(h?15:0)}
   if(ev==='tower'){const f=+((st.n||'').match(/(\d+)階/)||[0,1])[1];return 5+75*(f-1)/29}
@@ -2721,7 +2723,7 @@ function stageT(i,h){const st=STAGES[i],ev=st.ev||'';
 /* (11/9) 敵の「攻撃まで」をばらす(山本さん): 一斉に攻撃せず、1手番に半分くらいずつ。攻撃の多さ(2手番に1回)は変えない */
 let CDALT=0;function cd0(b,k){if(k==='boss')return Math.max(1,2+DIF.cd);const base=Math.max(1,1+((b.id*7)%3)+DIF.cd);if(DIF.cd>=0)return base;CDALT^=1;return 1+CDALT}
 function setStageData(i,h){const st=STAGES[i];G.stage=i;{let gd=st.gd;if(gd==null)gd=Math.min(4,Math.min(2.4,i/Math.max(1,MAIN_N-1)*2.4)+(h?1.2:0));G.gd=gd;G.gdS=1+.12*gd;G.gdD=1+.35*gd}G.dmgMax=0;G.mpN=0;G.mpWait=false;G.ldo=null;G.hard=!!h;G.mbName=st.mbName||'岩殻のゴーレム';G.lbName=st.lbName||CFG.lbName;G.mbTint=st.mbTint||null;G.lbTint=st.lbTint||null;G.lbModel=st.lbModel||null;
-  Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1),atk:st.k.atk*(h?HARD.atk:1),cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF*(st.ev?1:.85)/* (11/9) ストーリーはノーマル・ハードとも×0.85(山本さん、×0.7からもどす) *//* (11/8 8時) ストーリーは少しだけ弱く */;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
+  Object.assign(DIF,{hp:st.k.hp*(h?HARD.hp:1)*EASE,atk:st.k.atk*(h?HARD.atk:1)*EASE,cd:st.k.cd+(h?HARD.cd:0),boss:st.k.boss*(h?HARD.boss:1),lb:(st.k.lb||1)*(h?HARD.lb:1)});/* (11/8 6時 山本さん「目安Lv70がLv30で倒される」「敵の攻撃の範囲と回数も」) キャラのレベルが効くようにした(out.js の mult)のに合わせ、ステージごとの見えない目安Lvで敵を強くする。攻撃は1ターン早く・範囲1.3倍 */{const T=stageT(i,h),r=(1+(T-1)*.029)/(1+(T-1)*.0075),x=st.ev==='exp'?1:XDIF*(st.ev?1:.85)/* (11/9) ストーリーはノーマル・ハードとも×0.85(山本さん、×0.7からもどす) *//* (11/8 8時) ストーリーは少しだけ弱く */;DIF.hp*=r*x;DIF.atk*=r*x;if(!window.__NOCD)DIF.cd-=1}
   WAVES.length=0;{const pool=[...new Set(STAGES.slice(0,i+1).flatMap(s=>(s.gm||[]).join('').replace(/\./g,'').split('')))];if(!pool.length)pool.push('f','w');let hk=0;
    st.waves.forEach((w,wi)=>{const g=(st.gm||[])[wi]||'';let ei=0;const items=w.items.map(it=>{if(it[0]!=='enemy')return it;let c=g[ei]||'.';if(h&&c==='.'&&ei%2===1)c=pool[(hk++)%pool.length];ei++;return GL[c]?[it[0],it[1],it[2],GL[c]]:it});WAVES.push(Object.assign({},w,{items}))})}
   $('stid').textContent=st.ev?(st.tn||st.id||'EV'):st.id+(h?' H':'');rebuildDbg()}
