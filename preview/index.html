@@ -8867,7 +8867,7 @@ body.ui2 #lob .ktour button.ktno,body .ktour button.ktno{font-size:13.5px!import
 <div id="admPassList" class="sub" style="margin-top:6px"></div>
 </div>
 <div class="admcard" id="admHwPass"><div class="admct">ハロウィンパス・限定セット</div><div class="admcd">応援値をもらったときに使います。パス 2,000・セット 2,000(どちらも1人1回)。付けるとすぐに、パスは限定ガチャチケット1枚、セットは限定ガチャチケット8枚とTCG ハロウィンパック券5枚がプレゼントに入ります。</div>
-<div class="row" style="margin-top:8px"><select id="admHwP" aria-label="買った人" style="flex:1;min-width:0"></select><select id="admHwK" aria-label="種類" style="flex:1;min-width:0"><option value="pass">ハロウィンパス 2,000</option><option value="set">ハロウィン限定セット 2,000</option><option value="p5">ハロウィンの小袋 500</option><option value="p10">ハロウィンの大袋 1,000</option></select></div>
+<div class="row" style="margin-top:8px"><select id="admHwP" aria-label="買った人" style="flex:1;min-width:0"></select><select id="admHwK" aria-label="種類" style="flex:1;min-width:0"><option value="pass">ハロウィンパス 2,000</option><option value="set">ハロウィン限定セット 2,000</option><option value="p5">ハロウィンの小袋 500</option><option value="p10">ハロウィンの大袋 1,000</option><option value="gbs1">ゲーセンセット 1,000</option><option value="gbs2">ゲーセンセットDX 2,000</option><!--gb-opt--></select></div>
 <div class="row supvrow" style="margin-top:8px"><span class="sub" style="flex:none">サポーターランクに</span><input id="admHwV" type="number" inputmode="numeric" min="0" value="2000" aria-label="ランクに足す値" style="flex:1;min-width:0"><span class="sub supunit" style="flex:none"></span></div>
 <button id="admHwGo" style="width:100%;margin-top:8px">付ける</button><div id="admHwMsg" class="sub" style="margin-top:6px;min-height:18px"></div>
 <div id="admHwList" class="sub" style="margin-top:6px"></div>
@@ -12053,7 +12053,7 @@ function stkReveal(ids,keys){keys=keys||[];if(!ids.length)return;const me=myPlay
    st: wait → (go) → ok | ng | dup (already owned, nothing given) ---- */
 const HWO={hwpass:{n:'ハロウィンパス',price:()=>HWP_PRICE,has:pid=>!!hwPassAt(pid),k:'pass'},hwset:{n:'ハロウィン限定セット',price:()=>HWS_PRICE,has:pid=>!!hwSetAt(pid),k:'set'},
   /* (10/20) the bags: 'has' = bought the most times */
-  hwp5:{n:HWB.p5.n,price:()=>HWB.p5.price,has:pid=>hwBagN(pid,'p5')>=HWB_MAX,k:'p5'},hwp10:{n:HWB.p10.n,price:()=>HWB.p10.price,has:pid=>hwBagN(pid,'p10')>=HWB_MAX,k:'p10'}};
+  hwp5:{n:HWB.p5.n,price:()=>HWB.p5.price,has:pid=>hwBagN(pid,'p5')>=HWB_MAX,k:'p5'},hwp10:{n:HWB.p10.n,price:()=>HWB.p10.price,has:pid=>hwBagN(pid,'p10')>=HWB_MAX,k:'p10'}};try{Object.assign(HWO,gbSetHWO())}catch(e){}/*gb-hwo*/
 let hwOrders=[],hwOrdOn=false,hwPayCfg=null,hwPayOn=false,admOrders=[],admOrdOn=false;
 function hwPayWatch(){if(hwPayOn||!db)return;hwPayOn=true;db.doc('config/pay').onSnapshot(d=>{hwPayCfg=d.exists?d.data():{};queueRender();hwOrdRedraw()},()=>{hwPayOn=false})}
 function hwOrdWatch(){const me=myPlayer();if(hwOrdOn||!db||!me)return;hwOrdOn=true;hwPayWatch();
@@ -12067,7 +12067,7 @@ const hwOrdCode=()=>'HW-'+String(1000+Math.floor(Math.random()*9000));
 const hwPayTo=()=>String((hwPayCfg&&hwPayCfg.to)||'').slice(0,80);
 function hwOrderBox(me,kind){const K=HWO[kind];if(!K||K.has(me.id))return null;hwOrdWatch();const box=el('div','hwo'),u=typeof passUnit==='function'?passUnit():'応援値',to=hwPayTo();
   const L=hwOrders.filter(o=>o.kind===kind).sort((a,b)=>(b.t||0)-(a.t||0)),cur=L.find(o=>o.st==='wait'||o.st==='go'),last=L[0];
-  if(!cur&&now()>=hwT1())return null;/* (10/29) 終わったあとは新しく申し込めない(申し込み中のものだけ見せる) */
+  if(!cur&&now()>=(K.gb?gbT1():hwT1()))return null;/*gb-ob*//* (10/29) 終わったあとは新しく申し込めない(申し込み中のものだけ見せる) */
   if(cur){box.classList.add('wait');box.append(el('b','hwo-h','申し込み中  ·  番号 '+cur.code),
       el('p',null,K.price().toLocaleString()+' '+u+'を送って、メッセージに番号「'+cur.code+'」を書いてください。管理者が確かめると、すぐに入ります。'));
     if(to)box.append(el('p','hwo-to','送り先: '+to));
@@ -12075,10 +12075,10 @@ function hwOrderBox(me,kind){const K=HWO[kind];if(!K||K.has(me.id))return null;h
     return box}
   if(last&&last.st==='ng')box.append(el('p','hwo-ng','前の申し込みは却下されました。わからないときは管理者に聞いてください。'));
   if(last&&last.st==='dup')box.append(el('p','hwo-ng','もう持っていたので、前の申し込みでは何も付いていません。'));
-  const b=el('button','hwo-go','申し込む');b.disabled=!!HW_PV;
+  const b=el('button','hwo-go','申し込む');b.disabled=!!(K.gb?GB_PV:HW_PV);/*gb-pv*/
   b.onclick=()=>askSheet({title:K.n+'を申し込む',lines:[K.price().toLocaleString()+' '+u,['sub','1. 申し込むと、番号が出ます'],['sub','2. '+u+'を送って、メッセージにその番号を書きます'+(to?'(送り先: '+to+')':'')],['sub','3. 管理者が確かめると、アプリにすぐ入ります']],ok:'申し込む',run:()=>hwOrder(me,kind)});
-  box.append(b);if(HW_PV)box.append(el('p','hwo-ng','お試し版では申し込めません(本番のアプリから申し込んでください)'));return box}
-async function hwOrder(me,kind){if(now()>=hwT1()){toast('販売は終わりました');return}if(HW_PV||hwOrders.some(o=>o.kind===kind&&(o.st==='wait'||o.st==='go')))return;
+  box.append(b);if(K.gb?GB_PV:HW_PV)/*gb-pv2*/box.append(el('p','hwo-ng','お試し版では申し込めません(本番のアプリから申し込んでください)'));return box}
+async function hwOrder(me,kind){if(now()>=((HWO[kind]||{}).gb?gbT1():hwT1())){toast('販売は終わりました');return}/*gb-or*/if(((HWO[kind]||{}).gb?GB_PV:HW_PV)||hwOrders.some(o=>o.kind===kind&&(o.st==='wait'||o.st==='go')))return;
   try{await db.collection('orders').add({pid:me.id,pn:String(me.name||'').slice(0,40),kind,code:hwOrdCode(),t:now(),st:'wait'});toast('申し込みました。送るときのメッセージに番号を書いてください')}
   catch(e){toast('申し込めませんでした('+(e.code||e.message)+')')}}
 /* the admin card's give, also used to approve an order from the app. k: 'pass' | 'set'. Returns {msg, dup} */
@@ -12094,7 +12094,7 @@ async function hwBagGive(p,k,v){const B=HWB[k];if(!isAdmin()||!p||!B)return{msg:
     if(v>0){await db.collection('suplog').add({pid:p.id,v,note:B.n,t});try{supRecalc()}catch(e){}}
     return{ok:true,msg:p.name+' に'+B.n+'('+no+'回目)を付けました'+(v>0?'  ランク +'+v.toLocaleString():'')}}
   catch(e){return{msg:'途中で止まりました('+(e.code||e.message)+')。もう一度押すと、足りないぶんだけ付けます'}}}
-async function hwGiveCore(p,k,v){if(HWB[k])return hwBagGive(p,k,v);if(!isAdmin()||!p)return{msg:'管理者だけが使えます'};
+async function hwGiveCore(p,k,v){if(typeof GBS!=='undefined'&&GBS[k])return gbSetGive(p,k,v);/*gb-give*/if(HWB[k])return hwBagGive(p,k,v);if(!isAdmin()||!p)return{msg:'管理者だけが使えます'};
   if(HW_PV)return{msg:'お試し版では付けられません(本番のアプリから付けてください)'};
   if(typeof passesLoaded!=='undefined'&&!passesLoaded)return{msg:'読み込み中です。少し待ってからもう一度押してください'};
   const key=k==='set'?'hs':'hw',name=k==='set'?'ハロウィン限定セット':'ハロウィンパス';
@@ -14680,7 +14680,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=81',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=82',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -14734,7 +14734,7 @@ window.CAHOST={
   spend:(cost,n)=>{const me=myPlayer();if(!me)return false;const k=n==='sta'&&cost===100?'st':n===10&&cost===900?'g10':n===1&&cost===100?'g1':n===10&&cost===1350?'l10':n===1&&cost===150?'l1':null;/* (11/10) l1・l10 はゲームバカイベントの限定ガチャ */if(!k||balance(me.id)<cost)return false;
     const d={...(caDocs[me.id]||{})};d[k]=(+d[k]||0)+1;caDocs[me.id]=d;caPtSend();queueRender();return true},
   earn:n=>caEarn(n),
-  gbOn:()=>{try{return typeof gbOn==='function'&&gbOn()}catch(e){return false}},
+  gbOn:()=>{try{return typeof gbOn==='function'&&gbOn()}catch(e){return false}},gbTen:()=>{try{const m=myPlayer();return m&&typeof gbSetAt==='function'&&gbOn()?gbSetAt(m.id,'gbs2'):0}catch(e){return 0}},/*gb-ten*/
   /* (v145) スキン: 前の分身でもらったスキン。推しスキン(スキンガチャのKMRの対戦演出と勝利演出がそろったもの)と、かぼちゃ頭の騎士(ハロウィン) */
   skins:()=>{const me=myPlayer();if(!me)return[];const M={'オーバーサイズ':'hood','ふくれっつら':'chibi','ひだまりニット':'vt1','はなかんむり':'vt2','堕ちた天使':'vt3','夜宴の小悪魔':'hw'},out=[];
     try{for(const o of (typeof myOshiSet==='function'?myOshiSet():[])){const k=o&&M[o.n];if(k&&!out.includes(k))out.push(k)}}catch(e){}
@@ -22265,6 +22265,27 @@ const GB_A=[
   ['rb5','s','レート対戦で5勝',5,S=>S.rw],['tc5','s','TCGの対人戦で5勝',5,S=>S.tw],['cp10','s','TCGのCPUに10勝',10,S=>S.cw],['ar20','s','分身で20回クリア',20,S=>S.ac],
   ['cr5','s','ボックスガチャを10回引く',10,S=>S.cr],['pz1','s','箱の目玉を1つ引く',1,S=>S.pz],['md5','s','メダルを500枚ためる',500,S=>S.earn],
   ['rb15','g','レート対戦で15勝',15,S=>S.rw],['tc15','g','TCGの対人戦で15勝',15,S=>S.tw],['ar60','g','分身で60回クリア',60,S=>S.ac],['pz5','g','箱の目玉を4つ引く',4,S=>S.pz],['md15','g','メダルを1500枚ためる',1500,S=>S.earn]];
+/* ---- (11/11) 限定セット(お金はアプリの外で受け取り、管理者が承認する。ハロウィンの小袋・大袋と同じ申し込みの流れ)。
+   pass/{pid}.g1 / .g2 = 付けた時刻(管理者だけが書ける)。もらえる物は、その時刻から計算する(保存はしない):
+     ゲーセンセット   : メダル 2,000 + それ以降に手に入れるメダル +10%
+     ゲーセンセットDX : メダル 4,500 + 分身の限定ガチャ 10連 1回無料 + それ以降に手に入れるメダル +20%
+   +%は高いほうだけ(足さない)。セットのメダルと+%は、派閥の点には入らない(買った人の派閥が有利にならないように) ---- */
+const GBS={gbs1:{key:'g1',n:'ゲーセンセット',en:'ARCADE SET',price:1000,md:2000,bonus:.1,ten:0},gbs2:{key:'g2',n:'ゲーセンセットDX',en:'ARCADE SET DX',price:2000,md:4500,bonus:.2,ten:1}};
+const gbSetAt=(pid,k)=>{const t=+(((typeof passes!=='undefined'&&passes[pid])||{})[GBS[k].key])||0;return t>=gbT0()-864e5&&t<gbT1()+864e5?t:0};/* このイベントの間に付いたものだけ */
+const gbBon=(pid,t)=>{let b=0;for(const k in GBS){const a=gbSetAt(pid,k);if(a&&t>=a)b=Math.max(b,GBS[k].bonus)}return 1+b};
+const gbSetMd=pid=>Object.keys(GBS).reduce((a,k)=>a+(gbSetAt(pid,k)?GBS[k].md:0),0);
+const gbSetHWO=()=>{const o={};for(const k in GBS)o[k]={n:GBS[k].n,price:()=>GBS[k].price,has:pid=>!!gbSetAt(pid,k),k,gb:1};return o};
+setTimeout(()=>{try{if(!HWO.gbs1)Object.assign(HWO,gbSetHWO())}catch(e){}},0);/* 申し込みの種類に足す(本体の HWO ができたあと) */
+async function gbSetGive(p,k,v){const B=GBS[k];if(!isAdmin()||!p||!B)return{msg:'付けられませんでした'};
+  if(GB_PV)return{msg:'お試し版では付けられません(本番のアプリから付けてください)'};
+  if(typeof passesLoaded!=='undefined'&&!passesLoaded)return{msg:'読み込み中です。少し待ってからもう一度押してください'};
+  if(gbSetAt(p.id,k))return{msg:p.name+' はもう'+B.n+'を買っています(1人1回)',dup:true};
+  const t=now();try{await db.doc('pass/'+p.id).set({[B.key]:t},{merge:true});passes[p.id]=Object.assign({},passes[p.id]||{},{[B.key]:t});
+    if(v>0){await db.collection('suplog').add({pid:p.id,v,note:B.n,t});try{supRecalc()}catch(e){}}
+    return{ok:true,msg:p.name+' に'+B.n+'を付けました'+(v>0?'  ランク +'+v.toLocaleString():'')}}
+  catch(e){return{msg:'付けられませんでした('+(e.code||e.message)+')'}}}
+/* 日時を「11/14 5:00」の形に(日本の時刻) */
+const gbDate=t=>{const d=new Date(t+9*36e5);return (d.getUTCMonth()+1)+'/'+d.getUTCDate()+' '+d.getUTCHours()+':'+String(d.getUTCMinutes()).padStart(2,'0')};
 /* ---- 数える ---- */
 const gbL=k=>Array.isArray(inv&&inv[k])?inv[k]:[];
 let gbMemo={k:'',v:null};
@@ -22278,10 +22299,10 @@ function gbEv(pid){/* [メダル, 時刻, 's'|'m'] — 自分のものだけ */
     {const seen={};for(const x of gbL(GBK.t)){const i=(+x)%8,t=Math.floor(+x/8),B=GB_BOSS[i];if(!B||!gbIn(t))continue;ev.push([(B.lv==='strong'?GB_C.bs:GB_C.bn)+(seen[i]?0:GB_C.b1),t,'s','bw']);seen[i]=1}}}
   gbMemo={k:key,v:ev};return ev}
 function gbStat(pid){const ev=gbEv(pid),c=k=>ev.filter(e=>e[3]===k).length,BX=inv&&pid===invFor?gbBoxSt():{n:0,d:{}};
-  return{fac:inv&&inv[GBK.f]?1:0,rw:c('rw'),tw:c('tw'),cw:c('cw')+c('bw'),ac:c('as')+c('am'),am:c('am'),cr:+(inv&&inv[GBK.u])||0,pz:BX.n+(+BX.d.top||0),earn:Math.floor(ev.reduce((a,e)=>a+e[0],0))}}
+  return{fac:inv&&inv[GBK.f]?1:0,rw:c('rw'),tw:c('tw'),cw:c('cw')+c('bw'),ac:c('as')+c('am'),am:c('am'),cr:+(inv&&inv[GBK.u])||0,pz:BX.n+(+BX.d.top||0),earn:Math.floor(ev.reduce((a,e)=>a+e[0]*gbBon(pid,e[1]),0))}}
 const gbAchGot=()=>Array.isArray(inv&&inv[GBK.x])?inv[GBK.x]:[];
 const gbAchPts=()=>gbAchGot().reduce((a,id)=>{const A=GB_A.find(x=>x[0]===id);return a+(A?GB_TR[A[1]]:0)},0);
-function gbBal(pid){if(pid!==invFor||!inv)return 0;return gbStat(pid).earn+gbAchPts()+(+inv[GBK.b]||0)*GB_BUY+(+inv[GBK.mr]||0)-(+inv[GBK.u]||0)*GB_PLAY}
+function gbBal(pid){if(pid!==invFor||!inv)return 0;return gbStat(pid).earn+gbSetMd(pid)+gbAchPts()+(+inv[GBK.b]||0)*GB_BUY+(+inv[GBK.mr]||0)-(+inv[GBK.u]||0)*GB_PLAY}
 function gbScore(pid){const f=inv&&inv[GBK.f];if(!f)return 0;return Math.floor(gbEv(pid).reduce((a,e)=>a+e[0]*(e[2]===f?GB_X:1),0))}
 /* ---- 派閥の点: 1分ごとに自分の点を gbpub/{pid} に出す。合計はみんなの分を足す ---- */
 let gbPubs={},gbPubOn=false,gbPubLast='';const GBP=GB_PV?{f:'pvf',c:'pvc',x:'pvx',b:'pvb'}:{f:'f',c:'c',x:'x',b:'b'};
@@ -22359,7 +22380,7 @@ function gbBossGo(i){if(!gbOn())return;let d=0;try{d=+localStorage.getItem('kxtd
 function gbOpen(tab){const me=gbMe();if(!me)return;try{gbPubWatch()}catch(e){}document.querySelectorAll('.gbx').forEach(x=>x.remove());
   const o=el('div','gbx'),b=el('div','gbx-b');o.append(el('i','gbx-glow'),b);document.body.append(o);let cur=tab||'top';
   const draw=()=>{if(!o.isConnected)return;b.replaceChildren();const on=gbOn(),bal=gbBal(me.id),f=inv&&inv[GBK.f];
-    const hd=el('div','gbx-hd'),tt=el('div','gbx-tt');tt.append(el('small',null,on?'11/29 5:00 まで  ·  あと '+gbLeft(gbT1()):now()<gbT0()?'11/14 5:00 から':'終了しました'),el('h2',null,'ゲームバカイベント'),el('i',null,'GAMER GIRLS FESTIVAL'));
+    const hd=el('div','gbx-hd'),tt=el('div','gbx-tt');tt.append(el('small',null,on?gbDate(gbT1())+' まで  ·  あと '+gbLeft(gbT1()):now()<gbT0()?gbDate(gbT0())+' から':'終了しました'),el('h2',null,'ゲームバカイベント'),el('i',null,'GAMER GIRLS FESTIVAL'));
     const cl=el('button','gbx-cl');cl.type='button';cl.setAttribute('aria-label','閉じる');cl.innerHTML=gbX;cl.onclick=()=>o.remove();hd.append(tt,cl);b.append(hd);
     const mb=el('div','gbx-mb');const mv=el('span','gbx-mv');mv.innerHTML=GB_MEDAL;mv.append(el('b',null,bal.toLocaleString()),el('small',null,'ゲーセンメダル'));const by=el('button','gbx-buy','メダルを買う');by.type='button';by.onclick=()=>gbBuySheet(draw);by.disabled=!on;mb.append(mv,by);b.append(mb);
     const tabs=el('div','gbx-tabs');[['top','トップ'],['fac','派閥'],['boss','ボス戦'],['ach','実績'],['box','ガチャ']].forEach(([k,n])=>{const t=el('button','gbx-tab'+(cur===k?' on':''),n);t.type='button';t.setAttribute('aria-pressed',cur===k);
@@ -22371,14 +22392,23 @@ function gbOpen(tab){const me=gbMe();if(!me)return;try{gbPubWatch()}catch(e){}do
 function gbTop(body,me,on,f,go){const kv=el('div','gbx-kv');kv.append(el('i','gbx-kvg'),el('b',null,'ゲーマー女子、集合。'),el('p',null,'遊ぶとゲーセンメダルがたまる。メダルで派閥を応援して、実績を集めて、クレーンゲームで限定の景品をねらおう。'));body.append(kv);
   const how=el('div','gbx-how');[['レート対戦','勝ち10・負け3'],['TCGの対人戦','勝ち10・負け3'],['TCGのCPU','つよい8・ほか4'],['TCGのボス戦','ふつう12・つよい20・初勝利+30'],['分身のクリア','ふつう5・イベント10〜60・降臨50']].forEach(([a,c])=>{const r=el('div','gbx-hr');r.append(el('span',null,a),el('b',null,c));how.append(r)});
   body.append(el('h3','gbx-h','メダルのため方'),how);
-  const T=gbTotals(),fac=el('button','gbx-card');fac.type='button';fac.onclick=()=>go('fac');fac.append(el('b',null,f?'あなたは '+GB_F[f].n:'派閥をまだ選んでいません'),el('span',null,now()<gbMid()?'途中の結果は 11/21 5:00 に出ます':(GB_F.s.n+' '+T.s.toLocaleString()+'  対  '+T.m.toLocaleString()+' '+GB_F.m.n)));body.append(fac);
+  const T=gbTotals(),fac=el('button','gbx-card');fac.type='button';fac.onclick=()=>go('fac');fac.append(el('b',null,f?'あなたは '+GB_F[f].n:'派閥をまだ選んでいません'),el('span',null,now()<gbMid()?'途中の結果は '+gbDate(gbMid())+' に出ます':(GB_F.s.n+' '+T.s.toLocaleString()+'  対  '+T.m.toLocaleString()+' '+GB_F.m.n)));body.append(fac);
   const bs=el('button','gbx-card');bs.type='button';bs.onclick=()=>go('boss');{const W=gbBossWins();bs.append(el('b',null,'TCGボス戦  ゲーマー女子7人'),el('span',null,W.filter(x=>x>0).length+' / '+GB_BOSS.length+' 人に勝利  ·  はじめて勝つとメダル +'+GB_C.b1))}body.append(bs);
   const cr=el('button','gbx-card cr');cr.type='button';cr.onclick=()=>go('box');cr.append(el('b',null,'ボックスガチャ  1回 '+GB_PLAY+'枚'),el('span',null,'ゲーマー女子のTCGカード・光るフレーム・背景・称号'));body.append(cr);
-  if(GB_PV)body.append(el('p','gbx-note','お試し版: メダルを買ってもptは減りません。もらった物も本番には入りません。'))}
+  if(GB_PV)body.append(el('p','gbx-note','お試し版: メダルを買ってもptは減りません。もらった物も本番には入りません。'));try{body.append(gbSetSec(me,on))}catch(e){}}
+/* 限定セットの段。中身・値段・申し込み(番号が出る)・買ったあとの印 */
+function gbSetSec(me,on){try{if(!HWO.gbs1)Object.assign(HWO,gbSetHWO())}catch(e){}const w=el('div','gbs'),u=typeof passUnit==='function'?passUnit():'応援値';w.append(el('h3','gbx-h','限定セット'),el('p','gbx-note','イベントの間だけ買えます。1人それぞれ1回。セットのメダルと+%は、派閥の点には入りません。'));
+  for(const k in GBS){const B=GBS[k],at=gbSetAt(me.id,k),c=el('div','gbs-c'+(k==='gbs2'?' dx':'')+(at?' own':''));
+    const hd=el('div','gbs-hd');hd.append(el('small',null,B.en),el('b',null,B.n),el('em',null,at?'購入済み':B.price.toLocaleString()+' '+u));c.append(hd);
+    const L=el('ul','gbs-l');[['メダル',B.md.toLocaleString()+'枚(すぐ入る・ガチャ'+Math.floor(B.md/GB_PLAY)+'回分)']].concat(B.ten?[['分身の限定ガチャ','10連 1回無料']]:[]).concat([['これから手に入るメダル','+'+Math.round(B.bonus*100)+'%(イベントの終わりまで)']]).forEach(([a,b])=>{const li=el('li');li.append(el('span',null,a),el('b',null,b));L.append(li)});c.append(L);
+    if(at){c.append(el('p','gbs-ok',B.ten?'分身の「ガチャ」→ ゲーマー女子 に、無料の10連のボタンが出ています。':'メダルに入っています。'))}
+    else if(on){let ob=null;try{ob=typeof hwOrderBox==='function'?hwOrderBox(me,k):null}catch(e){}if(ob)c.append(ob);else c.append(el('p','gbs-ok','いまは申し込めません。'))}
+    w.append(c)}
+  return w}
 function gbFacPage(body,me,on,f,draw){const T=gbTotals(),mid=now()>=gbMid(),end=now()>=gbT1();
   const vs=el('div','gbx-vs');['s','m'].forEach(k=>{const F=GB_F[k],c=el('div','gbx-side '+k+(f===k?' me':''));c.style.setProperty('--fc',F.c);c.append(el('i',null,F.e),el('b',null,F.n),el('span',null,(mid?T[k].toLocaleString()+' 点':'? 点')+'  ·  '+T['n'+k]+'人'));vs.append(c)});
   body.append(vs);if(mid){const s=T.s+T.m||1,bar=el('div','gbx-bar');bar.style.setProperty('--p',(T.s/s*100).toFixed(1)+'%');body.append(bar)}
-  body.append(el('p','gbx-note',end?'結果が出ました':mid?'途中の結果です。最後まで分かりません':'途中の結果は 11/21 5:00 に出ます'));
+  body.append(el('p','gbx-note',end?'結果が出ました':mid?'途中の結果です。最後まで分かりません':'途中の結果は '+gbDate(gbMid())+' に出ます'));
   if(!f){if(!on){body.append(el('p','gbx-note','イベントの間だけ選べます'));return}
     body.append(el('h3','gbx-h','どちらの派閥に入りますか'),el('p','gbx-note','1回だけ選べます。あとから変えられません。点は、遊んでためたメダルの合計です(買ったメダルは入りません)。'));
     ['s','m'].forEach(k=>{const F=GB_F[k],c=el('button','gbx-pick '+k);c.type='button';c.style.setProperty('--fc',F.c);c.append(el('b',null,F.n),el('span',null,F.d));
@@ -22439,6 +22469,16 @@ window.__gbOpen=gbOpen;
 .gbx-mb::before,.gbx-card::before,.gbx-boxh::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(110deg,#59f0ff,#ff5ad8 45%,#ffd35a 70%,#3dff8a);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:-1}
 .gbx-mv{flex:1;display:flex;align-items:center;gap:6px}.gbx-mv b{font-size:22px}.gbx-mv small{font-size:11px;color:#a5acc0}
 .gbx-buy,.gbx-go,.gbx-get{border:0;border-radius:10px;padding:10px 16px;min-height:42px;font-weight:800;font-size:14px;font-family:inherit;color:#07070d;background:linear-gradient(180deg,#8ff8ff,#36d6ff);box-shadow:0 0 14px rgba(54,214,255,.45),inset 0 1px 0 #fff;cursor:pointer;transition:transform .06s}
+.gbs{display:flex;flex-direction:column;gap:10px;margin-top:6px}.gbs .gbx-h{margin-bottom:0}
+.gbs-c{border-radius:14px;padding:12px;background:linear-gradient(160deg,rgba(54,214,255,.12),rgba(139,123,255,.1));box-shadow:inset 0 0 0 1px rgba(103,232,249,.35);display:flex;flex-direction:column;gap:8px}
+.gbs-c.dx{background:linear-gradient(160deg,rgba(255,229,138,.16),rgba(255,122,184,.12));box-shadow:inset 0 0 0 1px rgba(255,214,106,.5)}
+.gbs-c.own{opacity:.82}
+.gbs-hd{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.gbs-hd small{flex-basis:100%;font-size:10px;letter-spacing:.14em;color:#a5acc0}.gbs-hd b{font-size:17px;color:#fff}.gbs-hd em{margin-left:auto;font-style:normal;font-weight:800;font-size:15px;color:#ffe58a}
+.gbs-c.own .gbs-hd em{font-size:12px;color:#07070d;background:#8ff8ff;padding:2px 9px;border-radius:99px}
+.gbs-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}.gbs-l li{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:#cfd5ea}.gbs-l li b{color:#fff;text-align:right}
+.gbs-ok{margin:0;font-size:12px;color:#a5acc0}
+.gbs .hwo{margin:0}.gbs .hwo-go{width:100%;border:0;border-radius:10px;min-height:42px;font-weight:800;font-size:14px;font-family:inherit;color:#07070d;background:linear-gradient(180deg,#ffe58a,#ffb02e);cursor:pointer}
+.gbs .hwo p{margin:4px 0;font-size:12.5px;color:#cfd5ea}.gbs .hwo-h{color:#fff}
 .gbx-go{width:100%}.gbx-get{padding:6px 12px;min-height:34px;font-size:12.5px;background:linear-gradient(180deg,#ffe58a,#ffb02e);box-shadow:0 0 12px rgba(255,176,46,.5)}
 .gbx-buy:active,.gbx-go:active,.gbx-get:active,.gbx-pick:active{transform:translateY(2px) scale(.96)}
 .gbx-buy:disabled,.gbx-go:disabled{opacity:.45}

@@ -142,8 +142,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=81').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=81').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=82').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=82').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -2381,6 +2381,8 @@ function renderGbGacha(bn) {
   if (!ok) { b1.disabled = b10.disabled = true; }
   bs.append(b1, b10); bs.insertAdjacentHTML('beforeend', ok ? '<em class="gK">★4以上1体確定</em>' : '<em class="gK">キャラの準備中です</em>');
   const lp = S.lp || 0, pt = h('div', 'gPt', `<span>限定の交換pt <b>${lp}</b>/${GBG.pity}</span><span class="bar"><i style="width:${Math.min(100, lp / GBG.pity * 100)}%"></i></span>`), tr = btn('sm', '★5と交換', gbPityPull); tr.disabled = lp < GBG.pity || !gbPick(5); if (lp >= GBG.pity) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
+  /* (11/11) 限定セットDXを買った人: 無料の10連を1回 */
+  { let ts = 0; try { ts = HOST && HOST.gbTen ? +HOST.gbTen() || 0 : 0; } catch (e) { } if (ts && S.gbt10 !== ts && ok) { const fb = btn('shine', 'セットの無料10連を引く', () => { if (boxFull(10)) { boxFullAsk(10); return; } doPull(10, 0, false, ts); }); fb.style.cssText = 'display:block;width:calc(100% - 24px);margin:8px 12px 0'; w.appendChild(fb); } }
   w.appendChild(bs); banTabs(w);
 }
 function gbPityPull() { const L = gbPicks(5); if (!L.length || (S.lp || 0) < GBG.pity) return; if (boxFull(1)) { boxFullAsk(1); return; }
@@ -2395,7 +2397,7 @@ function rates() {
   });
 }
 function gbRates() { modal('ゲーマー女子召喚 の詳細', (b, close) => { const row = r => { const L = gbPicks(r), all = Math.round(GACHA.rate[r] * 1000) / 10, each = L.length ? GACHA.rate[r] * (GBG.share[r] || 0) / L.length * 100 : 0; return `<div class="gRw"><p><b class="s${r}">${'★'.repeat(r)}</b> 合計 <b>${all}%</b>${L.length ? `<small>(ピックアップ 1人あたり ${each.toFixed(2)}%)</small>` : ''}</p>${L.length ? `<div class="gIc">${L.map(id => { const c = CH[id], f = faceURL(id, 0, 1); return `<span style="--ec:${elCol(c.el)}">${f ? `<img alt="" src="${f}">` : ''}<i>${esc(c.name)}</i></span>`; }).join('')}</div>` : ''}</div>`; };
-  b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">期間: 11/14 5:00 〜 11/29 5:00(ゲームバカイベント)。1回 ${GBG.one}pt、10回 ${GBG.ten.toLocaleString()}pt。10回召喚は★4以上が1体確定。<br>この召喚を1回引くごとに限定の交換ptが1たまり、${GBG.pity}たまると★5のピックアップと交換できます。ピックアップ以外は「英雄召喚」と同じキャラが出ます。ゲーマー女子はこの召喚だけで出ます(ソラは限定降臨「ガチャ魔神」でだけ仲間になります)。</p>`;
+  b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">期間: ゲームバカイベントの間。1回 ${GBG.one}pt、10回 ${GBG.ten.toLocaleString()}pt。10回召喚は★4以上が1体確定。<br>この召喚を1回引くごとに限定の交換ptが1たまり、${GBG.pity}たまると★5のピックアップと交換できます。ピックアップ以外は「英雄召喚」と同じキャラが出ます。ゲーマー女子はこの召喚だけで出ます(ソラは限定降臨「ガチャ魔神」でだけ仲間になります)。</p>`;
   const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); }
 function pull(n, cost) {
   if (boxFull(n)) { boxFullAsk(n); return; }
@@ -2405,9 +2407,10 @@ function pull(n, cost) {
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('shine', '召喚する', () => { close(); doPull(n, cost); })); b.appendChild(r);
   });
 }
-function doPull(n, cost, free) {
+function doPull(n, cost, free, gift) {
   if (!free && boxFull(n)) { boxFullAsk(n); return; }
-  if (free) { if (!S.free10) return; S.free10 = 0; } else if (!ptSpend(cost, n)) { flash('ptが足りません'); return; } const got = [];
+  /* (11/11) gift = 限定セットDXの無料10連(付いた時刻)。pt は使わず、使ったことを覚えておく */
+  if (free) { if (!S.free10) return; S.free10 = 0; } else if (gift) { if (S.gbt10 === gift) return; S.gbt10 = gift; } else if (!ptSpend(cost, n)) { flash('ptが足りません'); return; } const got = [];
   const lim = gaB === 'gb' && !free && gbReady(); const ids = []; for (let k = 0; k < n; k++) ids.push(rollOne(lim ? 'gb' : 0));
   /* 無料の10回召喚は、編成の4人がそろうように、ちがうキャラが4人以上になるまで同じレア度で引き直す(確率は変えない) */
   const have = new Set(S.units.map(x => x.id));
