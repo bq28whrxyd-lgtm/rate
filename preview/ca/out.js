@@ -142,8 +142,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=83').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=83').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=84').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=84').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -2318,7 +2318,7 @@ const BANNERS = [{ id: 'std', name: '英雄召喚', en: 'HERO SUMMON' }, { id: '
    ピックアップは★5・★4・★3の1人ずつ。各レア度のうち share の割合でピックアップが出る。キャラの絵がそろうまでは「準備中」 */
 const GBG = { one: 150, ten: 1350, pity: 100, pick: { 5: ['gbpro', 'gbsnp', 'gbrhy'], 4: ['gbret', 'gbfgt', 'gbhea', 'gbstr'] }, share: { 5: .5, 4: .4 } };
 const GB_KESHIN = 'gbpzl';   /* 限定降臨「ガチャ魔神」の化身 = ソラ */
-const gbBanOn = () => { try { if (HOST && HOST.gbOn) return !!HOST.gbOn(); } catch (e) { } const t = Date.now(); return t >= Date.UTC(2026, 10, 13, 20) && t < Date.UTC(2026, 10, 28, 20); };
+const gbBanOn = () => { try { if (HOST && HOST.gbOn) return !!HOST.gbOn(); } catch (e) { } const t = Date.now(); return t >= Date.UTC(2026, 10, 11, 6) && t < Date.UTC(2026, 10, 26, 6); };
 const gbPicks = r => (GBG.pick[r] || []).filter(id => CH[id] && A.PORT && A.PORT.img && A.PORT.img[id]);
 const gbPick = r => { const L = gbPicks(r); return L.length ? L[Math.floor(Math.random() * L.length)] : null; };
 const gbReady = () => gbPicks(5).length > 0 && gbPicks(4).length > 0;

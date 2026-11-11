@@ -14680,7 +14680,7 @@ function bunWatch(){if(!db||bunWatch.on)return;bunWatch.on=1;setInterval(bunBadg
      別の端末で先に保存されていたら(u がちがう)上書きしない
    - 前の分身: ガチャ(装備・キャラ)に使った pt は「使った分 − 1500pt」を返す(0 より下にはしない)。宝箱(未開封の補填なし)・友達対戦・
      週末レイド・スコアアタックの入口は閉じる。それまでにもらった pt と報酬はそのまま残る(記録から数えるので消さない) */
-const CA_ON=true,CA_SRC='ca/arena.html?v=83',CA_DAY=0,CA_REFUND_CUT=1500;
+const CA_ON=true,CA_SRC='ca/arena.html?v=84',CA_DAY=0,CA_REFUND_CUT=1500;
 let caDocs={},caSave=null,caSaveReady=false,caBase=0,caCache={s:null,p:null},caDirty={},caT=0,caQ=Promise.resolve(),caPtQ=Promise.resolve();
 /* (v145) 使った pt は、重ねが上限のキャラで戻った分(crf・krf)を引いた正味。返すのは 正味−1500(0未満は0)、1人 CA_REFUND_MAX まで(山本さん 11/7) */
 function bunSpent(d){if(!d)return 0;return Math.max(0,(+d.gp||0)*100+(+d.g10||0)*900+(+d.cp||0)*100+(+d.c10||0)*900+bunKcCost(d)-(+d.crf||0)-(+d.krf||0))}
@@ -22235,7 +22235,7 @@ if('serviceWorker' in navigator){
 }
 </script>
 <!--GB--><script>
-/* ===== (11/10) ゲームバカイベント (11/14 5:00 〜 11/29 5:00、テーマはゲーマー女子) =====
+/* ===== (11/10) ゲームバカイベント (11/11 15:00 〜 11/26 15:00、テーマはゲーマー女子) =====
    メダル(ゲーセンメダル): 遊ぶとたまる(レート対戦・TCG・分身)。ptでも買える(150pt=100枚、派閥の点には入らない)。
    派閥バトル: ソロ派 / マルチ派を1回だけ選ぶ。遊んでためたメダルの合計で勝ち負け。自分の派閥の遊び方は1.5倍。
    やりこみ実績: 銅・銀・金の20個。全部でプラチナ(称号「ゲームバカ」とフレーム)。
@@ -22244,7 +22244,7 @@ if('serviceWorker' in navigator){
    / a 分身のクリア時刻(ソロは+、マルチは-) / u ガチャを引いた回数 / c 箱 {n 箱の番号, d 引いた数(中身ごと)} / mr 戻ってきたメダル / x 受け取った実績 / p 景品のpt / w 派閥のごほうび */
 const gbMe=()=>{try{return typeof myPlayer==='function'?myPlayer():null}catch(e){return null}};
 const GB_PV=/\/preview\//.test(location.pathname),GB_DEMO=/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
-const GB0=Date.UTC(2026,10,13,20,0),GB_LEN=15*864e5,GB_PV0=Date.UTC(2026,10,8,20,0);
+const GB0=Date.UTC(2026,10,11,6,0)/* (11/11) 山本さん「本番に上げたらすぐ」「始めてから15日間」: 11/11 15:00 〜 11/26 15:00 */,GB_LEN=15*864e5,GB_PV0=Date.UTC(2026,10,8,20,0);
 const gbT0=()=>window.__gb0||((GB_PV||GB_DEMO)?GB_PV0:GB0),gbT1=()=>gbT0()+GB_LEN,gbMid=()=>gbT0()+7*864e5;
 const gbIn=t=>(t=+t||0)>=gbT0()&&t<gbT1(),gbOn=()=>gbIn(now()),gbShow=()=>now()>=gbT0()&&now()<gbT1()+7*864e5;
 const GBK=GB_PV?{q:'pvgbq',mr:'pvgbmr',f:'pvgbf',b:'pvgbb',s:'pvgbs',a:'pvgba',u:'pvgbu',c:'pvgbc',x:'pvgbx',p:'pvgbp',w:'pvgbw',tp:'pvgbtp',t:'pvgbt'}:{q:'gbq',mr:'gbmr',f:'gbf',b:'gbb',s:'gbs',a:'gba',u:'gbu',c:'gbc',x:'gbx',p:'gbp',w:'gbw',tp:'gbtp',t:'gbt'};
