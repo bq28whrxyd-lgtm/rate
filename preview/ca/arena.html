@@ -513,7 +513,7 @@ Object.values(ROSTER).forEach(a=>{a.hp0=a.hp;a.atk0=a.atk});
 const RESK={jin:0,riz:1,gekka:2,seira:3,beni:4,shion:5,ibara:6,lumie:7,gbpro:8,gbsnp:9,gbrhy:10,gbpzl:11};   /* 共鳴技は★5の4人だけ。そのキャラが編成にいるときだけ出る */
 function slotOf(key){return ALLIES.findIndex(a=>a.key===key)}
 /* (v68) 大きなファイルの読み込みに失敗したら、少し待って3回までやり直す(スマホの回線が弱いときに絵が出なかったため) */
-function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=74';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
+function imp(p,n){n=n||0;if(!/\?/.test(p))p+='?v=75';return import(p+(n?'?r'+n+'_'+Date.now():'')).catch(e=>{if(n>=3)throw e;return new Promise(r=>setTimeout(r,800*(n+1))).then(()=>imp(p,n+1))})}
    /* (v1.3) レベルと進化の倍率は out.js が window.CA_PARTY に入れる。出撃のときに掛ける */
 /* (v0.3) 属性ごとの色(芯・体・ふち)と吸い込みの見た目の種類 k: 0炎 1木 2水 3光 */
 const ELP={炎:{c:0xfff1b8,b:0xff7426,e:0xb3200c,k:0},木:{c:0xeaffc8,b:0x58e07c,e:0x0e6e38,k:1},水:{c:0xe4fbff,b:0x45b4ff,e:0x1238b8,k:2},光:{c:0xfffbe6,b:0xffcf45,e:0xb86a08,k:3}};
@@ -1527,9 +1527,9 @@ const RES=[
   {n:'光の軌跡',d:'4コンボ以上で、いちばん体力の多い敵に光の追撃'},
   /* (11/10) ゲームバカの★5 4人(山本さん「ゲームっぽく」「今のより少しだけ強い感じで」) */
   {n:'オートエイム',d:'3コンボごとに、いちばん体力の少ない敵をロックオンしてレーザーで追撃。光線は通り道の敵もつらぬく(2回まで)'},
-  {n:'跳弾ショット',d:'味方が壁に3回はね返ると、いちばん遠い敵を狙撃'},
+  {n:'跳弾ショット',d:'味方が壁に3回はね返ると、弾が壁で2回はね返っていちばん遠い敵を狙撃。弾の通り道の敵にも当たる'},
   {n:'コンボボーナス',d:'コンボが5・10・15になるたび、チームHPを2.5%回復'},
-  {n:'連鎖ボーナス',d:'解放中に敵を倒すと、その場所でブロックがはじけて近くの敵にダメージ(3回まで。出るたびに強くなる)'}];
+  {n:'連鎖ボーナス',d:'解放中に敵を倒すと、その場所でブロックがはじけて近くの敵にダメージ。はなれた敵にもブロックが落ちて誘爆する(3回まで。出るたびに強くなる)'}];
 /* (11/11) 山本さん「共鳴技のダメージ…キャラのレベルによって変わる？」→「そうして」: 共鳴技の攻撃も、そのキャラの育ち(レベル・進化の倍率)で伸びる。Lv1 では今までと同じ数字。回復はチームHPの割合なのでそのまま */
 function resK(key){const a=ALLIES[slotOf(key)];return a&&a.atk0?a.atk/a.atk0:1}
 const RESV={fire:{n:3,dmg:85},wood:{wall:6,heal:.04},water:{n:3,dmg:60},light:{need:3,dmg:70,r:.75}};
@@ -2390,7 +2390,7 @@ function skPerfect(si){const me=allyBody(si)||{x:0,z:3};const dm=Math.round(175*
 function gbNote(me,f,dl,col,cb){const m=tSpr(Math.random()<.5?RT2.note:RT2.note2,col,.9),g=glowSpr(col,1.2);m.visible=g.visible=false;const D=.28,P0=new THREE.Vector3(me.x,1.6,me.z),P2=new THREE.Vector3(f.x,1,f.z),P1=new THREE.Vector3((me.x+f.x)/2+(Math.random()-.5)*3,3.6,(me.z+f.z)/2),cv=new THREE.QuadraticBezierCurve3(P0,P1,P2),q=new THREE.Vector3();let done=false;
   RFX.push({upd(t){const u=t-dl;if(u<0)return;m.visible=g.visible=true;const k=Math.min(1,u/D);cv.getPoint(k*k*(3-2*k),q);m.position.copy(q);g.position.copy(q);m.material.rotation=Math.sin(u*18)*.4;if(Math.random()<.7){const s=spark(q.x,q.y,q.z,0,.2,0,col,.2,.3,0,2);s.fl=1}if(k>=1&&!done){done=true;cb();return false}},clean(){rmSpr(m);rmSpr(g)}})}
 /* 空から落ちてくるパズルのブロック(連鎖のたびに1つ) */
-function gbBlock(x,z,col,dl,sc){const m=new THREE.Mesh(GBCUBE,new THREE.MeshBasicMaterial({color:col,toneMapped:false})),e=new THREE.Mesh(GBCUBE,new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false,side:THREE.BackSide}));e.scale.setScalar(1.12);m.add(e);m.visible=false;S.add(m);const D=.16;
+function gbBlock(x,z,col,dl,sc,dur){const m=new THREE.Mesh(GBCUBE,new THREE.MeshBasicMaterial({color:col,toneMapped:false})),e=new THREE.Mesh(GBCUBE,new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false,side:THREE.BackSide}));e.scale.setScalar(1.12);m.add(e);m.visible=false;S.add(m);const D=dur||.16;
   RFX.push({upd(t){const u=t-dl;if(u<0)return;m.visible=true;const k=Math.min(1,u/D);m.position.set(x,.6+(1-k*k)*8,z);m.scale.set(sc*(1-k*.1),sc*(1+ (1-k)*.5),sc*(1-k*.1));m.rotation.y=k*1.57;if(k>=1)return false},clean(){S.remove(m);m.material.dispose();e.material.dispose()}})}
 /* --- ★5(化身) ソラ「連鎖消し」: 場の球を2つ水球に変える → 落ちものパズルのように 1連鎖〜5連鎖。連鎖のたびにダメージが大きくなる --- */
 /* (11/10 作り直し) ★5 の残り3人。ノアの見本と同じ方向: 床の演出・形のある小物・カメラの寄り・決めゴマ・余韻 */
@@ -2602,20 +2602,46 @@ function resAim(){const si=slotOf('gbpro');if(si<0||G.over)return;const me=allyB
     /* 通り道の敵(光線の太さの中にいる敵)に、手前から順に当たる */for(const f of foes()){if(f===t||f.k==='claw'||!f.alive)continue;const pj=(f.x-me.x)*ux+(f.z-me.z)*uz;if(pj<0||pj>te)continue;if(Math.abs((f.x-me.x)*nx+(f.z-me.z)*nz)>.75+f.r)continue;later(LK+pj/te*TR,()=>{if(!f.alive||G.over)return;hitStop(.03);crossFlash(f.x,f.z,1);ringFx(f.x,f.z,.2,1.8,.26,GBC.cy,.12);pixBurst(f.x,.6,f.z,[GBC.cy,GBC.vi,GBC.wh],10,3,4,.6);streaks(f.x,1,f.z,{col:0x9af4ff,s:1.8,n:7,d:.2});hurt(f,dmP,f.x,f.z)})}
     later(LK+TR+.02,()=>{crossFlash(ex,ez,1.3);ringFx(ex,ez,.3,2.6,.32,GBC.cy,.12);pixBurst(ex,.8,ez,[GBC.cy,GBC.vi,GBC.wh],18,4,5,.7);streaks(ex,1,ez,{col:0x9af4ff,s:2.4,n:10,d:.24})})}/* ロックの輪が3枚、外から順に縮む */for(let i=0;i<3;i++)later(i*.11,()=>ringFx(t.x,t.z,t.r*(4.6-i*.9),t.r*1.05,.24,i===1?GBC.vi:GBC.cy,.1));gbSword(t.x,t.z,t.k==='boss'?1.1:.75,hitT-.12,.6);
   later(hitT,()=>{const x=t.x,z=t.z;G.shake=Math.max(G.shake,.28);resFlash(x,z,GBC.cy,3,'rgba(100,230,255,.24)');impactFrame(x,1,z,0x4ad8ff,.09);/* まわりに細い光の柱が3本、少し遅れて立つ */for(let i=0;i<6;i++){const a=i*1.047+.5,rr=i%2?3.2:1.9;gbPillar(x+Math.cos(a)*rr,z+Math.sin(a)*rr,.3,i%2?0x8b7bff:0x67e8f9,.05+i*.04,.45)}later(.14,()=>{pixBurst(x,.8,z,[GBC.cy,GBC.vi,GBC.wh],22,4.6,6,.8);ringFx(x,z,.4,3.4,.4,GBC.vi,.06)});/* 衝撃の輪は、床いっぱいまで広がる(3枚) */ringFx(x,z,.4,CFG.R*1.5,.55,GBC.cy,.16);later(.08,()=>ringFx(x,z,.4,CFG.R*1.25,.55,GBC.wh,.07));later(.18,()=>ringFx(x,z,.4,CFG.R*1.1,.6,GBC.vi,.1));gbPixScar(x,z,3.6,0x4ad8ff,.02,1.1);gbPillar(x,z,1.1,0x3ad0ff,0,.6);crossFlash(x,z,2.2);ringFx(x,z,.3,2.2,.3,GBC.cy,.14);ringFx(x,z,.2,1.3,.2,GBC.wh,.2);gbPixScar(x,z,1.5,0x4ad8ff,.05,.9);streaks(x,1,z,{col:0x9af4ff,s:2.4,n:10,d:.22});pixBurst(x,.5,z,[GBC.cy,GBC.vi,GBC.wh,0xffd35a],16,3.4,5,.7);gbPop('AUTO AIM',x,t.k==='boss'?2.8:1.9,z,'hs sm',.6);if(t.alive)hurt(t,dm,x,z)})}
-function resRico(){const si=slotOf('gbsnp');if(si<0||G.over)return;const me=allyBody(si);if(!me)return;resBanner(si);const dm=Math.round(170*resK('gbsnp')*(1+(G.cm||0)*.015));
+/* (11/11) 山本さん「限定の他のキャラの共鳴技のクオリティも上げて」: ノアと同じ考え方(床を広く使う・複数に当たる・順番が目で追える)でそろえる */
+/* ルリ 跳弾ショット: 弾が壁で2回はね返ってから、いちばん遠い敵に当たる。弾の通り道の敵にも当たる(狙い 170→150、通り道 1体45) */
+function resRico(){const si=slotOf('gbsnp');if(si<0||G.over)return;const me=allyBody(si);if(!me)return;resBanner(si);const K=resK('gbsnp')*(1+(G.cm||0)*.015),dm=Math.round(150*K),dmP=Math.round(45*K);
   const t=foes().filter(f=>f.k!=='claw').sort((a,b)=>Math.hypot(b.x-me.x,b.z-me.z)-Math.hypot(a.x-me.x,a.z-me.z))[0];const to=t?{x:t.x,z:t.z}:LB.on&&LB.hp>0?{x:0,z:LBZ+3}:null;if(!to)return;
-  gbLine(me.x,me.z,to.x,to.z,0xff4a6a,.05,.16);ringFx(me.x,me.z,.2,1.2,.2,0x9ae8ff,.14);
-  later(.16,()=>{G.shake=Math.max(G.shake,.32);tintFlash('rgba(190,240,255,.28)');gbTracer(me.x,me.z,to.x,to.z,0x3aa8ff,.5);gbTracer(me.x,me.z,to.x,to.z,0xbfe8ff,.25);streaks(me.x,1,me.z,{col:0x9ae8ff,s:2.8,n:12,d:.2});ringFx(me.x,me.z,.2,1.8,.22,GBC.wh,.12);
-    {const L=Math.hypot(to.x-me.x,to.z-me.z)||1;for(let d=1.6;d<L-1;d+=1.7){const px=me.x+(to.x-me.x)*d/L,pz=me.z+(to.z-me.z)*d/L;later(d/50,()=>iceSpikes(px,pz,.3,false))}}
-    later(.05,()=>{crossFlash(to.x,to.z,1.5);vf('XICE',to.x,1.5,to.z,{s:6.2,d:.95,roll:(Math.random()-.5)*.5,gl:.6,fade:.1,ro:14});iceSpikes(to.x,to.z,(t?t.r:1.2)*1.1,true);ringFx(to.x,to.z,.3,2.6,.35,GBC.cy,.12);ringFx(to.x,to.z,.2,1.5,.2,GBC.wh,.2);streaks(to.x,1,to.z,{col:0xbff4ff,s:2.8,n:12,d:.26});gbPop('跳弾!',to.x,t&&t.k==='boss'?2.8:1.9,to.z,'ch c0',.6);if(t){if(t.alive)hurt(t,dm,t.x,t.z)}else if(LB.hp>0)lbDamage(dm,0,6,LBZ)})})}
+  /* 道すじ: 自分 → 壁 → 壁 → 敵。はね返る所は、敵の向きから左右にずらした壁の上 */
+  const RW=CFG.R-.25,ta=Math.atan2(to.z,to.x),sg=((me.x*to.z-me.z*to.x)>0?1:-1),W1={x:Math.cos(ta-sg*2.2)*RW,z:Math.sin(ta-sg*2.2)*RW},W2={x:Math.cos(ta+sg*1.5)*RW,z:Math.sin(ta+sg*1.5)*RW},P=[{x:me.x,z:me.z},W1,W2,to];
+  const LEN=[];let TL=0;for(let i=0;i<3;i++){LEN[i]=Math.hypot(P[i+1].x-P[i].x,P[i+1].z-P[i].z)||1;TL+=LEN[i]}const AIM=.4,FLY=.42;let acc=0;
+  /* ねらい: 赤い細い線が道すじを先に見せる。撃つ側に光がたまる */
+  for(let i=0;i<3;i++){gbLine(P[i].x,P[i].z,P[i+1].x,P[i+1].z,0xff4a6a,.05,AIM-i*.08+.1,i*.08)}for(let i=0;i<3;i++)later(i*.11,()=>ringFx(me.x,me.z,2.2-i*.5,.4,.2,0x9ae8ff,.08));gbPunch({x:to.x,z:to.z},.4,AIM+FLY,.6);
+  for(let i=0;i<3;i++){const A=P[i],B=P[i+1],L=LEN[i],t0=AIM+acc/TL*FLY,t1=AIM+(acc+L)/TL*FLY,ux=(B.x-A.x)/L,uz=(B.z-A.z)/L;acc+=L;
+    /* 弾のあと: 太い氷の光がのこる */gbLine(A.x,A.z,B.x,B.z,0x3aa8ff,.7,.75,t0);gbLine(A.x,A.z,B.x,B.z,GBC.wh,.2,.65,t0);later(t0,()=>{gbTracer(A.x,A.z,B.x,B.z,0xbfe8ff,(t1-t0)+.08)});
+    for(let d=1.2;d<L-.8;d+=1.5){const px=A.x+ux*d,pz=A.z+uz*d;later(t0+(t1-t0)*d/L,()=>iceSpikes(px,pz,.34,false))}
+    /* 壁ではね返る所 */if(i<2)later(t1,()=>{crossFlash(B.x,B.z,1.4);ringFx(B.x,B.z,.3,2.4,.3,GBC.cy,.13);ringFx(B.x,B.z,.2,1.4,.2,GBC.wh,.16);streaks(B.x,1,B.z,{col:0xbff4ff,s:2.4,n:10,d:.22});pixBurst(B.x,.8,B.z,[GBC.cy,GBC.wh,0x3aa8ff],14,3.6,5,.6);iceSpikes(B.x,B.z,.7,true);gbPop(i?'2':'1',B.x,1.6,B.z,'ch c0',.4);G.shake=Math.max(G.shake,.2);hitStop(.03)});
+    /* 通り道の敵 */for(const f of foes()){if(f===t||f.k==='claw'||!f.alive)continue;const pj=(f.x-A.x)*ux+(f.z-A.z)*uz;if(pj<0||pj>L)continue;if(Math.abs(-(f.x-A.x)*uz+(f.z-A.z)*ux)>.6+f.r)continue;if(f.rcT)continue;f.rcT=1;later(t0+(t1-t0)*pj/L,()=>{f.rcT=0;if(!f.alive||G.over)return;hitStop(.03);crossFlash(f.x,f.z,1);ringFx(f.x,f.z,.2,1.8,.26,GBC.cy,.12);iceSpikes(f.x,f.z,f.r*.8,false);streaks(f.x,1,f.z,{col:0xbff4ff,s:1.8,n:7,d:.2});hurt(f,dmP,f.x,f.z)})}}
+  later(AIM,()=>{G.shake=Math.max(G.shake,.24);streaks(me.x,1,me.z,{col:0x9ae8ff,s:2.8,n:12,d:.2});ringFx(me.x,me.z,.2,2.6,.26,GBC.wh,.12);crossFlash(me.x,me.z,1.2)});
+  later(AIM+FLY,()=>{const x=to.x,z=to.z;resFlash(x,z,0xbff4ff,3,'rgba(190,240,255,.28)');impactFrame(x,1,z,0x9ae8ff,.09);vf('XICE',x,1.6,z,{s:9.5,d:1.25,roll:(Math.random()-.5)*.5,gl:.6,fade:.1,ro:14});iceSpikes(x,z,(t?t.r:1.2)*1.4,true);
+    /* 霜の輪は床いっぱいへ。まわりに氷の柱が6本、順に立つ */ringFx(x,z,.4,CFG.R*1.5,.55,GBC.cy,.16);later(.08,()=>ringFx(x,z,.4,CFG.R*1.25,.55,GBC.wh,.07));later(.18,()=>ringFx(x,z,.4,CFG.R*1.1,.6,0x3aa8ff,.1));
+    for(let i=0;i<6;i++){const a=i*1.047+.3,rr=i%2?3.1:1.8;later(.05+i*.04,()=>{iceSpikes(x+Math.cos(a)*rr,z+Math.sin(a)*rr,.5,true);gbPillar(x+Math.cos(a)*rr,z+Math.sin(a)*rr,.24,i%2?0x3aa8ff:0xbff4ff,0,.42)})}
+    gbPop('跳弾!',x,t&&t.k==='boss'?2.8:1.9,z,'ch c0',.7);if(t){if(t.alive)hurt(t,dm,t.x,t.z)}else if(LB.hp>0)lbDamage(dm,0,6,LBZ)})}
+/* カノン コンボボーナス: 3拍子で床いっぱいに音の輪が広がり、味方全員に音符が届く。回復の量は今までどおり(チームHPの2.5%) */
 function resBonus(){const si=slotOf('gbrhy');if(si<0||G.over)return;resBanner(si);const m=allyBody(si)||{x:0,z:3};const v=Math.round(G.hpMax*.025);G.hp=Math.min(G.hpMax,G.hp+v);
-  ringFx(m.x,m.z,.3,CFG.R*.8,.5,GBC.pk,.05);ringFx(m.x,m.z,.3,2.6,.4,GBC.pk,.1);ringFx(m.x,m.z,.2,1.5,.25,GBC.gd,.16);for(let k=0;k<8;k++)later(k*.04,()=>noteFly(m.x,m.z,k,1.1));stars(m.x,1.2,m.z,16,GBC.gd,4);
-  gbFirework(m.x-1.2,5.5,m.z-2,GBC.pk,0);gbFirework(m.x+1.4,6.2,m.z-2.6,GBC.gd,.1);for(const a of G.bodies){if(!a.alive||a.k!=='ally')continue;gbPillar(a.x,a.z,.2,0xff9ac8,.04,.5);ringFx(a.x,a.z,.2,1.3,.3,GBC.pk,.12)}
-  vf('XNOTE',m.x,1.7,m.z,{s:5.6,d:.95,roll:0,gl:.5,fade:.12,ro:14});gbPop('COMBO BONUS',m.x,2.7,m.z,'pf',.7);num(m.x,1.8,m.z,'+'+v,'heal');ui()}
-function resChainB(x,z,n){const si=slotOf('gbpzl');if(si<0||G.over)return;resBanner(si);const cols=[0x4adcff,0xffd35a,0xb08aff],col=cols[n-1]||cols[2],dm=Math.round([45,60,75][n-1]*resK('gbpzl')*(1+(G.cm||0)*.015)),R=2.2;
-  gbBlock(x,z,col,0,3.2+n*.9);ringFx(x,z,R,.4,.16,col,.07);
-  later(.16,()=>{pixBurst(x,.8,z,[col,0xffffff,cols[n%3]],18+n*6,3+n*.7,5+n,.8);ringFx(x,z,.3,R+.3,.32,col,.13);ringFx(x,z,.2,R*.6,.2,GBC.wh,.2);crossFlash(x,z,.9+n*.25);gbPixScar(x,z,R*.8,col,.04,.9);streaks(x,1,z,{col,s:2+n*.5,n:8+n*2,d:.22});if(n>=3){gbPillar(x,z,.7,col,0,.55);tintFlash('rgba(190,170,255,.28)')}{const e=vf('XBLOCK',x,1.3,z,{s:4.2+n*.7,d:.95,roll:0,gl:.4,fade:.12,ro:14});if(e)e.t=.9*.3}/* 絵の前半(くっついてふくらむ所)は立体のブロックが担当するので飛ばす */gbPop(n+'連鎖!',x,2+n*.15,z,'ch c'+[0,2,4][n-1],.7);G.shake=Math.max(G.shake,.16+n*.1);
-    for(const f of foes()){if(Math.hypot(f.x-x,f.z-z)<R+f.r)hurt(f,dm,f.x,f.z)}})}
+  const AL=G.bodies.filter(a=>a.alive&&a.k==='ally');gbPunch({x:m.x,z:m.z},.35,.2,.7);
+  vf('XNOTE',m.x,1.9,m.z,{s:9,d:1.35,roll:0,gl:.6,fade:.12,ro:14});
+  /* 3拍: 輪が外へ(1拍ごとに大きく)、床のふちに音の柱が波になって立つ */
+  for(let b=0;b<3;b++)later(b*.24,()=>{const col=[GBC.pk,GBC.gd,0xffffff][b];ringFx(m.x,m.z,.3,CFG.R*(.7+b*.4),.5,col,.14-b*.02);ringFx(m.x,m.z,.2,2+b,.3,GBC.wh,.08);crossFlash(m.x,m.z,1+b*.5);stars(m.x,1.2,m.z,10+b*6,b%2?GBC.gd:GBC.pk,4+b);G.shake=Math.max(G.shake,.1+b*.06);
+    /* 白く飛ばさないよう、柱は細く少なめ(敵が見えなくなるため) */const N=8;for(let k=0;k<N;k++){const a=k/N*6.283+b*.39,rr=CFG.R-.4;later(k*.02,()=>{gbPillar(Math.cos(a)*rr,Math.sin(a)*rr,.05+.03*((k+b)%3),(k+b)%2?0xff9ac8:0xffd35a,0,.3);ringFx(Math.cos(a)*rr,Math.sin(a)*rr,.2,1.2,.26,(k+b)%2?GBC.pk:GBC.gd,.09)})}
+    for(let k=0;k<6;k++)noteFly(m.x,m.z,k+b*6,1.2+b*.5)});
+  /* 味方ひとりずつに、音符の光が順に届く */AL.forEach((a,i)=>later(.2+i*.12,()=>{gbLine(m.x,m.z,a.x,a.z,GBC.pk,.12,.3);gbPillar(a.x,a.z,.2,0xff9ac8,0,.5);ringFx(a.x,a.z,.2,1.8,.34,GBC.pk,.13);ringFx(a.x,a.z,.2,1.1,.24,GBC.gd,.12);stars(a.x,1.2,a.z,8,GBC.gd,3);pixHeart(a.x,a.z,0,GBC.pk)}));
+  gbFirework(m.x-1.6,5.5,m.z-2,GBC.pk,.1);gbFirework(m.x+1.8,6.2,m.z-2.6,GBC.gd,.3);gbFirework(m.x,7,m.z-3.4,0xffffff,.52);gbFirework(m.x-2.6,6.4,m.z-3,GBC.gd,.62);gbFirework(m.x+2.8,5.6,m.z-1.6,GBC.pk,.7);
+  later(.48,()=>{tintFlash('rgba(255,150,205,.24)');resFlash(m.x,m.z,GBC.pk,2);gbPop('COMBO BONUS',m.x,2.9,m.z,'pf',.9);num(m.x,1.8,m.z,'+'+v,'heal')});ui()}
+/* ソラ 連鎖ボーナス: はじけたあと、近くの別の敵の上にもブロックが落ちて順にはじける(誘爆。n 個まで、ダメージは元の4割)。輪は広く */
+function resChainB(x,z,n){const si=slotOf('gbpzl');if(si<0||G.over)return;resBanner(si);const cols=[0x4adcff,0xffd35a,0xb08aff],col=cols[n-1]||cols[2],dm=Math.round([45,60,75][n-1]*resK('gbpzl')*(1+(G.cm||0)*.015)),R=2.2,dm2=Math.max(1,Math.round(dm*.4));
+  gbBlock(x,z,col,0,3.6+n*1,.3);ringFx(x,z,R*1.6,.4,.3,col,.08);later(.1,()=>ringFx(x,z,R*1.2,.4,.22,GBC.wh,.06));gbPunch({x,z},.3+n*.08,.3,.6);
+  later(.3,()=>{pixBurst(x,.8,z,[col,0xffffff,cols[n%3]],26+n*8,3.6+n*.8,6+n,.9);resFlash(x,z,col,Math.min(3,n+1),n>=2?'rgba(190,170,255,.24)':null);ringFx(x,z,.3,R+.3,.32,col,.15);ringFx(x,z,.2,R*.6,.2,GBC.wh,.2);
+    /* 4色の輪が順に、床いっぱいへ */[0x4adcff,0xff5a9e,0xffd35a,0x6de07a].forEach((c,i)=>later(i*.06,()=>ringFx(x,z,.4,CFG.R*(.75+i*.22),.55,c,.1)));
+    gbPixScar(x,z,R*1.3,col,.04,1.1);if(n>=2)gbPillar(x,z,.5+n*.12,col,0,.55);{const e=vf('XBLOCK',x,1.5,z,{s:7.5+n*1.2,d:1.25,roll:0,gl:.5,fade:.12,ro:14});if(e)e.t=1.25*.3}/* 絵の前半(くっついてふくらむ所)は立体のブロックが担当するので飛ばす */gbPop(n+'連鎖!',x,2+n*.15,z,'ch c'+[0,2,4][n-1],.8);G.shake=Math.max(G.shake,.18+n*.1);
+    const hit=new Set();for(const f of foes()){if(Math.hypot(f.x-x,f.z-z)<R+f.r){hurt(f,dm,f.x,f.z);hit.add(f)}}
+    /* 誘爆: はじけに巻きこまれなかった敵のうち、近い順に n 体。ブロックが落ちて、少しずつ遅れてはじける */
+    const ex=foes().filter(f=>!hit.has(f)&&f.alive&&f.k!=='claw').sort((a,b)=>Math.hypot(a.x-x,a.z-z)-Math.hypot(b.x-x,b.z-z)).slice(0,n);
+    ex.forEach((f,i)=>{const c2=[0xff5a9e,0x6de07a,0xffd35a][i%3],t0=.22+i*.2;later(t0-.2,()=>{gbLine(x,z,f.x,f.z,c2,.1,.3);gbBlock(f.x,f.z,c2,0,2.4,.3)});later(t0+.1,()=>{if(G.over)return;hitStop(.03);const fx=f.x,fz=f.z;pixBurst(fx,.8,fz,[c2,0xffffff,col],16,3.4,5,.7);crossFlash(fx,fz,1.1);ringFx(fx,fz,.3,2.4,.3,c2,.13);ringFx(fx,fz,.2,1.4,.2,GBC.wh,.16);streaks(fx,1,fz,{col:c2,s:2,n:8,d:.22});gbPixScar(fx,fz,1.4,c2,.02,.8);{const e=vf('XBLOCK',fx,1.3,fz,{s:4.6,d:1,roll:0,gl:.4,fade:.12,ro:14});if(e)e.t=.3}G.shake=Math.max(G.shake,.16);if(f.alive)hurt(f,dm2,fx,fz)})})})}
 /* 共鳴技の茨(resThorn)で使う */
 function thornFx(e){const y=e.k==='boss'?1.4:.7;for(let j=0;j<12;j++){const a=j/12*6.283;const q=spark(e.x+Math.cos(a)*.6,y,e.z+Math.sin(a)*.6,-Math.cos(a)*1.2,1.2,-Math.sin(a)*1.2,j%3?0x4ad06a:0xb03a6a,.2,.45,0,2);q.fl=1}flamePillar(e.x,e.z,1.6,.45,.45,0,3)}
 /* リーダー: 爆炎圧縮(解放の瞬間に中心で爆発)・引力圧縮(少しあとにもう一度引く) */
