@@ -142,8 +142,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=80').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=80').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=81').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=81').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1834,6 +1834,7 @@ function renderChara() {
 }
 
 { const st = document.createElement('style'); st.textContent = `
+.aPwB{display:flex;gap:6px;margin:0 0 6px}.aPwB .aBtn,.aPwB button{flex:1 1 0;min-width:0;min-height:36px;padding:0 4px;font-size:12.5px;white-space:nowrap}
 .bxHd{display:flex;align-items:center;gap:10px;margin:0 0 8px;padding:8px 10px;border-radius:10px;background:#0c1538;box-shadow:inset 0 0 0 1px rgba(232,200,120,.35)}
 .bxN{flex:none;display:flex;align-items:baseline;gap:4px;font:900 13px var(--zk);color:#c3cbe6}
 .bxN b{font-size:22px;line-height:1;color:#fff}
@@ -2203,7 +2204,7 @@ function charaMats(b) {
 }
 /* 強化: ベースを1体選び、素材(経験値の竜・ほかのキャラ)を食べさせる。
    (11/8 山本さん「強化ボタンやりにくい」) 竜は何個でも(キャラは10体まで)。「おまかせ」で最大Lvまでの竜を自動で選ぶ(ブルアカの自動選択を参考)。各竜に「最大」。強化ボタンは画面の下に固定 */
-const MAXFEED = 10;
+const MAXFEED = 50;   /* (11/11) 山本さん「強化する時一気にできないのやりにくい」: 一度に素材にできるキャラを 10体 → 50体。まとめて選ぶボタンと、凸をまとめて重ねるボタンを足す */
 const toMax = (u, ml) => { let t = -u.exp; for (let l = u.lv; l < ml; l++) t += need(l); return Math.max(0, t); };
 function autoFeed(base, ml) { let R = toMax(base, ml); for (const uid of PICK.units) R -= feedExp(unit(uid), base); const pick = {}; const ids = ['expL', 'expM', 'expS'];
   for (const id of ids) { const v = MATS[id].exp, n = Math.min(S.mats[id] || 0, Math.floor(Math.max(0, R) / v)); if (n) { pick[id] = n; R -= n * v; } }
@@ -2250,9 +2251,17 @@ function charaPower(b) {
   b.appendChild(h('div', 'aTot aGl', `<span class="tn">凸 <b>${tt}</b><small>/ ${TOT_MAX}</small></span><span class="td">${'<i class="on"></i>'.repeat(tt)}${'<i></i>'.repeat(TOT_MAX - tt)}</span><span class="te">体力・攻撃 <b>+${Math.round(tt * TOT_K * 100)}%</b><br>スキル <b>${skCut(base) ? '−' + skCut(base) + '手番' : 'そのまま'}</b></span>`));
   if (tt >= TOT_MAX) b.appendChild(h('p', 'onote', '完凸です(4凸)。'));
   else if (!dups.length) b.appendChild(h('p', 'onote', `同じ「${esc(c.name)}」がいると重ねられます。1凸ごとに体力・攻撃 +3%、2凸と4凸でスキルが1手番早くたまります(編成中のキャラは使えません)。`));
-  else { const g = h('div', 'ogrid'); b.appendChild(g); for (const u of dups) { const e = icon(u, { tag: '凸' }); e.onclick = () => totUp(base, u); g.appendChild(e); } }
+  else { if (dups.length > 1) { const hd = h('div', 'aPwH'); hd.appendChild(h('p', 'onote', `同じキャラが ${dups.length}体 います。`)); hd.firstChild.style.cssText = 'flex:1;margin:0'; hd.appendChild(btn('', 'まとめて重ねる', () => totUpAll(base, dups))); b.appendChild(hd); }
+    const g = h('div', 'ogrid'); b.appendChild(g); for (const u of dups) { const e = icon(u, { tag: '凸' }); e.onclick = () => totUp(base, u); g.appendChild(e); } }
   const others = sortedUnits().filter(u => u.u !== base.u && !inParty(u) && u.id !== base.id);
-  b.appendChild(h('p', 'osec', 'キャラを素材にする'));
+  { b.appendChild(h('p', 'osec', 'キャラを素材にする')); const hd = h('div', 'aPwB');
+    /* まとめて選ぶ: ★の低い順・レベルの低い順に、50体まで。進化したキャラと凸したキャラは入れない(まちがって消さないように) */
+    const bulk = r => { const L = others.filter(u => rarOf(u) <= r && !u.evo && !totOf(u) && !PICK.units.includes(u.u)).sort((a, c) => rarOf(a) - rarOf(c) || a.lv - c.lv); for (const u of L) { if (PICK.units.length >= MAXFEED) break; PICK.units.push(u.u); } renderNow(); };
+    const n3 = others.filter(u => rarOf(u) <= 3 && !u.evo && !totOf(u)).length, n4 = others.filter(u => rarOf(u) <= 4 && !u.evo && !totOf(u)).length;
+    const b3 = btn('sub', '★3全部', () => bulk(3)), b4 = btn('sub', '★4以下全部', () => bulk(4)), bc = btn('sub', 'はずす', () => { PICK.units = []; renderNow(); }); b3.disabled = !n3 || base.lv >= ml; b4.disabled = !n4 || base.lv >= ml; bc.disabled = !cnt;
+    hd.append(b3, b4, bc); b.appendChild(hd);
+    if (others.length) b.appendChild(h('p', 'onote', `えらんだ数 ${cnt} / ${MAXFEED}体 ・ ★の低い順にならんでいます`)); }
+  others.sort((a, c) => rarOf(a) - rarOf(c) || a.lv - c.lv || a.u - c.u);
   if (!others.length) b.appendChild(h('p', 'onote', '素材にできるキャラがいません(編成中のキャラは使えません)。ガチャのかぶりなどが使えます。'));
   else {
     const g = h('div', 'ogrid'); b.appendChild(g);
@@ -2272,6 +2281,18 @@ function charaPower(b) {
   const used = ['expS', 'expM', 'expL'].filter(id => PICK.mats[id]).map(id => MATS[id].name.replace('経験値の竜・', '') + '×' + PICK.mats[id]).concat(PICK.units.length ? ['キャラ×' + PICK.units.length] : []);
   const bar = h('div', 'aPwBar', `<div class="t"><span class="lv">Lv <b>${base.lv}</b> → <b class="${after.lv > base.lv ? 'up' : ''}">${after.lv}</b><small> / ${ml}</small></span><span class="u">${used.length ? esc(used.join('・')) : '竜かキャラを選んでください'}</span></div>`);
   bar.appendChild(go1); b.appendChild(bar);
+}
+/* 凸をまとめて: 完凸になるまで、要る数だけ重ねる(あまりは残す) */
+function totUpAll(base, dups) {
+  const c = CH[base.id], t0 = totOf(base); let t1 = t0; const use = [];
+  for (const d of [...dups].sort((a, e) => totOf(e) - totOf(a) || a.lv - e.lv)) { if (t1 >= TOT_MAX) break; use.push(d); t1 = Math.min(TOT_MAX, t1 + 1 + totOf(d)); }
+  if (!use.length) return;
+  modal(`${c.name} をまとめて凸する`, (b, close) => {
+    b.innerHTML = `<p>${esc(c.name)} を <b>${use.length}体</b> 重ねて、凸 <b>${t0}</b> → <b>${t1}</b> にします。重ねたキャラはいなくなります。${dups.length > use.length ? `<br>あまりの ${dups.length - use.length}体 は残ります。` : ''}</p>
+      <p>体力・攻撃 +${Math.round(t0 * TOT_K * 100)}% → <b>+${Math.round(t1 * TOT_K * 100)}%</b>${skCut({ tot: t1 }) > skCut(base) ? '<br>スキルが早くたまるようになります。' : ''}</p>`;
+    const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close));
+    r.appendChild(btn('', 'まとめて重ねる', () => { const gone = new Set(use.map(d => d.u)); base.tot = t1; S.units = S.units.filter(u => !gone.has(u.u)); PICK.units = PICK.units.filter(u => !gone.has(u)); save(); syncParty(); close(); flash(t1 >= TOT_MAX ? `${c.name} が完凸した!` : `凸 ${t0} → ${t1}`); renderNow(); })); b.appendChild(r);
+  });
 }
 function totUp(base, d) {
   const c = CH[base.id], t0 = totOf(base), t1 = Math.min(TOT_MAX, t0 + 1 + totOf(d));
@@ -2846,6 +2867,7 @@ function tRoute() {
   /* (11/11) ★6の豪華な飾りの確認用(保存しない): #t-lux6 で詳しい画面、#t-evos で進化の瞬間、#t-luxh でホーム */
   /* (11/11) BOXの見え方の確認用(保存しない): #t-box で、いろいろなキャラを70体持っている状態 */
   if (hs === '#t-box') { const ids = Object.keys(CH).filter(k => CH[k].battle); let u = 5000; S.units = []; for (let i = 0; i < 70; i++) { const id = ids[(i * 7 + (i >> 2)) % ids.length]; S.units.push({ u: u++, id, lv: 1 + (i * 13) % (MAXLV[CH[id].rar] || 50), exp: 0, evo: CH[id].rar === 5 && i % 5 === 0 ? 1 : 0 }); } S.team = S.units.slice(0, 4).map(x => x.u); S.free10 = 0; S.newIds = S.units.slice(8, 12).map(x => x.u); TAB = 'chara'; SUB.chara = 'box'; showOut('chara'); renderNow(); }
+  if (hs === '#t-pw') { const ids = Object.keys(CH).filter(k => CH[k].battle); let u = 5000; S.units = []; for (let i = 0; i < 70; i++) { const id = ids[(i * 7 + (i >> 2)) % ids.length]; S.units.push({ u: u++, id, lv: 1 + (i * 5) % 20, exp: 0, evo: 0 }); } S.team = S.units.slice(0, 4).map(x => x.u); S.free10 = 0; S.mats.expS = 30; S.mats.expM = 12; S.mats.expL = 4; TAB = 'chara'; SUB.chara = 'power'; PICK = { base: S.units[5].u, mats: {}, units: [] }; showOut('chara'); renderNow(); }
   if (hs === '#t-lux6') { showOut('chara'); setTimeout(() => detail({ u: -1, id: 'gbpro', lv: 90, exp: 0, evo: 1 }), 600); }
   if (hs === '#t-evos') { showOut('chara'); setTimeout(() => evoShow('gbpro', () => detail({ u: -1, id: 'gbpro', lv: 70, exp: 0, evo: 1 })), 600); }
   if (hs === '#t-luxh') { if (!S.units.some(x => x.id === 'gbpro')) S.units.push({ u: 990, id: 'gbpro', lv: 70, exp: 0, evo: 1 }); else S.units.find(x => x.id === 'gbpro').evo = 1; S.home = 'gbpro'; S.free10 = 0; TAB = 'home'; showOut('home'); renderNow(); }
