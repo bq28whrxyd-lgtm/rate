@@ -100,6 +100,11 @@ if (S.skin) { S.sslot = S.sslot || [null, null, null, null]; (S.team || []).forE
 /* (v69) 古いセーブ: 仮の★4・★3を新しいキャラに置きかえ、編成を4つの枠(team)にする */
 for (const x of S.units) if (OLDID[x.id]) x.id = OLDID[x.id];
 S.units = S.units.filter(x => CH[x.id]);
+/* (11/11) 山本さん「ボックス…上限決めた方がいい」: キャラBOXは100体まで。100ptで+10体ずつ、最大200体まで広げられる。いっぱいのときはガチャと出撃を止める(モンストと同じ)。
+   上限を入れる前から多く持っていた人は、今の数+10体(10体きざみ)を最初の上限にする(急に遊べなくならないように) */
+const BOX_CAP0 = 100, BOX_STEP = 10, BOX_MAX = 200, BOX_COST = 100;
+if (!S.cap) S.cap = S.units.length >= BOX_CAP0 ? Math.ceil((S.units.length + BOX_STEP) / BOX_STEP) * BOX_STEP : BOX_CAP0;
+const boxCap = () => S.cap || BOX_CAP0, boxFull = n => S.units.length + (n || 0) > boxCap();
 /* (v98) 章を足してイベントの番号がずれたので、★の記録(n12 など)を新しい番号に移す */
 if ((S.mn || 8) !== A.MAIN_N) { const mn = S.mn || 8, ns = {}; for (const k in S.stars) { const j = +k.slice(1); ns[k[0] + (j < mn ? j : j - mn + A.MAIN_N)] = S.stars[k]; } S.stars = ns; S.mn = A.MAIN_N; putS(); }
 /* (v84) ★3・★4の進化をなくしたので、進化ずみの子は元にもどし、使った宝珠を返す */
@@ -137,8 +142,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=79').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=79').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=80').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=80').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1827,6 +1832,47 @@ function renderChara() {
   const b = shell('キャラ', 'CHARACTERS', { tabs: [['box', 'BOX'], ['party', '編成'], ['power', '強化'], ['mats', '素材']] });
   ({ box: charaBox, party: charaParty, power: charaPower, mats: charaMats })[SUB.chara](b);
 }
+
+{ const st = document.createElement('style'); st.textContent = `
+.bxHd{display:flex;align-items:center;gap:10px;margin:0 0 8px;padding:8px 10px;border-radius:10px;background:#0c1538;box-shadow:inset 0 0 0 1px rgba(232,200,120,.35)}
+.bxN{flex:none;display:flex;align-items:baseline;gap:4px;font:900 13px var(--zk);color:#c3cbe6}
+.bxN b{font-size:22px;line-height:1;color:#fff}
+.bxN em{font-style:normal;margin-left:4px;padding:1px 7px;border-radius:99px;font-size:11px;color:#fff;background:#e0304a}
+.bxBar{flex:1 1 auto;min-width:30px;height:8px;border-radius:99px;background:#1c2756;overflow:hidden}
+.bxBar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#67e8f9,#8b7bff)}
+.bxHd.near .bxBar i{background:linear-gradient(90deg,#ffd76a,#ff9a3a)}
+.bxHd.full .bxBar i{background:#e0304a}
+.bxEx{flex:none;border:0;cursor:pointer;height:32px;padding:0 12px;border-radius:8px;font:900 13px var(--zk);color:#2b1a02;background:linear-gradient(#fff3c4,#e8b84a)}
+.bxEx:disabled{opacity:.5;cursor:default}
+.bxCt{display:flex;align-items:center;gap:6px;margin:0 0 10px}
+.bxEl{display:flex;gap:4px;flex:none}
+.bxEl button{width:34px;height:34px;border:0;border-radius:8px;cursor:pointer;display:grid;place-items:center;font:900 13px var(--zk);color:#c3cbe6;background:#0e1842;box-shadow:inset 0 0 0 1px rgba(232,200,120,.25);opacity:.55}
+.bxEl button[aria-pressed="true"]{opacity:1;box-shadow:inset 0 0 0 2px #ffd76a;color:#fff}
+.bxSel{flex:1 1 0;min-width:0;position:relative}
+.bxSel select{width:100%;height:34px;padding:0 20px 0 8px;border:0;border-radius:8px;font:800 13px var(--zk);color:#fff;background:#0e1842;box-shadow:inset 0 0 0 1px rgba(232,200,120,.35);appearance:none;-webkit-appearance:none}
+.bxSel::after{content:"▾";position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:12px;color:#ffd76a;pointer-events:none}
+.bxDir{flex:none;width:34px;height:34px;border:0;border-radius:8px;cursor:pointer;font:900 13px var(--zk);color:#ffd76a;background:#0e1842;box-shadow:inset 0 0 0 1px rgba(232,200,120,.35)}
+.bxSec{display:flex;align-items:center;gap:8px;margin:12px 0 8px;padding:5px 10px;border-radius:8px;font:900 14px var(--zk);color:#fff;background:linear-gradient(90deg,rgba(255,215,106,.26),rgba(255,215,106,0))}
+.bxSec:first-of-type{margin-top:0}
+.bxSec b{font-size:16px;color:#ffd76a}
+.bxSec span{font-size:12px;color:#ffe7a1}
+.bxSec i{margin-left:auto;font-style:normal;font-size:12px;color:#c3cbe6}
+.bxSec.r6{background:linear-gradient(90deg,rgba(255,150,220,.3),rgba(120,210,255,.2),rgba(255,226,122,0))}
+.bxSec.r4{background:linear-gradient(90deg,rgba(190,205,240,.22),rgba(190,205,240,0))}.bxSec.r4 b{color:#dfe6fb}
+.bxSec.r3{background:linear-gradient(90deg,rgba(200,170,120,.2),rgba(200,170,120,0))}.bxSec.r3 b{color:#d9c19a}
+.bxG{grid-template-columns:repeat(4,1fr);gap:8px 7px;margin-bottom:4px}
+.aCard.bx{aspect-ratio:auto;padding-bottom:17px}
+.aCard.bx .fr{inset:0 0 17px 0;aspect-ratio:1;height:auto;position:relative;display:block}
+.aCard.bx .lv,.aCard.bx .aSt{display:none}
+.aCard.bx .pic::after{height:34%}
+.aCard.bx .aG{width:19px;height:19px;font-size:10px}
+.aCard.bx .bxB{position:absolute;left:2px;right:2px;bottom:2px;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:1px 5px;border-radius:0 0 5px 5px;background:rgba(6,10,30,.82);font:900 12px var(--zk);color:#fff}
+.aCard.bx .bxB i{font-style:normal;color:#ffd76a}
+.aCard.bx.r6 .bxB i{color:#ffb0ec}
+.aCard.bx.r4 .bxB i{color:#dfe6fb}.aCard.bx.r3 .bxB i{color:#d9c19a}
+.aCard.bx .bxNm{position:absolute;left:0;right:0;top:100%;margin-top:2px;font:700 10.5px/15px var(--zk);color:#dfe5fb;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aCard.bx em{top:-6px;font-size:10px;line-height:16px}
+`; document.head.appendChild(st); }
 /* (11/8 山本さん「BOXが見にくい」) 並び替えを5つ(新しい順・レア・レベル・属性・名前)+ 上下の切りかえ、レアの絞り込み。選んだ並びは覚えておく(パズドラの並び替え・絞り込みを参考に、このゲームに要るものだけ) */
 const BOXF = Object.assign({ el: 'all', rar: 0, sort: 'rar', asc: false }, (() => { try { return JSON.parse(localStorage.getItem('ca_boxf') || '{}'); } catch (e) { return {}; } })());
 const boxfSave = () => { try { localStorage.setItem('ca_boxf', JSON.stringify(BOXF)); } catch (e) { } };
@@ -1836,21 +1882,40 @@ function boxSort(list) {
   const f = { new: (a, c) => c.u - a.u, rar: (a, c) => rarOf(c) - rarOf(a) || mult(c) - mult(a) || c.u - a.u, lv: (a, c) => c.lv - a.lv || tie(a, c), el: (a, c) => ord[CH[a.id].el] - ord[CH[c.id].el] || tie(a, c), name: (a, c) => CH[a.id].name.localeCompare(CH[c.id].name, 'ja') || tie(a, c) }[BOXF.sort] || ((a, c) => 0);
   const L = list.sort(f); return BOXF.asc ? L.reverse() : L;
 }
+function boxExpand(after) {
+  if (boxCap() >= BOX_MAX) { flash('BOXはこれ以上広げられません'); return; }
+  modal('BOXを広げる', (b, close) => {
+    b.innerHTML = `<p style="text-align:center">${BOX_COST}pt で <b>+${BOX_STEP}体</b> 広げます<br><span style="font-size:12px">${boxCap()}体 → ${Math.min(BOX_MAX, boxCap() + BOX_STEP)}体(最大${BOX_MAX}体) ・ いまのpt ${ptNow().toLocaleString()}</span></p>`;
+    const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('shine', '広げる', () => { if (!ptSpend(BOX_COST, 'sta')) { flash('ptが足りません'); return; } S.cap = Math.min(BOX_MAX, boxCap() + BOX_STEP); save(); close(); flash('BOXが ' + boxCap() + '体 になりました'); renderNow(); if (after) after(); })); b.appendChild(r);
+  });
+}
+/* BOXに空きが足りないとき。n=これから増える数(出撃は0) */
+function boxFullAsk(n) {
+  modal('BOXがいっぱいです', (b, close) => {
+    const need = S.units.length + (n || 1) - boxCap();
+    b.innerHTML = `<p style="text-align:center">いま <b>${S.units.length} / ${boxCap()}体</b><br>${n ? 'あと ' + need + '体ぶんの空きが要ります。' : '空きを1体ぶん作ると出撃できます。'}</p><p class="onote" style="text-align:center">「強化」で素材にする・同じキャラを重ねると、数を減らせます。</p>`;
+    const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'BOXを整理する', () => { close(); document.querySelectorAll('.aSheet').forEach(x => x.remove()); TAB = 'chara'; SUB.chara = 'power'; showOut('chara'); renderNow(); }));
+    if (boxCap() < BOX_MAX) r.append(btn('shine', BOX_COST + 'ptで広げる', () => { close(); boxExpand(); })); b.appendChild(r);
+  });
+}
 function charaBox(b) {
-  const ch = h('div', 'aChips');
-  const chip = (label, on, fn, row) => { const x = h('button', null, label); x.type = 'button'; x.setAttribute('aria-pressed', String(on)); x.onclick = () => { fn(); boxfSave(); renderNow(); }; (row || ch).appendChild(x); };
-  chip('すべて', BOXF.el === 'all' && !BOXF.rar, () => { BOXF.el = 'all'; BOXF.rar = 0; });
-  for (const el of ['炎', '水', '木', '光']) chip(el, BOXF.el === el, () => { BOXF.el = BOXF.el === el ? 'all' : el; });
-  for (const r of [5, 4, 3]) chip('★' + r, BOXF.rar === r, () => { BOXF.rar = BOXF.rar === r ? 0 : r; });
-  b.appendChild(ch);
-  const so = h('div', 'aChips aSrt'); so.appendChild(h('span', 'lb', '並び'));
-  for (const [k, n] of BOXSORT) chip(n, BOXF.sort === k, () => { if (BOXF.sort === k) BOXF.asc = !BOXF.asc; else { BOXF.sort = k; BOXF.asc = false; } }, so);
-  chip('↕ 逆にする', BOXF.asc, () => { BOXF.asc = !BOXF.asc; }, so); so.lastChild.classList.add('dir');
-  b.appendChild(so);
+  /* (11/11) 山本さん「ボックスが見にくい」(2回目): 上の絞り込みが4段もあって絵が小さく見えていた。
+     参考: モンストのBOX(上に数/上限、並び替えは1つのボタン)、パズドラ(レアごとに枠の色)。まねではなく考え方だけ。
+     上は2段だけ(数と上限 / 属性・レア・並び)。一覧はレアごとに見出しで区切り、下の帯に Lv と ★の数字をはっきり出す */
+  const n = S.units.length, cap = boxCap(), hd = h('div', 'bxHd' + (n >= cap ? ' full' : n >= cap - 5 ? ' near' : ''));
+  hd.innerHTML = `<div class="bxN"><b>${n}</b><span>/ ${cap}体</span>${n >= cap ? '<em>いっぱい</em>' : ''}</div><div class="bxBar"><i style="width:${Math.min(100, n / cap * 100)}%"></i></div>`;
+  const ex = h('button', 'bxEx', cap >= BOX_MAX ? '最大' : '+ 広げる'); ex.type = 'button'; ex.disabled = cap >= BOX_MAX; ex.onclick = () => boxExpand(); hd.appendChild(ex); b.appendChild(hd);
+  const ct = h('div', 'bxCt'), els = h('div', 'bxEl');
+  for (const el of ['all', '炎', '水', '木', '光']) { const x = h('button', el === 'all' ? 'all' : '', el === 'all' ? '全' : elGem(el, 20)); x.type = 'button'; x.setAttribute('aria-pressed', String(BOXF.el === el)); x.setAttribute('aria-label', el === 'all' ? 'すべての属性' : el + '属性だけ'); x.onclick = () => { BOXF.el = el; boxfSave(); renderNow(); }; els.appendChild(x); }
+  const sel = (opts, val, fn, label) => { const w = h('label', 'bxSel'), se = document.createElement('select'); se.setAttribute('aria-label', label); for (const [v, t] of opts) { const o = document.createElement('option'); o.value = v; o.textContent = t; if (String(v) === String(val)) o.selected = true; se.appendChild(o); } se.onchange = () => { fn(se.value); boxfSave(); renderNow(); }; w.appendChild(se); return w; };
+  const dir = h('button', 'bxDir', BOXF.asc ? '▲' : '▼'); dir.type = 'button'; dir.setAttribute('aria-label', '並びを逆にする'); dir.onclick = () => { BOXF.asc = !BOXF.asc; boxfSave(); renderNow(); };
+  ct.append(els, sel([[0, '★全て'], [6, '★6'], [5, '★5'], [4, '★4'], [3, '★3']], BOXF.rar, v => { BOXF.rar = +v; }, 'レアで絞る'), sel(BOXSORT, BOXF.sort, v => { BOXF.sort = v; BOXF.asc = false; }, '並び替え'), dir); b.appendChild(ct);
   const list = boxSort(S.units.filter(u => (BOXF.el === 'all' || CH[u.id].el === BOXF.el) && (!BOXF.rar || rarOf(u) === BOXF.rar)));
-  b.appendChild(h('p', 'onote', BRT ? `${list.length} / ${S.units.length}体` : `${list.length} / ${S.units.length}体 ・ 押すとくわしく見られます`));
-  const g = h('div', 'ogrid'); b.appendChild(g);
-  for (const u of list) { const e = icon(u, { tag: inParty(u) ? '編成中' : (S.newIds.includes(u.u) ? 'NEW' : '') }); e.onclick = () => { S.newIds = S.newIds.filter(x => x !== u.u); save(); detail(u); }; g.appendChild(e); }
+  if (!list.length) { b.appendChild(h('p', 'onote', 'この条件のキャラはいません。')); return; }
+  const add = (g, u) => { const e = icon(u, { tag: inParty(u) ? '編成中' : (S.newIds.includes(u.u) ? 'NEW' : '') }); e.classList.add('bx'); e.querySelector('.fr').insertAdjacentHTML('beforeend', `<span class="bxB"><b>Lv${u.lv}</b><i>★${rarOf(u)}</i></span><span class="bxNm">${esc(CH[u.id].name)}</span>`); e.onclick = () => { S.newIds = S.newIds.filter(x => x !== u.u); save(); detail(u); }; g.appendChild(e); };
+  if (BOXF.sort === 'rar') { /* レア順のときは、★ごとに見出しで区切る */
+    let cur = null, g = null; for (const u of list) { const r = rarOf(u); if (r !== cur) { cur = r; const cnt = list.filter(x => rarOf(x) === r).length; b.appendChild(h('div', 'bxSec r' + r, `<b>★${r}</b><span>${r === 6 ? '進化' : ''}</span><i>${cnt}体</i>`)); g = h('div', 'ogrid bxG'); b.appendChild(g); } add(g, u); }
+  } else { if (list.length !== n) b.appendChild(h('p', 'onote', `${list.length}体を表示`)); const g = h('div', 'ogrid bxG'); b.appendChild(g); for (const u of list) add(g, u); }
 }
 /* (v97) 攻撃力は数字で見せる(戦闘の攻撃の倍率×1000)。重さは戦闘の重さ×100(レベルでは変わらない) */
 function stats(u) { const c = CH[u.id], m = mult(u); return { hp: Math.round(c.hp * m), atk: (c.atk * m).toFixed(2), ap: Math.round(c.atk * m * 1000), wt: Math.round(((A.ROSTER[u.id] || {}).m || 1) * 100) }; }
@@ -2297,7 +2362,7 @@ function renderGbGacha(bn) {
   const lp = S.lp || 0, pt = h('div', 'gPt', `<span>限定の交換pt <b>${lp}</b>/${GBG.pity}</span><span class="bar"><i style="width:${Math.min(100, lp / GBG.pity * 100)}%"></i></span>`), tr = btn('sm', '★5と交換', gbPityPull); tr.disabled = lp < GBG.pity || !gbPick(5); if (lp >= GBG.pity) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
   w.appendChild(bs); banTabs(w);
 }
-function gbPityPull() { const L = gbPicks(5); if (!L.length || (S.lp || 0) < GBG.pity) return;
+function gbPityPull() { const L = gbPicks(5); if (!L.length || (S.lp || 0) < GBG.pity) return; if (boxFull(1)) { boxFullAsk(1); return; }
   const give = id => { if ((S.lp || 0) < GBG.pity) return; S.lp -= GBG.pity; const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); save(); summon([{ u, isNew }], 1, 0); };
   modal('★5と交換', (b, close) => { b.innerHTML = `<p class="onote">限定の交換pt ${GBG.pity} で、好きな★5のピックアップ1人と交換できます。</p>`; const r = h('div', 'gPk'); for (const id of L) { const c = CH[id], f = faceURL(id, 0, 1); const e = h('button', 'gPkB', `${f ? `<img alt="" src="${f}">` : ''}<small>${esc(GB_TITLE[id] || '')}</small><b>${esc(c.name)}</b>`); e.type = 'button'; e.style.setProperty('--ec', elCol(c.el)); e.onclick = () => { close(); give(id); }; r.appendChild(e); } b.appendChild(r); const o = h('div', 'orow'); o.style.padding = '0'; o.appendChild(btn('sub', 'やめる', close)); b.appendChild(o); }); }
 function rates() {
@@ -2312,6 +2377,7 @@ function gbRates() { modal('ゲーマー女子召喚 の詳細', (b, close) => {
   b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">期間: 11/14 5:00 〜 11/29 5:00(ゲームバカイベント)。1回 ${GBG.one}pt、10回 ${GBG.ten.toLocaleString()}pt。10回召喚は★4以上が1体確定。<br>この召喚を1回引くごとに限定の交換ptが1たまり、${GBG.pity}たまると★5のピックアップと交換できます。ピックアップ以外は「英雄召喚」と同じキャラが出ます。ゲーマー女子はこの召喚だけで出ます(ソラは限定降臨「ガチャ魔神」でだけ仲間になります)。</p>`;
   const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); }
 function pull(n, cost) {
+  if (boxFull(n)) { boxFullAsk(n); return; }
   if (ptNow() < cost) { modal('ptが足りません', (b, close) => { b.innerHTML = `<p>あと ${(cost - ptNow()).toLocaleString()}pt 必要です。ステージの初回クリア・★・デイリーミッションでもらえます。</p>`; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); return; }
   modal(n === 1 ? '1回召喚' : '10回召喚', (b, close) => {
     b.innerHTML = `<p style="text-align:center">${cost.toLocaleString()}pt 使います<br><span style="font-size:12px">のこり ${(ptNow() - cost).toLocaleString()}pt</span></p>`;
@@ -2319,6 +2385,7 @@ function pull(n, cost) {
   });
 }
 function doPull(n, cost, free) {
+  if (!free && boxFull(n)) { boxFullAsk(n); return; }
   if (free) { if (!S.free10) return; S.free10 = 0; } else if (!ptSpend(cost, n)) { flash('ptが足りません'); return; } const got = [];
   const lim = gaB === 'gb' && !free && gbReady(); const ids = []; for (let k = 0; k < n; k++) ids.push(rollOne(lim ? 'gb' : 0));
   /* 無料の10回召喚は、編成の4人がそろうように、ちがうキャラが4人以上になるまで同じレア度で引き直す(確率は変えない) */
@@ -2601,7 +2668,7 @@ const day5 = () => { const d = new Date(Date.now() - 5 * 3600e3); return d.getFu
 function xpFresh() { if (!S.xp || S.xp.d !== day5()) S.xp = { d: day5(), n: 0 }; }
 function xpLeft() { xpFresh(); return Math.max(0, XP_MAX - S.xp.n); }
 function xpTake(i) { const st = A.STAGES[i]; if (!st || st.ev !== 'exp') return true; if (xpLeft() <= 0) { flash('経験値の竜の巣は今日はもう挑戦できません(朝5時に戻ります)'); return false; } S.xp.n++; save(); return true; }
-window.CA_GATE = (i) => { if (MPC.play) return xpTake(i); if (!staCan()) { staOut(); return false; } if (!xpTake(i)) return false; staUse(); return true; };   /* (11/9) スタミナ1つ(マルチは募集した人だけ・始めるときに) */
+window.CA_GATE = (i) => { if (S.units.length >= boxCap()) { boxFullAsk(0); return false; } if (MPC.play) return xpTake(i); if (!staCan()) { staOut(); return false; } if (!xpTake(i)) return false; staUse(); return true; };   /* (11/9) スタミナ1つ(マルチは募集した人だけ・始めるときに) */
 function dmFresh() { if (S.dm.date !== today()) S.dm = { date: today(), win: 0, power: 0, gacha: 0, got: [] }; }
 /* くり返しクリアの報酬(初回とは別)。ハードは1日3回まで宝珠が出る */
 function repeatDrops(st, i, hd) {
@@ -2736,7 +2803,7 @@ function pityTrade() {
   });
 }
 function pityPull() {
-  if (S.pity < PITY) return;
+  if (S.pity < PITY) return; if (boxFull(1)) { boxFullAsk(1); return; }
   const p = pool(5), id = p[Math.floor(Math.random() * p.length)].id;
   S.pity -= PITY; const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u);
   save(); summon([{ u, isNew }], 1, 0);
@@ -2777,6 +2844,8 @@ function tRoute() {
   /* (v85) ★6の絵の確認用(保存しない): #t-evo6 で詳しい画面、#t-evob で戦闘 */
   if (hs === '#t-evo6') { showOut('other'); setTimeout(evoGallery, 600); }
   /* (11/11) ★6の豪華な飾りの確認用(保存しない): #t-lux6 で詳しい画面、#t-evos で進化の瞬間、#t-luxh でホーム */
+  /* (11/11) BOXの見え方の確認用(保存しない): #t-box で、いろいろなキャラを70体持っている状態 */
+  if (hs === '#t-box') { const ids = Object.keys(CH).filter(k => CH[k].battle); let u = 5000; S.units = []; for (let i = 0; i < 70; i++) { const id = ids[(i * 7 + (i >> 2)) % ids.length]; S.units.push({ u: u++, id, lv: 1 + (i * 13) % (MAXLV[CH[id].rar] || 50), exp: 0, evo: CH[id].rar === 5 && i % 5 === 0 ? 1 : 0 }); } S.team = S.units.slice(0, 4).map(x => x.u); S.free10 = 0; S.newIds = S.units.slice(8, 12).map(x => x.u); TAB = 'chara'; SUB.chara = 'box'; showOut('chara'); renderNow(); }
   if (hs === '#t-lux6') { showOut('chara'); setTimeout(() => detail({ u: -1, id: 'gbpro', lv: 90, exp: 0, evo: 1 }), 600); }
   if (hs === '#t-evos') { showOut('chara'); setTimeout(() => evoShow('gbpro', () => detail({ u: -1, id: 'gbpro', lv: 70, exp: 0, evo: 1 })), 600); }
   if (hs === '#t-luxh') { if (!S.units.some(x => x.id === 'gbpro')) S.units.push({ u: 990, id: 'gbpro', lv: 70, exp: 0, evo: 1 }); else S.units.find(x => x.id === 'gbpro').evo = 1; S.home = 'gbpro'; S.free10 = 0; TAB = 'home'; showOut('home'); renderNow(); }
