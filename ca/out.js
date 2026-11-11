@@ -142,8 +142,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=95').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=95').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=96').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=96').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1789,6 +1789,8 @@ function mpSay(t) { try { const ht = document.getElementById('ht'), hb = documen
 function mpPump() {
   if (!MPC.play || !MPC.room) return; const C = window.__CA, G = C.G, R = MPC.room, mv = R.mv || [];
   const idle = G.phase === 'idle' && !G.busy && !G.over;
+  /* (11/12) まだ前の手を動かしているのに次の手がもう来ている = この端末は遅れている → 早送りで追いつく */
+  try { C.mpFF && C.mpFF(!idle && !G.over && MPC.ai < mv.length); } catch (e) { }
   if (idle && MPC.ai < mv.length) { const m = mv[MPC.ai]; const ok = m.ty === 'skill' ? C.mpSkill(MPC.ai, m.i, m.pre) : C.mpShot(MPC.ai, { x: m.x, z: m.z }, m.p, m.bu, m.pre); if (ok) { MPC.ai++; G.mpWait = false; } return; }
   if (idle && MPC.ai === mv.length) {
     const sn = R.sn || {};
