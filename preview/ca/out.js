@@ -137,8 +137,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=75').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=75').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=76').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=76').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1324,7 +1324,8 @@ function talkLines() {
 function talk() { const t = root.querySelector('.aTalk'); if (!t) return; const L = talkLines(); t.textContent = L[Math.floor(Math.random() * L.length)]; t.classList.add('on'); clearTimeout(talkT); talkT = setTimeout(() => t.classList.remove('on'), 2800); }
 function heroSrc(k) { const e = evoArt(k, k === S.home && homeEvo()); return PORT[e] || CHIBI[e] || ''; }
 function swapHero() {
-  const img = root.querySelector('.aHero img'); if (!img) { renderNow(); return; }
+  const img = root.querySelector('.aHero img:not(.lx)'); if (!img) { renderNow(); return; }
+  root.querySelectorAll('.aHero .lx').forEach(e => e.remove()); setTimeout(homeLux, RM ? 30 : 640);
   const apply = () => { img.src = heroSrc(S.home); const c = CH[S.home]; const nm = root.querySelector('.aNm'); nm.innerHTML = nameHTML(c); renderTop(); };
   if (RM) { apply(); return; }
   img.classList.add('out');
@@ -1342,7 +1343,7 @@ function renderHome() {
   const w = h('div', 'aHome'); root.appendChild(w);
   w.innerHTML = `<div class="hbg"></div><div class="motes"></div><div class="aHero"><div class="glow"></div><img alt="" src="${heroSrc(S.home)}"></div><div class="vig"></div>`;
   const mo = w.querySelector('.motes'); if (!RM) for (let i = 0; i < 16; i++) { const m = h('i'); m.style.left = Math.random() * 100 + '%'; m.style.top = 35 + Math.random() * 55 + '%'; m.style.animationDuration = 5 + Math.random() * 6 + 's'; m.style.animationDelay = -Math.random() * 9 + 's'; mo.appendChild(m); }
-  w.querySelector('.aHero img').onclick = () => { nextHome(); };
+  w.querySelector('.aHero img').onclick = () => { nextHome(); }; setTimeout(homeLux, 60);
   const c = CH[S.home]; root.appendChild(h('div', 'aNm', nameHTML(c)));
   root.appendChild(h('div', 'aTalk'));
   /* 左: 切り替わるバナー */
@@ -1902,6 +1903,7 @@ function detail(u0, pv) {
   if (c.battle && S.home !== u.id && u.u >= 0 && pv == null) r.appendChild(btn('sub', 'ホームに出す', () => { S.home = u.id; save(); close(); flash(c.name + ' をホームに出しました'); }));
   if (!r.children.length) r.appendChild(btn('sub', '閉じる', close));
   lay.appendChild(sh);
+  /* (11/11) ★6の絵は、後ろの光・足元の円・ホロの照り・きらめきで豪華に */ if (u.evo && PORT[u.id + '6'] && evoArt(u.id, u.evo) === u.id + '6') lux6(sh.querySelector('.dArt'), sh.querySelector('.dArt .im'), c.el);
 }
 function evolve(u) {
   const c = CH[u.id], key = 'orb_' + c.el, have = S.mats[key] || 0, need = EVO_COST[c.rar], lvN = MAXLV[c.rar], okLv = u.lv >= lvN, okOrb = have >= need;
@@ -1912,13 +1914,135 @@ function evolve(u) {
       <p class="onote">${esc(MATS[key].name)}は、イベントの「${esc(c.el)}の宝珠の祭壇」で手に入ります。</p>`;
     const r = h('div', 'orow'); r.style.padding = '0';
     r.append(btn('sub', 'やめる', close));
-    const ok = btn('', '進化する', () => { S.mats[key] -= need; u.evo = 1; save(); close(); flash(`${c.name} が ★${c.rar + 1} に進化した!`); renderNow(); }); ok.disabled = !(okLv && okOrb); r.appendChild(ok); b.appendChild(r);
+    const ok = btn('', '進化する', () => { S.mats[key] -= need; u.evo = 1; save(); close(); /* (11/11) 進化の瞬間の演出 */ evoShow(u.id, () => { flash(`${c.name} が ★${c.rar + 1} に進化した!`); renderNow(); }); }); ok.disabled = !(okLv && okOrb); r.appendChild(ok); b.appendChild(r);
   });
 }
 /* (v91) 編成: パズドラ・モンストを見て作り直した(D-113)。
    1つの板に「リーダー(左の枠)+サブ3つ」を顔のアイコンで並べ、下に合計とリーダースキル。
    枠を押すと、別の画面でキャラの一覧から選ぶ(一覧はアイコンの格子、並べかえつき) */
 const bigFace = {};
+/* ================= (11/11) ★6の豪華な飾りと、進化の瞬間の演出 =================
+   山本さん「キャラ星6になったらもっとキャラ自体絵豪華にしたい」→ 絵の描き直し(指示文)とコードの飾りの両方、まずノアで見本、場所は「詳細・ホームの立ち絵」と「進化した瞬間」。
+   参考: プリコネの★6(才能開花で絵と背景が変わり、動く)、FGOの最終再臨、スタレ・原神の入手演出(白い人影 → 色がつく)。まねではなく、仕組み(後ろの光・足元の円・ホロの照り・前の粒の4層)だけ借りる。
+   動かすのは canvas と transform/opacity だけ。時間 t から毎回描く(同じ絵をコマ送りで確かめられる)。「動きを減らす」設定では止め絵 */
+{ const st = document.createElement('style'); st.textContent = `
+.lxBox{isolation:isolate}
+.lx{pointer-events:none;position:absolute}
+.lxB{z-index:-2;left:50%;top:0;height:100%;width:100%;transform:translateX(-50%)}
+.aHero .lxB{top:-22%;height:128%;width:min(100vw,560px)}
+.lxAu{z-index:-1;filter:blur(13px) brightness(1.7) saturate(1.5);opacity:.55}
+.lxFo{z-index:1;mix-blend-mode:screen}
+.lxF{z-index:2;left:50%;top:0;height:100%;width:100%;transform:translateX(-50%)}
+.aHero .lxF{top:-22%;height:128%;width:min(100vw,560px)}
+.dArt .lxAu,.dArt .lxFo{left:50%;top:6px;height:calc(100% - 6px);width:auto;transform:translateX(-50%)}
+.aHero .lxAu,.aHero .lxFo{left:50%;top:0;height:100%;width:auto;max-width:none;transform:translateX(-50%);transform-origin:50% 100%;animation:aBreatheC 4.2s ease-in-out infinite}
+@keyframes aBreatheC{50%{transform:translateX(-50%) scale(1.006,1.01) translateY(-2px)}}
+.dArt .lv,.dArt .aFrm{z-index:3}
+.dArt .lx6{position:absolute;right:12px;top:10px;z-index:3;font:900 13px var(--zk);letter-spacing:.04em;color:#3a2400;padding:3px 10px 3px 8px;border-radius:99px;background:linear-gradient(100deg,#fff6cf,#ffd76a 45%,#fff 55%,#e8b84a);box-shadow:0 0 0 1.5px #7a4c00,0 0 14px rgba(255,220,120,.7)}
+.lxEv{position:fixed;inset:0;z-index:9000;background:#040716;overflow:hidden;touch-action:manipulation;cursor:pointer}
+.lxEv canvas{position:absolute;inset:0;width:100%;height:100%}
+.lxEvT{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 11%);text-align:center;pointer-events:none}
+.lxEvT .s6{display:flex;justify-content:center;gap:2px;font:900 34px var(--zk);color:#ffd76a;text-shadow:0 2px 0 #7a4c00,0 0 16px rgba(255,210,100,.9)}
+.lxEvT .s6 i{font-style:normal;opacity:0;display:inline-block}
+.lxEvT .cap{margin-top:2px;font:900 15px var(--zk);letter-spacing:.3em;color:#fff3c4;opacity:0}
+.lxEvT .nm{margin-top:4px;font:900 30px var(--zk);color:#fff;paint-order:stroke fill;-webkit-text-stroke:5px #0a0f24;opacity:0}
+.lxEvT .hint{margin-top:14px;font:700 12px var(--zk);color:#b9c4ee;opacity:0}
+`; document.head.appendChild(st); }
+const LUXC = { 光: ['#ffe9a8', '#67e8f9', '#b79bff'], 水: ['#8fd8ff', '#c8f4ff', '#7a8cff'], 炎: ['#ffb070', '#ffe08a', '#ff6a9a'], 木: ['#9dffb4', '#f4ffa8', '#67e8c9'], _: ['#ffe9a8', '#9fe8ff', '#b79bff'] };
+const lxH = n => { const x = Math.sin(n * 127.1) * 43758.5453; return x - Math.floor(x); };
+function lxRGBA(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+function lxDia(g, x, y, s) { g.beginPath(); g.moveTo(x, y - s); g.lineTo(x + s * .62, y); g.lineTo(x, y + s); g.lineTo(x - s * .62, y); g.closePath(); g.fill(); }
+function lxGlint(g, x, y, s, col) { if (s <= 0) return; const r = g.createRadialGradient(x, y, 0, x, y, s); r.addColorStop(0, 'rgba(255,255,255,.95)'); r.addColorStop(.25, lxRGBA(col, .5)); r.addColorStop(1, lxRGBA(col, 0)); g.fillStyle = r; g.beginPath(); g.arc(x, y, s, 0, 6.283); g.fill(); g.fillStyle = 'rgba(255,255,255,.95)'; g.beginPath(); g.ellipse(x, y, s * 1.5, s * .07, 0, 0, 6.283); g.fill(); g.beginPath(); g.ellipse(x, y, s * .07, s * 1.5, 0, 0, 6.283); g.fill(); }
+/* 後ろの層: にじむ光・回る光の筋・背中の輪(目盛りと六角)・足元の円・のぼる粒。k=強さ(0〜1) */
+function lxBack(g, W, H, t, C, k, cy0) {
+  const cx = W / 2, cy = H * (cy0 || .42); g.save(); g.globalCompositeOperation = 'lighter';
+  let r = g.createRadialGradient(cx, cy, 0, cx, cy, H * .62); const pu = .8 + .2 * Math.sin(t * 1.7);
+  r.addColorStop(0, lxRGBA(C[0], .5 * k * pu)); r.addColorStop(.45, lxRGBA(C[1], .2 * k * pu)); r.addColorStop(1, lxRGBA(C[2], 0)); g.fillStyle = r; g.fillRect(0, 0, W, H);
+  for (let s = 0; s < 2; s++) for (let i = 0; i < 12; i++) { const a = i / 12 * 6.283 + (s ? -t * .09 + .26 : t * .13), wd = (.035 + .06 * lxH(i * 3.1 + s * 9)) * (s ? .6 : 1), L = H * (.5 + .4 * lxH(i * 7.7 + s * 5)) * (.92 + .08 * Math.sin(t * 2 + i));
+    const gr = g.createRadialGradient(cx, cy, H * .05, cx, cy, L); gr.addColorStop(0, lxRGBA(C[s ? 1 : 0], .3 * k)); gr.addColorStop(1, lxRGBA(C[s ? 2 : 0], 0)); g.fillStyle = gr;
+    g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a - wd) * L, cy + Math.sin(a - wd) * L); g.lineTo(cx + Math.cos(a + wd) * L, cy + Math.sin(a + wd) * L); g.closePath(); g.fill(); }
+  /* 背中の輪 */
+  const R = Math.min(W * .44, H * .34); g.lineWidth = Math.max(1.5, W * .004); g.strokeStyle = lxRGBA(C[0], .75 * k); g.beginPath(); g.arc(cx, cy, R, 0, 6.283); g.stroke();
+  g.strokeStyle = lxRGBA(C[1], .5 * k); g.beginPath(); g.arc(cx, cy, R * .86, t * .4, t * .4 + 4.2); g.stroke(); g.beginPath(); g.arc(cx, cy, R * 1.1, -t * .3, -t * .3 + 2.6); g.stroke();
+  for (let i = 0; i < 48; i++) { const a = i / 48 * 6.283 + t * .1, l = i % 4 ? .03 : .075; g.strokeStyle = lxRGBA(C[i % 4 ? 1 : 0], (i % 4 ? .4 : .8) * k); g.beginPath(); g.moveTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); g.lineTo(cx + Math.cos(a) * R * (1 + l), cy + Math.sin(a) * R * (1 + l)); g.stroke(); }
+  for (let s = 0; s < 2; s++) { g.strokeStyle = lxRGBA(C[2 - s], .42 * k); g.beginPath(); for (let i = 0; i <= 6; i++) { const a = i / 6 * 6.283 + (s ? .5236 : 0) - t * .16; const x = cx + Math.cos(a) * R * .74, y = cy + Math.sin(a) * R * .74; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
+  for (let i = 0; i < 6; i++) { const a = i / 6 * 6.283 + t * .35; g.fillStyle = lxRGBA(i % 2 ? C[1] : '#ffffff', .9 * k); lxDia(g, cx + Math.cos(a) * R, cy + Math.sin(a) * R, W * .018 * (1 + .25 * Math.sin(t * 3 + i))); }
+  /* 足元の円(ななめから見た形) */
+  g.save(); g.translate(cx, H * .93); g.scale(1, .26); const FR = W * .42;
+  r = g.createRadialGradient(0, 0, 0, 0, 0, FR); r.addColorStop(0, lxRGBA(C[0], .42 * k)); r.addColorStop(.7, lxRGBA(C[1], .14 * k)); r.addColorStop(1, lxRGBA(C[1], 0)); g.fillStyle = r; g.beginPath(); g.arc(0, 0, FR, 0, 6.283); g.fill();
+  g.lineWidth = Math.max(2, W * .006); g.strokeStyle = lxRGBA(C[0], .9 * k); g.beginPath(); g.arc(0, 0, FR * .92, 0, 6.283); g.stroke(); g.setLineDash([FR * .16, FR * .07]); g.lineDashOffset = -t * FR * .2; g.strokeStyle = lxRGBA(C[1], .7 * k); g.beginPath(); g.arc(0, 0, FR * .74, 0, 6.283); g.stroke(); g.setLineDash([]);
+  g.strokeStyle = lxRGBA(C[2], .7 * k); g.beginPath(); for (let i = 0; i <= 6; i++) { const a = (i * 2 % 6) / 6 * 6.283 + t * .3 + (i > 2 && i < 6 ? 0 : 0); const j = i * 2; const aa = j / 6 * 6.283 + t * .3; const x = Math.cos(aa) * FR * .7, y = Math.sin(aa) * FR * .7; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+  g.beginPath(); for (let i = 0; i <= 3; i++) { const aa = (i * 2 + 1) / 6 * 6.283 + t * .3; const x = Math.cos(aa) * FR * .7, y = Math.sin(aa) * FR * .7; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); g.restore();
+  /* のぼる粒 */
+  for (let i = 0; i < 34; i++) { const sp = .05 + .09 * lxH(i * 2.3), ph = (t * sp + lxH(i * 5.1)) % 1, x = W * (.06 + .88 * lxH(i * 9.7)) + Math.sin(t * .9 + i) * W * .02, y = H * (1.02 - ph * 1.05), s = W * (.006 + .013 * lxH(i * 4.4)), tw = .5 + .5 * Math.sin(t * (2 + 3 * lxH(i)) + i * 2);
+    g.fillStyle = lxRGBA(i % 3 === 0 ? '#ffffff' : C[i % 3], Math.sin(ph * 3.1416) * (.35 + .65 * tw) * k); lxDia(g, x, y, s); }
+  g.restore(); }
+/* 前の層: きらめき(十字の光)と、手前をのぼる粒 */
+function lxFront(g, W, H, t, C, k) {
+  g.save(); g.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 9; i++) { const per = 2.2 + 2.4 * lxH(i * 3.3), cyc = Math.floor(t / per + lxH(i * 8.1)), ph = (t / per + lxH(i * 8.1)) % 1; if (ph > .32) continue; const x = W * (.14 + .72 * lxH(i * 5.7 + cyc * 1.3)), y = H * (.1 + .78 * lxH(i * 2.9 + cyc * 3.7)); lxGlint(g, x, y, W * (.03 + .035 * lxH(i * 6.1)) * Math.sin(ph / .32 * 3.1416) * k, C[i % 3]); }
+  for (let i = 0; i < 10; i++) { const sp = .07 + .08 * lxH(i * 2.9 + 50), ph = (t * sp + lxH(i * 5.3 + 50)) % 1, x = W * (.1 + .8 * lxH(i * 9.1 + 50)) + Math.sin(t * 1.1 + i) * W * .03, y = H * (1 - ph), s = W * (.012 + .016 * lxH(i * 4.9 + 50)); g.fillStyle = lxRGBA(i % 2 ? C[1] : '#ffffff', Math.sin(ph * 3.1416) * .85 * k); lxDia(g, x, y, s); }
+  g.restore(); }
+/* ホロの照り: ななめの虹の帯が、絵の形の中だけを流れる */
+function lxFoil(g, W, H, t, img, C, k) {
+  g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H);
+  const per = 3.4, p = ((t % per) / per) * 2.4 - .7, x0 = p * W, gr = g.createLinearGradient(x0 - W * .5, H * .15, x0 + W * .5, -H * .15 + H * .3);
+  gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(.36, lxRGBA(C[1], .16 * k)); gr.addColorStop(.47, 'rgba(255,255,255,' + (.5 * k) + ')'); gr.addColorStop(.54, lxRGBA(C[2], .24 * k)); gr.addColorStop(.64, lxRGBA(C[0], .1 * k)); gr.addColorStop(.7, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  const g2 = g.createLinearGradient(0, H * (.2 + .1 * Math.sin(t * .7)), W, H * (.9 + .1 * Math.cos(t * .6))); g2.addColorStop(0, lxRGBA(C[1], .07 * k)); g2.addColorStop(.5, lxRGBA(C[2], .06 * k)); g2.addColorStop(1, lxRGBA(C[0], .07 * k)); g.fillStyle = g2; g.fillRect(0, 0, W, H);
+  g.globalCompositeOperation = 'destination-in'; g.drawImage(img, 0, 0, W, H); g.globalCompositeOperation = 'source-over'; }
+/* 立ち絵に飾りを付ける。box=絵の入れもの(.dArt / .aHero) img=絵 el=属性 */
+function lux6(box, img, el) {
+  if (!box || !img) return; box.querySelectorAll('.lx').forEach(e => e.remove()); box.classList.add('lxBox');
+  const C = LUXC[el] || LUXC._, dpr = Math.min(1.5, window.devicePixelRatio || 1), mk = cls => { const c = document.createElement('canvas'); c.className = 'lx ' + cls; return c; };
+  const cb = mk('lxB'), cf = mk('lxF'), fo = mk('lxFo'), au = document.createElement('img'); au.className = 'lx lxAu'; au.alt = ''; au.src = img.src;
+  box.append(cb, au, fo, cf); if (box.classList.contains('dArt')) box.appendChild(h('span', 'lx lx6', '★6 進化'));
+  let on = true, n = 0; const t0 = performance.now();
+  const size = () => { const r = cb.getBoundingClientRect(); if (r.width < 2) return false; cb.width = cf.width = Math.round(r.width * dpr); cb.height = cf.height = Math.round(r.height * dpr); const ih = Math.min(900, Math.round((img.getBoundingClientRect().height || 400) * dpr)), nw = img.naturalWidth || 1, nh = img.naturalHeight || 1; fo.height = ih; fo.width = Math.round(ih * nw / nh); return true; };
+  const sync = () => { try { const a = img.getAnimations()[0]; if (a) for (const e of [au, fo]) { const b = e.getAnimations()[0]; if (b) b.startTime = a.startTime; } } catch (e) { } };
+  const draw = t => { const gb = cb.getContext('2d'), gf = cf.getContext('2d'); gb.clearRect(0, 0, cb.width, cb.height); lxBack(gb, cb.width, cb.height, t, C, 1, box.classList.contains('aHero') ? .5 : .42); gf.clearRect(0, 0, cf.width, cf.height); lxFront(gf, cf.width, cf.height, t, C, 1); lxFoil(fo.getContext('2d'), fo.width, fo.height, t, img, C, 1); };
+  const go = () => { if (!size()) { if (box.isConnected) setTimeout(go, 120); return; } sync(); if (RM) { draw(1.2); return; } const loop = () => { if (!on || !box.isConnected || !cb.isConnected) return; requestAnimationFrame(loop); if (window.__LXT != null) { draw(window.__LXT); return; } if (n++ % 2) return; draw((performance.now() - t0) / 1000); }; loop(); };
+  (img.complete && img.naturalWidth ? Promise.resolve() : new Promise(r => { img.addEventListener('load', r, { once: true }); setTimeout(r, 1500); })).then(() => requestAnimationFrame(go));
+  return () => { on = false; }; }
+function homeLux() { const w = root.querySelector('.aHero'); if (!w) return; w.querySelectorAll('.lx').forEach(e => e.remove()); if (homeEvo() && PORT[S.home + '6'] && !skinOf(S.home)) lux6(w, w.querySelector('img:not(.lx)'), CH[S.home].el); }
+/* 進化の瞬間。★5の絵に光が集まる → 白い人影になる → まっ白 → ★6の絵があらわれ、星が6つ順に打たれる。押すと最後まで飛ぶ、もう一度押すと閉じる */
+function evoShow(id, done, opt) {
+  const c = CH[id], C = LUXC[c.el] || LUXC._, ov = h('div', 'lxEv'), cv = document.createElement('canvas'), dpr = Math.min(1.5, window.devicePixelRatio || 1)/* 全画面に光を重ねるので、細かさは1.5倍まで(重くしない) */; ov.appendChild(cv);
+  const tx = h('div', 'lxEvT', `<div class="s6">${'<i>★</i>'.repeat(6)}</div><div class="cap">★6 進化</div><div class="nm">${esc(c.evoName || c.name)}</div><div class="hint">画面を押すと閉じます</div>`); ov.appendChild(tx); document.body.appendChild(ov);
+  const st = [...tx.querySelectorAll('.s6 i')], cap = tx.querySelector('.cap'), nm = tx.querySelector('.nm'), hint = tx.querySelector('.hint');
+  const load = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
+  const END = 4.2; let t0 = 0, raf = 0, closed = false, W = 0, H = 0, A0, A1, wh, fo;
+  const eo = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3), cl = (x, a, b) => Math.min(1, Math.max(0, (x - a) / (b - a)));
+  const close = () => { if (closed) return; closed = true; cancelAnimationFrame(raf); ov.remove(); if (done) done(); };
+  const fit = () => { const r = ov.getBoundingClientRect(); W = cv.width = Math.round(r.width * dpr); H = cv.height = Math.round(r.height * dpr); };
+  const art = (g, im, sc, al, dx, dy) => { if (!im || al <= 0) return; const ah = H * .6 * sc, aw = ah * im.width / im.height; g.globalAlpha = al; g.drawImage(im, W / 2 - aw / 2 + (dx || 0), H * .46 - ah / 2 + (dy || 0), aw, ah); g.globalAlpha = 1; };
+  function render(t) { const g = cv.getContext('2d'); g.globalCompositeOperation = 'source-over'; g.fillStyle = '#040716'; g.fillRect(0, 0, W, H); const cx = W / 2, cy = H * .44;
+    const kB = cl(t, .5, 1.9), rev = t >= 1.95, kD = cl(t, 1.95, 2.5);
+    if (!rev) { /* ためる */
+      g.save(); g.globalCompositeOperation = 'lighter'; let r = g.createRadialGradient(cx, cy, 0, cx, cy, H * (.2 + .4 * kB)); r.addColorStop(0, lxRGBA(C[0], .2 + .6 * kB)); r.addColorStop(1, lxRGBA(C[1], 0)); g.fillStyle = r; g.fillRect(0, 0, W, H);
+      for (let i = 0; i < 14; i++) { const a = i / 14 * 6.283 + t * (1 + kB * 2.5), wd = .03 + .05 * lxH(i * 3.1), L = H * (.3 + .5 * lxH(i * 7.7)) * (.3 + .9 * kB); const gr = g.createRadialGradient(cx, cy, 0, cx, cy, L); gr.addColorStop(0, lxRGBA(C[i % 3], .38 * kB)); gr.addColorStop(1, lxRGBA(C[i % 3], 0)); g.fillStyle = gr; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a - wd) * L, cy + Math.sin(a - wd) * L); g.lineTo(cx + Math.cos(a + wd) * L, cy + Math.sin(a + wd) * L); g.closePath(); g.fill(); }
+      for (let i = 0; i < 3; i++) { const ph = (t * 1.1 + i / 3) % 1; g.strokeStyle = lxRGBA(C[i], (1 - ph) * .9 * cl(t, .4, .8)); g.lineWidth = W * .006; g.beginPath(); g.arc(cx, cy, H * .5 * (1 - ph) + 4, 0, 6.283); g.stroke(); } g.restore();
+      const sh = kB * kB * W * .012; art(g, A0, 1 + .05 * kB, cl(t, 0, .45), Math.sin(t * 61) * sh, Math.cos(t * 53) * sh); art(g, wh, 1 + .05 * kB, kB * kB * 1.1, Math.sin(t * 61) * sh, Math.cos(t * 53) * sh);
+      g.save(); g.globalCompositeOperation = 'lighter'; /* 宝珠5つが、うずを巻いて胸に入る */
+      for (let i = 0; i < 5; i++) for (let k = 0; k < 9; k++) { const tt = Math.max(0, cl(t, .45, 1.8) - k * .018), rr = Math.pow(1 - tt, 1.3) * W * .55, a = i / 5 * 6.283 + tt * 7.5, x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr * .8, s = W * (.03 - k * .0028) * (1 - tt * .5); if (s <= 0 || tt >= 1 || t < .45) continue; const r2 = g.createRadialGradient(x, y, 0, x, y, s); r2.addColorStop(0, 'rgba(255,255,255,' + (k ? .5 : 1) + ')'); r2.addColorStop(.4, lxRGBA(C[0], k ? .3 : .8)); r2.addColorStop(1, lxRGBA(C[0], 0)); g.fillStyle = r2; g.beginPath(); g.arc(x, y, s, 0, 6.283); g.fill(); }
+      g.restore(); }
+    else { /* あらわれる */
+      lxBack(g, W, H, t, C, .35 + .65 * kD, .44);
+      g.save(); g.globalCompositeOperation = 'lighter'; for (let i = 0; i < 2; i++) { const kk = cl(t, 1.95 + i * .14, 2.9 + i * .14); if (kk <= 0 || kk >= 1) continue; g.strokeStyle = lxRGBA(i ? '#ffffff' : C[0], (1 - kk) * .9); g.lineWidth = W * .012 * (1 - kk) + 1; g.beginPath(); g.arc(cx, cy, eo(kk) * H * .7, 0, 6.283); g.stroke(); } g.restore();
+      const sc = 1.22 - .22 * eo(cl(t, 1.95, 2.55)); art(g, A1, sc, 1);
+      if (A1 && fo) { const fg = fo.getContext('2d'); lxFoil(fg, fo.width, fo.height, (t - 2.15) * 1.5 + .2, A1, C, t > 2.15 ? 1 : 0); g.save(); g.globalCompositeOperation = 'screen'; const ah = H * .6 * sc, aw = ah * A1.width / A1.height; g.drawImage(fo, cx - aw / 2, H * .46 - ah / 2, aw, ah); g.restore(); }
+      lxFront(g, W, H, t + 3, C, kD);
+      g.save(); g.globalCompositeOperation = 'lighter'; /* 光の粒がふりそそぐ */
+      for (let i = 0; i < 60; i++) { const tt = (t - 1.95) * (.35 + .5 * lxH(i * 3.7)) - lxH(i * 1.9) * .25; if (tt < 0 || tt > 1) continue; const a = lxH(i * 5.3) * 6.283, d = eo(tt * 1.6) * H * (.2 + .5 * lxH(i * 7.1)); g.fillStyle = lxRGBA(i % 3 ? C[i % 3] : '#ffffff', (1 - tt) * .95); lxDia(g, cx + Math.cos(a) * d, cy + Math.sin(a) * d * .9 + tt * tt * H * .22, W * (.008 + .016 * lxH(i * 2.2)) * (1 - tt * .5)); } g.restore(); }
+    /* まっ白 */ const fl = t < 1.95 ? Math.pow(cl(t, 1.72, 1.95), 2) : 1 - cl(t, 1.95, 2.5); if (fl > 0) { g.fillStyle = 'rgba(255,255,255,' + fl + ')'; g.fillRect(0, 0, W, H); }
+    st.forEach((e, i) => { const k = cl(t, 2.45 + i * .1, 2.67 + i * .1); e.style.opacity = k > 0 ? 1 : 0; e.style.transform = `scale(${k > 0 ? 2.4 - 1.4 * eo(k) : 1}) rotate(${(1 - eo(k)) * -40}deg)`; });
+    cap.style.opacity = cl(t, 3.0, 3.25); nm.style.opacity = cl(t, 3.1, 3.4); nm.style.transform = `translateY(${(1 - eo(cl(t, 3.1, 3.45))) * 14}px)`; hint.style.opacity = cl(t, 3.8, 4.1) * .9; }
+  ov.onclick = () => { const t = (performance.now() - t0) / 1000; if (t < 3.6) t0 = performance.now() - 3900; else close(); };
+  Promise.all([load(PORT[id] || ''), load(PORT[id + '6'] || PORT[id] || '')]).then(([a, b]) => { if (closed) return; A0 = a; A1 = b || a; fit();
+    if (a) { wh = document.createElement('canvas'); wh.width = a.width; wh.height = a.height; const wg = wh.getContext('2d'); wg.drawImage(a, 0, 0); wg.globalCompositeOperation = 'source-in'; wg.fillStyle = '#fff'; wg.fillRect(0, 0, wh.width, wh.height); }
+    if (A1) { fo = document.createElement('canvas'); fo.height = Math.min(900, A1.height); fo.width = Math.round(fo.height * A1.width / A1.height); }
+    if (opt && opt.at != null) { render(opt.at); ov.__render = render; return; }
+    if (RM) { render(END); return; } t0 = performance.now(); const loop = () => { if (closed) return; raf = requestAnimationFrame(loop); render(window.__EVT != null ? window.__EVT : Math.min(END + 60, (performance.now() - t0) / 1000)); }; loop(); });
+  ov.__render = render; return ov; }
 /* (v125) くわしい画面のスキンの段。持っているスキンを、絵(アイコン)で選ぶ。能力は変わらない */
 function skinSec(u0, pv) {
   return '';
@@ -2652,6 +2776,10 @@ function tRoute() {
     if (hs === '#t-np') { SUB.chara = 'party'; PICK = { slot: 0 }; showOut('chara'); } else setTimeout(() => A.startStage(3, false), 1500); }
   /* (v85) ★6の絵の確認用(保存しない): #t-evo6 で詳しい画面、#t-evob で戦闘 */
   if (hs === '#t-evo6') { showOut('other'); setTimeout(evoGallery, 600); }
+  /* (11/11) ★6の豪華な飾りの確認用(保存しない): #t-lux6 で詳しい画面、#t-evos で進化の瞬間、#t-luxh でホーム */
+  if (hs === '#t-lux6') { showOut('chara'); setTimeout(() => detail({ u: -1, id: 'gbpro', lv: 90, exp: 0, evo: 1 }), 600); }
+  if (hs === '#t-evos') { showOut('chara'); setTimeout(() => evoShow('gbpro', () => detail({ u: -1, id: 'gbpro', lv: 70, exp: 0, evo: 1 })), 600); }
+  if (hs === '#t-luxh') { if (!S.units.some(x => x.id === 'gbpro')) S.units.push({ u: 990, id: 'gbpro', lv: 70, exp: 0, evo: 1 }); else S.units.find(x => x.id === 'gbpro').evo = 1; S.home = 'gbpro'; S.free10 = 0; TAB = 'home'; showOut('home'); renderNow(); }
   if (hs === '#t-evob') setTimeout(evoTrial, 1500);
   /* (v99) 章のラスボス竜の確認用: #t-lb2 #t-lb3 #t-lb4 でその章の最後のウェーブから */
   /* (v103) 高難度ボスの確認用: #t-exb(炎角獣) #t-ext(古樹の巨人)。#t-tot で凸の画面(かぶりを1体仮に足す。保存しない) */
