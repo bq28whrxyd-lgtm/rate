@@ -22,7 +22,11 @@ const CHARS = [
   ...['kagura', 'yomogi', 'minamo', 'lux', 'pom', 'pukuru', 'futa', 'tomori', 'hinoko', 'kurumi', 'nagi', 'kirara'].map(k => { const r = A.ROSTER[k]; return { id: k, name: r.name, el: r.el, rar: r.rar, hp: r.hp0, atk: r.atk0, battle: true }; }),
   /* (11/9) 降臨ボスの化身。降臨で25%で落ちる★5(ガチャには出ない)。数字は index.html の ROSTER と同じ */
   ...['garou', 'mizuchi', 'mokuren', 'seres'].map(k => { const r = A.ROSTER[k]; return { id: k, name: r.name, el: r.el, rar: 5, hp: r.hp0, atk: r.atk0, battle: true, evoName: r.name + '(進化)', drop: r.drop }; }),
+  /* (11/10) ゲームバカイベントのゲーマー女子。lim = 限定ガチャだけ(英雄召喚には出ない)。ソラは降臨の化身 */
+  ...['gbpro', 'gbsnp', 'gbrhy', 'gbret', 'gbfgt', 'gbhea', 'gbstr', 'gbpzl'].map(k => { const r = A.ROSTER[k]; return Object.assign({ id: k, name: r.name, el: r.el, rar: r.rar, hp: r.hp0, atk: r.atk0, battle: true }, r.rar === 5 ? { evoName: r.name + '(進化)' } : {}, r.drop ? { drop: r.drop } : { lim: 1 }); }),
 ];
+/* ゲーマー女子の二つ名(キャラ画面などで使う) */
+const GB_TITLE = { gbret: 'ドット森の妖精', gbsnp: '蒼眼の狙撃姫', gbfgt: '紅蓮の拳姫', gbrhy: '天奏の歌姫', gbhea: '森癒の賢者', gbstr: '爆盛り配信姫', gbpro: '孤高の電脳覇者', gbpzl: '蒼き解答者' };
 const CH = Object.fromEntries(CHARS.map(c => [c.id, c]));
 const LEAD = Object.fromEntries(Object.values(A.ROSTER).map(a => [a.key, a.ln]));
 const OLDID = { t40: 'kagura', t41: 'yomogi', t42: 'minamo', t43: 'lux', t30: 'hinoko', t31: 'kurumi', t32: 'nagi', t33: 'kirara' };
@@ -49,8 +53,10 @@ const ABIL = {
   killBeast: { n: '獣キラー', d: '獣のボスがいるステージで、中ボス・ラスボスへのダメージ2倍(紅蓮の獣王・炎角獣ザルガンなど)' },
   killDragon: { n: '竜キラー', d: '竜のボスがいるステージで、中ボス・ラスボスへのダメージ1.5倍' },
   killGuard: { n: '番人キラー', d: '中ボスへのダメージ1.5倍' },
+  /* (11/10) ゲームバカイベント */
+  antiGlitch: { n: 'グリッチ無効', d: 'グリッチゾーンに入っても向きが曲がらない' }, killGacha: { n: '魔神キラー', d: 'ガチャ魔神(ゲームバカの限定降臨)へのダメージ2倍' },
 };
-const CABIL = { garou: ['killTree', 'crit'], mizuchi: ['killBeast', 'guard'], mokuren: ['killDragon', 'regen'], seres: ['killGuard', 'antiAnchor'], beni: ['antiBomb', 'crit'], shion: ['guard', 'regen'], ibara: ['antiFog', 'shellBreak'], lumie: ['bossKiller', 'antiAnchor'], pom: ['antiBomb'], pukuru: ['guard'], futa: ['antiAnchor'], tomori: ['regen'], jin: ['shellBreak', 'bossKiller'], riz: ['antiFog', 'regen'], gekka: ['antiAnchor', 'crit'], seira: ['antiBomb', 'guard'], kagura: ['shellBreak'], yomogi: ['regen'], minamo: ['antiAnchor'], lux: ['guard'] };
+const CABIL = { gbpro: ['antiGlitch', 'killGacha'], gbsnp: ['antiFog', 'antiGlitch'], gbrhy: ['killGacha', 'regen'], gbpzl: ['antiGlitch', 'killGacha'], gbret: ['antiGlitch'], gbfgt: ['killGacha'], gbhea: ['antiFog'], gbstr: ['antiBomb'], garou: ['killTree', 'crit'], mizuchi: ['killBeast', 'guard'], mokuren: ['killDragon', 'regen'], seres: ['killGuard', 'antiAnchor'], beni: ['antiBomb', 'crit'], shion: ['guard', 'regen'], ibara: ['antiFog', 'shellBreak'], lumie: ['bossKiller', 'antiAnchor'], pom: ['antiBomb'], pukuru: ['guard'], futa: ['antiAnchor'], tomori: ['regen'], jin: ['shellBreak', 'bossKiller'], riz: ['antiFog', 'regen'], gekka: ['antiAnchor', 'crit'], seira: ['antiBomb', 'guard'], kagura: ['shellBreak'], yomogi: ['regen'], minamo: ['antiAnchor'], lux: ['guard'] };
 const abilOf = u => { const a = CABIL[u.id] || []; return CH[u.id].rar === 5 && !u.evo ? a.slice(0, 1) : a; };
 const GACHA = { one: 100, ten: 900, rate: { 5: .02, 4: .26, 3: .72 } };   /* (11/7) ★5は2%(山本さん) */
    /* D-082: 装備ガチャと同じ値段。10連は★4以上1体確定 */
@@ -94,6 +100,11 @@ if (S.skin) { S.sslot = S.sslot || [null, null, null, null]; (S.team || []).forE
 /* (v69) 古いセーブ: 仮の★4・★3を新しいキャラに置きかえ、編成を4つの枠(team)にする */
 for (const x of S.units) if (OLDID[x.id]) x.id = OLDID[x.id];
 S.units = S.units.filter(x => CH[x.id]);
+/* (11/11) 山本さん「ボックス…上限決めた方がいい」: キャラBOXは100体まで。100ptで+10体ずつ、最大200体まで広げられる。いっぱいのときはガチャと出撃を止める(モンストと同じ)。
+   上限を入れる前から多く持っていた人は、今の数+10体(10体きざみ)を最初の上限にする(急に遊べなくならないように) */
+const BOX_CAP0 = 100, BOX_STEP = 10, BOX_MAX = 200, BOX_COST = 100;
+if (!S.cap) S.cap = S.units.length >= BOX_CAP0 ? Math.ceil((S.units.length + BOX_STEP) / BOX_STEP) * BOX_STEP : BOX_CAP0;
+const boxCap = () => S.cap || BOX_CAP0, boxFull = n => S.units.length + (n || 0) > boxCap();
 /* (v98) 章を足してイベントの番号がずれたので、★の記録(n12 など)を新しい番号に移す */
 if ((S.mn || 8) !== A.MAIN_N) { const mn = S.mn || 8, ns = {}; for (const k in S.stars) { const j = +k.slice(1); ns[k[0] + (j < mn ? j : j - mn + A.MAIN_N)] = S.stars[k]; } S.stars = ns; S.mn = A.MAIN_N; putS(); }
 /* (v84) ★3・★4の進化をなくしたので、進化ずみの子は元にもどし、使った宝珠を返す */
@@ -131,8 +142,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=52').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=52').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=84').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=84').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -417,6 +428,7 @@ const CSS = `
 .qTi button>*{position:relative}
 .qTi b{font:900 20px var(--zk);-webkit-text-stroke:4px #140a02;paint-order:stroke fill;text-shadow:0 2px 0 #140a02}
 .qTi small{font:800 11px var(--zk);color:#ffe7a1;text-shadow:0 1px 2px #000}
+.qTi.t4{grid-template-columns:repeat(4,1fr)}.qTi .tx{--tb:linear-gradient(#c84aff,#3a0a5a)!important}
 .qTi .t0{--tb:linear-gradient(#3ab06a,#0e4a2a)}.qTi .t1{--tb:linear-gradient(#4a7ae8,#16307a)}.qTi .t2{--tb:linear-gradient(#e0403a,#5a0a14)}
 .qTi .x0{--tb:linear-gradient(#b87a3a,#4a2a10)}.qTi .x1{--tb:linear-gradient(#8a5ad8,#2a1060)}.qTi .x2{--tb:linear-gradient(#e8303a,#300408)}
 .qTi .lock{filter:grayscale(.85) brightness(.55)}
@@ -649,6 +661,14 @@ const CSS = `
 .aGa .hd b{font:900 16px var(--zk);color:#fff}
 .aGa .hd span{font:700 11px var(--zk);color:var(--aDim)}
 .aGa .hd .rate{margin-left:auto;border:0;cursor:pointer;height:28px;padding:0 10px;border-radius:6px;font:700 11px var(--zk);color:var(--aG1);background:#1a2760;box-shadow:inset 0 0 0 1px var(--aLine)}
+.gbl .gWho .gTi{display:block;font:800 12px/1.2 var(--zk);letter-spacing:.12em;color:#ffd6ec;-webkit-text-stroke:3px #1a0a30;paint-order:stroke fill;margin-bottom:2px}
+.gPk{display:flex;gap:8px;justify-content:center;margin:10px 0 14px}.gPkB{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:12px;border:1.5px solid var(--ec);background:#0e1838;color:#fff}
+.gPkB img{width:64px;height:64px;border-radius:10px}.gPkB small{font-size:10px;opacity:.8}.gPkB b{font-size:14px}
+.aGa .gBan{position:absolute;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));top:calc(env(safe-area-inset-top,0px) + 112px);z-index:4;display:flex;gap:6px}
+.aGa .gBt{flex:1;min-height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(8,12,30,.72);color:#dfe6ff;font:800 12.5px var(--zk);display:flex;align-items:center;justify-content:center;gap:5px;cursor:pointer}
+.aGa .gBt.on{background:linear-gradient(180deg,#fff2c2,#e8b54a);color:#2b1a02;border-color:transparent}.aGa .gBt.lim.on{background:linear-gradient(90deg,#59f0ff,#ff5ad8);color:#07070d}
+.aGa .gBt em{font-style:normal;font-size:10px;padding:1px 5px;border-radius:4px;background:#ff3b6b;color:#fff}
+.aGa.gbl .gbg{background:radial-gradient(60% 40% at 30% 30%,#ff5ad855,transparent),radial-gradient(60% 40% at 75% 60%,#36d6ff55,transparent),linear-gradient(180deg,#1a1236,#07070d)!important}
 .aGa .btns{position:absolute;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));bottom:calc(env(safe-area-inset-bottom,0px) + 68px);z-index:3;display:flex;gap:8px}
 .aGa .btns .aBtn{flex:1;min-height:52px;padding:5px 6px;font-size:15px}
 .aGa .btns .aBtn small{display:flex;align-items:center;justify-content:center;gap:3px;font:900 12px var(--zk)}
@@ -1309,7 +1329,8 @@ function talkLines() {
 function talk() { const t = root.querySelector('.aTalk'); if (!t) return; const L = talkLines(); t.textContent = L[Math.floor(Math.random() * L.length)]; t.classList.add('on'); clearTimeout(talkT); talkT = setTimeout(() => t.classList.remove('on'), 2800); }
 function heroSrc(k) { const e = evoArt(k, k === S.home && homeEvo()); return PORT[e] || CHIBI[e] || ''; }
 function swapHero() {
-  const img = root.querySelector('.aHero img'); if (!img) { renderNow(); return; }
+  const img = root.querySelector('.aHero img:not(.lx)'); if (!img) { renderNow(); return; }
+  root.querySelectorAll('.aHero .lx').forEach(e => e.remove()); setTimeout(homeLux, RM ? 30 : 640);
   const apply = () => { img.src = heroSrc(S.home); const c = CH[S.home]; const nm = root.querySelector('.aNm'); nm.innerHTML = nameHTML(c); renderTop(); };
   if (RM) { apply(); return; }
   img.classList.add('out');
@@ -1327,7 +1348,7 @@ function renderHome() {
   const w = h('div', 'aHome'); root.appendChild(w);
   w.innerHTML = `<div class="hbg"></div><div class="motes"></div><div class="aHero"><div class="glow"></div><img alt="" src="${heroSrc(S.home)}"></div><div class="vig"></div>`;
   const mo = w.querySelector('.motes'); if (!RM) for (let i = 0; i < 16; i++) { const m = h('i'); m.style.left = Math.random() * 100 + '%'; m.style.top = 35 + Math.random() * 55 + '%'; m.style.animationDuration = 5 + Math.random() * 6 + 's'; m.style.animationDelay = -Math.random() * 9 + 's'; mo.appendChild(m); }
-  w.querySelector('.aHero img').onclick = () => { nextHome(); };
+  w.querySelector('.aHero img').onclick = () => { nextHome(); }; setTimeout(homeLux, 60);
   const c = CH[S.home]; root.appendChild(h('div', 'aNm', nameHTML(c)));
   root.appendChild(h('div', 'aTalk'));
   /* 左: 切り替わるバナー */
@@ -1448,7 +1469,8 @@ function starBox(i, hard, ev) {
 function goSheet(i, hard, op) {
   op = op || {}; const st = A.STAGES[i], before = A.kindsBefore(i), sv = A.stageStrength(i, hard);
   const o = h('div', 'aGo'); const sh = h('div', 'sh'); o.appendChild(sh);
-  const kinds = A.stageKinds(i).map(k => `<span class="${before.has(k) ? '' : 'nw'}">${k.startsWith('g_') ? '' : `<img alt="" src="./assets/icons/${k}.png">`}${esc(A.KNAME[k])}${before.has(k) ? '' : ' NEW'}</span>`).join('');
+  const stI = A.STAGES[i], kName = k => k === 'boss' && stI.mbName ? stI.mbName : k === 'lb' && stI.lbName ? stI.lbName : A.KNAME[k]; /* (11/10) ボスの名前はステージのものを出す */
+  const kinds = A.stageKinds(i).map(k => `<span class="${before.has(k) ? '' : 'nw'}">${k.startsWith('g_') || k === 'glitch' ? '' : `<img alt="" src="./assets/icons/${k}.png">`}${esc(kName(k))}${before.has(k) ? '' : ' NEW'}</span>`).join('');
   const lead = A.ROSTER[S.lead] || A.ALLIES[0];
   const faces = teamUnits().map(x => { const k = x.id, f = faceURL(k, x.evo); return `<span class="f" style="${f ? `background-image:url(${f})` : `background:${elCol(CH[k].el)}`}">${k === S.lead ? '<i>L</i>' : ''}</span>`; }).join('');
   let hp = 0; for (const x of teamUnits()) hp += stats(x).hp;
@@ -1580,11 +1602,16 @@ function renderEvents(b) {
   chFresh();
   /* 期間限定: 大きな絵のバナー+3つの難しさ+メダルと交換所 */
   const BX = h('div', 'qBox'); BX.style.marginTop = '14px';
-  BX.appendChild(qBanner({ div: 1, bg: LEVBG[A.LEV.boss] || 'ev-forest', rb: '期間限定', dl: `あと${levLeft()}日`, tt: esc(A.LEV.n), bar: `最後に ${esc(A.LEV.bn)} が現れる`, boss: bossImg(A.LEV.boss) }));
+  BX.appendChild(qBanner(A.LEV.gb ? { div: 1, bg: 'ev-gb', rb: 'ゲームバカ', dl: `あと${levLeft()}日`, tt: esc(A.LEV.n), bar: 'グリッチゾーンに注意(中級から)' } : { div: 1, bg: LEVBG[A.LEV.boss] || 'ev-forest', rb: '期間限定', dl: `あと${levLeft()}日`, tt: esc(A.LEV.n), bar: `最後に ${esc(A.LEV.bn)} が現れる`, boss: bossImg(A.LEV.boss) }));
   BX.lastChild.style.margin = '0 0 10px';
-  const T = h('div', 'qTi'); for (let ti = 0; ti < 3; ti++) { const j = levIdx(ti), st = A.STAGES[j]; const e = h('button', 't' + ti, `<b>${esc(st.tier)}</b><small>メダル ${st.md[0]}〜${st.md[1]}</small>`); e.type = 'button'; e.onclick = () => goSheet(j, false, { rw: `勝つとイベントメダル ${st.md[0]}〜${st.md[1]}枚${S.lev.win[ti] ? '' : '・はじめて勝つと 100pt'}` }); T.appendChild(e); }
+  const GBL = !!A.LEV.gb, NT = A.STAGES.filter(st => st.ev === 'lev').length;
+  const T = h('div', 'qTi' + (NT > 3 ? ' t4' : '')); for (let ti = 0; ti < NT; ti++) { const j = levIdx(ti), st = A.STAGES[j]; const e = h('button', 't' + Math.min(ti, 2) + (ti > 2 ? ' tx' : ''), GBL ? `<b>${esc(st.tier)}</b><small>メダル ${st.gbm}</small>` : `<b>${esc(st.tier)}</b><small>メダル ${st.md[0]}〜${st.md[1]}</small>`); e.type = 'button'; e.onclick = () => goSheet(j, false, { rw: GBL ? `勝つとゲーセンメダル ${st.gbm}枚${S.lev.win[ti] ? '' : '・はじめて勝つと 100pt'}` : `勝つとイベントメダル ${st.md[0]}〜${st.md[1]}枚${S.lev.win[ti] ? '' : '・はじめて勝つと 100pt'}` }); T.appendChild(e); }
   BX.appendChild(T);
-  const F = h('div', 'ft'); F.innerHTML = `<span>メダル <b class="aMd">${S.lev.medal}</b> 枚</span>`; F.appendChild(btn('', '交換所', levShop)); BX.appendChild(F); b.appendChild(BX);
+  if (!GBL) { const F = h('div', 'ft'); F.innerHTML = `<span>メダル <b class="aMd">${S.lev.medal}</b> 枚</span>`; F.appendChild(btn('', '交換所', levShop)); BX.appendChild(F); }
+  else { const F = h('div', 'ft'); F.innerHTML = '<span>ゲーセンメダルは、きもオタレートのゲームバカイベントで使えます</span>'; BX.appendChild(F); }
+  b.appendChild(BX);
+  /* (11/10) ゲームバカの限定降臨 */
+  { const j = A.STAGES.findIndex(st => st.ev === 'gbr'); if (j >= 0) { const st = A.STAGES[j]; const e = qBanner({ cls: 'sm', bgCss: 'background:radial-gradient(90% 160% at 80% 50%,#ff5ad8,#2a1650 55%,#07070d)', sm: '限定降臨', dl: 'ゲームバカ', tt: esc(st.n.replace('限定降臨 ', '')), onclick: () => goSheet(j, false, { rw: `勝つとゲーセンメダル ${st.gbm}枚・25%でガチャ魔神の化身` }) }); b.appendChild(e); } }
   /* いつものイベント: 経験値の竜の巣・宝珠の祭壇 */
   for (const { g, st } of evGroups()) {
     const op = evOpen(st), tiers = [0, 1, 2].map(t => { const j = evIdx(g, t), n = bitsN(S.stars[skey(j, false)] || 0); return `<i class="${n ? 'on' : ''}">${esc(A.STAGES[j].tn)}${n ? ' ' + '★'.repeat(n) : ''}</i>`; }).join('');
@@ -1805,6 +1832,48 @@ function renderChara() {
   const b = shell('キャラ', 'CHARACTERS', { tabs: [['box', 'BOX'], ['party', '編成'], ['power', '強化'], ['mats', '素材']] });
   ({ box: charaBox, party: charaParty, power: charaPower, mats: charaMats })[SUB.chara](b);
 }
+
+{ const st = document.createElement('style'); st.textContent = `
+.aPwB{display:flex;gap:6px;margin:0 0 6px}.aPwB .aBtn,.aPwB button{flex:1 1 0;min-width:0;min-height:36px;padding:0 4px;font-size:12.5px;white-space:nowrap}
+.bxHd{display:flex;align-items:center;gap:10px;margin:0 0 8px;padding:8px 10px;border-radius:10px;background:#0c1538;box-shadow:inset 0 0 0 1px rgba(232,200,120,.35)}
+.bxN{flex:none;display:flex;align-items:baseline;gap:4px;font:900 13px var(--zk);color:#c3cbe6}
+.bxN b{font-size:22px;line-height:1;color:#fff}
+.bxN em{font-style:normal;margin-left:4px;padding:1px 7px;border-radius:99px;font-size:11px;color:#fff;background:#e0304a}
+.bxBar{flex:1 1 auto;min-width:30px;height:8px;border-radius:99px;background:#1c2756;overflow:hidden}
+.bxBar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#67e8f9,#8b7bff)}
+.bxHd.near .bxBar i{background:linear-gradient(90deg,#ffd76a,#ff9a3a)}
+.bxHd.full .bxBar i{background:#e0304a}
+.bxEx{flex:none;border:0;cursor:pointer;height:32px;padding:0 12px;border-radius:8px;font:900 13px var(--zk);color:#2b1a02;background:linear-gradient(#fff3c4,#e8b84a)}
+.bxEx:disabled{opacity:.5;cursor:default}
+.bxCt{display:flex;align-items:center;gap:6px;margin:0 0 10px}
+.bxEl{display:flex;gap:4px;flex:none}
+.bxEl button{width:34px;height:34px;border:0;border-radius:8px;cursor:pointer;display:grid;place-items:center;font:900 13px var(--zk);color:#c3cbe6;background:#0e1842;box-shadow:inset 0 0 0 1px rgba(232,200,120,.25);opacity:.55}
+.bxEl button[aria-pressed="true"]{opacity:1;box-shadow:inset 0 0 0 2px #ffd76a;color:#fff}
+.bxSel{flex:1 1 0;min-width:0;position:relative}
+.bxSel select{width:100%;height:34px;padding:0 20px 0 8px;border:0;border-radius:8px;font:800 13px var(--zk);color:#fff;background:#0e1842;box-shadow:inset 0 0 0 1px rgba(232,200,120,.35);appearance:none;-webkit-appearance:none}
+.bxSel::after{content:"▾";position:absolute;right:7px;top:50%;transform:translateY(-50%);font-size:12px;color:#ffd76a;pointer-events:none}
+.bxDir{flex:none;width:34px;height:34px;border:0;border-radius:8px;cursor:pointer;font:900 13px var(--zk);color:#ffd76a;background:#0e1842;box-shadow:inset 0 0 0 1px rgba(232,200,120,.35)}
+.bxSec{display:flex;align-items:center;gap:8px;margin:12px 0 8px;padding:5px 10px;border-radius:8px;font:900 14px var(--zk);color:#fff;background:linear-gradient(90deg,rgba(255,215,106,.26),rgba(255,215,106,0))}
+.bxSec:first-of-type{margin-top:0}
+.bxSec b{font-size:16px;color:#ffd76a}
+.bxSec span{font-size:12px;color:#ffe7a1}
+.bxSec i{margin-left:auto;font-style:normal;font-size:12px;color:#c3cbe6}
+.bxSec.r6{background:linear-gradient(90deg,rgba(255,150,220,.3),rgba(120,210,255,.2),rgba(255,226,122,0))}
+.bxSec.r4{background:linear-gradient(90deg,rgba(190,205,240,.22),rgba(190,205,240,0))}.bxSec.r4 b{color:#dfe6fb}
+.bxSec.r3{background:linear-gradient(90deg,rgba(200,170,120,.2),rgba(200,170,120,0))}.bxSec.r3 b{color:#d9c19a}
+.bxG{grid-template-columns:repeat(4,1fr);gap:8px 7px;margin-bottom:4px}
+.aCard.bx{aspect-ratio:auto;padding-bottom:17px}
+.aCard.bx .fr{inset:0 0 17px 0;aspect-ratio:1;height:auto;position:relative;display:block}
+.aCard.bx .lv,.aCard.bx .aSt{display:none}
+.aCard.bx .pic::after{height:34%}
+.aCard.bx .aG{width:19px;height:19px;font-size:10px}
+.aCard.bx .bxB{position:absolute;left:2px;right:2px;bottom:2px;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:1px 5px;border-radius:0 0 5px 5px;background:rgba(6,10,30,.82);font:900 12px var(--zk);color:#fff}
+.aCard.bx .bxB i{font-style:normal;color:#ffd76a}
+.aCard.bx.r6 .bxB i{color:#ffb0ec}
+.aCard.bx.r4 .bxB i{color:#dfe6fb}.aCard.bx.r3 .bxB i{color:#d9c19a}
+.aCard.bx .bxNm{position:absolute;left:0;right:0;top:100%;margin-top:2px;font:700 10.5px/15px var(--zk);color:#dfe5fb;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aCard.bx em{top:-6px;font-size:10px;line-height:16px}
+`; document.head.appendChild(st); }
 /* (11/8 山本さん「BOXが見にくい」) 並び替えを5つ(新しい順・レア・レベル・属性・名前)+ 上下の切りかえ、レアの絞り込み。選んだ並びは覚えておく(パズドラの並び替え・絞り込みを参考に、このゲームに要るものだけ) */
 const BOXF = Object.assign({ el: 'all', rar: 0, sort: 'rar', asc: false }, (() => { try { return JSON.parse(localStorage.getItem('ca_boxf') || '{}'); } catch (e) { return {}; } })());
 const boxfSave = () => { try { localStorage.setItem('ca_boxf', JSON.stringify(BOXF)); } catch (e) { } };
@@ -1814,21 +1883,40 @@ function boxSort(list) {
   const f = { new: (a, c) => c.u - a.u, rar: (a, c) => rarOf(c) - rarOf(a) || mult(c) - mult(a) || c.u - a.u, lv: (a, c) => c.lv - a.lv || tie(a, c), el: (a, c) => ord[CH[a.id].el] - ord[CH[c.id].el] || tie(a, c), name: (a, c) => CH[a.id].name.localeCompare(CH[c.id].name, 'ja') || tie(a, c) }[BOXF.sort] || ((a, c) => 0);
   const L = list.sort(f); return BOXF.asc ? L.reverse() : L;
 }
+function boxExpand(after) {
+  if (boxCap() >= BOX_MAX) { flash('BOXはこれ以上広げられません'); return; }
+  modal('BOXを広げる', (b, close) => {
+    b.innerHTML = `<p style="text-align:center">${BOX_COST}pt で <b>+${BOX_STEP}体</b> 広げます<br><span style="font-size:12px">${boxCap()}体 → ${Math.min(BOX_MAX, boxCap() + BOX_STEP)}体(最大${BOX_MAX}体) ・ いまのpt ${ptNow().toLocaleString()}</span></p>`;
+    const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('shine', '広げる', () => { if (!ptSpend(BOX_COST, 'sta')) { flash('ptが足りません'); return; } S.cap = Math.min(BOX_MAX, boxCap() + BOX_STEP); save(); close(); flash('BOXが ' + boxCap() + '体 になりました'); renderNow(); if (after) after(); })); b.appendChild(r);
+  });
+}
+/* BOXに空きが足りないとき。n=これから増える数(出撃は0) */
+function boxFullAsk(n) {
+  modal('BOXがいっぱいです', (b, close) => {
+    const need = S.units.length + (n || 1) - boxCap();
+    b.innerHTML = `<p style="text-align:center">いま <b>${S.units.length} / ${boxCap()}体</b><br>${n ? 'あと ' + need + '体ぶんの空きが要ります。' : '空きを1体ぶん作ると出撃できます。'}</p><p class="onote" style="text-align:center">「強化」で素材にする・同じキャラを重ねると、数を減らせます。</p>`;
+    const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'BOXを整理する', () => { close(); document.querySelectorAll('.aSheet').forEach(x => x.remove()); TAB = 'chara'; SUB.chara = 'power'; showOut('chara'); renderNow(); }));
+    if (boxCap() < BOX_MAX) r.append(btn('shine', BOX_COST + 'ptで広げる', () => { close(); boxExpand(); })); b.appendChild(r);
+  });
+}
 function charaBox(b) {
-  const ch = h('div', 'aChips');
-  const chip = (label, on, fn, row) => { const x = h('button', null, label); x.type = 'button'; x.setAttribute('aria-pressed', String(on)); x.onclick = () => { fn(); boxfSave(); renderNow(); }; (row || ch).appendChild(x); };
-  chip('すべて', BOXF.el === 'all' && !BOXF.rar, () => { BOXF.el = 'all'; BOXF.rar = 0; });
-  for (const el of ['炎', '水', '木', '光']) chip(el, BOXF.el === el, () => { BOXF.el = BOXF.el === el ? 'all' : el; });
-  for (const r of [5, 4, 3]) chip('★' + r, BOXF.rar === r, () => { BOXF.rar = BOXF.rar === r ? 0 : r; });
-  b.appendChild(ch);
-  const so = h('div', 'aChips aSrt'); so.appendChild(h('span', 'lb', '並び'));
-  for (const [k, n] of BOXSORT) chip(n, BOXF.sort === k, () => { if (BOXF.sort === k) BOXF.asc = !BOXF.asc; else { BOXF.sort = k; BOXF.asc = false; } }, so);
-  chip('↕ 逆にする', BOXF.asc, () => { BOXF.asc = !BOXF.asc; }, so); so.lastChild.classList.add('dir');
-  b.appendChild(so);
+  /* (11/11) 山本さん「ボックスが見にくい」(2回目): 上の絞り込みが4段もあって絵が小さく見えていた。
+     参考: モンストのBOX(上に数/上限、並び替えは1つのボタン)、パズドラ(レアごとに枠の色)。まねではなく考え方だけ。
+     上は2段だけ(数と上限 / 属性・レア・並び)。一覧はレアごとに見出しで区切り、下の帯に Lv と ★の数字をはっきり出す */
+  const n = S.units.length, cap = boxCap(), hd = h('div', 'bxHd' + (n >= cap ? ' full' : n >= cap - 5 ? ' near' : ''));
+  hd.innerHTML = `<div class="bxN"><b>${n}</b><span>/ ${cap}体</span>${n >= cap ? '<em>いっぱい</em>' : ''}</div><div class="bxBar"><i style="width:${Math.min(100, n / cap * 100)}%"></i></div>`;
+  const ex = h('button', 'bxEx', cap >= BOX_MAX ? '最大' : '+ 広げる'); ex.type = 'button'; ex.disabled = cap >= BOX_MAX; ex.onclick = () => boxExpand(); hd.appendChild(ex); b.appendChild(hd);
+  const ct = h('div', 'bxCt'), els = h('div', 'bxEl');
+  for (const el of ['all', '炎', '水', '木', '光']) { const x = h('button', el === 'all' ? 'all' : '', el === 'all' ? '全' : elGem(el, 20)); x.type = 'button'; x.setAttribute('aria-pressed', String(BOXF.el === el)); x.setAttribute('aria-label', el === 'all' ? 'すべての属性' : el + '属性だけ'); x.onclick = () => { BOXF.el = el; boxfSave(); renderNow(); }; els.appendChild(x); }
+  const sel = (opts, val, fn, label) => { const w = h('label', 'bxSel'), se = document.createElement('select'); se.setAttribute('aria-label', label); for (const [v, t] of opts) { const o = document.createElement('option'); o.value = v; o.textContent = t; if (String(v) === String(val)) o.selected = true; se.appendChild(o); } se.onchange = () => { fn(se.value); boxfSave(); renderNow(); }; w.appendChild(se); return w; };
+  const dir = h('button', 'bxDir', BOXF.asc ? '▲' : '▼'); dir.type = 'button'; dir.setAttribute('aria-label', '並びを逆にする'); dir.onclick = () => { BOXF.asc = !BOXF.asc; boxfSave(); renderNow(); };
+  ct.append(els, sel([[0, '★全て'], [6, '★6'], [5, '★5'], [4, '★4'], [3, '★3']], BOXF.rar, v => { BOXF.rar = +v; }, 'レアで絞る'), sel(BOXSORT, BOXF.sort, v => { BOXF.sort = v; BOXF.asc = false; }, '並び替え'), dir); b.appendChild(ct);
   const list = boxSort(S.units.filter(u => (BOXF.el === 'all' || CH[u.id].el === BOXF.el) && (!BOXF.rar || rarOf(u) === BOXF.rar)));
-  b.appendChild(h('p', 'onote', BRT ? `${list.length} / ${S.units.length}体` : `${list.length} / ${S.units.length}体 ・ 押すとくわしく見られます`));
-  const g = h('div', 'ogrid'); b.appendChild(g);
-  for (const u of list) { const e = icon(u, { tag: inParty(u) ? '編成中' : (S.newIds.includes(u.u) ? 'NEW' : '') }); e.onclick = () => { S.newIds = S.newIds.filter(x => x !== u.u); save(); detail(u); }; g.appendChild(e); }
+  if (!list.length) { b.appendChild(h('p', 'onote', 'この条件のキャラはいません。')); return; }
+  const add = (g, u) => { const e = icon(u, { tag: inParty(u) ? '編成中' : (S.newIds.includes(u.u) ? 'NEW' : '') }); e.classList.add('bx'); e.querySelector('.fr').insertAdjacentHTML('beforeend', `<span class="bxB"><b>Lv${u.lv}</b><i>★${rarOf(u)}</i></span><span class="bxNm">${esc(CH[u.id].name)}</span>`); e.onclick = () => { S.newIds = S.newIds.filter(x => x !== u.u); save(); detail(u); }; g.appendChild(e); };
+  if (BOXF.sort === 'rar') { /* レア順のときは、★ごとに見出しで区切る */
+    let cur = null, g = null; for (const u of list) { const r = rarOf(u); if (r !== cur) { cur = r; const cnt = list.filter(x => rarOf(x) === r).length; b.appendChild(h('div', 'bxSec r' + r, `<b>★${r}</b><span>${r === 6 ? '進化' : ''}</span><i>${cnt}体</i>`)); g = h('div', 'ogrid bxG'); b.appendChild(g); } add(g, u); }
+  } else { if (list.length !== n) b.appendChild(h('p', 'onote', `${list.length}体を表示`)); const g = h('div', 'ogrid bxG'); b.appendChild(g); for (const u of list) add(g, u); }
 }
 /* (v97) 攻撃力は数字で見せる(戦闘の攻撃の倍率×1000)。重さは戦闘の重さ×100(レベルでは変わらない) */
 function stats(u) { const c = CH[u.id], m = mult(u); return { hp: Math.round(c.hp * m), atk: (c.atk * m).toFixed(2), ap: Math.round(c.atk * m * 1000), wt: Math.round(((A.ROSTER[u.id] || {}).m || 1) * 100) }; }
@@ -1881,6 +1969,7 @@ function detail(u0, pv) {
   if (c.battle && S.home !== u.id && u.u >= 0 && pv == null) r.appendChild(btn('sub', 'ホームに出す', () => { S.home = u.id; save(); close(); flash(c.name + ' をホームに出しました'); }));
   if (!r.children.length) r.appendChild(btn('sub', '閉じる', close));
   lay.appendChild(sh);
+  /* (11/11) ★6の絵は、後ろの光・足元の円・ホロの照り・きらめきで豪華に */ if (u.evo && PORT[u.id + '6'] && evoArt(u.id, u.evo) === u.id + '6') lux6(sh.querySelector('.dArt'), sh.querySelector('.dArt .im'), c.el);
 }
 function evolve(u) {
   const c = CH[u.id], key = 'orb_' + c.el, have = S.mats[key] || 0, need = EVO_COST[c.rar], lvN = MAXLV[c.rar], okLv = u.lv >= lvN, okOrb = have >= need;
@@ -1891,13 +1980,135 @@ function evolve(u) {
       <p class="onote">${esc(MATS[key].name)}は、イベントの「${esc(c.el)}の宝珠の祭壇」で手に入ります。</p>`;
     const r = h('div', 'orow'); r.style.padding = '0';
     r.append(btn('sub', 'やめる', close));
-    const ok = btn('', '進化する', () => { S.mats[key] -= need; u.evo = 1; save(); close(); flash(`${c.name} が ★${c.rar + 1} に進化した!`); renderNow(); }); ok.disabled = !(okLv && okOrb); r.appendChild(ok); b.appendChild(r);
+    const ok = btn('', '進化する', () => { S.mats[key] -= need; u.evo = 1; save(); close(); /* (11/11) 進化の瞬間の演出 */ evoShow(u.id, () => { flash(`${c.name} が ★${c.rar + 1} に進化した!`); renderNow(); }); }); ok.disabled = !(okLv && okOrb); r.appendChild(ok); b.appendChild(r);
   });
 }
 /* (v91) 編成: パズドラ・モンストを見て作り直した(D-113)。
    1つの板に「リーダー(左の枠)+サブ3つ」を顔のアイコンで並べ、下に合計とリーダースキル。
    枠を押すと、別の画面でキャラの一覧から選ぶ(一覧はアイコンの格子、並べかえつき) */
 const bigFace = {};
+/* ================= (11/11) ★6の豪華な飾りと、進化の瞬間の演出 =================
+   山本さん「キャラ星6になったらもっとキャラ自体絵豪華にしたい」→ 絵の描き直し(指示文)とコードの飾りの両方、まずノアで見本、場所は「詳細・ホームの立ち絵」と「進化した瞬間」。
+   参考: プリコネの★6(才能開花で絵と背景が変わり、動く)、FGOの最終再臨、スタレ・原神の入手演出(白い人影 → 色がつく)。まねではなく、仕組み(後ろの光・足元の円・ホロの照り・前の粒の4層)だけ借りる。
+   動かすのは canvas と transform/opacity だけ。時間 t から毎回描く(同じ絵をコマ送りで確かめられる)。「動きを減らす」設定では止め絵 */
+{ const st = document.createElement('style'); st.textContent = `
+.lxBox{isolation:isolate}
+.lx{pointer-events:none;position:absolute}
+.lxB{z-index:-2;left:50%;top:0;height:100%;width:100%;transform:translateX(-50%)}
+.aHero .lxB{top:-22%;height:128%;width:min(100vw,560px)}
+.lxAu{z-index:-1;filter:blur(13px) brightness(1.7) saturate(1.5);opacity:.55}
+.lxFo{z-index:1;mix-blend-mode:screen}
+.lxF{z-index:2;left:50%;top:0;height:100%;width:100%;transform:translateX(-50%)}
+.aHero .lxF{top:-22%;height:128%;width:min(100vw,560px)}
+.dArt .lxAu,.dArt .lxFo{left:50%;top:6px;height:calc(100% - 6px);width:auto;transform:translateX(-50%)}
+.aHero .lxAu,.aHero .lxFo{left:50%;top:0;height:100%;width:auto;max-width:none;transform:translateX(-50%);transform-origin:50% 100%;animation:aBreatheC 4.2s ease-in-out infinite}
+@keyframes aBreatheC{50%{transform:translateX(-50%) scale(1.006,1.01) translateY(-2px)}}
+.dArt .lv,.dArt .aFrm{z-index:3}
+.dArt .lx6{position:absolute;right:12px;top:10px;z-index:3;font:900 13px var(--zk);letter-spacing:.04em;color:#3a2400;padding:3px 10px 3px 8px;border-radius:99px;background:linear-gradient(100deg,#fff6cf,#ffd76a 45%,#fff 55%,#e8b84a);box-shadow:0 0 0 1.5px #7a4c00,0 0 14px rgba(255,220,120,.7)}
+.lxEv{position:fixed;inset:0;z-index:9000;background:#040716;overflow:hidden;touch-action:manipulation;cursor:pointer}
+.lxEv canvas{position:absolute;inset:0;width:100%;height:100%}
+.lxEvT{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 11%);text-align:center;pointer-events:none}
+.lxEvT .s6{display:flex;justify-content:center;gap:2px;font:900 34px var(--zk);color:#ffd76a;text-shadow:0 2px 0 #7a4c00,0 0 16px rgba(255,210,100,.9)}
+.lxEvT .s6 i{font-style:normal;opacity:0;display:inline-block}
+.lxEvT .cap{margin-top:2px;font:900 15px var(--zk);letter-spacing:.3em;color:#fff3c4;opacity:0}
+.lxEvT .nm{margin-top:4px;font:900 30px var(--zk);color:#fff;paint-order:stroke fill;-webkit-text-stroke:5px #0a0f24;opacity:0}
+.lxEvT .hint{margin-top:14px;font:700 12px var(--zk);color:#b9c4ee;opacity:0}
+`; document.head.appendChild(st); }
+const LUXC = { 光: ['#ffe9a8', '#67e8f9', '#b79bff'], 水: ['#8fd8ff', '#c8f4ff', '#7a8cff'], 炎: ['#ffb070', '#ffe08a', '#ff6a9a'], 木: ['#9dffb4', '#f4ffa8', '#67e8c9'], _: ['#ffe9a8', '#9fe8ff', '#b79bff'] };
+const lxH = n => { const x = Math.sin(n * 127.1) * 43758.5453; return x - Math.floor(x); };
+function lxRGBA(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+function lxDia(g, x, y, s) { g.beginPath(); g.moveTo(x, y - s); g.lineTo(x + s * .62, y); g.lineTo(x, y + s); g.lineTo(x - s * .62, y); g.closePath(); g.fill(); }
+function lxGlint(g, x, y, s, col) { if (s <= 0) return; const r = g.createRadialGradient(x, y, 0, x, y, s); r.addColorStop(0, 'rgba(255,255,255,.95)'); r.addColorStop(.25, lxRGBA(col, .5)); r.addColorStop(1, lxRGBA(col, 0)); g.fillStyle = r; g.beginPath(); g.arc(x, y, s, 0, 6.283); g.fill(); g.fillStyle = 'rgba(255,255,255,.95)'; g.beginPath(); g.ellipse(x, y, s * 1.5, s * .07, 0, 0, 6.283); g.fill(); g.beginPath(); g.ellipse(x, y, s * .07, s * 1.5, 0, 0, 6.283); g.fill(); }
+/* 後ろの層: にじむ光・回る光の筋・背中の輪(目盛りと六角)・足元の円・のぼる粒。k=強さ(0〜1) */
+function lxBack(g, W, H, t, C, k, cy0) {
+  const cx = W / 2, cy = H * (cy0 || .42); g.save(); g.globalCompositeOperation = 'lighter';
+  let r = g.createRadialGradient(cx, cy, 0, cx, cy, H * .62); const pu = .8 + .2 * Math.sin(t * 1.7);
+  r.addColorStop(0, lxRGBA(C[0], .5 * k * pu)); r.addColorStop(.45, lxRGBA(C[1], .2 * k * pu)); r.addColorStop(1, lxRGBA(C[2], 0)); g.fillStyle = r; g.fillRect(0, 0, W, H);
+  for (let s = 0; s < 2; s++) for (let i = 0; i < 12; i++) { const a = i / 12 * 6.283 + (s ? -t * .09 + .26 : t * .13), wd = (.035 + .06 * lxH(i * 3.1 + s * 9)) * (s ? .6 : 1), L = H * (.5 + .4 * lxH(i * 7.7 + s * 5)) * (.92 + .08 * Math.sin(t * 2 + i));
+    const gr = g.createRadialGradient(cx, cy, H * .05, cx, cy, L); gr.addColorStop(0, lxRGBA(C[s ? 1 : 0], .3 * k)); gr.addColorStop(1, lxRGBA(C[s ? 2 : 0], 0)); g.fillStyle = gr;
+    g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a - wd) * L, cy + Math.sin(a - wd) * L); g.lineTo(cx + Math.cos(a + wd) * L, cy + Math.sin(a + wd) * L); g.closePath(); g.fill(); }
+  /* 背中の輪 */
+  const R = Math.min(W * .44, H * .34); g.lineWidth = Math.max(1.5, W * .004); g.strokeStyle = lxRGBA(C[0], .75 * k); g.beginPath(); g.arc(cx, cy, R, 0, 6.283); g.stroke();
+  g.strokeStyle = lxRGBA(C[1], .5 * k); g.beginPath(); g.arc(cx, cy, R * .86, t * .4, t * .4 + 4.2); g.stroke(); g.beginPath(); g.arc(cx, cy, R * 1.1, -t * .3, -t * .3 + 2.6); g.stroke();
+  for (let i = 0; i < 48; i++) { const a = i / 48 * 6.283 + t * .1, l = i % 4 ? .03 : .075; g.strokeStyle = lxRGBA(C[i % 4 ? 1 : 0], (i % 4 ? .4 : .8) * k); g.beginPath(); g.moveTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R); g.lineTo(cx + Math.cos(a) * R * (1 + l), cy + Math.sin(a) * R * (1 + l)); g.stroke(); }
+  for (let s = 0; s < 2; s++) { g.strokeStyle = lxRGBA(C[2 - s], .42 * k); g.beginPath(); for (let i = 0; i <= 6; i++) { const a = i / 6 * 6.283 + (s ? .5236 : 0) - t * .16; const x = cx + Math.cos(a) * R * .74, y = cy + Math.sin(a) * R * .74; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
+  for (let i = 0; i < 6; i++) { const a = i / 6 * 6.283 + t * .35; g.fillStyle = lxRGBA(i % 2 ? C[1] : '#ffffff', .9 * k); lxDia(g, cx + Math.cos(a) * R, cy + Math.sin(a) * R, W * .018 * (1 + .25 * Math.sin(t * 3 + i))); }
+  /* 足元の円(ななめから見た形) */
+  g.save(); g.translate(cx, H * .93); g.scale(1, .26); const FR = W * .42;
+  r = g.createRadialGradient(0, 0, 0, 0, 0, FR); r.addColorStop(0, lxRGBA(C[0], .42 * k)); r.addColorStop(.7, lxRGBA(C[1], .14 * k)); r.addColorStop(1, lxRGBA(C[1], 0)); g.fillStyle = r; g.beginPath(); g.arc(0, 0, FR, 0, 6.283); g.fill();
+  g.lineWidth = Math.max(2, W * .006); g.strokeStyle = lxRGBA(C[0], .9 * k); g.beginPath(); g.arc(0, 0, FR * .92, 0, 6.283); g.stroke(); g.setLineDash([FR * .16, FR * .07]); g.lineDashOffset = -t * FR * .2; g.strokeStyle = lxRGBA(C[1], .7 * k); g.beginPath(); g.arc(0, 0, FR * .74, 0, 6.283); g.stroke(); g.setLineDash([]);
+  g.strokeStyle = lxRGBA(C[2], .7 * k); g.beginPath(); for (let i = 0; i <= 6; i++) { const a = (i * 2 % 6) / 6 * 6.283 + t * .3 + (i > 2 && i < 6 ? 0 : 0); const j = i * 2; const aa = j / 6 * 6.283 + t * .3; const x = Math.cos(aa) * FR * .7, y = Math.sin(aa) * FR * .7; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+  g.beginPath(); for (let i = 0; i <= 3; i++) { const aa = (i * 2 + 1) / 6 * 6.283 + t * .3; const x = Math.cos(aa) * FR * .7, y = Math.sin(aa) * FR * .7; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); g.restore();
+  /* のぼる粒 */
+  for (let i = 0; i < 34; i++) { const sp = .05 + .09 * lxH(i * 2.3), ph = (t * sp + lxH(i * 5.1)) % 1, x = W * (.06 + .88 * lxH(i * 9.7)) + Math.sin(t * .9 + i) * W * .02, y = H * (1.02 - ph * 1.05), s = W * (.006 + .013 * lxH(i * 4.4)), tw = .5 + .5 * Math.sin(t * (2 + 3 * lxH(i)) + i * 2);
+    g.fillStyle = lxRGBA(i % 3 === 0 ? '#ffffff' : C[i % 3], Math.sin(ph * 3.1416) * (.35 + .65 * tw) * k); lxDia(g, x, y, s); }
+  g.restore(); }
+/* 前の層: きらめき(十字の光)と、手前をのぼる粒 */
+function lxFront(g, W, H, t, C, k) {
+  g.save(); g.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 9; i++) { const per = 2.2 + 2.4 * lxH(i * 3.3), cyc = Math.floor(t / per + lxH(i * 8.1)), ph = (t / per + lxH(i * 8.1)) % 1; if (ph > .32) continue; const x = W * (.14 + .72 * lxH(i * 5.7 + cyc * 1.3)), y = H * (.1 + .78 * lxH(i * 2.9 + cyc * 3.7)); lxGlint(g, x, y, W * (.03 + .035 * lxH(i * 6.1)) * Math.sin(ph / .32 * 3.1416) * k, C[i % 3]); }
+  for (let i = 0; i < 10; i++) { const sp = .07 + .08 * lxH(i * 2.9 + 50), ph = (t * sp + lxH(i * 5.3 + 50)) % 1, x = W * (.1 + .8 * lxH(i * 9.1 + 50)) + Math.sin(t * 1.1 + i) * W * .03, y = H * (1 - ph), s = W * (.012 + .016 * lxH(i * 4.9 + 50)); g.fillStyle = lxRGBA(i % 2 ? C[1] : '#ffffff', Math.sin(ph * 3.1416) * .85 * k); lxDia(g, x, y, s); }
+  g.restore(); }
+/* ホロの照り: ななめの虹の帯が、絵の形の中だけを流れる */
+function lxFoil(g, W, H, t, img, C, k) {
+  g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H);
+  const per = 3.4, p = ((t % per) / per) * 2.4 - .7, x0 = p * W, gr = g.createLinearGradient(x0 - W * .5, H * .15, x0 + W * .5, -H * .15 + H * .3);
+  gr.addColorStop(0, 'rgba(255,255,255,0)'); gr.addColorStop(.36, lxRGBA(C[1], .16 * k)); gr.addColorStop(.47, 'rgba(255,255,255,' + (.5 * k) + ')'); gr.addColorStop(.54, lxRGBA(C[2], .24 * k)); gr.addColorStop(.64, lxRGBA(C[0], .1 * k)); gr.addColorStop(.7, 'rgba(255,255,255,0)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  const g2 = g.createLinearGradient(0, H * (.2 + .1 * Math.sin(t * .7)), W, H * (.9 + .1 * Math.cos(t * .6))); g2.addColorStop(0, lxRGBA(C[1], .07 * k)); g2.addColorStop(.5, lxRGBA(C[2], .06 * k)); g2.addColorStop(1, lxRGBA(C[0], .07 * k)); g.fillStyle = g2; g.fillRect(0, 0, W, H);
+  g.globalCompositeOperation = 'destination-in'; g.drawImage(img, 0, 0, W, H); g.globalCompositeOperation = 'source-over'; }
+/* 立ち絵に飾りを付ける。box=絵の入れもの(.dArt / .aHero) img=絵 el=属性 */
+function lux6(box, img, el) {
+  if (!box || !img) return; box.querySelectorAll('.lx').forEach(e => e.remove()); box.classList.add('lxBox');
+  const C = LUXC[el] || LUXC._, dpr = Math.min(1.5, window.devicePixelRatio || 1), mk = cls => { const c = document.createElement('canvas'); c.className = 'lx ' + cls; return c; };
+  const cb = mk('lxB'), cf = mk('lxF'), fo = mk('lxFo'), au = document.createElement('img'); au.className = 'lx lxAu'; au.alt = ''; au.src = img.src;
+  box.append(cb, au, fo, cf); if (box.classList.contains('dArt')) box.appendChild(h('span', 'lx lx6', '★6 進化'));
+  let on = true, n = 0; const t0 = performance.now();
+  const size = () => { const r = cb.getBoundingClientRect(); if (r.width < 2) return false; cb.width = cf.width = Math.round(r.width * dpr); cb.height = cf.height = Math.round(r.height * dpr); const ih = Math.min(900, Math.round((img.getBoundingClientRect().height || 400) * dpr)), nw = img.naturalWidth || 1, nh = img.naturalHeight || 1; fo.height = ih; fo.width = Math.round(ih * nw / nh); return true; };
+  const sync = () => { try { const a = img.getAnimations()[0]; if (a) for (const e of [au, fo]) { const b = e.getAnimations()[0]; if (b) b.startTime = a.startTime; } } catch (e) { } };
+  const draw = t => { const gb = cb.getContext('2d'), gf = cf.getContext('2d'); gb.clearRect(0, 0, cb.width, cb.height); lxBack(gb, cb.width, cb.height, t, C, 1, box.classList.contains('aHero') ? .5 : .42); gf.clearRect(0, 0, cf.width, cf.height); lxFront(gf, cf.width, cf.height, t, C, 1); lxFoil(fo.getContext('2d'), fo.width, fo.height, t, img, C, 1); };
+  const go = () => { if (!size()) { if (box.isConnected) setTimeout(go, 120); return; } sync(); if (RM) { draw(1.2); return; } const loop = () => { if (!on || !box.isConnected || !cb.isConnected) return; requestAnimationFrame(loop); if (window.__LXT != null) { draw(window.__LXT); return; } if (n++ % 2) return; draw((performance.now() - t0) / 1000); }; loop(); };
+  (img.complete && img.naturalWidth ? Promise.resolve() : new Promise(r => { img.addEventListener('load', r, { once: true }); setTimeout(r, 1500); })).then(() => requestAnimationFrame(go));
+  return () => { on = false; }; }
+function homeLux() { const w = root.querySelector('.aHero'); if (!w) return; w.querySelectorAll('.lx').forEach(e => e.remove()); if (homeEvo() && PORT[S.home + '6'] && !skinOf(S.home)) lux6(w, w.querySelector('img:not(.lx)'), CH[S.home].el); }
+/* 進化の瞬間。★5の絵に光が集まる → 白い人影になる → まっ白 → ★6の絵があらわれ、星が6つ順に打たれる。押すと最後まで飛ぶ、もう一度押すと閉じる */
+function evoShow(id, done, opt) {
+  const c = CH[id], C = LUXC[c.el] || LUXC._, ov = h('div', 'lxEv'), cv = document.createElement('canvas'), dpr = Math.min(1.5, window.devicePixelRatio || 1)/* 全画面に光を重ねるので、細かさは1.5倍まで(重くしない) */; ov.appendChild(cv);
+  const tx = h('div', 'lxEvT', `<div class="s6">${'<i>★</i>'.repeat(6)}</div><div class="cap">★6 進化</div><div class="nm">${esc(c.evoName || c.name)}</div><div class="hint">画面を押すと閉じます</div>`); ov.appendChild(tx); document.body.appendChild(ov);
+  const st = [...tx.querySelectorAll('.s6 i')], cap = tx.querySelector('.cap'), nm = tx.querySelector('.nm'), hint = tx.querySelector('.hint');
+  const load = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; });
+  const END = 4.2; let t0 = 0, raf = 0, closed = false, W = 0, H = 0, A0, A1, wh, fo;
+  const eo = x => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3), cl = (x, a, b) => Math.min(1, Math.max(0, (x - a) / (b - a)));
+  const close = () => { if (closed) return; closed = true; cancelAnimationFrame(raf); ov.remove(); if (done) done(); };
+  const fit = () => { const r = ov.getBoundingClientRect(); W = cv.width = Math.round(r.width * dpr); H = cv.height = Math.round(r.height * dpr); };
+  const art = (g, im, sc, al, dx, dy) => { if (!im || al <= 0) return; const ah = H * .6 * sc, aw = ah * im.width / im.height; g.globalAlpha = al; g.drawImage(im, W / 2 - aw / 2 + (dx || 0), H * .46 - ah / 2 + (dy || 0), aw, ah); g.globalAlpha = 1; };
+  function render(t) { const g = cv.getContext('2d'); g.globalCompositeOperation = 'source-over'; g.fillStyle = '#040716'; g.fillRect(0, 0, W, H); const cx = W / 2, cy = H * .44;
+    const kB = cl(t, .5, 1.9), rev = t >= 1.95, kD = cl(t, 1.95, 2.5);
+    if (!rev) { /* ためる */
+      g.save(); g.globalCompositeOperation = 'lighter'; let r = g.createRadialGradient(cx, cy, 0, cx, cy, H * (.2 + .4 * kB)); r.addColorStop(0, lxRGBA(C[0], .2 + .6 * kB)); r.addColorStop(1, lxRGBA(C[1], 0)); g.fillStyle = r; g.fillRect(0, 0, W, H);
+      for (let i = 0; i < 14; i++) { const a = i / 14 * 6.283 + t * (1 + kB * 2.5), wd = .03 + .05 * lxH(i * 3.1), L = H * (.3 + .5 * lxH(i * 7.7)) * (.3 + .9 * kB); const gr = g.createRadialGradient(cx, cy, 0, cx, cy, L); gr.addColorStop(0, lxRGBA(C[i % 3], .38 * kB)); gr.addColorStop(1, lxRGBA(C[i % 3], 0)); g.fillStyle = gr; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + Math.cos(a - wd) * L, cy + Math.sin(a - wd) * L); g.lineTo(cx + Math.cos(a + wd) * L, cy + Math.sin(a + wd) * L); g.closePath(); g.fill(); }
+      for (let i = 0; i < 3; i++) { const ph = (t * 1.1 + i / 3) % 1; g.strokeStyle = lxRGBA(C[i], (1 - ph) * .9 * cl(t, .4, .8)); g.lineWidth = W * .006; g.beginPath(); g.arc(cx, cy, H * .5 * (1 - ph) + 4, 0, 6.283); g.stroke(); } g.restore();
+      const sh = kB * kB * W * .012; art(g, A0, 1 + .05 * kB, cl(t, 0, .45), Math.sin(t * 61) * sh, Math.cos(t * 53) * sh); art(g, wh, 1 + .05 * kB, kB * kB * 1.1, Math.sin(t * 61) * sh, Math.cos(t * 53) * sh);
+      g.save(); g.globalCompositeOperation = 'lighter'; /* 宝珠5つが、うずを巻いて胸に入る */
+      for (let i = 0; i < 5; i++) for (let k = 0; k < 9; k++) { const tt = Math.max(0, cl(t, .45, 1.8) - k * .018), rr = Math.pow(1 - tt, 1.3) * W * .55, a = i / 5 * 6.283 + tt * 7.5, x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr * .8, s = W * (.03 - k * .0028) * (1 - tt * .5); if (s <= 0 || tt >= 1 || t < .45) continue; const r2 = g.createRadialGradient(x, y, 0, x, y, s); r2.addColorStop(0, 'rgba(255,255,255,' + (k ? .5 : 1) + ')'); r2.addColorStop(.4, lxRGBA(C[0], k ? .3 : .8)); r2.addColorStop(1, lxRGBA(C[0], 0)); g.fillStyle = r2; g.beginPath(); g.arc(x, y, s, 0, 6.283); g.fill(); }
+      g.restore(); }
+    else { /* あらわれる */
+      lxBack(g, W, H, t, C, .35 + .65 * kD, .44);
+      g.save(); g.globalCompositeOperation = 'lighter'; for (let i = 0; i < 2; i++) { const kk = cl(t, 1.95 + i * .14, 2.9 + i * .14); if (kk <= 0 || kk >= 1) continue; g.strokeStyle = lxRGBA(i ? '#ffffff' : C[0], (1 - kk) * .9); g.lineWidth = W * .012 * (1 - kk) + 1; g.beginPath(); g.arc(cx, cy, eo(kk) * H * .7, 0, 6.283); g.stroke(); } g.restore();
+      const sc = 1.22 - .22 * eo(cl(t, 1.95, 2.55)); art(g, A1, sc, 1);
+      if (A1 && fo) { const fg = fo.getContext('2d'); lxFoil(fg, fo.width, fo.height, (t - 2.15) * 1.5 + .2, A1, C, t > 2.15 ? 1 : 0); g.save(); g.globalCompositeOperation = 'screen'; const ah = H * .6 * sc, aw = ah * A1.width / A1.height; g.drawImage(fo, cx - aw / 2, H * .46 - ah / 2, aw, ah); g.restore(); }
+      lxFront(g, W, H, t + 3, C, kD);
+      g.save(); g.globalCompositeOperation = 'lighter'; /* 光の粒がふりそそぐ */
+      for (let i = 0; i < 60; i++) { const tt = (t - 1.95) * (.35 + .5 * lxH(i * 3.7)) - lxH(i * 1.9) * .25; if (tt < 0 || tt > 1) continue; const a = lxH(i * 5.3) * 6.283, d = eo(tt * 1.6) * H * (.2 + .5 * lxH(i * 7.1)); g.fillStyle = lxRGBA(i % 3 ? C[i % 3] : '#ffffff', (1 - tt) * .95); lxDia(g, cx + Math.cos(a) * d, cy + Math.sin(a) * d * .9 + tt * tt * H * .22, W * (.008 + .016 * lxH(i * 2.2)) * (1 - tt * .5)); } g.restore(); }
+    /* まっ白 */ const fl = t < 1.95 ? Math.pow(cl(t, 1.72, 1.95), 2) : 1 - cl(t, 1.95, 2.5); if (fl > 0) { g.fillStyle = 'rgba(255,255,255,' + fl + ')'; g.fillRect(0, 0, W, H); }
+    st.forEach((e, i) => { const k = cl(t, 2.45 + i * .1, 2.67 + i * .1); e.style.opacity = k > 0 ? 1 : 0; e.style.transform = `scale(${k > 0 ? 2.4 - 1.4 * eo(k) : 1}) rotate(${(1 - eo(k)) * -40}deg)`; });
+    cap.style.opacity = cl(t, 3.0, 3.25); nm.style.opacity = cl(t, 3.1, 3.4); nm.style.transform = `translateY(${(1 - eo(cl(t, 3.1, 3.45))) * 14}px)`; hint.style.opacity = cl(t, 3.8, 4.1) * .9; }
+  ov.onclick = () => { const t = (performance.now() - t0) / 1000; if (t < 3.6) t0 = performance.now() - 3900; else close(); };
+  Promise.all([load(PORT[id] || ''), load(PORT[id + '6'] || PORT[id] || '')]).then(([a, b]) => { if (closed) return; A0 = a; A1 = b || a; fit();
+    if (a) { wh = document.createElement('canvas'); wh.width = a.width; wh.height = a.height; const wg = wh.getContext('2d'); wg.drawImage(a, 0, 0); wg.globalCompositeOperation = 'source-in'; wg.fillStyle = '#fff'; wg.fillRect(0, 0, wh.width, wh.height); }
+    if (A1) { fo = document.createElement('canvas'); fo.height = Math.min(900, A1.height); fo.width = Math.round(fo.height * A1.width / A1.height); }
+    if (opt && opt.at != null) { render(opt.at); ov.__render = render; return; }
+    if (RM) { render(END); return; } t0 = performance.now(); const loop = () => { if (closed) return; raf = requestAnimationFrame(loop); render(window.__EVT != null ? window.__EVT : Math.min(END + 60, (performance.now() - t0) / 1000)); }; loop(); });
+  ov.__render = render; return ov; }
 /* (v125) くわしい画面のスキンの段。持っているスキンを、絵(アイコン)で選ぶ。能力は変わらない */
 function skinSec(u0, pv) {
   return '';
@@ -1993,7 +2204,7 @@ function charaMats(b) {
 }
 /* 強化: ベースを1体選び、素材(経験値の竜・ほかのキャラ)を食べさせる。
    (11/8 山本さん「強化ボタンやりにくい」) 竜は何個でも(キャラは10体まで)。「おまかせ」で最大Lvまでの竜を自動で選ぶ(ブルアカの自動選択を参考)。各竜に「最大」。強化ボタンは画面の下に固定 */
-const MAXFEED = 10;
+const MAXFEED = 50;   /* (11/11) 山本さん「強化する時一気にできないのやりにくい」: 一度に素材にできるキャラを 10体 → 50体。まとめて選ぶボタンと、凸をまとめて重ねるボタンを足す */
 const toMax = (u, ml) => { let t = -u.exp; for (let l = u.lv; l < ml; l++) t += need(l); return Math.max(0, t); };
 function autoFeed(base, ml) { let R = toMax(base, ml); for (const uid of PICK.units) R -= feedExp(unit(uid), base); const pick = {}; const ids = ['expL', 'expM', 'expS'];
   for (const id of ids) { const v = MATS[id].exp, n = Math.min(S.mats[id] || 0, Math.floor(Math.max(0, R) / v)); if (n) { pick[id] = n; R -= n * v; } }
@@ -2040,9 +2251,17 @@ function charaPower(b) {
   b.appendChild(h('div', 'aTot aGl', `<span class="tn">凸 <b>${tt}</b><small>/ ${TOT_MAX}</small></span><span class="td">${'<i class="on"></i>'.repeat(tt)}${'<i></i>'.repeat(TOT_MAX - tt)}</span><span class="te">体力・攻撃 <b>+${Math.round(tt * TOT_K * 100)}%</b><br>スキル <b>${skCut(base) ? '−' + skCut(base) + '手番' : 'そのまま'}</b></span>`));
   if (tt >= TOT_MAX) b.appendChild(h('p', 'onote', '完凸です(4凸)。'));
   else if (!dups.length) b.appendChild(h('p', 'onote', `同じ「${esc(c.name)}」がいると重ねられます。1凸ごとに体力・攻撃 +3%、2凸と4凸でスキルが1手番早くたまります(編成中のキャラは使えません)。`));
-  else { const g = h('div', 'ogrid'); b.appendChild(g); for (const u of dups) { const e = icon(u, { tag: '凸' }); e.onclick = () => totUp(base, u); g.appendChild(e); } }
+  else { if (dups.length > 1) { const hd = h('div', 'aPwH'); hd.appendChild(h('p', 'onote', `同じキャラが ${dups.length}体 います。`)); hd.firstChild.style.cssText = 'flex:1;margin:0'; hd.appendChild(btn('', 'まとめて重ねる', () => totUpAll(base, dups))); b.appendChild(hd); }
+    const g = h('div', 'ogrid'); b.appendChild(g); for (const u of dups) { const e = icon(u, { tag: '凸' }); e.onclick = () => totUp(base, u); g.appendChild(e); } }
   const others = sortedUnits().filter(u => u.u !== base.u && !inParty(u) && u.id !== base.id);
-  b.appendChild(h('p', 'osec', 'キャラを素材にする'));
+  { b.appendChild(h('p', 'osec', 'キャラを素材にする')); const hd = h('div', 'aPwB');
+    /* まとめて選ぶ: ★の低い順・レベルの低い順に、50体まで。進化したキャラと凸したキャラは入れない(まちがって消さないように) */
+    const bulk = r => { const L = others.filter(u => rarOf(u) <= r && !u.evo && !totOf(u) && !PICK.units.includes(u.u)).sort((a, c) => rarOf(a) - rarOf(c) || a.lv - c.lv); for (const u of L) { if (PICK.units.length >= MAXFEED) break; PICK.units.push(u.u); } renderNow(); };
+    const n3 = others.filter(u => rarOf(u) <= 3 && !u.evo && !totOf(u)).length, n4 = others.filter(u => rarOf(u) <= 4 && !u.evo && !totOf(u)).length;
+    const b3 = btn('sub', '★3全部', () => bulk(3)), b4 = btn('sub', '★4以下全部', () => bulk(4)), bc = btn('sub', 'はずす', () => { PICK.units = []; renderNow(); }); b3.disabled = !n3 || base.lv >= ml; b4.disabled = !n4 || base.lv >= ml; bc.disabled = !cnt;
+    hd.append(b3, b4, bc); b.appendChild(hd);
+    if (others.length) b.appendChild(h('p', 'onote', `えらんだ数 ${cnt} / ${MAXFEED}体 ・ ★の低い順にならんでいます`)); }
+  others.sort((a, c) => rarOf(a) - rarOf(c) || a.lv - c.lv || a.u - c.u);
   if (!others.length) b.appendChild(h('p', 'onote', '素材にできるキャラがいません(編成中のキャラは使えません)。ガチャのかぶりなどが使えます。'));
   else {
     const g = h('div', 'ogrid'); b.appendChild(g);
@@ -2063,6 +2282,18 @@ function charaPower(b) {
   const bar = h('div', 'aPwBar', `<div class="t"><span class="lv">Lv <b>${base.lv}</b> → <b class="${after.lv > base.lv ? 'up' : ''}">${after.lv}</b><small> / ${ml}</small></span><span class="u">${used.length ? esc(used.join('・')) : '竜かキャラを選んでください'}</span></div>`);
   bar.appendChild(go1); b.appendChild(bar);
 }
+/* 凸をまとめて: 完凸になるまで、要る数だけ重ねる(あまりは残す) */
+function totUpAll(base, dups) {
+  const c = CH[base.id], t0 = totOf(base); let t1 = t0; const use = [];
+  for (const d of [...dups].sort((a, e) => totOf(e) - totOf(a) || a.lv - e.lv)) { if (t1 >= TOT_MAX) break; use.push(d); t1 = Math.min(TOT_MAX, t1 + 1 + totOf(d)); }
+  if (!use.length) return;
+  modal(`${c.name} をまとめて凸する`, (b, close) => {
+    b.innerHTML = `<p>${esc(c.name)} を <b>${use.length}体</b> 重ねて、凸 <b>${t0}</b> → <b>${t1}</b> にします。重ねたキャラはいなくなります。${dups.length > use.length ? `<br>あまりの ${dups.length - use.length}体 は残ります。` : ''}</p>
+      <p>体力・攻撃 +${Math.round(t0 * TOT_K * 100)}% → <b>+${Math.round(t1 * TOT_K * 100)}%</b>${skCut({ tot: t1 }) > skCut(base) ? '<br>スキルが早くたまるようになります。' : ''}</p>`;
+    const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close));
+    r.appendChild(btn('', 'まとめて重ねる', () => { const gone = new Set(use.map(d => d.u)); base.tot = t1; S.units = S.units.filter(u => !gone.has(u.u)); PICK.units = PICK.units.filter(u => !gone.has(u)); save(); syncParty(); close(); flash(t1 >= TOT_MAX ? `${c.name} が完凸した!` : `凸 ${t0} → ${t1}`); renderNow(); })); b.appendChild(r);
+  });
+}
 function totUp(base, d) {
   const c = CH[base.id], t0 = totOf(base), t1 = Math.min(TOT_MAX, t0 + 1 + totOf(d));
   modal(`${c.name} を凸する`, (b, close) => {
@@ -2077,16 +2308,27 @@ function simulate(u, gain) { let lv = u.lv, exp = u.exp + gain; const ml = maxLv
 /* ---------- ガチャ ---------- */
 /* (v109) 新しい8人は、絵(portraits.js)が入るまでガチャに出さない */
 const NEW8 = ['beni', 'shion', 'ibara', 'lumie', 'pom', 'pukuru', 'futa', 'tomori'];
-function pool(r) { return CHARS.filter(c => c.rar === r && !c.drop && (!NEW8.includes(c.id) || (A.PORT && A.PORT.img && A.PORT.img[c.id]))); }
-function rollOne() { const x = Math.random(); const r = x < GACHA.rate[5] ? 5 : x < GACHA.rate[5] + GACHA.rate[4] ? 4 : 3; const p = pool(r); return p[Math.floor(Math.random() * p.length)].id; }
+function pool(r) { return CHARS.filter(c => c.rar === r && !c.drop && !c.lim && (!NEW8.includes(c.id) || (A.PORT && A.PORT.img && A.PORT.img[c.id]))); }
+function rollOne(ban) { const x = Math.random(); const r = x < GACHA.rate[5] ? 5 : x < GACHA.rate[5] + GACHA.rate[4] ? 4 : 3; if (ban === 'gb') { const pk = gbPick(r); if (pk && Math.random() < GBG.share[r]) return pk; } const p = pool(r); return p[Math.floor(Math.random() * p.length)].id; }
 const circleSVG = `<svg viewBox="0 0 200 200" fill="none" stroke="#f3d27a"><circle cx="100" cy="100" r="96" stroke-width=".8"/><circle cx="100" cy="100" r="88" stroke-width="2.2"/><circle cx="100" cy="100" r="70" stroke-width=".8" stroke-dasharray="2 4"/><circle cx="100" cy="100" r="44" stroke-width="1.4"/><path d="M100 12 176 144H24Z" stroke-width="1.1"/><path d="M100 188 24 56h152Z" stroke-width="1.1"/>${Array.from({ length: 24 }, (_, i) => { const a = i / 24 * Math.PI * 2; return `<circle cx="${100 + Math.cos(a) * 79}" cy="${100 + Math.sin(a) * 79}" r="${i % 3 ? 1.2 : 2.6}" fill="#f3d27a" stroke="none"/>`; }).join('')}</svg>`;
 /* (v114) ガチャの一覧。ほかのゲームと同じく「恒常」などとは書かず、ガチャごとに名前を付ける。
    限定ガチャを作るときは、ここに足すと下にガチャの切りかえが出る */
-const BANNERS = [{ id: 'std', name: '英雄召喚', en: 'HERO SUMMON' }];
+const BANNERS = [{ id: 'std', name: '英雄召喚', en: 'HERO SUMMON' }, { id: 'gb', name: 'ゲーマー女子召喚', en: 'GAMER GIRLS', lim: 1 }];
+/* (11/10) ゲームバカイベントの限定ガチャ(山本さん): 1回150pt・10連1350pt・100回で★5のピックアップと交換。
+   ピックアップは★5・★4・★3の1人ずつ。各レア度のうち share の割合でピックアップが出る。キャラの絵がそろうまでは「準備中」 */
+const GBG = { one: 150, ten: 1350, pity: 100, pick: { 5: ['gbpro', 'gbsnp', 'gbrhy'], 4: ['gbret', 'gbfgt', 'gbhea', 'gbstr'] }, share: { 5: .5, 4: .4 } };
+const GB_KESHIN = 'gbpzl';   /* 限定降臨「ガチャ魔神」の化身 = ソラ */
+const gbBanOn = () => { try { if (HOST && HOST.gbOn) return !!HOST.gbOn(); } catch (e) { } const t = Date.now(); return t >= Date.UTC(2026, 10, 11, 6) && t < Date.UTC(2026, 10, 26, 6); };
+const gbPicks = r => (GBG.pick[r] || []).filter(id => CH[id] && A.PORT && A.PORT.img && A.PORT.img[id]);
+const gbPick = r => { const L = gbPicks(r); return L.length ? L[Math.floor(Math.random() * L.length)] : null; };
+const gbReady = () => gbPicks(5).length > 0 && gbPicks(4).length > 0;
+const banList = () => BANNERS.filter(b => !b.lim || gbBanOn());
 let gaSel = null, gaB = 'std';
 function renderGacha() {
   root.innerHTML = '';
-  const bn = BANNERS.find(x => x.id === gaB) || BANNERS[0];
+  if (!banList().some(b => b.id === gaB)) gaB = 'std';
+  const bn = BANNERS.find(x => x.id === gaB) || BANNERS[0], LIM = gaB === 'gb';
+  if (LIM) return renderGbGacha(bn);
   const p5 = pool(5);
   if (!gaSel || !p5.some(c => c.id === gaSel)) gaSel = p5[gaI % p5.length].id;
   const w = h('div', 'aGa'); root.appendChild(w);
@@ -2112,32 +2354,71 @@ function renderGacha() {
   bs.insertAdjacentHTML('beforeend', S.free10 ? '<em class="gK">無料・★4以上1体確定</em>' : '<em class="gK">★4以上1体確定</em>');
   if (needFree()) w.appendChild(h('div', 'gFirst', '<b>まずは仲間を呼ぼう</b><span>無料の10回召喚で、最初の仲間がそろいます</span>'));
   const pt = h('div', 'gPt', `<span>交換pt <b>${S.pity}</b>/${PITY}</span><span class="bar"><i style="width:${Math.min(100, S.pity / PITY * 100)}%"></i></span>`); const tr = btn('sm', '★5確定召喚', pityTrade); tr.disabled = S.pity < PITY; if (S.pity >= PITY) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
-  w.appendChild(bs);
+  w.appendChild(bs); banTabs(w);
 }
+/* ガチャの切りかえ(限定ガチャがあるときだけ) */
+function banTabs(w) { const L = banList(); if (L.length < 2) return; const t = h('div', 'gBan'); for (const b of L) { const e = h('button', 'gBt' + (b.id === gaB ? ' on' : '') + (b.lim ? ' lim' : ''), `${b.lim ? '<em>限定</em>' : ''}${esc(b.name)}`); e.type = 'button'; e.onclick = () => { if (b.id === gaB) return; gaB = b.id; gaSel = null; renderNow(); }; t.appendChild(e); } w.appendChild(t); }
+function renderGbGacha(bn) {
+  clearInterval(gaT); const w = h('div', 'aGa gbl'); root.appendChild(w); const ok = gbReady();
+  w.innerHTML = `<div class="gbg"></div><div class="chars"></div>
+    <div class="gLogo"><small>${esc(bn.en)}</small><b>${esc(bn.name)}</b></div><button class="gDt" type="button">詳細</button>
+    <div class="gWho"></div><div class="gFs"></div>`;
+  const cs = w.querySelector('.chars'), who = w.querySelector('.gWho');
+  /* (11/10) ピックアップ7人を順に大きく見せる(★5の3人が先)。下の顔を押すとその子に切りかわる */
+  const ids = [...gbPicks(5), ...gbPicks(4)], fs = w.querySelector('.gFs');
+  if (ids.length) {
+    if (!ids.includes(gaSel)) gaSel = ids[0];
+    const show = id => { gaSel = id; const c = CH[id]; cs.innerHTML = PORT[id] ? `<img class="fr" alt="" src="${PORT[id]}">` : ''; who.innerHTML = `<span class="st">${'★'.repeat(c.rar)}</span><small class="gTi">${esc(GB_TITLE[id] || '')}</small><b>${esc(c.name)}</b><span class="el">${elGem(c.el, 20)}ピックアップ</span>`; fs.querySelectorAll('button').forEach(e => e.classList.toggle('on', e.dataset.id === id)); };
+    const swap = id => { if (id === gaSel) return; cs.classList.add('sw'); who.classList.add('sw'); setTimeout(() => { show(id); cs.classList.remove('sw'); who.classList.remove('sw'); }, 200); };
+    for (const id of ids) { const c = CH[id], f = faceURL(id, 0, 1); const e = h('button', 'gF', f ? `<img alt="" src="${f}">` : `<b>${esc(c.el)}</b>`); e.type = 'button'; e.dataset.id = id; e.style.setProperty('--ec', elCol(c.el)); e.setAttribute('aria-label', c.name); e.onclick = () => { clearInterval(gaT); swap(id); }; fs.appendChild(e); }
+    show(gaSel);
+    if (!RM) gaT = setInterval(() => { if (TAB !== 'gacha' || root.hidden) return; swap(ids[(ids.indexOf(gaSel) + 1) % ids.length]); }, 3600);
+  }
+  else who.innerHTML = '<b>ゲーマー女子 7人</b><span class="el">ピックアップ  ·  準備中</span>';
+  w.querySelector('.gDt').onclick = rates;
+  const bs = h('div', 'btns');
+  const b1 = btn('sub', `1回召喚<small>${svg('pt', '0 0 16 16')}${GBG.one}</small>`, () => pull(1, GBG.one)), b10 = btn('shine', `10回召喚<small>${svg('pt', '0 0 16 16')}${GBG.ten.toLocaleString()}</small>`, () => pull(10, GBG.ten));
+  if (!ok) { b1.disabled = b10.disabled = true; }
+  bs.append(b1, b10); bs.insertAdjacentHTML('beforeend', ok ? '<em class="gK">★4以上1体確定</em>' : '<em class="gK">キャラの準備中です</em>');
+  const lp = S.lp || 0, pt = h('div', 'gPt', `<span>限定の交換pt <b>${lp}</b>/${GBG.pity}</span><span class="bar"><i style="width:${Math.min(100, lp / GBG.pity * 100)}%"></i></span>`), tr = btn('sm', '★5と交換', gbPityPull); tr.disabled = lp < GBG.pity || !gbPick(5); if (lp >= GBG.pity) pt.classList.add('ok'); pt.appendChild(tr); w.appendChild(pt);
+  /* (11/11) 限定セットDXを買った人: 無料の10連を1回 */
+  { let ts = 0; try { ts = HOST && HOST.gbTen ? +HOST.gbTen() || 0 : 0; } catch (e) { } if (ts && S.gbt10 !== ts && ok) { const fb = btn('shine', 'セットの無料10連を引く', () => { if (boxFull(10)) { boxFullAsk(10); return; } doPull(10, 0, false, ts); }); fb.style.cssText = 'display:block;width:calc(100% - 24px);margin:8px 12px 0'; w.appendChild(fb); } }
+  w.appendChild(bs); banTabs(w);
+}
+function gbPityPull() { const L = gbPicks(5); if (!L.length || (S.lp || 0) < GBG.pity) return; if (boxFull(1)) { boxFullAsk(1); return; }
+  const give = id => { if ((S.lp || 0) < GBG.pity) return; S.lp -= GBG.pity; const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); save(); summon([{ u, isNew }], 1, 0); };
+  modal('★5と交換', (b, close) => { b.innerHTML = `<p class="onote">限定の交換pt ${GBG.pity} で、好きな★5のピックアップ1人と交換できます。</p>`; const r = h('div', 'gPk'); for (const id of L) { const c = CH[id], f = faceURL(id, 0, 1); const e = h('button', 'gPkB', `${f ? `<img alt="" src="${f}">` : ''}<small>${esc(GB_TITLE[id] || '')}</small><b>${esc(c.name)}</b>`); e.type = 'button'; e.style.setProperty('--ec', elCol(c.el)); e.onclick = () => { close(); give(id); }; r.appendChild(e); } b.appendChild(r); const o = h('div', 'orow'); o.style.padding = '0'; o.appendChild(btn('sub', 'やめる', close)); b.appendChild(o); }); }
 function rates() {
+  if (gaB === 'gb') return gbRates();
   modal(`${(BANNERS.find(x => x.id === gaB) || BANNERS[0]).name} の詳細`, (b, close) => {
     const row = r => { const p = pool(r), each = GACHA.rate[r] / p.length * 100; return `<div class="gRw"><p><b class="s${r}">${'★'.repeat(r)}</b> 合計 <b>${Math.round(GACHA.rate[r] * 100)}%</b><small>(1人あたり ${each.toFixed(2)}%)</small></p><div class="gIc">${p.map(c => { const f = faceURL(c.id, 0, 1); return `<span style="--ec:${elCol(c.el)}">${f ? `<img alt="" src="${f}">` : ''}<i>${esc(c.name)}</i></span>`; }).join('')}</div></div>`; };
     b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">10回召喚は、★4以上が1体も出なかったとき、最後の1体が★4以上になります。<br>1回引くごとに交換ptが1たまり、${PITY}たまると★5が必ず出る1回召喚が引けます(どの★5かはランダム)。<br>かぶったキャラは強化や凸に使えます。${HOST ? '' : 'pt はテスト用です。'}</p>`;
     const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r);
   });
 }
+function gbRates() { modal('ゲーマー女子召喚 の詳細', (b, close) => { const row = r => { const L = gbPicks(r), all = Math.round(GACHA.rate[r] * 1000) / 10, each = L.length ? GACHA.rate[r] * (GBG.share[r] || 0) / L.length * 100 : 0; return `<div class="gRw"><p><b class="s${r}">${'★'.repeat(r)}</b> 合計 <b>${all}%</b>${L.length ? `<small>(ピックアップ 1人あたり ${each.toFixed(2)}%)</small>` : ''}</p>${L.length ? `<div class="gIc">${L.map(id => { const c = CH[id], f = faceURL(id, 0, 1); return `<span style="--ec:${elCol(c.el)}">${f ? `<img alt="" src="${f}">` : ''}<i>${esc(c.name)}</i></span>`; }).join('')}</div>` : ''}</div>`; };
+  b.innerHTML = `<div class="gRs">${row(5)}${row(4)}${row(3)}</div><p class="onote">期間: ゲームバカイベントの間。1回 ${GBG.one}pt、10回 ${GBG.ten.toLocaleString()}pt。10回召喚は★4以上が1体確定。<br>この召喚を1回引くごとに限定の交換ptが1たまり、${GBG.pity}たまると★5のピックアップと交換できます。ピックアップ以外は「英雄召喚」と同じキャラが出ます。ゲーマー女子はこの召喚だけで出ます(ソラは限定降臨「ガチャ魔神」でだけ仲間になります)。</p>`;
+  const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); }
 function pull(n, cost) {
+  if (boxFull(n)) { boxFullAsk(n); return; }
   if (ptNow() < cost) { modal('ptが足りません', (b, close) => { b.innerHTML = `<p>あと ${(cost - ptNow()).toLocaleString()}pt 必要です。ステージの初回クリア・★・デイリーミッションでもらえます。</p>`; const r = h('div', 'orow'); r.style.padding = '0'; r.appendChild(btn('sub', '閉じる', close)); b.appendChild(r); }); return; }
   modal(n === 1 ? '1回召喚' : '10回召喚', (b, close) => {
     b.innerHTML = `<p style="text-align:center">${cost.toLocaleString()}pt 使います<br><span style="font-size:12px">のこり ${(ptNow() - cost).toLocaleString()}pt</span></p>`;
     const r = h('div', 'orow'); r.style.padding = '0'; r.append(btn('sub', 'やめる', close), btn('shine', '召喚する', () => { close(); doPull(n, cost); })); b.appendChild(r);
   });
 }
-function doPull(n, cost, free) {
-  if (free) { if (!S.free10) return; S.free10 = 0; } else if (!ptSpend(cost, n)) { flash('ptが足りません'); return; } const got = [];
-  const ids = []; for (let k = 0; k < n; k++) ids.push(rollOne());
+function doPull(n, cost, free, gift) {
+  if (!free && boxFull(n)) { boxFullAsk(n); return; }
+  /* (11/11) gift = 限定セットDXの無料10連(付いた時刻)。pt は使わず、使ったことを覚えておく */
+  if (free) { if (!S.free10) return; S.free10 = 0; } else if (gift) { if (S.gbt10 === gift) return; S.gbt10 = gift; } else if (!ptSpend(cost, n)) { flash('ptが足りません'); return; } const got = [];
+  const lim = gaB === 'gb' && !free && gbReady(); const ids = []; for (let k = 0; k < n; k++) ids.push(rollOne(lim ? 'gb' : 0));
   /* 無料の10回召喚は、編成の4人がそろうように、ちがうキャラが4人以上になるまで同じレア度で引き直す(確率は変えない) */
   const have = new Set(S.units.map(x => x.id));
   if (free) for (let g = 0; g < 50 && new Set([...have, ...ids]).size < 4; g++) { const j = ids.findIndex((id, k) => ids.indexOf(id) !== k); const p = pool(CH[ids[j]].rar); ids[j] = p[Math.floor(Math.random() * p.length)].id; }
   /* 10連は★4以上を1枠確定: 1つも無ければ最後を★4以上に引き直す(★5:★4 = 4:26) */
-  if (n === 10 && !ids.some(id => CH[id].rar >= 4)) { const r = Math.random() < GACHA.rate[5] / (GACHA.rate[5] + GACHA.rate[4]) ? 5 : 4, p = pool(r); ids[9] = p[Math.floor(Math.random() * p.length)].id; }
+  if (n === 10 && !ids.some(id => CH[id].rar >= 4)) { const r = Math.random() < GACHA.rate[5] / (GACHA.rate[5] + GACHA.rate[4]) ? 5 : 4, p = pool(r), pk = lim && gbPick(r); ids[9] = pk && Math.random() < GBG.share[r] ? pk : p[Math.floor(Math.random() * p.length)].id; }
   for (const id of ids) { const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); got.push({ u, isNew }); }
-  S.pity += n; dmFresh(); S.dm.gacha += n; fixTeam();
+  if (lim) S.lp = (S.lp || 0) + n; else S.pity += n; dmFresh(); S.dm.gacha += n; fixTeam();
   save(); summon(got, n, cost, free);
 }
 /* 召喚の演出: 魔法陣が回って光が集まる → 光の柱の色でレア度が先に分かる → カードがめくれる。押すと飛ばせる */
@@ -2368,6 +2649,11 @@ function settingsMenu() {
   const L = h('div', 'aList aGl'); b.appendChild(L);
   const item = (k, t, sub, fn) => { const e = h('button', null, `${svg(k)}<span>${esc(t)}<small>${esc(sub)}</small></span><span class="ar">›</span>`); e.type = 'button'; e.onclick = fn; L.appendChild(e); return e; };
   if (HOST) item('home', 'アプリに戻る', 'きもオタレートのホームへ', () => { try { HOST.close(); } catch (e) { } });
+  /* (11/11) 画質: 最高 → 標準 → 軽い の順に切りかわる(山本さん「設定で選べるように」) */
+  { const QN = { max: ['最高', '前と同じ。いちばんきれい(重い端末ではカクつくことがある)'], std: ['標準', '細かさはそのまま、ふちの仕上げだけ省く。かなり軽くなる'], lite: ['軽い', '重いときだけ少しぼやける(細かさを自動で下げる)。いちばん軽い'] }, ORD = ['max', 'std', 'lite'];
+    const cur = () => { try { return A.getQuality(); } catch (e) { return 'max'; } };
+    const e = item('ev', 'バトルの画質', '', () => { const q = ORD[(ORD.indexOf(cur()) + 1) % 3]; try { A.setQuality(q); } catch (er) { } show(); });
+    const show = () => { const q = cur(); e.querySelector('small').textContent = '今: ' + QN[q][0] + ' ― ' + QN[q][1] + '(押すと切りかえ)'; }; show(); }
   item('ev', '画面の見た目(試し)', BRT ? '今: ソシャゲ寄り(押すと前の見た目にする)' : '今: 前の見た目(押すとソシャゲ寄りにもどす)', () => { try { localStorage.setItem('ca_ui', BRT ? 'a' : 'b'); } catch (e) { } location.reload(); });   /* (11/9) 見くらべ用 */
   if (!HOST) item('name', 'プレイヤー名', S.name, () => modal('プレイヤー名', (bd, close) => {
     bd.innerHTML = `<input maxlength="10" value="${esc(S.name)}" aria-label="プレイヤー名" style="width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;border:0;font:700 16px var(--zk);color:#fff;background:#060c24;box-shadow:inset 0 0 0 1px var(--aG)">`;
@@ -2406,7 +2692,7 @@ const day5 = () => { const d = new Date(Date.now() - 5 * 3600e3); return d.getFu
 function xpFresh() { if (!S.xp || S.xp.d !== day5()) S.xp = { d: day5(), n: 0 }; }
 function xpLeft() { xpFresh(); return Math.max(0, XP_MAX - S.xp.n); }
 function xpTake(i) { const st = A.STAGES[i]; if (!st || st.ev !== 'exp') return true; if (xpLeft() <= 0) { flash('経験値の竜の巣は今日はもう挑戦できません(朝5時に戻ります)'); return false; } S.xp.n++; save(); return true; }
-window.CA_GATE = (i) => { if (MPC.play) return xpTake(i); if (!staCan()) { staOut(); return false; } if (!xpTake(i)) return false; staUse(); return true; };   /* (11/9) スタミナ1つ(マルチは募集した人だけ・始めるときに) */
+window.CA_GATE = (i) => { if (S.units.length >= boxCap()) { boxFullAsk(0); return false; } if (MPC.play) return xpTake(i); if (!staCan()) { staOut(); return false; } if (!xpTake(i)) return false; staUse(); return true; };   /* (11/9) スタミナ1つ(マルチは募集した人だけ・始めるときに) */
 function dmFresh() { if (S.dm.date !== today()) S.dm = { date: today(), win: 0, power: 0, gacha: 0, got: [] }; }
 /* くり返しクリアの報酬(初回とは別)。ハードは1日3回まで宝珠が出る */
 function repeatDrops(st, i, hd) {
@@ -2436,11 +2722,14 @@ function dropModal(d) {
 let LAST = null;
 function onClearStage(st, info) {
   recWin(st, info);
+  try { if (HOST && HOST.gb) HOST.gb(info.multi ? 'm' : 's', st.gbm || 0); } catch (e) { } /* (11/10) ゲームバカイベントのメダル(イベントのステージは決まった枚数) */
   if (info.multi) return multiClear(st, info);
-  if (st.ev === 'tower' || st.ev === 'raid' || st.ev === 'score' || st.ev === 'ex' || st.ev === 'lev') {
+  if (st.ev === 'tower' || st.ev === 'raid' || st.ev === 'score' || st.ev === 'ex' || st.ev === 'lev' || st.ev === 'gbr') {
     chFresh(); const rewards = []; let msg = '';
     if (st.ev === 'ex') { const key = st.bi + '-' + st.ti, first = !S.ex[key], R = EXRW[st.ti]; if (first) { S.ex[key] = 1; rewards.push(...exRw(R.f, st.el)); msg = `${A.EXB[st.bi].n}【${st.tier}】をはじめてクリア! ${st.ti < 2 ? '「' + A.EXT[st.ti + 1].n + '」が開きました。' : ''}`; } else { for (const r of exRw(R.r, st.el)) if (Math.random() < (r.p || 1)) rewards.push({ k: r.k, id: r.id, n: r.n }); msg = `${A.EXB[st.bi].n}【${st.tier}】に勝った! `; } }
-    if (st.ev === 'lev') { const m = st.md[0] + Math.floor(Math.random() * (st.md[1] - st.md[0] + 1)); S.lev.medal += m; if (!S.lev.win[st.ti]) rewards.push({ k: 'pt', n: 100 }); S.lev.win[st.ti]++; msg = `イベントメダル ${m}枚(いま ${S.lev.medal}枚)。`; }
+    if (st.ev === 'gbr') { msg = `ゲーセンメダル ${st.gbm}枚。`; const kid = GB_KESHIN; if (CH[kid] && Math.random() < .25) { const isNew = !S.units.some(u => u.id === kid); const u = { u: S.next++, id: kid, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u); msg += `${CH[kid].name}(ガチャ魔神の化身)が仲間になった!${isNew ? '' : '(かぶり)'} `; } }
+    if (st.ev === 'lev' && st.gbm) { msg = `ゲーセンメダル ${st.gbm}枚。`; }
+    else if (st.ev === 'lev') { const m = st.md[0] + Math.floor(Math.random() * (st.md[1] - st.md[0] + 1)); S.lev.medal += m; if (!S.lev.win[st.ti]) rewards.push({ k: 'pt', n: 100 }); S.lev.win[st.ti]++; msg = `イベントメダル ${m}枚(いま ${S.lev.medal}枚)。`; }
     if (st.ev === 'tower') { if (st.fl === S.tower.top + 1) { S.tower.top = st.fl; rewards.push(...towerRw(st.fl)); wmFresh(); S.wm.tower++; msg = st.fl + '階をクリア! '; } else msg = st.fl + '階(クリア済み)。'; }
     if (st.ev === 'raid') { if (!S.raid.win) rewards.push({ k: 'pt', n: 300 }); for (const d of st.drops) for (let k = 0; k < d.n; k++) if (Math.random() < d.p) rewards.push({ k: 'mat', id: d.id, n: 1 }); S.raid.win++; wmFresh(); S.wm.raid++; msg = A.RAID.n + 'に勝った! '; const dc = raidDrop(); if (dc) msg += dc; }
     if (st.ev === 'score') { const sc = scoreOf(info), nb = sc > S.score.best; S.score.last = sc; S.score.n++; if (nb) S.score.best = sc; wmFresh(); S.wm.score++; msg = `スコア ${sc.toLocaleString()} 点${nb ? '(自己ベスト更新!)' : `(ベスト ${S.score.best.toLocaleString()})`} `; try { window.CA_SCORE && window.CA_SCORE(sc, nb); } catch (e) { } }
@@ -2472,6 +2761,7 @@ function skipStage(i, hd) {
   if (!staCan()) { staOut(); return; }
   if (!xpTake(i)) return; staUse();
   const st = A.STAGES[i], r = repeatDrops(st, i, hd); give(r); dmFresh(); S.dm.win++; save();
+  try { if (HOST && HOST.gb) HOST.gb('s'); } catch (e) { } /* (11/10) スキップもソロのクリアとして数える */
   modal('スキップ', (b, close) => { b.innerHTML = `<p style="text-align:center">${esc(st.id || '')} ${esc(st.n)} をスキップしました</p><div class="aRl">${r.length ? r.map(rwChip).join('') : '<p>今回は何も落ちませんでした</p>'}</div>`; const row = h('div', 'orow'); row.style.padding = '0'; row.append(btn('sub', '閉じる', close), btn('', 'もう一度', () => { close(); skipStage(i, hd); })); b.appendChild(row); });
   renderNow();
 }
@@ -2537,7 +2827,7 @@ function pityTrade() {
   });
 }
 function pityPull() {
-  if (S.pity < PITY) return;
+  if (S.pity < PITY) return; if (boxFull(1)) { boxFullAsk(1); return; }
   const p = pool(5), id = p[Math.floor(Math.random() * p.length)].id;
   S.pity -= PITY; const isNew = !S.units.some(u => u.id === id); const u = { u: S.next++, id, lv: 1, exp: 0, evo: 0 }; S.units.push(u); S.newIds.push(u.u);
   save(); summon([{ u, isNew }], 1, 0);
@@ -2577,6 +2867,13 @@ function tRoute() {
     if (hs === '#t-np') { SUB.chara = 'party'; PICK = { slot: 0 }; showOut('chara'); } else setTimeout(() => A.startStage(3, false), 1500); }
   /* (v85) ★6の絵の確認用(保存しない): #t-evo6 で詳しい画面、#t-evob で戦闘 */
   if (hs === '#t-evo6') { showOut('other'); setTimeout(evoGallery, 600); }
+  /* (11/11) ★6の豪華な飾りの確認用(保存しない): #t-lux6 で詳しい画面、#t-evos で進化の瞬間、#t-luxh でホーム */
+  /* (11/11) BOXの見え方の確認用(保存しない): #t-box で、いろいろなキャラを70体持っている状態 */
+  if (hs === '#t-box') { const ids = Object.keys(CH).filter(k => CH[k].battle); let u = 5000; S.units = []; for (let i = 0; i < 70; i++) { const id = ids[(i * 7 + (i >> 2)) % ids.length]; S.units.push({ u: u++, id, lv: 1 + (i * 13) % (MAXLV[CH[id].rar] || 50), exp: 0, evo: CH[id].rar === 5 && i % 5 === 0 ? 1 : 0 }); } S.team = S.units.slice(0, 4).map(x => x.u); S.free10 = 0; S.newIds = S.units.slice(8, 12).map(x => x.u); TAB = 'chara'; SUB.chara = 'box'; showOut('chara'); renderNow(); }
+  if (hs === '#t-pw') { const ids = Object.keys(CH).filter(k => CH[k].battle); let u = 5000; S.units = []; for (let i = 0; i < 70; i++) { const id = ids[(i * 7 + (i >> 2)) % ids.length]; S.units.push({ u: u++, id, lv: 1 + (i * 5) % 20, exp: 0, evo: 0 }); } S.team = S.units.slice(0, 4).map(x => x.u); S.free10 = 0; S.mats.expS = 30; S.mats.expM = 12; S.mats.expL = 4; TAB = 'chara'; SUB.chara = 'power'; PICK = { base: S.units[5].u, mats: {}, units: [] }; showOut('chara'); renderNow(); }
+  if (hs === '#t-lux6') { showOut('chara'); setTimeout(() => detail({ u: -1, id: 'gbpro', lv: 90, exp: 0, evo: 1 }), 600); }
+  if (hs === '#t-evos') { showOut('chara'); setTimeout(() => evoShow('gbpro', () => detail({ u: -1, id: 'gbpro', lv: 70, exp: 0, evo: 1 })), 600); }
+  if (hs === '#t-luxh') { if (!S.units.some(x => x.id === 'gbpro')) S.units.push({ u: 990, id: 'gbpro', lv: 70, exp: 0, evo: 1 }); else S.units.find(x => x.id === 'gbpro').evo = 1; S.home = 'gbpro'; S.free10 = 0; TAB = 'home'; showOut('home'); renderNow(); }
   if (hs === '#t-evob') setTimeout(evoTrial, 1500);
   /* (v99) 章のラスボス竜の確認用: #t-lb2 #t-lb3 #t-lb4 でその章の最後のウェーブから */
   /* (v103) 高難度ボスの確認用: #t-exb(炎角獣) #t-ext(古樹の巨人)。#t-tot で凸の画面(かぶりを1体仮に足す。保存しない) */

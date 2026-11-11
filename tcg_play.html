@@ -2520,7 +2520,7 @@ const HWV=[['q2','hq2','魔女コスのギャル'],['n3','hn3','かぼちゃの�
 HWV.forEach(([b,id,n])=>{const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,n,set:'hw',hwOf:b,img:b});C.push(c);BY[id]=c});
 /* (10/26) スペシャルアート: 夜宴くじのS賞だけで手に入る、絵とカードの作りが特別な版。効果は元のカードと同じで、デッキには合わせて2枚まで */
 const SAV=[['x5','sx5']];
-SAV.forEach(([b,id])=>{const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,set:'sa',saOf:b});C.push(c);BY[id]=c});
+SAV.forEach(([b,id])=>{const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,set:'sa',saOf:b});C.push(c);BY[id]=c}); /* (11/10) ゲームバカイベント: ゲーマー女子のゲーマー版。クレーンゲームの景品だけで手に入る。効果は元のカードと同じ(スペシャルアートと同じ扱い、gbv で見出しだけ変える) */ const GBV=[['g8','gm8','廃課金の女王'],['w8','gm9','覚醒した陰キャゲーマー女子'],['v3','gm3','ゲーム実況女子'],['g3','gm4','徹夜でランク上げ女子'],['g13','gm13','積みゲーに埋もれる女子'],['v13','gm14','耐久配信女子']]; GBV.forEach(([b,id,n])=>{if(!BY[b])return;const c=Object.assign(JSON.parse(JSON.stringify(BY[b])),{id,n,set:'sa',saOf:b,gbv:1,img:b});C.push(c);BY[id]=c});
 const fk=id=>(BY[id]&&(BY[id].hwOf||BY[id].saOf))||id;
 /* (10/27) a deck is DECK_SIZE (20) to DECK_MAX (30) cards (the user's call). Same card still 2 at most */
 const DECK_SIZE=20,DECK_MAX=30,MAX_COPY=2;
@@ -2664,7 +2664,7 @@ function text(c){const t=[],k=c.kw||{};
   if(c.aw)t.push('★3覚醒:'+awText(c.aw));
   if(c.lim)t.unshift('【制限】デッキに1枚しか入れられない');
   {const cn={fam3:'味方の族が3種類以上のときだけ使える',gySpell:'捨て札に魔法があるときだけ使える',shk1:'仕込みが1個以上あるときだけ使える',shk3:'仕込みが3個あるときだけ使える'}[c.cond];if(cn&&c.type==='spell')t.unshift(cn)}
-  if(c.saOf&&BY[c.saOf])t.unshift('【スペシャルアート】「'+BY[c.saOf].n+'」と同じカード。デッキには合わせて'+(c.lim||MAX_COPY)+'枚まで');
+  if(c.saOf&&BY[c.saOf])t.unshift((c.gbv?'【ゲーマー版】「':'【スペシャルアート】「')+BY[c.saOf].n+'」と同じカード。デッキには合わせて'+(c.lim||MAX_COPY)+'枚まで');
   if(c.hwOf&&BY[c.hwOf])t.unshift('【ハロウィン版】「'+BY[c.hwOf].n+'」と同じカード。デッキには合わせて'+(c.lim||MAX_COPY)+'枚まで');
   if(c.same)t.unshift('【二体生贄】自分の'+FNAME[c.f]+'のキャラ2体を生贄にして出す');else if(c.trib)t.unshift('【リーダー】リーダーにできる。リーダーにしたときだけ、同じカードをデッキに2枚まで入れられる。引いて手札に来たら、自分のキャラ1体を生贄にして出す');
   return t.join('\n')}
@@ -4413,20 +4413,24 @@ let RK=false;
 const lvSaved=()=>{try{return localStorage.getItem('kotcg_cpulv')==='strong'?'strong':'normal'}catch(e){return'normal'}};
 function rkGo(d){RK=true;CPU_LV=Math.random()<.5?'strong':'normal';let Hh=[];try{Hh=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,Hh);Hh.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(Hh.slice(-12)))}catch(e){}startMatch(d,Object.assign({},x,{__auto:1}))}
 function nb8Demo(v){const p=String(v).split('.');const f=CD.STARTERS[p[0]]?p[0]:'shadow';const d=presetOf(f);const o=p[1]&&CD.STARTERS[p[1]]?presetOf(p[1]):AI.pickDeck(Math.random);CPU_LV='normal';startMatch(d,o)}
-function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]];RK=p[2]==='rk';const o=RK?'auto':p[1]||'auto';if(RK)CPU_LV=Math.random()<.5?'strong':'normal';if(!d||!CD.validDeck(d.cards,d.lead)){deckScreen();return}
+const GB_BOSS=[['reinc','normal','ピコ'],['henshin','normal','ヒバナ'],['jujutsu','normal','ミント'],['pirate','normal','モモカ'],['pirate','strong','ルリ'],['reinc','strong','カノン'],['mecha','strong','ノア']];
+function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]];RK=p[2]==='rk';const o=RK?'auto':p[1]||'auto';if(RK)CPU_LV=Math.random()<.5?'strong':'normal';if(!d||!CD.validDeck(d.cards,d.lead)){/* (11/11) 使えるデッキがまだ無い人は、デッキを選んでからボスと戦う(前は、選んだあとふつうのCPU選びになっていて、ボスに勝ったことにならなかった) */GBPEND=/^gb\d$/.test(o)?o:null;deckScreen();return}
   let cpu=null;
-  if(o==='rand')cpu=AI.makeDeck(Math.random);
+  /* (11/10) ゲームバカイベントのボスCPU('0.gb3'): ゲーマー女子7人。新しい5族のデッキを使い、強さは相手ごとに決まっている */
+  if(/^gb\d$/.test(o))cpu=gbCpuOf(o);
+  if(cpu){}else if(o==='rand')cpu=AI.makeDeck(Math.random);
   else if(o==='rec'){const others=SKEYS().filter(x=>x!==BY[d.lead].f);cpu=presetOf(others[Math.floor(Math.random()*others.length)])}
   else if(o==='mirror')cpu=Object.assign({},d,{name:d.name+'(CPU)',cards:d.cards.slice()});
   if(!cpu){let Hh=[];try{Hh=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,Hh);Hh.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(Hh.slice(-12)))}catch(e){}cpu=Object.assign({},x,{__auto:1})}
   startMatch(d,cpu)}
-function startMatch(d,cpu){if(!cpu&&!AUTO){cpuPick(d);return}if(!cpu)cpu=AI.pickDeck(Math.random);
+let GBPEND=null;function gbCpuOf(o){const B=GB_BOSS[+o.slice(2)];if(B&&CD.STARTERS[B[0]]){CPU_LV=B[1];return Object.assign({},presetOf(B[0]),{__gb:o,gbName:B[2]})}return null}
+function startMatch(d,cpu){if(!cpu&&GBPEND){const o=GBPEND;GBPEND=null;cpu=gbCpuOf(o)}if(!cpu&&!AUTO){cpuPick(d);return}if(!cpu)cpu=AI.pickDeck(Math.random);
   myDeck=d;myKey=BY[d.lead].f;cpuDeck=cpu;cpuKey=BY[cpu.lead].f;const ck=cpuKey;
   /* ランク戦: the start is written before the first move, so leaving halfway counts as a loss */if(RK&&HOST&&HOST.rkStart){try{HOST.rkStart(CPU_LV)}catch(e){}}
-  if(HOST){busy=true;HOST.toss({cpu:BY[cpuDeck.lead].n,cpuLead:cpuDeck.lead,deck:d.name},heads=>{busy=false;H=heads?0:1;beginGame()});return}
+  if(HOST){busy=true;HOST.toss({cpu:(cpuDeck.gbName||BY[cpuDeck.lead].n),cpuLead:cpuDeck.lead,deck:d.name},heads=>{busy=false;H=heads?0:1;beginGame()});return}
   const heads=Math.random()<.5;H=heads?0:1;show('s-toss');const coin=$('coin'),res=$('tossRes');res.replaceChildren();
   coin.animate([{transform:'translateY(0) rotateY(0)'},{transform:'translateY(-120px) rotateY(900deg)',offset:.5},{transform:'translateY(0) rotateY('+(1800+(heads?0:180))+'deg)'}],{duration:D(1600),easing:'cubic-bezier(.3,.6,.3,1)',fill:'forwards'});
-  setTimeout(()=>{res.append(document.createTextNode(heads?'表 ・ あなたが先攻':'裏 ・ あなたは後攻'));res.append(el('small',null,'相手:'+cpuDeck.name+'(リーダー '+BY[cpuDeck.lead].n+')'));res.append(el('small',null,heads?'先攻は最初のターン、引けず攻撃もできません':'後攻は最初のターン熱量+1'))},D(1650));
+  setTimeout(()=>{res.append(document.createTextNode(heads?'表 ・ あなたが先攻':'裏 ・ あなたは後攻'));res.append(el('small',null,'相手:'+cpuDeck.name+'(リーダー '+(cpuDeck.gbName||BY[cpuDeck.lead].n)+')'));res.append(el('small',null,heads?'先攻は最初のターン、引けず攻撃もできません':'後攻は最初のターン熱量+1'))},D(1650));
   setTimeout(beginGame,D(3400))}
 function beginGame(){try{setTimeout(matSync,0)}catch(e){}try{window.KHD&&setTimeout(()=>KHD.preload([...(myDeck&&myDeck.cards||[]),...(cpuDeck&&cpuDeck.cards||[])]),1200)}catch(e){}{/* get the 極 premiere's grain and soft backdrop ready before it is needed */try{const ids=[myDeck,cpuDeck].flatMap(d=>Object.entries((d&&d.alt)||{}).filter(([,L])=>Array.isArray(L)&&L.includes(3)).map(([id])=>id));if(ids.length)setTimeout(()=>{gkGrainFrames();ids.forEach(id=>CARD_ALT[id]&&gkSoft(id))},1200)}catch(_){}const a=myDeck.cards.slice(),b=cpuDeck.cards.slice();g=H===0?E.newGame(a,b,seed++,myDeck.lead,cpuDeck.lead):E.newGame(b,a,seed++,cpuDeck.lead,myDeck.lead);g.ev=[];
     done=false;mode=null;LOG=[];view=snap();view.p.forEach(P=>{P.deckN+=P.hand.length;P.hand=[]});show('s-game');render(view);dealOpening();setTimeout(()=>caption((RK?'ランク戦 ・ '+(CPU_LV==='strong'?'つよい':'ふつう')+'のCPU ・ ':CPU_LV==='strong'?'つよいCPU ・ ':'')+'相手のデッキ:'+cpuDeck.name),D(300))}}
@@ -5416,7 +5420,7 @@ async function autoTurn(){let n=0;while(!g.over&&g.cur===H&&n++<40){const a=AI.n
 function finish(){if(done)return;queueSpectator(g&&g.ev);done=true;stopTimer();busy=false;closeSheets();render(snap());const w=g.win===-1?'draw':g.win===H?'win':'lose';try{setTimeout(()=>matEnd(w),60)}catch(e){}const e=g.ev.concat(LOG).reverse().find(x=>x.t==='end');
   if(NET){const sideOf=pi=>pi===0?NET.first:(NET.first==='a'?'b':'a');try{NET.claim({win:g.win===-1?'draw':sideOf(g.win),turns:g.turns})}catch(er){}}
   let rkDv=null;if(!NET&&RK&&HOST&&HOST.rkDelta){try{rkDv=HOST.rkDelta(CPU_LV,w)}catch(er){}}
-  if(HOST){try{HOST.result({w,me:g.p[H].life,cpu:g.p[1-H].life,deck:myDeck.name,cards:myDeck.name==='極のデモ'?[]:[myDeck.lead].concat(myDeck.cards||[]),cpuName:NET?NET.names[NET.side==='a'?'b':'a']:BY[cpuDeck.lead].n,pvp:!!NET,lv:NET?'':CPU_LV,opp:NET?'':(cpuDeck&&cpuDeck.__auto?'auto':'other'),rk:!NET&&RK?1:0})}catch(er){}}
+  if(HOST){try{HOST.result({w,me:g.p[H].life,cpu:g.p[1-H].life,deck:myDeck.name,cards:myDeck.name==='極のデモ'?[]:[myDeck.lead].concat(myDeck.cards||[]),cpuName:NET?NET.names[NET.side==='a'?'b':'a']:(cpuDeck.gbName||BY[cpuDeck.lead].n),pvp:!!NET,lv:NET?'':CPU_LV,opp:NET?'':(cpuDeck&&cpuDeck.__gb?cpuDeck.__gb:cpuDeck&&cpuDeck.__auto?'auto':'other'),rk:!NET&&RK?1:0})}catch(er){}}
   const o=el('div','ovl'),b=el('div','box');o.append(b);b.append(el('div',null,myDeck.name+' vs '+cpuDeck.name));
   b.append(el('h2',w==='lose'?'lose':'win',w==='win'?'勝利':w==='lose'?'敗北':'引き分け'),el('div','why',(e&&e.why==='time'?'時間切れ ・ ':'')+'あなたのライフ '+g.p[H].life+' ・ 相手のライフ '+g.p[1-H].life));
   if(!NET&&RK&&rkDv!=null){const k=el('div','rkdv'+(rkDv>0?' up':rkDv<0?' dn':''));k.append(el('small',null,'ランク戦 ・ '+(CPU_LV==='strong'?'つよい':'ふつう')+'のCPU'),el('b',null,'ランク '+(rkDv>=0?'+':'')+rkDv));b.append(k)}

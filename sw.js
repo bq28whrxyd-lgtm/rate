@@ -1,6 +1,6 @@
 /* Bump VERSION on every release: a changed sw.js is what makes phones show the update notice. */
-const VERSION = 'v171-2026-11-10a';
-const CACHE = 'ladder-' + VERSION;
+const VERSION = 'v172-2026-11-11a';
+const CACHE = 'ladder-preview-' + VERSION;
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'tcg_spectator.js', 'motion_lifecycle.js',
   'kmr_hood.jpg', 'kmr_chibi.jpg', 'kmr_hoodie2.jpg', 'kmr_vt1.jpg', 'kmr_vt2.jpg', 'kmr_vt3.jpg',
   'fx_chest.webp', 'fx_chest.png', 'fx_kmrcoin_a.jpg', 'fx_kmrcoin_b.jpg', 'fx_coin.webp', 'fx_coin_hi.webp',
@@ -10,7 +10,7 @@ self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))).catch(() => {}));
 });
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('ladder-') && k !== CACHE).map(k => caches.delete(k))))
+  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('ladder-preview-') && k !== CACHE).map(k => caches.delete(k))))
     .then(() => self.clients.claim()));
 });
 self.addEventListener('message', e => { if (e.data === 'skip') self.skipWaiting(); });
