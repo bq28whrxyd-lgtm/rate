@@ -313,16 +313,18 @@ service cloud.firestore {
     // (11/7) 分身を「圧縮アリーナ」に入れ替え。ca = pt の数字(みんなの pt の計算に使うので、だれでも読める)、casave = セーブ(本人だけ)
     // (11/7) 1日の上限はなし(山本さん)。回数(g1・g10)ともらった合計(pe)は減らない
     function caOk() {
-      return request.resource.data.keys().hasOnly(['pe', 'g1', 'g10', 'st', 'pd', 'pn', 'pq'])
+      return request.resource.data.keys().hasOnly(['pe', 'g1', 'g10', 'st', 'pd', 'pn', 'pq', 'l1', 'l10'])   // (11/10) l1・l10 = ゲームバカの限定ガチャ
         && newV('pe', 0) is int && newV('g1', 0) is int && newV('g10', 0) is int && newV('pd', 0) is int && newV('pn', 0) is int && newV('pq', 0) is int
         && newV('st', 0) is int && newV('st', 0) >= 0
+        && newV('l1', 0) is int && newV('l1', 0) >= 0 && newV('l10', 0) is int && newV('l10', 0) >= 0
         && newV('pe', 0) >= 0 && newV('g1', 0) >= 0 && newV('g10', 0) >= 0 && newV('pq', 0) >= 0 && newV('pn', 0) >= 0;
     }
     match /ca/{pid} {
       allow read: if signedIn();
       allow create: if signedIn() && bunMine(pid) && caOk();
       allow update: if signedIn() && bunMine(pid) && caOk()
-        && newV('pe', 0) >= oldV('pe', 0) && newV('g1', 0) >= oldV('g1', 0) && newV('g10', 0) >= oldV('g10', 0) && newV('st', 0) >= oldV('st', 0);
+        && newV('pe', 0) >= oldV('pe', 0) && newV('g1', 0) >= oldV('g1', 0) && newV('g10', 0) >= oldV('g10', 0) && newV('st', 0) >= oldV('st', 0)
+        && newV('l1', 0) >= oldV('l1', 0) && newV('l10', 0) >= oldV('l10', 0);
       allow delete: if isAdmin();
     }
     match /casave/{pid} {
@@ -369,6 +371,23 @@ service cloud.firestore {
               && (request.resource.data.mem == resource.data.mem || crOwnMem()))
         );
       allow delete: if signedIn() && (bunMine(resource.data.host) || isAdmin());
+    }
+    // ---- (11/10) ゲームバカイベントの派閥の点。本人だけが書ける。派閥(f / お試し版は pvf)は一度決めたら変えられない ----
+    function gbFacOk(k) {
+      return (!(k in request.resource.data) || request.resource.data[k] in ['s', 'm'])
+        && (resource == null || !(k in resource.data) || request.resource.data.get(k, '') == resource.data[k]);
+    }
+    match /gbpub/{pid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && myPid() == pid
+        && request.resource.data.keys().hasOnly(['f', 'c', 'pvf', 'pvc', 'x', 'pvx', 'u', 'b', 'pvb'])
+        && request.resource.data.get('b', 0) is int && request.resource.data.get('b', 0) >= 0 && request.resource.data.get('b', 0) <= 100000
+        && request.resource.data.get('pvb', 0) is int && request.resource.data.get('pvb', 0) >= 0 && request.resource.data.get('pvb', 0) <= 100000
+        && request.resource.data.get('x', []) is list && request.resource.data.get('x', []).size() <= 30
+        && request.resource.data.get('pvx', []) is list && request.resource.data.get('pvx', []).size() <= 30
+        && gbFacOk('f') && gbFacOk('pvf')
+        && request.resource.data.get('c', 0) is int && request.resource.data.get('c', 0) >= 0 && request.resource.data.get('c', 0) <= 10000000
+        && request.resource.data.get('pvc', 0) is int && request.resource.data.get('pvc', 0) >= 0 && request.resource.data.get('pvc', 0) <= 10000000;
     }
     // ---- (11/9) 分身のプロフィール(本人だけ書ける・ログインしていれば読める) ----
     match /caprof/{pid} {
