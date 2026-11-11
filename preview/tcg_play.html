@@ -4414,16 +4414,17 @@ const lvSaved=()=>{try{return localStorage.getItem('kotcg_cpulv')==='strong'?'st
 function rkGo(d){RK=true;CPU_LV=Math.random()<.5?'strong':'normal';let Hh=[];try{Hh=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,Hh);Hh.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(Hh.slice(-12)))}catch(e){}startMatch(d,Object.assign({},x,{__auto:1}))}
 function nb8Demo(v){const p=String(v).split('.');const f=CD.STARTERS[p[0]]?p[0]:'shadow';const d=presetOf(f);const o=p[1]&&CD.STARTERS[p[1]]?presetOf(p[1]):AI.pickDeck(Math.random);CPU_LV='normal';startMatch(d,o)}
 const GB_BOSS=[['reinc','normal','ピコ'],['henshin','normal','ヒバナ'],['jujutsu','normal','ミント'],['pirate','normal','モモカ'],['pirate','strong','ルリ'],['reinc','strong','カノン'],['mecha','strong','ノア']];
-function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]];RK=p[2]==='rk';const o=RK?'auto':p[1]||'auto';if(RK)CPU_LV=Math.random()<.5?'strong':'normal';if(!d||!CD.validDeck(d.cards,d.lead)){deckScreen();return}
+function cpuGo(v){const p=String(v).split('.'),L=loadDecks(),d=L[+p[0]];RK=p[2]==='rk';const o=RK?'auto':p[1]||'auto';if(RK)CPU_LV=Math.random()<.5?'strong':'normal';if(!d||!CD.validDeck(d.cards,d.lead)){/* (11/11) 使えるデッキがまだ無い人は、デッキを選んでからボスと戦う(前は、選んだあとふつうのCPU選びになっていて、ボスに勝ったことにならなかった) */GBPEND=/^gb\d$/.test(o)?o:null;deckScreen();return}
   let cpu=null;
   /* (11/10) ゲームバカイベントのボスCPU('0.gb3'): ゲーマー女子7人。新しい5族のデッキを使い、強さは相手ごとに決まっている */
-  if(/^gb\d$/.test(o)){const B=GB_BOSS[+o.slice(2)];if(B&&CD.STARTERS[B[0]]){CPU_LV=B[1];cpu=Object.assign({},presetOf(B[0]),{__gb:o,gbName:B[2]})}}
+  if(/^gb\d$/.test(o))cpu=gbCpuOf(o);
   if(cpu){}else if(o==='rand')cpu=AI.makeDeck(Math.random);
   else if(o==='rec'){const others=SKEYS().filter(x=>x!==BY[d.lead].f);cpu=presetOf(others[Math.floor(Math.random()*others.length)])}
   else if(o==='mirror')cpu=Object.assign({},d,{name:d.name+'(CPU)',cards:d.cards.slice()});
   if(!cpu){let Hh=[];try{Hh=JSON.parse(localStorage.getItem('kotcg_cpuhist')||'[]')}catch(e){}const x=AI.pickDeck(Math.random,Hh);Hh.push(x.key);try{localStorage.setItem('kotcg_cpuhist',JSON.stringify(Hh.slice(-12)))}catch(e){}cpu=Object.assign({},x,{__auto:1})}
   startMatch(d,cpu)}
-function startMatch(d,cpu){if(!cpu&&!AUTO){cpuPick(d);return}if(!cpu)cpu=AI.pickDeck(Math.random);
+let GBPEND=null;function gbCpuOf(o){const B=GB_BOSS[+o.slice(2)];if(B&&CD.STARTERS[B[0]]){CPU_LV=B[1];return Object.assign({},presetOf(B[0]),{__gb:o,gbName:B[2]})}return null}
+function startMatch(d,cpu){if(!cpu&&GBPEND){const o=GBPEND;GBPEND=null;cpu=gbCpuOf(o)}if(!cpu&&!AUTO){cpuPick(d);return}if(!cpu)cpu=AI.pickDeck(Math.random);
   myDeck=d;myKey=BY[d.lead].f;cpuDeck=cpu;cpuKey=BY[cpu.lead].f;const ck=cpuKey;
   /* ランク戦: the start is written before the first move, so leaving halfway counts as a loss */if(RK&&HOST&&HOST.rkStart){try{HOST.rkStart(CPU_LV)}catch(e){}}
   if(HOST){busy=true;HOST.toss({cpu:(cpuDeck.gbName||BY[cpuDeck.lead].n),cpuLead:cpuDeck.lead,deck:d.name},heads=>{busy=false;H=heads?0:1;beginGame()});return}
