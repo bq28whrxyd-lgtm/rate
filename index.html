@@ -14315,7 +14315,7 @@ function render(){
   if(sorted.length>=4){const mb=el('button','more',HM.rank?'1〜3位の詳細をとじる':'1〜3位の詳細も見る');mb.onclick=()=>{HM.rank=!HM.rank;render()};rk.append(mb)}
   rk.querySelectorAll('[data-pid]').forEach(e=>{e.style.cursor='pointer';e.onclick=()=>{const q=players.find(x=>x.id===e.dataset.pid);if(q)showProfile(q,statLine(q))}});
   {const h=sigOf(rk.innerHTML);if(rkLive.__h!==h){rkLive.__h=h;rkLive.replaceChildren(...rk.childNodes)}}
-  renderMine();try{renderSurprise();renderWanted();bountyFeed();paintNew();likesWatch();farmWatch();mentorWatch();mtGradShow();if(!mtGradCheck.t||now()-mtGradCheck.t>30000){mtGradCheck.t=now();mtGradCheck()}}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();try{ptGuide()}catch(e){}try{stkCheck()}catch(e){}try{invCamp()}catch(e){}passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews();try{kmrPromo()}catch(e){}try{caPromo()}catch(e){}try{atkPromo()}catch(e){}try{hetaNote()}catch(e){}}$('acct').hidden=!myPlayer();
+  renderMine();try{renderSurprise();renderWanted();bountyFeed();paintNew();likesWatch();farmWatch();mentorWatch();mtGradShow();if(!mtGradCheck.t||now()-mtGradCheck.t>30000){mtGradCheck.t=now();mtGradCheck()}}catch(e){}renderSeasons();renderSeasonBanner();renderGw();renderMissions();renderPreds();renderFeed();renderMvp();renderDevMsg();renderSupSelf();renderGrantMsg();pushStart();mvpNotice();wkNotice();if(typeof tcgSeasonNotice==='function')tcgSeasonNotice();renderEvb();renderTiles();renderHbar();seasonNotice();saNotice();checkOnboard();renderAdmin();renderBanned();renderDecks();checkLevelUp();renderRematch();renderTour();renderTourAdmin();renderCoinSec();admCoinRender();loginBonus();passSaleInit();passWelcome();passAd();try{ptGuide()}catch(e){}try{stkCheck()}catch(e){}try{invCamp()}catch(e){}passClaim();renderPass();if(!newsChecked&&myPlayer()){newsChecked=true;maybeNews();try{gbPromo()}catch(e){}try{kmrPromo()}catch(e){}try{caPromo()}catch(e){}try{atkPromo()}catch(e){}try{hetaNote()}catch(e){}}$('acct').hidden=!myPlayer();
   {const me=myPlayer(),pc=$('pcard'),nc=me?profileCard(me,statLine(me)):el('div','empty','アカウントを設定すると、ここにプロフィールが出ます'),h=sigOf(nc.outerHTML);if(pc.__h!==h){pc.__h=h;pc.replaceChildren(nc)}$('pedit').hidden=!me}
   if(typeof watchInv==='function'){watchInv();renderGacha()}
   {const s=$('opp'),v=s.value,me=myPlayer();s.replaceChildren();
@@ -17594,7 +17594,7 @@ function kmrPromoClear(){/* the home screen is the topmost thing in the middle o
   const x=innerWidth/2,y=innerHeight*.45,e=document.elementFromPoint(x,y);return !!(e&&e.closest&&e.closest('.view,.kfp'))}/* .kfp = the home screen layer */
 function kmrPromo(force){
   if(!force){if(kmrPromo.started||Date.now()>KMR_PROMO_END||!myPlayer()||navigator.webdriver/* automated tests */)return;let seen=0;try{seen=+localStorage.getItem(kmrPromoKey())||0}catch(e){}if(seen)return;kmrPromo.started=true;
-    let n=0;const tick=()=>{if(document.querySelector('.kpromo')||caPromoPending()){n=0;return setTimeout(tick,1500)}if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){kmrPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,2500);return}
+    let n=0;const tick=()=>{if(document.querySelector('.kpromo')||caPromoPending()||gbPromoPending()){n=0;return setTimeout(tick,1500)}if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){kmrPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,2500);return}
   kmrPromoShow()}
 function kmrPromoShow(P){P=P||{src:'promo_kmr.mp4',poster:'promo_kmr.jpg',key:kmrPromoKey()};
   if(document.querySelector('.kpromo'))return;try{localStorage.setItem(P.key,String(Date.now()))}catch(e){}
@@ -17612,6 +17612,7 @@ function kmrPromoShow(P){P=P||{src:'promo_kmr.mp4',poster:'promo_kmr.jpg',key:km
   const skip=el('button','kpb kpskip','スキップ'),snd=el('button','kpb kpsnd','音を出す');
   let closed=false;const close=()=>{if(closed)return;closed=true;o.classList.add('off');try{v.pause()}catch(e){}setTimeout(()=>o.remove(),380)};
   skip.onclick=e=>{e.stopPropagation();close()};
+  if(P.noskip){/* (11/12) 山本さん「スキップできないように」: スキップのボタンを出さない。ただし動画が読めない・止まったままのときは、閉じ込めないように自動で閉じる */skip.hidden=true;skip.style.display='none';let lastT=-1,stuck=0;const wd=setInterval(()=>{if(closed){clearInterval(wd);return}if(document.visibilityState!=='visible')return;const ct=v.currentTime;if(v.paused&&!v.ended&&!snd.hidden){stuck=0;return}/* 「再生する」を待っている */if(ct===lastT){if(++stuck>=10){clearInterval(wd);close()}}else{stuck=0;lastT=ct}},1000)}
   snd.onclick=e=>{e.stopPropagation();v.muted=false;try{if(v.ended||v.currentTime>v.duration-.3)v.currentTime=0}catch(x){}v.play().catch(()=>{});snd.hidden=true};
   v.addEventListener('ended',()=>setTimeout(close,600));v.addEventListener('error',close);
   if(P.mute){snd.hidden=true;o.onclick=()=>{if(v.paused&&!v.ended){v.play().catch(()=>{});return}close()}}/* (11/07) 音のない動画: 画面のどこを押しても閉じる */
@@ -17621,10 +17622,18 @@ function kmrPromoShow(P){P=P||{src:'promo_kmr.mp4',poster:'promo_kmr.jpg',key:km
 const CA_PROMO_ON=true;const CA_PROMO_END=Date.parse('2027-01-31T23:59:59+09:00');
 function caPromoKey(){return 'caPromo1_'+((typeof me!=='undefined'&&me&&me.id)||'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
 function caPromoPending(){try{if(!CA_ON||!CA_PROMO_ON||Date.now()>CA_PROMO_END)return false;return !(+localStorage.getItem(caPromoKey())||0)}catch(e){return false}}
+/* (11/12) ゲームバカイベントの告知動画(28秒・音あり)。アプリを開いたら1人1回だけ流れる。スキップできない(山本さん「開いたら一回流れるようにして、スキップできないように」)。イベントが終わったら出ない */
+const GB_PROMO_END=Date.UTC(2026,10,26,6,0);
+function gbPromoKey(){return 'gbPromo1_'+((typeof me!=='undefined'&&me&&me.id)||'x')+(/\/preview\//.test(location.pathname)?'_pv':'')}
+function gbPromoPending(){try{if(Date.now()>GB_PROMO_END)return false;return !(+localStorage.getItem(gbPromoKey())||0)}catch(e){return false}}
+function gbPromoShow(){kmrPromoShow({src:'promo_gb.mp4',poster:'promo_gb.jpg',key:gbPromoKey(),noskip:1})}
+function gbPromo(force){if(force){gbPromoShow();return}
+  if(gbPromo.started||!myPlayer()||navigator.webdriver||!gbPromoPending())return;gbPromo.started=true;
+  let n=0;const tick=()=>{if(document.querySelector('.kpromo,.hnote,.tqi')){n=0;return setTimeout(tick,1500)}if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){gbPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,2000)}
 function caPromoShow(){kmrPromoShow({src:'promo_ca.mp4',poster:'promo_ca.jpg',key:caPromoKey(),mute:1})}
 function caPromo(force){if(force){caPromoShow();return}
   if(caPromo.started||!myPlayer()||navigator.webdriver||!caPromoPending())return;caPromo.started=true;
-  let n=0;const tick=()=>{if(document.querySelector('.kpromo,.hnote,.tqi')){n=0;return setTimeout(tick,1500)}if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){caPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,2500)}
+  let n=0;const tick=()=>{if(document.querySelector('.kpromo,.hnote,.tqi')||gbPromoPending()){n=0;return setTimeout(tick,1500)}if(document.visibilityState==='visible'&&kmrPromoClear()){if(++n>=2){caPromoShow();return}}else n=0;setTimeout(tick,1000)};setTimeout(tick,2500)}
 /* (10/31) 推しの攻撃リニューアルのお知らせ(パソコンの Blender で作った絵 note_atk.webp)。アプリを開いたら1回だけ。
    KMRの紹介動画や他のお知らせが先に出ているときは、それが閉じてホームがあいてから出す */
 const ATK_PROMO_END=Date.parse('2026-12-31T23:59:59+09:00');
