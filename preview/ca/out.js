@@ -142,8 +142,8 @@ syncParty();
 
 /* ---------- 絵 ---------- */
 let CHIBI = {}, PORT = {};
-import('./chibi.js?v=93').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
-import('./portraits.js?v=93').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
+import('./chibi.js?v=94').then(m => { CHIBI = m.C; renderNow(); }).catch(() => { });
+import('./portraits.js?v=94').then(m => { PORT = m.P; renderNow(); }).catch(() => { });
 const faceCache = {};
 /* (v84) 進化した★6は進化後の絵(jin6 など)。絵がまだないときは元の絵(D-112) */
 const evoArt = (id, evo, raw) => { const v = !raw && skinOf(id); if (v && PORT['skin_' + v]) return 'skin_' + v; return evo && PORT[id + '6'] ? id + '6' : id; };
@@ -1409,7 +1409,7 @@ function qHead(b, o) {
 }
 /* 出撃の板の上に出す絵(ステージの種類ごと) */
 function stageBg(st) {
-  const ex = ['banner-raid', 'ev-forest'], k = !st.ev ? CHBG[st.ch] : st.ev === 'exp' ? 'banner-exp' : st.ev === 'tower' ? 'banner-tower' : st.ev === 'raid' ? 'banner-raid' : st.ev === 'score' ? 'banner-score' : st.ev === 'ex' ? ex[st.bi] : st.ev === 'lev' ? LEVBG[A.LEV.boss] : null;
+  const ex = ['banner-raid', 'ev-forest'], k = !st.ev ? CHBG[st.ch] : st.ev === 'exp' ? 'banner-exp' : st.ev === 'tower' ? 'banner-tower' : st.ev === 'raid' ? 'banner-raid' : st.ev === 'score' ? 'banner-score' : st.ev === 'ex' ? ex[st.bi] : st.ev === 'lev' ? LEVBG[A.LEV.boss] : st.ev === 'gbr' ? 'ev-gb' : null;
   return k ? `background-image:linear-gradient(90deg,rgba(6,10,30,.85),rgba(6,10,30,.2) 70%),url(${UI}${k}.webp)` : `background:radial-gradient(90% 160% at 80% 50%,${elCol(st.el || '光')},${elDeep(st.el || '光')} 55%,#0a1236)`;
 }
 const svGem = (n, mx) => `<span class="sv">${Array.from({ length: mx || 5 }, (_, k) => `<i class="${k < n ? '' : 'o'}"></i>`).join('')}</span>`;
@@ -1612,7 +1612,7 @@ function renderEvents(b) {
   else { const F = h('div', 'ft'); F.innerHTML = '<span>ゲーセンメダルは、きもオタレートのゲームバカイベントで使えます</span>'; BX.appendChild(F); }
   b.appendChild(BX);
   /* (11/10) ゲームバカの限定降臨 */
-  { const j = A.STAGES.findIndex(st => st.ev === 'gbr'); if (j >= 0) { const st = A.STAGES[j]; const e = qBanner({ cls: 'sm', bgCss: 'background:radial-gradient(90% 160% at 80% 50%,#ff5ad8,#2a1650 55%,#07070d)', sm: '限定降臨', dl: 'ゲームバカ', tt: esc(st.n.replace('限定降臨 ', '')), onclick: () => goSheet(j, false, { rw: `勝つとゲーセンメダル ${st.gbm}枚・25%でガチャ魔神の化身` }) }); b.appendChild(e); } }
+  { const j = A.STAGES.findIndex(st => st.ev === 'gbr'); if (j >= 0) { const st = A.STAGES[j]; /* (11/12) 山本さん「ここ何もないのがよくない、通常の降臨と同じ感じにして」: 大きいバナー・背景の絵・ボスの絵(Blenderで撮ったガチャ魔神)・下の説明の帯を、今週の降臨と同じ形で出す */const e = qBanner({ bg: 'ev-gb', sm: '限定降臨', dl: 'ゲームバカ', tt: esc(st.n.replace('限定降臨 ', '')), boss: bossImg('gacha'), bar: `ゲーセンメダル <b>${st.gbm}</b> 枚・${esc((CH[GB_KESHIN] || {}).name || 'ソラ')}が仲間になることも`, label: st.n, onclick: () => goSheet(j, false, { rw: `勝つとゲーセンメダル ${st.gbm}枚・25%でガチャ魔神の化身` }) }); b.appendChild(e); } }
   /* いつものイベント: 経験値の竜の巣・宝珠の祭壇 */
   for (const { g, st } of evGroups()) {
     const op = evOpen(st), tiers = [0, 1, 2].map(t => { const j = evIdx(g, t), n = bitsN(S.stars[skey(j, false)] || 0); return `<i class="${n ? 'on' : ''}">${esc(A.STAGES[j].tn)}${n ? ' ' + '★'.repeat(n) : ''}</i>`; }).join('');
